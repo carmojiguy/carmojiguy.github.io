@@ -38,6 +38,11 @@ body { font-family:Manrope,system-ui,sans-serif; color:var(--ink); }
 .lamp { position:absolute; top:12px; right:12px; border:0; background:#fff; border-radius:999px; padding:8px 12px; font-size:14px; font-weight:700; }
 h2 { font-size:26px; font-weight:800; letter-spacing:-.5px; margin:4px 0 14px; }
 .quote { color:var(--muted); font-size:16px; line-height:1.35; margin:10px 0 18px; }
+.how { margin:4px 0 16px; padding:14px 16px; background:#fff; border:1.5px solid var(--hair); border-radius:18px; }
+.how ol { margin:0; padding:0 0 0 20px; }
+.how li { color:var(--muted); font-size:15px; line-height:1.45; margin:0 0 10px; }
+.how li:last-child { margin:0; }
+.how b { color:var(--ink); font-weight:800; }
 .link { background:none; border:0; padding:0; color:var(--cyan-deep); font-size:16px; font-weight:700; cursor:pointer; }
 .pill { width:100%; border:1.5px solid var(--hair); background:#fff; border-radius:16px; padding:15px 16px; font-size:16px; font-weight:700; cursor:pointer; margin:0 0 10px; color:var(--ink); }
 .pill.cyan { background:var(--cyan); color:#fff; border-color:var(--cyan); }
@@ -465,10 +470,15 @@ button.doc-sq { width:100%; appearance:none; -webkit-appearance:none; font:inher
     <div class="block">Photos</div>
     <div id="photoRows"></div>
     <div class="block">Damage</div>
-    <p class="quote">Tap the panel that’s hit. Take as many photos as you need.</p>
+    <p class="quote">Skip this if the vehicle is clean. If something’s hit, tell us here — rust, a dent, a scratch, a cracked light, a panel that doesn’t open.</p>
+    <div class="how">
+      <ol>
+        <li><b>Tap the part of the car that’s damaged</b> using the same angles as the photos above (¾ front, driver side, rear, and so on).</li>
+        <li><b>First tap turns the microphone on.</b> Say what’s wrong, out loud — “rust on the front fender” or “dent in the passenger door.”</li>
+        <li><b>Second tap takes the picture.</b> Your words stick on the photo. Need a close-up of the same spot? Tap that panel again and shoot as many as you want.</li>
+      </ol>
+    </div>
     <div id="damageRows"></div>
-    <button class="pill wash" type="button" id="btnClose">Close-up</button>
-    <p class="quote">Need a tight shot of rust, a dent, or a chip? Tap that panel above and take another photo. Close-ups stay with the damage on that part of the car.</p>
     <div id="docsBlock">
       <div class="block">Appraisal documents</div>
       <p class="quote">Tap a square. Photograph the page or pick a file.</p>
@@ -1784,7 +1794,9 @@ function fillDamageRows(){
     const card=document.createElement("div");
     card.className="dmg-card"+(shots.length?" on":"");
     const last=shots.length?shots[shots.length-1].data:pic(icon);
-    const sub=shots.length ? (shots.length===1 ? "1 photo" : shots.length+" photos") : "Add photos";
+    const sub=shots.length
+      ? (shots.length===1 ? "1 photo · tap to add a close-up" : shots.length+" photos · tap to add another")
+      : "No damage here · tap if this panel is hit";
     const head=document.createElement("button");
     head.type="button";
     head.className="dmg-head";
@@ -3895,11 +3907,6 @@ $("doneX").onclick = $("btnAnother").onclick = resetAll;
 $("btnStory").onclick = function(){ openStoryMic(); };
 $("btnPictures").onclick = function(){ show("photos"); };
 $("btnStart").onclick = function(){ openCamera("photos","qfront"); };
-$("btnClose").onclick = function(){
-  const host=$("damageRows");
-  if(host) host.scrollIntoView({behavior:"smooth", block:"start"});
-  toast("Tap the panel that’s hit, then shoot the close-up.");
-};
 $("btnDocs").onclick = function(){ paintDocs(); show("photos"); $("docsBlock") && $("docsBlock").scrollIntoView({behavior:"smooth", block:"start"}); };
 $("btnVin").onclick = $("verifyVin").onclick = function(){ openVinCam(); };
 if($("btnVinShot")) $("btnVinShot").onclick = snapVinStill;
