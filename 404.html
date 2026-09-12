@@ -895,13 +895,7 @@ function enterSession(role, user){
   applyRole();
   show("start");
 }
-const TRADE_PUBLIC=(function(){
-  try{
-    const h=location.hostname||"";
-    if(h.indexOf("vercel.app")>=0) return location.origin.replace(/\/?$/,"/") ;
-  }catch(e){}
-  return "https://trade-in-shawn-6802.vercel.app/";
-})();
+const TRADE_PUBLIC="https://carmojiguy.github.io/";
 function tradeInUrl(){
   try{
     const u=new URL(TRADE_PUBLIC);
@@ -1587,9 +1581,18 @@ function startDamageMic(){
     if(ban){ ban.textContent="Tap again to take the photo"; ban.classList.add("on"); }
   }
 }
+function isDamageNote(text){
+  const t=String(text||"").trim();
+  if(!t) return false;
+  if(t.length>80) return false;
+  const story=((APP.heard||"")+" "+(APP.notes||"")).replace(/\s+/g," ").toLowerCase();
+  const head=t.slice(0,28).toLowerCase();
+  if(story && t.length>20 && story.indexOf(head)>=0) return false;
+  return true;
+}
 function stampBanner(canvas, text){
-  text=(text||"").trim();
-  if(!text) return;
+  if(!isDamageNote(text)) return;
+  text=String(text||"").trim();
   const ctx=canvas.getContext("2d");
   const w=canvas.width, h=canvas.height;
   const size=Math.max(22, Math.round(w*0.036));
@@ -1626,7 +1629,7 @@ function canvasShot(v){
   c.width=v.videoWidth; c.height=v.videoHeight;
   c.getContext("2d").drawImage(v,0,0,c.width,c.height);
   if(APP.mode==="damage"||APP.mode==="close") stampBanner(c, APP.dmgCaption);
-  return c.toDataURL("image/jpeg",0.88);
+  return c.toDataURL("image/jpeg",0.94);
 }
 async function captureStill(){
   const v=$("shotCam");
@@ -1656,7 +1659,7 @@ function stampOnUrl(url, text){
       c.width=img.naturalWidth; c.height=img.naturalHeight;
       c.getContext("2d").drawImage(img,0,0);
       stampBanner(c, text);
-      res(c.toDataURL("image/jpeg",0.88));
+      res(c.toDataURL("image/jpeg",0.94));
     };
     img.onerror=function(){ res(url); };
     img.src=url;
@@ -2127,13 +2130,104 @@ function capturedFiles(){
   const out=[];
   VIEWS.forEach(function(v,i){
     const n=String(i+1).padStart(2,"0");
-    if(APP.photos[v[0]]) out.push({name:n+"-"+v[0]+".jpg", data:APP.photos[v[0]], title:v[1]});
+    if(APP.photos[v[0]]) out.push({name:n+"-"+v[0]+".jpg", data:APP.photos[v[0]], title:v[1], kind:"walk", n:i+1, view:v[0], cap:""});
+  });
+  VIEWS.forEach(function(v,i){
+    const n=String(i+1).padStart(2,"0");
     dmgShots(v[0]).forEach(function(s,j){
-      out.push({name:"damage-"+n+"-"+v[0]+"-"+String(j+1).padStart(2,"0")+".jpg", data:s.data, title:"Damage — "+v[1]+(s.cap?" — "+s.cap:"")+(dmgShots(v[0]).length>1?" ("+(j+1)+")":"")});
+      const note=isDamageNote(s.cap)?s.cap:"";
+      out.push({
+        name:"damage-"+n+"-"+v[0]+"-"+String(j+1).padStart(2,"0")+".jpg",
+        data:s.data,
+        title:"Damage — "+v[1],
+        kind:"damage",
+        n:i+1,
+        view:v[0],
+        cap:note
+      });
     });
   });
-  APP.closeups.forEach(function(d,i){ out.push({name:"close-"+String(i+1).padStart(2,"0")+".jpg", data:d, title:"Close-up "+(i+1)+(APP.closeupCap[i]?" — "+APP.closeupCap[i]:"")}); });
+  APP.closeups.forEach(function(d,i){
+    out.push({name:"close-"+String(i+1).padStart(2,"0")+".jpg", data:d, title:"Close-up "+(i+1), kind:"close", n:i+1, cap:isDamageNote(APP.closeupCap[i])?APP.closeupCap[i]:""});
+  });
   return out;
+}
+
+function loadImg(src){
+  return new Promise(function(res, rej){
+    const img=new Image();
+    img.onload=function(){ res(img); };
+    img.onerror=function(){ rej(new Error("img")); };
+    img.src=src;
+  });
+}
+function studioPlate(dataUrl){
+  return loadImg(dataUrl).then(function(img){
+    const src=document.createElement("canvas");
+    let w=img.naturalWidth, h=img.naturalHeight;
+    if(w<8 || h<8) return dataUrl;
+    src.width=w; src.height=h;
+    const sctx=src.getContext("2d");
+    sctx.drawImage(img,0,0);
+    const pix=sctx.getImageData(0,0,w,h).data;
+    function lum(x,y){
+      const i=(Math.max(0,Math.min(h-1,y|0))*w+Math.max(0,Math.min(w-1,x|0)))*4;
+      return pix[i]*0.299+pix[i+1]*0.587+pix[i+2]*0.114;
+    }
+    const yStep=Math.max(1, Math.floor(h/220));
+    const xStep=Math.max(1, Math.floor(w/90));
+    let bot=h, darkRows=0;
+    for(let y=h-1;y>h*0.68;y-=yStep){
+      let s=0,n=0;
+      for(let x=0;x<w;x+=xStep){ s+=lum(x,y); n++; }
+      if(n && s/n<40){ darkRows++; bot=y; } else break;
+    }
+    if(darkRows>2 && (h-bot)/h>0.07 && (h-bot)/h<0.3) h=Math.max(Math.round(h*0.55), bot);
+    const step=Math.max(2, Math.floor(Math.min(w,h)/280));
+    let minX=w, minY=h, maxX=0, maxY=0, hits=0;
+    for(let y=0;y<h;y+=step){
+      for(let x=0;x<w;x+=step){
+        if(lum(x,y)>34){
+          hits++;
+          if(x<minX) minX=x;
+          if(y<minY) minY=y;
+          if(x>maxX) maxX=x;
+          if(y>maxY) maxY=y;
+        }
+      }
+    }
+    let cx=0, cy=0, cw=w, ch=h;
+    const rw=maxX-minX, rh=maxY-minY;
+    if(hits>40 && rw>w*0.42 && rh>h*0.42 && (rw*rh)<w*h*0.96){
+      const px=Math.round(rw*0.03), py=Math.round(rh*0.03);
+      cx=Math.max(0, minX-px);
+      cy=Math.max(0, minY-py);
+      cw=Math.min(w, maxX+px)-cx;
+      ch=Math.min(h, maxY+py)-cy;
+    }
+    const TW=1920, TH=1280;
+    const c=document.createElement("canvas");
+    c.width=TW; c.height=TH;
+    const ctx=c.getContext("2d");
+    const g=ctx.createRadialGradient(TW*0.5, TH*0.62, 50, TW*0.5, TH*0.5, TW*0.74);
+    g.addColorStop(0, "#2c3948");
+    g.addColorStop(0.5, "#141920");
+    g.addColorStop(1, "#07090c");
+    ctx.fillStyle=g;
+    ctx.fillRect(0,0,TW,TH);
+    const pad=0.055;
+    const boxW=TW*(1-pad*2), boxH=TH*(1-pad*2);
+    const sc=Math.min(boxW/cw, boxH/ch);
+    const dw=cw*sc, dh=ch*sc;
+    ctx.imageSmoothingEnabled=true;
+    ctx.imageSmoothingQuality="high";
+    ctx.drawImage(src, cx, cy, cw, ch, (TW-dw)/2, (TH-dh)/2, dw, dh);
+    return c.toDataURL("image/jpeg", 0.93);
+  }).catch(function(){ return dataUrl; });
+}
+
+function packetWhen(){
+  try{ return new Date().toLocaleString("en-CA", {dateStyle:"medium", timeStyle:"short"}); }catch(e){ return new Date().toISOString().slice(0,16); }
 }
 
 function loadScript(src){
@@ -2144,20 +2238,135 @@ function loadScript(src){
 
 async function buildPdf(){
   if(!window.jspdf) await loadScript("https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js");
-  const {jsPDF}=window.jspdf; const d=new jsPDF({unit:"pt",format:"letter"}); const W=612,M=48; let y=56;
-  const line=function(t,s,c){ s=s||11; c=c||[17,17,17]; d.setFont("helvetica","normal"); d.setFontSize(s); d.setTextColor(c[0],c[1],c[2]);
-    d.splitTextToSize(String(t),W-M*2).forEach(function(l){ if(y>740){ d.addPage(); y=56; } d.text(l,M,y); y+=s+4; }); };
-  d.setFont("helvetica","bold"); d.setFontSize(16); d.text("Vehicle packet",M,y); y+=22;
-  line(unitLabel()+"  ·  "+why(),13); y+=6;
-  [["Year",APP.year],["Make",APP.make],["Model",APP.model],["Trim",APP.trim],["Color",APP.color],["Kilometres",APP.km],["VIN",APP.vin],["Stock",APP.stock]].forEach(function(row){ line(row[0]+":  "+(row[1]||"—")); });
-  const sentTo=(APP.emails&&APP.emails.length)?APP.emails.join(", "):"";
-  if(sentTo) line("Email to:  "+sentTo);
-  y+=6; line("Spoken / typed",13); line(APP.heard||"—"); y+=4; line("Condition",13); line(APP.notes||"—");
-  if(isWeb()){ y+=8; line("Website-ready description",13); line(websiteCopy()); }
-  capturedFiles().forEach(function(s){
-    d.addPage(); d.setFont("helvetica","bold"); d.setFontSize(14); d.text(s.title,M,48);
-    try{ d.addImage(s.data,"JPEG",M,64,W-M*2,360,undefined,"FAST"); }catch(e){}
+  const {jsPDF}=window.jspdf;
+  const d=new jsPDF({unit:"pt", format:"letter", compress:true});
+  const W=612, H=792;
+  const INK=[17,14,26], MUTED=[107,98,120], CYAN=[0,168,232], WHITE=[255,255,255];
+  const shots=capturedFiles();
+  const walk=shots.filter(function(s){ return s.kind==="walk"; });
+  const dmg=shots.filter(function(s){ return s.kind==="damage"; });
+  const close=shots.filter(function(s){ return s.kind==="close"; });
+  const framed={};
+  for(let i=0;i<shots.length;i++){
+    try{ framed[shots[i].name]=await studioPlate(shots[i].data); }
+    catch(e){ framed[shots[i].name]=shots[i].data; }
+  }
+  const hero=walk[0] ? framed[walk[0].name] : (shots[0] ? framed[shots[0].name] : "");
+  function setFont(bold, size, rgb){
+    d.setFont("helvetica", bold?"bold":"normal");
+    d.setFontSize(size);
+    const c=rgb||INK;
+    d.setTextColor(c[0], c[1], c[2]);
+  }
+  function wrap(text, x, y, max, leading){
+    const lines=d.splitTextToSize(String(text||""), max);
+    lines.forEach(function(l){ d.text(l, x, y); y+=leading; });
+    return y;
+  }
+  function darkPage(){
+    d.setFillColor(10,11,16);
+    d.rect(0,0,W,H,"F");
+  }
+
+  darkPage();
+  d.setFillColor(CYAN[0], CYAN[1], CYAN[2]);
+  d.rect(0,0,W,6,"F");
+  if(hero){
+    try{ d.addImage(hero, "JPEG", 0, 36, W, W*2/3, undefined, "NONE"); }catch(e){}
+  }
+  let y=hero ? 36+W*2/3+28 : 80;
+  setFont(true, 11, CYAN);
+  d.text((why()||"APPRAISAL").toUpperCase(), 36, y);
+  y+=28;
+  setFont(true, 28, WHITE);
+  y=wrap(unitLabel()||"Vehicle", 36, y, W-72, 32);
+  y+=8;
+  setFont(false, 12, [180,176,190]);
+  const sub=[APP.color, APP.km ? Number(String(APP.km).replace(/,/g,"")).toLocaleString("en-CA")+" km" : "", APP.trim].filter(Boolean).join("  ·  ");
+  if(sub){ d.text(sub, 36, y); y+=18; }
+  d.text(packetWhen(), 36, y);
+  setFont(false, 9, [90,90,100]);
+  d.text("Walk-around  ·  "+walk.length+" photos"+(dmg.length?"  ·  "+dmg.length+" damage":""), 36, H-28);
+
+  d.addPage();
+  d.setFillColor(250,249,252);
+  d.rect(0,0,W,H,"F");
+  d.setFillColor(CYAN[0], CYAN[1], CYAN[2]);
+  d.rect(0,0,W,6,"F");
+  y=40;
+  setFont(true, 20, INK);
+  d.text("Vehicle details", 36, y);
+  y+=10;
+  const specs=[
+    ["Year", APP.year],["Make", APP.make],["Model", APP.model],["Trim", APP.trim],
+    ["Colour", APP.color],["Kilometres", APP.km ? Number(String(APP.km).replace(/,/g,"")).toLocaleString("en-CA") : ""],
+    ["VIN", APP.vin],["Stock", APP.stock]
+  ];
+  const colW=(W-72-16)/2;
+  specs.forEach(function(row, i){
+    const col=i%2, rown=Math.floor(i/2);
+    const x=36+col*(colW+16);
+    const yy=y+16+rown*52;
+    d.setFillColor(243,240,250);
+    d.roundedRect(x, yy, colW, 44, 8, 8, "F");
+    setFont(true, 8, MUTED);
+    d.text((row[0]||"").toUpperCase(), x+12, yy+16);
+    setFont(true, 13, INK);
+    d.text(String(row[1]||"—"), x+12, yy+34);
   });
+  y=y+16+4*52+18;
+  const story=(APP.notes||APP.heard||"").trim();
+  if(story){
+    setFont(true, 13, INK);
+    d.text("Owner notes", 36, y);
+    y+=16;
+    setFont(false, 11, INK);
+    y=wrap(story, 36, y, W-72, 16);
+    y+=18;
+  }
+  if(isWeb()){
+    const listing=websiteCopy();
+    if(listing){
+      setFont(true, 13, INK);
+      d.text("Website listing", 36, y);
+      y+=16;
+      setFont(false, 11, INK);
+      y=wrap(listing, 36, y, W-72, 16);
+    }
+  }
+  if(APP.inviteName || APP.requestedBy){
+    y+=20;
+    setFont(false, 9, MUTED);
+    const who=APP.inviteName ? ("Submitted by "+APP.inviteName) : "";
+    const req=APP.requestedBy ? ("Requested by "+(APP.requestedByName||APP.requestedBy)) : "";
+    d.text([who, req].filter(Boolean).join("  ·  "), 36, Math.min(y, H-28));
+  }
+
+  function photoPage(shot, index, total, section){
+    d.addPage("letter", "landscape");
+    d.setFillColor(10,11,16);
+    d.rect(0,0,792,612,"F");
+    d.setFillColor(CYAN[0], CYAN[1], CYAN[2]);
+    d.rect(0,0,792,4,"F");
+    setFont(true, 9, CYAN);
+    d.text(String(index).padStart(2,"0")+"   "+String(shot.title||"").toUpperCase(), 24, 22);
+    setFont(false, 9, [160,160,170]);
+    d.text((section||"Walk-around")+"  ·  "+(unitLabel()||""), 768, 22, {align:"right"});
+    const img=framed[shot.name]||shot.data;
+    try{ d.addImage(img, "JPEG", 24, 36, 744, 496, undefined, "NONE"); }catch(e){
+      try{ d.addImage(img, "JPEG", 24, 36, 744, 496, undefined, "FAST"); }catch(err){}
+    }
+    if(shot.cap){
+      setFont(false, 10, WHITE);
+      d.text(shot.cap, 24, 552);
+    }
+    setFont(false, 8, [90,90,100]);
+    d.text(index+" / "+total, 768, 598, {align:"right"});
+  }
+
+  walk.forEach(function(s,i){ photoPage(s, i+1, walk.length, "Walk-around"); });
+  dmg.forEach(function(s,i){ photoPage(s, i+1, dmg.length, "Damage"); });
+  close.forEach(function(s,i){ photoPage(s, i+1, close.length, "Close-up"); });
   return d;
 }
 
@@ -2402,15 +2611,18 @@ function dataB64(dataUrl){
   return i>=0 ? s.slice(i+7) : "";
 }
 function packetMailHtml(shots){
-  let h='<div style="font-family:Arial,Helvetica,sans-serif;color:#241B33;max-width:640px">';
-  h+='<h2 style="margin:0 0 8px">'+(escHtml(unitLabel())||"Vehicle")+'</h2>';
-  h+='<p style="margin:0 0 16px;color:#6B6278">'+(escHtml(why()))+' · photos, description, and PDF</p>';
-  h+='<pre style="white-space:pre-wrap;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.45;background:#F3F0FA;padding:14px;border-radius:14px">'+escHtml(packetSummary())+'</pre>';
+  const title=escHtml(unitLabel()||"Vehicle");
+  let h='<div style="font-family:Arial,Helvetica,sans-serif;color:#110E1A;max-width:640px;margin:0 auto">';
+  h+='<div style="background:#110E1A;color:#fff;padding:22px 24px;border-radius:16px 16px 0 0">';
+  h+='<p style="margin:0 0 6px;color:#00A8E8;font-size:11px;font-weight:800;letter-spacing:.12em">'+(escHtml((why()||"Appraisal").toUpperCase()))+'</p>';
+  h+='<h2 style="margin:0;font-size:24px">'+title+'</h2></div>';
+  h+='<div style="border:1px solid #E6E1EE;border-top:0;padding:18px 22px;border-radius:0 0 16px 16px">';
+  h+='<p style="white-space:pre-wrap;font-size:15px;line-height:1.5;margin:0 0 16px">'+escHtml(packetSummary())+'</p>';
   (shots||[]).forEach(function(s,i){
-    h+='<p style="margin:18px 0 6px;font-weight:800">'+(escHtml(s.title)||("Photo "+(i+1)))+'</p>';
-    h+='<img src="cid:photo'+i+'@inspect" width="560" alt="" style="display:block;width:100%;max-width:560px;border-radius:14px"/>';
+    h+='<p style="margin:18px 0 8px;font-weight:800;font-size:13px;letter-spacing:.04em;color:#6B6278">'+(escHtml((s.title||("Photo "+(i+1))).toUpperCase()))+(s.cap?' — '+escHtml(s.cap):'')+'</p>';
+    h+='<img src="cid:photo'+i+'@inspect" width="640" alt="" style="display:block;width:100%;max-width:640px;border-radius:12px;background:#111"/>';
   });
-  h+='<p style="margin:22px 0 0;color:#6B6278;font-size:13px">The PDF is attached to this email.</p></div>';
+  h+='<p style="margin:22px 0 0;color:#6B6278;font-size:13px">The catalog PDF is attached.</p></div></div>';
   return h;
 }
 async function sharePacket(){
