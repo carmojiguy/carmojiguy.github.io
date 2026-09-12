@@ -155,7 +155,10 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
 .to-add { display:flex; gap:8px; align-items:stretch; }
 .to-add .f { flex:1; }
 .to-add .pill { width:auto; margin:0; white-space:nowrap; padding:13px 14px; font-size:14px; }
-#v-vin { text-transform:uppercase; letter-spacing:.06em; font-weight:800; }
+.vin-box { display:flex; flex-direction:column; gap:8px; }
+.vin-box .f { width:100%; font-size:16px; letter-spacing:.12em; font-weight:800; text-transform:uppercase; min-height:52px; }
+.vin-box .pill { width:100%; }
+#vinHear { margin:0; min-height:18px; font-weight:700; }
 .cam { background:#000; color:#fff; padding:0 !important; }
 .screen.cam { display:none; }
 .screen.cam.on { display:flex; flex-direction:column; }
@@ -548,12 +551,13 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
       <div><label class="k">Kilometres</label><input class="f" id="v-km" inputmode="numeric" /></div>
     </div>
     <label class="k">VIN</label>
-    <div class="to-add">
+    <div class="vin-box">
       <input class="f" id="v-vin" maxlength="17" inputmode="text" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="Type the 17-character VIN" />
-      <button class="pill cyan" type="button" id="verifyVinSpeak">Speak</button>
+      <button class="pill cyan" type="button" id="verifyVinSpeak">Speak the VIN</button>
+      <p class="quote" id="vinHear"></p>
     </div>
     <button class="pill wash" type="button" id="verifyVin">Take a picture of the ownership</button>
-    <p class="quote" style="margin:8px 0 0">Type it, tap Speak and read it, or photograph the ownership. We only fill this if the VIN was actually said in the story.</p>
+    <p class="quote" style="margin:8px 0 0">Type it, or tap Speak and read the VIN out loud — letter by letter is fine.</p>
     <div id="stockWrap" class="hide">
       <label class="k">Stock number</label><input class="f" id="v-stock" placeholder="e.g. A1042" />
     </div>
@@ -2685,29 +2689,47 @@ function vinCheckOk(vin){
   const d=r===10?"X":String(r);
   return vin[8]===d;
 }
-function phoneticVin(text, force){
-  const map={alfa:"A",alpha:"A",bravo:"B",charlie:"C",delta:"D",echo:"E",foxtrot:"F",fox:"F",frank:"F",golf:"G",hotel:"H",india:"I",juliet:"J",juliett:"J",kilo:"K",lima:"L",mike:"M",november:"N",nancy:"N",oscar:"O",papa:"P",paul:"P",quebec:"Q",romeo:"R",roger:"R",sierra:"S",sam:"S",tango:"T",tom:"T",uniform:"U",victor:"V",whiskey:"W",xray:"X",yankee:"Y",zulu:"Z",zero:"0",oh:"0",niner:"9",one:"1",two:"2",three:"3",four:"4",five:"5",six:"6",seven:"7",eight:"8",nine:"9"};
-  const words=String(text||"").toLowerCase().replace(/[’']/g,"").split(/[^a-z0-9]+/).filter(Boolean);
-  let start=-1;
-  for(let i=0;i<words.length;i++){
-    if(words[i]==="vin" || (words[i]==="v" && words[i+1]==="in")){
-      start=i+1;
-      while(words[start]==="number" || words[start]==="is" || words[start]==="the") start++;
-      break;
+function packVinSpeech(text, afterVin){
+  const map={
+    zero:"0",oh:"0",o:"0",nought:"0",niner:"9",
+    one:"1",won:"1",two:"2",too:"2",three:"3",tree:"3",
+    four:"4",five:"5",six:"6",seven:"7",eight:"8",ate:"8",nine:"9",
+    ay:"A",alfa:"A",alpha:"A",bee:"B",bravo:"B",
+    see:"C",sea:"C",charlie:"C",dee:"D",delta:"D",
+    ee:"E",echo:"E",ef:"F",fox:"F",frank:"F",foxtrot:"F",
+    gee:"G",golf:"G",aitch:"H",hotel:"H",
+    india:"I",jay:"J",juliet:"J",juliett:"J",kay:"K",kilo:"K",
+    el:"L",ell:"L",lima:"L",em:"M",mike:"M",en:"N",november:"N",nancy:"N",
+    oscar:"O",pee:"P",papa:"P",paul:"P",quebec:"Q",
+    ar:"R",romeo:"R",roger:"R",ess:"S",sierra:"S",sam:"S",
+    tee:"T",tango:"T",tom:"T",you:"U",uniform:"U",
+    vee:"V",victor:"V",doubleyou:"W",whiskey:"W",
+    ex:"X",xray:"X",why:"Y",yankee:"Y",zee:"Z",zed:"Z",zulu:"Z"
+  };
+  const words=String(text||"").toLowerCase().replace(/[’']/g,"").replace(/x-ray/g,"xray").split(/[^a-z0-9]+/).filter(Boolean);
+  let i=0;
+  if(afterVin){
+    const at=words.findIndex(function(w){ return w==="vin"; });
+    if(at>=0){
+      i=at+1;
+      while(i<words.length && (words[i]==="number" || words[i]==="is" || words[i]==="the")) i++;
     }
   }
-  if(start<0 && !force) return "";
-  if(start<0) start=0;
   let packed="";
-  for(let i=start;i<words.length;i++){
+  for(;i<words.length;i++){
     const w=words[i];
-    if(map[w]) packed+=map[w];
-    else if(/^[0-9]$/.test(w)) packed+=w;
-    else if(/^[a-hj-npr-z]$/i.test(w)) packed+=w.toUpperCase();
-    else if(/^[a-hj-npr-z0-9]{17}$/i.test(w)) return w.toUpperCase();
+    if(w==="vin" || w==="number") continue;
+    if(map[w]!=null) packed+=map[w];
+    else if(/^\d+$/.test(w)) packed+=w;
+    else if(/^[a-hj-npr-z0-9]{2,17}$/i.test(w)) packed+=w;
+    else if(/^[a-hj-npr-z]$/i.test(w)) packed+=w;
   }
-  packed=packed.replace(/[^A-HJ-NPR-Z0-9]/g,"");
-  return packed.length>=17 ? packed.slice(0,17) : "";
+  return packed.toUpperCase().replace(/I/g,"1").replace(/O/g,"0").replace(/Q/g,"0").replace(/[^A-HJ-NPR-Z0-9]/g,"").slice(0,17);
+}
+function phoneticVin(text, force){
+  const packed=packVinSpeech(text, !force);
+  if(!force && !/\bvin\b/i.test(String(text||""))) return "";
+  return packed.length>=17 ? packed.slice(0,17) : (force ? packed : "");
 }
 function storyVin(text){
   const raw=String(text||"");
@@ -3242,13 +3264,15 @@ function askMic(){
 function startRec(opts){
   const SR=speechEngine();
   if(!SR){ toast("Type it — speech isn't available in this browser."); return null; }
-  askMic();
+  if(!opts.noGum) askMic();
   const ios=/iPhone|iPad|iPod/i.test(navigator.userAgent||"");
   const r=new SR();
   r.lang="en-US";
   r.interimResults=true;
   r.continuous=!ios;
   r.maxAlternatives=3;
+  const bufKey=opts.bufKey || "storyFinal";
+  if(opts.fresh) APP[bufKey]="";
   r.onresult=function(e){
     let interim="";
     for(let i=e.resultIndex;i<e.results.length;i++){
@@ -3258,10 +3282,10 @@ function startRec(opts){
         if(hit[a] && hit[a].transcript && hit[a].transcript.length>best.length) best=hit[a].transcript;
       }
       if(hit.isFinal){
-        APP.storyFinal=((APP.storyFinal||"")+" "+best).replace(/\s+/g," ").trim();
+        APP[bufKey]=((APP[bufKey]||"")+" "+best).replace(/\s+/g," ").trim();
       } else interim+=best+" ";
     }
-    const tx=((APP.storyFinal||"")+" "+interim).replace(/\s+/g," ").trim();
+    const tx=((APP[bufKey]||"")+" "+interim).replace(/\s+/g," ").trim();
     if(opts.ontext) opts.ontext(tx);
   };
   r.onend=function(){
@@ -3299,23 +3323,34 @@ function stopVinSpeak(){
   APP.vinListening=false;
   try{ APP.vinFieldRec && APP.vinFieldRec.stop(); }catch(e){}
   APP.vinFieldRec=null;
-  if($("verifyVinSpeak")) $("verifyVinSpeak").textContent="Speak";
+  if($("verifyVinSpeak")) $("verifyVinSpeak").textContent="Speak the VIN";
 }
 function speakVinField(){
   if(APP.vinListening){ stopVinSpeak(); return; }
   stopMic();
   APP.vinListening=true;
+  APP.vinSpeakBuf="";
   if($("verifyVinSpeak")) $("verifyVinSpeak").textContent="Stop";
-  toast("Say the 17-character VIN.");
+  if($("vinHear")) $("vinHear").textContent="Listening… say each character.";
+  if($("v-vin")) $("v-vin").blur();
   APP.vinFieldRec=startRec({
+    fresh:true,
+    noGum:true,
+    bufKey:"vinSpeakBuf",
     alive:function(){ return APP.vinListening; },
     ontext:function(tx){
-      const v=fieldVin(tx);
-      if(!v) return;
-      if($("v-vin")) $("v-vin").value=v;
-      APP.vin=v;
-      toast("VIN "+v);
-      stopVinSpeak();
+      const packed=packVinSpeech(tx);
+      if($("v-vin")) $("v-vin").value=packed;
+      APP.vin=packed;
+      if($("vinHear")){
+        $("vinHear").textContent = packed
+          ? (packed.length>=17 ? packed : packed+"  ·  "+packed.length+"/17")
+          : "Listening… say each character.";
+      }
+      if(packed.length>=17){
+        toast("VIN "+packed);
+        stopVinSpeak();
+      }
     },
     onfail:function(){ stopVinSpeak(); }
   });
@@ -4736,7 +4771,19 @@ $("verifyGo").onclick = function(){
 if($("verifyVinSpeak")) $("verifyVinSpeak").onclick = speakVinField;
 if($("v-vin")){
   $("v-vin").addEventListener("input", function(){
+    if(APP.vinListening) stopVinSpeak();
     APP.vin=this.value.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/gi,"").slice(0,17);
+    if($("vinHear")) $("vinHear").textContent = APP.vin ? (APP.vin.length+"/17") : "";
+  });
+  $("v-vin").addEventListener("paste", function(e){
+    const t=(e.clipboardData || window.clipboardData);
+    const raw=t && t.getData ? t.getData("text") : "";
+    if(!raw) return;
+    e.preventDefault();
+    const v=String(raw).toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g,"").slice(0,17);
+    this.value=v;
+    APP.vin=v;
+    if($("vinHear")) $("vinHear").textContent = v ? (v.length+"/17") : "";
   });
 }
 if($("btnWebAi")) $("btnWebAi").onclick = generateWebCopy;
