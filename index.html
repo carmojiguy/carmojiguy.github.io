@@ -715,14 +715,18 @@ function show(id){
   const leaving=document.querySelector(".screen.on");
   const from=leaving && leaving.id;
   if(from==="camera" && id!=="camera"){
+    const token=APP.camToken||0;
     stopDamageMic();
     APP.dmgArmed=false;
-    stopWalkRec().then(function(){ if(!(document.getElementById("camera")||{}).classList.contains("on")) releaseCam(); });
+    stopWalkRec().then(function(){
+      if((APP.camToken||0)!==token) return;
+      if(!$("camera") || !$("camera").classList.contains("on")) releaseCam();
+    });
   }
   document.querySelectorAll(".screen").forEach(n=>n.classList.remove("on"));
   el.classList.add("on");
   window.scrollTo(0,0);
-  if(id!=="home") stopVinScan();
+  if(id!=="home" && id!=="camera") stopVinScan();
   if(id==="start" || id==="login" || id==="submit") releaseHardware();
   if(id==="start" || id==="login"){
     var img = $(id==="login" ? "loginBg" : "startBg");
@@ -1829,43 +1833,55 @@ function startPreview(videoId){
   const el=$(videoId); if(!el) return;
   bindNativeShot();
   bindCamZoom();
+  el.classList.remove("off");
   el.setAttribute("playsinline","");
   el.setAttribute("webkit-playsinline","");
-  el.muted=true; el.playsInline=true; el.autoplay=true;
+  el.muted=true;
+  el.playsInline=true;
+  el.autoplay=true;
+  APP.camToken=(APP.camToken||0)+1;
+  const token=APP.camToken;
   const attach=function(s){
+    if(!s || token!==APP.camToken){
+      if(s && s!==APP.stream){ try{ s.getTracks().forEach(function(t){ t.stop(); }); }catch(e){} }
+      return;
+    }
     APP.stream=s;
     try{ el.srcObject=s; }catch(e){}
     const play=function(){
-      const p=el.play(); if(p&&p.catch) p.catch(function(){});
+      if(token!==APP.camToken) return;
+      const p=el.play(); if(p&&p.catch) p.catch(function(){ try{ el.play(); }catch(e){} });
       if($("camWait")) $("camWait").classList.add("off");
-      if(videoId==="shotCam" && !APP.recOn) startWalkRec();
+      if(videoId==="shotCam" && !APP.recOn){
+        setTimeout(function(){ if(token===APP.camToken && !APP.recOn) startWalkRec(); }, 500);
+      }
     };
-    if(el.readyState>=1) play();
-    else el.onloadedmetadata=play;
+    if(el.readyState>=2) play();
+    else {
+      el.onloadedmetadata=play;
+      el.oncanplay=play;
+    }
   };
   if($("camWait")) $("camWait").classList.remove("off");
   const live=APP.stream && APP.stream.getVideoTracks().some(function(t){ return t.readyState==="live"; });
-  if(live && el.srcObject===APP.stream){ attach(APP.stream); return; }
-  if(APP.stream){
-    try{ APP.stream.getTracks().forEach(function(t){ t.stop(); }); }catch(e){}
-    APP.stream=null;
-  }
+  if(live){ attach(APP.stream); return; }
   if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
     toast("Tap the shutter to open the camera.");
     return;
   }
   const tries=[
-    {video:{facingMode:{ideal:"environment"}, width:{ideal:1280}, height:{ideal:720}}, audio:false},
     {video:{facingMode:{ideal:"environment"}}, audio:false},
     {video:{facingMode:"environment"}, audio:false},
     {video:true, audio:false}
   ];
   (function next(i){
+    if(token!==APP.camToken) return;
     if(i>=tries.length){ toast("Tap the shutter to open the camera."); return; }
     navigator.mediaDevices.getUserMedia(tries[i]).then(attach).catch(function(){ next(i+1); });
   })(0);
 }
 function releaseCam(){
+  APP.camToken=(APP.camToken||0)+1;
   APP.scanning=false;
   if(APP.scanRaf){ cancelAnimationFrame(APP.scanRaf); APP.scanRaf=0; }
   if(APP.zxing && APP.zxing.reset){ try{ APP.zxing.reset(); }catch(e){} }
