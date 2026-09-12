@@ -1213,6 +1213,7 @@ function tradeInUrl(){
     if(APP.inviteName) u.searchParams.set("name", APP.inviteName);
     const mk=storeGet("inspect.mailer");
     if(mk) u.searchParams.set("mk", mk);
+    if(APP.googleToken) u.searchParams.set("gt", APP.googleToken);
     return u.toString();
   }catch(e){
     const extra=(APP.userEmail?("&from="+encodeURIComponent(APP.userEmail)):"");
@@ -1644,116 +1645,60 @@ async function loadMailerToken(){
 function utf8B64(str){
   return btoa(unescape(encodeURIComponent(String(str||""))));
 }
-function fetchTime(url, opts, ms){
-  const c=new AbortController();
-  const t=setTimeout(function(){ try{ c.abort(); }catch(e){} }, ms||40000);
-  return fetch(url, Object.assign({}, opts||{}, {signal:c.signal})).finally(function(){ clearTimeout(t); });
-}
-async function filesForGuest(){
-  const files=[];
+async function guestMailToken(){
+  if(APP.mailerToken) return APP.mailerToken;
   try{
-    const doc=await buildPdf();
-    files.push(new File([doc.output("blob")], (folderName()||"vehicle")+".pdf", {type:"application/pdf"}));
+    const stored=storeGet("inspect.gtoken.guest");
+    if(stored){ APP.mailerToken=stored; return stored; }
   }catch(e){}
-  const shots=capturedFiles();
-  const packed=await Promise.all(shots.map(function(s){
-    return compressDataUrl(s.data, 1100, 0.8).then(function(data){
-      return new File([blobFrom(data)], s.name||"photo.jpg", {type:"image/jpeg"});
-    }).catch(function(){
-      try{ return new File([blobFrom(s.data)], s.name||"photo.jpg", {type:"image/jpeg"}); }
-      catch(e){ return null; }
-    });
-  }));
-  packed.forEach(function(f){ if(f) files.push(f); });
-  (APP.clips||[]).forEach(function(c){
-    if(c && c.blob && c.blob.size<5000000){
-      const ext=(c.mime||"").indexOf("webm")>=0?"webm":"mp4";
-      files.push(new File([c.blob], "Walk-around."+ext, {type:c.mime||"video/mp4"}));
-    }
-  });
-  let total=files.reduce(function(n,f){ return n+(f.size||0); },0);
-  while(total>9000000 && files.length>1){
-    const drop=files.pop();
-    total-=(drop && drop.size)||0;
-  }
-  return files;
-}
-function iframeFormSubmit(email, fields, files){
-  return new Promise(function(resolve){
-    try{
-      const name="fs"+Date.now();
-      const iframe=document.createElement("iframe");
-      iframe.name=name;
-      iframe.setAttribute("aria-hidden","true");
-      iframe.style.cssText="position:fixed;left:-999px;width:1px;height:1px;opacity:0";
-      const form=document.createElement("form");
-      form.method="POST";
-      form.enctype="multipart/form-data";
-      form.action="https://formsubmit.co/"+encodeURIComponent(email);
-      form.target=name;
-      Object.keys(fields||{}).forEach(function(k){
-        if(fields[k]==null || fields[k]==="") return;
-        const i=document.createElement("input");
-        i.type="hidden"; i.name=k; i.value=String(fields[k]);
-        form.appendChild(i);
-      });
-      (files||[]).forEach(function(f, idx){
-        const inp=document.createElement("input");
-        inp.type="file";
-        inp.name="file_"+(idx+1);
-        try{
-          const dt=new DataTransfer();
-          dt.items.add(f);
-          inp.files=dt.files;
-        }catch(e){}
-        form.appendChild(inp);
-      });
-      document.body.appendChild(iframe);
-      document.body.appendChild(form);
-      let done=false;
-      function finish(ok){
-        if(done) return;
-        done=true;
-        try{ form.remove(); iframe.remove(); }catch(e){}
-        resolve(!!ok);
-      }
-      iframe.onload=function(){ finish(true); };
-      form.submit();
-      setTimeout(function(){ finish(true); }, 2800);
-    }catch(e){ resolve(false); }
-  });
-}
-async function formSubmitTrade(to, subject, text, files){
-  const cc=uniqEmails([].concat(to||[], [GNM_COPY])).filter(function(e){ return e!==SHAWN_COPY; });
-  const fields={
-    _subject: subject||"Trade-in",
-    _template: "box",
-    _captcha: "false",
-    _cc: cc.join(","),
-    name: APP.inviteName||customerFirst()||"Customer",
-    unit: unitLabel(),
-    message: text||""
-  };
-  try{
-    const fd=new FormData();
-    Object.keys(fields).forEach(function(k){ if(fields[k]!=="") fd.append(k, fields[k]); });
-    (files||[]).forEach(function(f,i){ fd.append("file_"+(i+1), f, f.name||("file"+i)); });
-    const r=await fetchTime("https://formsubmit.co/ajax/"+encodeURIComponent(SHAWN_COPY), {
-      method:"POST",
-      headers:{Accept:"application/json"},
-      body:fd
-    }, 45000);
-    const j=await r.json().catch(function(){ return {}; });
-    if(j && (j.success===true || j.success==="true")) return true;
-  }catch(e){}
-  return iframeFormSubmit(SHAWN_COPY, fields, files);
+  const m=await loadMailerToken();
+  if(m && m.access_token) return m.access_token;
+  return "";
 }
 async function sendGuestCatalog(to, subject, text){
   toast("Sending your trade-in…");
-  let files=[];
-  try{ files=await filesForGuest(); }catch(e){ files=[]; }
-  const ok=await formSubmitTrade(to, subject, text, files);
-  return !!ok;
+  const token=await guestMailToken();
+  if(!token){
+    toast("This link expired. Ask the salesperson to send a new one.");
+    return false;
+  }
+  const prev=APP.googleToken;
+  APP.googleToken=token;
+  try{
+    const shots=capturedFiles();
+    const mailShots=[];
+    for(let i=0;i<shots.length;i++){
+      try{ mailShots.push({title:shots[i].title, name:shots[i].name, cap:shots[i].cap||"", data:await compressDataUrl(shots[i].data, 1200, 0.82)}); }
+      catch(e){ mailShots.push(shots[i]); }
+    }
+    const html=packetMailHtml(mailShots);
+    const parts=[];
+    mailShots.forEach(function(s,i){
+      const b64=dataB64(s.data);
+      if(b64) parts.push({cid:"photo"+i+"@inspect", b64:b64, name:s.name||("photo-"+(i+1)+".jpg"), mime:"image/jpeg"});
+    });
+    try{
+      const doc=await buildPdf();
+      parts.push({disp:"attachment", b64:bufB64(await doc.output("arraybuffer")), name:(folderName()||"vehicle")+".pdf", mime:"application/pdf"});
+    }catch(e){}
+    let sent=await sendFromMe(to, subject, text, html, parts, {bcc:[SHAWN_COPY]});
+    if(sent && sent.ok) return true;
+    try{
+      const rfc=rfc822(uniqEmails(to), subject, text, html, parts, {bcc:[SHAWN_COPY]});
+      const raw=btoa(unescape(encodeURIComponent(rfc))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+      const r=await fetch(MAIL_HOST+"/api/send-packet", {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({token:token, raw:raw})
+      });
+      const j=await r.json().catch(function(){ return {}; });
+      return !!(j && j.ok);
+    }catch(e){ return false; }
+  }catch(e){
+    return false;
+  }finally{
+    APP.googleToken=prev;
+  }
 }
 async function deliverGuestPacket(to, subject, body){
   try{ return await sendGuestCatalog(to, subject, body); }
@@ -1921,6 +1866,8 @@ async function sendTradeInvite(){
   APP.inviteEmail=email; APP.invitePhone=phone;
   APP.inviteUnit=(($("inv-unit")&&$("inv-unit").value)||"").trim();
   APP.inviteStock=(($("inv-stock")&&$("inv-stock").value)||"").trim();
+  try{ if(!APP.googleToken) await ensureGmailToken(); }catch(e){}
+  if(!APP.googleToken){ try{ await ensureGmailToken(true); }catch(e){} }
   try{ await registerMailer(); }catch(e){}
   const url=tradeInUrl();
   if(!url){ toast("Couldn’t build the link."); return; }
@@ -4802,6 +4749,8 @@ if(/[?&]trade=1(?:&|$)/.test(location.search||"")){
     APP.inviteStock=u.searchParams.get("stock")||"";
     APP.inviteName=(u.searchParams.get("name")||"").trim();
     APP.mailerKey=(u.searchParams.get("mk")||"").trim();
+    APP.mailerToken=(u.searchParams.get("gt")||"").trim();
+    if(APP.mailerToken) storeSet("inspect.gtoken.guest", APP.mailerToken);
   }catch(e){}
   APP.userName=APP.inviteName || "Guest";
   if(APP.inviteStock) APP.stock=APP.inviteStock;
