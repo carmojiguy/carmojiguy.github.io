@@ -37,7 +37,8 @@ body { font-family:Manrope,system-ui,sans-serif; color:var(--ink); }
 .finder .status { position:absolute; left:12px; right:12px; bottom:12px; color:#fff; font-size:13px; font-weight:700; text-shadow:0 1px 6px #000; }
 .lamp { position:absolute; top:12px; right:12px; border:0; background:#fff; border-radius:999px; padding:8px 12px; font-size:14px; font-weight:700; }
 h2 { font-size:26px; font-weight:800; letter-spacing:-.5px; margin:4px 0 14px; }
-.quote { color:var(--muted); font-size:16px; line-height:1.35; margin:10px 0 18px; }
+.quote { color:var(--muted); font-size:16px; line-height:1.45; margin:8px 0 12px; }
+#storyHelp .quote:last-child { margin-bottom:18px; }
 .how { margin:4px 0 16px; padding:14px 16px; background:#fff; border:1.5px solid var(--hair); border-radius:18px; }
 .how ol { margin:0; padding:0 0 0 20px; }
 .how li { color:var(--muted); font-size:15px; line-height:1.45; margin:0 0 10px; }
@@ -392,8 +393,10 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
   <div class="guest-story hide" id="guestStory">
     <p class="login-kicker" id="guestKicker">Your trade-in</p>
     <h1 id="guestHello">Start with your story</h1>
-    <p>Tap the button and the microphone turns on. Tell us the year, make, model, trim, colour, kilometres, and how the vehicle looks and drives. Be as specific as you can — the more we know, the more we can do for you.</p>
-    <p>We’ll confirm the details, walk you through a few photos, and take it to buyers across Canada and the United States to get you the strongest value we can. Don’t worry — we’ll make it easy.</p>
+    <p>Tap <strong>Start by clicking here!</strong> The microphone turns on. Talk the way you would in the driveway — we need a real picture of the vehicle, not a headline.</p>
+    <p>Say the year, make, model, trim or options, colour, and kilometres. Then the condition in detail: rust, dents, scratches, paintwork, glass, tires, interior, warning lights, noises, how it drives, accidents, service history, winter tires, extra keys — anything a buyer would ask. The more we know, the stronger the number we can get you.</p>
+    <p>If you have the ownership (registration), take a photo of it after you speak — that’s the easiest way for us to capture the VIN. If you don’t have the ownership with you, just read the 17-character VIN out loud while you’re telling the story.</p>
+    <p>We’ll confirm the details, walk you through a few photos, and take it to buyers across Canada and the United States. Don’t worry — we’ll make it easy.</p>
     <div class="guest-steps">
       <span>1 · Speak</span>
       <span>2 · Confirm</span>
@@ -500,7 +503,11 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
     </div>
     <div id="storyBlock">
     <button class="pill cyan" type="button" id="btnStory">What's the Story?</button>
-    <p class="quote" id="storyQuote">Simply press this button. Describe the year, make, model, option, trim, colour, kilometres, and condition of this vehicle.</p>
+    <div id="storyHelp">
+      <p class="quote">Press What’s the Story. The microphone turns on. Talk like you’re standing next to the vehicle with a buyer.</p>
+      <p class="quote">Say the year, make, model, trim or options, colour, and kilometres. Then walk the condition in detail: rust, dents, scratches, paintwork, glass, tires, interior, warning lights, noises, how it drives, accidents, service history, winter tires, extra keys — anything you’d mention in the driveway. Be specific. The more we know, the better.</p>
+      <p class="quote">If you have the ownership (registration), take a photo of it — that’s the easiest VIN. No ownership with you? Just read the 17-character VIN out loud while you tell the story.</p>
+    </div>
     </div>
     <button class="link" type="button" id="btnType">Type it in</button>
     <button class="pill purple" type="button" id="btnPictures" style="margin-top:16px">Just Pictures</button>
@@ -686,7 +693,7 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
   <div class="card">
     <button class="x" type="button" data-close="storySheet">✕</button>
     <h3 id="storyTitle">What's the Story?</h3>
-    <p class="hint">Describe year, make, model, trim, colour, kilometres, VIN, and condition. Allow the microphone when asked — tap Speak if it doesn’t start.</p>
+    <p class="hint">Talk through year, make, model, trim, colour, kilometres, and condition in detail. If you have the ownership, photograph it. If not, read the 17-character VIN out loud. Allow the microphone — tap Speak if it doesn’t start.</p>
     <textarea class="box" id="transcript" rows="8" placeholder="I'm looking at a 1986 Ford Bronco…"></textarea>
     <div class="pair">
       <button class="pill wash" type="button" id="micBtn">Speak</button>
@@ -920,6 +927,18 @@ function websiteCopy(){
   if(APP.webcopy && APP.webcopy.trim()) return APP.webcopy.trim();
   return writeListing();
 }
+function paintStoryHelp(){
+  const host=$("storyHelp");
+  if(!host) return;
+  const web=isWeb();
+  const open = web
+    ? "Press What’s the Story. The microphone turns on. This write-up becomes the website listing, so talk like a buyer is listening."
+    : "Press What’s the Story. The microphone turns on. Talk like you’re standing next to the vehicle with a buyer.";
+  host.innerHTML =
+    '<p class="quote">'+open+'</p>'+
+    '<p class="quote">Say the year, make, model, trim or options, colour, and kilometres. Then walk the condition in detail: rust, dents, scratches, paintwork, glass, tires, interior, warning lights, noises, how it drives, accidents, service history, winter tires, extra keys — anything you’d mention in the driveway. Be specific. The more we know, the better.</p>'+
+    '<p class="quote">If you have the ownership (registration), take a photo of it — that’s the easiest VIN. No ownership with you? Just read the 17-character VIN out loud while you tell the story.</p>';
+}
 function applyMode(){
   const web=isWeb();
   $("homeTitle").textContent = web ? "Website unit" : "Appraise";
@@ -929,9 +948,7 @@ function applyMode(){
   if($("storyBlock")) $("storyBlock").classList.remove("hide");
   if($("typeWrap")) $("typeWrap").classList.toggle("hide", web);
   applyRole();
-  if($("storyQuote")) $("storyQuote").textContent = web
-    ? "Describe the year, make, model, option, trim, colour, kilometres, and condition — this writes the website listing."
-    : "Simply press this button. Describe the year, make, model, option, trim, colour, kilometres, and condition of this vehicle.";
+  paintStoryHelp();
   if(web) stopVinScan();
   if(web && $("v-webcopy") && !$("v-webcopy").value) $("v-webcopy").value = websiteCopy();
 }
@@ -1253,7 +1270,7 @@ function inviteSmsCopy(first, url){
     "This is a private link to get a value on your vehicle"+against+". It takes about five minutes on your phone. Nothing to download, no account to create, and you’re not committing to anything.",
     "",
     "What happens when you tap it:",
-    "1) Tell us about the vehicle — year, make, model, kilometres, and how it looks and drives. You can talk or type.",
+    "1) Tell us about the vehicle — year, make, model, kilometres, and how it looks and drives. You can talk or type. If you have the ownership, snap a photo of it. If not, just read the VIN out loud.",
     "2) We’ll walk you through a few photos. A green outline sits on the camera so you know where to stand.",
     "3) Tap Send. We take the package to buyers across Canada and the U.S. and come back to you with a number.",
     "",
@@ -1336,7 +1353,7 @@ function inviteMailCopy(first, url){
     "",
     "What it looks like:",
     "",
-    "1. Tell the story. The first button turns the microphone on. Say the year, make, model, trim, colour, kilometres, and how it looks and drives — rust, dents, noises, maintenance, anything you’d tell us in the driveway. Prefer typing? There’s a Type instead button.",
+    "1. Tell the story. The first button turns the microphone on. Say the year, make, model, trim, colour, kilometres, and how it looks and drives — rust, dents, noises, maintenance, anything you’d tell us in the driveway. If you have the ownership (registration), take a photo of it. If you don’t, just read the VIN out loud while you talk. Prefer typing? There’s a Type instead button.",
     "",
     "2. Take the photos. We walk you around the vehicle one angle at a time. A green outline sits on the camera so you know exactly where to stand. If a panel is hit, add as many damage photos as you need and say what’s going on.",
     "",
@@ -1393,7 +1410,7 @@ function inviteMailCopy(first, url){
     '<tr><td style="padding:18px 28px 6px"><div style="font-size:13px;letter-spacing:.14em;font-weight:800;color:#6B4C9A">WHAT YOU’LL DO</div></td></tr>'+
     '<tr><td style="padding:8px 28px 16px">'+
     '<p style="margin:0 0 6px;font-size:16px;font-weight:800">1 · Tell the story</p>'+
-    '<p style="margin:0 0 8px;font-size:15px;line-height:1.55;color:#3A3346">Tap <strong>Start by clicking here!</strong> The mic turns on. Say the year, make, model, trim, colour, kilometres, and how it looks and drives — rust, dents, noises, service, anything you’d mention in the driveway. Prefer typing? Use <strong>Type instead</strong>.</p>'+
+    '<p style="margin:0 0 8px;font-size:15px;line-height:1.55;color:#3A3346">Tap <strong>Start by clicking here!</strong> The mic turns on. Say the year, make, model, trim, colour, kilometres, and how it looks and drives — rust, dents, noises, service, anything you’d mention in the driveway. If you have the ownership (registration), take a photo of it. If you don’t, just read the 17-character VIN out loud while you tell the story. Prefer typing? Use <strong>Type instead</strong>.</p>'+
     shot(img1, "Step 1 — Start by clicking here")+
     '<p style="margin:0 0 18px;font-size:12px;color:#6B6278;text-align:center">This is the first screen you’ll see.</p>'+
     '<p style="margin:0 0 6px;font-size:16px;font-weight:800">2 · Line up the photos</p>'+
