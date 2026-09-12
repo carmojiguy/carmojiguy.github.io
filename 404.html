@@ -790,10 +790,10 @@ const DOC_TYPES = [
   ["carfax","Carfax","Vehicle history report"],
   ["openlane","OpenLane","Auction / run list sheet"],
   ["eblock","eBlock","eBlock recap or bid sheet"],
-  ["vauto_summary","V-Auto documents","vAuto screenshots and PDFs"],
-  ["vauto_book","eBlock documents","eBlock screenshots and PDFs"],
-  ["vauto_comp","OpenLane documents","OpenLane screenshots and PDFs"],
-  ["mmr","MMR documents","Manheim Market Report"],
+  ["vauto_summary","V-Auto documents","PDF or screenshots"],
+  ["vauto_book","eBlock documents","PDF or screenshots"],
+  ["vauto_comp","OpenLane documents","PDF or screenshots"],
+  ["mmr","MMR documents","PDF or screenshots"],
   ["carfax_pdf","Carfax","Awaiting information"]
 ];
 
@@ -2976,6 +2976,64 @@ function stopMic(){
   if(card) card.classList.remove("live");
 }
 
+function isDesk(){
+  return window.matchMedia && window.matchMedia("(min-width:980px)").matches;
+}
+function takeDocFiles(id, label, list){
+  const files=Array.from(list||[]).filter(Boolean);
+  if(!files.length) return;
+  const prev=APP.docs[id]||{};
+  const shots=(prev.shots||[]).slice();
+  let pdf=prev.data && String(prev.data).indexOf("application/pdf")>=0 ? prev.data : "";
+  let name=prev.name||"";
+  let left=files.length;
+  files.forEach(function(f){
+    const r=new FileReader();
+    r.onload=function(){
+      const type=f.type||"";
+      if(type.indexOf("pdf")>=0 || /\.pdf$/i.test(f.name||"")){
+        pdf=r.result; name=f.name||(label+".pdf");
+      } else {
+        shots.push(r.result);
+        if(!name) name=f.name||label;
+      }
+      left--;
+      if(left<=0){
+        APP.docs[id]={
+          name:name||label,
+          data:pdf || shots[0] || prev.data || "",
+          type:pdf ? "application/pdf" : "image/jpeg",
+          shots:shots
+        };
+        paintDocs();
+        toast(label+" added");
+      }
+    };
+    r.readAsDataURL(f);
+  });
+}
+function paintFileDoc(host, id, label){
+  const got=APP.docs[id];
+  const el=document.createElement("label");
+  el.className="doc-sq"+(got?" on":"");
+  const shotN=((got && got.shots)||[]).length;
+  const hasPdf=got && got.data && String(got.data).indexOf("application/pdf")>=0;
+  let media="";
+  if(got && shotN && got.shots[0]) media='<img src="'+got.shots[0]+'" alt=""><div class="veil"></div>';
+  else if(got && got.data && String(got.data).indexOf("image")>=0) media='<img src="'+got.data+'" alt=""><div class="veil"></div>';
+  else if(got) media='<div class="veil"></div><div class="pdfmark">PDF</div>';
+  const n=shotN+(hasPdf?1:0);
+  const sub=got
+    ? (n>1 ? n+" files" : (got.name||"Added"))
+    : (isDesk() ? "PDF or screenshots" : "Add screenshots");
+  el.innerHTML=media+'<b>'+label+'</b><span>'+sub+'</span>';
+  const inp=document.createElement("input");
+  inp.type="file"; inp.multiple=true; inp.className="hide";
+  inp.accept=isDesk() ? "application/pdf,image/*" : "image/*";
+  inp.onchange=function(){ takeDocFiles(id, label, inp.files); };
+  el.appendChild(inp);
+  host.appendChild(el);
+}
 function paintDocs(){
   const host=$("docsList"); if(!host) return;
   host.className="docs-grid";
@@ -3020,6 +3078,10 @@ function paintDocs(){
     }
     if(id==="carfax_pdf"){
       paintCarfaxSlot(host);
+      return;
+    }
+    if(id==="vauto_summary"||id==="vauto_book"||id==="vauto_comp"||id==="mmr"){
+      paintFileDoc(host, id, label);
       return;
     }
     const got=APP.docs[id];
