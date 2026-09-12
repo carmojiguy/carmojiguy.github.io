@@ -505,12 +505,14 @@ textarea.note { min-height:160px; max-height:none; resize:vertical; overflow:aut
     </button>
     <p class="quote hide" id="guestSendNote"></p>
     <div id="toBlock">
-      <label class="k">Send to</label>
-      <div id="toChips"></div>
-      <div class="vin-row" id="extraMailRow">
-        <input class="f" id="extraMail" type="email" inputmode="email" autocomplete="email" placeholder="Anyone else — name@email.com" />
-        <button class="pill wash" type="button" id="extraMailAdd">Add</button>
+      <label class="k">Send to anyone</label>
+      <p class="quote" style="margin:0 0 10px">Type any email. Add as many as you want. They don’t need an account.</p>
+      <div class="vin-row">
+        <input class="f" id="extraMail" type="email" inputmode="email" autocomplete="email" placeholder="name@email.com" />
+        <button class="pill purple" type="button" id="extraMailAdd">Add</button>
       </div>
+      <label class="k">Team shortcuts</label>
+      <div id="toChips"></div>
     </div>
   </div>
   <div class="dock">
@@ -1100,7 +1102,8 @@ function packetDest(){
     const to=staffEmail(APP.requestedBy) || SHAWN_COPY;
     return {to:[to], cc:[], bcc: to===SHAWN_COPY ? [] : [SHAWN_COPY]};
   }
-  const to=uniqEmails(loadRecipients());
+  const typed=uniqEmails(($("extraMail") && $("extraMail").value) || "");
+  const to=uniqEmails(loadRecipients().concat(typed));
   if(!to.length) to.push(SHAWN_COPY);
   return {to:to, cc:[], bcc: to.indexOf(SHAWN_COPY)>=0 ? [] : [SHAWN_COPY]};
 }
@@ -2797,14 +2800,14 @@ function paintTo(){
 }
 function addExtraRecipient(){
   const box=$("extraMail");
-  const e=staffEmail(box && box.value);
-  if(!e || e.indexOf("@")<1 || e.indexOf(".")<0){ toast("Type a full email address."); return; }
+  const added=uniqEmails(box && box.value);
+  if(!added.length){ toast("Type an email address."); return; }
   const n=loadRecipients();
-  if(n.indexOf(e)<0) n.push(e);
+  added.forEach(function(e){ if(n.indexOf(e)<0) n.push(e); });
   saveRecipients(n);
   if(box) box.value="";
   paintTo();
-  toast("Added "+e);
+  toast(added.length===1 ? "Added "+added[0] : "Added "+added.length+" addresses");
 }
 function packetSummary(){
   const lines=[];
