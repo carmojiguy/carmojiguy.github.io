@@ -72,11 +72,11 @@ h2 { font-size:26px; font-weight:800; letter-spacing:-.5px; margin:4px 0 14px; }
 .card h3 { margin:0; font-size:22px; font-weight:800; }
 .card .hint { color:var(--muted); font-size:15px; margin:6px 0 12px; }
 .card .x { position:absolute; right:12px; top:12px; width:28px; height:28px; border:0; border-radius:50%; background:var(--fill); cursor:pointer; }
-.box { width:100%; min-height:120px; border:0; background:#eef0f3; border-radius:16px; padding:14px; font-size:18px; font-family:inherit; resize:none; }
+.box { width:100%; min-height:160px; max-height:none; border:0; background:#eef0f3; border-radius:16px; padding:14px; font-size:18px; font-family:inherit; resize:vertical; overflow:auto; field-sizing:content; }
 .pair { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:14px; }
 label.k { display:block; color:#6e6e73; font-size:13px; margin:11px 0 5px; }
 input.f, textarea.note { width:100%; border:1.5px solid var(--hair); border-radius:16px; padding:13px 14px; font-size:17px; font-family:inherit; }
-textarea.note { min-height:88px; }
+textarea.note { min-height:160px; max-height:none; resize:vertical; overflow:auto; field-sizing:content; line-height:1.45; }
 .vin-chip { font-weight:800; letter-spacing:.06em; font-size:15px; color:var(--purple-deep); margin:0 0 12px; }
 .to-chips { display:flex; flex-direction:column; gap:8px; margin:0 0 12px; }
 .mail { display:flex; align-items:center; gap:12px; width:100%; text-align:left; border:1.5px solid var(--hair); background:#fff; border-radius:16px; padding:12px 14px; cursor:pointer; }
@@ -405,10 +405,10 @@ textarea.note { min-height:88px; }
       <label class="k">Stock number</label><input class="f" id="v-stock" placeholder="e.g. A1042" />
     </div>
     <label class="k">Condition / story</label>
-    <textarea class="note" id="v-notes"></textarea>
+    <textarea class="note" id="v-notes" rows="8"></textarea>
     <div id="webWrap">
       <label class="k" id="webLabel">Description</label>
-      <textarea class="note" id="v-webcopy" style="min-height:140px" placeholder="AI listing appears here — edit anything."></textarea>
+      <textarea class="note" id="v-webcopy" rows="10" style="min-height:180px" placeholder="AI listing appears here — edit anything."></textarea>
       <button class="pill cyan" type="button" id="btnWebAi" style="margin-top:10px">Generate AI description</button>
     </div>
   </div>
@@ -536,7 +536,7 @@ textarea.note { min-height:88px; }
     <button class="x" type="button" data-close="storySheet">✕</button>
     <h3 id="storyTitle">What's the Story?</h3>
     <p class="hint">Describe year, make, model, trim, colour, kilometres, VIN, and condition. Allow the microphone when asked — tap Speak if it doesn’t start.</p>
-    <textarea class="box" id="transcript" placeholder="I'm looking at a 1986 Ford Bronco…"></textarea>
+    <textarea class="box" id="transcript" rows="8" placeholder="I'm looking at a 1986 Ford Bronco…"></textarea>
     <div class="pair">
       <button class="pill wash" type="button" id="micBtn">Speak</button>
       <button class="pill purple" type="button" id="useStory">Use this</button>
@@ -565,7 +565,7 @@ textarea.note { min-height:88px; }
       <div><label class="k">Kilometres</label><input class="f" id="f-km" /></div>
     </div>
     <label class="k">VIN</label><input class="f" id="f-vin" maxlength="17" style="text-transform:uppercase" />
-    <label class="k">Notes</label><textarea class="note" id="f-notes"></textarea>
+    <label class="k">Notes</label><textarea class="note" id="f-notes" rows="8"></textarea>
     <button class="pill purple" type="button" id="saveUnit">Save</button>
   </div>
 </div>
@@ -635,6 +635,24 @@ window.APP = {
 };
 
 function $(id){ return document.getElementById(id); }
+function growArea(el){
+  if(!el) return;
+  el.removeAttribute("maxlength");
+  el.style.height="auto";
+  el.style.height=Math.max(160, el.scrollHeight)+"px";
+}
+function growTextareas(){
+  ["transcript","v-notes","v-webcopy","f-notes"].forEach(function(id){
+    const el=$(id);
+    if(!el) return;
+    el.removeAttribute("maxlength");
+    if(!el._growBound){
+      el._growBound=true;
+      el.addEventListener("input", function(){ growArea(el); });
+    }
+    growArea(el);
+  });
+}
 function toast(msg){
   const n=$("toast"); n.textContent=msg; n.classList.add("on");
   clearTimeout(n._t); n._t=setTimeout(()=>n.classList.remove("on"),2200);
@@ -1075,7 +1093,7 @@ function gmailCompose(to, subject, body, extra){
     view:"cm", fs:"1", tf:"1",
     to: uniqEmails(to).join(","),
     su: subject||"",
-    body: String(body||"").slice(0,7000)
+    body: String(body||"")
   });
   const cc=uniqEmails(extra.cc||[]);
   const bcc=uniqEmails(extra.bcc||[]);
@@ -1574,14 +1592,8 @@ function stampBanner(canvas, text){
   if(!text) return;
   const ctx=canvas.getContext("2d");
   const w=canvas.width, h=canvas.height;
-  const bar=Math.max(72, Math.round(h*0.16));
-  ctx.fillStyle="rgba(0,0,0,0.78)";
-  ctx.fillRect(0, h-bar, w, bar);
   const size=Math.max(22, Math.round(w*0.036));
-  ctx.fillStyle="#fff";
   ctx.font="700 "+size+"px Manrope, system-ui, sans-serif";
-  ctx.textAlign="center";
-  ctx.textBaseline="top";
   const maxW=w-48, lineH=size+8;
   const words=text.split(/\s+/);
   let line="", lines=[];
@@ -1591,7 +1603,12 @@ function stampBanner(canvas, text){
     else line=test;
   }
   if(line) lines.push(line);
-  lines=lines.slice(0,3);
+  const bar=Math.max(72, Math.round(h*0.16), lines.length*lineH+36);
+  ctx.fillStyle="rgba(0,0,0,0.78)";
+  ctx.fillRect(0, h-bar, w, bar);
+  ctx.fillStyle="#fff";
+  ctx.textAlign="center";
+  ctx.textBaseline="top";
   const top=h-bar+Math.round((bar-lines.length*lineH)/2);
   lines.forEach(function(l,i){ ctx.fillText(l, w/2, top+i*lineH); });
 }
@@ -1866,9 +1883,10 @@ function normalizeSpoken(raw){
   return s.replace(/\s+/g," ").trim();
 }
 function parseStory(raw){
-  const heard=String(raw||"").replace(/\s+/g," ").trim();
+  const original=String(raw||"").trim();
+  const heard=original.replace(/\s+/g," ");
   const text=normalizeSpoken(heard);
-  const o={year:"",make:"",model:"",trim:"",color:"",km:"",vin:"",notes:heard,heard:heard};
+  const o={year:"",make:"",model:"",trim:"",color:"",km:"",vin:"",notes:original,heard:original};
   const y=text.match(/\b((?:19|20)\d{2})\b/); if(y) o.year=y[1];
   const vin=heard.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g,"");
   const vinm=heard.toUpperCase().match(/\b[A-HJ-NPR-Z0-9]{17}\b/); if(vinm) o.vin=vinm[0];
@@ -1931,6 +1949,7 @@ function fillUnit(){
   if($("v-stock")) $("v-stock").value = APP.stock||"";
   if($("v-webcopy")) $("v-webcopy").value = APP.webcopy || websiteCopy();
   applyMode();
+  growTextareas();
 }
 function readVerify(){
   ["year","make","model","trim","color","km"].forEach(function(k){ APP[k]=$("v-"+k).value.trim(); });
@@ -1965,12 +1984,12 @@ async function generateWebCopy(){
   }catch(e){}
   if(!text) text=fallback;
   APP.webcopy=text;
-  if(box) box.value=text;
+  if(box){ box.value=text; growArea(box); }
   if(btn){ btn.disabled=false; btn.textContent="Generate AI description"; }
   toast(text && text!==fallback ? "Description ready — edit if you want." : "Description filled in from the story.");
 }
 function applyStory(raw){
-  const text=String(raw||"").replace(/\s+/g," ").trim();
+  const text=String(raw||"").trim();
   if(!text) return;
   const parsed=parseStory(text);
   Object.keys(parsed).forEach(function(k){
@@ -2052,7 +2071,7 @@ function startMic(){
   if(card) card.classList.add("live");
   APP.rec=startRec({
     alive:function(){ return APP.listening; },
-    ontext:function(tx){ if($("transcript")) $("transcript").value=tx; },
+    ontext:function(tx){ if($("transcript")){ $("transcript").value=tx; growArea($("transcript")); } },
     onfail:function(){ APP.listening=false; }
   });
 }
@@ -2575,6 +2594,7 @@ if(/[?&]trade=1(?:&|$)/.test(location.search||"")){
     else { paintLogin(); show("login"); }
   });
 }
+growTextareas();
 
 </script>
 </body>
