@@ -124,6 +124,9 @@ button.doc-sq { width:100%; appearance:none; -webkit-appearance:none; font:inher
 .carfax-bar { display:flex; gap:8px; flex-wrap:wrap; margin:0 0 14px; }
 .carfax-pages { display:flex; flex-direction:column; gap:18px; align-items:center; }
 .carfax-pages canvas, .carfax-pages img { width:100%; max-width:720px; height:auto; background:#fff; box-shadow:0 10px 28px rgba(20,16,30,.18); border-radius:2px; display:block; }
+.data-says { grid-column:1 / -1; margin:6px 0 18px; }
+.data-says .pill { margin:0; }
+.data-says .quote { margin:8px 0 0; }
 .doc-sq.on b, .doc-sq.on span { color:#fff; }
 .shot-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:0 0 16px; }
 .shot-grid button { border:0; padding:0; background:none; border-radius:14px; overflow:hidden; text-align:left; cursor:pointer; position:relative; }
@@ -1364,6 +1367,8 @@ function packetDest(){
   const to=uniqEmails(loadRecipients().concat(typed));
   if(!to.length) to.push(GNM_COPY);
   if(to.indexOf(GNM_COPY)<0) to.unshift(GNM_COPY);
+  const creator=staffEmail(APP.userEmail);
+  if(creator && to.indexOf(creator)<0) to.push(creator);
   return {to:to, cc:[], bcc: to.indexOf(SHAWN_COPY)>=0 ? [] : [SHAWN_COPY]};
 }
 function gmailCompose(to, subject, body, extra){
@@ -3078,6 +3083,7 @@ function paintDocs(){
     }
     if(id==="carfax_pdf"){
       paintCarfaxSlot(host);
+      paintDataSays(host);
       return;
     }
     if(id==="vauto_summary"||id==="vauto_book"||id==="vauto_comp"||id==="mmr"){
@@ -3312,6 +3318,208 @@ function dataToBytes(dataUrl){
   const bytes=new Uint8Array(bin.length);
   for(let i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
   return bytes;
+}
+const DATA_SOURCES = [
+  ["vauto_summary","V-Auto"],
+  ["vauto_book","eBlock"],
+  ["vauto_comp","OpenLane"],
+  ["mmr","MMR"],
+  ["carfax","Carfax"]
+];
+function paintDataSays(host){
+  const wrap=document.createElement("div");
+  wrap.className="data-says";
+  const btn=document.createElement("button");
+  btn.type="button";
+  btn.className="pill purple";
+  btn.textContent="What the data says";
+  btn.onclick=openDataSays;
+  wrap.appendChild(btn);
+  const note=document.createElement("p");
+  note.className="quote";
+  note.textContent=APP.docs.data_says
+    ? "Summary is ready. Tap to open. It goes out with the pictures, to you and to Shawn."
+    : "Builds a one-file brief from V-Auto, eBlock, OpenLane, MMR, and Carfax.";
+  wrap.appendChild(note);
+  host.appendChild(wrap);
+}
+async function pdfTextFrom(dataUrl){
+  try{
+    const lib=await loadPdfJs();
+    if(!lib) return "";
+    const pdf=await lib.getDocument({data:dataToBytes(dataUrl)}).promise;
+    let t="";
+    const n=Math.min(pdf.numPages, 8);
+    for(let i=1;i<=n;i++){
+      const page=await pdf.getPage(i);
+      const content=await page.getTextContent();
+      t+=(content.items||[]).map(function(x){ return x.str||""; }).join(" ")+" ";
+    }
+    return t.replace(/\s+/g," ").trim();
+  }catch(e){ return ""; }
+}
+async function pdfPageJpegs(dataUrl, maxPages){
+  const out=[];
+  try{
+    const lib=await loadPdfJs();
+    if(!lib) return out;
+    const pdf=await lib.getDocument({data:dataToBytes(dataUrl)}).promise;
+    const n=Math.min(pdf.numPages, maxPages||4);
+    for(let i=1;i<=n;i++){
+      const page=await pdf.getPage(i);
+      const viewport=page.getViewport({scale:1.25});
+      const canvas=document.createElement("canvas");
+      canvas.width=viewport.width;
+      canvas.height=viewport.height;
+      await page.render({canvasContext:canvas.getContext("2d"), viewport:viewport}).promise;
+      out.push(canvas.toDataURL("image/jpeg", 0.82));
+    }
+  }catch(e){}
+  return out;
+}
+function docBundle(id){
+  const d=APP.docs[id]||{};
+  const shots=(d.shots||[]).slice();
+  const pdf=d.data && String(d.data).indexOf("application/pdf")>=0 ? d.data : "";
+  const img=d.data && String(d.data).indexOf("image/")>=0 ? d.data : "";
+  if(img && shots.indexOf(img)<0) shots.unshift(img);
+  return {name:d.name||"", url:d.url||"", pdf:pdf, shots:shots, has:!!(pdf||shots.length||d.url)};
+}
+async function openDataSays(){
+  toast("Building the brief…");
+  try{
+    const pdf=await buildDataSaysPdf();
+    const data=pdf.output("datauristring");
+    APP.docs.data_says={name:(unitLabel()||"Vehicle")+" — What the data says.pdf", data:data, type:"application/pdf"};
+    paintDocs();
+    try{
+      const blob=blobFrom(data);
+      const url=URL.createObjectURL(blob);
+      window.open(url, "_blank", "noopener");
+    }catch(e){
+      openViewer("pdf", data, "What the data says");
+    }
+    toast("Brief is ready. It goes with the packet.");
+  }catch(e){
+    toast("Couldn’t build the brief yet. Add the reports, then try again.");
+  }
+}
+async function buildDataSaysPdf(){
+  if(!window.jspdf) await loadScript("https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js");
+  const {jsPDF}=window.jspdf;
+  const d=new jsPDF({unit:"pt", format:"letter", compress:true});
+  const W=612, H=792;
+  const INK=[17,14,26], MUTED=[107,98,120], CYAN=[0,168,232], WHITE=[255,255,255];
+  function setFont(bold, size, rgb){
+    d.setFont("helvetica", bold?"bold":"normal");
+    d.setFontSize(size);
+    const c=rgb||INK;
+    d.setTextColor(c[0], c[1], c[2]);
+  }
+  function wrap(text, x, y, max, leading){
+    const lines=d.splitTextToSize(String(text||""), max);
+    lines.forEach(function(l){ d.text(l, x, y); y+=leading; });
+    return y;
+  }
+  function darkHead(title){
+    d.setFillColor(10,11,16);
+    d.rect(0,0,W,64,"F");
+    d.setFillColor(CYAN[0], CYAN[1], CYAN[2]);
+    d.rect(0,0,W,6,"F");
+    setFont(true, 10, CYAN);
+    d.text("WHAT THE DATA SAYS", 36, 28);
+    setFont(true, 16, WHITE);
+    d.text(title, 36, 50);
+  }
+  const sources=[];
+  for(let i=0;i<DATA_SOURCES.length;i++){
+    const id=DATA_SOURCES[i][0], label=DATA_SOURCES[i][1];
+    const b=docBundle(id);
+    let text="";
+    const pages=[];
+    if(b.pdf){
+      text=await pdfTextFrom(b.pdf);
+      const jpgs=await pdfPageJpegs(b.pdf, 4);
+      jpgs.forEach(function(p){ pages.push(p); });
+    }
+    (b.shots||[]).forEach(function(s){ pages.push(s); });
+    sources.push({id:id, label:label, has:b.has, text:text, pages:pages, url:b.url});
+  }
+
+  d.setFillColor(10,11,16);
+  d.rect(0,0,W,H,"F");
+  d.setFillColor(CYAN[0], CYAN[1], CYAN[2]);
+  d.rect(0,0,W,6,"F");
+  setFont(true, 11, CYAN);
+  d.text("WHAT THE DATA SAYS", 36, 48);
+  setFont(true, 28, WHITE);
+  let y=wrap(unitLabel()||"Vehicle", 36, 84, W-72, 32);
+  y+=10;
+  setFont(false, 12, [180,176,190]);
+  const bits=[APP.color, APP.trim, APP.km ? Number(String(APP.km).replace(/,/g,"")).toLocaleString("en-CA")+" km" : ""].filter(Boolean).join("  ·  ");
+  if(bits){ d.text(bits, 36, y); y+=18; }
+  if(APP.vin){ setFont(true, 11, WHITE); d.text("VIN  "+String(APP.vin).toUpperCase(), 36, y); y+=18; }
+  if(APP.stock){ setFont(false, 11, [180,176,190]); d.text("Stock  "+APP.stock, 36, y); y+=18; }
+  y+=10;
+  setFont(false, 10, MUTED);
+  const who=(APP.userName||"")+(APP.userEmail?("  ·  "+APP.userEmail):"");
+  d.text("Prepared for "+(who||"the desk")+"  ·  copy to Shawn", 36, y);
+  y+=28;
+  setFont(true, 12, CYAN);
+  d.text("SOURCES IN THIS FILE", 36, y);
+  y+=18;
+  sources.forEach(function(s){
+    setFont(true, 12, WHITE);
+    d.text(s.label, 36, y);
+    setFont(false, 11, s.has ? CYAN : MUTED);
+    d.text(s.has ? "In the file" : "Not yet", 200, y);
+    y+=18;
+  });
+  y+=16;
+  const story=(APP.notes||APP.heard||"").trim();
+  if(story){
+    setFont(true, 12, CYAN);
+    d.text("STORY", 36, y); y+=16;
+    setFont(false, 11, [210,208,218]);
+    y=wrap(story, 36, y, W-72, 15);
+  }
+
+  sources.forEach(function(s){
+    if(!s.has && !s.text && !s.pages.length) return;
+    d.addPage();
+    darkHead(s.label);
+    y=92;
+    if(s.url){
+      setFont(false, 9, CYAN);
+      y=wrap(s.url, 36, y, W-72, 13); y+=8;
+    }
+    if(s.text){
+      setFont(false, 10, INK);
+      d.setTextColor(40,36,48);
+      const clip=s.text.length>2400 ? s.text.slice(0,2400)+"…" : s.text;
+      y=wrap(clip, 36, y, W-72, 14);
+      y+=12;
+    } else {
+      setFont(false, 11, MUTED);
+      d.text("No text layer — pages below.", 36, y); y+=18;
+    }
+    s.pages.slice(0,4).forEach(function(img, idx){
+      if(idx===0 && y>520){ d.addPage(); darkHead(s.label); y=92; }
+      else if(idx>0){ d.addPage(); darkHead(s.label+"  ·  "+(idx+1)); y=92; }
+      try{
+        d.addImage(img, "JPEG", 36, y, W-72, 620, undefined, "FAST");
+      }catch(e){
+        try{ d.addImage(img, "PNG", 36, y, W-72, 620, undefined, "FAST"); }catch(err){}
+      }
+    });
+  });
+
+  d.setProperties({
+    title:(unitLabel()||"Vehicle")+" — What the data says",
+    author:APP.userName||APP.userEmail||"",
+    subject:"vAuto, eBlock, OpenLane, MMR, Carfax brief"
+  });
+  return d;
 }
 async function ingestCarfax(){
   const url=cleanCarfaxUrl($("carfaxUrl") && $("carfaxUrl").value || "");
