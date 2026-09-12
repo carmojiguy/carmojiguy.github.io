@@ -712,10 +712,18 @@ function shotCount(){
 function show(id){
   const el=$(id);
   if(!el){ toast("Can’t open that screen."); return; }
+  const leaving=document.querySelector(".screen.on");
+  const from=leaving && leaving.id;
+  if(from==="camera" && id!=="camera"){
+    stopDamageMic();
+    APP.dmgArmed=false;
+    stopWalkRec().then(function(){ if(!(document.getElementById("camera")||{}).classList.contains("on")) releaseCam(); });
+  }
   document.querySelectorAll(".screen").forEach(n=>n.classList.remove("on"));
   el.classList.add("on");
   window.scrollTo(0,0);
   if(id!=="home") stopVinScan();
+  if(id==="start" || id==="login" || id==="submit") releaseHardware();
   if(id==="start" || id==="login"){
     var img = $(id==="login" ? "loginBg" : "startBg");
     if (img){
@@ -1379,6 +1387,7 @@ async function sendTradeInvite(){
   if(btn){ btn.disabled=false; btn.textContent=from ? ("Send from "+from) : "Send link"; }
 }
 function logOut(){
+  releaseHardware();
   APP.role=""; APP.userName=""; APP.userEmail=""; APP.googleToken="";
   try{ sessionStorage.removeItem(sessionKey()); }catch(e){}
   paintLogin();
@@ -1829,22 +1838,25 @@ function startPreview(videoId){
     const play=function(){
       const p=el.play(); if(p&&p.catch) p.catch(function(){});
       if($("camWait")) $("camWait").classList.add("off");
-      if(!APP.recOn) startWalkRec();
+      if(videoId==="shotCam" && !APP.recOn) startWalkRec();
     };
     if(el.readyState>=1) play();
     else el.onloadedmetadata=play;
   };
   if($("camWait")) $("camWait").classList.remove("off");
   const live=APP.stream && APP.stream.getVideoTracks().some(function(t){ return t.readyState==="live"; });
-  const hasAudio=APP.stream && APP.stream.getAudioTracks && APP.stream.getAudioTracks().some(function(t){ return t.readyState==="live"; });
-  if(live && (hasAudio || APP.recOn)){ attach(APP.stream); return; }
+  if(live && el.srcObject===APP.stream){ attach(APP.stream); return; }
+  if(APP.stream){
+    try{ APP.stream.getTracks().forEach(function(t){ t.stop(); }); }catch(e){}
+    APP.stream=null;
+  }
   if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
     toast("Tap the shutter to open the camera.");
     return;
   }
   const tries=[
-    {video:{facingMode:{ideal:"environment"}, width:{ideal:1280}, height:{ideal:720}}, audio:{echoCancellation:true, noiseSuppression:true}},
-    {video:{facingMode:{ideal:"environment"}}, audio:true},
+    {video:{facingMode:{ideal:"environment"}, width:{ideal:1280}, height:{ideal:720}}, audio:false},
+    {video:{facingMode:{ideal:"environment"}}, audio:false},
     {video:{facingMode:"environment"}, audio:false},
     {video:true, audio:false}
   ];
@@ -1852,6 +1864,28 @@ function startPreview(videoId){
     if(i>=tries.length){ toast("Tap the shutter to open the camera."); return; }
     navigator.mediaDevices.getUserMedia(tries[i]).then(attach).catch(function(){ next(i+1); });
   })(0);
+}
+function releaseCam(){
+  APP.scanning=false;
+  if(APP.scanRaf){ cancelAnimationFrame(APP.scanRaf); APP.scanRaf=0; }
+  if(APP.zxing && APP.zxing.reset){ try{ APP.zxing.reset(); }catch(e){} }
+  APP.zxing=null;
+  ["shotCam","liveCam"].forEach(function(id){
+    const v=$(id); if(!v) return;
+    try{ v.pause(); }catch(e){}
+    try{ v.srcObject=null; }catch(e){}
+    if(id==="liveCam") v.classList.add("off");
+  });
+  if(APP.stream){
+    try{ APP.stream.getTracks().forEach(function(t){ t.stop(); }); }catch(e){}
+    APP.stream=null;
+  }
+}
+function releaseHardware(){
+  stopMic();
+  stopDamageMic();
+  APP.dmgArmed=false;
+  return stopWalkRec().then(function(){ releaseCam(); }).catch(function(){ releaseCam(); });
 }
 function recMime(){
   if(!window.MediaRecorder) return "";
@@ -1987,10 +2021,19 @@ function stopVinScan(){
   if(APP.zxing && APP.zxing.reset){ try{ APP.zxing.reset(); }catch(e){} }
   APP.zxing=null;
   const f=$("finder"); if(f) f.classList.remove("scanning","live","shot");
-  const v=$("liveCam"); if(v) v.classList.add("off");
+  const v=$("liveCam");
+  if(v){
+    v.classList.add("off");
+    try{ v.pause(); }catch(e){}
+    try{ v.srcObject=null; }catch(e){}
+  }
   const still=$("vinStill"); if(still){ still.removeAttribute("src"); still.classList.add("hide"); }
   const s=$("scanStatus"); if(s) s.textContent="Tap Capture VIN to turn the camera on.";
   const b=$("btnVin"); if(b) b.textContent="Capture VIN";
+  if(APP.stream && (!document.getElementById("camera") || !$("camera").classList.contains("on"))){
+    try{ APP.stream.getTracks().forEach(function(t){ t.stop(); }); }catch(e){}
+    APP.stream=null;
+  }
 }
 async function decodeVin(vin){
   try{
@@ -2949,11 +2992,13 @@ async function sharePacket(){
   }catch(e){
     toast("Couldn’t send. Check the photos and try again.");
   }finally{
+    releaseHardware();
     if(btn){ btn.disabled=false; btn.textContent="Send"; }
   }
 }
 
 function resetAll(){
+  releaseHardware();
   APP.year=APP.make=APP.model=APP.trim=APP.color=APP.km=APP.vin=APP.stock=APP.heard=APP.notes=APP.webcopy="";
   APP.photos={}; APP.damage={}; APP.closeups=[]; APP.docs={}; APP.damageCap={}; APP.closeupCap=[]; APP.webcopy="";
   APP.clips=[]; APP.recOn=false; APP.recorder=null; APP.recChunks=[]; APP.zoom=1;
@@ -2968,6 +3013,7 @@ document.querySelectorAll("[data-close]").forEach(function(b){
 });
 $("startAppraise").onclick = function(){ setPurpose("appraise"); show("home"); };
 function openStoryMic(){
+  stopWalkRec().then(function(){ releaseCam(); });
   $("storySheet").classList.add("on");
   startMic();
 }
@@ -3014,7 +3060,7 @@ $("btnClose").onclick = function(){ openCamera("close","new"); };
 $("btnDocs").onclick = function(){ paintDocs(); show("photos"); $("docsBlock") && $("docsBlock").scrollIntoView({behavior:"smooth", block:"start"}); };
 $("btnVin").onclick = $("verifyVin").onclick = function(){ startVinScan(); };
 $("unitLine").onclick = function(){ fillUnit(); $("unitSheet").classList.add("on"); };
-$("btnSend").onclick = function(){ stopWalkRec().then(function(){ show("submit"); }); };
+$("btnSend").onclick = function(){ stopMic(); stopDamageMic(); stopWalkRec().then(function(){ releaseCam(); show("submit"); }); };
 if($("btnSavePhotos")) $("btnSavePhotos").onclick = savePhotos;
 if($("btnSharePack")) $("btnSharePack").onclick = sharePacket;
 if($("viewerX")) $("viewerX").onclick = closeViewer;
