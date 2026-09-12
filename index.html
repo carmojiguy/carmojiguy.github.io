@@ -101,7 +101,8 @@ textarea.note { min-height:160px; max-height:none; resize:vertical; overflow:aut
 .doc-sq b { position:relative; font-size:15px; font-weight:800; line-height:1.15; margin:0 0 4px; }
 .doc-sq span { position:relative; font-size:12px; color:var(--muted); line-height:1.3; font-weight:600; }
 button.doc-sq { width:100%; appearance:none; -webkit-appearance:none; font:inherit; color:inherit; }
-.doc-sq.vauto-sq img { object-fit:cover; }
+.doc-sq.vauto-sq { padding:0; border:0; background:#FF6A00; }
+.doc-sq.vauto-sq img { object-fit:cover; pointer-events:none; }
 .doc-sq.vauto-sq .veil { background:transparent; }
 .doc-sq.vauto-sq b, .doc-sq.vauto-sq span { display:none; }
 .doc-sq.on b, .doc-sq.on span { color:#fff; }
@@ -2869,33 +2870,17 @@ function paintDocs(){
 const VAUTO_APPRAISE="https://provision.vauto.app.coxautoinc.com/Va/Appraisal/Default.aspx?new=true";
 function openVauto(){
   const vin=String(APP.vin || ($("v-vin") && $("v-vin").value) || ($("f-vin") && $("f-vin").value) || "").trim().toUpperCase();
-  function go(){
-    const a=document.createElement("a");
-    a.href=VAUTO_APPRAISE;
-    a.target="_blank";
-    a.rel="noopener";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-  }
   if(vin){
-    const done=function(){ toast("VIN copied — opening vAuto"); go(); };
-    if(navigator.clipboard && navigator.clipboard.writeText){
-      navigator.clipboard.writeText(vin).then(done).catch(function(){
-        try{
-          const ta=document.createElement("textarea");
-          ta.value=vin; ta.setAttribute("readonly","");
-          ta.style.position="fixed"; ta.style.left="-9999px";
-          document.body.appendChild(ta); ta.select();
-          document.execCommand("copy"); ta.remove();
-        }catch(e){}
-        done();
-      });
-    } else done();
-  } else {
-    toast("Opening vAuto");
-    go();
+    try{
+      if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(vin);
+      const ta=document.createElement("textarea");
+      ta.value=vin; ta.setAttribute("readonly","");
+      ta.style.position="fixed"; ta.style.left="-9999px";
+      document.body.appendChild(ta); ta.select();
+      document.execCommand("copy"); ta.remove();
+    }catch(e){}
   }
+  window.open(VAUTO_APPRAISE, "_blank", "noopener");
 }
 
 function blobFrom(data){
