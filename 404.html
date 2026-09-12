@@ -104,7 +104,9 @@ button.doc-sq { width:100%; appearance:none; -webkit-appearance:none; font:inher
 .doc-sq.vauto-sq { padding:0; border:0; background:#FF6A00; }
 .doc-sq.vauto-sq img { object-fit:cover; pointer-events:none; }
 .doc-sq.vauto-sq .veil { background:transparent; }
-.doc-sq.vauto-sq b, .doc-sq.vauto-sq span { display:none; }
+.doc-sq.carfax-sq { padding:0; border:0; background:#fff; }
+.doc-sq.carfax-sq img { object-fit:cover; pointer-events:none; }
+.doc-sq.carfax-sq b, .doc-sq.carfax-sq span { display:none; }
 .doc-sq.on b, .doc-sq.on span { color:#fff; }
 .shot-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:0 0 16px; }
 .shot-grid button { border:0; padding:0; background:none; border-radius:14px; overflow:hidden; text-align:left; cursor:pointer; position:relative; }
@@ -2845,6 +2847,21 @@ function paintDocs(){
       el.innerHTML='<img src="docs/vauto.svg" alt="vAuto">';
       el.onclick=openVauto;
       host.appendChild(el);
+      return;
+    }
+    if(id==="carfax"){
+      const got=APP.docs[id];
+      const el=document.createElement("label");
+      el.className="doc-sq carfax-sq"+(got?" on":"");
+      el.innerHTML='<img src="docs/carfax.jpg" alt="Carfax">'+(got?'<div class="pdfmark">IN</div>':'');
+      const inp=document.createElement("input"); inp.type="file"; inp.accept="image/*,.pdf"; inp.capture="environment"; inp.className="hide";
+      inp.onchange=function(){
+        const f=inp.files[0]; if(!f) return;
+        const r=new FileReader();
+        r.onload=function(){ APP.docs[id]={name:f.name,data:r.result,type:f.type}; paintDocs(); toast("Carfax added"); };
+        r.readAsDataURL(f);
+      };
+      el.appendChild(inp); host.appendChild(el);
       return;
     }
     const got=APP.docs[id];
