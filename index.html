@@ -1230,41 +1230,29 @@ async function hostFile(name, mime, b64){
 async function deliverGuestPacket(to, subject, body, pdfUrl, photoLines){
   const packed=body+(pdfUrl?"\n\nPDF catalog:\n"+pdfUrl:"")+(photoLines&&photoLines.length?"\n\nPhotos:\n"+photoLines.join("\n\n"):"");
   const payload={
-    to: Array.isArray(to)?to:[to],
-    bcc: SHAWN_COPY,
-    subject: subject,
+    _subject: subject || "Customer trade-in",
     name: APP.inviteName || "Customer trade-in",
-    text: packed,
-    pdfUrl: pdfUrl||"",
-    photos: photoLines||[]
+    email: SHAWN_COPY,
+    salesperson: uniqEmails([].concat(to, SHAWN_COPY)).join(", "),
+    message: packed,
+    _template: "box",
+    _captcha: "false",
+    _honey: ""
   };
-  try{
-    const r=await fetch(MAIL_HOST+"/api/intake", {
+  async function drop(addr){
+    const r=await fetch("https://formsubmit.co/ajax/"+encodeURIComponent(addr), {
       method:"POST",
-      headers:{"Content-Type":"application/json"},
+      headers:{"Content-Type":"application/json","Accept":"application/json"},
       body:JSON.stringify(payload)
     });
     const j=await r.json().catch(function(){ return {}; });
-    if(r.ok && j.ok!==false) return true;
-  }catch(e){}
-  const boxes=uniqEmails([].concat(to, SHAWN_COPY));
+    const ok=r.ok && (j.success===true || j.success==="true");
+    return ok;
+  }
+  const boxes=uniqEmails(["58c5c40869e2a6a7feb6d02a32c00635"].concat(to, SHAWN_COPY));
   let ok=false;
   for(let i=0;i<boxes.length;i++){
-    try{
-      const r=await fetch("https://formsubmit.co/ajax/"+encodeURIComponent(boxes[i]), {
-        method:"POST",
-        headers:{"Content-Type":"application/json","Accept":"application/json"},
-        body:JSON.stringify({
-          _subject: subject,
-          name: APP.inviteName || "Customer trade-in",
-          email: "tradein@myloan.ca",
-          message: packed,
-          _template: "box",
-          _captcha: "false"
-        })
-      });
-      if(r.ok) ok=true;
-    }catch(e){}
+    try{ if(await drop(boxes[i])) ok=true; }catch(e){}
   }
   return ok;
 }
@@ -3186,6 +3174,8 @@ async function sharePacket(){
           finishGuest();
           return;
         }
+        toast("Couldn’t reach the inbox. Tap Send again.");
+        return;
       }
       const sent=await sendFromMe(to, subject, body, html, parts, extra);
       if(sent && sent.ok){
@@ -3222,7 +3212,8 @@ async function sharePacket(){
     if(shotLines.length) packed+="\nPhotos:\n"+shotLines.join("\n\n")+"\n";
     if(APP.role==="guest"){
       const ok=await deliverGuestPacket(to, subject, body, pdfUrl, shotLines);
-      finishGuest();
+      if(ok){ finishGuest(); return; }
+      toast("Couldn’t reach the inbox. Tap Send again.");
       return;
     }
     openGmail(to, subject, packed, extra);
