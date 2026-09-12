@@ -420,7 +420,7 @@ textarea.note { min-height:160px; max-height:none; resize:vertical; overflow:aut
     <textarea class="note" id="v-notes" rows="8"></textarea>
     <div id="webWrap">
       <label class="k" id="webLabel">Description</label>
-      <textarea class="note" id="v-webcopy" rows="10" style="min-height:180px" placeholder="AI listing appears here — edit anything."></textarea>
+      <textarea class="note" id="v-webcopy" rows="10" style="min-height:180px" placeholder="Listing appears here — edit anything."></textarea>
       <button class="pill cyan" type="button" id="btnWebAi" style="margin-top:10px">Generate AI description</button>
     </div>
   </div>
@@ -721,7 +721,7 @@ function applyMode(){
   const web=isWeb();
   $("homeTitle").textContent = web ? "Website unit" : "Appraise";
   $("stockWrap").classList.toggle("hide", !web);
-  if($("webWrap")) $("webWrap").classList.remove("hide");
+  if($("webWrap")) $("webWrap").classList.toggle("hide", APP.role==="guest");
   if($("webLabel")) $("webLabel").textContent = web ? "Website-ready description" : "Description";
   if($("storyBlock")) $("storyBlock").classList.remove("hide");
   applyRole();
@@ -936,6 +936,9 @@ function applyRole(){
   if($("btnType")) $("btnType").classList.toggle("hide", guest);
   if($("docsBlock")) $("docsBlock").classList.toggle("hide", guest);
   if($("btnStart")) $("btnStart").classList.toggle("hide", guest);
+  if($("webWrap")) $("webWrap").classList.toggle("hide", guest);
+  if($("btnWebAi")) $("btnWebAi").classList.toggle("hide", guest);
+  if($("verifyGo")) $("verifyGo").textContent = guest ? "Next" : "Continue to pictures";
   if($("btnPictures")) $("btnPictures").classList.remove("hide");
   if($("btnSend")) $("btnSend").textContent = guest ? "Review my trade" : "Send";
   if(guest) paintGuestStory();
@@ -2406,7 +2409,7 @@ function fillUnit(){
   if($("f-notes")) $("f-notes").value = APP.notes||"";
   if($("v-notes")) $("v-notes").value = APP.notes||APP.heard||"";
   if($("v-stock")) $("v-stock").value = APP.stock||"";
-  if($("v-webcopy")) $("v-webcopy").value = APP.webcopy || websiteCopy();
+  if($("v-webcopy") && APP.role!=="guest") $("v-webcopy").value = APP.webcopy || (isWeb() ? websiteCopy() : "");
   applyMode();
   growTextareas();
 }
@@ -2415,7 +2418,8 @@ function readVerify(){
   APP.vin=$("v-vin").value.trim().toUpperCase();
   APP.notes=$("v-notes").value.trim();
   if($("v-stock")) APP.stock=$("v-stock").value.trim();
-  if($("v-webcopy")) APP.webcopy=$("v-webcopy").value.trim();
+  if(APP.role==="guest") APP.webcopy = APP.notes || APP.heard || "";
+  else if($("v-webcopy")) APP.webcopy=$("v-webcopy").value.trim();
 }
 function readUnit(){
   ["year","make","model","trim","color","km"].forEach(function(k){ APP[k]=$("f-"+k).value.trim(); });
@@ -2461,10 +2465,15 @@ function applyStory(raw){
 function openVerify(){
   fillUnit();
   show("verify");
+  if(APP.role==="guest"){
+    if($("webWrap")) $("webWrap").classList.add("hide");
+    if($("verifyGo")) $("verifyGo").textContent="Next";
+    return;
+  }
   const has= (APP.year||APP.make||APP.model||APP.notes||APP.heard||"");
   const cur=($("v-webcopy") && $("v-webcopy").value || APP.webcopy || "").trim();
-  if(has && !cur) generateWebCopy();
-  else if(has && $("v-webcopy") && !$("v-webcopy").value) $("v-webcopy").value = websiteCopy();
+  if(isWeb() && has && !cur) generateWebCopy();
+  else if(isWeb() && has && $("v-webcopy") && !$("v-webcopy").value) $("v-webcopy").value = websiteCopy();
 }
 
 function speechEngine(){ return window.SpeechRecognition || window.webkitSpeechRecognition || null; }
@@ -3332,7 +3341,12 @@ $("useStory").onclick = function(){
 $("btnType").onclick = function(){ openVerify(); };
 $("saveUnit").onclick = function(){ readUnit(); $("unitSheet").classList.remove("on"); paintLists(); show("photos"); };
 $("verifyBack").onclick = function(){ show("home"); };
-$("verifyGo").onclick = function(){ readVerify(); paintLists(); show("photos"); };
+$("verifyGo").onclick = function(){
+  readVerify();
+  if(APP.role==="guest") APP.webcopy = APP.notes || APP.heard || "";
+  paintLists();
+  show("photos");
+};
 if($("btnWebAi")) $("btnWebAi").onclick = generateWebCopy;
 
 if($("staffForm")) $("staffForm").addEventListener("submit", enterStaffPassword);
