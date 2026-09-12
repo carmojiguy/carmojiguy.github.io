@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Opening vAuto</title>
+<style>
+  html,body{margin:0;min-height:100dvh;display:grid;place-items:center;background:#110E1A;color:#fff;font-family:system-ui,sans-serif}
+  p{opacity:.8}
+</style>
+<script>
+(function(){
+  var u="";
+  try{ u=new URLSearchParams(location.search).get("u")||""; }catch(e){}
+  var ok=/^https:\/\/(provision\.vauto\.app\.coxautoinc\.com|app\.vauto\.com)\//i.test(u);
+  if(!ok) u="https://provision.vauto.app.coxautoinc.com/Va/Appraisal/Default.aspx?new=true";
+  location.replace(u);
+})();
+</script>
+</head>
+<body><p>Opening vAuto…</p></body>
+</html>

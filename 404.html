@@ -3372,21 +3372,12 @@ function paintDocs(){
   DOC_TYPES.forEach(function(pair){
     const id=pair[0], label=pair[1], hint=pair[2];
     if(id==="vauto"){
-      const el=document.createElement("a");
-      el.href=vautoUrl();
-      el.target="_blank";
+      const el=document.createElement("button");
+      el.type="button";
       el.className="doc-sq vauto-sq";
       el.setAttribute("aria-label","Open vAuto");
       el.innerHTML='<img src="docs/vauto.svg" alt="vAuto">';
-      el.addEventListener("pointerdown", function(){
-        el.href=vautoUrl();
-        if(currentVin()) copyVin();
-      });
-      el.addEventListener("click", function(){
-        el.href=vautoUrl();
-        if(currentVin()) copyVin();
-        toast("Opening vAuto…");
-      });
+      el.onclick=openVauto;
       host.appendChild(el);
       return;
     }
@@ -3443,22 +3434,23 @@ function vautoUrl(){
     ? VAUTO_APPRAISE+"&vin="+encodeURIComponent(vin)
     : VAUTO_APPRAISE;
 }
-function openVauto(){
+function openVauto(e){
+  if(e){ e.preventDefault(); e.stopPropagation(); }
   const vin=currentVin();
   if(vin) copyVin();
   const url=vautoUrl();
   toast("Opening vAuto…");
-  try{
-    const w=window.open(url, "_blank");
-    if(w) return;
-  }catch(e){}
-  const a=document.createElement("a");
-  a.href=url;
-  a.target="_blank";
-  a.style.display="none";
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
+  let w=null;
+  try{ w=window.open(url, "_blank"); }catch(err){}
+  if(w){
+    try{ w.opener=null; }catch(err){}
+    return;
+  }
+  try{ w=window.open("about:blank", "_blank"); }catch(err){}
+  if(w){
+    try{ w.opener=null; w.location=url; return; }catch(err){}
+  }
+  location.assign("go-vauto.html?u="+encodeURIComponent(url));
 }
 const OPENLANE_GUIDE="https://app.openlane.ca/marketguide";
 const EBLOCK_GUIDE="https://app.eblock.com/my-market-guide";
