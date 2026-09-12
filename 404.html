@@ -1010,6 +1010,40 @@ function smsHref(num, text){
   const ios=/iPhone|iPad|iPod/i.test(navigator.userAgent||"");
   return (ios ? "sms:"+num+"&body=" : "sms:"+num+"?body=") + encodeURIComponent(text);
 }
+function smsGateways(phone){
+  const d=String(phone||"").replace(/\D/g,"").replace(/^1/,"");
+  if(d.length!==10) return [];
+  return [
+    d+"@txt.bell.ca",
+    d+"@pcs.rogers.com",
+    d+"@msg.telus.com",
+    d+"@fido.ca",
+    d+"@msg.koodo.com",
+    d+"@vmobile.ca",
+    d+"@txt.freedommobile.ca"
+  ];
+}
+function inviteSmsCopy(first, url){
+  return "Hi "+(first||"there")+", your trade-in takes about 5 minutes. Tap this link: "+url;
+}
+async function sendTextTo(phone, text){
+  const gates=smsGateways(phone);
+  if(!gates.length || !text) return false;
+  try{
+    const sent=await sendFromMe(gates, "Trade-in", text, "", null, {});
+    return !!(sent && sent.ok);
+  }catch(e){ return false; }
+}
+function fireSms(phone, text){
+  try{
+    const a=document.createElement("a");
+    a.href=smsHref(phone, text);
+    a.rel="noopener";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }catch(e){}
+}
 function invitePreview(){
   const first=($("inv-first")&&$("inv-first").value||"").trim();
   const last=($("inv-last")&&$("inv-last").value||"").trim();
@@ -1022,7 +1056,7 @@ function invitePreview(){
   if(!email && !phone){ n.textContent="Add an email, a cell, or both."; return; }
   const bits=[];
   if(email) bits.push("email "+first+" at "+email);
-  if(phone) bits.push("text "+formatPhoneMask(phone));
+  if(phone) bits.push("automatically text "+formatPhoneMask(phone));
   n.textContent = (from ? ("From "+from+" — ") : "") + "this will "+bits.join(" and ")+".";
 }
 function openInvite(){
@@ -1437,7 +1471,13 @@ async function sendTradeInvite(){
       if(sent && sent.ok) status="Sent to "+email+".";
       else status="Couldn’t deliver to "+email+". Copy the link or tap Open Gmail.";
     }
-    if(phone) status += email ? " Text is ready — tap Open Text." : " Tap Open Text to send the link.";
+    if(phone){
+      const sms=inviteSmsCopy(first, url);
+      let texted=false;
+      try{ texted=await sendTextTo(phone, sms); }catch(e){}
+      if(!texted) fireSms(phone, sms);
+      status += " Text "+(texted?"sent":"opened")+" to "+formatPhoneMask(phone)+".";
+    }
   }catch(e){
     status="Send hit a snag. Copy the link below.";
   }
