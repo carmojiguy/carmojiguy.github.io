@@ -1543,23 +1543,76 @@ async function registerMailer(){
   if(url) storeSet("inspect.mailer", url);
   return url||storeGet("inspect.mailer")||"";
 }
-function packetMailHtmlHosted(shots, pdfUrl){
+function mailHdr(v){
+  const s=String(v||"");
+  if(!s) return "";
+  if(/^[\x20-\x7E]*$/.test(s)) return s;
+  return "=?UTF-8?B?"+btoa(unescape(encodeURIComponent(s)))+"?=";
+}
+function packetMailText(){
+  const lines=[(unitLabel()||"Vehicle")+" — "+(why()||"Appraisal")];
+  const bits=[APP.trim, APP.color, APP.km ? Number(String(APP.km).replace(/,/g,"")).toLocaleString("en-CA")+" km" : ""].filter(Boolean);
+  if(bits.length) lines.push(bits.join(" · "));
+  if(APP.vin) lines.push("VIN "+String(APP.vin).toUpperCase());
+  if(APP.dealType==="Canada Drives" && APP.cdApp) lines.push("Canada Drives # "+APP.cdApp);
+  const story=(APP.notes||APP.heard||"").trim();
+  if(story) lines.push("", story);
+  lines.push("", "The photo catalog is in this email. The PDF is attached.");
+  return lines.join("\n");
+}
+function packetCatalogHtml(shots, srcFor){
   const title=escHtml(unitLabel()||"Vehicle");
-  let h='<div style="font-family:Arial,Helvetica,sans-serif;color:#110E1A;max-width:640px;margin:0 auto">';
-  h+='<div style="background:#110E1A;color:#fff;padding:22px 24px;border-radius:16px 16px 0 0">';
-  h+='<p style="margin:0 0 6px;color:#00A8E8;font-size:11px;font-weight:800;letter-spacing:.12em">TRADE-IN</p>';
-  h+='<h2 style="margin:0;font-size:24px">'+title+'</h2>';
-  if(APP.inviteName) h+='<p style="margin:8px 0 0;color:#C9C4D6;font-size:14px">From '+escHtml(APP.inviteName)+'</p>';
+  const kicker=escHtml((why()||"Appraisal").toUpperCase());
+  const km=APP.km ? Number(String(APP.km).replace(/,/g,"")).toLocaleString("en-CA")+" km" : "";
+  const facts=[
+    ["Year", APP.year],["Make", APP.make],["Model", APP.model],["Trim", APP.trim],
+    ["Colour", APP.color],["Kilometres", km],["VIN", APP.vin],["Stock", APP.stock],
+    ["Type", APP.dealType],["Canada Drives #", APP.dealType==="Canada Drives"?APP.cdApp:""]
+  ].filter(function(r){ return r[1]; });
+  let h='<div style="font-family:Arial,Helvetica,sans-serif;color:#110E1A;max-width:640px;margin:0 auto;background:#FAF9FC">';
+  h+='<div style="background:#110E1A;color:#fff;padding:24px 24px 22px;border-radius:16px 16px 0 0">';
+  h+='<p style="margin:0 0 8px;color:#00A8E8;font-size:11px;font-weight:800;letter-spacing:.14em">'+kicker+'</p>';
+  h+='<h1 style="margin:0;font-size:26px;line-height:1.2;letter-spacing:-.4px">'+title+'</h1>';
+  const sub=[APP.trim, APP.color, km].filter(Boolean).join("  ·  ");
+  if(sub) h+='<p style="margin:10px 0 0;color:#C9C4D6;font-size:15px">'+escHtml(sub)+'</p>';
   h+='</div>';
-  h+='<div style="border:1px solid #E6E1EE;border-top:0;padding:18px 22px;border-radius:0 0 16px 16px;background:#FAF9FC">';
-  h+='<p style="white-space:pre-wrap;font-size:15px;line-height:1.55;margin:0 0 16px">'+escHtml(packetSummary())+'</p>';
+  h+='<div style="border:1px solid #E6E1EE;border-top:0;padding:8px 22px 22px;border-radius:0 0 16px 16px;background:#fff">';
+  if(facts.length){
+    h+='<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:12px 0 8px">';
+    for(let i=0;i<facts.length;i+=2){
+      h+='<tr>';
+      for(let j=0;j<2;j++){
+        const row=facts[i+j];
+        h+='<td width="50%" valign="top" style="padding:10px 12px 10px 0">';
+        if(row){
+          h+='<div style="font-size:10px;font-weight:800;letter-spacing:.08em;color:#6B6278;text-transform:uppercase">'+escHtml(row[0])+'</div>';
+          h+='<div style="font-size:16px;font-weight:800;color:#110E1A;margin-top:3px">'+escHtml(row[1])+'</div>';
+        }
+        h+='</td>';
+      }
+      h+='</tr>';
+    }
+    h+='</table>';
+  }
+  const story=(APP.notes||APP.heard||"").trim();
+  if(story){
+    h+='<div style="background:#F3F0FA;border-radius:14px;padding:14px 16px;margin:8px 0 18px">';
+    h+='<div style="font-size:10px;font-weight:800;letter-spacing:.1em;color:#6B4C9A;text-transform:uppercase;margin-bottom:6px">Story / condition</div>';
+    h+='<p style="margin:0;font-size:15px;line-height:1.55;color:#241B33">'+escHtml(story)+'</p></div>';
+  }
   (shots||[]).forEach(function(s,i){
-    if(!s || !s.url) return;
-    h+='<p style="margin:22px 0 8px;font-weight:800;font-size:12px;letter-spacing:.08em;color:#6B6278">'+(escHtml((s.title||("Photo "+(i+1))).toUpperCase()))+(s.cap?' — '+escHtml(s.cap):'')+'</p>';
-    h+='<img src="'+escHtml(s.url)+'" width="640" alt="" style="display:block;width:100%;max-width:640px;border-radius:14px;background:#111"/>';
+    const src=srcFor ? srcFor(s,i) : "";
+    if(!src) return;
+    h+='<p style="margin:20px 0 8px;font-weight:800;font-size:12px;letter-spacing:.08em;color:#6B6278">'+(escHtml((s.title||("Photo "+(i+1))).toUpperCase()))+(s.cap?' — '+escHtml(s.cap):'')+'</p>';
+    h+='<img src="'+src+'" width="640" alt="" style="display:block;width:100%;max-width:640px;border-radius:14px;background:#111"/>';
   });
-  if(pdfUrl) h+='<p style="margin:22px 0 0;font-size:14px"><a href="'+escHtml(pdfUrl)+'" style="color:#008FCC;font-weight:800">Download the catalog PDF</a></p>';
-  h+='<p style="margin:18px 0 0;color:#6B6278;font-size:13px">Photos are studio-framed. The PDF is attached.</p></div></div>';
+  h+='<p style="margin:22px 0 0;color:#6B6278;font-size:13px;line-height:1.45">High-definition catalog PDF is attached.'+(APP.clips&&APP.clips.length?" Walk-around video is attached.":"")+'</p>';
+  h+='</div></div>';
+  return h;
+}
+function packetMailHtmlHosted(shots, pdfUrl){
+  let h=packetCatalogHtml(shots, function(s){ return s && s.url ? escHtml(s.url) : ""; });
+  if(pdfUrl) h=h.replace("</div></div>", '<p style="margin:16px 0 0;font-size:14px"><a href="'+escHtml(pdfUrl)+'" style="color:#008FCC;font-weight:800">Download the catalog PDF</a></p></div></div>');
   return h;
 }
 async function loadMailerToken(){
@@ -1601,10 +1654,10 @@ async function embedShots(html){
 function rfc822(to, subject, body, html, parts, extra){
   extra=extra||{};
   const list=uniqEmails(to).join(", ");
-  const from=APP.userName && APP.userEmail ? (APP.userName+" <"+APP.userEmail+">") : (APP.userEmail||"");
+  const from=APP.userName && APP.userEmail ? (mailHdr(APP.userName)+" <"+APP.userEmail+">") : (APP.userEmail||"");
   const cc=uniqEmails(extra.cc||[]);
   const bcc=uniqEmails(extra.bcc||[]);
-  const head="From: "+from+"\r\nTo: "+list+"\r\n"+(cc.length?("Cc: "+cc.join(", ")+"\r\n"):"")+(bcc.length?("Bcc: "+bcc.join(", ")+"\r\n"):"")+"Subject: "+subject+"\r\nMIME-Version: 1.0\r\n";
+  const head="From: "+from+"\r\nTo: "+list+"\r\n"+(cc.length?("Cc: "+cc.join(", ")+"\r\n"):"")+(bcc.length?("Bcc: "+bcc.join(", ")+"\r\n"):"")+"Subject: "+mailHdr(subject)+"\r\nMIME-Version: 1.0\r\n";
   const all=parts||[];
   const inline=all.filter(function(p){ return p.disp!=="attachment"; });
   const attach=all.filter(function(p){ return p.disp==="attachment"; });
@@ -4302,19 +4355,7 @@ function dataB64(dataUrl){
   return i>=0 ? s.slice(i+7) : "";
 }
 function packetMailHtml(shots){
-  const title=escHtml(unitLabel()||"Vehicle");
-  let h='<div style="font-family:Arial,Helvetica,sans-serif;color:#110E1A;max-width:640px;margin:0 auto">';
-  h+='<div style="background:#110E1A;color:#fff;padding:22px 24px;border-radius:16px 16px 0 0">';
-  h+='<p style="margin:0 0 6px;color:#00A8E8;font-size:11px;font-weight:800;letter-spacing:.12em">'+(escHtml((why()||"Appraisal").toUpperCase()))+'</p>';
-  h+='<h2 style="margin:0;font-size:24px">'+title+'</h2></div>';
-  h+='<div style="border:1px solid #E6E1EE;border-top:0;padding:18px 22px;border-radius:0 0 16px 16px">';
-  h+='<p style="white-space:pre-wrap;font-size:15px;line-height:1.5;margin:0 0 16px">'+escHtml(packetSummary())+'</p>';
-  (shots||[]).forEach(function(s,i){
-    h+='<p style="margin:18px 0 8px;font-weight:800;font-size:13px;letter-spacing:.04em;color:#6B6278">'+(escHtml((s.title||("Photo "+(i+1))).toUpperCase()))+(s.cap?' — '+escHtml(s.cap):'')+'</p>';
-    h+='<img src="cid:photo'+i+'@inspect" width="640" alt="" style="display:block;width:100%;max-width:640px;border-radius:12px;background:#111"/>';
-  });
-  h+='<p style="margin:22px 0 0;color:#6B6278;font-size:13px">The catalog PDF'+(APP.clips&&APP.clips.length?" and walk-around video":"")+' '+(APP.clips&&APP.clips.length?"are":"is")+' attached. Screen recordings of vAuto / eBlock / OpenLane / MMR go in the ZIP when they fit.</p></div></div>';
-  return h;
+  return packetCatalogHtml(shots, function(s,i){ return "cid:photo"+i+"@inspect"; });
 }
 async function sharePacket(){
   const shots=capturedFiles();
@@ -4325,49 +4366,58 @@ async function sharePacket(){
     const doc=await buildPdf();
     const base=folderName()||"vehicle";
     const pdfBlob=doc.output("blob");
-    const pdfFile=new File([pdfBlob], base+"-packet.pdf", {type:"application/pdf"});
-    const photoFiles=shots.map(function(s){ return new File([blobFrom(s.data)], s.name, {type:"image/jpeg"}); });
+    const pdfName=base+".pdf";
+    const pdfFile=new File([pdfBlob], pdfName, {type:"application/pdf"});
     const dest=packetDest();
     const extra={cc:dest.cc, bcc:dest.bcc};
     const to=dest.to;
     const subject=APP.role==="guest"
       ? (unitLabel()+" — trade-in"+(APP.inviteName?" from "+APP.inviteName:""))
       : (unitLabel()+" — "+why());
-    const body=packetSummary() + (APP.role==="guest" && APP.requestedBy ? "\nRequested by: "+(APP.requestedByName||nameForEmail(APP.requestedBy))+" <"+APP.requestedBy+">" : "");
-    const html=packetMailHtml(shots);
+    const body=packetMailText() + (APP.role==="guest" && APP.requestedBy ? "\nRequested by: "+(APP.requestedByName||nameForEmail(APP.requestedBy))+" <"+APP.requestedBy+">" : "");
     const mailShots=[];
     for(let i=0;i<shots.length;i++){
-      try{ mailShots.push({title:shots[i].title, name:shots[i].name, cap:shots[i].cap||"", data:await compressDataUrl(shots[i].data, 1400, 0.84)}); }
+      try{ mailShots.push({title:shots[i].title, name:shots[i].name, cap:shots[i].cap||"", data:await compressDataUrl(shots[i].data, 1600, 0.88)}); }
       catch(e){ mailShots.push(shots[i]); }
     }
+    const html=packetMailHtml(mailShots);
     const parts=[];
     mailShots.forEach(function(s,i){
       const b64=dataB64(s.data);
       if(!b64) return;
       parts.push({cid:"photo"+i+"@inspect", b64:b64, name:s.name||("photo-"+i+".jpg"), mime:"image/jpeg"});
-      parts.push({disp:"attachment", b64:b64, name:s.name||("photo-"+i+".jpg"), mime:"image/jpeg"});
     });
     try{
-      parts.push({disp:"attachment", b64:bufB64(await pdfBlob.arrayBuffer()), name:base+"-packet.pdf", mime:"application/pdf"});
+      parts.push({disp:"attachment", b64:bufB64(await pdfBlob.arrayBuffer()), name:pdfName, mime:"application/pdf"});
     }catch(e){}
+    const videoLinks=[];
     for(let i=0;i<(APP.clips||[]).length;i++){
       const c=APP.clips[i];
-      if(!c || !c.blob || c.blob.size>12000000) continue;
-      try{
-        const ext=(c.mime||"").indexOf("webm")>=0?"webm":"mp4";
-        parts.push({disp:"attachment", b64:bufB64(await c.blob.arrayBuffer()), name:base+"-walk-"+String(i+1)+"."+ext, mime:c.mime||"video/mp4"});
-      }catch(e){}
+      if(!c || !c.blob) continue;
+      const ext=(c.mime||"").indexOf("webm")>=0?"webm":"mp4";
+      const fname="Walk-around."+ext;
+      if(c.blob.size<=12000000){
+        try{ parts.push({disp:"attachment", b64:bufB64(await c.blob.arrayBuffer()), name:fname, mime:c.mime||"video/mp4"}); }
+        catch(e){}
+      } else {
+        try{
+          const url=await hostBlob(fname, c.mime||"video/mp4", c.blob);
+          if(url) videoLinks.push("Walk-around video:\n"+url);
+        }catch(e){}
+      }
     }
-    const videoLinks=[];
     const docIds=Object.keys(APP.docs||{});
     for(let i=0;i<docIds.length;i++){
       const d=APP.docs[docIds[i]]; if(!d) continue;
+      if(d.data && String(d.data).indexOf("application/pdf")>=0){
+        try{ parts.push({disp:"attachment", b64:dataB64(d.data), name:d.name||(docIds[i]+".pdf"), mime:"application/pdf"}); }catch(e){}
+      }
       const vids=d.videos||[];
       for(let j=0;j<vids.length;j++){
         const v=vids[j];
         const blob=v.file||v.blob;
         if(!blob) continue;
-        const fname="docs-"+docIds[i]+"-video-"+String(j+1)+"."+videoExt(v);
+        const fname=(d.name||docIds[i])+" recording."+videoExt(v);
         if(blob.size && blob.size<=12000000){
           try{ parts.push({disp:"attachment", b64:bufB64(await blob.arrayBuffer()), name:fname, mime:v.type||"video/mp4"}); }
           catch(e){}
@@ -4380,7 +4430,7 @@ async function sharePacket(){
       }
     }
     try{
-      const mailBody=body+(videoLinks.length ? "\n\nScreen recordings:\n"+videoLinks.join("\n\n")+"\n" : "");
+      const mailBody=body+(videoLinks.length ? "\n\n"+videoLinks.join("\n\n")+"\n" : "");
       if(APP.role==="guest"){
         toast("Sending your trade-in…");
         const ok=await deliverGuestPacket(to, subject, mailBody, html, parts, extra);
@@ -4393,7 +4443,7 @@ async function sharePacket(){
       }
       const sent=await sendFromMe(to, subject, mailBody, html, parts, extra);
       if(sent && sent.ok){
-        toast("Sent photos, description, and PDF to "+tradeToLine(to)+".");
+        toast("Sent the catalog to "+tradeToLine(to)+".");
         return;
       }
     }catch(e){}
@@ -4401,40 +4451,22 @@ async function sharePacket(){
       toast("Couldn’t send the packet. Ask the salesperson to send a new link after signing in with Google.");
       return;
     }
-    const files=[pdfFile].concat(photoFiles);
-    (APP.clips||[]).forEach(function(c,i){
-      if(!c || !c.blob) return;
-      const ext=(c.mime||"").indexOf("webm")>=0?"webm":"mp4";
-      files.push(new File([c.blob], base+"-walk-"+String(i+1)+"."+ext, {type:c.mime||"video/mp4"}));
-    });
-    Object.keys(APP.docs||{}).forEach(function(id){
-      ((APP.docs[id]&&APP.docs[id].videos)||[]).forEach(function(v,i){
-        const blob=v.file||v.blob; if(!blob) return;
-        files.push(new File([blob], "docs-"+id+"-video-"+String(i+1)+"."+videoExt(v), {type:v.type||"video/mp4"}));
-      });
-    });
-    const isiOS=/iPhone|iPad|iPod/i.test(navigator.userAgent||"");
-    if(isiOS && navigator.canShare && navigator.canShare({files:files})){
-      try{
-        await navigator.share({files:files, title:subject, text:body});
-        toast("Pick Mail or Gmail — the PDF and photos are attached.");
-        return;
-      }catch(e){ if(e && e.name==="AbortError") return; }
-    }
-    toast("Uploading the PDF and photos…");
-    const pdfUrl=await hostFile(base+"-packet.pdf", "application/pdf", bufB64(await pdfBlob.arrayBuffer()));
-    const shotLines=[];
+    toast("Uploading the catalog…");
+    const pdfUrl=await hostFile(pdfName, "application/pdf", bufB64(await pdfBlob.arrayBuffer()));
+    const hosted=[];
     for(let i=0;i<mailShots.length;i++){
       const s=mailShots[i];
       const url=await hostFile(s.name||("photo-"+i+".jpg"), "image/jpeg", dataB64(s.data)||s.data);
-      if(url) shotLines.push((s.title||("Photo "+(i+1)))+"\n"+url);
+      if(url) hosted.push({title:s.title, cap:s.cap, url:url});
     }
-    let packed=body+"\n";
-    if(pdfUrl) packed+="\nPDF catalog:\n"+pdfUrl+"\n";
-    if(shotLines.length) packed+="\nPhotos:\n"+shotLines.join("\n\n")+"\n";
-    if(videoLinks.length) packed+="\nScreen recordings:\n"+videoLinks.join("\n\n")+"\n";
-    openGmail(to, subject, packed, extra);
-    toast(pdfUrl ? "Gmail is open with the PDF and photo links. Hit Send." : "Gmail is open. Hit Send.");
+    const hostedHtml=packetMailHtmlHosted(hosted, pdfUrl);
+    const sent2=await sendFromMe(to, subject, body, hostedHtml, [{disp:"attachment", b64:bufB64(await pdfBlob.arrayBuffer()), name:pdfName, mime:"application/pdf"}], extra);
+    if(sent2 && sent2.ok){
+      toast("Sent the catalog to "+tradeToLine(to)+".");
+      return;
+    }
+    openGmail(to, subject, packetMailText()+(pdfUrl?"\n\nCatalog PDF:\n"+pdfUrl:""), extra);
+    toast("Gmail is open. Hit Send.");
   }catch(e){
     toast("Couldn’t send. Check the photos and try again.");
   }finally{
