@@ -126,12 +126,15 @@ textarea.note { min-height:160px; max-height:none; resize:vertical; overflow:aut
 .vin-row { display:flex; gap:8px; align-items:stretch; }
 .vin-row .f { flex:1; }
 .vin-row .pill { width:auto; margin:0; white-space:nowrap; padding:13px 14px; font-size:14px; }
-.cam { background:#000; color:#fff; padding:0 !important; }
+.cam { background:#000; color:#fff; padding:0 !important; display:flex; flex-direction:column; }
 .cam .nav h1 { color:#fff; }
-.stage { position:relative; height:calc(100dvh - 248px); min-height:280px; background:#111; overflow:hidden; }
-.stage video { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; object-position:center; opacity:1; background:#111; z-index:0; }
-.ghost { position:absolute; left:6%; right:6%; top:14%; height:58%; width:88%; object-fit:contain; object-position:center; pointer-events:none; opacity:.86; mix-blend-mode:normal; z-index:1; }
-.ghost.tall { top:10%; height:70%; }
+.stage { position:relative; width:100%; aspect-ratio:16/9; height:auto; max-height:calc(100dvh - 220px); min-height:160px; margin:auto 0; background:#000; overflow:hidden; }
+@media (orientation:landscape){
+  .stage { width:auto; max-width:100%; height:calc(100dvh - 132px); max-height:none; aspect-ratio:16/9; }
+}
+.stage video { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center; opacity:1; background:#111; z-index:0; }
+.ghost { position:absolute; left:6%; right:6%; top:8%; height:84%; width:88%; object-fit:contain; object-position:center; pointer-events:none; opacity:.86; mix-blend-mode:normal; z-index:1; }
+.ghost.tall { top:8%; height:84%; }
 .ghost.off { opacity:0; }
 .ghost.flip, .thumb img.flip { transform:scaleX(-1); }
 .cam-wait { position:absolute; left:16px; right:16px; bottom:18px; z-index:2; color:#fff; text-align:center; font-size:14px; font-weight:700; text-shadow:0 1px 8px #000; pointer-events:none; }
@@ -1625,7 +1628,7 @@ function openCamera(mode, id){
   if($("camHint")){
     $("camHint").textContent = (mode==="damage"||mode==="close")
       ? "Tap once to describe it. Tap again to take the photo. Add as many as you need, then Done."
-      : "Use the overlay to help frame the picture";
+      : "Wide landscape for the website — fill this frame with the vehicle";
   }
   show("camera");
 }
@@ -1737,12 +1740,44 @@ function blobToDataURL(blob){
   });
 }
 function videoReady(v){ return v && v.videoWidth>16 && v.videoHeight>16 && v.readyState>=2; }
-function canvasShot(v){
+const WEB_W=1920, WEB_H=1080;
+function landscapeCanvas(src){
+  const iw=src.videoWidth || src.naturalWidth || src.width;
+  const ih=src.videoHeight || src.naturalHeight || src.height;
   const c=document.createElement("canvas");
-  c.width=v.videoWidth; c.height=v.videoHeight;
-  c.getContext("2d").drawImage(v,0,0,c.width,c.height);
+  c.width=WEB_W; c.height=WEB_H;
+  const ctx=c.getContext("2d");
+  ctx.fillStyle="#111";
+  ctx.fillRect(0,0,WEB_W,WEB_H);
+  if(!iw || !ih) return c;
+  const r=WEB_W/WEB_H;
+  let sx=0, sy=0, sw=iw, sh=ih;
+  if(iw/ih > r){
+    sw=ih*r; sx=(iw-sw)/2;
+  } else {
+    sh=iw/r; sy=(ih-sh)/2;
+  }
+  ctx.imageSmoothingEnabled=true;
+  ctx.imageSmoothingQuality="high";
+  ctx.drawImage(src, sx,sy,sw,sh, 0,0,WEB_W,WEB_H);
+  return c;
+}
+function canvasShot(v){
+  const c=landscapeCanvas(v);
   if(APP.mode==="damage"||APP.mode==="close") stampBanner(c, APP.dmgCaption);
-  return c.toDataURL("image/jpeg",0.94);
+  return c.toDataURL("image/jpeg",0.93);
+}
+function framePhoto(dataUrl){
+  return new Promise(function(res){
+    const img=new Image();
+    img.onload=function(){
+      const c=landscapeCanvas(img);
+      if(APP.mode==="damage"||APP.mode==="close") stampBanner(c, APP.dmgCaption);
+      res(c.toDataURL("image/jpeg",0.93));
+    };
+    img.onerror=function(){ res(dataUrl); };
+    img.src=dataUrl;
+  });
 }
 async function captureStill(){
   const v=$("shotCam");
@@ -1752,11 +1787,8 @@ async function captureStill(){
     try{
       const blob=await new ImageCapture(track).takePhoto();
       if(blob && blob.size>800){
-        if(APP.mode==="damage"||APP.mode==="close"){
-          const url=await blobToDataURL(blob);
-          return stampOnUrl(url, APP.dmgCaption);
-        }
-        return await blobToDataURL(blob);
+        const url=await blobToDataURL(blob);
+        return framePhoto(url);
       }
     }catch(e){}
   }
@@ -1789,10 +1821,7 @@ function bindNativeShot(){
   inp._bound=true;
   inp.addEventListener("change", function(){
     const f=inp.files && inp.files[0]; if(!f) return;
-    blobToDataURL(f).then(function(url){
-      if(APP.mode==="damage"||APP.mode==="close") return stampOnUrl(url, APP.dmgCaption);
-      return url;
-    }).then(function(url){ keepShot(url); });
+    blobToDataURL(f).then(function(url){ return framePhoto(url); }).then(function(url){ keepShot(url); });
   });
 }
 function snap(){
@@ -1842,6 +1871,7 @@ function startPreview(videoId){
       const p=el.play(); if(p&&p.catch) p.catch(function(){ try{ el.play(); }catch(e){} });
       if($("camWait")) $("camWait").classList.add("off");
       widenLens();
+      try{ if(videoId==="shotCam" && screen.orientation && screen.orientation.lock) screen.orientation.lock("landscape").catch(function(){}); }catch(e){}
       if(videoId==="shotCam" && !APP.recOn){
         setTimeout(function(){ if(token===APP.camToken && !APP.recOn) startWalkRec(); }, 500);
       }
@@ -1860,8 +1890,9 @@ function startPreview(videoId){
     return;
   }
   const tries=[
+    {video:{facingMode:{ideal:"environment"}, width:{ideal:1920}, height:{ideal:1080}, aspectRatio:{ideal:1.777}}, audio:false},
+    {video:{facingMode:{ideal:"environment"}, width:{ideal:1920}, height:{ideal:1080}}, audio:false},
     {video:{facingMode:{ideal:"environment"}}, audio:false},
-    {video:{facingMode:"environment"}, audio:false},
     {video:true, audio:false}
   ];
   (function next(i){
@@ -1896,6 +1927,7 @@ function killMediaNow(){
   }
   cut(APP.stream); APP.stream=null;
   cut(APP.micStream); APP.micStream=null;
+  try{ if(screen.orientation && screen.orientation.unlock) screen.orientation.unlock(); }catch(e){}
   APP.scanning=false;
   if(APP.scanRaf){ cancelAnimationFrame(APP.scanRaf); APP.scanRaf=0; }
   if($("micBtn")) $("micBtn").textContent="Speak";
@@ -2501,7 +2533,7 @@ function studioPlate(dataUrl){
       cw=Math.min(w, maxX+px)-cx;
       ch=Math.min(h, maxY+py)-cy;
     }
-    const TW=1920, TH=1280;
+    const TW=1920, TH=1080;
     const c=document.createElement("canvas");
     c.width=TW; c.height=TH;
     const ctx=c.getContext("2d");
