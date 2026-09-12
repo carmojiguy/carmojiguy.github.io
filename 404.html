@@ -572,7 +572,7 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
     <div id="damageRows"></div>
     <div id="docsBlock">
       <div class="block">Appraisal documents</div>
-      <p class="quote">Tap a square. Photograph the page or pick a file.</p>
+      <p class="quote">Tap a square. Screenshots, a PDF, or one screen recording of you scrolling the report — that last one saves a pile of screenshots.</p>
       <div id="docsList" class="docs-grid"></div>
     </div>
   </div>
@@ -793,10 +793,10 @@ const DOC_TYPES = [
   ["carfax","Carfax","Vehicle history report"],
   ["openlane","OpenLane","Auction / run list sheet"],
   ["eblock","eBlock","eBlock recap or bid sheet"],
-  ["vauto_summary","V-Auto documents","PDF or screenshots"],
-  ["vauto_book","eBlock documents","PDF or screenshots"],
-  ["vauto_comp","OpenLane documents","PDF or screenshots"],
-  ["mmr","MMR documents","PDF or screenshots"],
+  ["vauto_summary","V-Auto documents","PDF, screenshots, or a recording"],
+  ["vauto_book","eBlock documents","PDF, screenshots, or a recording"],
+  ["vauto_comp","OpenLane documents","PDF, screenshots, or a recording"],
+  ["mmr","MMR documents","PDF, screenshots, or a recording"],
   ["carfax_pdf","Carfax","Awaiting information"]
 ];
 
@@ -1442,6 +1442,21 @@ async function hostFile(name, mime, b64){
     });
     const j=await r.json();
     if(j && j.url) return j.url;
+  }catch(e){}
+  return "";
+}
+async function hostBlob(name, mime, blob){
+  if(!blob) return "";
+  try{
+    const fd=new FormData();
+    fd.append("reqtype", "fileupload");
+    fd.append("fileToUpload", blob, name||"clip.mp4");
+    const r=await fetch("https://catbox.moe/user/api.php", {method:"POST", body:fd});
+    const t=String(await r.text()).trim();
+    if(/^https?:\/\//i.test(t)) return t;
+  }catch(e){}
+  try{
+    return await hostFile(name, mime, bufB64(await blob.arrayBuffer()));
   }catch(e){}
   return "";
 }
@@ -3000,15 +3015,57 @@ function stopMic(){
 function isDesk(){
   return window.matchMedia && window.matchMedia("(min-width:980px)").matches;
 }
+function isVideoFile(f){
+  const t=(f && f.type)||"";
+  const n=(f && f.name)||"";
+  return t.indexOf("video/")===0 || /\.(mov|mp4|m4v|webm|qt)$/i.test(n);
+}
+function videoExt(v){
+  const n=(v && (v.name||""))||"";
+  const t=(v && v.type)||"";
+  if(/\.(mov)$/i.test(n) || t.indexOf("quicktime")>=0) return "mov";
+  if(/\.(webm)$/i.test(n) || t.indexOf("webm")>=0) return "webm";
+  if(/\.(m4v)$/i.test(n)) return "m4v";
+  return "mp4";
+}
 function takeDocFiles(id, label, list){
   const files=Array.from(list||[]).filter(Boolean);
   if(!files.length) return;
   const prev=APP.docs[id]||{};
   const shots=(prev.shots||[]).slice();
+  const videos=(prev.videos||[]).slice();
   let pdf=prev.data && String(prev.data).indexOf("application/pdf")>=0 ? prev.data : "";
   let name=prev.name||"";
-  let left=files.length;
-  files.forEach(function(f){
+  const clips=files.filter(isVideoFile);
+  const rest=files.filter(function(f){ return !isVideoFile(f); });
+  clips.forEach(function(f){
+    videos.push({
+      name:f.name||(label+"-recording."+videoExt({name:f.name,type:f.type})),
+      type:f.type||"video/mp4",
+      size:f.size||0,
+      file:f,
+      url:URL.createObjectURL(f)
+    });
+    if(!name) name=f.name||label;
+  });
+  function commit(msg){
+    APP.docs[id]={
+      name:name||label,
+      data:pdf || shots[0] || prev.data || "",
+      type:pdf ? "application/pdf" : (shots.length ? "image/jpeg" : (videos.length ? (videos[0].type||"video/mp4") : prev.type||"")),
+      shots:shots,
+      videos:videos,
+      url:prev.url||""
+    };
+    paintDocs();
+    toast(msg||(label+" added"));
+  }
+  if(!rest.length){
+    commit(clips.length===1 ? "Screen recording added" : (clips.length+" recordings added"));
+    return;
+  }
+  let left=rest.length;
+  rest.forEach(function(f){
     const r=new FileReader();
     r.onload=function(){
       const type=f.type||"";
@@ -3019,16 +3076,7 @@ function takeDocFiles(id, label, list){
         if(!name) name=f.name||label;
       }
       left--;
-      if(left<=0){
-        APP.docs[id]={
-          name:name||label,
-          data:pdf || shots[0] || prev.data || "",
-          type:pdf ? "application/pdf" : "image/jpeg",
-          shots:shots
-        };
-        paintDocs();
-        toast(label+" added");
-      }
+      if(left<=0) commit(clips.length ? "Screenshots and recording added" : (label+" added"));
     };
     r.readAsDataURL(f);
   });
@@ -3037,7 +3085,7 @@ function pickPhotoLibrary(id, label){
   const inp=document.createElement("input");
   inp.type="file";
   inp.multiple=true;
-  inp.accept="image/jpeg,image/png,image/heic,image/heif,image/webp,.jpg,.jpeg,.png,.heic,.webp";
+  inp.accept="image/jpeg,image/png,image/heic,image/heif,image/webp,video/mp4,video/quicktime,video/*,.jpg,.jpeg,.png,.heic,.webp,.mov,.mp4,.m4v";
   inp.style.cssText="position:fixed;left:-9999px;width:1px;height:1px;opacity:0";
   document.body.appendChild(inp);
   inp.addEventListener("change", function(){
@@ -3054,20 +3102,25 @@ function paintFileDoc(host, id, label){
   if(!desk) el.type="button";
   el.className="doc-sq"+(got?" on":"");
   const shotN=((got && got.shots)||[]).length;
+  const vidN=((got && got.videos)||[]).length;
   const hasPdf=got && got.data && String(got.data).indexOf("application/pdf")>=0;
   let media="";
   if(got && shotN && got.shots[0]) media='<img src="'+got.shots[0]+'" alt=""><div class="veil"></div>';
+  else if(got && vidN) media='<div class="veil"></div><div class="pdfmark">VIDEO</div>';
   else if(got && got.data && String(got.data).indexOf("image")>=0) media='<img src="'+got.data+'" alt=""><div class="veil"></div>';
   else if(got) media='<div class="veil"></div><div class="pdfmark">PDF</div>';
-  const n=shotN+(hasPdf?1:0);
+  const bits=[];
+  if(shotN) bits.push(shotN===1?"1 screenshot":shotN+" screenshots");
+  if(vidN) bits.push(vidN===1?"1 recording":vidN+" recordings");
+  if(hasPdf && !shotN) bits.push("PDF");
   const sub=got
-    ? (n>1 ? n+" files" : (got.name||"Added"))
-    : (desk ? "PDF or screenshots" : "Photo library");
+    ? (bits.join(" · ") || got.name || "Added")
+    : (desk ? "PDF, screenshots, or a screen recording" : "Screenshots or a screen recording");
   el.innerHTML=media+'<b>'+label+'</b><span>'+sub+'</span>';
   if(desk){
     const inp=document.createElement("input");
     inp.type="file"; inp.multiple=true; inp.className="hide";
-    inp.accept="application/pdf,image/*";
+    inp.accept="application/pdf,image/*,video/*,.mov,.mp4,.m4v";
     inp.onchange=function(){ takeDocFiles(id, label, inp.files); };
     el.appendChild(inp);
   } else {
@@ -3958,6 +4011,9 @@ function packetSummary(){
   });
   if(caps.length) lines.push("Damage: "+caps.join("; "));
   if(APP.clips && APP.clips.length) lines.push("Walk-around video: "+APP.clips.length+" clip"+(APP.clips.length>1?"s":""));
+  let recs=0;
+  Object.keys(APP.docs||{}).forEach(function(id){ recs+=((APP.docs[id]&&APP.docs[id].videos)||[]).length; });
+  if(recs) lines.push("Market-data recordings: "+recs);
   const to=loadRecipients();
   if(to.length) lines.push("Send to: "+to.join(", "));
   return lines.join("\n");
@@ -3978,6 +4034,10 @@ async function buildZip(){
     if(d.data) folder.file("docs-"+id+"-"+(d.name||"file"), blobFrom(d.data));
     (d.shots||[]).forEach(function(s,i){
       folder.file("docs-"+id+"-page-"+String(i+1)+".jpg", blobFrom(s));
+    });
+    (d.videos||[]).forEach(function(v,i){
+      const blob=v.file||v.blob;
+      if(blob) folder.file("docs-"+id+"-video-"+String(i+1)+"."+videoExt(v), blob);
     });
   });
   folder.file("summary.txt", packetSummary());
@@ -4042,6 +4102,10 @@ function packetHtml(){
       const d=APP.docs[id]; if(!d) return;
       h+='<h4>'+esc(d.name||id)+'</h4>';
       (d.shots||[]).forEach(function(s){ h+='<img class="full" src="'+s+'" alt="">'; });
+      (d.videos||[]).forEach(function(v,i){
+        h+='<p class="cap">Screen recording '+(i+1)+(v.name?(" · "+v.name):"")+'</p>';
+        if(v.url) h+='<video class="full" src="'+v.url+'" controls playsinline style="width:100%;border-radius:14px;background:#111;margin:8px 0"></video>';
+      });
       if(d.data && d.data.indexOf("data:image")===0 && !(d.shots||[]).length) h+='<img class="full" src="'+d.data+'" alt="">';
       else if(d.data && d.data.indexOf("application/pdf")>=0) h+='<p class="cap">PDF included in the emailed ZIP</p>';
     });
@@ -4082,8 +4146,9 @@ async function paintSubmit(){
   keys.forEach(function(id){
     const d=APP.docs[id]; if(!d) return;
     const b=document.createElement("button"); b.type="button"; b.className="review";
-    b.innerHTML="<h4>"+(d.name||id)+"</h4><p>Tap to view</p>";
+    b.innerHTML="<h4>"+(d.name||id)+"</h4><p>"+(((d.videos||[]).length)?"Screen recording — tap to play":"Tap to view")+"</p>";
     b.onclick=function(){
+      if(d.videos && d.videos[0] && d.videos[0].url){ openViewer("vid", d.videos[0].url, d.name||id); return; }
       const kind=(d.type&&d.type.indexOf("pdf")>=0)?"pdf":"img";
       openViewer(kind, d.data, d.name||id);
     };
@@ -4130,7 +4195,7 @@ function packetMailHtml(shots){
     h+='<p style="margin:18px 0 8px;font-weight:800;font-size:13px;letter-spacing:.04em;color:#6B6278">'+(escHtml((s.title||("Photo "+(i+1))).toUpperCase()))+(s.cap?' — '+escHtml(s.cap):'')+'</p>';
     h+='<img src="cid:photo'+i+'@inspect" width="640" alt="" style="display:block;width:100%;max-width:640px;border-radius:12px;background:#111"/>';
   });
-  h+='<p style="margin:22px 0 0;color:#6B6278;font-size:13px">The catalog PDF'+(APP.clips&&APP.clips.length?" and walk-around video":"")+' '+(APP.clips&&APP.clips.length?"are":"is")+' attached.</p></div></div>';
+  h+='<p style="margin:22px 0 0;color:#6B6278;font-size:13px">The catalog PDF'+(APP.clips&&APP.clips.length?" and walk-around video":"")+' '+(APP.clips&&APP.clips.length?"are":"is")+' attached. Screen recordings of vAuto / eBlock / OpenLane / MMR go in the ZIP when they fit.</p></div></div>';
   return h;
 }
 async function sharePacket(){
@@ -4175,10 +4240,32 @@ async function sharePacket(){
         parts.push({disp:"attachment", b64:bufB64(await c.blob.arrayBuffer()), name:base+"-walk-"+String(i+1)+"."+ext, mime:c.mime||"video/mp4"});
       }catch(e){}
     }
+    const videoLinks=[];
+    const docIds=Object.keys(APP.docs||{});
+    for(let i=0;i<docIds.length;i++){
+      const d=APP.docs[docIds[i]]; if(!d) continue;
+      const vids=d.videos||[];
+      for(let j=0;j<vids.length;j++){
+        const v=vids[j];
+        const blob=v.file||v.blob;
+        if(!blob) continue;
+        const fname="docs-"+docIds[i]+"-video-"+String(j+1)+"."+videoExt(v);
+        if(blob.size && blob.size<=12000000){
+          try{ parts.push({disp:"attachment", b64:bufB64(await blob.arrayBuffer()), name:fname, mime:v.type||"video/mp4"}); }
+          catch(e){}
+        } else {
+          try{
+            const url=await hostBlob(fname, v.type||"video/mp4", blob);
+            if(url) videoLinks.push((d.name||docIds[i])+" recording:\n"+url);
+          }catch(e){}
+        }
+      }
+    }
     try{
+      const mailBody=body+(videoLinks.length ? "\n\nScreen recordings:\n"+videoLinks.join("\n\n")+"\n" : "");
       if(APP.role==="guest"){
         toast("Sending your trade-in…");
-        const ok=await deliverGuestPacket(to, subject, body, html, parts, extra);
+        const ok=await deliverGuestPacket(to, subject, mailBody, html, parts, extra);
         if(ok){
           finishGuest();
           return;
@@ -4186,7 +4273,7 @@ async function sharePacket(){
         toast("Couldn’t send the packet. Ask the salesperson to send a new link after signing in with Google.");
         return;
       }
-      const sent=await sendFromMe(to, subject, body, html, parts, extra);
+      const sent=await sendFromMe(to, subject, mailBody, html, parts, extra);
       if(sent && sent.ok){
         toast("Sent photos, description, and PDF to "+tradeToLine(to)+".");
         return;
@@ -4201,6 +4288,12 @@ async function sharePacket(){
       if(!c || !c.blob) return;
       const ext=(c.mime||"").indexOf("webm")>=0?"webm":"mp4";
       files.push(new File([c.blob], base+"-walk-"+String(i+1)+"."+ext, {type:c.mime||"video/mp4"}));
+    });
+    Object.keys(APP.docs||{}).forEach(function(id){
+      ((APP.docs[id]&&APP.docs[id].videos)||[]).forEach(function(v,i){
+        const blob=v.file||v.blob; if(!blob) return;
+        files.push(new File([blob], "docs-"+id+"-video-"+String(i+1)+"."+videoExt(v), {type:v.type||"video/mp4"}));
+      });
     });
     const isiOS=/iPhone|iPad|iPod/i.test(navigator.userAgent||"");
     if(isiOS && navigator.canShare && navigator.canShare({files:files})){
@@ -4221,6 +4314,7 @@ async function sharePacket(){
     let packed=body+"\n";
     if(pdfUrl) packed+="\nPDF catalog:\n"+pdfUrl+"\n";
     if(shotLines.length) packed+="\nPhotos:\n"+shotLines.join("\n\n")+"\n";
+    if(videoLinks.length) packed+="\nScreen recordings:\n"+videoLinks.join("\n\n")+"\n";
     openGmail(to, subject, packed, extra);
     toast(pdfUrl ? "Gmail is open with the PDF and photo links. Hit Send." : "Gmail is open. Hit Send.");
   }catch(e){
