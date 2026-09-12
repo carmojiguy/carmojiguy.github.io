@@ -10,12 +10,29 @@
   var q = String(location.search||"").replace(/^\?/,"");
   var p = new URLSearchParams(h || q);
   var token = p.get("access_token") || "";
+  var code = p.get("code") || "";
   var err = p.get("error") || "";
+  function go(fail){ location.replace("./" + (fail ? "?auth=fail" : "")); }
   try{
     if(token) sessionStorage.setItem("inspect.gtoken", token);
     if(err) sessionStorage.setItem("inspect.gerr", err);
   }catch(e){}
-  location.replace("./" + (err ? "?auth=fail" : ""));
+  if(code){
+    fetch("https://trade-in-shawn-6802.vercel.app/api/upload", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({kind:"oauth", code:code, redirect_uri: location.origin.replace(/\/$/,"")+"/oauth.html"})
+    }).then(function(r){ return r.json(); }).then(function(j){
+      try{
+        if(j && j.access_token) sessionStorage.setItem("inspect.gtoken", j.access_token);
+        if(j && j.refresh_token) sessionStorage.setItem("inspect.grefr", j.refresh_token);
+        if(j && j.email) sessionStorage.setItem("inspect.gemail", j.email);
+      }catch(e){}
+      go(!(j && j.access_token));
+    }).catch(function(){ go(true); });
+    return;
+  }
+  go(!!err);
 })();
 </script>
 </head>

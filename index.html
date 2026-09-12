@@ -989,6 +989,8 @@ function tradeInUrl(){
     if(APP.inviteUnit) u.searchParams.set("unit", APP.inviteUnit);
     if(APP.inviteStock) u.searchParams.set("stock", APP.inviteStock);
     if(APP.inviteName) u.searchParams.set("name", APP.inviteName);
+    const mk=storeGet("inspect.mailer");
+    if(mk) u.searchParams.set("mk", mk);
     return u.toString();
   }catch(e){
     const extra=(APP.userEmail?("&from="+encodeURIComponent(APP.userEmail)):"");
@@ -1277,34 +1279,66 @@ async function hostFile(name, mime, b64){
   }catch(e){}
   return "";
 }
-async function deliverGuestPacket(to, subject, body, pdfUrl, photoLines){
-  const packed=body+(pdfUrl?"\n\nPDF catalog:\n"+pdfUrl:"")+(photoLines&&photoLines.length?"\n\nPhotos:\n"+photoLines.join("\n\n"):"");
-  const payload={
-    _subject: subject || "Customer trade-in",
-    name: APP.inviteName || "Customer trade-in",
-    email: SHAWN_COPY,
-    salesperson: uniqEmails([].concat(to, SHAWN_COPY)).join(", "),
-    message: packed,
-    _template: "box",
-    _captcha: "false",
-    _honey: ""
+async function registerMailer(){
+  if(!APP.googleToken) return storeGet("inspect.mailer")||"";
+  let refresh="";
+  try{ refresh=storeGet("inspect.grefr")||sessionStorage.getItem("inspect.grefr")||""; }catch(e){}
+  const rec={
+    access_token:APP.googleToken,
+    refresh_token:refresh,
+    email:APP.userEmail||"",
+    exp:Date.now()+50*60*1000
   };
-  async function drop(addr){
-    const r=await fetch("https://formsubmit.co/ajax/"+encodeURIComponent(addr), {
-      method:"POST",
-      headers:{"Content-Type":"application/json","Accept":"application/json"},
-      body:JSON.stringify(payload)
-    });
-    const j=await r.json().catch(function(){ return {}; });
-    const ok=r.ok && (j.success===true || j.success==="true");
-    return ok;
+  const b64=btoa(unescape(encodeURIComponent(JSON.stringify(rec))));
+  const url=await hostFile("mailer.json","application/json", b64);
+  if(url) storeSet("inspect.mailer", url);
+  return url||storeGet("inspect.mailer")||"";
+}
+function packetMailHtmlHosted(shots, pdfUrl){
+  const title=escHtml(unitLabel()||"Vehicle");
+  let h='<div style="font-family:Arial,Helvetica,sans-serif;color:#110E1A;max-width:640px;margin:0 auto">';
+  h+='<div style="background:#110E1A;color:#fff;padding:22px 24px;border-radius:16px 16px 0 0">';
+  h+='<p style="margin:0 0 6px;color:#00A8E8;font-size:11px;font-weight:800;letter-spacing:.12em">TRADE-IN</p>';
+  h+='<h2 style="margin:0;font-size:24px">'+title+'</h2>';
+  if(APP.inviteName) h+='<p style="margin:8px 0 0;color:#C9C4D6;font-size:14px">From '+escHtml(APP.inviteName)+'</p>';
+  h+='</div>';
+  h+='<div style="border:1px solid #E6E1EE;border-top:0;padding:18px 22px;border-radius:0 0 16px 16px;background:#FAF9FC">';
+  h+='<p style="white-space:pre-wrap;font-size:15px;line-height:1.55;margin:0 0 16px">'+escHtml(packetSummary())+'</p>';
+  (shots||[]).forEach(function(s,i){
+    if(!s || !s.url) return;
+    h+='<p style="margin:22px 0 8px;font-weight:800;font-size:12px;letter-spacing:.08em;color:#6B6278">'+(escHtml((s.title||("Photo "+(i+1))).toUpperCase()))+(s.cap?' — '+escHtml(s.cap):'')+'</p>';
+    h+='<img src="'+escHtml(s.url)+'" width="640" alt="" style="display:block;width:100%;max-width:640px;border-radius:14px;background:#111"/>';
+  });
+  if(pdfUrl) h+='<p style="margin:22px 0 0;font-size:14px"><a href="'+escHtml(pdfUrl)+'" style="color:#008FCC;font-weight:800">Download the catalog PDF</a></p>';
+  h+='<p style="margin:18px 0 0;color:#6B6278;font-size:13px">Photos are studio-framed. The PDF is attached.</p></div></div>';
+  return h;
+}
+async function deliverGuestPacket(to, subject, body, html, pdfUrl, hosted){
+  const mk=APP.mailerKey || storeGet("inspect.mailer") || "";
+  const payload={
+    kind:"intake",
+    mk:mk,
+    to:uniqEmails([].concat(to, GNM_COPY, SHAWN_COPY)),
+    subject:subject,
+    text:body,
+    html:html||"",
+    pdfUrl:pdfUrl||"",
+    photos:hosted||[],
+    name:APP.inviteName||""
+  };
+  const paths=["/api/intake","/api/upload"];
+  for(let i=0;i<paths.length;i++){
+    try{
+      const r=await fetch(MAIL_HOST+paths[i], {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify(payload)
+      });
+      const j=await r.json().catch(function(){ return {}; });
+      if(r.ok && j.ok) return true;
+    }catch(e){}
   }
-  const boxes=uniqEmails(["58c5c40869e2a6a7feb6d02a32c00635", GNM_COPY].concat(to, SHAWN_COPY));
-  let ok=false;
-  for(let i=0;i<boxes.length;i++){
-    try{ if(await drop(boxes[i])) ok=true; }catch(e){}
-  }
-  return ok;
+  return false;
 }
 async function embedShots(html){
   const names=["step-speak.jpg","step-photos.jpg","step-send.jpg"];
@@ -1466,6 +1500,7 @@ async function sendTradeInvite(){
   APP.inviteEmail=email; APP.invitePhone=phone;
   APP.inviteUnit=(($("inv-unit")&&$("inv-unit").value)||"").trim();
   APP.inviteStock=(($("inv-stock")&&$("inv-stock").value)||"").trim();
+  try{ await registerMailer(); }catch(e){}
   const url=tradeInUrl();
   if(!url){ toast("Couldn’t build the link."); return; }
   let copy;
@@ -1542,6 +1577,7 @@ function logOut(){
   APP.role=""; APP.userName=""; APP.userEmail=""; APP.googleToken="";
   storeDel(sessionKey());
   storeDel("inspect.gtoken");
+  storeDel("inspect.mailer");
   paintLogin();
   show("login");
 }
@@ -1554,8 +1590,9 @@ function parseGoogleJwt(cred){
 function applyGoogleUser(user, token){
   const email=staffEmail(user && user.email);
   if(!isStaffEmail(email)){ toast("That Google account isn’t allowed."); return false; }
-  if(token) APP.googleToken=token;
+  if(token) keepGoogleToken(token);
   enterSession("employee", {name:(user && (user.name||user.given_name)) || email.split("@")[0], email:email});
+  registerMailer();
   return true;
 }
 function openGoogleSheet(){
@@ -3237,27 +3274,31 @@ async function sharePacket(){
       if(APP.role==="guest"){
         toast("Sending your trade-in…");
         const pdfUrl=await hostFile(base+"-packet.pdf", "application/pdf", bufB64(await pdfBlob.arrayBuffer()));
-        const shotLines=[];
+        const hosted=[];
         for(let i=0;i<mailShots.length;i++){
           const s=mailShots[i];
           const url=await hostFile(s.name||("photo-"+i+".jpg"), "image/jpeg", dataB64(s.data)||s.data);
-          if(url) shotLines.push((s.title||("Photo "+(i+1)))+"\n"+url);
+          if(url) hosted.push({title:s.title||("Photo "+(i+1)), name:s.name||("photo-"+i+".jpg"), cap:s.cap||"", url:url});
         }
-        const ok=await deliverGuestPacket(to, subject, body, pdfUrl, shotLines);
+        const htmlHosted=packetMailHtmlHosted(hosted, pdfUrl);
+        const ok=await deliverGuestPacket(to, subject, body, htmlHosted, pdfUrl, hosted);
         if(ok){
           finishGuest();
           return;
         }
-        toast("Couldn’t reach the inbox. Tap Send again.");
+        toast("Couldn’t send the packet. Ask the salesperson to send a new link after signing in with Google.");
         return;
       }
       const sent=await sendFromMe(to, subject, body, html, parts, extra);
       if(sent && sent.ok){
-        if(APP.role==="guest"){ finishGuest(); return; }
         toast("Sent photos, description, and PDF to "+tradeToLine(to)+".");
         return;
       }
     }catch(e){}
+    if(APP.role==="guest"){
+      toast("Couldn’t send the packet. Ask the salesperson to send a new link after signing in with Google.");
+      return;
+    }
     const files=[pdfFile].concat(photoFiles);
     (APP.clips||[]).forEach(function(c,i){
       if(!c || !c.blob) return;
@@ -3268,7 +3309,6 @@ async function sharePacket(){
     if(isiOS && navigator.canShare && navigator.canShare({files:files})){
       try{
         await navigator.share({files:files, title:subject, text:body});
-        if(APP.role==="guest"){ finishGuest(); return; }
         toast("Pick Mail or Gmail — the PDF and photos are attached.");
         return;
       }catch(e){ if(e && e.name==="AbortError") return; }
@@ -3284,12 +3324,6 @@ async function sharePacket(){
     let packed=body+"\n";
     if(pdfUrl) packed+="\nPDF catalog:\n"+pdfUrl+"\n";
     if(shotLines.length) packed+="\nPhotos:\n"+shotLines.join("\n\n")+"\n";
-    if(APP.role==="guest"){
-      const ok=await deliverGuestPacket(to, subject, body, pdfUrl, shotLines);
-      if(ok){ finishGuest(); return; }
-      toast("Couldn’t reach the inbox. Tap Send again.");
-      return;
-    }
     openGmail(to, subject, packed, extra);
     toast(pdfUrl ? "Gmail is open with the PDF and photo links. Hit Send." : "Gmail is open. Hit Send.");
   }catch(e){
@@ -3439,6 +3473,7 @@ if(/[?&]trade=1(?:&|$)/.test(location.search||"")){
     APP.inviteUnit=u.searchParams.get("unit")||"";
     APP.inviteStock=u.searchParams.get("stock")||"";
     APP.inviteName=(u.searchParams.get("name")||"").trim();
+    APP.mailerKey=(u.searchParams.get("mk")||"").trim();
   }catch(e){}
   APP.userName=APP.inviteName || "Guest";
   if(APP.inviteStock) APP.stock=APP.inviteStock;
