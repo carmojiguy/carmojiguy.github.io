@@ -123,7 +123,9 @@ textarea.note { min-height:160px; max-height:none; resize:vertical; overflow:aut
 .vin-row { display:flex; gap:8px; align-items:stretch; }
 .vin-row .f { flex:1; }
 .vin-row .pill { width:auto; margin:0; white-space:nowrap; padding:13px 14px; font-size:14px; }
-.cam { background:#000; color:#fff; padding:0 !important; display:flex; flex-direction:column; }
+.cam { background:#000; color:#fff; padding:0 !important; }
+.screen.cam { display:none; }
+.screen.cam.on { display:flex; flex-direction:column; }
 .cam .nav h1 { color:#fff; }
 .stage { position:relative; width:100%; aspect-ratio:16/9; height:auto; max-height:calc(100dvh - 220px); min-height:160px; margin:auto 0; background:#000; overflow:hidden; }
 @media (orientation:landscape){
@@ -188,8 +190,10 @@ textarea.note { min-height:160px; max-height:none; resize:vertical; overflow:aut
 .guest-steps { display:flex; gap:6px; margin:4px 0 0; }
 .guest-steps span { flex:1; text-align:center; background:var(--fill); color:var(--purple-deep); border-radius:999px; padding:7px 4px; font-size:11px; font-weight:800; letter-spacing:.02em; }
 .start-x { position:absolute; top: calc(12px + env(safe-area-inset-top)); left:16px; z-index:2; }
-.phone:has(#start.on), .phone:has(#login.on) { max-width:none; background:#0b0b10; }
-.phone:has(#start.on) .accent, .phone:has(#login.on) .accent { display:none; }
+.phone:has(#start.on), .phone:has(#login.on), .phone:has(#thanks.on) { max-width:none; background:#0b0b10; }
+.phone:has(#start.on) .accent, .phone:has(#login.on) .accent, .phone:has(#thanks.on) .accent { display:none; }
+.phone:has(#thanks.on) .dock { display:none !important; }
+#thanks.on { position:fixed; inset:0; z-index:120; display:block; background:#0b0b10; overflow:hidden; }
 .login-hero {
   position:absolute; left:22px; right:22px; z-index:6;
   top: calc(22px + env(safe-area-inset-top));
