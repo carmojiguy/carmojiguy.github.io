@@ -872,9 +872,9 @@ function enterSession(role, user){
 const TRADE_PUBLIC=(function(){
   try{
     const h=location.hostname||"";
-    if(h.indexOf("vercel.app")>=0 || h.indexOf("github.io")>=0) return location.origin.replace(/\/?$/,"/") ;
+    if(h.indexOf("vercel.app")>=0) return location.origin.replace(/\/?$/,"/") ;
   }catch(e){}
-  return "https://carmojiguy.github.io/";
+  return "https://trade-in-shawn-6802.vercel.app/";
 })();
 function tradeInUrl(){
   try{
@@ -950,8 +950,7 @@ function escHtml(s){
   return String(s||"").replace(/[&<>"]/g, function(c){ return "&#"+c.charCodeAt(0)+";"; });
 }
 function emailShot(name){
-  try{ return new URL("email/"+name, TRADE_PUBLIC).toString(); }
-  catch(e){ return TRADE_PUBLIC.replace(/\/?$/,"/")+"email/"+name; }
+  return "https://carmojiguy.github.io/email/"+encodeURIComponent(name);
 }
 function inviteMailCopy(first, url){
   const who=APP.userName || nameForEmail(APP.userEmail) || "our team";
