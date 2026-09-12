@@ -677,7 +677,7 @@ function toast(msg){
 }
 function pic(key){ return (GHOSTS && GHOSTS[key]) || ""; }
 function ghostPic(key){ return (typeof GHOSTS==="object" && GHOSTS[key]) || pic(key); }
-function isPassGhost(key){ return key==="pass" || key==="qfront_pass" || key==="qrear_pass"; }
+function isPassGhost(key){ return key==="pass" || key==="qfront_pass" || key==="qrear"; }
 function unitLabel(){ return [APP.year, APP.make, APP.model].filter(Boolean).join(" ") || "Unit"; }
 function why(){ return APP.purpose==="website" ? "Website" : "Appraisal"; }
 function isWeb(){ return APP.purpose==="website"; }
