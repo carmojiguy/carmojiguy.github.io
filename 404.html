@@ -467,9 +467,8 @@ button.doc-sq { width:100%; appearance:none; -webkit-appearance:none; font:inher
     <div class="block">Damage</div>
     <p class="quote">Tap the panel that’s hit. Take as many photos as you need.</p>
     <div id="damageRows"></div>
-    <div class="block">Damage close-ups</div>
-    <div id="closeRows"></div>
-    <button class="pill wash" type="button" id="btnClose">Add a close-up</button>
+    <button class="pill wash" type="button" id="btnClose">Close-up</button>
+    <p class="quote">Need a tight shot of rust, a dent, or a chip? Tap that panel above and take another photo. Close-ups stay with the damage on that part of the car.</p>
     <div id="docsBlock">
       <div class="block">Appraisal documents</div>
       <p class="quote">Tap a square. Photograph the page or pick a file.</p>
@@ -1765,11 +1764,6 @@ function paintLists(){
     : unitLabel() + (APP.km ? " · " + Number(String(APP.km).replace(/,/g,"")).toLocaleString("en-CA") + " km" : "");
   fillRows($("photoRows"), "photos");
   fillDamageRows();
-  const box=$("closeRows"); box.innerHTML="";
-  APP.closeups.forEach((src,i)=>{
-    const cap=APP.closeupCap[i]||"";
-    box.appendChild(rowEl("Close-up "+(i+1), src, true, ()=>openCamera("close","c"+i), cap));
-  });
 }
 
 function fillRows(host, bucket){
@@ -3901,7 +3895,11 @@ $("doneX").onclick = $("btnAnother").onclick = resetAll;
 $("btnStory").onclick = function(){ openStoryMic(); };
 $("btnPictures").onclick = function(){ show("photos"); };
 $("btnStart").onclick = function(){ openCamera("photos","qfront"); };
-$("btnClose").onclick = function(){ openCamera("close","new"); };
+$("btnClose").onclick = function(){
+  const host=$("damageRows");
+  if(host) host.scrollIntoView({behavior:"smooth", block:"start"});
+  toast("Tap the panel that’s hit, then shoot the close-up.");
+};
 $("btnDocs").onclick = function(){ paintDocs(); show("photos"); $("docsBlock") && $("docsBlock").scrollIntoView({behavior:"smooth", block:"start"}); };
 $("btnVin").onclick = $("verifyVin").onclick = function(){ openVinCam(); };
 if($("btnVinShot")) $("btnVinShot").onclick = snapVinStill;
