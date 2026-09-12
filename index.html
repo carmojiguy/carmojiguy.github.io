@@ -678,6 +678,7 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
   </div>
   <div class="dock">
     <button class="pill purple" type="button" id="btnSharePack">Send</button>
+    <a class="pill cyan hide" id="mailOpen" href="#" target="_blank" rel="noopener">Open Gmail and send</a>
     <button class="pill wash" type="button" id="btnAnother">Inspect another</button>
   </div>
 </section>
@@ -1772,6 +1773,21 @@ function whenGis(){
     }, 80);
   });
 }
+function waitMs(ms){ return new Promise(function(res){ setTimeout(res, ms); }); }
+function withTimeout(promise, ms, fallback){
+  let t;
+  return Promise.race([
+    Promise.resolve(promise).finally(function(){ clearTimeout(t); }),
+    new Promise(function(res){ t=setTimeout(function(){ res(fallback); }, ms); })
+  ]);
+}
+function timedFetch(url, opts, ms){
+  const ctrl=typeof AbortController!=="undefined" ? new AbortController() : null;
+  const timer=setTimeout(function(){ try{ ctrl && ctrl.abort(); }catch(e){} }, ms||12000);
+  const o=Object.assign({}, opts||{});
+  if(ctrl) o.signal=ctrl.signal;
+  return fetch(url, o).finally(function(){ clearTimeout(timer); });
+}
 function keepGoogleToken(token, expiresIn){
   APP.googleToken=token||"";
   if(!token){ storeDel("inspect.gtoken"); return; }
@@ -1795,7 +1811,7 @@ function ensureGmailToken(force){
     const stored=readGoogleToken();
     if(stored){ APP.googleToken=stored; return Promise.resolve(stored); }
   }
-  return whenGis().then(function(ok){
+  return withTimeout(whenGis().then(function(ok){
     const cid=window.GOOGLE_CLIENT_ID||"";
     if(!ok || !cid) return "";
     return new Promise(function(resolve){
@@ -1813,36 +1829,45 @@ function ensureGmailToken(force){
         client.requestAccessToken({hint:APP.userEmail||"", prompt: force ? "consent" : ""});
       }catch(e){ resolve(""); }
     });
-  });
+  }), 8000, "");
 }
 async function sendFromMe(to, subject, body, html, parts, extra){
   extra=extra||{};
   const list=uniqEmails(to);
-  if(!list.length) return {ok:false};
-  if(!APP.googleToken){
-    try{ APP.googleToken=await ensureGmailToken(); }catch(e){}
-  }
-  async function gmailSend(token){
-    const rfc=rfc822(list, subject, body, html||"", parts||[], extra);
-    const r=await fetch("https://gmail.googleapis.com/upload/gmail/v1/users/me/messages/send?uploadType=media", {
-      method:"POST",
-      headers:{Authorization:"Bearer "+token, "Content-Type":"message/rfc822"},
-      body:rfc
-    });
-    return r;
-  }
+  if(!list.length) return {ok:false, error:"no-to"};
+  if(!APP.googleToken) APP.googleToken=readGoogleToken()||"";
+  const rfc=rfc822(list, subject, body, html||"", parts||[], extra);
   if(APP.googleToken){
     try{
-      let r=await gmailSend(APP.googleToken);
-      if((r.status===401 || r.status===403)){
-        keepGoogleToken("");
-        APP.googleToken=await ensureGmailToken();
-        if(APP.googleToken) r=await gmailSend(APP.googleToken);
-      }
-      if(r.ok) return {ok:true, via:"gmail"};
-      if(r.status===401 || r.status===403) keepGoogleToken("");
+      const r=await timedFetch("https://gmail.googleapis.com/upload/gmail/v1/users/me/messages/send?uploadType=media", {
+        method:"POST",
+        headers:{Authorization:"Bearer "+APP.googleToken, "Content-Type":"message/rfc822"},
+        body:rfc
+      }, 18000);
+      if(r && r.ok) return {ok:true, via:"gmail"};
+      if(r && (r.status===401 || r.status===403)) keepGoogleToken("");
     }catch(e){}
   }
+  try{
+    let raw="";
+    try{ raw=btoa(rfc).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,""); }
+    catch(e){ raw=btoa(unescape(encodeURIComponent(rfc))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,""); }
+    const r=await timedFetch(MAIL_HOST+"/api/send-packet", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        token:APP.googleToken||"",
+        raw:raw,
+        to:list,
+        subject:subject,
+        text:body,
+        html:html||"",
+        bcc:extra.bcc||[]
+      })
+    }, 20000);
+    const j=await r.json().catch(function(){ return {}; });
+    if(j && j.ok) return {ok:true, via:"server"};
+  }catch(e){}
   return {ok:false, via:"fail"};
 }
 function openEml(raw, name){
@@ -4519,33 +4544,51 @@ async function sharePacket(){
   const shots=capturedFiles();
   if(!shots.length && !(APP.clips&&APP.clips.length) && !Object.keys(APP.docs||{}).length && !(APP.notes||APP.heard)){ toast("Add the story or photos first."); return; }
   const btn=$("btnSharePack");
+  if(btn && btn.disabled) return;
+  const dest=packetDest();
+  const extra={cc:dest.cc, bcc:dest.bcc};
+  const to=dest.to;
+  const subject=APP.role==="guest"
+    ? (unitLabel()+" — trade-in"+(APP.inviteName?" from "+APP.inviteName:""))
+    : (unitLabel()+" — "+why());
+  const body=packetMailText() + (APP.role==="guest" && APP.requestedBy ? "\nRequested by: "+(APP.requestedByName||nameForEmail(APP.requestedBy))+" <"+APP.requestedBy+">" : "");
+  if($("mailOpen")){
+    $("mailOpen").href=gmailCompose(to, subject, body, extra);
+    $("mailOpen").classList.add("hide");
+  }
   if(btn){ btn.disabled=true; btn.textContent="Sending…"; }
-  try{
-    const doc=await buildPdf();
-    const base=folderName()||"vehicle";
-    const pdfBlob=doc.output("blob");
-    const pdfName=base+".pdf";
-    const pdfFile=new File([pdfBlob], pdfName, {type:"application/pdf"});
-    const dest=packetDest();
-    const extra={cc:dest.cc, bcc:dest.bcc};
-    const to=dest.to;
-    const subject=APP.role==="guest"
-      ? (unitLabel()+" — trade-in"+(APP.inviteName?" from "+APP.inviteName:""))
-      : (unitLabel()+" — "+why());
-    const body=packetMailText() + (APP.role==="guest" && APP.requestedBy ? "\nRequested by: "+(APP.requestedByName||nameForEmail(APP.requestedBy))+" <"+APP.requestedBy+">" : "");
-    if(APP.role==="guest"){
-      toast("Sending your trade-in…");
-      const ok=await sendGuestCatalog(to, subject, body);
-      if(ok){
-        finishGuest();
-        return;
+  let finished=false;
+  function finish(msg, openMail){
+    if(finished) return;
+    finished=true;
+    clearTimeout(watch);
+    if(btn){ btn.disabled=false; btn.textContent="Send"; }
+    if(openMail){
+      try{ openGmail(to, subject, body, extra); }catch(e){}
+      if($("mailOpen")){
+        $("mailOpen").href=gmailCompose(to, subject, body, extra);
+        $("mailOpen").classList.remove("hide");
       }
-      toast("Couldn’t send just now. Check the connection and tap Send again.");
+    }
+    if(msg) toast(msg);
+  }
+  const watch=setTimeout(function(){
+    finish("Send stalled. Open Gmail and tap Send.", true);
+  }, 22000);
+  try{
+    if(!APP.googleToken) APP.googleToken=readGoogleToken()||"";
+    const doc=await withTimeout(buildPdf(), 12000, null);
+    const pdfBlob=doc ? doc.output("blob") : null;
+    const pdfName=(folderName()||"vehicle")+".pdf";
+    if(APP.role==="guest"){
+      const ok=await withTimeout(sendGuestCatalog(to, subject, body), 18000, false);
+      if(ok){ finish(""); finishGuest(); return; }
+      finish("Couldn’t send from here. Open Gmail and tap Send.", true);
       return;
     }
     const mailShots=[];
     for(let i=0;i<shots.length;i++){
-      try{ mailShots.push({title:shots[i].title, name:shots[i].name, cap:shots[i].cap||"", data:await compressDataUrl(shots[i].data, 1600, 0.88)}); }
+      try{ mailShots.push({title:shots[i].title, name:shots[i].name, cap:shots[i].cap||"", data:await withTimeout(compressDataUrl(shots[i].data, 1400, 0.8), 4000, shots[i].data)}); }
       catch(e){ mailShots.push(shots[i]); }
     }
     const html=packetMailHtml(mailShots);
@@ -4555,77 +4598,25 @@ async function sharePacket(){
       if(!b64) return;
       parts.push({cid:"photo"+i+"@inspect", b64:b64, name:s.name||("photo-"+i+".jpg"), mime:"image/jpeg"});
     });
-    try{
-      parts.push({disp:"attachment", b64:bufB64(await pdfBlob.arrayBuffer()), name:pdfName, mime:"application/pdf"});
-    }catch(e){}
-    const videoLinks=[];
-    for(let i=0;i<(APP.clips||[]).length;i++){
-      const c=APP.clips[i];
-      if(!c || !c.blob) continue;
-      const ext=(c.mime||"").indexOf("webm")>=0?"webm":"mp4";
-      const fname="Walk-around."+ext;
-      if(c.blob.size<=12000000){
-        try{ parts.push({disp:"attachment", b64:bufB64(await c.blob.arrayBuffer()), name:fname, mime:c.mime||"video/mp4"}); }
-        catch(e){}
-      } else {
-        try{
-          const url=await hostBlob(fname, c.mime||"video/mp4", c.blob);
-          if(url) videoLinks.push("Walk-around video:\n"+url);
-        }catch(e){}
-      }
+    if(pdfBlob){
+      try{ parts.push({disp:"attachment", b64:bufB64(await pdfBlob.arrayBuffer()), name:pdfName, mime:"application/pdf"}); }catch(e){}
     }
-    const docIds=Object.keys(APP.docs||{});
-    for(let i=0;i<docIds.length;i++){
-      const d=APP.docs[docIds[i]]; if(!d) continue;
-      if(d.data && String(d.data).indexOf("application/pdf")>=0){
-        try{ parts.push({disp:"attachment", b64:dataB64(d.data), name:d.name||(docIds[i]+".pdf"), mime:"application/pdf"}); }catch(e){}
-      }
-      const vids=d.videos||[];
-      for(let j=0;j<vids.length;j++){
-        const v=vids[j];
-        const blob=v.file||v.blob;
-        if(!blob) continue;
-        const fname=(d.name||docIds[i])+" recording."+videoExt(v);
-        if(blob.size && blob.size<=12000000){
-          try{ parts.push({disp:"attachment", b64:bufB64(await blob.arrayBuffer()), name:fname, mime:v.type||"video/mp4"}); }
-          catch(e){}
-        } else {
-          try{
-            const url=await hostBlob(fname, v.type||"video/mp4", blob);
-            if(url) videoLinks.push((d.name||docIds[i])+" recording:\n"+url);
-          }catch(e){}
-        }
-      }
-    }
-    try{
-      const mailBody=body+(videoLinks.length ? "\n\n"+videoLinks.join("\n\n")+"\n" : "");
-      const sent=await sendFromMe(to, subject, mailBody, html, parts, extra);
-      if(sent && sent.ok){
-        toast("Sent the catalog to "+tradeToLine(to)+".");
-        return;
-      }
-    }catch(e){}
-    toast("Uploading the catalog…");
-    const pdfUrl=await hostFile(pdfName, "application/pdf", bufB64(await pdfBlob.arrayBuffer()));
-    const hosted=[];
-    for(let i=0;i<mailShots.length;i++){
-      const s=mailShots[i];
-      const url=await hostFile(s.name||("photo-"+i+".jpg"), "image/jpeg", dataB64(s.data)||s.data);
-      if(url) hosted.push({title:s.title, cap:s.cap, url:url});
-    }
-    const hostedHtml=packetMailHtmlHosted(hosted, pdfUrl);
-    const sent2=await sendFromMe(to, subject, body, hostedHtml, [{disp:"attachment", b64:bufB64(await pdfBlob.arrayBuffer()), name:pdfName, mime:"application/pdf"}], extra);
-    if(sent2 && sent2.ok){
-      toast("Sent the catalog to "+tradeToLine(to)+".");
+    const sent=await withTimeout(sendFromMe(to, subject, body, html, parts, extra), 18000, {ok:false});
+    if(sent && sent.ok){
+      finish("Sent the catalog to "+tradeToLine(to)+".");
       return;
     }
-    openGmail(to, subject, packetMailText()+(pdfUrl?"\n\nCatalog PDF:\n"+pdfUrl:""), extra);
-    toast("Gmail is open. Hit Send.");
+    const slim=await withTimeout(sendFromMe(to, subject, body, html, pdfBlob?parts.slice(-1):[], extra), 12000, {ok:false});
+    if(slim && slim.ok){
+      finish("Sent the PDF to "+tradeToLine(to)+".");
+      return;
+    }
+    finish("Couldn’t send from here. Open Gmail and tap Send.", true);
   }catch(e){
-    toast("Couldn’t send. Check the photos and try again.");
+    finish("Couldn’t send. Open Gmail and tap Send.", true);
   }finally{
+    if(!finished) finish("");
     releaseHardware();
-    if(btn){ btn.disabled=false; btn.textContent="Send"; }
   }
 }
 
