@@ -106,11 +106,13 @@ button.doc-sq { width:100%; appearance:none; -webkit-appearance:none; font:inher
 .doc-sq.vauto-sq .veil { background:transparent; }
 .doc-sq.carfax-sq { padding:0; border:0; background:#fff; }
 .doc-sq.carfax-sq img { object-fit:cover; pointer-events:none; }
-.doc-sq.carfax-wait { padding:18px 16px; justify-content:center; align-items:center; text-align:center; background:#FAF7F2; border:1.5px dashed #E0D4C4; cursor:default; }
+.doc-sq.carfax-wait { padding:18px 16px; justify-content:center; align-items:center; text-align:center; background:#FAF7F2; border:1.5px dashed #E0D4C4; cursor:pointer; }
 .doc-sq.carfax-wait b { font-size:16px; color:#1A1A1A; }
 .doc-sq.carfax-wait span { color:#8A7B68; }
-.doc-sq.carfax-pdf { padding:0; border:1.5px solid #D9D3E8; background:#fff; }
-.doc-sq.carfax-pdf img { object-fit:cover; object-position:top center; pointer-events:none; }
+.carfax-report { grid-column:1 / -1; background:#E8E4DC; border-radius:20px; padding:14px 12px 18px; max-height:82vh; overflow:auto; }
+.carfax-report h4 { margin:0 0 12px; font-size:14px; font-weight:800; color:#241B33; letter-spacing:.02em; }
+.carfax-pages { display:flex; flex-direction:column; gap:18px; align-items:center; }
+.carfax-pages canvas, .carfax-pages img { width:100%; max-width:720px; height:auto; background:#fff; box-shadow:0 10px 28px rgba(20,16,30,.18); border-radius:2px; display:block; }
 .doc-sq.on b, .doc-sq.on span { color:#fff; }
 .shot-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:0 0 16px; }
 .shot-grid button { border:0; padding:0; background:none; border-radius:14px; overflow:hidden; text-align:left; cursor:pointer; position:relative; }
@@ -606,8 +608,8 @@ button.doc-sq { width:100%; appearance:none; -webkit-appearance:none; font:inher
   <div class="card">
     <button class="x" type="button" data-close="carfaxSheet">✕</button>
     <h3>Carfax link</h3>
-    <p class="hint">Paste the Carfax report URL. We’ll turn it into a PDF and drop it under Comp set.</p>
-    <input class="f" id="carfaxUrl" placeholder="https://www.carfax.com/…" autocomplete="off" spellcheck="false" />
+    <p class="hint">Paste the Carfax report link. The box stays empty until you paste.</p>
+    <input class="f" id="carfaxUrl" placeholder="https://vhr.carfax.ca/…" autocomplete="off" spellcheck="false" />
     <button class="pill purple" type="button" id="carfaxGo" style="margin-top:12px">Make PDF</button>
   </div>
 </div>
@@ -2900,35 +2902,7 @@ function paintDocs(){
       return;
     }
     if(id==="carfax_pdf"){
-      const got=APP.docs.carfax;
-      if(got && got.data){
-        const el=document.createElement("button");
-        el.type="button";
-        el.className="doc-sq carfax-pdf on";
-        if(got.preview) el.innerHTML='<img src="'+got.preview+'" alt="Carfax">';
-        else el.innerHTML='<div class="veil"></div><div class="pdfmark">PDF</div><b>'+esc(carfaxTitle())+'</b><span>Tap to open</span>';
-        el.onclick=function(){ openCarfaxPdf(); };
-        host.appendChild(el);
-        return;
-      }
-      const el=document.createElement("label");
-      el.className="doc-sq carfax-wait";
-      el.innerHTML=APP.carfaxBusy
-        ? "<b>Carfax</b><span>Printing report…</span>"
-        : "<b>Carfax</b><span>Awaiting information</span>";
-      const inp=document.createElement("input");
-      inp.type="file"; inp.accept="application/pdf,image/*"; inp.className="hide";
-      inp.onchange=function(){
-        const f=inp.files[0]; if(!f) return;
-        const r=new FileReader();
-        r.onload=function(){
-          APP.carfaxBusy=false;
-          APP.docs.carfax={name:carfaxFileName(), data:r.result, type:f.type||"application/pdf", url:"", preview:/^data:image\//.test(r.result)?r.result:""};
-          paintDocs(); toast("Carfax PDF is in.");
-        };
-        r.readAsDataURL(f);
-      };
-      el.appendChild(inp); host.appendChild(el);
+      paintCarfaxSlot(host);
       return;
     }
     const got=APP.docs[id];
@@ -2967,19 +2941,10 @@ function openVauto(){
   window.open(VAUTO_APPRAISE, "_blank", "noopener");
 }
 function openCarfaxPaste(){
-  if($("carfaxSheet")) $("carfaxSheet").classList.add("on");
   const el=$("carfaxUrl");
-  if(el && !el.value){
-    try{
-      if(navigator.clipboard && navigator.clipboard.readText){
-        navigator.clipboard.readText().then(function(t){
-          t=String(t||"").trim();
-          if(/^https?:\/\//i.test(t)) el.value=t;
-        }).catch(function(){});
-      }
-    }catch(e){}
-  }
-  setTimeout(function(){ if(el) el.focus(); }, 200);
+  if(el) el.value="";
+  if($("carfaxSheet")) $("carfaxSheet").classList.add("on");
+  setTimeout(function(){ if(el) el.focus(); }, 150);
 }
 function closeCarfaxPaste(){
   if($("carfaxSheet")) $("carfaxSheet").classList.remove("on");
@@ -3008,90 +2973,139 @@ function carfaxTitle(){
 function carfaxFileName(){
   return carfaxTitle().replace(/[^\w\s\-]+/g,"").replace(/\s+/g," ").trim()+".pdf";
 }
-async function screenshotToPdf(imgData){
-  if(!window.jspdf) await loadScript("https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js");
-  const {jsPDF}=window.jspdf;
-  const d=new jsPDF({unit:"pt", format:"letter", compress:true});
-  d.setProperties({title:carfaxTitle(), subject:"CARFAX Canada Vehicle History Report"});
-  const w=d.internal.pageSize.getWidth();
-  const h=d.internal.pageSize.getHeight();
-  d.addImage(imgData, "JPEG", 0, 0, w, h);
-  return d.output("datauristring");
+function cleanCarfaxUrl(raw){
+  return String(raw||"").trim().replace(/[\r\n\t]/g,"").replace(/ /g,"+");
 }
-function microlinkPdf(url){
-  return fetch("https://api.microlink.io?"+new URLSearchParams({
-    url:url, pdf:"true", screenshot:"true", meta:"false", waitUntil:"networkidle2",
-    "viewport.width":"850", "viewport.height":"2200"
-  })).then(function(r){ return r.json(); }).then(function(j){
-    const d=(j && j.data)||{};
-    return {
-      pdf: d.pdf && (d.pdf.url||d.pdf) || "",
-      shot: d.screenshot && (d.screenshot.url||d.screenshot) || ""
+function takeCarfaxFile(f){
+  if(!f) return;
+  const r=new FileReader();
+  r.onload=function(){
+    const prev=APP.docs.carfax||{};
+    APP.carfaxBusy=false;
+    APP.docs.carfax={
+      name:carfaxFileName(),
+      data:r.result,
+      type:f.type||"application/pdf",
+      url:prev.url||"",
+      preview:/^data:image\//.test(r.result)?r.result:""
     };
-  }).catch(function(){ return {pdf:"", shot:""}; });
-}
-async function ingestCarfax(){
-  const url=String($("carfaxUrl") && $("carfaxUrl").value || "").trim();
-  if(!/^https?:\/\//i.test(url)){ toast("Paste a full Carfax link."); return; }
-  try{ window.open(url, "_blank", "noopener"); }catch(e){}
-  APP.carfaxBusy=true;
-  closeCarfaxPaste();
-  paintDocs();
-  toast("Carfax is open — printing the report.");
-  const btn=$("carfaxGo");
-  if(btn){ btn.disabled=false; btn.textContent="Make PDF"; }
-  let preview="", pdfData="";
-  try{
-    const r=await fetch(MAIL_HOST+"/api/upload", {
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({kind:"carfax", url:url})
-    });
-    const j=await r.json().catch(function(){ return {}; });
-    if(j && j.ok){
-      if(j.preview) preview="data:image/jpeg;base64,"+j.preview;
-      if(j.pdf) pdfData="data:application/pdf;base64,"+j.pdf;
-    }
-  }catch(e){}
-  if(!pdfData || !preview){
-    try{
-      const ml=await microlinkPdf(url);
-      if(!preview && ml.shot){
-        const got=await fetchAsData(ml.shot);
-        if(got && got.data) preview=got.data;
-      }
-      if(!pdfData && ml.pdf){
-        const got=await fetchAsData(ml.pdf);
-        if(got && got.data) pdfData=got.data;
-      }
-    }catch(e){}
-  }
-  try{
-    if(!pdfData && preview) pdfData=await screenshotToPdf(preview);
-  }catch(e){}
-  APP.carfaxBusy=false;
-  if(!pdfData){
     paintDocs();
-    toast("Print the Carfax tab to PDF, then tap the Carfax box.");
+    toast(carfaxTitle()+" is in.");
+  };
+  r.readAsDataURL(f);
+}
+function carfaxFileInput(){
+  const inp=document.createElement("input");
+  inp.type="file"; inp.accept="application/pdf,image/*"; inp.className="hide";
+  inp.onchange=function(){ takeCarfaxFile(inp.files[0]); };
+  return inp;
+}
+function paintCarfaxSlot(host){
+  const got=APP.docs.carfax;
+  if(got && got.data && String(got.data).indexOf("data:")===0){
+    const wrap=document.createElement("div");
+    wrap.className="carfax-report";
+    wrap.innerHTML="<h4>"+esc(carfaxTitle())+"</h4>";
+    const pages=document.createElement("div");
+    pages.className="carfax-pages";
+    pages.id="carfaxPages";
+    wrap.appendChild(pages);
+    host.appendChild(wrap);
+    fillCarfaxPages(pages, got);
     return;
   }
-  APP.docs.carfax={name:carfaxFileName(), data:pdfData, type:"application/pdf", url:url, preview:preview||""};
+  const el=document.createElement("label");
+  el.className="doc-sq carfax-wait";
+  el.style.gridColumn="1 / -1";
+  el.style.aspectRatio="auto";
+  el.style.minHeight="140px";
+  if(got && got.url){
+    el.innerHTML="<b>Carfax</b><span>The report is open. In that tab choose Print → Save as PDF, then tap this box and pick the file.</span>";
+  } else {
+    el.innerHTML="<b>Carfax</b><span>Awaiting information</span>";
+  }
+  el.appendChild(carfaxFileInput());
+  host.appendChild(el);
+}
+async function loadPdfJs(){
+  if(window.pdfjsLib) return window.pdfjsLib;
+  await loadScript("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js");
+  if(window.pdfjsLib){
+    window.pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+  }
+  return window.pdfjsLib;
+}
+function dataToBytes(dataUrl){
+  const b64=String(dataUrl||"").split(",")[1]||"";
+  const bin=atob(b64);
+  const bytes=new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
+  return bytes;
+}
+async function fillCarfaxPages(host, got){
+  if(!host || !got) return;
+  if(got.preview && String(got.data||"").indexOf("application/pdf")<0){
+    const img=document.createElement("img");
+    img.src=got.preview;
+    img.alt=carfaxTitle();
+    host.appendChild(img);
+    return;
+  }
+  if(String(got.data||"").indexOf("image/")>=0){
+    const img=document.createElement("img");
+    img.src=got.data;
+    img.alt=carfaxTitle();
+    host.appendChild(img);
+    return;
+  }
+  try{
+    const lib=await loadPdfJs();
+    if(!lib) throw new Error("pdfjs");
+    const pdf=await lib.getDocument({data:dataToBytes(got.data)}).promise;
+    for(let i=1;i<=pdf.numPages;i++){
+      const page=await pdf.getPage(i);
+      const viewport=page.getViewport({scale:1.6});
+      const canvas=document.createElement("canvas");
+      canvas.width=viewport.width;
+      canvas.height=viewport.height;
+      await page.render({canvasContext:canvas.getContext("2d"), viewport:viewport}).promise;
+      host.appendChild(canvas);
+    }
+  }catch(e){
+    const fallback=document.createElement("button");
+    fallback.type="button";
+    fallback.className="pill purple";
+    fallback.textContent="Open "+carfaxTitle();
+    fallback.onclick=openCarfaxPdf;
+    host.appendChild(fallback);
+  }
+}
+async function ingestCarfax(){
+  const url=cleanCarfaxUrl($("carfaxUrl") && $("carfaxUrl").value || "");
+  if(!/^https?:\/\//i.test(url)){ toast("Paste a full Carfax link."); return; }
+  const prev=APP.docs.carfax||{};
+  APP.docs.carfax={name:carfaxFileName(), data:prev.data||"", type:prev.type||"", url:url, preview:prev.preview||""};
+  closeCarfaxPaste();
   paintDocs();
-  toast(carfaxTitle()+" is in.");
+  try{ window.open(url, "_blank", "noopener"); }catch(e){}
+  toast("Paste the saved Carfax PDF into the box below.");
+  const btn=$("carfaxGo");
+  if(btn){ btn.disabled=false; btn.textContent="Make PDF"; }
 }
 function openCarfaxPdf(){
   const got=APP.docs.carfax;
   if(!got) return;
   const title=got.name || carfaxTitle();
-  if(got.preview){ openViewer("img", got.preview, title); return; }
   if(got.data){
     try{
       const blob=blobFrom(got.data);
-      const file=new File([blob], title.replace(/\.pdf$/i,"")+".pdf", {type:"application/pdf"});
-      const url=URL.createObjectURL(file);
-      window.open(url, "_blank", "noopener");
+      const file=new File([blob], title.replace(/\.pdf$/i,"")+".pdf", {type:got.type||"application/pdf"});
+      const href=URL.createObjectURL(file);
+      window.open(href, "_blank", "noopener");
     }catch(e){ openViewer("pdf", got.data, title); }
+    return;
   }
+  if(got.url) window.open(got.url, "_blank", "noopener");
 }
 
 function blobFrom(data){
