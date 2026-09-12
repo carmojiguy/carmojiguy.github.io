@@ -134,15 +134,7 @@ textarea.note { min-height:160px; max-height:none; resize:vertical; overflow:aut
 .ghost.tall { top:10%; height:70%; }
 .ghost.off { opacity:0; }
 .ghost.flip, .thumb img.flip { transform:scaleX(-1); }
-.rec-pill { position:absolute; top:12px; left:12px; z-index:4; border:0; border-radius:999px; background:rgba(226,59,59,.96); color:#fff; font-weight:800; font-size:13px; letter-spacing:.04em; padding:8px 12px; display:flex; align-items:center; gap:8px; }
-.rec-pill i { width:8px; height:8px; border-radius:50%; background:#fff; display:block; animation:livepulse 1.2s infinite; }
-.rec-pill.idle { background:rgba(255,255,255,.18); }
-.rec-pill.idle i { animation:none; background:#E23B3B; }
-.rec-bar { width:100%; border:0; border-radius:16px; padding:13px 14px; background:#1A1630; color:#fff; font-weight:800; margin:0 0 12px; text-align:left; font-size:15px; }
-.rec-bar.idle { background:var(--fill); color:var(--ink); }
-.zoom { position:absolute; right:12px; top:46%; transform:translateY(-50%); z-index:4; display:flex; flex-direction:column; gap:8px; }
-.zoom button { width:42px; height:42px; border-radius:50%; border:0; background:rgba(0,0,0,.5); color:#fff; font-size:24px; font-weight:700; line-height:1; }
-.viewer video { flex:1; width:100%; background:#000; object-fit:contain; }
+.cam-wait { position:absolute; left:16px; right:16px; bottom:18px; z-index:2; color:#fff; text-align:center; font-size:14px; font-weight:700; text-shadow:0 1px 8px #000; pointer-events:none; }
 .cam-wait.off { display:none; }
 .flash { position:absolute; inset:0; background:#fff; opacity:0; pointer-events:none; }
 .flash.go { animation:pop .16s ease-out; }
@@ -433,7 +425,6 @@ textarea.note { min-height:160px; max-height:none; resize:vertical; overflow:aut
   </div>
   <div class="pad">
     <button class="unit link" type="button" id="unitLine">Add year / make / VIN</button>
-    <button class="rec-bar hide" type="button" id="photosRec">Record the walk-around</button>
     <button class="pill wash" type="button" id="btnStart">Start with 3/4 Front</button>
     <div class="block">Photos</div>
     <div id="photoRows"></div>
@@ -464,11 +455,6 @@ textarea.note { min-height:160px; max-height:none; resize:vertical; overflow:aut
     <video id="shotCam" autoplay playsinline webkit-playsinline muted></video>
     <input id="nativeShot" class="hide" type="file" accept="image/*" capture="environment" />
     <img class="ghost" id="ghost" alt="" />
-    <button class="rec-pill idle" type="button" id="camRec"><i></i><span>REC</span></button>
-    <div class="zoom" id="camZoom">
-      <button type="button" id="zoomIn">+</button>
-      <button type="button" id="zoomOut">−</button>
-    </div>
     <div class="cam-wait" id="camWait">Allow the camera — you’ll see the car through the overlay.</div>
     <div class="flash" id="flash"></div>
     <div class="dmg-banner" id="dmgBanner"></div>
@@ -505,8 +491,6 @@ textarea.note { min-height:160px; max-height:none; resize:vertical; overflow:aut
     </button>
     <div class="block">Photos</div>
     <div class="shot-grid" id="subShots"></div>
-    <div class="block hide" id="subVidHead">Walk-around video</div>
-    <div id="subVids"></div>
     <div class="block" id="subDocHead">Documents</div>
     <div id="subDocs"></div>
     <button class="review pdf-card" type="button" id="pdfCard">
@@ -731,7 +715,7 @@ function show(id){
       img.src = assetUrl("start-bgs/" + String(n).padStart(2,"0") + ".jpg?v=10");
     }
   }
-  if(id==="photos"){ paintLists(); paintDocs(); paintRec(); }
+  if(id==="photos"){ paintLists(); paintDocs(); }
   if(id==="camera") startPreview("shotCam");
   if(id==="submit") paintSubmit();
   if(id==="users") paintUsers();
@@ -1529,8 +1513,8 @@ function openCamera(mode, id){
   if(ban){ ban.textContent=""; ban.classList.remove("on"); }
   if($("camHint")){
     $("camHint").textContent = (mode==="damage"||mode==="close")
-      ? "Recording. Tap once to describe it. Tap again for the still. Zoom in on the damage."
-      : "Recording the walk-around. Talk as you go — zoom in on rust or dents, then tap the shutter for the still.";
+      ? "Tap once to describe it. Tap again to take the photo. Add as many as you need, then Done."
+      : "Use the overlay to help frame the picture";
   }
   show("camera");
 }
@@ -1736,8 +1720,7 @@ function startPreview(videoId){
     const play=function(){
       const p=el.play(); if(p&&p.catch) p.catch(function(){});
       if($("camWait")) $("camWait").classList.add("off");
-      if(!APP.recOn && !APP.clips.length) startWalkRec();
-      else paintRec();
+      if(!APP.recOn) startWalkRec();
     };
     if(el.readyState>=1) play();
     else el.onloadedmetadata=play;
@@ -1773,23 +1756,7 @@ function recClock(ms){
   const s=Math.max(0, Math.floor((ms||0)/1000));
   return Math.floor(s/60)+":"+String(s%60).padStart(2,"0");
 }
-function paintRec(){
-  const live=!!APP.recOn;
-  const t=live ? recClock(Date.now()-APP.recStarted) : (APP.clips[0] ? recClock(APP.clips.reduce(function(n,c){ return n+(c.dur||0); },0)) : "0:00");
-  const cam=$("camRec");
-  if(cam){
-    cam.classList.toggle("idle", !live);
-    cam.querySelector("span").textContent = live ? ("REC  "+t) : (APP.clips.length ? ("Saved  "+t) : "Record");
-  }
-  const bar=$("photosRec");
-  if(bar){
-    bar.classList.toggle("hide", !live && !APP.clips.length);
-    bar.classList.toggle("idle", !live);
-    bar.textContent = live
-      ? ("Recording walk-around  "+t+"  ·  tap to stop")
-      : (APP.clips.length ? (APP.clips.length+" walk-around clip"+(APP.clips.length>1?"s":"")+"  ·  tap to record more") : "Record the walk-around");
-  }
-}
+function paintRec(){}
 function startWalkRec(){
   if(APP.recOn || !APP.stream) return;
   if(!window.MediaRecorder){ paintRec(); return; }
@@ -1802,7 +1769,7 @@ function startWalkRec(){
       : {videoBitsPerSecond:1200000, audioBitsPerSecond:64000};
     APP.recorder=mime ? new MediaRecorder(APP.stream, opts) : new MediaRecorder(APP.stream);
   }catch(e){
-    try{ APP.recorder=new MediaRecorder(APP.stream); }catch(err){ toast("This phone can’t record the walk-around."); paintRec(); return; }
+    try{ APP.recorder=new MediaRecorder(APP.stream); }catch(err){ return; }
   }
   APP.recorder.ondataavailable=function(ev){ if(ev.data && ev.data.size) APP.recChunks.push(ev.data); };
   APP.recorder.onstop=function(){
@@ -1816,7 +1783,6 @@ function startWalkRec(){
       const dur=Date.now()-APP.recStarted;
       const url=URL.createObjectURL(blob);
       APP.clips.push({blob:blob, url:url, dur:dur, mime:type});
-      toast("Walk-around saved  "+recClock(dur));
     }
     paintRec();
   };
@@ -1826,7 +1792,6 @@ function startWalkRec(){
   if(APP.recTick) clearInterval(APP.recTick);
   APP.recTick=setInterval(paintRec, 400);
   paintRec();
-  toast("Recording — talk as you walk. Zoom in on damage.");
 }
 function stopWalkRec(){
   if(!APP.recOn || !APP.recorder){ paintRec(); return Promise.resolve(); }
@@ -1856,14 +1821,9 @@ function camZoomRange(){
 function setCamZoom(next){
   const t=camTrack();
   const range=camZoomRange();
-  if(t && range){
-    APP.zoom=Math.min(range.max, Math.max(range.min, next));
-    t.applyConstraints({advanced:[{zoom:APP.zoom}]}).catch(function(){});
-    return;
-  }
-  APP.zoom=Math.min(4, Math.max(1, next));
-  const v=$("shotCam");
-  if(v) v.style.transform="scale("+APP.zoom+")";
+  if(!t || !range) return;
+  APP.zoom=Math.min(range.max, Math.max(range.min, next));
+  t.applyConstraints({advanced:[{zoom:APP.zoom}]}).catch(function(){});
 }
 function nudgeZoom(dir){
   const range=camZoomRange();
@@ -2722,7 +2682,7 @@ async function paintSubmit(){
     ? (APP.inviteName.split(/\s+/)[0]+"'s trade")
     : (unitLabel()==="Unit" ? "Vehicle packet" : unitLabel());
   $("subBadge").textContent = why();
-  $("subBody").textContent = shotCount()+" photo(s)"+(APP.clips&&APP.clips.length?" · "+APP.clips.length+" video":"")+" · "+Object.keys(APP.docs||{}).length+" document(s)";
+  $("subBody").textContent = shotCount()+" photo(s) · "+Object.keys(APP.docs||{}).length+" document(s)";
   $("subFacts").innerHTML =
     factCell("Year", APP.year)+factCell("Make", APP.make)+factCell("Model", APP.model)+
     factCell("Trim", APP.trim)+factCell("Colour", APP.color)+factCell("Kilometres", APP.km && Number(String(APP.km).replace(/,/g,"")).toLocaleString("en-CA"))+
@@ -2742,17 +2702,6 @@ async function paintSubmit(){
     grid.appendChild(b);
   });
   if(!capturedFiles().length) grid.innerHTML='<p class="quote">No photos yet.</p>';
-  const vids=$("subVids");
-  if(vids){
-    vids.innerHTML="";
-    (APP.clips||[]).forEach(function(c,i){
-      const b=document.createElement("button"); b.type="button"; b.className="review";
-      b.innerHTML="<h4>Walk-around "+(i+1)+"</h4><p>"+recClock(c.dur)+" · tap to play</p>";
-      b.onclick=function(){ openViewer("vid", c.url, "Walk-around "+(i+1)); };
-      vids.appendChild(b);
-    });
-  }
-  if($("subVidHead")) $("subVidHead").classList.toggle("hide", !(APP.clips&&APP.clips.length));
   const docs=$("subDocs"); docs.innerHTML="";
   const keys=Object.keys(APP.docs||{});
   $("subDocHead").classList.toggle("hide", !keys.length);
@@ -2850,7 +2799,7 @@ async function sharePacket(){
       if(sent && sent.ok){
         toast(APP.role==="guest"
           ? ("Sent to "+(APP.requestedByName||nameForEmail(to[0])||to[0])+".")
-          : ("Sent photos"+(APP.clips&&APP.clips.length?", video":"")+", description, and PDF to "+tradeToLine(to)+"."));
+          : ("Sent photos, description, and PDF to "+tradeToLine(to)+"."));
         return;
       }
     }catch(e){}
@@ -2938,10 +2887,6 @@ if($("btnSavePhotos")) $("btnSavePhotos").onclick = savePhotos;
 
 $("shutter").onclick = snap;
 $("shutter").addEventListener("touchend", function(e){ e.preventDefault(); snap(); }, {passive:false});
-if($("camRec")) $("camRec").onclick = function(e){ e.preventDefault(); e.stopPropagation(); toggleWalkRec(); };
-if($("photosRec")) $("photosRec").onclick = function(){ toggleWalkRec(); };
-if($("zoomIn")) $("zoomIn").onclick = function(){ nudgeZoom(1); };
-if($("zoomOut")) $("zoomOut").onclick = function(){ nudgeZoom(-1); };
 $("camX").addEventListener("click", stopDamageMic);
 $("camSkip").onclick = function(){
   stopDamageMic();
