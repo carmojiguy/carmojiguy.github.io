@@ -2874,20 +2874,34 @@ function paintDocs(){
     }
     if(id==="carfax_pdf"){
       const got=APP.docs.carfax;
-      if(!got || !got.data){
-        const el=document.createElement("div");
-        el.className="doc-sq carfax-wait";
-        el.innerHTML=APP.carfaxBusy ? "<b>Carfax</b><span>Building PDF…</span>" : "<b>Carfax</b><span>Awaiting information</span>";
+      if(got && got.data){
+        const el=document.createElement("button");
+        el.type="button";
+        el.className="doc-sq carfax-pdf on";
+        if(got.preview) el.innerHTML='<img src="'+got.preview+'" alt="Carfax">';
+        else el.innerHTML='<div class="veil"></div><div class="pdfmark">PDF</div><b>Carfax</b><span>Tap to open</span>';
+        el.onclick=function(){ openCarfaxPdf(); };
         host.appendChild(el);
         return;
       }
-      const el=document.createElement("button");
-      el.type="button";
-      el.className="doc-sq carfax-pdf on";
-      if(got.preview) el.innerHTML='<img src="'+got.preview+'" alt="Carfax">';
-      else el.innerHTML='<div class="veil"></div><div class="pdfmark">PDF</div><b>Carfax</b><span>Tap to open</span>';
-      el.onclick=function(){ openCarfaxPdf(); };
-      host.appendChild(el);
+      const el=document.createElement("label");
+      el.className="doc-sq carfax-wait";
+      el.innerHTML=APP.carfaxBusy
+        ? "<b>Carfax</b><span>Printing report…</span>"
+        : "<b>Carfax</b><span>Awaiting information</span>";
+      const inp=document.createElement("input");
+      inp.type="file"; inp.accept="application/pdf,image/*"; inp.className="hide";
+      inp.onchange=function(){
+        const f=inp.files[0]; if(!f) return;
+        const r=new FileReader();
+        r.onload=function(){
+          APP.carfaxBusy=false;
+          APP.docs.carfax={name:f.name||"Carfax.pdf", data:r.result, type:f.type||"application/pdf", url:"", preview:/^data:image\//.test(r.result)?r.result:""};
+          paintDocs(); toast("Carfax PDF is in.");
+        };
+        r.readAsDataURL(f);
+      };
+      el.appendChild(inp); host.appendChild(el);
       return;
     }
     const got=APP.docs[id];
@@ -2961,58 +2975,61 @@ async function screenshotToPdf(imgData){
   d.addImage(imgData, "JPEG", 0, 0, w, h);
   return d.output("datauristring");
 }
-async function linkPdf(url){
-  if(!window.jspdf) await loadScript("https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js");
-  const {jsPDF}=window.jspdf;
-  const d=new jsPDF({unit:"pt", format:"letter"});
-  d.setFillColor(17,14,26); d.rect(0,0,612,90,"F");
-  d.setTextColor(255,255,255); d.setFont("helvetica","bold"); d.setFontSize(22);
-  d.text("CARFAX", 40, 54);
-  d.setTextColor(17,14,26); d.setFontSize(12); d.setFont("helvetica","normal");
-  d.text("Report link", 40, 130);
-  const lines=d.splitTextToSize(url, 532);
-  d.setTextColor(0,137,204); d.text(lines, 40, 152);
-  if(APP.vin){ d.setTextColor(17,14,26); d.text("VIN "+APP.vin, 40, 152+lines.length*16+24); }
-  return d.output("datauristring");
+function microlinkPdf(url){
+  return fetch("https://api.microlink.io?"+new URLSearchParams({
+    url:url, pdf:"true", screenshot:"true", meta:"false", waitUntil:"networkidle2",
+    "viewport.width":"850", "viewport.height":"2200"
+  })).then(function(r){ return r.json(); }).then(function(j){
+    const d=(j && j.data)||{};
+    return {
+      pdf: d.pdf && (d.pdf.url||d.pdf) || "",
+      shot: d.screenshot && (d.screenshot.url||d.screenshot) || ""
+    };
+  }).catch(function(){ return {pdf:"", shot:""}; });
 }
 async function ingestCarfax(){
   const url=String($("carfaxUrl") && $("carfaxUrl").value || "").trim();
   if(!/^https?:\/\//i.test(url)){ toast("Paste a full Carfax link."); return; }
+  try{ window.open(url, "_blank", "noopener"); }catch(e){}
   APP.carfaxBusy=true;
   closeCarfaxPaste();
   paintDocs();
-  toast("Carfax is building — keep going.");
+  toast("Carfax is open — printing the report.");
   const btn=$("carfaxGo");
   if(btn){ btn.disabled=false; btn.textContent="Make PDF"; }
   let preview="", pdfData="";
   try{
-    const shot=await fetch("https://api.microlink.io?"+new URLSearchParams({
-      url:url, screenshot:"true", meta:"false", "viewport.width":"850", "viewport.height":"2200"
-    })).then(function(r){ return r.json(); });
-    const su=shot && shot.data && shot.data.screenshot && (shot.data.screenshot.url||shot.data.screenshot);
-    if(su){
-      const got=await fetchAsData(su);
-      if(got && got.data) preview=got.data;
+    const r=await fetch(MAIL_HOST+"/api/upload", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({kind:"carfax", url:url})
+    });
+    const j=await r.json().catch(function(){ return {}; });
+    if(j && j.ok){
+      if(j.preview) preview="data:image/jpeg;base64,"+j.preview;
+      if(j.pdf) pdfData="data:application/pdf;base64,"+j.pdf;
     }
   }catch(e){}
-  try{
-    const ml=await fetch("https://api.microlink.io?"+new URLSearchParams({
-      url:url, pdf:"true", meta:"false"
-    })).then(function(r){ return r.json(); });
-    const pu=ml && ml.data && ml.data.pdf && (ml.data.pdf.url||ml.data.pdf);
-    if(pu){
-      const got=await fetchAsData(pu);
-      if(got && got.data) pdfData=got.data;
-    }
-  }catch(e){}
+  if(!pdfData || !preview){
+    try{
+      const ml=await microlinkPdf(url);
+      if(!preview && ml.shot){
+        const got=await fetchAsData(ml.shot);
+        if(got && got.data) preview=got.data;
+      }
+      if(!pdfData && ml.pdf){
+        const got=await fetchAsData(ml.pdf);
+        if(got && got.data) pdfData=got.data;
+      }
+    }catch(e){}
+  }
   try{
     if(!pdfData && preview) pdfData=await screenshotToPdf(preview);
-    if(!pdfData) pdfData=await linkPdf(url);
   }catch(e){}
   APP.carfaxBusy=false;
   if(!pdfData){
     paintDocs();
-    toast("Couldn’t build that PDF. Check the link.");
+    toast("Print the Carfax tab to PDF, then tap the Carfax box.");
     return;
   }
   APP.docs.carfax={name:"Carfax.pdf", data:pdfData, type:"application/pdf", url:url, preview:preview||""};
