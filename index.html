@@ -105,7 +105,7 @@ textarea.note { min-height:160px; max-height:none; resize:vertical; overflow:aut
 .doc-sq .pdfmark { position:absolute; top:14px; right:14px; background:var(--purple); color:#fff; font-size:11px; font-weight:800; border-radius:8px; padding:4px 8px; letter-spacing:.04em; }
 .doc-sq b { position:relative; font-size:15px; font-weight:800; line-height:1.15; margin:0 0 4px; }
 .doc-sq span { position:relative; font-size:12px; color:var(--muted); line-height:1.3; font-weight:600; }
-button.doc-sq { width:100%; appearance:none; -webkit-appearance:none; font:inherit; color:inherit; }
+button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; font:inherit; color:inherit; text-decoration:none; display:block; }
 .doc-sq.vauto-sq { padding:0; border:0; background:#FF6A00; }
 .doc-sq.vauto-sq img { object-fit:cover; pointer-events:none; }
 .doc-sq.openlane-sq { padding:0; border:0; background:#0B1B4A; }
@@ -3082,30 +3082,15 @@ function paintDocs(){
   DOC_TYPES.forEach(function(pair){
     const id=pair[0], label=pair[1], hint=pair[2];
     if(id==="vauto"){
-      const el=document.createElement("button");
-      el.type="button";
-      el.className="doc-sq vauto-sq";
-      el.innerHTML='<img src="docs/vauto.svg" alt="vAuto">';
-      el.onclick=openVauto;
-      host.appendChild(el);
+      host.appendChild(brandTile(VAUTO_APPRAISE, "vauto-sq", '<img src="docs/vauto.svg" alt="vAuto">'));
       return;
     }
     if(id==="openlane"){
-      const el=document.createElement("button");
-      el.type="button";
-      el.className="doc-sq openlane-sq";
-      el.innerHTML='<img src="docs/openlane.jpg" alt="OpenLane">';
-      el.onclick=openOpenlane;
-      host.appendChild(el);
+      host.appendChild(brandTile(OPENLANE_GUIDE, "openlane-sq", '<img src="docs/openlane.jpg" alt="OpenLane">'));
       return;
     }
     if(id==="eblock"){
-      const el=document.createElement("button");
-      el.type="button";
-      el.className="doc-sq eblock-sq";
-      el.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" aria-hidden="true"><rect width="400" height="400" fill="#0B0B0B"/><rect x="0" y="0" width="14" height="400" fill="#00C853"/><text x="200" y="222" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="78" font-weight="800" fill="#FFFFFF">eBlock</text></svg>';
-      el.onclick=openEblock;
-      host.appendChild(el);
+      host.appendChild(brandTile(EBLOCK_GUIDE, "eblock-sq", '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" aria-hidden="true"><rect width="400" height="400" fill="#0B0B0B"/><rect x="0" y="0" width="14" height="400" fill="#00C853"/><text x="200" y="222" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="78" font-weight="800" fill="#FFFFFF">eBlock</text></svg>'));
       return;
     }
     if(id==="carfax"){
@@ -3165,17 +3150,26 @@ function copyVin(){
   }catch(e){}
   return vin;
 }
+function brandTile(url, cls, html){
+  const el=document.createElement("a");
+  el.href=url;
+  el.target="_blank";
+  el.rel="noopener noreferrer";
+  el.className="doc-sq "+cls;
+  el.innerHTML=html;
+  el.addEventListener("click", function(){ copyVin(); });
+  return el;
+}
 function openBrand(url){
-  const vin=copyVin();
-  if(vin) toast("VIN copied");
+  const vin=currentVin();
   const a=document.createElement("a");
   a.href=url;
   a.target="_blank";
   a.rel="noopener noreferrer";
-  a.style.display="none";
   document.body.appendChild(a);
   a.click();
   a.remove();
+  if(vin) copyVin();
 }
 function openVauto(){ openBrand(VAUTO_APPRAISE); }
 function openOpenlane(){ openBrand(OPENLANE_GUIDE); }
