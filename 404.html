@@ -1664,20 +1664,36 @@ async function sendTradeInvite(){
   if(!url){ toast("Couldn’t build the link."); return; }
   let copy;
   try{ copy=inviteMailCopy(first, url); }
-  catch(e){ copy={subject:"Your trade-in link", text:"Hi "+first+",\n\n"+url+"\n", html:""}; }
+  catch(e){ copy={subject:"Your trade-in link", text:"Hi "+first+",\n\n"+url+"\n", html:"", compose:"Hi "+first+",\n\n"+url+"\n"}; }
   const subject=copy.subject, msg=copy.text, html=copy.html, compose=copy.compose||copy.text;
   const from=APP.userEmail||"";
   const sms=phone ? inviteSmsCopy(first, url) : "";
   const btn=$("inviteSend");
   if(btn){ btn.disabled=true; btn.textContent="Sending…"; }
+  let mailTab=null;
+  if(email){
+    try{ mailTab=window.open("about:blank","tradeInviteMail"); }catch(e){}
+  }
   try{ if(navigator.clipboard && navigator.clipboard.writeText) await navigator.clipboard.writeText(url); }catch(e){}
   let mailed=false;
   let status="Link is ready — copy it below.";
   try{
     if(email){
-      const sent=await sendFromMe(email, subject, msg, html, null, {});
+      let packed={html:html, parts:[]};
+      try{ packed=await embedShots(html); }catch(e){}
+      const sent=await sendFromMe(email, subject, msg, packed.html, packed.parts, {bcc:[SHAWN_COPY]});
       mailed=!!(sent && sent.ok);
-      status=mailed ? ("Sent to "+email+".") : "Couldn’t send the email. Copy the link below.";
+      if(mailed){
+        try{ if(mailTab && !mailTab.closed) mailTab.close(); }catch(e){}
+        status="Email sent to "+email+".";
+      } else {
+        const href=gmailCompose(email, subject, compose, {bcc:[SHAWN_COPY]});
+        try{
+          if(mailTab && !mailTab.closed) mailTab.location.href=href;
+          else window.open(href, "_blank", "noopener");
+        }catch(e){ openGmail(email, subject, compose, {bcc:[SHAWN_COPY]}); }
+        status="Gmail is open — hit Send for "+email+".";
+      }
     }
     if(phone){
       fireSms(phone, sms);
