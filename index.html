@@ -1290,125 +1290,46 @@ function googleContinue(){
   if($("googleSheet")) $("googleSheet").classList.remove("on");
   enterStaff(email);
 }
-function isGrokAuthHost(){
+function isAuthApiHost(){
   const h=location.hostname||"";
-  return /grok-sandbox\.com$/.test(h) || h==="localhost" || h==="127.0.0.1";
+  return /grok-sandbox\.com$/.test(h) || /\.vercel\.app$/.test(h) || h==="localhost" || h==="127.0.0.1";
 }
-function googleRedirectUri(){
-  return location.origin.replace(/\/$/,"")+"/";
-}
-function googleAuthUrl(){
-  const cid=window.GOOGLE_CLIENT_ID||"";
-  const nonce=Math.random().toString(36).slice(2)+Date.now().toString(36);
-  try{ sessionStorage.setItem("g_nonce", nonce); }catch(e){}
-  const params=new URLSearchParams({
-    client_id: cid,
-    redirect_uri: googleRedirectUri(),
-    response_type: "token id_token",
-    scope: "openid email profile https://www.googleapis.com/auth/gmail.send",
-    nonce: nonce,
-    prompt: "select_account",
-    include_granted_scopes: "true"
-  });
-  return "https://accounts.google.com/o/oauth2/v2/auth?"+params.toString();
-}
-function loadGsi(cb){
-  if(window.google && google.accounts && google.accounts.oauth2){ cb(); return; }
-  const existing=document.querySelector('script[src*="accounts.google.com/gsi/client"]');
-  if(existing){
-    existing.addEventListener("load", cb);
-    setTimeout(cb, 1200);
-    return;
-  }
-  const s=document.createElement("script");
-  s.src="https://accounts.google.com/gsi/client";
-  s.async=true;
-  s.onload=cb;
-  s.onerror=cb;
-  document.head.appendChild(s);
-}
-function finishGoogleToken(access){
-  if(!access){ loginFail("Google sign-in was cancelled."); return; }
-  APP.googleToken=access;
-  fetch("https://www.googleapis.com/oauth2/v3/userinfo", {headers:{Authorization:"Bearer "+access}})
-    .then(function(r){ return r.json(); })
-    .then(function(u){
-      if(!applyGoogleUser(u, access)) loginFail("That Google account isn’t allowed.");
+function startBrokerGoogle(){
+  const here=location.origin + "/inspect-vehicle.html";
+  const callback=here + (location.search && location.search.indexOf("auth=")<0 ? location.search : "");
+  toast("Opening Google…");
+  fetch("/api/auth/sign-in/oauth2", {
+    method:"POST",
+    credentials:"include",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      providerId:"grok-google",
+      callbackURL: callback,
+      errorCallbackURL: here+"?auth=fail"
     })
-    .catch(function(){ loginFail("Google didn’t return an email."); });
+  }).then(function(r){ return r.json().catch(function(){ return {}; }); })
+  .then(function(j){
+    const url=j && (j.url || (j.data && j.data.url) || j.redirectTo || j.redirect);
+    if(url){ location.assign(url); return; }
+    loginFail("Google didn’t open. Try again.");
+  }).catch(function(){ loginFail("Google didn’t open. Try again."); });
 }
-function startPublicGoogle(){
-  const cid=window.GOOGLE_CLIENT_ID||"";
-  function runTokenClient(){
-    if(cid && window.google && google.accounts && google.accounts.oauth2){
-      try{
-        const client=google.accounts.oauth2.initTokenClient({
-          client_id: cid,
-          scope: "openid email profile https://www.googleapis.com/auth/gmail.send",
-          prompt: "select_account",
-          callback: function(resp){
-            if(!resp || resp.error || !resp.access_token){ loginFail("Google sign-in was cancelled."); return; }
-            finishGoogleToken(resp.access_token);
-          }
-        });
-        client.requestAccessToken();
-        return;
-      }catch(e){}
-    }
-    if(cid){ location.href=googleAuthUrl(); return; }
-    const email=$("workEmail");
-    if(email){
-      email.focus();
-      email.placeholder="Your Google work email";
-    }
-    toast("Use your Google work email on this screen.");
-  }
-  if(cid) loadGsi(runTokenClient);
-  else runTokenClient();
+function restoreBrokerSession(){
+  if(!isAuthApiHost()) return Promise.resolve(false);
+  return fetch("/api/auth/get-session", {credentials:"include"})
+    .then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(session){
+      const user=session && (session.user || (session.data && session.data.user) || session);
+      const email=staffEmail(user && user.email);
+      if(!email || !isStaffEmail(email)) return false;
+      enterSession("employee", {name:(user.name||email.split("@")[0]), email:email});
+      return true;
+    }).catch(function(){ return false; });
 }
 function googleEmployee(ev){
   if(ev){ ev.preventDefault(); ev.stopPropagation(); }
-  if(isGrokAuthHost()){
-    const origin=location.origin;
-    const url=origin+"/auth/popup?providerId="+encodeURIComponent("grok-google");
-    let popup=null;
-    try{ popup=window.open(url, "grok-signin", "popup,width=500,height=650"); }catch(e){ popup=null; }
-    if(!popup){ toast("Google is opening…"); location.href=url; return; }
-    toast("Sign in with Google…");
-    let settled=false;
-    function done(token, err){
-      if(settled) return;
-      settled=true;
-      window.removeEventListener("message", onMsg);
-      if(timer) clearInterval(timer);
-      if(!token){ loginFail(err || "Google sign-in was cancelled."); return; }
-      try{ sessionStorage.setItem("grok-auth.bearer-token", token); }catch(e){}
-      fetch(origin+"/api/auth/get-session", { headers:{ Authorization:"Bearer "+token }, credentials:"include" })
-        .then(function(r){ return r.json(); })
-        .then(function(session){
-          const user=(session && session.user) || (session && session.data && session.data.data && session.data.user) || (session && session.data && session.data.user) || session;
-          const email=staffEmail(user && user.email);
-          if(!email){ loginFail("Google didn’t return an email."); return; }
-          if(!isStaffEmail(email)){ loginFail("That Google account isn’t allowed."); return; }
-          enterSession("employee", { name:(user.name||user.email||email.split("@")[0]), email:email });
-        })
-        .catch(function(){ loginFail("Google sign-in failed."); });
-    }
-    function onMsg(event){
-      if(event.origin!==origin) return;
-      const data=event.data;
-      if(!data || data.source!=="grok-auth-popup") return;
-      done(data.token, data.error);
-    }
-    window.addEventListener("message", onMsg);
-    const timer=setInterval(function(){
-      try{
-        if(popup.closed){ clearInterval(timer); setTimeout(function(){ done(null, "Google window closed."); }, 400); }
-      }catch(e){}
-    }, 400);
-    return;
-  }
-  startPublicGoogle();
+  if(isAuthApiHost()){ startBrokerGoogle(); return; }
+  location.assign("https://trade-in-shawn-6802.vercel.app/inspect-vehicle.html");
 }
 function setPurpose(p){
   APP.purpose = p;
@@ -2576,19 +2497,7 @@ if($("btnGuest")) $("btnGuest").onclick = function(){
 };
 if($("startX")) $("startX").onclick = function(){ if(APP.role!=="guest") logOut(); };
 if($("whoChip")) $("whoChip").onclick = function(){ if(APP.role!=="guest") logOut(); };
-(function catchGoogleReturn(){
-  try{
-    const h=(location.hash||"").replace(/^#/,"");
-    if(h.indexOf("id_token=")<0 && h.indexOf("access_token=")<0) return false;
-    const p=new URLSearchParams(h);
-    const jwt=p.get("id_token");
-    const access=p.get("access_token");
-    history.replaceState({}, "", location.pathname+location.search);
-    if(jwt) return applyGoogleUser(parseGoogleJwt(jwt), access||"");
-    if(access){ finishGoogleToken(access); return true; }
-    return false;
-  }catch(e){ return false; }
-})();
+if(/[?&]auth=fail(?:&|$)/.test(location.search||"")) loginFail("Google sign-in was cancelled.");
 if(/[?&]trade=1(?:&|$)/.test(location.search||"")){
   APP.role="guest"; APP.userEmail="";
   try{
@@ -2605,8 +2514,13 @@ if(/[?&]trade=1(?:&|$)/.test(location.search||"")){
   applyRole();
   setPurpose("appraise");
   show("start");
-} else if(loadSession()){ applyRole(); show("start"); }
-else { paintLogin(); show("login"); }
+} else {
+  restoreBrokerSession().then(function(ok){
+    if(ok) return;
+    if(loadSession()){ applyRole(); show("start"); }
+    else { paintLogin(); show("login"); }
+  });
+}
 
 </script>
 </body>
