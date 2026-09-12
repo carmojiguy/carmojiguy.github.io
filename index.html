@@ -112,7 +112,9 @@ button.doc-sq { width:100%; appearance:none; -webkit-appearance:none; font:inher
 .doc-sq.carfax-wait b { font-size:16px; color:#1A1A1A; }
 .doc-sq.carfax-wait span { color:#8A7B68; }
 .carfax-report { grid-column:1 / -1; background:#E8E4DC; border-radius:20px; padding:14px 12px 18px; max-height:82vh; overflow:auto; }
-.carfax-report h4 { margin:0 0 12px; font-size:14px; font-weight:800; color:#241B33; letter-spacing:.02em; }
+.carfax-report h4 { margin:0 0 10px; font-size:14px; font-weight:800; color:#241B33; }
+.carfax-report h4 a { color:#241B33; text-decoration:none; }
+.carfax-bar { display:flex; gap:8px; flex-wrap:wrap; margin:0 0 14px; }
 .carfax-pages { display:flex; flex-direction:column; gap:18px; align-items:center; }
 .carfax-pages canvas, .carfax-pages img { width:100%; max-width:720px; height:auto; background:#fff; box-shadow:0 10px 28px rgba(20,16,30,.18); border-radius:2px; display:block; }
 .doc-sq.on b, .doc-sq.on span { color:#fff; }
@@ -2998,72 +3000,129 @@ function carfaxFileName(){
 function cleanCarfaxUrl(raw){
   return String(raw||"").trim().replace(/[\r\n\t]/g,"").replace(/ /g,"+");
 }
-function takeCarfaxFile(f){
-  if(!f) return;
-  const r=new FileReader();
-  r.onload=function(){
-    const prev=APP.docs.carfax||{};
-    APP.carfaxBusy=false;
-    APP.docs.carfax={
-      name:carfaxFileName(),
-      data:r.result,
-      type:f.type||"application/pdf",
-      url:prev.url||"",
-      preview:/^data:image\//.test(r.result)?r.result:""
+function takeCarfaxFiles(list){
+  const files=Array.from(list||[]).filter(Boolean);
+  if(!files.length) return;
+  const prev=APP.docs.carfax||{};
+  const shots=(prev.shots||[]).slice();
+  let pdf=prev.data && String(prev.data).indexOf("application/pdf")>=0 ? prev.data : "";
+  let pdfType=prev.type||"";
+  let left=files.length;
+  files.forEach(function(f){
+    const r=new FileReader();
+    r.onload=function(){
+      const data=r.result;
+      const type=f.type||"";
+      if(type.indexOf("pdf")>=0 || String(f.name||"").toLowerCase().indexOf(".pdf")>=0){
+        pdf=data; pdfType="application/pdf";
+      } else {
+        shots.push(data);
+      }
+      left--;
+      if(left<=0){
+        APP.docs.carfax={
+          name:carfaxFileName(),
+          data:pdf || shots[0] || "",
+          type:pdf ? "application/pdf" : (type||"image/jpeg"),
+          url:prev.url||"",
+          preview:shots[0]||prev.preview||"",
+          shots:shots
+        };
+        paintDocs();
+        toast(carfaxTitle()+" is in.");
+      }
     };
-    paintDocs();
-    toast(carfaxTitle()+" is in.");
-  };
-  r.readAsDataURL(f);
+    r.readAsDataURL(f);
+  });
 }
-function carfaxFileInput(){
+function carfaxPick(accept, multiple){
   const inp=document.createElement("input");
-  inp.type="file"; inp.accept="application/pdf,image/*"; inp.className="hide";
-  inp.onchange=function(){ takeCarfaxFile(inp.files[0]); };
+  inp.type="file"; inp.accept=accept; inp.className="hide";
+  if(multiple) inp.multiple=true;
+  inp.onchange=function(){ takeCarfaxFiles(inp.files); };
   return inp;
 }
 function paintCarfaxSlot(host){
-  const got=APP.docs.carfax;
-  if(got && got.data && String(got.data).indexOf("data:")===0){
-    const wrap=document.createElement("div");
-    wrap.className="carfax-report";
-    wrap.innerHTML="<h4>"+esc(carfaxTitle())+"</h4>";
-    const pages=document.createElement("div");
-    pages.className="carfax-pages";
-    pages.id="carfaxPages";
-    wrap.appendChild(pages);
-    host.appendChild(wrap);
-    fillCarfaxPages(pages, got);
+  const got=APP.docs.carfax || {};
+  if(!got.url && !(got.shots&&got.shots.length) && !got.data){
+    const el=document.createElement("div");
+    el.className="doc-sq carfax-wait";
+    el.style.gridColumn="1 / -1";
+    el.style.aspectRatio="auto";
+    el.style.minHeight="120px";
+    el.style.cursor="default";
+    el.innerHTML="<b>Carfax</b><span>Awaiting information</span>";
+    host.appendChild(el);
     return;
   }
-  const el=document.createElement("div");
-  el.className="doc-sq carfax-wait";
-  el.style.gridColumn="1 / -1";
-  el.style.aspectRatio="auto";
-  el.style.minHeight="160px";
-  el.style.cursor="default";
-  if(got && got.url){
-    el.innerHTML="<b>Carfax</b><span>Carfax blocks apps. Open it yourself in Safari or Chrome — then drop the PDF here.</span>";
+  const wrap=document.createElement("div");
+  wrap.className="carfax-report";
+  const title=document.createElement("h4");
+  if(got.url){
+    const a=document.createElement("a");
+    a.href=got.url;
+    a.target="_blank";
+    a.rel="noreferrer noopener";
+    a.textContent=carfaxTitle();
+    title.appendChild(a);
+  } else {
+    title.textContent=carfaxTitle();
+  }
+  wrap.appendChild(title);
+  const bar=document.createElement("div");
+  bar.className="carfax-bar";
+  if(got.url){
     const open=document.createElement("a");
     open.className="pill purple";
     open.href=got.url;
     open.target="_blank";
     open.rel="noreferrer noopener";
     open.textContent="Open Carfax";
-    open.style.marginTop="10px";
-    open.style.display="inline-flex";
-    el.appendChild(open);
-  } else {
-    el.innerHTML="<b>Carfax</b><span>Awaiting information</span>";
+    bar.appendChild(open);
   }
-  const pick=document.createElement("label");
-  pick.className="pill wash";
-  pick.style.marginTop="8px";
-  pick.style.display="inline-flex";
-  pick.textContent="Add the PDF";
-  pick.appendChild(carfaxFileInput());
-  el.appendChild(pick);
-  host.appendChild(el);
+  const shotsLbl=document.createElement("label");
+  shotsLbl.className="pill wash";
+  shotsLbl.textContent="Add screenshots";
+  shotsLbl.appendChild(carfaxPick("image/*", true));
+  bar.appendChild(shotsLbl);
+  const pdfLbl=document.createElement("label");
+  pdfLbl.className="pill wash";
+  pdfLbl.textContent="Add PDF";
+  pdfLbl.appendChild(carfaxPick("application/pdf", false));
+  bar.appendChild(pdfLbl);
+  wrap.appendChild(bar);
+  const pages=document.createElement("div");
+  pages.className="carfax-pages";
+  pages.id="carfaxPages";
+  wrap.appendChild(pages);
+  host.appendChild(wrap);
+  fillCarfaxPages(pages, got);
+}
+async function fillCarfaxPages(host, got){
+  if(!host || !got) return;
+  const shots=got.shots||[];
+  shots.forEach(function(src){
+    const img=document.createElement("img");
+    img.src=src;
+    img.alt=carfaxTitle();
+    host.appendChild(img);
+  });
+  const pdfData=got.data && String(got.data).indexOf("application/pdf")>=0 ? got.data : "";
+  if(!pdfData) return;
+  try{
+    const lib=await loadPdfJs();
+    if(!lib) throw new Error("pdfjs");
+    const pdf=await lib.getDocument({data:dataToBytes(pdfData)}).promise;
+    for(let i=1;i<=pdf.numPages;i++){
+      const page=await pdf.getPage(i);
+      const viewport=page.getViewport({scale:1.6});
+      const canvas=document.createElement("canvas");
+      canvas.width=viewport.width;
+      canvas.height=viewport.height;
+      await page.render({canvasContext:canvas.getContext("2d"), viewport:viewport}).promise;
+      host.appendChild(canvas);
+    }
+  }catch(e){}
 }
 async function loadPdfJs(){
   if(window.pdfjsLib) return window.pdfjsLib;
@@ -3080,55 +3139,24 @@ function dataToBytes(dataUrl){
   for(let i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
   return bytes;
 }
-async function fillCarfaxPages(host, got){
-  if(!host || !got) return;
-  if(got.preview && String(got.data||"").indexOf("application/pdf")<0){
-    const img=document.createElement("img");
-    img.src=got.preview;
-    img.alt=carfaxTitle();
-    host.appendChild(img);
-    return;
-  }
-  if(String(got.data||"").indexOf("image/")>=0){
-    const img=document.createElement("img");
-    img.src=got.data;
-    img.alt=carfaxTitle();
-    host.appendChild(img);
-    return;
-  }
-  try{
-    const lib=await loadPdfJs();
-    if(!lib) throw new Error("pdfjs");
-    const pdf=await lib.getDocument({data:dataToBytes(got.data)}).promise;
-    for(let i=1;i<=pdf.numPages;i++){
-      const page=await pdf.getPage(i);
-      const viewport=page.getViewport({scale:1.6});
-      const canvas=document.createElement("canvas");
-      canvas.width=viewport.width;
-      canvas.height=viewport.height;
-      await page.render({canvasContext:canvas.getContext("2d"), viewport:viewport}).promise;
-      host.appendChild(canvas);
-    }
-  }catch(e){
-    const fallback=document.createElement("button");
-    fallback.type="button";
-    fallback.className="pill purple";
-    fallback.textContent="Open "+carfaxTitle();
-    fallback.onclick=openCarfaxPdf;
-    host.appendChild(fallback);
-  }
-}
 async function ingestCarfax(){
   const url=cleanCarfaxUrl($("carfaxUrl") && $("carfaxUrl").value || "");
   if(!/^https?:\/\//i.test(url)){ toast("Paste a full Carfax link."); return; }
   const prev=APP.docs.carfax||{};
-  APP.docs.carfax={name:carfaxFileName(), data:prev.data||"", type:prev.type||"", url:url, preview:prev.preview||""};
+  APP.docs.carfax={
+    name:carfaxFileName(),
+    data:prev.data||"",
+    type:prev.type||"",
+    url:url,
+    preview:prev.preview||"",
+    shots:prev.shots||[]
+  };
   closeCarfaxPaste();
   paintDocs();
   try{
     if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url);
   }catch(e){}
-  toast("Link copied. Open Carfax yourself, then add the PDF.");
+  toast("Tap the Carfax title to open the report.");
   const btn=$("carfaxGo");
   if(btn){ btn.disabled=false; btn.textContent="Make PDF"; }
 }
@@ -3534,8 +3562,11 @@ async function buildZip(){
     folder.file("walk-around-"+String(i+1)+"."+ext, c.blob);
   });
   Object.keys(APP.docs||{}).forEach(function(id){
-    const d=APP.docs[id]; if(!d||!d.data) return;
-    folder.file("docs-"+id+"-"+(d.name||"file"), blobFrom(d.data));
+    const d=APP.docs[id]; if(!d) return;
+    if(d.data) folder.file("docs-"+id+"-"+(d.name||"file"), blobFrom(d.data));
+    (d.shots||[]).forEach(function(s,i){
+      folder.file("docs-"+id+"-page-"+String(i+1)+".jpg", blobFrom(s));
+    });
   });
   folder.file("summary.txt", packetSummary());
   return zip.generateAsync({type:"blob"});
@@ -3598,8 +3629,9 @@ function packetHtml(){
     keys.forEach(function(id){
       const d=APP.docs[id]; if(!d) return;
       h+='<h4>'+esc(d.name||id)+'</h4>';
-      if(d.data && d.data.indexOf("data:image")===0) h+='<img class="full" src="'+d.data+'" alt="">';
-      else h+='<p class="cap">Included in the emailed ZIP / PDF</p>';
+      (d.shots||[]).forEach(function(s){ h+='<img class="full" src="'+s+'" alt="">'; });
+      if(d.data && d.data.indexOf("data:image")===0 && !(d.shots||[]).length) h+='<img class="full" src="'+d.data+'" alt="">';
+      else if(d.data && d.data.indexOf("application/pdf")>=0) h+='<p class="cap">PDF included in the emailed ZIP</p>';
     });
   }
   return h;
