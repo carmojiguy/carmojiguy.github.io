@@ -74,7 +74,9 @@ h2 { font-size:26px; font-weight:800; letter-spacing:-.5px; margin:4px 0 14px; }
 label.k { display:block; color:#6e6e73; font-size:13px; margin:11px 0 5px; }
 input.f, textarea.note { width:100%; border:1.5px solid var(--hair); border-radius:16px; padding:13px 14px; font-size:17px; font-family:inherit; }
 textarea.note { min-height:160px; max-height:none; resize:vertical; overflow:auto; field-sizing:content; line-height:1.45; }
-.vin-chip { font-weight:800; letter-spacing:.06em; font-size:15px; color:var(--purple-deep); margin:0 0 12px; }
+.vin-fail { margin-top:14px; padding-top:12px; border-top:1px solid var(--hair); }
+.vin-fail p { color:var(--muted); font-size:15px; line-height:1.4; margin:0 0 12px; }
+.vin-fail .f { letter-spacing:.14em; font-weight:800; text-transform:uppercase; }
 .to-chips { display:flex; flex-direction:column; gap:8px; margin:0 0 12px; }
 .mail { display:flex; align-items:center; gap:12px; width:100%; text-align:left; border:1.5px solid var(--hair); background:#fff; border-radius:16px; padding:12px 14px; cursor:pointer; }
 .mail.on { border-color:var(--purple); background:var(--lavender); }
@@ -580,6 +582,13 @@ textarea.note { min-height:160px; max-height:none; resize:vertical; overflow:aut
       <h3 style="margin:0 0 8px">Ownership or VIN</h3>
       <p class="hint">Best: photograph the vehicle ownership (registration). That’s the easiest. You can also photo the VIN on the dash or the sticker on the driver’s door.</p>
       <button class="pill cyan" type="button" id="btnVinShot">Take photo</button>
+      <div id="vinFail" class="vin-fail hide">
+        <p id="vinFailCopy">We couldn’t read that VIN with 100% confidence. Type the 17 characters, or tap Speak and say them.</p>
+        <input class="f" id="vinManual" maxlength="17" placeholder="17-character VIN" autocomplete="off" spellcheck="false" />
+        <button class="pill purple" type="button" id="vinTypeGo" style="margin-top:10px">Use this VIN</button>
+        <button class="pill cyan" type="button" id="vinSpeak">Speak the VIN</button>
+        <button class="pill wash" type="button" id="vinRetry">Take another photo</button>
+      </div>
     </div>
   </div>
 </div>
@@ -2226,11 +2235,62 @@ function bindCamZoom(){
 
 function normalizeVin(text){
   if(!text) return "";
-  const u = String(text).toUpperCase().replace(/[^A-Z0-9]/g,"");
-  const m = u.match(/[A-HJ-NPR-Z0-9]{17}/);
+  const u=String(text).toUpperCase().replace(/[^A-Z0-9]/g,"").replace(/[IOQ]/g, function(ch){ return ch==="I"?"1":"0"; });
+  const m=u.match(/[A-HJ-NPR-Z0-9]{17}/);
   return m ? m[0] : "";
 }
 function vinOk(vin){ return /^[A-HJ-NPR-Z0-9]{17}$/.test(vin||""); }
+function vinCheckOk(vin){
+  if(!vinOk(vin)) return false;
+  const t={A:1,B:2,C:3,D:4,E:5,F:6,G:7,H:8,J:1,K:2,L:3,M:4,N:5,P:7,R:9,S:2,T:3,U:4,V:5,W:6,X:7,Y:8,Z:9};
+  const w=[8,7,6,5,4,3,2,10,0,9,8,7,6,5,4,3,2];
+  let sum=0;
+  for(let i=0;i<17;i++){
+    const ch=vin[i];
+    const n=t[ch]!=null ? t[ch] : parseInt(ch,10);
+    if(n!==n) return false;
+    sum+=n*w[i];
+  }
+  const r=sum%11;
+  const d=r===10?"X":String(r);
+  return vin[8]===d;
+}
+function generateVinCandidates(text){
+  const out=[];
+  function add(v){
+    v=String(v||"").toUpperCase();
+    if(!vinOk(v)) return;
+    if(out.indexOf(v)<0) out.push(v);
+  }
+  function windows(packed){
+    for(let i=0;i+17<=packed.length;i++) add(packed.slice(i,i+17));
+  }
+  const raw=String(text||"").toUpperCase().replace(/[^A-Z0-9]/g,"");
+  windows(raw);
+  windows(raw.replace(/[IOQ]/g, function(ch){ return ch==="I"?"1":"0"; }));
+  const pass=out.filter(vinCheckOk);
+  if(pass.length) return pass;
+  const ambig={"0":["0","D"],"D":["D","0"],"8":["8","B"],"B":["B","8"],"5":["5","S"],"S":["S","5"],"2":["2","Z"],"Z":["Z","2"],"6":["6","G"],"G":["G","6"]};
+  const extra=[];
+  out.slice(0,6).forEach(function(base){
+    function rec(i, arr, muts){
+      if(extra.length>48) return;
+      if(i===17){ extra.push(arr.join("")); return; }
+      const ch=base[i];
+      const opts=ambig[ch]||[ch];
+      for(let k=0;k<opts.length;k++){
+        const nmuts=muts+(opts[k]===ch?0:1);
+        if(nmuts>2) continue;
+        arr[i]=opts[k];
+        rec(i+1, arr, nmuts);
+      }
+    }
+    rec(0, base.split(""), 0);
+  });
+  extra.forEach(add);
+  const checked=out.filter(vinCheckOk);
+  return checked.length ? checked : [];
+}
 function loadTesseract(){
   return new Promise(function(res,rej){
     if(window.Tesseract) return res();
@@ -2250,18 +2310,18 @@ function loadZxing(){
   });
 }
 function vinsInText(text){
-  const raw=String(text||"").toUpperCase();
-  const packed=raw.replace(/[^A-Z0-9]/g,"");
-  const hits=[];
-  function add(v){
-    v=normalizeVin(v);
-    if(vinOk(v) && hits.indexOf(v)<0) hits.push(v);
-  }
-  (packed.match(/[A-HJ-NPR-Z0-9]{17}/g)||[]).forEach(add);
-  const messy=raw.replace(/[^A-Z0-9]/g,"");
-  const fixed=messy.replace(/[IOQ]/g, function(ch){ return ch==="I"?"1":"0"; });
-  (fixed.match(/[A-HJ-NPR-Z0-9]{17}/g)||[]).forEach(add);
-  return hits;
+  return generateVinCandidates(text);
+}
+function hideVinFail(){
+  if($("vinFail")) $("vinFail").classList.add("hide");
+  if($("vinManual")) $("vinManual").value="";
+}
+function showVinFail(msg){
+  if($("vinFailCopy") && msg) $("vinFailCopy").textContent=msg;
+  if($("vinFail")) $("vinFail").classList.remove("hide");
+  if($("btnVinShot")){ $("btnVinShot").disabled=false; $("btnVinShot").textContent="Take another photo"; }
+  if($("scanStatus")) $("scanStatus").textContent="VIN not confirmed";
+  if($("vinManual")) setTimeout(function(){ $("vinManual").focus(); }, 200);
 }
 function stopVinScan(){
   APP.scanning=false;
@@ -2269,6 +2329,7 @@ function stopVinScan(){
   if(APP.scanRaf){ cancelAnimationFrame(APP.scanRaf); APP.scanRaf=0; }
   if(APP.zxing && APP.zxing.reset){ try{ APP.zxing.reset(); }catch(e){} }
   APP.zxing=null;
+  if(APP.vinRec){ try{ APP.vinRec.stop(); }catch(e){} APP.vinRec=null; }
   const f=$("finder"); if(f) f.classList.remove("scanning","live","shot");
   const v=$("liveCam");
   if(v){
@@ -2279,106 +2340,180 @@ function stopVinScan(){
   const still=$("vinStill"); if(still){ still.removeAttribute("src"); still.classList.add("hide"); }
   const s=$("scanStatus"); if(s) s.textContent="Line up the ownership or the VIN plate";
   const b=$("btnVinShot"); if(b){ b.disabled=false; b.textContent="Take photo"; }
+  hideVinFail();
   if($("vinSheet")) $("vinSheet").classList.remove("on");
   if(APP.stream && (!document.getElementById("camera") || !$("camera").classList.contains("on"))){
     try{ APP.stream.getTracks().forEach(function(t){ t.stop(); }); }catch(e){}
     APP.stream=null;
   }
 }
-function gotVin(vin){
+async function lookupVin(vin){
+  try{
+    const r=await fetch("https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValues/"+encodeURIComponent(vin)+"?format=json");
+    const j=await r.json();
+    const row=j.Results && j.Results[0];
+    if(!row) return {ok:false, checkFail:false, row:null};
+    const codes=String(row.ErrorCode||row.ErrorCodes||"");
+    const checkFail=/\b1\b/.test(codes);
+    const ok=!!(row.Make && row.ModelYear && row.ModelYear!=="0" && !checkFail);
+    return {ok:ok, checkFail:checkFail, row:row};
+  }catch(e){ return {ok:false, checkFail:false, row:null, net:true}; }
+}
+async function acceptVin(vin){
   vin=normalizeVin(vin);
   if(!vinOk(vin)) return false;
+  const check=vinCheckOk(vin);
+  const look=await lookupVin(vin);
+  if(!check && !(look.ok && !look.checkFail)) return false;
   APP.scanning=false;
   APP.vinStep=2;
   APP.vin=vin;
+  if(look.row){
+    if(look.row.ModelYear && look.row.ModelYear!=="0") APP.year=String(look.row.ModelYear);
+    if(look.row.Make) APP.make=look.row.Make;
+    if(look.row.Model) APP.model=look.row.Model;
+    if(look.row.Trim && look.row.Trim!=="Not Applicable") APP.trim=look.row.Trim;
+  }
   fillUnit();
   const chip=$("vinChip");
   if(chip){ chip.textContent=vin; chip.classList.remove("hide"); }
   if($("v-vin")) $("v-vin").value=vin;
-  if($("scanStatus")) $("scanStatus").textContent="VIN captured";
+  if($("f-vin")) $("f-vin").value=vin;
+  if($("scanStatus")) $("scanStatus").textContent="VIN confirmed";
   if($("btnVinShot")) $("btnVinShot").textContent="Take another photo";
+  hideVinFail();
   const f=$("finder"); if(f){ f.classList.add("shot"); f.classList.remove("scanning","live"); }
   toast("VIN "+vin);
-  decodeVin(vin);
-  setTimeout(function(){ if($("vinSheet")) $("vinSheet").classList.remove("on"); stopVinScan(); }, 900);
+  setTimeout(function(){ if($("vinSheet")) $("vinSheet").classList.remove("on"); stopVinScan(); }, 700);
   return true;
 }
+function gotVin(vin){ return acceptVin(vin); }
 function snapVinStill(){
+  hideVinFail();
   const v=$("liveCam");
   const c=document.createElement("canvas");
-  c.width = v.videoWidth || 1600;
-  c.height = v.videoHeight || 900;
+  c.width = v.videoWidth || 1920;
+  c.height = v.videoHeight || 1080;
   try{ c.getContext("2d").drawImage(v,0,0,c.width,c.height); }
   catch(e){ toast("Camera not ready — try again."); return; }
-  const data=c.toDataURL("image/jpeg",0.92);
+  const data=c.toDataURL("image/jpeg",0.97);
   const still=$("vinStill");
   if(still){ still.src=data; still.classList.remove("hide"); }
   if(v) v.classList.add("off");
   const f=$("finder"); if(f){ f.classList.remove("scanning","live"); f.classList.add("shot"); }
   APP.vinStep=2;
-  if($("scanStatus")) $("scanStatus").textContent="Reading the VIN from your photo…";
+  if($("scanStatus")) $("scanStatus").textContent="Reading the VIN — confirming every character…";
   if($("btnVinShot")){ $("btnVinShot").disabled=true; $("btnVinShot").textContent="Reading…"; }
   readVinFromStill(data);
 }
-function ocrPrep(img){
+function ocrPrep(img, opt){
+  opt=opt||{};
   const c=document.createElement("canvas");
-  const scale=Math.min(2.2, 1800/Math.max(1,img.naturalWidth||img.width));
-  c.width=Math.max(640, Math.round((img.naturalWidth||img.width)*scale));
-  c.height=Math.max(360, Math.round((img.naturalHeight||img.height)*scale));
+  const scale=Math.min(2.4, 2000/Math.max(1,img.naturalWidth||img.width));
+  c.width=Math.max(800, Math.round((img.naturalWidth||img.width)*scale));
+  c.height=Math.max(450, Math.round((img.naturalHeight||img.height)*scale));
   const ctx=c.getContext("2d");
+  ctx.filter="contrast(1.35) grayscale(1) brightness(1.05)";
   ctx.drawImage(img,0,0,c.width,c.height);
+  ctx.filter="none";
   const id=ctx.getImageData(0,0,c.width,c.height);
   const d=id.data;
+  const th=opt.invert?140:115;
   for(let i=0;i<d.length;i+=4){
     let y=d[i]*0.299+d[i+1]*0.587+d[i+2]*0.114;
-    y=y<110?0:255;
+    if(opt.invert) y=255-y;
+    y=y<th?0:255;
     d[i]=d[i+1]=d[i+2]=y;
   }
   ctx.putImageData(id,0,0);
   return c;
+}
+function ocrBand(img){
+  const c=document.createElement("canvas");
+  const w=img.naturalWidth||img.width, h=img.naturalHeight||img.height;
+  const sy=Math.round(h*0.28), sh=Math.round(h*0.44);
+  c.width=Math.max(900, w);
+  c.height=Math.max(220, sh);
+  const ctx=c.getContext("2d");
+  ctx.drawImage(img,0,sy,w,sh,0,0,c.width,c.height);
+  return c;
+}
+async function ocrVinText(src){
+  await loadTesseract();
+  const texts=[];
+  async function run(img, psm){
+    try{
+      if(window.Tesseract && Tesseract.createWorker){
+        const worker=await Tesseract.createWorker("eng");
+        await worker.setParameters({
+          tessedit_char_whitelist:"ABCDEFGHJKLMNPRSTUVWXYZ0123456789",
+          tessedit_pageseg_mode:String(psm||7)
+        });
+        const result=await worker.recognize(img);
+        await worker.terminate();
+        const t=(result && result.data && result.data.text)||"";
+        if(t) texts.push(t);
+      } else {
+        const result=await window.Tesseract.recognize(img, "eng");
+        const t=(result && result.data && result.data.text)||"";
+        if(t) texts.push(t);
+      }
+    }catch(e){}
+  }
+  await run(src, 7);
+  await run(src, 6);
+  return texts.join("\n");
+}
+async function pickConfirmedVin(texts){
+  const cands=[];
+  (Array.isArray(texts)?texts:[texts]).forEach(function(t){
+    generateVinCandidates(t).forEach(function(v){ if(cands.indexOf(v)<0) cands.push(v); });
+  });
+  for(let i=0;i<cands.length;i++){
+    if(vinCheckOk(cands[i]) && await acceptVin(cands[i])) return true;
+  }
+  for(let i=0;i<cands.length;i++){
+    if(await acceptVin(cands[i])) return true;
+  }
+  return false;
 }
 async function readVinFromStill(data){
   try{
     const img=new Image();
     img.src=data;
     await img.decode();
+    const pile=[];
     if("BarcodeDetector" in window){
       try{
         const fmts=await BarcodeDetector.getSupportedFormats();
         const want=["code_39","code_128","code_93","qr_code","pdf417","aztec","data_matrix"].filter(function(f){ return fmts.indexOf(f)>=0; });
         const det=new BarcodeDetector({formats: want.length?want:fmts});
         const codes=await det.detect(img);
-        for(let i=0;i<codes.length;i++){ if(gotVin(codes[i].rawValue)) return; }
+        for(let i=0;i<codes.length;i++) pile.push(codes[i].rawValue||"");
       }catch(e){}
     }
-    try{
-      await loadTesseract();
-      const pre=ocrPrep(img);
-      const result=await window.Tesseract.recognize(pre, "eng");
-      const text=(result && result.data && result.data.text) || "";
-      const found=vinsInText(text);
-      if(found[0] && gotVin(found[0])) return;
-    }catch(e){}
     try{
       await loadZxing();
       const reader=new ZXing.BrowserMultiFormatReader();
       const res=await reader.decodeFromImageUrl(data);
-      if(res && gotVin(res.getText())) return;
+      if(res && res.getText()) pile.push(res.getText());
     }catch(e){}
+    if(await pickConfirmedVin(pile)) return;
+    const pre=ocrPrep(img);
+    const inv=ocrPrep(img,{invert:true});
+    const band=ocrBand(img);
+    const ocr=[await ocrVinText(pre), await ocrVinText(inv), await ocrVinText(band), await ocrVinText(img)];
+    pile.push.apply(pile, ocr);
+    if(await pickConfirmedVin(pile)) return;
   }catch(e){}
-  toast("Couldn’t read a VIN. Try the ownership, closer and flatter.");
-  if($("scanStatus")) $("scanStatus").textContent="No VIN yet — take another photo.";
-  APP.vinStep=1;
-  if($("btnVinShot")){ $("btnVinShot").disabled=false; $("btnVinShot").textContent="Take photo"; }
-  const v=$("liveCam");
-  if(v){ v.classList.remove("off"); try{ v.play(); }catch(e){} }
-  const still=$("vinStill"); if(still) still.classList.add("hide");
-  const f=$("finder"); if(f){ f.classList.add("live"); f.classList.remove("shot"); }
+  showVinFail("We couldn’t confirm that VIN with 100% confidence. Type the 17 characters from the ownership or the plate, or tap Speak and say them out loud.");
+  toast("VIN not confirmed — type it or say it.");
 }
 function openVinCam(){
   if(isWeb()) return;
   if($("vinSheet")) $("vinSheet").classList.add("on");
   APP.vinStep=1;
+  hideVinFail();
   const still=$("vinStill"); if(still) still.classList.add("hide");
   const f=$("finder"); if(f){ f.classList.add("live"); f.classList.remove("shot","scanning"); }
   const v=$("liveCam"); if(v) v.classList.remove("off");
@@ -2388,18 +2523,76 @@ function openVinCam(){
 }
 function startVinScan(){ openVinCam(); }
 async function decodeVin(vin){
-  try{
-    const r=await fetch("https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValues/"+vin+"?format=json");
-    const j=await r.json();
-    const row=j.Results && j.Results[0];
-    if(!row) return;
-    if(row.ModelYear && row.ModelYear!=="0") APP.year=String(row.ModelYear);
-    if(row.Make) APP.make=row.Make;
-    if(row.Model) APP.model=row.Model;
-    if(row.Trim && row.Trim!=="Not Applicable") APP.trim=row.Trim;
-    fillUnit();
-    toast((APP.year+" "+APP.make+" "+APP.model).trim());
-  }catch(e){}
+  const look=await lookupVin(vin);
+  if(!look.row) return;
+  if(look.row.ModelYear && look.row.ModelYear!=="0") APP.year=String(look.row.ModelYear);
+  if(look.row.Make) APP.make=look.row.Make;
+  if(look.row.Model) APP.model=look.row.Model;
+  if(look.row.Trim && look.row.Trim!=="Not Applicable") APP.trim=look.row.Trim;
+  fillUnit();
+}
+function spokenToVin(raw){
+  const map={
+    zero:"0",oh:"0",o:"0",nought:"0",one:"1",won:"1",two:"2",too:"2",three:"3",tree:"3",
+    four:"4",for:"4",five:"5",six:"6",seven:"7",eight:"8",ate:"8",nine:"9",
+    ay:"A",alpha:"A",bee:"B",bravo:"B",see:"C",sea:"C",charlie:"C",dee:"D",delta:"D",
+    ee:"E",echo:"E",ef:"F",foxtrot:"F",gee:"G",golf:"G",aitch:"H",hotel:"H",
+    jay:"J",juliet:"J",kay:"K",kilo:"K",el:"L",ell:"L",lima:"L",em:"M",mike:"M",
+    en:"N",november:"N",pee:"P",papa:"P",ar:"R",romeo:"R",ess:"S",sierra:"S",
+    tee:"T",tango:"T",you:"U",uniform:"U",vee:"V",victor:"V",doubleyou:"W",whiskey:"W",
+    ex:"X",xray:"X",why:"Y",yankee:"Y",zee:"Z",zed:"Z",zulu:"Z"
+  };
+  const words=String(raw||"").toLowerCase().replace(/[^a-z0-9\s]/g," ").split(/\s+/).filter(Boolean);
+  let out="";
+  words.forEach(function(w){
+    if(map[w]!=null) out+=map[w];
+    else if(/^[a-hj-npr-z0-9]$/i.test(w)) out+=w.toUpperCase();
+  });
+  const cands=generateVinCandidates(out+" "+String(raw||""));
+  const pass=cands.filter(vinCheckOk);
+  return pass[0] || cands[0] || "";
+}
+function speakVin(){
+  const Rec=speechEngine();
+  if(!Rec){ toast("Type the VIN — this phone won’t take dictation."); if($("vinManual")) $("vinManual").focus(); return; }
+  try{ if(APP.vinRec) APP.vinRec.stop(); }catch(e){}
+  const rec=new Rec();
+  APP.vinRec=rec;
+  rec.lang="en-CA";
+  rec.continuous=false;
+  rec.interimResults=true;
+  rec.maxAlternatives=3;
+  if($("vinSpeak")) $("vinSpeak").textContent="Listening…";
+  if($("scanStatus")) $("scanStatus").textContent="Say the VIN, character by character.";
+  rec.onresult=function(ev){
+    let said="";
+    for(let i=0;i<ev.results.length;i++){
+      said += (ev.results[i][0] && ev.results[i][0].transcript) || "";
+      said += " ";
+    }
+    const guess=spokenToVin(said);
+    if($("vinManual") && guess) $("vinManual").value=guess;
+    if(ev.results[ev.results.length-1].isFinal){
+      acceptVin(guess).then(function(ok){
+        if(!ok){
+          toast("That didn’t confirm. Say it again, or type it.");
+          if($("vinSpeak")) $("vinSpeak").textContent="Speak the VIN";
+        }
+      });
+    }
+  };
+  rec.onerror=function(){
+    if($("vinSpeak")) $("vinSpeak").textContent="Speak the VIN";
+    toast("Couldn’t hear that. Type the VIN.");
+  };
+  rec.onend=function(){ if($("vinSpeak")) $("vinSpeak").textContent="Speak the VIN"; };
+  try{ rec.start(); askMic(); }catch(e){ toast("Allow the microphone, then tap Speak again."); }
+}
+async function submitTypedVin(){
+  const typed=(($("vinManual") && $("vinManual").value)||"").trim().toUpperCase();
+  if(!vinOk(normalizeVin(typed))){ toast("A VIN is 17 characters. No I, O, or Q."); return; }
+  const ok=await acceptVin(typed);
+  if(!ok) toast("That VIN doesn’t check out. Look at the ownership and try again.");
 }
 
 function spokenSmall(w){
@@ -2427,8 +2620,8 @@ function parseStory(raw){
   const text=normalizeSpoken(heard);
   const o={year:"",make:"",model:"",trim:"",color:"",km:"",vin:"",notes:original,heard:original};
   const y=text.match(/\b((?:19|20)\d{2})\b/); if(y) o.year=y[1];
-  const vin=heard.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g,"");
-  const vinm=heard.toUpperCase().match(/\b[A-HJ-NPR-Z0-9]{17}\b/); if(vinm) o.vin=vinm[0];
+  const vinm=heard.toUpperCase().match(/\b[A-HJ-NPR-Z0-9]{17}\b/);
+  if(vinm && vinCheckOk(vinm[0])) o.vin=vinm[0];
   const makes=["mercedes-benz","mercedes","land rover","range rover","alfa romeo","volkswagen","chevrolet","chevy","cadillac","chrysler","lincoln","hyundai","genesis","mitsubishi","maserati","porsche","infiniti","acura","lexus","toyota","nissan","honda","mazda","subaru","suzuki","kia","jeep","ram","dodge","ford","gmc","buick","volvo","jaguar","mini","bmw","audi","tesla","rivian","polestar","fiat","hummer"];
   const low=text.toLowerCase();
   for(let i=0;i<makes.length;i++){
@@ -3368,6 +3561,10 @@ $("btnClose").onclick = function(){ openCamera("close","new"); };
 $("btnDocs").onclick = function(){ paintDocs(); show("photos"); $("docsBlock") && $("docsBlock").scrollIntoView({behavior:"smooth", block:"start"}); };
 $("btnVin").onclick = $("verifyVin").onclick = function(){ openVinCam(); };
 if($("btnVinShot")) $("btnVinShot").onclick = snapVinStill;
+if($("vinTypeGo")) $("vinTypeGo").onclick = submitTypedVin;
+if($("vinSpeak")) $("vinSpeak").onclick = speakVin;
+if($("vinRetry")) $("vinRetry").onclick = function(){ hideVinFail(); openVinCam(); };
+if($("vinManual")) $("vinManual").addEventListener("keydown", function(e){ if(e.key==="Enter"){ e.preventDefault(); submitTypedVin(); } });
 $("unitLine").onclick = function(){ fillUnit(); $("unitSheet").classList.add("on"); };
 $("btnSend").onclick = function(){ killMediaNow(); show("submit"); };
 if($("btnSavePhotos")) $("btnSavePhotos").onclick = savePhotos;
