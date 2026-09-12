@@ -129,7 +129,7 @@ textarea.note { min-height:160px; max-height:none; resize:vertical; overflow:aut
 .cam { background:#000; color:#fff; padding:0 !important; }
 .cam .nav h1 { color:#fff; }
 .stage { position:relative; height:calc(100dvh - 248px); min-height:280px; background:#111; overflow:hidden; }
-.stage video { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:1; background:#111; z-index:0; }
+.stage video { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; object-position:center; opacity:1; background:#111; z-index:0; }
 .ghost { position:absolute; left:6%; right:6%; top:14%; height:58%; width:88%; object-fit:contain; object-position:center; pointer-events:none; opacity:.86; mix-blend-mode:normal; z-index:1; }
 .ghost.tall { top:10%; height:70%; }
 .ghost.off { opacity:0; }
@@ -1841,6 +1841,7 @@ function startPreview(videoId){
       if(token!==APP.camToken) return;
       const p=el.play(); if(p&&p.catch) p.catch(function(){ try{ el.play(); }catch(e){} });
       if($("camWait")) $("camWait").classList.add("off");
+      widenLens();
       if(videoId==="shotCam" && !APP.recOn){
         setTimeout(function(){ if(token===APP.camToken && !APP.recOn) startWalkRec(); }, 500);
       }
@@ -1967,6 +1968,18 @@ function toggleWalkRec(){
 }
 function camTrack(){
   return APP.stream && APP.stream.getVideoTracks && APP.stream.getVideoTracks()[0];
+}
+function widenLens(){
+  const t=camTrack();
+  if(!t) return;
+  let min=1;
+  try{
+    const c=t.getCapabilities && t.getCapabilities();
+    if(c && c.zoom!=null && typeof c.zoom.min==="number") min=c.zoom.min;
+  }catch(e){}
+  const z = min<1 ? Math.max(min, 0.75) : min;
+  APP.zoom=z;
+  t.applyConstraints({advanced:[{zoom:z}]}).catch(function(){});
 }
 function camZoomRange(){
   const t=camTrack();
