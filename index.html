@@ -3135,7 +3135,12 @@ function paintDocs(){
   DOC_TYPES.forEach(function(pair){
     const id=pair[0], label=pair[1], hint=pair[2];
     if(id==="vauto"){
-      host.appendChild(brandTile(VAUTO_APPRAISE, "vauto-sq", '<img src="docs/vauto.svg" alt="vAuto">'));
+      const el=document.createElement("button");
+      el.type="button";
+      el.className="doc-sq vauto-sq";
+      el.innerHTML='<img src="docs/vauto.svg" alt="vAuto">';
+      el.onclick=openVauto;
+      host.appendChild(el);
       return;
     }
     if(id==="openlane"){
@@ -3185,6 +3190,25 @@ function paintDocs(){
   });
 }
 const VAUTO_APPRAISE="https://provision.vauto.app.coxautoinc.com/Va/Appraisal/Default.aspx?new=true";
+function vautoUrl(){
+  const vin=currentVin();
+  return vin && vin.length>=8
+    ? VAUTO_APPRAISE+"&vin="+encodeURIComponent(vin)
+    : VAUTO_APPRAISE;
+}
+function openVauto(){
+  const vin=currentVin();
+  if(vin) copyVin();
+  const url=vautoUrl();
+  toast("Opening vAuto…");
+  const mobile=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent||"");
+  if(mobile){
+    window.location.href=url;
+    return;
+  }
+  const w=window.open(url, "_blank");
+  if(!w) window.location.href=url;
+}
 const OPENLANE_GUIDE="https://app.openlane.ca/marketguide";
 const EBLOCK_GUIDE="https://app.eblock.com/my-market-guide";
 function currentVin(){
@@ -3224,7 +3248,6 @@ function openBrand(url){
   a.remove();
   if(vin) copyVin();
 }
-function openVauto(){ openBrand(VAUTO_APPRAISE); }
 function openOpenlane(){ openBrand(OPENLANE_GUIDE); }
 function openEblock(){ openBrand(EBLOCK_GUIDE); }
 function openCarfaxPaste(){
