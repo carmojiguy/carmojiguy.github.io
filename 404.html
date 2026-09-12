@@ -105,6 +105,8 @@ button.doc-sq { width:100%; appearance:none; -webkit-appearance:none; font:inher
 .doc-sq.vauto-sq img { object-fit:cover; pointer-events:none; }
 .doc-sq.openlane-sq { padding:0; border:0; background:#0B1B4A; }
 .doc-sq.openlane-sq img { object-fit:cover; pointer-events:none; }
+.doc-sq.eblock-sq { padding:0; border:0; background:#000; }
+.doc-sq.eblock-sq img { object-fit:cover; pointer-events:none; }
 .doc-sq.vauto-sq .veil { background:transparent; }
 .doc-sq.carfax-sq { padding:0; border:0; background:#fff; }
 .doc-sq.carfax-sq img { object-fit:cover; pointer-events:none; }
@@ -2905,6 +2907,15 @@ function paintDocs(){
       host.appendChild(el);
       return;
     }
+    if(id==="eblock"){
+      const el=document.createElement("button");
+      el.type="button";
+      el.className="doc-sq eblock-sq";
+      el.innerHTML='<img src="docs/eblock.jpg" alt="eBlock">';
+      el.onclick=openEblock;
+      host.appendChild(el);
+      return;
+    }
     if(id==="carfax"){
       const el=document.createElement("button");
       el.type="button";
@@ -2940,6 +2951,7 @@ function paintDocs(){
 }
 const VAUTO_APPRAISE="https://provision.vauto.app.coxautoinc.com/Va/Appraisal/Default.aspx?new=true";
 const OPENLANE_GUIDE="https://app.openlane.ca/marketguide";
+const EBLOCK_GUIDE="https://app.eblock.com/my-market-guide";
 function currentVin(){
   return String(APP.vin || ($("v-vin") && $("v-vin").value) || ($("f-vin") && $("f-vin").value) || "").trim().toUpperCase();
 }
@@ -2963,6 +2975,10 @@ function openVauto(){
 function openOpenlane(){
   copyVin();
   window.open(OPENLANE_GUIDE, "_blank", "noopener");
+}
+function openEblock(){
+  copyVin();
+  window.open(EBLOCK_GUIDE, "_blank", "noopener");
 }
 function openCarfaxPaste(){
   const el=$("carfaxUrl");
