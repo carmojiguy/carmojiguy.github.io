@@ -201,6 +201,12 @@ textarea.note { min-height:160px; max-height:none; resize:vertical; overflow:aut
 .gbtn { width:100%; display:flex; align-items:center; justify-content:center; gap:10px; border:1.5px solid #DADCE0; background:#fff; border-radius:16px; padding:14px 16px; font-size:15px; font-weight:700; cursor:pointer; margin:0; color:#1F1F1F; position:relative; z-index:7; pointer-events:auto; text-decoration:none; min-height:52px; }
 .login-card h1, .guest-story h1 { margin:0 0 8px; font-size:26px; letter-spacing:-.55px; line-height:1.15; color:var(--ink); }
 .guest-story h1 { color:var(--ink); }
+.thanks-card { position:absolute; left:20px; right:20px; bottom:calc(36px + env(safe-area-inset-bottom)); z-index:2; color:#fff; }
+.thanks-card h1 { margin:10px 0 12px; font-size:34px; letter-spacing:-.7px; line-height:1.1; color:#fff; text-shadow:0 2px 18px rgba(0,0,0,.45); }
+.thanks-card .lead { color:rgba(255,255,255,.9); font-size:17px; line-height:1.45; margin:0 0 8px; text-shadow:0 1px 12px rgba(0,0,0,.4); }
+.thanks-card .soft { color:rgba(255,255,255,.78); font-size:15px; line-height:1.45; margin:0; text-shadow:0 1px 10px rgba(0,0,0,.35); }
+.thanks-up { width:64px; height:64px; border-radius:22px; background:rgba(0,168,232,.92); display:grid; place-items:center; box-shadow:0 10px 30px rgba(0,0,0,.28); }
+.thanks-up svg { width:34px; height:34px; fill:#fff; }
 .login-card .lead { color:var(--muted); font-size:15px; line-height:1.45; margin:0 0 18px; }
 .login-kicker { font-size:11px; font-weight:800; letter-spacing:.16em; text-transform:uppercase; color:var(--purple-deep); margin:0 0 8px; }
 .login-card .pill { margin:0 0 4px; }
@@ -275,6 +281,20 @@ textarea.note { min-height:160px; max-height:none; resize:vertical; overflow:aut
     </div>
     <button class="pill cyan" type="button" id="startStory">Start by clicking here!</button>
     <button class="link" type="button" id="guestType">Type instead</button>
+  </div>
+</section>
+
+<section class="screen start" id="thanks">
+  <div class="start-bg"><img id="thanksBg" src="start-bgs/01.jpg?v=10" alt=""></div>
+  <div class="start-veil"></div>
+  <div class="thanks-card">
+    <div class="thanks-up" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M2 10h3v11H2zM7 21h9.3c.9 0 1.7-.6 1.9-1.5l2.3-7.6c.3-1-.4-2-1.5-2H14V6.5C14 5.1 12.9 4 11.5 4h-.2c-.4 0-.8.2-1 .6L8 10.2V21z"/></svg>
+    </div>
+    <p class="login-kicker" style="color:#8EE3FF;margin-top:18px">You're all set</p>
+    <h1 id="thanksHello">Thank you</h1>
+    <p class="lead" id="thanksLead">We've got your vehicle. We're getting to work for you right now.</p>
+    <p class="soft" id="thanksSoft">Sit tight — you can close this page. We'll be in touch.</p>
   </div>
 </section>
 
@@ -732,8 +752,8 @@ function show(id){
   el.classList.add("on");
   window.scrollTo(0,0);
   if(id!=="home" && id!=="camera") stopVinScan();
-  if(id==="start" || id==="login"){
-    var img = $(id==="login" ? "loginBg" : "startBg");
+  if(id==="start" || id==="login" || id==="thanks"){
+    var img = $(id==="login" ? "loginBg" : id==="thanks" ? "thanksBg" : "startBg");
     if (img){
       if(!APP._bgs || !APP._bgs.length){
         APP._bgs=[];
@@ -866,6 +886,17 @@ function customerFirst(){
   const n=(APP.inviteName||APP.userName||"").trim();
   if(!n || n==="Guest") return "";
   return n.split(/\s+/)[0];
+}
+function paintThanks(){
+  const first=customerFirst();
+  if($("thanksHello")) $("thanksHello").textContent = first ? ("Thank you, "+first+".") : "Thank you.";
+  if($("thanksLead")) $("thanksLead").textContent = "We've got your vehicle. We're getting to work for you right now — taking it to buyers across Canada and the United States to find the strongest value we can.";
+  if($("thanksSoft")) $("thanksSoft").textContent = "You can close this page. We'll be in touch.";
+}
+function finishGuest(){
+  killMediaNow();
+  paintThanks();
+  show("thanks");
 }
 function paintGuestStory(){
   const first=customerFirst();
@@ -3139,15 +3170,14 @@ async function sharePacket(){
         }
         const ok=await deliverGuestPacket(to, subject, body, pdfUrl, shotLines);
         if(ok){
-          toast("Sent to "+(APP.requestedByName||nameForEmail(to[0])||"the team")+". You're done.");
+          finishGuest();
           return;
         }
       }
       const sent=await sendFromMe(to, subject, body, html, parts, extra);
       if(sent && sent.ok){
-        toast(APP.role==="guest"
-          ? ("Sent to "+(APP.requestedByName||nameForEmail(to[0])||to[0])+".")
-          : ("Sent photos, description, and PDF to "+tradeToLine(to)+"."));
+        if(APP.role==="guest"){ finishGuest(); return; }
+        toast("Sent photos, description, and PDF to "+tradeToLine(to)+".");
         return;
       }
     }catch(e){}
@@ -3161,6 +3191,7 @@ async function sharePacket(){
     if(isiOS && navigator.canShare && navigator.canShare({files:files})){
       try{
         await navigator.share({files:files, title:subject, text:body});
+        if(APP.role==="guest"){ finishGuest(); return; }
         toast("Pick Mail or Gmail — the PDF and photos are attached.");
         return;
       }catch(e){ if(e && e.name==="AbortError") return; }
@@ -3176,6 +3207,11 @@ async function sharePacket(){
     let packed=body+"\n";
     if(pdfUrl) packed+="\nPDF catalog:\n"+pdfUrl+"\n";
     if(shotLines.length) packed+="\nPhotos:\n"+shotLines.join("\n\n")+"\n";
+    if(APP.role==="guest"){
+      const ok=await deliverGuestPacket(to, subject, body, pdfUrl, shotLines);
+      finishGuest();
+      return;
+    }
     openGmail(to, subject, packed, extra);
     toast(pdfUrl ? "Gmail is open with the PDF and photo links. Hit Send." : "Gmail is open. Hit Send.");
   }catch(e){
