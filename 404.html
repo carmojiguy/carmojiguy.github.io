@@ -255,6 +255,94 @@ button.doc-sq { width:100%; appearance:none; -webkit-appearance:none; font:inher
 .work-email .pill { margin:0; padding:12px 16px; width:auto; }
 .login-sub { text-align:center; color:var(--muted); font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; margin:4px 0 12px; }
 .who { position:absolute; top: calc(12px + env(safe-area-inset-top)); right:16px; z-index:2; background:rgba(0,0,0,.45); color:#fff; border:0; border-radius:999px; padding:8px 12px; font-size:12px; font-weight:700; }
+
+@media (min-width:980px){
+  html, body { background:#120F1C; }
+  .phone { max-width:none; min-height:100dvh; background:var(--page); }
+  .screen { padding-bottom: calc(120px + env(safe-area-inset-bottom)); }
+  .screen:not(.start):not(.cam) .nav,
+  .screen:not(.start):not(.cam) .pad {
+    max-width:1180px; width:100%; margin-left:auto; margin-right:auto;
+  }
+  .screen:not(.start):not(.cam) .nav { padding:22px 40px 10px; }
+  .screen:not(.start):not(.cam) .pad { padding:0 40px 24px; }
+  .nav h1 { font-size:16px; letter-spacing:.02em; }
+  h2 { font-size:34px; letter-spacing:-.8px; }
+  .block { font-size:26px; margin:28px 0 12px; }
+  .dock {
+    left:50%; transform:translateX(-50%);
+    width:min(1180px, calc(100% - 48px));
+    padding:16px 40px 24px;
+    display:flex; gap:12px; justify-content:flex-end; align-items:center;
+  }
+  .dock .pill { width:auto; min-width:240px; margin:0; }
+  .pill { transition:transform .15s ease, box-shadow .15s ease, background .15s ease; }
+  .pill:hover { transform:translateY(-1px); box-shadow:0 10px 24px rgba(92,63,224,.16); }
+  .row, .dmg-card, .doc-sq, .mail, .review, .gbtn {
+    transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+  }
+  .row:hover, .dmg-card:hover, .mail:hover, .review:hover {
+    transform:translateY(-1px); box-shadow:0 12px 28px rgba(17,14,26,.08);
+  }
+  .doc-sq:hover { transform:translateY(-2px); box-shadow:0 16px 32px rgba(17,14,26,.14); }
+
+  #photoRows { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  #photoRows .row { margin:0; }
+  #damageRows { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  #damageRows .dmg-card { margin:0; }
+  .docs-grid { grid-template-columns:repeat(4, 1fr); gap:16px; }
+  .carfax-pages canvas, .carfax-pages img { max-width:860px; }
+  .how { padding:18px 22px; }
+  .how li { font-size:16px; }
+
+  .sheet { display:none; align-items:center; justify-content:center; padding:48px 24px; background:rgba(18,15,28,.46); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); }
+  .sheet.on { display:flex; }
+  .sheet .card { width:min(560px, 100%); padding:28px 26px; border-radius:28px; }
+
+  .login-hero {
+    left:8%; right:auto; top:50%; transform:translateY(-52%);
+    max-width:560px; width:42%;
+  }
+  .login-hero h1 { font-size:58px; letter-spacing:-1.4px; line-height:1.02; }
+  .login-hero .lead { font-size:19px; max-width:28em; }
+  .login-card {
+    left:auto; right:7%; bottom:auto; top:50%; transform:translateY(-50%);
+    width:min(420px, 36vw); padding:22px 22px 18px;
+  }
+  .guest-story {
+    left:50%; right:auto; top:50%; transform:translate(-50%, -50%);
+    width:min(520px, 46vw); max-width:520px;
+  }
+  .start-actions .pill {
+    width:min(360px, 32vw); font-size:18px; padding:18px 24px;
+    background:rgba(250,249,252,.92); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
+  }
+  #startAppraise { top:22%; }
+  #startWebsite { bottom:24%; }
+  .start-more { width:min(360px, 32vw); bottom:28px; }
+  .thanks-card { left:10%; right:auto; bottom:auto; top:50%; transform:translateY(-50%); max-width:560px; }
+  .thanks-card h1 { font-size:56px; }
+
+  .stage {
+    width:min(1180px, 92vw); max-height:min(72vh, 760px);
+    margin:12px auto; border-radius:18px; overflow:hidden;
+  }
+  .copy, .shut { max-width:1180px; width:100%; margin:0 auto; }
+  .finder { height:min(42vh, 420px); border-radius:0 0 18px 18px; }
+  .toast { width:min(420px, 40vw); bottom:40px; }
+  .viewer-doc { padding:24px 12vw 64px; }
+  .viewer-doc img.full { max-width:920px; }
+  .facts { grid-template-columns:repeat(4, 1fr); }
+  #verify .pad { max-width:760px; }
+  .pair { grid-template-columns:1fr 1fr; gap:14px; }
+}
+
+@media (min-width:1320px){
+  .docs-grid { grid-template-columns:repeat(4, 1fr); }
+  #photoRows, #damageRows { grid-template-columns:repeat(3, 1fr); }
+  .login-hero h1 { font-size:64px; }
+}
+
 </style>
 </head>
 <body>
@@ -4009,6 +4097,14 @@ if(/[?&]trade=1(?:&|$)/.test(location.search||"")){
   });
 }
 growTextareas();
+
+(function(){
+  const mq=window.matchMedia("(min-width:980px)");
+  function sync(){ document.documentElement.classList.toggle("desk", mq.matches); }
+  sync();
+  if(mq.addEventListener) mq.addEventListener("change", sync);
+  else if(mq.addListener) mq.addListener(sync);
+})();
 
 </script>
 </body>
