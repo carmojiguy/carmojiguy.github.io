@@ -106,7 +106,11 @@ button.doc-sq { width:100%; appearance:none; -webkit-appearance:none; font:inher
 .doc-sq.vauto-sq .veil { background:transparent; }
 .doc-sq.carfax-sq { padding:0; border:0; background:#fff; }
 .doc-sq.carfax-sq img { object-fit:cover; pointer-events:none; }
-.doc-sq.carfax-sq b, .doc-sq.carfax-sq span { display:none; }
+.doc-sq.carfax-wait { padding:18px 16px; justify-content:center; align-items:center; text-align:center; background:#FAF7F2; border:1.5px dashed #E0D4C4; cursor:default; }
+.doc-sq.carfax-wait b { font-size:16px; color:#1A1A1A; }
+.doc-sq.carfax-wait span { color:#8A7B68; }
+.doc-sq.carfax-pdf { padding:0; border:1.5px solid #D9D3E8; background:#fff; }
+.doc-sq.carfax-pdf img { object-fit:cover; object-position:top center; pointer-events:none; }
 .doc-sq.on b, .doc-sq.on span { color:#fff; }
 .shot-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:0 0 16px; }
 .shot-grid button { border:0; padding:0; background:none; border-radius:14px; overflow:hidden; text-align:left; cursor:pointer; position:relative; }
@@ -598,6 +602,15 @@ button.doc-sq { width:100%; appearance:none; -webkit-appearance:none; font:inher
     </div>
   </div>
 </div>
+<div class="sheet" id="carfaxSheet">
+  <div class="card">
+    <button class="x" type="button" data-close="carfaxSheet">✕</button>
+    <h3>Carfax link</h3>
+    <p class="hint">Paste the Carfax report URL. We’ll turn it into a PDF and drop it under Comp set.</p>
+    <input class="f" id="carfaxUrl" placeholder="https://www.carfax.com/…" autocomplete="off" spellcheck="false" />
+    <button class="pill purple" type="button" id="carfaxGo" style="margin-top:12px">Make PDF</button>
+  </div>
+</div>
 <div class="sheet" id="docsSheet">
   <div class="card">
     <button class="x" type="button" data-close="docsSheet">✕</button>
@@ -676,6 +689,7 @@ const DOC_TYPES = [
   ["vauto_book","vAuto book","Book / wholesale report"],
   ["vauto_comp","Comp set","Competitive set screenshot"],
   ["mmr","MMR","Manheim Market Report"],
+  ["carfax_pdf","Carfax","Awaiting information"],
   ["other","Other","Anything else in the packet"]
 ];
 
@@ -2850,18 +2864,30 @@ function paintDocs(){
       return;
     }
     if(id==="carfax"){
-      const got=APP.docs[id];
-      const el=document.createElement("label");
-      el.className="doc-sq carfax-sq"+(got?" on":"");
-      el.innerHTML='<img src="docs/carfax.jpg" alt="Carfax">'+(got?'<div class="pdfmark">IN</div>':'');
-      const inp=document.createElement("input"); inp.type="file"; inp.accept="image/*,.pdf"; inp.capture="environment"; inp.className="hide";
-      inp.onchange=function(){
-        const f=inp.files[0]; if(!f) return;
-        const r=new FileReader();
-        r.onload=function(){ APP.docs[id]={name:f.name,data:r.result,type:f.type}; paintDocs(); toast("Carfax added"); };
-        r.readAsDataURL(f);
-      };
-      el.appendChild(inp); host.appendChild(el);
+      const el=document.createElement("button");
+      el.type="button";
+      el.className="doc-sq carfax-sq";
+      el.innerHTML='<img src="docs/carfax.jpg" alt="Carfax">';
+      el.onclick=openCarfaxPaste;
+      host.appendChild(el);
+      return;
+    }
+    if(id==="carfax_pdf"){
+      const got=APP.docs.carfax;
+      if(!got || !got.data){
+        const el=document.createElement("div");
+        el.className="doc-sq carfax-wait";
+        el.innerHTML="<b>Carfax</b><span>Awaiting information</span>";
+        host.appendChild(el);
+        return;
+      }
+      const el=document.createElement("button");
+      el.type="button";
+      el.className="doc-sq carfax-pdf on";
+      if(got.preview) el.innerHTML='<img src="'+got.preview+'" alt="Carfax">';
+      else el.innerHTML='<div class="veil"></div><div class="pdfmark">PDF</div><b>Carfax</b><span>Tap to open</span>';
+      el.onclick=function(){ openCarfaxPdf(); };
+      host.appendChild(el);
       return;
     }
     const got=APP.docs[id];
@@ -2898,6 +2924,112 @@ function openVauto(){
     }catch(e){}
   }
   window.open(VAUTO_APPRAISE, "_blank", "noopener");
+}
+function openCarfaxPaste(){
+  if($("carfaxSheet")) $("carfaxSheet").classList.add("on");
+  const el=$("carfaxUrl");
+  if(el && !el.value){
+    try{
+      if(navigator.clipboard && navigator.clipboard.readText){
+        navigator.clipboard.readText().then(function(t){
+          t=String(t||"").trim();
+          if(/^https?:\/\//i.test(t)) el.value=t;
+        }).catch(function(){});
+      }
+    }catch(e){}
+  }
+  setTimeout(function(){ if(el) el.focus(); }, 200);
+}
+function closeCarfaxPaste(){
+  if($("carfaxSheet")) $("carfaxSheet").classList.remove("on");
+}
+function fetchAsData(url){
+  return fetch(url).then(function(r){ return r.blob(); }).then(function(blob){
+    return new Promise(function(res){
+      const fr=new FileReader();
+      fr.onload=function(){ res({data:fr.result, type:blob.type||""}); };
+      fr.readAsDataURL(blob);
+    });
+  });
+}
+async function screenshotToPdf(imgData){
+  if(!window.jspdf) await loadScript("https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js");
+  const {jsPDF}=window.jspdf;
+  const d=new jsPDF({unit:"pt", format:"letter", compress:true});
+  const w=d.internal.pageSize.getWidth();
+  const h=d.internal.pageSize.getHeight();
+  d.addImage(imgData, "JPEG", 0, 0, w, h);
+  return d.output("datauristring");
+}
+async function linkPdf(url){
+  if(!window.jspdf) await loadScript("https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js");
+  const {jsPDF}=window.jspdf;
+  const d=new jsPDF({unit:"pt", format:"letter"});
+  d.setFillColor(17,14,26); d.rect(0,0,612,90,"F");
+  d.setTextColor(255,255,255); d.setFont("helvetica","bold"); d.setFontSize(22);
+  d.text("CARFAX", 40, 54);
+  d.setTextColor(17,14,26); d.setFontSize(12); d.setFont("helvetica","normal");
+  d.text("Report link", 40, 130);
+  const lines=d.splitTextToSize(url, 532);
+  d.setTextColor(0,137,204); d.text(lines, 40, 152);
+  if(APP.vin){ d.setTextColor(17,14,26); d.text("VIN "+APP.vin, 40, 152+lines.length*16+24); }
+  return d.output("datauristring");
+}
+async function ingestCarfax(){
+  const url=String($("carfaxUrl") && $("carfaxUrl").value || "").trim();
+  if(!/^https?:\/\//i.test(url)){ toast("Paste a full Carfax link."); return; }
+  const btn=$("carfaxGo");
+  if(btn){ btn.disabled=true; btn.textContent="Building PDF…"; }
+  toast("Pulling the Carfax…");
+  let preview="", pdfData="";
+  try{
+    const shot=await fetch("https://api.microlink.io?"+new URLSearchParams({
+      url:url, screenshot:"true", meta:"false", "viewport.width":"850", "viewport.height":"2200"
+    })).then(function(r){ return r.json(); });
+    const su=shot && shot.data && shot.data.screenshot && (shot.data.screenshot.url||shot.data.screenshot);
+    if(su){
+      const got=await fetchAsData(su);
+      if(got && got.data) preview=got.data;
+    }
+  }catch(e){}
+  try{
+    const ml=await fetch("https://api.microlink.io?"+new URLSearchParams({
+      url:url, pdf:"true", meta:"false"
+    })).then(function(r){ return r.json(); });
+    const pu=ml && ml.data && ml.data.pdf && (ml.data.pdf.url||ml.data.pdf);
+    if(pu){
+      const got=await fetchAsData(pu);
+      if(got && got.data) pdfData=got.data;
+    }
+  }catch(e){}
+  try{
+    if(!pdfData && preview) pdfData=await screenshotToPdf(preview);
+    if(!pdfData) pdfData=await linkPdf(url);
+  }catch(e){}
+  if(!pdfData){
+    toast("Couldn’t build that PDF. Check the link.");
+    if(btn){ btn.disabled=false; btn.textContent="Make PDF"; }
+    return;
+  }
+  APP.docs.carfax={name:"Carfax.pdf", data:pdfData, type:"application/pdf", url:url, preview:preview||""};
+  paintDocs();
+  closeCarfaxPaste();
+  toast("Carfax PDF is in.");
+  if(btn){ btn.disabled=false; btn.textContent="Make PDF"; }
+  const slot=document.querySelector(".carfax-pdf, .carfax-wait");
+  if(slot && slot.scrollIntoView) slot.scrollIntoView({behavior:"smooth", block:"center"});
+}
+function openCarfaxPdf(){
+  const got=APP.docs.carfax;
+  if(!got) return;
+  if(got.preview){ openViewer("img", got.preview, "Carfax"); return; }
+  if(got.data){
+    try{
+      const blob=blobFrom(got.data);
+      const url=URL.createObjectURL(blob);
+      window.open(url, "_blank", "noopener");
+    }catch(e){ openViewer("pdf", got.data, "Carfax"); }
+  }
 }
 
 function blobFrom(data){
@@ -3607,6 +3739,8 @@ $("btnClose").onclick = function(){ openCamera("close","new"); };
 $("btnDocs").onclick = function(){ paintDocs(); show("photos"); $("docsBlock") && $("docsBlock").scrollIntoView({behavior:"smooth", block:"start"}); };
 $("btnVin").onclick = $("verifyVin").onclick = function(){ openVinCam(); };
 if($("btnVinShot")) $("btnVinShot").onclick = snapVinStill;
+if($("carfaxGo")) $("carfaxGo").onclick = ingestCarfax;
+if($("carfaxUrl")) $("carfaxUrl").addEventListener("keydown", function(e){ if(e.key==="Enter"){ e.preventDefault(); ingestCarfax(); } });
 if($("vinTypeGo")) $("vinTypeGo").onclick = submitTypedVin;
 if($("vinSpeak")) $("vinSpeak").onclick = speakVin;
 if($("vinRetry")) $("vinRetry").onclick = function(){ hideVinFail(); openVinCam(); };
