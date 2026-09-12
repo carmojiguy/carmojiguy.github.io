@@ -712,22 +712,11 @@ function shotCount(){
 function show(id){
   const el=$(id);
   if(!el){ toast("Can’t open that screen."); return; }
-  const leaving=document.querySelector(".screen.on");
-  const from=leaving && leaving.id;
-  if(from==="camera" && id!=="camera"){
-    const token=APP.camToken||0;
-    stopDamageMic();
-    APP.dmgArmed=false;
-    stopWalkRec().then(function(){
-      if((APP.camToken||0)!==token) return;
-      if(!$("camera") || !$("camera").classList.contains("on")) releaseCam();
-    });
-  }
+  if(id!=="camera") killMediaNow();
   document.querySelectorAll(".screen").forEach(n=>n.classList.remove("on"));
   el.classList.add("on");
   window.scrollTo(0,0);
   if(id!=="home" && id!=="camera") stopVinScan();
-  if(id==="start" || id==="login" || id==="submit") releaseHardware();
   if(id==="start" || id==="login"){
     var img = $(id==="login" ? "loginBg" : "startBg");
     if (img){
@@ -1880,28 +1869,37 @@ function startPreview(videoId){
     navigator.mediaDevices.getUserMedia(tries[i]).then(attach).catch(function(){ next(i+1); });
   })(0);
 }
-function releaseCam(){
+function releaseCam(){ killMediaNow(); }
+function releaseHardware(){ killMediaNow(); }
+function killMediaNow(){
   APP.camToken=(APP.camToken||0)+1;
-  APP.scanning=false;
-  if(APP.scanRaf){ cancelAnimationFrame(APP.scanRaf); APP.scanRaf=0; }
-  if(APP.zxing && APP.zxing.reset){ try{ APP.zxing.reset(); }catch(e){} }
-  APP.zxing=null;
+  APP.listening=false;
+  APP.dmgArmed=false;
+  try{ APP.rec && APP.rec.stop(); }catch(e){}
+  APP.rec=null;
+  try{ APP.dmgRec && APP.dmgRec.stop(); }catch(e){}
+  APP.dmgRec=null;
+  if(APP.recTick){ clearInterval(APP.recTick); APP.recTick=null; }
+  try{ if(APP.recorder && APP.recorder.state && APP.recorder.state!=="inactive") APP.recorder.stop(); }catch(e){}
+  APP.recorder=null;
+  APP.recOn=false;
   ["shotCam","liveCam"].forEach(function(id){
     const v=$(id); if(!v) return;
     try{ v.pause(); }catch(e){}
     try{ v.srcObject=null; }catch(e){}
     if(id==="liveCam") v.classList.add("off");
   });
-  if(APP.stream){
-    try{ APP.stream.getTracks().forEach(function(t){ t.stop(); }); }catch(e){}
-    APP.stream=null;
+  function cut(stream){
+    if(!stream) return;
+    try{ stream.getTracks().forEach(function(t){ try{ t.stop(); }catch(e){} }); }catch(e){}
   }
-}
-function releaseHardware(){
-  stopMic();
-  stopDamageMic();
-  APP.dmgArmed=false;
-  return stopWalkRec().then(function(){ releaseCam(); }).catch(function(){ releaseCam(); });
+  cut(APP.stream); APP.stream=null;
+  cut(APP.micStream); APP.micStream=null;
+  APP.scanning=false;
+  if(APP.scanRaf){ cancelAnimationFrame(APP.scanRaf); APP.scanRaf=0; }
+  if($("micBtn")) $("micBtn").textContent="Speak";
+  const card=document.querySelector("#storySheet .card");
+  if(card) card.classList.remove("live");
 }
 function recMime(){
   if(!window.MediaRecorder) return "";
@@ -3029,7 +3027,7 @@ document.querySelectorAll("[data-close]").forEach(function(b){
 });
 $("startAppraise").onclick = function(){ setPurpose("appraise"); show("home"); };
 function openStoryMic(){
-  stopWalkRec().then(function(){ releaseCam(); });
+  killMediaNow();
   $("storySheet").classList.add("on");
   startMic();
 }
@@ -3076,7 +3074,7 @@ $("btnClose").onclick = function(){ openCamera("close","new"); };
 $("btnDocs").onclick = function(){ paintDocs(); show("photos"); $("docsBlock") && $("docsBlock").scrollIntoView({behavior:"smooth", block:"start"}); };
 $("btnVin").onclick = $("verifyVin").onclick = function(){ startVinScan(); };
 $("unitLine").onclick = function(){ fillUnit(); $("unitSheet").classList.add("on"); };
-$("btnSend").onclick = function(){ stopMic(); stopDamageMic(); stopWalkRec().then(function(){ releaseCam(); show("submit"); }); };
+$("btnSend").onclick = function(){ killMediaNow(); show("submit"); };
 if($("btnSavePhotos")) $("btnSavePhotos").onclick = savePhotos;
 if($("btnSharePack")) $("btnSharePack").onclick = sharePacket;
 if($("viewerX")) $("viewerX").onclick = closeViewer;
