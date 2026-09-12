@@ -3033,9 +3033,25 @@ function takeDocFiles(id, label, list){
     r.readAsDataURL(f);
   });
 }
+function pickPhotoLibrary(id, label){
+  const inp=document.createElement("input");
+  inp.type="file";
+  inp.multiple=true;
+  inp.accept="image/jpeg,image/png,image/heic,image/heif,image/webp,.jpg,.jpeg,.png,.heic,.webp";
+  inp.style.cssText="position:fixed;left:-9999px;width:1px;height:1px;opacity:0";
+  document.body.appendChild(inp);
+  inp.addEventListener("change", function(){
+    takeDocFiles(id, label, inp.files);
+    if(inp.parentNode) inp.remove();
+  });
+  inp.click();
+  setTimeout(function(){ if(inp.parentNode) inp.remove(); }, 120000);
+}
 function paintFileDoc(host, id, label){
   const got=APP.docs[id];
-  const el=document.createElement("label");
+  const desk=isDesk();
+  const el=document.createElement(desk ? "label" : "button");
+  if(!desk) el.type="button";
   el.className="doc-sq"+(got?" on":"");
   const shotN=((got && got.shots)||[]).length;
   const hasPdf=got && got.data && String(got.data).indexOf("application/pdf")>=0;
@@ -3046,13 +3062,17 @@ function paintFileDoc(host, id, label){
   const n=shotN+(hasPdf?1:0);
   const sub=got
     ? (n>1 ? n+" files" : (got.name||"Added"))
-    : (isDesk() ? "PDF or screenshots" : "Add screenshots");
+    : (desk ? "PDF or screenshots" : "Photo library");
   el.innerHTML=media+'<b>'+label+'</b><span>'+sub+'</span>';
-  const inp=document.createElement("input");
-  inp.type="file"; inp.multiple=true; inp.className="hide";
-  inp.accept=isDesk() ? "application/pdf,image/*" : "image/*";
-  inp.onchange=function(){ takeDocFiles(id, label, inp.files); };
-  el.appendChild(inp);
+  if(desk){
+    const inp=document.createElement("input");
+    inp.type="file"; inp.multiple=true; inp.className="hide";
+    inp.accept="application/pdf,image/*";
+    inp.onchange=function(){ takeDocFiles(id, label, inp.files); };
+    el.appendChild(inp);
+  } else {
+    el.onclick=function(e){ e.preventDefault(); pickPhotoLibrary(id, label); };
+  }
   host.appendChild(el);
 }
 function paintDocs(){
