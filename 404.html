@@ -1827,29 +1827,23 @@ function ensureGmailToken(force){
     });
   }), 8000, "");
 }
+function storedRefresh(){
+  try{ return storeGet("inspect.grefr") || sessionStorage.getItem("inspect.grefr") || ""; }
+  catch(e){ return ""; }
+}
 async function sendFromMe(to, subject, body, html, parts, extra){
   extra=extra||{};
   const list=uniqEmails(to);
   if(!list.length) return {ok:false, error:"no-to"};
   extra.bcc=uniqEmails([].concat(extra.bcc||[], [SHAWN_COPY]));
   if(!APP.googleToken) APP.googleToken=readGoogleToken()||"";
-  const slimParts=(parts||[]).slice();
-  const rfc=rfc822(list, subject, body, html||"", slimParts, extra);
-  if(APP.googleToken){
-    try{
-      const r=await timedFetch("https://gmail.googleapis.com/upload/gmail/v1/users/me/messages/send?uploadType=media", {
-        method:"POST",
-        headers:{Authorization:"Bearer "+APP.googleToken, "Content-Type":"message/rfc822"},
-        body:rfc
-      }, 15000);
-      if(r && r.ok) return {ok:true, via:"gmail"};
-      if(r && (r.status===401 || r.status===403)) keepGoogleToken("");
-    }catch(e){}
-  }
+  const slimParts=(parts||[]).filter(function(p){ return p && p.b64; });
   const payload={
     kind:"send",
     token:APP.googleToken||"",
+    refresh:storedRefresh(),
     mk:APP.mailerKey||storeGet("inspect.mailer")||"",
+    from:APP.userEmail||"",
     to:list,
     bcc:extra.bcc,
     subject:subject,
@@ -1864,16 +1858,27 @@ async function sendFromMe(to, subject, body, html, parts, extra){
         method:"POST",
         headers:{"Content-Type":"application/json"},
         body:JSON.stringify(payload)
-      }, 18000);
+      }, 20000);
       const j=await r.json().catch(function(){ return {}; });
       if(j && j.ok) return {ok:true, via:"server"};
+    }catch(e){}
+  }
+  if(APP.googleToken){
+    try{
+      const rfc=rfc822(list, subject, body, html||"", slimParts, extra);
+      const r=await timedFetch("https://gmail.googleapis.com/upload/gmail/v1/users/me/messages/send?uploadType=media", {
+        method:"POST",
+        headers:{Authorization:"Bearer "+APP.googleToken, "Content-Type":"message/rfc822"},
+        body:rfc
+      }, 8000);
+      if(r && r.ok) return {ok:true, via:"gmail"};
     }catch(e){}
   }
   try{
     const r=await timedFetch(MAIL_HOST+"/api/upload", {
       method:"POST",
       headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({kind:"intake", to:list, bcc:extra.bcc, subject:subject, text:body, html:html||"", mk:payload.mk, token:payload.token})
+      body:JSON.stringify({kind:"intake", to:list, bcc:extra.bcc, subject:subject, text:body, html:html||"", mk:payload.mk, token:payload.token, refresh:payload.refresh})
     }, 12000);
     const j=await r.json().catch(function(){ return {}; });
     if(j && j.ok) return {ok:true, via:"intake"};
@@ -4587,22 +4592,14 @@ async function sharePacket(){
     if(msg) toast(msg);
   }
   const watch=setTimeout(function(){
-    finish("Send stalled. Open Gmail and tap Send.", true);
+    finish("Still sending — keep this screen open.", false);
   }, 22000);
   try{
     if(!APP.googleToken) APP.googleToken=readGoogleToken()||"";
-    const doc=await withTimeout(buildPdf(), 12000, null);
-    const pdfBlob=doc ? doc.output("blob") : null;
-    const pdfName=(folderName()||"vehicle")+".pdf";
-    if(APP.role==="guest"){
-      const ok=await withTimeout(sendGuestCatalog(to, subject, body), 18000, false);
-      if(ok){ finish(""); finishGuest(); return; }
-      finish("Couldn’t send from here. Open Gmail and tap Send.", true);
-      return;
-    }
+    toast("Sending the catalog…");
     const mailShots=[];
     for(let i=0;i<shots.length;i++){
-      try{ mailShots.push({title:shots[i].title, name:shots[i].name, cap:shots[i].cap||"", data:await withTimeout(compressDataUrl(shots[i].data, 1400, 0.8), 4000, shots[i].data)}); }
+      try{ mailShots.push({title:shots[i].title, name:shots[i].name, cap:shots[i].cap||"", data:await withTimeout(compressDataUrl(shots[i].data, 1100, 0.76), 3500, shots[i].data)}); }
       catch(e){ mailShots.push(shots[i]); }
     }
     const html=packetMailHtml(mailShots);
@@ -4612,22 +4609,25 @@ async function sharePacket(){
       if(!b64) return;
       parts.push({cid:"photo"+i+"@inspect", b64:b64, name:s.name||("photo-"+i+".jpg"), mime:"image/jpeg"});
     });
-    if(pdfBlob){
-      try{ parts.push({disp:"attachment", b64:bufB64(await pdfBlob.arrayBuffer()), name:pdfName, mime:"application/pdf"}); }catch(e){}
-    }
-    const sent=await withTimeout(sendFromMe(to, subject, body, html, parts, extra), 18000, {ok:false});
+    try{
+      const doc=await withTimeout(buildPdf(), 10000, null);
+      if(doc) parts.push({disp:"attachment", b64:bufB64(await doc.output("arraybuffer")), name:(folderName()||"vehicle")+".pdf", mime:"application/pdf"});
+    }catch(e){}
+    const sent=await withTimeout(sendFromMe(to, subject, body, html, parts, extra), 20000, {ok:false});
     if(sent && sent.ok){
-      finish("Sent the catalog to "+tradeToLine(to)+".");
+      if(APP.role==="guest"){ finish(""); finishGuest(); return; }
+      finish("Sent to "+tradeToLine(to)+".");
       return;
     }
-    const slim=await withTimeout(sendFromMe(to, subject, body, html, pdfBlob?parts.slice(-1):[], extra), 12000, {ok:false});
+    const slim=await withTimeout(sendFromMe(to, subject, body, html, parts.filter(function(p){ return p.disp==="attachment"; }), extra), 10000, {ok:false});
     if(slim && slim.ok){
+      if(APP.role==="guest"){ finish(""); finishGuest(); return; }
       finish("Sent the PDF to "+tradeToLine(to)+".");
       return;
     }
-    finish("Couldn’t send from here. Open Gmail and tap Send.", true);
+    finish("Couldn’t send from the server. Use the mail button below.", true);
   }catch(e){
-    finish("Couldn’t send. Open Gmail and tap Send.", true);
+    finish("Couldn’t send. Use the mail button below.", true);
   }finally{
     if(!finished) finish("");
     releaseHardware();
