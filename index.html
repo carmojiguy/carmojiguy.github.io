@@ -1069,7 +1069,26 @@ function smsGateways(phone){
   ];
 }
 function inviteSmsCopy(first, url){
-  return "Hi "+(first||"there")+", your trade-in takes about 5 minutes. Tap this link: "+url;
+  const who=APP.userName || nameForEmail(APP.userEmail) || "our team";
+  const unit=APP.inviteUnit || "";
+  const against=unit ? " for the "+unit : "";
+  return [
+    "Hi "+(first||"there")+", it’s "+who+".",
+    "",
+    "This is a private link to get a value on your vehicle"+against+". It takes about five minutes on your phone. Nothing to download, no account to create, and you’re not committing to anything.",
+    "",
+    "What happens when you tap it:",
+    "1) Tell us about the vehicle — year, make, model, kilometres, and how it looks and drives. You can talk or type.",
+    "2) We’ll walk you through a few photos. A green outline sits on the camera so you know where to stand.",
+    "3) Tap Send. We take the package to buyers across Canada and the U.S. and come back to you with a number.",
+    "",
+    "Be as specific as you can. The more we know, the more we can do for you.",
+    "",
+    "When you’re ready, tap here:",
+    url,
+    "",
+    "If anything feels off, just reply to this text. We’ll help."
+  ].join("\n");
 }
 async function sendTextTo(phone, text){
   const gates=smsGateways(phone);
@@ -1128,40 +1147,40 @@ function inviteMailCopy(first, url){
   const unit=APP.inviteUnit || "";
   const stock=APP.inviteStock || "";
   const against=unit ? (unit+(stock?" (stock "+stock+")":"")) : (stock?"stock "+stock:"");
-  const subject=against
-    ? first+", your trade-in for the "+against
-    : first+", get a value on your vehicle — takes about 5 minutes";
+  const againstBit=against ? " against the "+against : "";
+  const subject=first+", a simple way to get a number on your vehicle";
   const text=[
     "Hi "+first+",",
     "",
-    "START YOUR APPRAISAL — tap this link:",
+    "It’s "+whoLine+". I wanted to make this easy for you.",
+    "",
+    "This is a private link to get a real value on your vehicle"+againstBit+". It lives on your phone, it takes about five minutes, and you don’t need an account or an app. You’re not selling anything yet — you’re just showing us the vehicle clearly so we can go to work.",
+    "",
+    "Start here (that’s the only tap you need):",
     url,
     "",
-    "That’s the only tap you need. About five minutes. No account. No download.",
+    "What it looks like:",
     "",
-    whoLine+" started this for you"+(against?" against the "+against+".":"."),
+    "1. Tell the story. The first button turns the microphone on. Say the year, make, model, trim, colour, kilometres, and how it looks and drives — rust, dents, noises, maintenance, anything you’d tell us in the driveway. Prefer typing? There’s a Type instead button.",
     "",
-    "Here’s what happens after you tap the link:",
-    "1. Tell us the year, make, model, trim, colour, kilometres, and how it looks and drives.",
-    "2. We walk you through a few photos.",
-    "3. Tap Send my trade. We take it to buyers across Canada and the U.S.",
+    "2. Take the photos. We walk you around the vehicle one angle at a time. A green outline sits on the camera so you know exactly where to stand. If a panel is hit, add as many damage photos as you need and say what’s going on.",
+    "",
+    "3. Send. Review what you captured, then tap Send my trade. It comes straight to me. We take it to buyers across Canada and the U.S. and come back to you with a number.",
+    "",
+    "A few things so you can relax:",
+    "• No login. No download. The link is just for you.",
+    "• You can pause and come back. Nothing is submitted until you tap Send.",
+    "• Be as specific as you can. The more we know, the stronger the number we can bring you.",
+    "• If a photo doesn’t look right, take it again. We would rather have a clear shot than a fast one.",
     "",
     "If the first link doesn’t open, copy and paste this into Safari or Chrome:",
     url,
     "",
-    whoLine
-  ].join("\n");
-  const compose=[
-    "Hi "+first+",",
-    "",
-    "Tap this link to start your appraisal:",
-    "",
-    url,
-    "",
-    "About 5 minutes. No account.",
+    "Questions? Reply to this email or text me. I’ll walk you through it.",
     "",
     "— "+whoLine
   ].join("\n");
+  const compose=text;
   const btn=
     '<table role="presentation" cellspacing="0" cellpadding="0" align="center" style="margin:0 auto 8px"><tr>'+
     '<td align="center" bgcolor="#00A8E8" style="background:#00A8E8;border-radius:40px">'+
@@ -1176,40 +1195,48 @@ function inviteMailCopy(first, url){
   const html='<!DOCTYPE html><html><body style="margin:0;padding:0;background:#EDEAF3;font-family:Arial,Helvetica,sans-serif;color:#241B33">'+
     '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#EDEAF3;padding:24px 12px"><tr><td align="center">'+
     '<table role="presentation" width="560" cellpadding="0" cellspacing="0" style="width:560px;max-width:100%;background:#FAF9FC;border-radius:22px;overflow:hidden">'+
-    '<tr><td style="background:#241B33;padding:26px 28px">'+
-    '<div style="color:#4FB8C7;letter-spacing:.18em;font-size:11px;font-weight:700">TRADE-IN</div>'+
-    '<div style="color:#ffffff;font-size:24px;font-weight:800;margin-top:8px;line-height:1.25">Get a real number on your vehicle in about five minutes</div>'+
+    '<tr><td style="background:#241B33;padding:28px 28px 24px">'+
+    '<div style="color:#4FB8C7;letter-spacing:.18em;font-size:11px;font-weight:700">YOUR VEHICLE · ABOUT 5 MINUTES</div>'+
+    '<div style="color:#ffffff;font-size:26px;font-weight:800;margin-top:10px;line-height:1.25">Hi '+escHtml(first)+', this is the easy way to get a number on your vehicle</div>'+
     '</td></tr>'+
-    '<tr><td style="padding:28px 28px 10px">'+
-    '<p style="margin:0 0 14px;font-size:16px;line-height:1.5">Hi '+escHtml(first)+',</p>'+
-    '<p style="margin:0 0 18px;font-size:16px;line-height:1.55">'+escHtml(whoLine)+' asked us to get a value on your vehicle'+(against?' so we can put a number against the <strong>'+escHtml(against)+'</strong>.':' so we can take it to buyers.')+'</p>'+
-    '<p style="margin:0 0 10px;text-align:center">'+btn+'</p>'+
-    '<p style="margin:0 0 6px;font-size:13px;font-weight:800;color:#110E1A;text-align:center">Tap the blue button to start</p>'+
-    '<p style="margin:0 0 22px;font-size:13px;color:#6B6278;text-align:center;word-break:break-all"><a href="'+escHtml(url)+'" target="_blank" style="color:#008FCC;font-weight:700;text-decoration:underline">'+escHtml(url)+'</a></p>'+
+    '<tr><td style="padding:28px 28px 8px">'+
+    '<p style="margin:0 0 14px;font-size:16px;line-height:1.6">It’s '+escHtml(whoLine)+'. I wanted to make this comfortable for you'+(against?' — we’re putting a number against the <strong>'+escHtml(against)+'</strong>.':'.')+'</p>'+
+    '<p style="margin:0 0 14px;font-size:16px;line-height:1.6">This link is private. It takes about five minutes on your phone. <strong>Nothing to download, no account, and you’re not committing to a sale.</strong> You’re just showing us the vehicle clearly so we can take it to buyers and come back with a real number.</p>'+
+    '<p style="margin:0 0 12px;text-align:center">'+btn+'</p>'+
+    '<p style="margin:0 0 6px;font-size:13px;font-weight:800;color:#110E1A;text-align:center">Tap the blue button when you’re ready</p>'+
+    '<p style="margin:0 0 10px;font-size:13px;color:#6B6278;text-align:center;word-break:break-all"><a href="'+escHtml(url)+'" target="_blank" style="color:#008FCC;font-weight:700;text-decoration:underline">'+escHtml(url)+'</a></p>'+
+    '</td></tr>'+
+    '<tr><td style="padding:4px 28px 18px">'+
+    '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F3F0FA;border-radius:16px">'+
+    '<tr><td style="padding:16px 18px">'+
+    '<div style="font-size:12px;letter-spacing:.12em;font-weight:800;color:#6B4C9A;margin-bottom:8px">SO YOU KNOW WHAT TO EXPECT</div>'+
+    '<p style="margin:0 0 8px;font-size:14px;line-height:1.55;color:#3A3346">You stay in control the whole time. Nothing is sent until you tap <strong>Send my trade</strong>. If a photo doesn’t look right, take it again. If you’d rather type than talk, that’s fine too.</p>'+
+    '<p style="margin:0;font-size:14px;line-height:1.55;color:#3A3346">When you’re done, it comes straight to me. We work with buyers across Canada and the U.S. and we get back to you with a number. That’s the whole idea.</p>'+
+    '</td></tr></table>'+
     '</td></tr>'+
     '<tr><td style="padding:8px 28px 6px"><div style="height:1px;background:#E6E1EE"></div></td></tr>'+
-    '<tr><td style="padding:18px 28px 6px"><div style="font-size:13px;letter-spacing:.14em;font-weight:800;color:#6B4C9A">HOW EASY THIS IS</div></td></tr>'+
+    '<tr><td style="padding:18px 28px 6px"><div style="font-size:13px;letter-spacing:.14em;font-weight:800;color:#6B4C9A">WHAT YOU’LL DO</div></td></tr>'+
     '<tr><td style="padding:8px 28px 16px">'+
     '<p style="margin:0 0 6px;font-size:16px;font-weight:800">1 · Tell the story</p>'+
-    '<p style="margin:0 0 8px;font-size:15px;line-height:1.5;color:#3A3346">Tap <strong>Start by clicking here!</strong> The mic turns on. Say the year, make, model, trim, colour, kilometres, and how it looks and drives. Prefer typing? There’s a Type instead button.</p>'+
+    '<p style="margin:0 0 8px;font-size:15px;line-height:1.55;color:#3A3346">Tap <strong>Start by clicking here!</strong> The mic turns on. Say the year, make, model, trim, colour, kilometres, and how it looks and drives — rust, dents, noises, service, anything you’d mention in the driveway. Prefer typing? Use <strong>Type instead</strong>.</p>'+
     shot(img1, "Step 1 — Start by clicking here")+
     '<p style="margin:0 0 18px;font-size:12px;color:#6B6278;text-align:center">This is the first screen you’ll see.</p>'+
     '<p style="margin:0 0 6px;font-size:16px;font-weight:800">2 · Line up the photos</p>'+
-    '<p style="margin:0 0 8px;font-size:15px;line-height:1.5;color:#3A3346">We walk you through each angle — ¾ front, driver, rear, passenger, dash, console, tires. A green outline sits on the camera so you know exactly how to stand. Hit something? Add as many damage photos as you need.</p>'+
+    '<p style="margin:0 0 8px;font-size:15px;line-height:1.55;color:#3A3346">We walk you around the vehicle one angle at a time — ¾ front, driver, rear, passenger, dash, console, tires. A green outline sits on the camera so you know exactly how to stand. Hit something? Add as many damage photos as you need and say what’s going on while you shoot.</p>'+
     shot(img2, "Step 2 — Photo with outline")+
-    '<p style="margin:0 0 18px;font-size:12px;color:#6B6278;text-align:center">The outline is on the camera. Just line the car up and tap.</p>'+
+    '<p style="margin:0 0 18px;font-size:12px;color:#6B6278;text-align:center">The outline is on the camera. Line the car up and tap.</p>'+
     '<p style="margin:0 0 6px;font-size:16px;font-weight:800">3 · Send my trade</p>'+
-    '<p style="margin:0 0 8px;font-size:15px;line-height:1.5;color:#3A3346">Review the packet, then tap Send my trade. '+escHtml(whoLine)+' gets it, and we take it to buyers.</p>'+
+    '<p style="margin:0 0 8px;font-size:15px;line-height:1.55;color:#3A3346">Look over the packet, then tap Send my trade. '+escHtml(who)+' gets it. We take it to buyers and come back to you.</p>'+
     shot(img3, "Step 3 — Send my trade")+
     '<p style="margin:0 0 8px;font-size:12px;color:#6B6278;text-align:center">That’s the last tap.</p>'+
     '</td></tr>'+
     '<tr><td style="padding:8px 28px 28px">'+
-    '<p style="margin:0 0 18px;font-size:15px;line-height:1.55;color:#3A3346">Be as specific as you can. The more we know, the more we can do for you.</p>'+
-    '<p style="margin:0 0 8px;text-align:center">'+btn+'</p>'+
-    '<p style="margin:0 0 18px;font-size:13px;font-weight:800;color:#110E1A;text-align:center">Tap the blue button to start your appraisal</p>'+
+    '<p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#3A3346">Be as specific as you can. The more we know, the more we can do for you. If anything feels confusing, reply to this email — I’ll walk you through it.</p>'+
+    '<p style="margin:0 0 10px;text-align:center">'+btn+'</p>'+
+    '<p style="margin:0 0 18px;font-size:13px;font-weight:800;color:#110E1A;text-align:center">Tap the blue button to start — about five minutes</p>'+
     '<p style="margin:0;font-size:13px;color:#6B6278">— '+escHtml(whoLine)+'</p>'+
     '</td></tr></table>'+
-    '<p style="margin:16px 0 0;font-size:11px;color:#8A8296;text-align:center">Sent because you asked '+escHtml(whoLine)+' for a trade-in value.</p>'+
+    '<p style="margin:16px 0 0;font-size:11px;color:#8A8296;text-align:center">Sent because you asked '+escHtml(whoLine)+' for a trade-in value. The link is just for you.</p>'+
     '</td></tr></table></body></html>';
   return {subject:subject, text:text, html:html, compose:compose};
 }
