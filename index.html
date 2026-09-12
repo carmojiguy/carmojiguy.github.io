@@ -547,10 +547,12 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
       <div><label class="k">Kilometres</label><input class="f" id="v-km" inputmode="numeric" /></div>
     </div>
     <label class="k">VIN</label>
-    <button class="pill cyan" type="button" id="verifyVin">Take a picture of the ownership</button>
-    <p class="quote" style="margin:8px 0 0">Dash plate or door sticker works too. We’ll read the number from the photo.</p>
-    <p class="vin-chip hide" id="vVinChip"></p>
-    <input class="f" id="v-vin" maxlength="17" style="text-transform:uppercase;margin-top:10px" placeholder="Or type the 17-character VIN" />
+    <div class="to-add">
+      <input class="f" id="v-vin" maxlength="17" style="text-transform:uppercase" placeholder="17-character VIN" autocomplete="off" />
+      <button class="pill cyan" type="button" id="vinSpeak">Speak</button>
+    </div>
+    <button class="pill wash" type="button" id="verifyVin">Take a picture of the ownership</button>
+    <p class="quote" style="margin:8px 0 0">If they said the VIN in the story, it’s already in the field. If not, type it, speak it, or photograph the ownership.</p>
     <div id="stockWrap" class="hide">
       <label class="k">Stock number</label><input class="f" id="v-stock" placeholder="e.g. A1042" />
     </div>
@@ -2682,6 +2684,42 @@ function vinCheckOk(vin){
   const d=r===10?"X":String(r);
   return vin[8]===d;
 }
+function phoneticVin(text){
+  const map={alfa:"A",alpha:"A",bravo:"B",charlie:"C",delta:"D",echo:"E",foxtrot:"F",fox:"F",frank:"F",golf:"G",hotel:"H",india:"I",juliet:"J",juliett:"J",kilo:"K",lima:"L",mike:"M",november:"N",nancy:"N",oscar:"O",papa:"P",paul:"P",quebec:"Q",romeo:"R",roger:"R",sierra:"S",sam:"S",tango:"T",tom:"T",uniform:"U",victor:"V",whiskey:"W",xray:"X",yankee:"Y",zulu:"Z",zero:"0",oh:"0",niner:"9",one:"1",two:"2",three:"3",four:"4",five:"5",six:"6",seven:"7",eight:"8",nine:"9"};
+  const words=String(text||"").toLowerCase().replace(/[’']/g,"").split(/[^a-z0-9]+/).filter(Boolean);
+  let start=0;
+  for(let i=0;i<words.length;i++){
+    if(words[i]==="vin" || (words[i]==="v" && words[i+1]==="in")){
+      start=i+1;
+      while(words[start]==="number" || words[start]==="is" || words[start]==="the") start++;
+      break;
+    }
+  }
+  function pack(from){
+    const chars=[];
+    for(let i=from;i<words.length;i++){
+      const w=words[i];
+      if(map[w]) chars.push(map[w]);
+      else if(/^\d+$/.test(w)) chars.push(w);
+      else if(/^[a-hj-npr-z0-9]{1,17}$/i.test(w)) chars.push(w.toUpperCase());
+      else if(chars.length>=11) break;
+    }
+    return chars.join("").replace(/[^A-HJ-NPR-Z0-9]/g,"");
+  }
+  const tries=[pack(start)];
+  if(start) tries.push(pack(0));
+  for(let t=0;t<tries.length;t++){
+    const hits=generateVinCandidates(tries[t]);
+    if(hits[0]) return hits[0];
+    if(tries[t].length===17 && vinOk(tries[t])) return tries[t];
+  }
+  return "";
+}
+function vinFromText(text){
+  const c=generateVinCandidates(text);
+  if(c && c[0]) return c[0];
+  return phoneticVin(text);
+}
 function generateVinCandidates(text){
   const out=[];
   function add(v){
@@ -3049,8 +3087,7 @@ function parseStory(raw){
   const text=normalizeSpoken(heard);
   const o={year:"",make:"",model:"",trim:"",color:"",km:"",vin:"",notes:original,heard:original};
   const y=text.match(/\b((?:19|20)\d{2})\b/); if(y) o.year=y[1];
-  const vinm=heard.toUpperCase().match(/\b[A-HJ-NPR-Z0-9]{17}\b/);
-  if(vinm && vinCheckOk(vinm[0])) o.vin=vinm[0];
+  o.vin=vinFromText(heard) || vinFromText(text) || "";
   const makes=["mercedes-benz","mercedes","land rover","range rover","alfa romeo","volkswagen","chevrolet","chevy","cadillac","chrysler","lincoln","hyundai","genesis","mitsubishi","maserati","porsche","infiniti","acura","lexus","toyota","nissan","honda","mazda","subaru","suzuki","kia","jeep","ram","dodge","ford","gmc","buick","volvo","jaguar","mini","bmw","audi","tesla","rivian","polestar","fiat","hummer"];
   const low=text.toLowerCase();
   for(let i=0;i<makes.length;i++){
@@ -3109,11 +3146,6 @@ function fillUnit(){
   if($("v-notes")) $("v-notes").value = APP.notes||APP.heard||"";
   if($("v-stock")) $("v-stock").value = APP.stock||"";
   if($("v-webcopy") && APP.role!=="guest") $("v-webcopy").value = APP.webcopy || (isWeb() ? websiteCopy() : "");
-  const vchip=$("vVinChip");
-  if(vchip){
-    if(APP.vin){ vchip.textContent=APP.vin; vchip.classList.remove("hide"); }
-    else vchip.classList.add("hide");
-  }
   applyMode();
   growTextareas();
 }
@@ -3162,6 +3194,10 @@ function applyStory(raw){
   Object.keys(parsed).forEach(function(k){
     if(parsed[k]) APP[k]=parsed[k];
   });
+  if(!APP.vin){
+    const v=vinFromText(text);
+    if(v) APP.vin=v;
+  }
   APP.heard=text;
   if(!APP.notes) APP.notes=text;
   APP.webcopy="";
@@ -3246,6 +3282,35 @@ function startMic(){
     alive:function(){ return APP.listening; },
     ontext:function(tx){ if($("transcript")){ $("transcript").value=tx; growArea($("transcript")); } },
     onfail:function(){ APP.listening=false; }
+  });
+}
+function stopVinSpeak(){
+  APP.vinListening=false;
+  try{ APP.vinFieldRec && APP.vinFieldRec.stop(); }catch(e){}
+  APP.vinFieldRec=null;
+  if($("vinSpeak")) $("vinSpeak").textContent="Speak";
+}
+function speakVinField(){
+  if(APP.vinListening){ stopVinSpeak(); return; }
+  stopMic();
+  APP.vinListening=true;
+  APP.vinSpeakFinal="";
+  if($("vinSpeak")) $("vinSpeak").textContent="Stop";
+  toast("Say the VIN.");
+  APP.vinFieldRec=startRec({
+    alive:function(){ return APP.vinListening; },
+    ontext:function(tx){
+      APP.vinSpeakFinal=tx;
+      const v=vinFromText(tx);
+      if(v){
+        if($("v-vin")) $("v-vin").value=v;
+        APP.vin=v;
+        toast("VIN "+v);
+        stopVinSpeak();
+        decodeVin(v).then(function(){ fillUnit(); }).catch(function(){});
+      }
+    },
+    onfail:function(){ stopVinSpeak(); }
   });
 }
 function stopMic(){
@@ -4655,11 +4720,17 @@ $("btnType").onclick = function(){ openVerify(); };
 $("saveUnit").onclick = function(){ readUnit(); $("unitSheet").classList.remove("on"); paintLists(); show("photos"); };
 $("verifyBack").onclick = function(){ show("home"); };
 $("verifyGo").onclick = function(){
+  stopVinSpeak();
   readVerify();
   if(APP.role==="guest") APP.webcopy = APP.notes || APP.heard || "";
   paintLists();
   show("photos");
 };
+if($("vinSpeak")) $("vinSpeak").onclick = speakVinField;
+if($("v-vin")) $("v-vin").addEventListener("input", function(){
+  this.value=this.value.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g,"").slice(0,17);
+  APP.vin=this.value;
+});
 if($("btnWebAi")) $("btnWebAi").onclick = generateWebCopy;
 
 if($("staffForm")) $("staffForm").addEventListener("submit", enterStaffPassword);
