@@ -12,7 +12,11 @@
   var token = p.get("access_token") || "";
   var code = p.get("code") || "";
   var err = p.get("error") || "";
-  function go(fail){ location.replace("./" + (fail ? "?auth=fail" : "")); }
+  function go(fail){
+    var pending=false;
+    try{ pending=sessionStorage.getItem("inspect.pendingSend")==="1"; }catch(e){}
+    location.replace("./" + (fail ? "?auth=fail" : (pending ? "?resume=send" : "")));
+  }
   try{
     if(token) sessionStorage.setItem("inspect.gtoken", token);
     if(err) sessionStorage.setItem("inspect.gerr", err);

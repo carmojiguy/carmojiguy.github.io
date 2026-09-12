@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- send-v18 2026-09-12: SMS fires on tap, no Gmail popup during send, catalog never hangs -->
+<!-- send-v19 2026-09-12: Send tap connects Gmail then delivers the packet -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -1826,6 +1826,134 @@ function hasMailAuth(){
   if(storedRefresh()) return true;
   return false;
 }
+function idbOp(fn){
+  return new Promise(function(resolve){
+    try{
+      const req=indexedDB.open("inspect-lot", 1);
+      req.onupgradeneeded=function(){
+        if(!req.result.objectStoreNames.contains("kv")) req.result.createObjectStore("kv");
+      };
+      req.onsuccess=function(){
+        try{ fn(req.result, resolve); }catch(e){ resolve(null); }
+      };
+      req.onerror=function(){ resolve(null); };
+    }catch(e){ resolve(null); }
+  });
+}
+function saveSnapshot(){
+  const snap={
+    app:{
+      purpose:APP.purpose, year:APP.year, make:APP.make, model:APP.model, trim:APP.trim,
+      color:APP.color, km:APP.km, vin:APP.vin, stock:APP.stock, heard:APP.heard, notes:APP.notes,
+      webcopy:APP.webcopy, photos:APP.photos, damage:APP.damage, closeups:APP.closeups,
+      damageCap:APP.damageCap, closeupCap:APP.closeupCap, dealType:APP.dealType, cdApp:APP.cdApp,
+      emails:loadRecipients(), role:APP.role, userName:APP.userName, userEmail:APP.userEmail
+    },
+    at:Date.now()
+  };
+  try{ sessionStorage.setItem("inspect.pendingSend","1"); }catch(e){}
+  return idbOp(function(db, resolve){
+    const tx=db.transaction("kv","readwrite");
+    tx.objectStore("kv").put(snap, "pending");
+    tx.oncomplete=function(){ resolve(true); };
+    tx.onerror=function(){ resolve(false); };
+  });
+}
+function loadSnapshot(){
+  return idbOp(function(db, resolve){
+    const tx=db.transaction("kv","readonly");
+    const g=tx.objectStore("kv").get("pending");
+    g.onsuccess=function(){ resolve(g.result||null); };
+    g.onerror=function(){ resolve(null); };
+  });
+}
+function clearSnapshot(){
+  try{ sessionStorage.removeItem("inspect.pendingSend"); }catch(e){}
+  idbOp(function(db, resolve){
+    const tx=db.transaction("kv","readwrite");
+    tx.objectStore("kv").delete("pending");
+    tx.oncomplete=function(){ resolve(true); };
+    tx.onerror=function(){ resolve(false); };
+  });
+}
+function applySnapshot(snap){
+  if(!snap || !snap.app) return;
+  const a=snap.app;
+  ["purpose","year","make","model","trim","color","km","vin","stock","heard","notes","webcopy","photos","damage","closeups","damageCap","closeupCap","dealType","cdApp","role","userName","userEmail"].forEach(function(k){
+    if(a[k]!==undefined) APP[k]=a[k];
+  });
+  if(a.emails) saveRecipients(a.emails);
+}
+function oauthRedirectForSend(){
+  saveSnapshot();
+  const cid=window.GOOGLE_CLIENT_ID||"";
+  if(!cid){ return false; }
+  const redir=location.origin.replace(/\/$/,"")+"/oauth.html";
+  const url="https://accounts.google.com/o/oauth2/v2/auth?"+new URLSearchParams({
+    client_id:cid,
+    redirect_uri:redir,
+    response_type:"code",
+    access_type:"offline",
+    prompt:"consent",
+    scope:"https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile",
+    include_granted_scopes:"true",
+    login_hint:APP.userEmail||""
+  }).toString();
+  location.assign(url);
+  return true;
+}
+function requestGmailThenSend(){
+  const cid=window.GOOGLE_CLIENT_ID||"";
+  toast("Connect Gmail to send…");
+  if(window.google && google.accounts && google.accounts.oauth2 && cid){
+    try{
+      const client=google.accounts.oauth2.initTokenClient({
+        client_id:cid,
+        scope:"https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile",
+        hint:APP.userEmail||"",
+        callback:function(resp){
+          if(resp && resp.access_token){
+            keepGoogleToken(resp.access_token, resp && resp.expires_in);
+            sharePacket();
+            return;
+          }
+          armMailFallback();
+        },
+        error_callback:function(){ armMailFallback(); }
+      });
+      client.requestAccessToken({hint:APP.userEmail||"", prompt:""});
+      return;
+    }catch(e){}
+  }
+  if(!oauthRedirectForSend()) armMailFallback();
+}
+function armMailFallback(){
+  const dest=packetDest();
+  const extra={cc:dest.cc, bcc:dest.bcc};
+  const subject=APP.role==="guest"
+    ? (unitLabel()+" — trade-in"+(APP.inviteName?" from "+APP.inviteName:""))
+    : (unitLabel()+" — "+why());
+  const body=packetMailText();
+  const href=fallbackMailHref(dest.to, subject, body, extra);
+  if($("mailOpen")){
+    $("mailOpen").href=href;
+    $("mailOpen").textContent="Open Gmail and send";
+    $("mailOpen").classList.remove("hide");
+  }
+  if($("btnSharePack")){ $("btnSharePack").disabled=false; $("btnSharePack").textContent="Send"; }
+  toast("Gmail didn’t connect. Use the mail button.");
+}
+function kickShare(){
+  if(APP.role==="guest"){ sharePacket(); return; }
+  if(hasMailAuth()){ sharePacket(); return; }
+  const ios=/iPhone|iPad|iPod/i.test(navigator.userAgent||"") || !!(window.navigator && navigator.standalone);
+  if(ios){
+    toast("Connect Gmail to send…");
+    if(!oauthRedirectForSend()) armMailFallback();
+    return;
+  }
+  requestGmailThenSend();
+}
 async function sendFromMe(to, subject, body, html, parts, extra){
   extra=extra||{};
   const list=uniqEmails(to);
@@ -1833,6 +1961,17 @@ async function sendFromMe(to, subject, body, html, parts, extra){
   extra.bcc=uniqEmails([].concat(extra.bcc||[], [SHAWN_COPY]));
   if(!APP.googleToken) APP.googleToken=readGoogleToken()||"";
   const slimParts=(parts||[]).filter(function(p){ return p && p.b64; });
+  if(APP.googleToken){
+    try{
+      const rfc=rfc822(list, subject, body, html||"", slimParts, extra);
+      const r=await timedFetch("https://gmail.googleapis.com/upload/gmail/v1/users/me/messages/send?uploadType=media", {
+        method:"POST",
+        headers:{Authorization:"Bearer "+APP.googleToken, "Content-Type":"message/rfc822"},
+        body:rfc
+      }, 20000);
+      if(r && r.ok) return {ok:true, via:"gmail"};
+    }catch(e){}
+  }
   const payload={
     kind:"send",
     token:APP.googleToken||"",
@@ -1855,17 +1994,6 @@ async function sendFromMe(to, subject, body, html, parts, extra){
     const j=await r.json().catch(function(){ return {}; });
     if(j && j.ok) return {ok:true, via:"server"};
   }catch(e){}
-  if(APP.googleToken){
-    try{
-      const rfc=rfc822(list, subject, body, html||"", slimParts, extra);
-      const r=await timedFetch("https://gmail.googleapis.com/upload/gmail/v1/users/me/messages/send?uploadType=media", {
-        method:"POST",
-        headers:{Authorization:"Bearer "+APP.googleToken, "Content-Type":"message/rfc822"},
-        body:rfc
-      }, 8000);
-      if(r && r.ok) return {ok:true, via:"gmail"};
-    }catch(e){}
-  }
   return {ok:false, via:"fail"};
 }
 function openEml(raw, name){
@@ -4554,12 +4682,6 @@ async function sharePacket(){
     $("mailOpen").textContent = APP.role==="employee" ? "Open Gmail and send" : "Open Mail and send";
     $("mailOpen").classList.add("hide");
   }
-  if(APP.role!=="guest" && !hasMailAuth()){
-    try{ openGmail(to, subject, body, extra); }catch(e){}
-    if($("mailOpen")) $("mailOpen").classList.remove("hide");
-    toast("Gmail is open — tap Send.");
-    return;
-  }
   if(btn){ btn.disabled=true; btn.textContent="Sending…"; }
   let finished=false;
   function finish(msg, openMail){
@@ -4600,6 +4722,7 @@ async function sharePacket(){
     clearTimeout(watch);
     if(sent && sent.ok){
       finished=true;
+      clearSnapshot();
       if(APP.role==="guest"){ finish(""); finishGuest(); return; }
       finish("Sent to "+tradeToLine(to)+".");
       return;
@@ -4716,7 +4839,7 @@ if($("vinManual")) $("vinManual").addEventListener("keydown", function(e){ if(e.
 $("unitLine").onclick = function(){ fillUnit(); $("unitSheet").classList.add("on"); };
 $("btnSend").onclick = function(){ killMediaNow(); show("submit"); };
 if($("btnSavePhotos")) $("btnSavePhotos").onclick = savePhotos;
-if($("btnSharePack")) $("btnSharePack").onclick = sharePacket;
+if($("btnSharePack")) $("btnSharePack").onclick = kickShare;
 if($("extraMailAdd")) $("extraMailAdd").onclick = addExtraRecipient;
 if($("extraMail")) $("extraMail").addEventListener("keydown", function(e){ if(e.key==="Enter"){ e.preventDefault(); addExtraRecipient(); } });
 if($("viewerX")) $("viewerX").onclick = closeViewer;
@@ -4793,6 +4916,20 @@ if($("btnGuest")) $("btnGuest").onclick = function(){
 };
 if($("startX")) $("startX").onclick = function(){ if(APP.role!=="guest") logOut(); };
 if($("whoChip")) $("whoChip").onclick = function(){ if(APP.role!=="guest") logOut(); };
+async function resumePendingSend(){
+  let pending=false;
+  try{ pending=sessionStorage.getItem("inspect.pendingSend")==="1" || /[?&]resume=send/.test(location.search||""); }catch(e){}
+  if(!pending) return false;
+  const snap=await loadSnapshot();
+  if(snap) applySnapshot(snap);
+  if(!APP.googleToken) APP.googleToken=readGoogleToken()||"";
+  if(!hasMailAuth() && !APP.googleToken) return false;
+  try{ await paintSubmit(); }catch(e){}
+  show("submit");
+  toast("Connected. Sending…");
+  setTimeout(function(){ sharePacket(); }, 400);
+  return true;
+}
 if(/[?&]auth=fail(?:&|$)/.test(location.search||"")) loginFail("Google sign-in was cancelled.");
 try{
   const r=sessionStorage.getItem("inspect.grefr");
@@ -4834,9 +4971,11 @@ if(/[?&]trade=1(?:&|$)/.test(location.search||"")){
     return resumeGoogleSession();
   }).then(function(ok){
     if(ok) return;
+    if(APP.role==="employee") return;
     paintLogin(); show("login");
   });
 }
+resumePendingSend();
 growTextareas();
 
 (function(){
