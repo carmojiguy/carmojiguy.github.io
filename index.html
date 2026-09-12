@@ -1624,16 +1624,46 @@ async function loadMailerToken(){
   }catch(e){}
   return null;
 }
-async function deliverGuestPacket(to, subject, body, html, parts, extra){
-  const mailer=await loadMailerToken();
-  if(!mailer || !mailer.access_token) return false;
-  const prev=APP.googleToken;
-  APP.googleToken=mailer.access_token;
-  try{
-    const sent=await sendFromMe(to, subject, body, html, parts, extra);
-    return !!(sent && sent.ok);
-  }catch(e){ return false; }
-  finally{ APP.googleToken=prev; }
+async function sendGuestCatalog(to, subject, text){
+  toast("Uploading your photos…");
+  const shots=capturedFiles();
+  const mailShots=[];
+  for(let i=0;i<shots.length;i++){
+    try{ mailShots.push({title:shots[i].title, name:shots[i].name, cap:shots[i].cap||"", data:await compressDataUrl(shots[i].data, 1400, 0.86)}); }
+    catch(e){ mailShots.push(shots[i]); }
+  }
+  const doc=await buildPdf();
+  const pdfName=(folderName()||"vehicle")+".pdf";
+  const pdfUrl=await hostFile(pdfName, "application/pdf", bufB64(await doc.output("arraybuffer")));
+  const hosted=[];
+  for(let i=0;i<mailShots.length;i++){
+    const s=mailShots[i];
+    const url=await hostFile(s.name||("photo-"+i+".jpg"), "image/jpeg", dataB64(s.data)||s.data);
+    if(url) hosted.push({title:s.title, cap:s.cap, name:s.name, url:url});
+  }
+  const html=packetMailHtmlHosted(hosted, pdfUrl);
+  const mk=APP.mailerKey || storeGet("inspect.mailer") || "";
+  const r=await fetch(MAIL_HOST+"/api/upload", {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      kind:"intake",
+      mk:mk,
+      to:to,
+      subject:subject,
+      text:text,
+      html:html,
+      photos:hosted,
+      pdfUrl:pdfUrl,
+      pdfName:pdfName
+    })
+  });
+  const j=await r.json().catch(function(){ return {}; });
+  return !!(j && j.ok);
+}
+async function deliverGuestPacket(to, subject, body){
+  try{ return await sendGuestCatalog(to, subject, body); }
+  catch(e){ return false; }
 }
 async function embedShots(html){
   const names=["step-speak.jpg","step-photos.jpg","step-send.jpg"];
@@ -1908,25 +1938,43 @@ function startGoogleGmail(){
   toast("Opening Google…");
   whenGis().then(function(ok){
     const cid=window.GOOGLE_CLIENT_ID||"";
-    if(ok && cid){
+    function exchangeCode(code, redirectUri){
+      return fetch(MAIL_HOST+"/api/upload", {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({kind:"oauth", code:code, redirect_uri:redirectUri})
+      }).then(function(r){ return r.json(); }).then(function(j){
+        if(!j || !j.access_token){ loginFail("Google sign-in failed."); return; }
+        keepGoogleToken(j.access_token, j.expires_in);
+        if(j.refresh_token) storeSet("inspect.grefr", j.refresh_token);
+        const email=j.email||"";
+        if(email){
+          if(!applyGoogleUser({name:email.split("@")[0], email:email}, j.access_token))
+            loginFail("That Google account isn’t allowed.");
+          else registerMailer();
+          return;
+        }
+        fetch("https://www.googleapis.com/oauth2/v3/userinfo", {headers:{Authorization:"Bearer "+j.access_token}})
+          .then(function(r){ return r.json(); }).then(function(u){
+            if(!applyGoogleUser({name:u.name, email:u.email}, j.access_token))
+              loginFail("That Google account isn’t allowed.");
+            else registerMailer();
+          }).catch(function(){ loginFail("Google sign-in failed."); });
+      }).catch(function(){ loginFail("Google sign-in failed."); });
+    }
+    if(ok && cid && google.accounts.oauth2.initCodeClient){
       try{
-        const client=google.accounts.oauth2.initTokenClient({
+        const client=google.accounts.oauth2.initCodeClient({
           client_id:cid,
           scope:"https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile",
-          hint:($("workEmail") && $("workEmail").value) || APP.userEmail || "",
+          ux_mode:"popup",
           callback:function(resp){
-            if(!resp || !resp.access_token){ loginFail("Google sign-in was cancelled."); return; }
-            keepGoogleToken(resp.access_token, resp.expires_in);
-            fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
-              headers:{Authorization:"Bearer "+resp.access_token}
-            }).then(function(r){ return r.json(); }).then(function(u){
-              if(!applyGoogleUser({name:u.name, email:u.email}, resp.access_token))
-                loginFail("That Google account isn’t allowed.");
-            }).catch(function(){ loginFail("Google sign-in failed."); });
+            if(!resp || !resp.code){ loginFail("Google sign-in was cancelled."); return; }
+            exchangeCode(resp.code, "postmessage");
           },
           error_callback:function(){ loginFail("Google sign-in was cancelled."); }
         });
-        client.requestAccessToken({prompt:"consent"});
+        client.requestCode();
         return;
       }catch(e){}
     }
@@ -1935,10 +1983,11 @@ function startGoogleGmail(){
       const url="https://accounts.google.com/o/oauth2/v2/auth?"+new URLSearchParams({
         client_id:cid,
         redirect_uri:redir,
-        response_type:"token",
+        response_type:"code",
+        access_type:"offline",
+        prompt:"consent",
         scope:"https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile",
-        include_granted_scopes:"true",
-        prompt:"consent"
+        include_granted_scopes:"true"
       }).toString();
       location.assign(url);
       return;
@@ -4376,6 +4425,16 @@ async function sharePacket(){
       ? (unitLabel()+" — trade-in"+(APP.inviteName?" from "+APP.inviteName:""))
       : (unitLabel()+" — "+why());
     const body=packetMailText() + (APP.role==="guest" && APP.requestedBy ? "\nRequested by: "+(APP.requestedByName||nameForEmail(APP.requestedBy))+" <"+APP.requestedBy+">" : "");
+    if(APP.role==="guest"){
+      toast("Sending your trade-in…");
+      const ok=await sendGuestCatalog(to, subject, body);
+      if(ok){
+        finishGuest();
+        return;
+      }
+      toast("Couldn’t send just now. Check the connection and tap Send again.");
+      return;
+    }
     const mailShots=[];
     for(let i=0;i<shots.length;i++){
       try{ mailShots.push({title:shots[i].title, name:shots[i].name, cap:shots[i].cap||"", data:await compressDataUrl(shots[i].data, 1600, 0.88)}); }
@@ -4432,26 +4491,12 @@ async function sharePacket(){
     }
     try{
       const mailBody=body+(videoLinks.length ? "\n\n"+videoLinks.join("\n\n")+"\n" : "");
-      if(APP.role==="guest"){
-        toast("Sending your trade-in…");
-        const ok=await deliverGuestPacket(to, subject, mailBody, html, parts, extra);
-        if(ok){
-          finishGuest();
-          return;
-        }
-        toast("Couldn’t send the packet. Ask the salesperson to send a new link after signing in with Google.");
-        return;
-      }
       const sent=await sendFromMe(to, subject, mailBody, html, parts, extra);
       if(sent && sent.ok){
         toast("Sent the catalog to "+tradeToLine(to)+".");
         return;
       }
     }catch(e){}
-    if(APP.role==="guest"){
-      toast("Couldn’t send the packet. Ask the salesperson to send a new link after signing in with Google.");
-      return;
-    }
     toast("Uploading the catalog…");
     const pdfUrl=await hostFile(pdfName, "application/pdf", bufB64(await pdfBlob.arrayBuffer()));
     const hosted=[];
@@ -4628,6 +4673,17 @@ if($("btnGuest")) $("btnGuest").onclick = function(){
 if($("startX")) $("startX").onclick = function(){ if(APP.role!=="guest") logOut(); };
 if($("whoChip")) $("whoChip").onclick = function(){ if(APP.role!=="guest") logOut(); };
 if(/[?&]auth=fail(?:&|$)/.test(location.search||"")) loginFail("Google sign-in was cancelled.");
+try{
+  const r=sessionStorage.getItem("inspect.grefr");
+  if(r) storeSet("inspect.grefr", r);
+  const t=sessionStorage.getItem("inspect.gtoken");
+  const em=sessionStorage.getItem("inspect.gemail");
+  if(t && t.charAt(0)!=="{" && em && isStaffEmail(em) && !/[?&]trade=1(?:&|$)/.test(location.search||"")){
+    keepGoogleToken(t, 3600);
+    applyGoogleUser({name:em.split("@")[0], email:em}, t);
+    registerMailer();
+  }
+}catch(e){}
 if(/[?&]trade=1(?:&|$)/.test(location.search||"")){
   APP.role="guest"; APP.userEmail="";
   try{
