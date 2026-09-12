@@ -150,18 +150,28 @@ textarea.note { min-height:88px; }
 .toast.on { display:block; }
 .hide { display:none !important; }
 .start { padding:0 !important; position:relative; overflow:hidden; background:#0b0b10; min-height:100dvh; }
-.start-bg { position:absolute; inset:0; background:#0b0b10; display:flex; align-items:center; justify-content:center; overflow:hidden; }
-.start-bg img { width:100%; height:68%; object-fit:contain; object-position:center center; }
+.start-bg { position:absolute; inset:0; background:#0b0b10; overflow:hidden; }
+.start-bg img { width:100%; height:100%; object-fit:cover; object-position:center 46%; display:block; }
 .start-bg, .start-veil { pointer-events:none; }
-.start-veil { position:absolute; inset:0; background:linear-gradient(180deg,rgba(8,6,16,.78) 0%,rgba(8,6,16,.18) 26%,rgba(8,6,16,.04) 48%,rgba(8,6,16,.55) 100%); }
-.start-actions, .guest-story, .login-card, .login-hero, .who, .start-x { pointer-events:auto; }
-.start-actions {
-  position:absolute; left:50%; transform:translateX(-50%);
-  top: calc(env(safe-area-inset-top, 0px) + 56px + 0.5in);
-  width: min(300px, calc(100% - 40px));
-  z-index:2; display:flex; flex-direction:column; gap:10px;
+.start-veil { position:absolute; inset:0; background:linear-gradient(180deg,rgba(8,6,16,.55) 0%,rgba(8,6,16,.08) 28%,rgba(8,6,16,.04) 52%,rgba(8,6,16,.62) 100%); }
+.start-actions, .guest-story, .login-card, .login-hero, .who, .start-x, .start-more { pointer-events:auto; }
+.start-actions { position:absolute; inset:0; z-index:2; pointer-events:none; }
+.start-actions .pill {
+  pointer-events:auto; position:absolute; left:50%; transform:translateX(-50%);
+  width:min(300px, calc(100% - 48px)); margin:0; padding:15px 20px;
 }
-.start-actions .pill { width:100%; margin:0; padding:15px 20px; }
+#startAppraise { top: calc(env(safe-area-inset-top, 0px) + 1.5in); }
+#startWebsite { bottom: calc(env(safe-area-inset-bottom, 0px) + 1.5in); }
+.start-more {
+  position:absolute; left:50%; transform:translateX(-50%);
+  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  width:min(300px, calc(100% - 48px));
+  display:flex; gap:8px; z-index:3;
+}
+.start-more .pill {
+  flex:1; margin:0; padding:12px 10px; font-size:14px;
+  background:rgba(250,249,252,.9); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+}
 .guest-story {
   position:absolute; left:18px; right:18px; transform:none;
   top: calc(env(safe-area-inset-top, 0px) + 56px + 1.5in);
@@ -216,7 +226,7 @@ textarea.note { min-height:88px; }
 <div class="accent"></div>
 
 <section class="screen on start" id="login">
-  <div class="start-bg"><img id="loginBg" src="start-bgs/01.jpg?v=9" alt=""></div>
+  <div class="start-bg"><img id="loginBg" src="start-bgs/01.jpg?v=10" alt=""></div>
   <div class="start-veil"></div>
   <div class="login-hero">
     <p class="login-kicker">Trade-in</p>
@@ -240,13 +250,15 @@ textarea.note { min-height:88px; }
 </section>
 
 <section class="screen start" id="start">
-  <div class="start-bg"><img id="startBg" src="start-bgs/01.jpg?v=9" alt=""></div>
+  <div class="start-bg"><img id="startBg" src="start-bgs/01.jpg?v=10" alt=""></div>
   <div class="start-veil"></div>
   <button class="round start-x" type="button" id="startX">✕</button>
   <button class="who" type="button" id="whoChip">Guest</button>
   <div class="start-actions" id="startActions">
     <button class="pill purple" type="button" id="startAppraise">Appraise vehicle</button>
     <button class="pill cyan" type="button" id="startWebsite">Post vehicle to website</button>
+  </div>
+  <div class="start-more" id="startMore">
     <button class="pill" type="button" id="startTrade">Send trade-in link</button>
     <button class="pill" type="button" id="startUsers">Users</button>
   </div>
@@ -686,7 +698,7 @@ function show(id){
         for(var i=APP._bgs.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=APP._bgs[i]; APP._bgs[i]=APP._bgs[j]; APP._bgs[j]=t; }
       }
       var n = APP._bgs.pop();
-      img.src = assetUrl("start-bgs/" + String(n).padStart(2,"0") + ".jpg?v=9");
+      img.src = assetUrl("start-bgs/" + String(n).padStart(2,"0") + ".jpg?v=10");
     }
   }
   if(id==="photos"){ paintLists(); paintDocs(); }
@@ -841,6 +853,7 @@ function applyRole(){
   const who=$("whoChip");
   if(who) who.textContent = guest ? (APP.inviteName || APP.userName || "Guest") : (APP.userName || APP.userEmail || "Employee");
   if($("startActions")) $("startActions").classList.toggle("hide", guest);
+  if($("startMore")) $("startMore").classList.toggle("hide", guest);
   if($("guestStory")) $("guestStory").classList.toggle("hide", !guest);
   ["vinScanWrap","vinBtns","homeDocs"].forEach(function(id){
     if($(id)) $(id).classList.toggle("hide", guest);
@@ -1351,7 +1364,12 @@ function startPublicGoogle(){
       }catch(e){}
     }
     if(cid){ location.href=googleAuthUrl(); return; }
-    openGoogleSheet();
+    const email=$("workEmail");
+    if(email){
+      email.focus();
+      email.placeholder="Your Google work email";
+    }
+    toast("Use your Google work email on this screen.");
   }
   if(cid) loadGsi(runTokenClient);
   else runTokenClient();
