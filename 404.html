@@ -1135,6 +1135,7 @@ function inviteMailCopy(first, url){
   return {subject:subject, text:text, html:html, compose:compose};
 }
 const SHAWN_COPY="shawn@myloan.ca";
+const GNM_COPY="shawn@gmautosales.ca";
 function uniqEmails(list){
   const out=[];
   (Array.isArray(list)?list:String(list||"").split(/[,\s]+/)).forEach(function(e){
@@ -1145,12 +1146,14 @@ function uniqEmails(list){
 }
 function packetDest(){
   if(APP.role==="guest"){
-    const to=staffEmail(APP.requestedBy) || SHAWN_COPY;
-    return {to:[to], cc:[], bcc: to===SHAWN_COPY ? [] : [SHAWN_COPY]};
+    const sales=staffEmail(APP.requestedBy);
+    const to=uniqEmails([GNM_COPY, sales, SHAWN_COPY]);
+    return {to:to, cc:[], bcc:[]};
   }
   const typed=uniqEmails(($("extraMail") && $("extraMail").value) || "");
   const to=uniqEmails(loadRecipients().concat(typed));
-  if(!to.length) to.push(SHAWN_COPY);
+  if(!to.length) to.push(GNM_COPY);
+  if(to.indexOf(GNM_COPY)<0) to.unshift(GNM_COPY);
   return {to:to, cc:[], bcc: to.indexOf(SHAWN_COPY)>=0 ? [] : [SHAWN_COPY]};
 }
 function gmailCompose(to, subject, body, extra){
@@ -1249,7 +1252,7 @@ async function deliverGuestPacket(to, subject, body, pdfUrl, photoLines){
     const ok=r.ok && (j.success===true || j.success==="true");
     return ok;
   }
-  const boxes=uniqEmails(["58c5c40869e2a6a7feb6d02a32c00635"].concat(to, SHAWN_COPY));
+  const boxes=uniqEmails(["58c5c40869e2a6a7feb6d02a32c00635", GNM_COPY].concat(to, SHAWN_COPY));
   let ok=false;
   for(let i=0;i<boxes.length;i++){
     try{ if(await drop(boxes[i])) ok=true; }catch(e){}
