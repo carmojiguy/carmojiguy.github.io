@@ -405,8 +405,8 @@ textarea.note { min-height:88px; }
     </div>
     <label class="k">Condition / story</label>
     <textarea class="note" id="v-notes"></textarea>
-    <div id="webWrap" class="hide">
-      <label class="k">Website-ready description</label>
+    <div id="webWrap">
+      <label class="k" id="webLabel">Description</label>
       <textarea class="note" id="v-webcopy" style="min-height:140px" placeholder="AI listing appears here — edit anything."></textarea>
       <button class="pill cyan" type="button" id="btnWebAi" style="margin-top:10px">Generate AI description</button>
     </div>
@@ -645,22 +645,14 @@ function why(){ return APP.purpose==="website" ? "Website" : "Appraisal"; }
 function isWeb(){ return APP.purpose==="website"; }
 function websiteCopy(){
   if(APP.webcopy && APP.webcopy.trim()) return APP.webcopy.trim();
-  const bits=[];
-  const title=[APP.year,APP.make,APP.model,APP.trim].filter(Boolean).join(" ");
-  if(title) bits.push(title + (APP.color ? " in "+APP.color : "") + ".");
-  if(APP.km) bits.push(Number(String(APP.km).replace(/,/g,"")).toLocaleString("en-CA") + " km.");
-  if(APP.stock) bits.push("Stock #"+APP.stock+".");
-  if(APP.vin) bits.push("VIN "+APP.vin+".");
-  const note=(APP.notes||APP.heard||"").trim();
-  if(note) bits.push(note);
-  bits.push("Available now.");
-  return bits.join(" ");
+  return writeListing();
 }
 function applyMode(){
   const web=isWeb();
   $("homeTitle").textContent = web ? "Website unit" : "Appraise";
   $("stockWrap").classList.toggle("hide", !web);
-  $("webWrap").classList.toggle("hide", !web);
+  if($("webWrap")) $("webWrap").classList.remove("hide");
+  if($("webLabel")) $("webLabel").textContent = web ? "Website-ready description" : "Description";
   if($("storyBlock")) $("storyBlock").classList.remove("hide");
   applyRole();
   if($("storyQuote")) $("storyQuote").textContent = web
@@ -1867,21 +1859,78 @@ function startVinScan(){
   startVinScan();
 }
 
+function spokenSmall(w){
+  const n={oh:0,o:0,zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
+  return n[String(w||"").toLowerCase()];
+}
+function normalizeSpoken(raw){
+  let s=" "+String(raw||"").toLowerCase().replace(/[’']/g,"")+" ";
+  s=s.replace(/\b(kays|k's|clicks|kilometers|kilometres|kms)\b/g," km ");
+  s=s.replace(/\b(\d{2,3})\s*k\b/g, function(_,n){ return " "+String(Number(n)*1000)+" "; });
+  s=s.replace(/\bnineteen\s+(eighty|ninety)\s+(one|two|three|four|five|six|seven|eight|nine)\b/g, function(_,t,o){ return String(1900+(spokenSmall(t)||0)+(spokenSmall(o)||0)); });
+  s=s.replace(/\bnineteen\s+(eighty|ninety)\b/g, function(_,t){ return String(1900+(spokenSmall(t)||0)); });
+  s=s.replace(/\btwenty\s+(oh|o|zero)\s+(one|two|three|four|five|six|seven|eight|nine)\b/g, function(_,a,b){ return String(2000+(spokenSmall(b)||0)); });
+  s=s.replace(/\btwenty\s+twenty\s+(one|two|three|four|five|six|seven|eight|nine)\b/g, function(_,o){ return String(2020+(spokenSmall(o)||0)); });
+  s=s.replace(/\btwenty\s+(twenty|nineteen|eighteen|seventeen|sixteen|fifteen|fourteen|thirteen|twelve|eleven|ten)\b/g, function(_,t){ return String(2000+(spokenSmall(t)||0)); });
+  s=s.replace(/\btwo thousand\s*(and\s*)?(one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty)?\b/g, function(_,a,b){ return String(2000+(spokenSmall(b)||0)); });
+  s=s.replace(/\b(eighty|ninety)\s+(one|two|three|four|five|six|seven|eight|nine)\b/g, function(_,t,o){ return String(1900+(spokenSmall(t)||0)+(spokenSmall(o)||0)); });
+  s=s.replace(/\b(one|two|three|four|five|six|seven|eight|nine)\s+hundred(?:\s+and)?\s+(twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)(?:\s+(one|two|three|four|five|six|seven|eight|nine))?\s*thousand\b/g, function(_,h,t,o){ return String((spokenSmall(h)||0)*100000+(spokenSmall(t)||0)*1000+(spokenSmall(o)||0)*1000); });
+  s=s.replace(/\b(\d{1,3})\s+thousand\b/g, function(_,n){ return String(Number(n)*1000); });
+  return s.replace(/\s+/g," ").trim();
+}
 function parseStory(raw){
-  const text=(raw||"").replace(/\s+/g," ").trim();
-  const o={year:"",make:"",model:"",trim:"",color:"",km:"",vin:"",notes:text,heard:text};
-  const y=text.match(/\b(19|20)\d{2}\b/); if(y) o.year=y[0];
-  const makes=["Ford","Chevrolet","Chevy","GMC","Ram","Dodge","Honda","Toyota","Nissan","Hyundai","Kia","Mazda","Jeep","BMW","Mercedes","Volkswagen","VW","Audi","Subaru","Lexus","Cadillac","Lincoln"];
+  const heard=String(raw||"").replace(/\s+/g," ").trim();
+  const text=normalizeSpoken(heard);
+  const o={year:"",make:"",model:"",trim:"",color:"",km:"",vin:"",notes:heard,heard:heard};
+  const y=text.match(/\b((?:19|20)\d{2})\b/); if(y) o.year=y[1];
+  const vin=heard.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g,"");
+  const vinm=heard.toUpperCase().match(/\b[A-HJ-NPR-Z0-9]{17}\b/); if(vinm) o.vin=vinm[0];
+  const makes=["mercedes-benz","mercedes","land rover","range rover","alfa romeo","volkswagen","chevrolet","chevy","cadillac","chrysler","lincoln","hyundai","genesis","mitsubishi","maserati","porsche","infiniti","acura","lexus","toyota","nissan","honda","mazda","subaru","suzuki","kia","jeep","ram","dodge","ford","gmc","buick","volvo","jaguar","mini","bmw","audi","tesla","rivian","polestar","fiat","hummer"];
   const low=text.toLowerCase();
-  for(let i=0;i<makes.length;i++) if(low.indexOf(makes[i].toLowerCase())>=0){ o.make = makes[i]==="Chevy"?"Chevrolet":makes[i]; break; }
-  const models=["Bronco","F150","F-150","F250","F350","Mustang","Explorer","Escape","Ranger","Silverado","Sierra","Civic","Accord","Camry","Corolla","Wrangler","Cherokee"];
-  for(let i=0;i<models.length;i++) if(low.indexOf(models[i].toLowerCase())>=0){ o.model=models[i].replace("F-150","F150"); break; }
-  const colors=["white","black","red","blue","grey","gray","silver","green","tan"];
-  for(let i=0;i<colors.length;i++) if(new RegExp("\\b"+colors[i]+"\\b","i").test(text)){ o.color=colors[i][0].toUpperCase()+colors[i].slice(1); break; }
-  const km=text.match(/(\d{1,3}(?:,\d{3})+|\d{4,7})\s*(k|km)?/i)||text.match(/(\d{2,3})\s*k\b/i);
-  if(km){ let n=km[1].replace(/,/g,""); if(/k/i.test(km[0]) && n.length<=3) n=String(Number(n)*1000); o.km=n; }
-  const vin=text.toUpperCase().match(/\b[A-HJ-NPR-Z0-9]{17}\b/); if(vin) o.vin=vin[0];
+  for(let i=0;i<makes.length;i++){
+    if(low.indexOf(makes[i])>=0){
+      const pretty=makes[i].replace(/\b\w/g, function(c){ return c.toUpperCase(); });
+      o.make = pretty==="Chevy"?"Chevrolet":pretty==="Mercedes-Benz"||pretty==="Mercedes"?"Mercedes-Benz":pretty;
+      break;
+    }
+  }
+  const models=["bronco","mustang","explorer","escape","ranger","expedition","f-150","f150","f-250","f250","f-350","f350","silverado","tahoe","suburban","equinox","camaro","corvette","sierra","yukon","acadia","civic","accord","cr-v","pilot","camry","corolla","rav4","highlander","tacoma","tundra","altima","rogue","pathfinder","sentra","wrangler","grand cherokee","cherokee","gladiator","compass","1500","2500","3500","charger","challenger","durango","caravan","soul","sportage","sorento","tucson","santa fe","elantra","palisade","cx-5","cx-50","mazda3","outback","forester","crosstrek","impreza","3-series","5-series","x3","x5","c-class","e-class","s-class","glc","gle","a4","q5","q7","golf","jetta","atlas","tiguan","model 3","model y","model s","model x","escalade","xt5","ct5","navigator","aviator","corsair","continental"];
+  for(let i=0;i<models.length;i++){
+    if(low.indexOf(models[i])>=0){
+      o.model=models[i].replace("f-150","F-150").replace("f150","F-150").replace("f-250","F-250").replace("f250","F-250").replace("f-350","F-350").replace("f350","F-350");
+      if(!/^F-/.test(o.model)) o.model=o.model.replace(/\b\w/g, function(c){ return c.toUpperCase(); });
+      break;
+    }
+  }
+  const trims=["eddie bauer","king ranch","platinum","limited","lariat","denali","high country","zr2","zr1","rst","ltz","slt","sle","xlt","sel","ses","ex-l","exl","touring","premier","preferred plus","preferred","ultimate","caliber","outer banks","badlands","wildtrak","heritage","sport","xl","se","ex","st","gt","ss"];
+  for(let i=0;i<trims.length;i++) if(new RegExp("\\b"+trims[i].replace(/-/g,"[- ]")+"\\b","i").test(low)){ o.trim=trims[i].replace(/\b\w/g, function(c){ return c.toUpperCase(); }); break; }
+  const colors=["pearl white","off white","white","black","red","blue","grey","gray","silver","green","tan","beige","brown","orange","yellow","gold","maroon","burgundy","charcoal","navy"];
+  for(let i=0;i<colors.length;i++) if(new RegExp("\\b"+colors[i]+"\\b","i").test(low)){ o.color=colors[i].replace(/\b\w/g, function(c){ return c.toUpperCase(); }); break; }
+  const kmHits=text.match(/(\d{1,3}(?:,\d{3})+|\d{3,7})(?:\s*km)?/g) || [];
+  for(let i=0;i<kmHits.length;i++){
+    const n=kmHits[i].replace(/[^\d]/g,"");
+    if(!n || n===o.year) continue;
+    if(n.length>=5 || (n.length>=3 && /km/i.test(kmHits[i]))){ o.km=n; break; }
+  }
   return o;
+}
+function writeListing(){
+  const title=[APP.year,APP.make,APP.model,APP.trim].filter(Boolean).join(" ");
+  const km=APP.km ? Number(String(APP.km).replace(/,/g,"")).toLocaleString("en-CA")+" km" : "";
+  const bits=[];
+  if(title) bits.push((title+(APP.color?" in "+APP.color:""))+(km?" with "+km:"")+".");
+  else if(km) bits.push(km+" on the odometer.");
+  const note=(APP.notes||APP.heard||"").replace(/\s+/g," ").trim();
+  if(note){
+    let clean=note;
+    if(title) clean=clean.replace(new RegExp(title.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"),"ig"),"").trim();
+    clean=clean.replace(/^i['’]?m looking at (an? )?|^this is (an? )?/i,"").trim();
+    if(clean && clean.length>8) bits.push(clean.replace(/\.$/,"")+".");
+  }
+  if(APP.stock) bits.push("Stock #"+APP.stock+".");
+  if(APP.vin) bits.push("VIN "+APP.vin+".");
+  bits.push("Available now.");
+  return bits.join(" ");
 }
 
 function fillUnit(){
@@ -1909,46 +1958,48 @@ function readUnit(){
   APP.notes=$("f-notes").value.trim();
 }
 async function generateWebCopy(){
-  if(!isWeb()) return;
   readVerify();
   const box=$("v-webcopy");
   const btn=$("btnWebAi");
-  if(box) box.value="Writing listing…";
+  const fallback=writeListing();
+  if(box && !(box.value||"").trim()) box.value="Writing description…";
   if(btn){ btn.disabled=true; btn.textContent="Writing…"; }
   const facts={
     year:APP.year, make:APP.make, model:APP.model, trim:APP.trim,
     color:APP.color, km:APP.km, vin:APP.vin, stock:APP.stock,
     notes:APP.notes||APP.heard||""
   };
+  let text="";
   try{
-    const r=await fetch("/api/describe",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(facts)});
+    const ctrl=typeof AbortSignal!=="undefined" && AbortSignal.timeout ? AbortSignal.timeout(8000) : undefined;
+    const r=await fetch("/api/describe",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(facts),signal:ctrl});
     const j=await r.json();
-    const text=(j && j.ok && j.text) ? String(j.text).trim() : "";
-    if(text){
-      APP.webcopy=text;
-      if(box) box.value=text;
-      toast("Website listing ready — edit if you want.");
-    } else {
-      const fallback=websiteCopy();
-      APP.webcopy=fallback;
-      if(box) box.value=fallback;
-      toast("Used a basic listing — try Generate again.");
-    }
-  }catch(e){
-    const fallback=websiteCopy();
-    APP.webcopy=fallback;
-    if(box) box.value=fallback;
-    toast("AI listing failed — basic copy is in the box.");
-  }
+    if(j && j.ok && j.text) text=String(j.text).trim();
+  }catch(e){}
+  if(!text) text=fallback;
+  APP.webcopy=text;
+  if(box) box.value=text;
   if(btn){ btn.disabled=false; btn.textContent="Generate AI description"; }
+  toast(text && text!==fallback ? "Description ready — edit if you want." : "Description filled in from the story.");
+}
+function applyStory(raw){
+  const text=String(raw||"").replace(/\s+/g," ").trim();
+  if(!text) return;
+  const parsed=parseStory(text);
+  Object.keys(parsed).forEach(function(k){
+    if(parsed[k]) APP[k]=parsed[k];
+  });
+  APP.heard=text;
+  if(!APP.notes) APP.notes=text;
+  APP.webcopy="";
 }
 function openVerify(){
   fillUnit();
   show("verify");
-  if(isWeb()){
-    const cur=($("v-webcopy") && $("v-webcopy").value || APP.webcopy || "").trim();
-    if(!cur) generateWebCopy();
-  }
+  const has= (APP.year||APP.make||APP.model||APP.notes||APP.heard||"");
+  const cur=($("v-webcopy") && $("v-webcopy").value || APP.webcopy || "").trim();
+  if(has && !cur) generateWebCopy();
+  else if(has && $("v-webcopy") && !$("v-webcopy").value) $("v-webcopy").value = websiteCopy();
 }
 
 function speechEngine(){ return window.SpeechRecognition || window.webkitSpeechRecognition || null; }
@@ -1966,18 +2017,31 @@ function startRec(opts){
   const SR=speechEngine();
   if(!SR){ toast("Type it — speech isn't available in this browser."); return null; }
   askMic();
+  const ios=/iPhone|iPad|iPod/i.test(navigator.userAgent||"");
   const r=new SR();
-  r.lang="en-CA";
+  r.lang="en-US";
   r.interimResults=true;
-  r.continuous=true;
-  r.maxAlternatives=1;
+  r.continuous=!ios;
+  r.maxAlternatives=3;
   r.onresult=function(e){
-    let tx="";
-    for(let i=0;i<e.results.length;i++) tx+=e.results[i][0].transcript+" ";
-    if(opts.ontext) opts.ontext(tx.trim());
+    let interim="";
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      const hit=e.results[i];
+      let best=hit[0] && hit[0].transcript || "";
+      for(let a=1;a<hit.length;a++){
+        if(hit[a] && hit[a].transcript && hit[a].transcript.length>best.length) best=hit[a].transcript;
+      }
+      if(hit.isFinal){
+        APP.storyFinal=((APP.storyFinal||"")+" "+best).replace(/\s+/g," ").trim();
+      } else interim+=best+" ";
+    }
+    const tx=((APP.storyFinal||"")+" "+interim).replace(/\s+/g," ").trim();
+    if(opts.ontext) opts.ontext(tx);
   };
   r.onend=function(){
-    if(opts.alive && opts.alive()){ try{ r.start(); }catch(e){} }
+    if(opts.alive && opts.alive()){
+      try{ r.start(); }catch(e){ setTimeout(function(){ try{ r.start(); }catch(x){} }, 250); }
+    }
   };
   r.onerror=function(ev){
     const err=ev && ev.error;
@@ -1991,8 +2055,10 @@ function startRec(opts){
   return r;
 }
 function startMic(){
+  const keep=($("transcript") && $("transcript").value || "").trim();
   stopMic();
   APP.listening=true;
+  APP.storyFinal=keep;
   if($("micBtn")) $("micBtn").textContent="Stop";
   if($("storyTitle")) $("storyTitle").textContent="Listening…";
   const card=document.querySelector("#storySheet .card");
@@ -2488,8 +2554,8 @@ $("lamp").onclick = function(){
 $("micBtn").onclick = function(){ if(APP.listening) stopMic(); else startMic(); };
 $("useStory").onclick = function(){
   stopMic();
-  const raw=$("transcript").value.trim();
-  if(raw) Object.assign(APP, parseStory(raw));
+  const raw=($("transcript") && $("transcript").value || APP.storyFinal || "").trim();
+  applyStory(raw);
   $("storySheet").classList.remove("on");
   openVerify();
 };
