@@ -1169,36 +1169,33 @@ function rfc822(to, subject, body, html, parts, extra){
 function b64url(str){
   return btoa(unescape(encodeURIComponent(str))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
 }
-async function formSubmitSend(to, subject, body, extra){
-  extra=extra||{};
-  const dest=uniqEmails(to)[0];
-  if(!dest) return false;
-  const payload={
-    _subject: subject,
-    _template: "box",
-    _captcha: "false",
-    _replyto: APP.userEmail || SHAWN_COPY,
-    name: APP.inviteName || APP.userName || "Trade-in",
-    message: body
-  };
-  const cc=uniqEmails(extra.cc||[]);
-  const bcc=uniqEmails(extra.bcc||[]);
-  if(cc.length) payload._cc=cc.join(",");
-  if(bcc.length) payload._bcc=bcc.join(",");
-  try{
-    const r=await fetch("https://formsubmit.co/ajax/"+encodeURIComponent(dest), {
-      method:"POST",
-      headers:{"Content-Type":"application/json", Accept:"application/json"},
-      body:JSON.stringify(payload)
-    });
-    const j=await r.json();
-    return !!(j && (j.success===true || j.success==="true"));
-  }catch(e){ return false; }
+function ensureGmailToken(){
+  if(APP.googleToken) return Promise.resolve(APP.googleToken);
+  return new Promise(function(resolve){
+    const cid=window.GOOGLE_CLIENT_ID||"";
+    if(!cid || !window.google || !google.accounts || !google.accounts.oauth2){ resolve(""); return; }
+    try{
+      const client=google.accounts.oauth2.initTokenClient({
+        client_id:cid,
+        scope:"https://www.googleapis.com/auth/gmail.send",
+        hint:APP.userEmail||"",
+        callback:function(resp){
+          APP.googleToken=(resp && resp.access_token)||"";
+          resolve(APP.googleToken);
+        },
+        error_callback:function(){ resolve(""); }
+      });
+      client.requestAccessToken({hint:APP.userEmail||""});
+    }catch(e){ resolve(""); }
+  });
 }
 async function sendFromMe(to, subject, body, html, parts, extra){
   extra=extra||{};
   const list=uniqEmails(to);
   if(!list.length) return {ok:false};
+  if(!APP.googleToken){
+    try{ APP.googleToken=await ensureGmailToken(); }catch(e){}
+  }
   if(APP.googleToken){
     try{
       let useHtml=html||"";
@@ -1216,35 +1213,18 @@ async function sendFromMe(to, subject, body, html, parts, extra){
       if(r.status===401 || r.status===403) APP.googleToken="";
     }catch(e){}
   }
-  try{
-    const ctrl=typeof AbortSignal!=="undefined" && AbortSignal.timeout ? AbortSignal.timeout(12000) : undefined;
-    const r=await fetch("/api/mail", {
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({
-        to:list,
-        cc:uniqEmails(extra.cc||[]),
-        bcc:uniqEmails(extra.bcc||[]),
-        subject:subject,
-        body:body,
-        html:html||"",
-        from:APP.userEmail||"",
-        name:APP.userName||"Inspect"
-      }),
-      signal:ctrl
-    });
-    const j=await r.json();
-    if(j && (j.ok || (j.sent&&j.sent.length))) return {ok:true, via:"mail", pending:j.pending, sent:j.sent};
-  }catch(e){}
-  const posted=await formSubmitSend(list, subject, body, extra);
-  if(posted){
-    const bcc=uniqEmails(extra.bcc||[]);
-    for(let i=0;i<bcc.length;i++){
-      if(list.indexOf(bcc[i])<0) await formSubmitSend([bcc[i]], "Copy: "+subject, body, {});
-    }
-    return {ok:true, via:"form"};
-  }
   return {ok:false, via:"fail"};
+}
+function openEml(raw, name){
+  const blob=new Blob([raw], {type:"message/rfc822"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;
+  a.download=name||"packet.eml";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  return url;
 }
 function openMail(to, subject, body, extra){
   return openGmail(to, subject, body, extra);
@@ -2803,8 +2783,26 @@ async function sharePacket(){
         return;
       }
     }catch(e){}
-    openGmail(to, subject, body+"\n\nPDF and photos are ready — they go with this email.", extra);
-    toast("Gmail is open. Hit Send.");
+    const files=[pdfFile].concat(photoFiles);
+    (APP.clips||[]).forEach(function(c,i){
+      if(!c || !c.blob) return;
+      const ext=(c.mime||"").indexOf("webm")>=0?"webm":"mp4";
+      files.push(new File([c.blob], base+"-walk-"+String(i+1)+"."+ext, {type:c.mime||"video/mp4"}));
+    });
+    const isiOS=/iPhone|iPad|iPod/i.test(navigator.userAgent||"");
+    if(isiOS && navigator.canShare && navigator.canShare({files:files})){
+      try{
+        await navigator.share({files:files, title:subject, text:body});
+        toast("Pick Gmail — PDF and photos are on it.");
+        return;
+      }catch(e){ if(e && e.name==="AbortError") return; }
+    }
+    try{
+      const raw=rfc822(to, subject, body, html, parts, extra);
+      openEml(raw, base+"-packet.eml");
+    }catch(e){}
+    openGmail(to, subject, body, extra);
+    toast("Gmail is open. The packet file has the PDF and photos — attach it and Send.");
   }catch(e){
     toast("Couldn’t send. Check the photos and try again.");
   }finally{
