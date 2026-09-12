@@ -1,0 +1,2577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
+<meta http-equiv="Permissions-Policy" content="microphone=*, camera=*" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="theme-color" content="#FAF9FC" />
+<link rel="preconnect" href="https://accounts.google.com" />
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --ink:#110E1A; --muted:#6B6578; --hair:#E6E1F0; --fill:#F3F0FA;
+  --page:#FAF9FC; --purple:#7C5CFF; --purple-deep:#5B3FE0;
+  --lavender:#EFE8FF; --cyan:#00A8E8; --cyan-deep:#008FCC;
+}
+* { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html,body { margin:0; background:#E8E4F2; }
+body { font-family:Manrope,system-ui,sans-serif; color:var(--ink); }
+.phone { max-width:430px; margin:0 auto; min-height:100dvh; background:var(--page); position:relative; }
+.accent { height:4px; background:linear-gradient(90deg,var(--cyan),var(--purple)); }
+.screen { display:none; min-height:100dvh; padding:0 0 calc(160px + env(safe-area-inset-bottom)); }
+.screen.on { display:block; }
+.screen.start { padding:0 !important; min-height:100dvh; height:100dvh; overflow:hidden; }
+.nav { display:grid; grid-template-columns:36px 1fr 36px; align-items:center; padding:12px 16px 8px; gap:10px; }
+.nav h1 { margin:0; text-align:center; font-size:15px; font-weight:800; }
+.round { width:36px; height:36px; border:0; border-radius:50%; background:#1A1630; color:#fff; cursor:pointer; }
+.pad { padding:0 20px; }
+.finder { margin:4px 20px 18px; height:220px; background:#EDEAF6; border-radius:22px; position:relative; overflow:hidden; }
+.finder video { width:100%; height:100%; object-fit:cover; display:block; }
+.finder video.off { display:none; }
+.finder .cam-idle { position:absolute; inset:0; display:grid; place-items:center; color:#8a8498; font-size:18px; font-weight:800; letter-spacing:.04em; }
+.finder.live .cam-idle, .finder.shot .cam-idle { display:none; }
+#vinStill { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+.scan { position:absolute; left:8%; right:8%; top:46%; height:2px; background:#8a3a3a; opacity:.7; }
+.finder.scanning .scan { background:var(--cyan); animation:sweep 1.15s linear infinite; }
+@keyframes sweep { from{top:14%} to{top:86%} }
+.finder .status { position:absolute; left:12px; right:12px; bottom:12px; color:#fff; font-size:13px; font-weight:700; text-shadow:0 1px 6px #000; }
+.lamp { position:absolute; top:12px; right:12px; border:0; background:#fff; border-radius:999px; padding:8px 12px; font-size:14px; font-weight:700; }
+h2 { font-size:26px; font-weight:800; letter-spacing:-.5px; margin:4px 0 14px; }
+.quote { color:var(--muted); font-size:16px; line-height:1.35; margin:10px 0 18px; }
+.link { background:none; border:0; padding:0; color:var(--cyan-deep); font-size:16px; font-weight:700; cursor:pointer; }
+.pill { width:100%; border:1.5px solid var(--hair); background:#fff; border-radius:16px; padding:15px 16px; font-size:16px; font-weight:700; cursor:pointer; margin:0 0 10px; color:var(--ink); }
+.pill.cyan { background:var(--cyan); color:#fff; border-color:var(--cyan); }
+.pill.purple { background:var(--purple); color:#fff; border-color:var(--purple); }
+.pill.wash { background:var(--fill); border-color:transparent; }
+.dock { position:fixed; left:50%; transform:translateX(-50%); width:min(430px,100%); bottom:0; padding:10px 20px calc(16px + env(safe-area-inset-bottom)); background:linear-gradient(rgba(250,249,252,0), var(--page) 28%); }
+.row { display:flex; align-items:center; gap:12px; width:100%; text-align:left; border:1.5px solid var(--hair); background:#fff; border-radius:18px; padding:10px 12px; margin:0 0 10px; cursor:pointer; }
+.row.shot { border-color:#C4B6FF; background:#F6F3FF; }
+.thumb { width:120px; height:74px; border-radius:12px; overflow:hidden; background:radial-gradient(ellipse at 50% 62%, #1a2430 0%, #0b0d12 72%); flex:0 0 120px; }
+.thumb img { width:100%; height:100%; object-fit:contain; padding:8px 6px; display:block; filter:drop-shadow(0 0 8px rgba(110,230,190,.28)); }
+.row b { display:block; font-size:16px; font-weight:700; }
+.row span { color:var(--muted); font-size:14px; }
+.dmg-card { border:1.5px solid var(--hair); background:#fff; border-radius:18px; padding:10px 12px 12px; margin:0 0 10px; }
+.dmg-card.on { border-color:#C4B6FF; background:#F6F3FF; }
+.dmg-head { display:flex; gap:12px; align-items:center; width:100%; border:0; background:transparent; padding:0; text-align:left; cursor:pointer; }
+.dmg-head b { display:block; font-size:16px; font-weight:700; }
+.dmg-head span { color:var(--muted); font-size:14px; }
+.dmg-strip { display:flex; gap:8px; overflow-x:auto; margin-top:10px; padding-bottom:2px; -webkit-overflow-scrolling:touch; }
+.dmg-strip img { width:72px; height:72px; object-fit:cover; display:block; }
+.dmg-thumb { position:relative; border:0; padding:0; background:#111; border-radius:12px; overflow:hidden; flex:0 0 72px; width:72px; height:72px; cursor:pointer; }
+.dmg-thumb .cap { position:absolute; left:0; right:0; bottom:0; background:rgba(0,0,0,.6); color:#fff; font-size:9px; padding:3px 4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-align:left; }
+.block { margin:22px 0 8px; font-size:22px; font-weight:800; }
+.unit { color:var(--muted); font-size:16px; margin:6px 0 12px; }
+.sheet { display:none; position:fixed; inset:0; background:rgba(250,249,252,.78); z-index:40; padding:72px 16px 24px; }
+.sheet.on { display:block; }
+.card.live h3::before { content:""; display:inline-block; width:8px; height:8px; border-radius:50%; background:#E23B3B; margin-right:8px; vertical-align:middle; box-shadow:0 0 0 0 rgba(226,59,59,.6); animation:livepulse 1.2s infinite; }
+@keyframes livepulse { 0%{box-shadow:0 0 0 0 rgba(226,59,59,.55)} 70%{box-shadow:0 0 0 10px rgba(226,59,59,0)} 100%{box-shadow:0 0 0 0 rgba(226,59,59,0)} }
+.card { background:#fff; border-radius:22px; box-shadow:0 18px 50px rgba(92,63,224,.14); padding:18px 16px; position:relative; }
+.card h3 { margin:0; font-size:22px; font-weight:800; }
+.card .hint { color:var(--muted); font-size:15px; margin:6px 0 12px; }
+.card .x { position:absolute; right:12px; top:12px; width:28px; height:28px; border:0; border-radius:50%; background:var(--fill); cursor:pointer; }
+.box { width:100%; min-height:120px; border:0; background:#eef0f3; border-radius:16px; padding:14px; font-size:18px; font-family:inherit; resize:none; }
+.pair { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:14px; }
+label.k { display:block; color:#6e6e73; font-size:13px; margin:11px 0 5px; }
+input.f, textarea.note { width:100%; border:1.5px solid var(--hair); border-radius:16px; padding:13px 14px; font-size:17px; font-family:inherit; }
+textarea.note { min-height:88px; }
+.vin-chip { font-weight:800; letter-spacing:.06em; font-size:15px; color:var(--purple-deep); margin:0 0 12px; }
+.to-chips { display:flex; flex-direction:column; gap:8px; margin:0 0 12px; }
+.mail { display:flex; align-items:center; gap:12px; width:100%; text-align:left; border:1.5px solid var(--hair); background:#fff; border-radius:16px; padding:12px 14px; cursor:pointer; }
+.mail.on { border-color:var(--purple); background:var(--lavender); }
+.mail .mark { width:22px; height:22px; border-radius:50%; border:2px solid var(--hair); flex:0 0 22px; display:grid; place-items:center; font-size:12px; color:#fff; background:#fff; }
+.mail.on .mark { background:var(--purple); border-color:var(--purple); }
+.mail b { display:block; font-size:15px; }
+.mail span { color:var(--muted); font-size:13px; }
+
+.badge { display:inline-block; background:var(--lavender); color:var(--purple-deep); border-radius:999px; padding:5px 12px; font-size:12px; font-weight:800; letter-spacing:.04em; text-transform:uppercase; margin:0 0 10px; }
+.facts { display:grid; grid-template-columns:1fr 1fr; gap:8px 12px; margin:0 0 18px; }
+.facts div { background:#fff; border:1.5px solid var(--hair); border-radius:14px; padding:10px 12px; }
+.facts k { display:block; color:var(--muted); font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; }
+.facts b { font-size:15px; }
+.review { background:#fff; border:1.5px solid var(--hair); border-radius:18px; padding:14px; margin:0 0 12px; cursor:pointer; text-align:left; width:100%; }
+.review h4 { margin:0 0 6px; font-size:16px; }
+.review p { margin:0; color:var(--muted); font-size:14px; line-height:1.4; }
+.docs-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:4px 0 24px; }
+.doc-sq { position:relative; aspect-ratio:1; border-radius:20px; overflow:hidden; border:1.5px dashed #D9D3E8; background:linear-gradient(180deg,#FFFFFF 0%, #F3F0FA 100%); cursor:pointer; padding:14px 14px 12px; display:flex; flex-direction:column; justify-content:flex-end; text-align:left; }
+.doc-sq img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+.doc-sq .veil { position:absolute; inset:0; background:linear-gradient(180deg,rgba(17,14,26,0) 28%, rgba(17,14,26,.82) 100%); }
+.doc-sq .pdfmark { position:absolute; top:14px; right:14px; background:var(--purple); color:#fff; font-size:11px; font-weight:800; border-radius:8px; padding:4px 8px; letter-spacing:.04em; }
+.doc-sq b { position:relative; font-size:15px; font-weight:800; line-height:1.15; margin:0 0 4px; }
+.doc-sq span { position:relative; font-size:12px; color:var(--muted); line-height:1.3; font-weight:600; }
+.doc-sq.on { border-style:solid; border-color:var(--purple); }
+.doc-sq.on b, .doc-sq.on span { color:#fff; }
+.shot-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:0 0 16px; }
+.shot-grid button { border:0; padding:0; background:none; border-radius:14px; overflow:hidden; text-align:left; cursor:pointer; position:relative; }
+.shot-grid img { width:100%; height:110px; object-fit:cover; display:block; background:#111; }
+.shot-grid span { display:block; font-size:12px; font-weight:700; padding:8px 4px 0; color:var(--ink); }
+.shot-grid em { display:block; font-style:normal; color:var(--muted); font-size:11px; padding:0 4px 4px; }
+.pdf-card { display:flex; align-items:center; gap:14px; }
+.pdf-card .ico { width:52px; height:64px; border-radius:8px; background:linear-gradient(#fff,#f3e8ff); border:1.5px solid var(--hair); display:grid; place-items:center; font-weight:800; font-size:12px; color:var(--purple-deep); flex:0 0 52px; }
+.viewer { display:none; position:fixed; inset:0; background:#0b0b10; z-index:80; }
+.viewer.on { display:flex; flex-direction:column; }
+.viewer .bar { display:flex; align-items:center; justify-content:space-between; padding:calc(12px + env(safe-area-inset-top)) 16px 12px; color:#fff; }
+.viewer .bar h3 { margin:0; font-size:15px; font-weight:700; }
+.viewer iframe, .viewer img { flex:1; width:100%; border:0; background:#111; object-fit:contain; }
+.viewer-doc { display:none; flex:1; overflow:auto; background:var(--page); color:var(--ink); padding:8px 18px 48px; -webkit-overflow-scrolling:touch; }
+.viewer-doc.on { display:block; }
+.viewer-doc img.full { width:100%; border-radius:14px; margin:8px 0 6px; background:#111; display:block; }
+.viewer-doc .cap { color:var(--muted); font-size:13px; margin:0 0 18px; }
+.viewer-doc h2 { margin:4px 0 8px; font-size:26px; }
+.viewer-doc h4 { margin:18px 0 8px; font-size:18px; }
+.viewer-doc .block { margin-top:18px; }
+
+.vin-row { display:flex; gap:8px; align-items:stretch; }
+.vin-row .f { flex:1; }
+.vin-row .pill { width:auto; margin:0; white-space:nowrap; padding:13px 14px; font-size:14px; }
+.cam { background:#000; color:#fff; padding:0 !important; }
+.cam .nav h1 { color:#fff; }
+.stage { position:relative; height:calc(100dvh - 248px); min-height:280px; background:#111; overflow:hidden; }
+.stage video { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:1; background:#111; z-index:0; }
+.ghost { position:absolute; left:6%; right:6%; top:14%; height:58%; width:88%; object-fit:contain; object-position:center; pointer-events:none; opacity:.86; mix-blend-mode:normal; z-index:1; }
+.ghost.tall { top:10%; height:70%; }
+.ghost.off { opacity:0; }
+.cam-wait { position:absolute; left:16px; right:16px; bottom:18px; z-index:2; color:#fff; text-align:center; font-size:14px; font-weight:700; text-shadow:0 1px 8px #000; pointer-events:none; }
+.cam-wait.off { display:none; }
+.flash { position:absolute; inset:0; background:#fff; opacity:0; pointer-events:none; }
+.flash.go { animation:pop .16s ease-out; }
+.dmg-banner { position:absolute; left:0; right:0; bottom:0; padding:28px 16px 16px; background:linear-gradient(transparent, rgba(0,0,0,.82)); color:#fff; font-size:16px; font-weight:700; line-height:1.3; text-align:center; pointer-events:none; opacity:0; transform:translateY(8px); transition:opacity .15s, transform .15s; text-shadow:0 1px 8px #000; }
+.dmg-banner.on { opacity:1; transform:none; }
+@keyframes pop { from{opacity:.65} to{opacity:0} }
+.copy { background:#000; padding:16px 20px 8px; }
+.copy h3 { margin:0 0 4px; font-size:22px; font-weight:700; }
+.copy p { margin:0; color:#c7c7cc; font-size:15px; }
+.shut { background:#000; display:flex; align-items:center; justify-content:space-between; padding:8px 28px calc(22px + env(safe-area-inset-bottom)); }
+.shut button { background:none; border:0; color:#fff; font-size:16px; width:64px; cursor:pointer; }
+.dot { width:70px; height:70px; border-radius:50%; background:#fff !important; color:transparent; cursor:pointer; touch-action:manipulation; z-index:3; }
+.toast { position:fixed; left:50%; bottom:88px; transform:translateX(-50%); width:min(378px,calc(100% - 32px)); background:#1c1c1e; color:#fff; border-radius:12px; padding:12px 14px; font-size:14px; display:none; z-index:80; }
+.toast.on { display:block; }
+.hide { display:none !important; }
+.start { padding:0 !important; position:relative; overflow:hidden; background:#0b0b10; min-height:100dvh; }
+.start-bg { position:absolute; inset:0; background:#0b0b10; overflow:hidden; }
+.start-bg img { width:100%; height:100%; object-fit:cover; object-position:center 46%; display:block; }
+.start-bg, .start-veil { pointer-events:none; }
+.start-veil { position:absolute; inset:0; background:linear-gradient(180deg,rgba(8,6,16,.55) 0%,rgba(8,6,16,.08) 28%,rgba(8,6,16,.04) 52%,rgba(8,6,16,.62) 100%); }
+.start-actions, .guest-story, .login-card, .login-hero, .who, .start-x, .start-more { pointer-events:auto; }
+.start-actions { position:absolute; inset:0; z-index:2; pointer-events:none; }
+.start-actions .pill {
+  pointer-events:auto; position:absolute; left:50%; transform:translateX(-50%);
+  width:min(300px, calc(100% - 48px)); margin:0; padding:15px 20px;
+}
+#startAppraise { top: calc(env(safe-area-inset-top, 0px) + 1.5in); }
+#startWebsite { bottom: calc(env(safe-area-inset-bottom, 0px) + 1.5in); }
+.start-more {
+  position:absolute; left:50%; transform:translateX(-50%);
+  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  width:min(300px, calc(100% - 48px));
+  display:flex; gap:8px; z-index:3;
+}
+.start-more .pill {
+  flex:1; margin:0; padding:12px 10px; font-size:14px;
+  background:rgba(250,249,252,.9); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+}
+.guest-story {
+  position:absolute; left:18px; right:18px; transform:none;
+  top: calc(env(safe-area-inset-top, 0px) + 56px + 1.5in);
+  width:auto; max-width:none;
+  z-index:2;
+  background:rgba(250,249,252,.94); backdrop-filter:blur(22px); -webkit-backdrop-filter:blur(22px);
+  border-radius:26px; padding:22px 20px 18px;
+  box-shadow:0 18px 50px rgba(0,0,0,.28);
+}
+.guest-story .pill { width:100%; margin:14px 0 0; padding:15px 20px; }
+.guest-story .link { display:block; width:100%; margin:10px 0 0; color:var(--purple-deep); text-align:center; }
+.guest-story p { color:var(--muted); text-shadow:none; font-size:14px; line-height:1.5; margin:0 0 10px; font-weight:600; }
+.guest-steps { display:flex; gap:6px; margin:4px 0 0; }
+.guest-steps span { flex:1; text-align:center; background:var(--fill); color:var(--purple-deep); border-radius:999px; padding:7px 4px; font-size:11px; font-weight:800; letter-spacing:.02em; }
+.start-x { position:absolute; top: calc(12px + env(safe-area-inset-top)); left:16px; z-index:2; }
+.phone:has(#start.on), .phone:has(#login.on) { max-width:none; background:#0b0b10; }
+.phone:has(#start.on) .accent, .phone:has(#login.on) .accent { display:none; }
+.login-hero {
+  position:absolute; left:22px; right:22px; z-index:6;
+  top: calc(22px + env(safe-area-inset-top));
+}
+.login-hero .login-kicker { color:#7EE8F2; margin:0 0 10px; }
+.login-hero h1 { margin:0 0 10px; font-size:34px; letter-spacing:-.7px; line-height:1.08; color:#fff; text-shadow:0 2px 28px rgba(0,0,0,.55); }
+.login-hero .lead { margin:0; color:rgba(255,255,255,.88); font-size:16px; line-height:1.45; font-weight:600; text-shadow:0 1px 12px rgba(0,0,0,.45); max-width:22em; }
+.login-card { position:absolute; left:16px; right:16px; bottom:calc(16px + env(safe-area-inset-bottom)); z-index:6; max-height:none; overflow:visible; background:rgba(250,249,252,.94); backdrop-filter:blur(22px); -webkit-backdrop-filter:blur(22px); border-radius:26px; padding:16px 16px 14px; box-shadow:0 18px 50px rgba(0,0,0,.28); }
+.gbtn { width:100%; display:flex; align-items:center; justify-content:center; gap:10px; border:1.5px solid #DADCE0; background:#fff; border-radius:16px; padding:14px 16px; font-size:15px; font-weight:700; cursor:pointer; margin:0; color:#1F1F1F; position:relative; z-index:7; pointer-events:auto; text-decoration:none; min-height:52px; }
+.login-card h1, .guest-story h1 { margin:0 0 8px; font-size:26px; letter-spacing:-.55px; line-height:1.15; color:var(--ink); }
+.guest-story h1 { color:var(--ink); }
+.login-card .lead { color:var(--muted); font-size:15px; line-height:1.45; margin:0 0 18px; }
+.login-kicker { font-size:11px; font-weight:800; letter-spacing:.16em; text-transform:uppercase; color:var(--purple-deep); margin:0 0 8px; }
+.login-card .pill { margin:0 0 4px; }
+.gbtn svg { width:18px; height:18px; }
+.login-split { display:flex; align-items:center; gap:10px; margin:16px 0 10px; color:var(--muted); font-size:11px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
+.login-split::before, .login-split::after { content:""; flex:1; height:1px; background:var(--hair); }
+.login-err { color:#C0392B; font-size:13px; font-weight:700; margin:10px 0 0; }
+.staff-row { display:flex; gap:8px; margin-top:10px; }
+.staff-row .pill { flex:1; margin:0; padding:12px 8px; font-size:14px; }
+.user-row { display:flex; align-items:center; justify-content:space-between; gap:12px; background:#fff; border:1.5px solid var(--hair); border-radius:16px; padding:12px 14px; margin:0 0 8px; }
+.user-row b { display:block; font-size:16px; }
+.user-row span { color:var(--muted); font-size:13px; }
+.user-row em { color:var(--purple-deep); font-size:12px; font-weight:800; font-style:normal; }
+.user-row button { border:0; background:var(--fill); border-radius:999px; padding:8px 12px; font-size:13px; font-weight:700; cursor:pointer; }
+.work-email { display:flex; gap:8px; margin-top:10px; align-items:stretch; }
+.work-email .f { margin:0; flex:1; min-width:0; width:auto; }
+.work-email .pill { margin:0; padding:12px 16px; width:auto; }
+.login-sub { text-align:center; color:var(--muted); font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; margin:4px 0 12px; }
+.who { position:absolute; top: calc(12px + env(safe-area-inset-top)); right:16px; z-index:2; background:rgba(0,0,0,.45); color:#fff; border:0; border-radius:999px; padding:8px 12px; font-size:12px; font-weight:700; }
+</style>
+</head>
+<body>
+<div class="phone">
+<div class="accent"></div>
+
+<section class="screen on start" id="login">
+  <div class="start-bg"><img id="loginBg" src="start-bgs/01.jpg?v=10" alt=""></div>
+  <div class="start-veil"></div>
+  <div class="login-hero">
+    <p class="login-kicker">Trade-in</p>
+    <h1>Get a value on your vehicle</h1>
+    <p class="lead">No account needed. Tell us about the car, take a few photos, and we’ll take it to buyers across Canada and the U.S.</p>
+  </div>
+  <div class="login-card">
+    <button class="pill cyan" type="button" id="btnGuest">Continue as guest</button>
+    <div class="login-split"><span>Employees</span></div>
+    <button class="gbtn" type="button" id="btnGoogle">
+      <svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.9 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 8 3.1l5.7-5.7C34.2 6.1 29.4 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.2-.1-2.3-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 16 19 12 24 12c3.1 0 5.8 1.2 8 3.1l5.7-5.7C34.2 6.1 29.4 4 24 4 16.3 4 9.6 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 10-2 13.6-5.2l-6.3-5.3C29.2 35.1 26.7 36 24 36c-5.3 0-9.7-3.1-11.3-7.5l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-1.1 3.2-4.1 5.5-7.6 6.5l6.3 5.3C36.9 41.9 44 36 44 24c0-1.2-.1-2.3-.4-3.5z"/></svg>
+      Sign in with Google
+    </button>
+    <div class="login-split"><span>or email</span></div>
+    <form id="staffForm" action="#" method="post">
+      <input class="f" id="workEmail" type="email" inputmode="email" autocomplete="username" placeholder="Email" />
+      <p class="login-err hide" id="loginErr"></p>
+      <button class="pill purple" type="submit" id="workGo" style="margin-top:10px">Sign in</button>
+    </form>
+  </div>
+</section>
+
+<section class="screen start" id="start">
+  <div class="start-bg"><img id="startBg" src="start-bgs/01.jpg?v=10" alt=""></div>
+  <div class="start-veil"></div>
+  <button class="round start-x" type="button" id="startX">✕</button>
+  <button class="who" type="button" id="whoChip">Guest</button>
+  <div class="start-actions" id="startActions">
+    <button class="pill purple" type="button" id="startAppraise">Appraise vehicle</button>
+    <button class="pill cyan" type="button" id="startWebsite">Post vehicle to website</button>
+  </div>
+  <div class="start-more" id="startMore">
+    <button class="pill" type="button" id="startTrade">Send trade-in link</button>
+    <button class="pill" type="button" id="startUsers">Users</button>
+  </div>
+  <div class="guest-story hide" id="guestStory">
+    <p class="login-kicker" id="guestKicker">Your trade-in</p>
+    <h1 id="guestHello">Start with your story</h1>
+    <p>Tap the button and the microphone turns on. Tell us the year, make, model, trim, colour, kilometres, and how the vehicle looks and drives. Be as specific as you can — the more we know, the more we can do for you.</p>
+    <p>We’ll confirm the details, walk you through a few photos, and take it to buyers across Canada and the United States to get you the strongest value we can. Don’t worry — we’ll make it easy.</p>
+    <div class="guest-steps">
+      <span>1 · Speak</span>
+      <span>2 · Confirm</span>
+      <span>3 · Photos</span>
+    </div>
+    <button class="pill cyan" type="button" id="startStory">Start by clicking here!</button>
+    <button class="link" type="button" id="guestType">Type instead</button>
+  </div>
+</section>
+
+<section class="screen" id="invite">
+  <div class="nav">
+    <button class="round" type="button" id="inviteBack">✕</button>
+    <h1>Trade-in link</h1>
+    <button class="round" type="button">•••</button>
+  </div>
+  <div class="pad" style="padding-bottom:120px">
+    <h2>Send to the customer</h2>
+    <p class="quote">First and last name, plus email or cell — or both.</p>
+    <div class="pair">
+      <div>
+        <label class="k">First name</label>
+        <input class="f" id="inv-first" placeholder="Jane" autocomplete="given-name" />
+      </div>
+      <div>
+        <label class="k">Last name</label>
+        <input class="f" id="inv-last" placeholder="Doe" autocomplete="family-name" />
+      </div>
+    </div>
+    <label class="k">Vehicle interested in</label>
+    <input class="f" id="inv-unit" placeholder="Year, make, model — or the unit they’re looking at" />
+    <label class="k">Stock number</label>
+    <input class="f" id="inv-stock" placeholder="Optional" />
+    <label class="k">Email</label>
+    <input class="f" id="inv-email" type="email" inputmode="email" placeholder="Optional if you have a cell" autocomplete="email" />
+    <label class="k">Cell</label>
+    <input class="f" id="inv-phone" type="tel" inputmode="tel" placeholder="(613) 555-0123" autocomplete="tel" maxlength="14" />
+    <p class="quote" id="invConfirm">Fill this in, then send.</p>
+    <div id="invSent" class="hide" style="margin-top:16px">
+      <label class="k">Trade-in link</label>
+      <button class="review" type="button" id="invCopy" style="margin:0">
+        <h4>Copy link</h4>
+        <p id="invUrl" style="word-break:break-all"></p>
+      </button>
+      <a class="pill purple hide" id="invMailBtn" target="_blank" rel="noopener" style="text-align:center;text-decoration:none;margin-top:10px">Open Gmail as you</a>
+      <a class="pill hide" id="invSmsBtn" style="text-align:center;text-decoration:none;margin-top:10px">Open Text with the link</a>
+    </div>
+  </div>
+  <div class="dock">
+    <button class="pill purple" type="button" id="inviteSend">Send link</button>
+  </div>
+</section>
+
+<section class="screen" id="users">
+  <div class="nav">
+    <button class="round" type="button" id="usersBack">✕</button>
+    <h1>Users</h1>
+    <button class="round" type="button">•••</button>
+  </div>
+  <div class="pad" style="padding-bottom:40px">
+    <h2>Who can log in</h2>
+    <p class="quote">Any @myloan.ca address already works. Add anyone else by email — they type it on the login page and go.</p>
+    <label class="k">Name</label>
+    <input class="f" id="user-name" placeholder="First name" />
+    <label class="k">Email</label>
+    <div class="work-email">
+      <input class="f" id="user-email" type="email" inputmode="email" placeholder="name@company.com" />
+      <button class="pill purple" type="button" id="userAdd">Add</button>
+    </div>
+    <div class="block">People</div>
+    <div id="userList"></div>
+  </div>
+</section>
+
+<section class="screen" id="home">
+  <div class="nav">
+    <button class="round" type="button" id="homeX">✕</button>
+    <h1 id="homeTitle">Inspect</h1>
+    <button class="round" type="button">•••</button>
+  </div>
+  <div id="vinScanWrap">
+  <div class="finder" id="finder">
+    <div class="cam-idle" id="vinIdle">Camera</div>
+    <video id="liveCam" class="off" autoplay playsinline muted></video>
+    <img id="vinStill" class="hide" alt="">
+    <div class="scan"></div>
+    <div class="status" id="scanStatus">Tap Capture VIN to turn the camera on.</div>
+    <button class="lamp" type="button" id="lamp">Light</button>
+  </div>
+  </div>
+  <div class="pad">
+    <div id="storyBlock">
+    <button class="pill cyan" type="button" id="btnStory">What's the Story?</button>
+    <p class="quote" id="storyQuote">Simply press this button. Describe the year, make, model, option, trim, colour, kilometres, and condition of this vehicle.</p>
+    </div>
+    <button class="link" type="button" id="btnType">Type it in</button>
+    <button class="pill purple" type="button" id="btnPictures" style="margin-top:16px">Just Pictures</button>
+    <div id="homeDocs">
+    <button class="pill" type="button" id="btnDocs">Appraisial documents</button>
+    <p class="quote">Carfax, vAuto, book, MMR — optional. Photograph the packet if you have it.</p>
+    </div>
+    <div id="vinBtns">
+    <button class="pill cyan" type="button" id="btnVin">Capture VIN</button>
+    <p class="quote" id="vinHint">Tap once to turn the camera on. Line up the door-jamb barcode, QR, or VIN plate. Tap again to take the photo.</p>
+    <p class="vin-chip hide" id="vinChip"></p>
+    </div>
+  </div>
+</section>
+
+<section class="screen" id="verify">
+  <div class="nav">
+    <button class="round" type="button" id="verifyBack">✕</button>
+    <h1>Confirm the unit</h1>
+    <button class="round" type="button">•••</button>
+  </div>
+  <div class="pad">
+    <h2>Verify the vehicle</h2>
+    <p class="quote">Fix anything the story got wrong before you shoot.</p>
+    <div class="pair">
+      <div><label class="k">Year</label><input class="f" id="v-year" inputmode="numeric" /></div>
+      <div><label class="k">Make</label><input class="f" id="v-make" /></div>
+    </div>
+    <label class="k">Model</label><input class="f" id="v-model" />
+    <label class="k">Option / trim</label><input class="f" id="v-trim" />
+    <div class="pair">
+      <div><label class="k">Colour</label><input class="f" id="v-color" /></div>
+      <div><label class="k">Kilometres</label><input class="f" id="v-km" inputmode="numeric" /></div>
+    </div>
+    <label class="k">VIN</label>
+    <div class="vin-row">
+      <input class="f" id="v-vin" maxlength="17" style="text-transform:uppercase" />
+      <button class="pill cyan" type="button" id="verifyVin">Capture VIN</button>
+    </div>
+    <div id="stockWrap" class="hide">
+      <label class="k">Stock number</label><input class="f" id="v-stock" placeholder="e.g. A1042" />
+    </div>
+    <label class="k">Condition / story</label>
+    <textarea class="note" id="v-notes"></textarea>
+    <div id="webWrap">
+      <label class="k" id="webLabel">Description</label>
+      <textarea class="note" id="v-webcopy" style="min-height:140px" placeholder="AI listing appears here — edit anything."></textarea>
+      <button class="pill cyan" type="button" id="btnWebAi" style="margin-top:10px">Generate AI description</button>
+    </div>
+  </div>
+  <div class="dock">
+    <button class="pill purple" type="button" id="verifyGo">Continue to pictures</button>
+  </div>
+</section>
+
+<section class="screen" id="photos">
+  <div class="nav">
+    <button class="round" type="button" id="photosX">✕</button>
+    <h1>Multimedia</h1>
+    <button class="round" type="button">•••</button>
+  </div>
+  <div class="pad">
+    <button class="unit link" type="button" id="unitLine">Add year / make / VIN</button>
+    <button class="pill wash" type="button" id="btnStart">Start with 3/4 Front</button>
+    <div class="block">Photos</div>
+    <div id="photoRows"></div>
+    <div class="block">Damage</div>
+    <p class="quote">Tap the panel that’s hit. Take as many photos as you need.</p>
+    <div id="damageRows"></div>
+    <div class="block">Damage close-ups</div>
+    <div id="closeRows"></div>
+    <button class="pill wash" type="button" id="btnClose">Add a close-up</button>
+    <div id="docsBlock">
+      <div class="block">Appraisal documents</div>
+      <p class="quote">Tap a square. Photograph the page or pick a file.</p>
+      <div id="docsList" class="docs-grid"></div>
+    </div>
+  </div>
+  <div class="dock">
+    <button class="pill purple" type="button" id="btnSend">Send</button>
+  </div>
+</section>
+
+<section class="screen cam" id="camera">
+  <div class="nav">
+    <button class="round" type="button" id="camX">✕</button>
+    <h1></h1>
+    <button class="round" type="button">•••</button>
+  </div>
+  <div class="stage">
+    <video id="shotCam" autoplay playsinline webkit-playsinline muted></video>
+    <input id="nativeShot" class="hide" type="file" accept="image/*" capture="environment" />
+    <img class="ghost" id="ghost" alt="" />
+    <div class="cam-wait" id="camWait">Allow the camera — you’ll see the car through the overlay.</div>
+    <div class="flash" id="flash"></div>
+    <div class="dmg-banner" id="dmgBanner"></div>
+  </div>
+  <div class="copy">
+    <h3 id="camLabel">3/4 Front</h3>
+    <p id="camHint">Use the overlay to help frame the picture</p>
+  </div>
+  <div class="shut">
+    <button type="button" id="camSkip">Skip</button>
+    <button class="dot" type="button" id="shutter" aria-label="Shutter"></button>
+    <button type="button" id="camDone">Done</button>
+  </div>
+</section>
+
+<section class="screen" id="submit">
+  <div class="nav">
+    <button class="round" type="button" id="submitX">✕</button>
+    <h1>Packet</h1>
+    <button class="round" type="button">•••</button>
+  </div>
+  <div class="pad">
+    <div class="badge" id="subBadge">Appraisal</div>
+    <h2 id="subTitle">Unit</h2>
+    <p class="quote" id="subBody"></p>
+    <div class="facts" id="subFacts"></div>
+    <button class="review" type="button" id="storyCard">
+      <h4>Story / condition</h4>
+      <p id="storyPreview">—</p>
+    </button>
+    <button class="review" type="button" id="listCard">
+      <h4>Website listing</h4>
+      <p id="listPreview">—</p>
+    </button>
+    <div class="block">Photos</div>
+    <div class="shot-grid" id="subShots"></div>
+    <div class="block" id="subDocHead">Documents</div>
+    <div id="subDocs"></div>
+    <button class="review pdf-card" type="button" id="pdfCard">
+      <div class="ico">PDF</div>
+      <div>
+        <h4>View full packet</h4>
+        <p id="pdfHint">Tap to open the complete file</p>
+      </div>
+    </button>
+    <p class="quote hide" id="guestSendNote"></p>
+    <div id="toBlock">
+      <label class="k">Send to</label>
+      <div id="toChips"></div>
+    </div>
+  </div>
+  <div class="dock">
+    <button class="pill purple" type="button" id="btnSharePack">Send</button>
+    <button class="pill wash" type="button" id="btnAnother">Inspect another</button>
+  </div>
+</section>
+<div class="viewer" id="viewer">
+  <div class="bar">
+    <button class="round" type="button" id="viewerX">✕</button>
+    <h3 id="viewerTitle">File</h3>
+    <span style="width:36px"></span>
+  </div>
+  <iframe id="viewerPdf" title="PDF" class="hide"></iframe>
+  <img id="viewerImg" alt="">
+  <div class="viewer-doc" id="viewerDoc"></div>
+</div>
+
+<div class="sheet" id="googleSheet">
+  <div class="card">
+    <button class="x" type="button" data-close="googleSheet">✕</button>
+    <h3>Google</h3>
+    <p class="hint">Use the Google email you sign in with at work. @myloan.ca already works.</p>
+    <input class="f" id="googleEmail" type="email" inputmode="email" autocomplete="username" placeholder="Email" />
+    <button class="pill purple" type="button" id="googleGo" style="margin-top:14px">Continue with Google</button>
+  </div>
+</div>
+<div class="sheet" id="storySheet">
+  <div class="card">
+    <button class="x" type="button" data-close="storySheet">✕</button>
+    <h3 id="storyTitle">What's the Story?</h3>
+    <p class="hint">Describe year, make, model, trim, colour, kilometres, VIN, and condition. Allow the microphone when asked — tap Speak if it doesn’t start.</p>
+    <textarea class="box" id="transcript" placeholder="I'm looking at a 1986 Ford Bronco…"></textarea>
+    <div class="pair">
+      <button class="pill wash" type="button" id="micBtn">Speak</button>
+      <button class="pill purple" type="button" id="useStory">Use this</button>
+    </div>
+  </div>
+</div>
+<div class="sheet" id="docsSheet">
+  <div class="card">
+    <button class="x" type="button" data-close="docsSheet">✕</button>
+    <h3>Appraisal documents</h3>
+    <p class="hint">Carfax, vAuto, book, MMR — optional.</p>
+  </div>
+</div>
+<div class="sheet" id="unitSheet">
+  <div class="card">
+    <button class="x" type="button" data-close="unitSheet">✕</button>
+    <h3>Unit</h3>
+    <div class="pair">
+      <div><label class="k">Year</label><input class="f" id="f-year" /></div>
+      <div><label class="k">Make</label><input class="f" id="f-make" /></div>
+    </div>
+    <label class="k">Model</label><input class="f" id="f-model" />
+    <label class="k">Trim</label><input class="f" id="f-trim" />
+    <div class="pair">
+      <div><label class="k">Colour</label><input class="f" id="f-color" /></div>
+      <div><label class="k">Kilometres</label><input class="f" id="f-km" /></div>
+    </div>
+    <label class="k">VIN</label><input class="f" id="f-vin" maxlength="17" style="text-transform:uppercase" />
+    <label class="k">Notes</label><textarea class="note" id="f-notes"></textarea>
+    <button class="pill purple" type="button" id="saveUnit">Save</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<button class="hide" type="button" id="doneX"></button>
+</div>
+<script>
+
+const GHOSTS = {
+  "qfront": "ghosts/qfront.png?v=5",
+  "front": "ghosts/front.png?v=5",
+  "driver": "ghosts/driver.png?v=5",
+  "dash": "ghosts/dash.png?v=5",
+  "console": "ghosts/console.png?v=5",
+  "qrear": "ghosts/qrear.png?v=5",
+  "rear": "ghosts/rear.png?v=5",
+  "tire": "ghosts/tire.png?v=5",
+  "door": "ghosts/door.png?v=5",
+  "qrear_pass": "ghosts/qrear_pass.png?v=5",
+  "pass": "ghosts/pass.png?v=5",
+  "qfront_pass": "ghosts/qfront_pass.png?v=5"
+};
+const ASSET_BASE=(function(){
+  try{
+    const h=location.hostname||"";
+    if(h.indexOf("vercel.app")>=0) return "https://carmojiguy.github.io/";
+  }catch(e){}
+  return "";
+})();
+function assetUrl(p){ return (ASSET_BASE||"")+String(p||"").replace(/^\//,""); }
+Object.keys(GHOSTS).forEach(function(k){ GHOSTS[k]=assetUrl(GHOSTS[k]); });
+
+const VIEWS = [
+  ["qfront", "3/4 Front", "qfront"],
+  ["front", "Front", "front"],
+  ["driver", "Driver side", "driver"],
+  ["qrear_drv", "3/4 Rear driver", "qrear"],
+  ["rear", "Rear", "rear"],
+  ["qrear_pass", "3/4 Rear passenger", "qrear_pass"],
+  ["pass", "Passenger side", "pass"],
+  ["qfront_pass", "3/4 Front passenger", "qfront_pass"],
+  ["dash", "Dashboard", "dash"],
+  ["console", "Console", "console"],
+  ["tire", "Tire", "tire"],
+  ["interior", "Driver interior", "door"]
+];
+const DOC_TYPES = [
+  ["carfax","Carfax","Vehicle history report"],
+  ["vauto_summary","vAuto summary","Appraisal summary page"],
+  ["vauto_book","vAuto book","Book / wholesale report"],
+  ["vauto_comp","Comp set","Competitive set screenshot"],
+  ["mmr","MMR","Manheim Market Report"],
+  ["openlane","OpenLane","Auction / run list sheet"],
+  ["eblock","eBlock","eBlock recap or bid sheet"],
+  ["other","Other","Anything else in the packet"]
+];
+
+window.GOOGLE_CLIENT_ID = window.GOOGLE_CLIENT_ID || "";
+window.APP = {
+  purpose:"both",
+  year:"", make:"", model:"", trim:"", color:"", km:"", vin:"", stock:"", heard:"", notes:"", webcopy:"",
+  photos:{}, damage:{}, closeups:[], docs:{}, damageCap:{}, closeupCap:[],
+  mode:"photos", viewId:"qfront", stream:null, lock:false, rec:null, listening:false,
+  dmgArmed:false, dmgCaption:"", dmgRec:null, emails:[],
+  role:"", userName:"", userEmail:"", googleToken:"", extraUsers:[], requestedBy:"", requestedByName:"",
+  inviteUnit:"", inviteStock:"", inviteName:"", inviteEmail:""
+};
+
+function $(id){ return document.getElementById(id); }
+function toast(msg){
+  const n=$("toast"); n.textContent=msg; n.classList.add("on");
+  clearTimeout(n._t); n._t=setTimeout(()=>n.classList.remove("on"),2200);
+}
+function pic(key){ return (GHOSTS && GHOSTS[key]) || ""; }
+function ghostPic(key){ return (typeof GHOSTS==="object" && GHOSTS[key]) || pic(key); }
+function unitLabel(){ return [APP.year, APP.make, APP.model].filter(Boolean).join(" ") || "Unit"; }
+function why(){ return APP.purpose==="website" ? "Website" : "Appraisal"; }
+function isWeb(){ return APP.purpose==="website"; }
+function websiteCopy(){
+  if(APP.webcopy && APP.webcopy.trim()) return APP.webcopy.trim();
+  return writeListing();
+}
+function applyMode(){
+  const web=isWeb();
+  $("homeTitle").textContent = web ? "Website unit" : "Appraise";
+  $("stockWrap").classList.toggle("hide", !web);
+  if($("webWrap")) $("webWrap").classList.remove("hide");
+  if($("webLabel")) $("webLabel").textContent = web ? "Website-ready description" : "Description";
+  if($("storyBlock")) $("storyBlock").classList.remove("hide");
+  applyRole();
+  if($("storyQuote")) $("storyQuote").textContent = web
+    ? "Describe the year, make, model, option, trim, colour, kilometres, and condition — this writes the website listing."
+    : "Simply press this button. Describe the year, make, model, option, trim, colour, kilometres, and condition of this vehicle.";
+  if(web) stopVinScan();
+  if(web && $("v-webcopy") && !$("v-webcopy").value) $("v-webcopy").value = websiteCopy();
+}
+function folderName(){ return ((unitLabel()==="Unit"?"Vehicle":unitLabel()) + " " + why()).replace(/[^\w&$ \-]/g," ").replace(/\s+/g," ").trim(); }
+function dmgShots(id){
+  const x=APP.damage[id];
+  if(!x) return [];
+  if(Array.isArray(x)) return x;
+  return [{data:x, cap:(APP.damageCap && APP.damageCap[id]) || ""}];
+}
+function shotCount(){
+  let n=Object.keys(APP.photos).length + APP.closeups.length;
+  VIEWS.forEach(function(v){ n+=dmgShots(v[0]).length; });
+  return n;
+}
+
+function show(id){
+  const el=$(id);
+  if(!el){ toast("Can’t open that screen."); return; }
+  document.querySelectorAll(".screen").forEach(n=>n.classList.remove("on"));
+  el.classList.add("on");
+  window.scrollTo(0,0);
+  if(id!=="home") stopVinScan();
+  if(id==="start" || id==="login"){
+    var img = $(id==="login" ? "loginBg" : "startBg");
+    if (img){
+      if(!APP._bgs || !APP._bgs.length){
+        APP._bgs=[];
+        for(var i=1;i<=30;i++) APP._bgs.push(i);
+        for(var i=APP._bgs.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=APP._bgs[i]; APP._bgs[i]=APP._bgs[j]; APP._bgs[j]=t; }
+      }
+      var n = APP._bgs.pop();
+      img.src = assetUrl("start-bgs/" + String(n).padStart(2,"0") + ".jpg?v=10");
+    }
+  }
+  if(id==="photos"){ paintLists(); paintDocs(); }
+  if(id==="camera") startPreview("shotCam");
+  if(id==="submit") paintSubmit();
+  if(id==="users") paintUsers();
+}
+
+function sessionKey(){ return "inspect.session"; }
+const OPEN_STAFF = {
+  "andrew@autocorp.ca":"Andrew",
+  "wes@thetrucktown.com":"Wes",
+  "ryan@papered.com":"Ryan"
+};
+function staffEmail(v){ return String(v||"").trim().toLowerCase(); }
+function usersKey(){ return "inspect.users"; }
+function loadExtraUsers(){
+  try{
+    const arr=JSON.parse(localStorage.getItem(usersKey())||"[]");
+    if(Array.isArray(arr)) return arr.filter(function(u){ return u && u.email; });
+  }catch(e){}
+  try{
+    const arr=JSON.parse(sessionStorage.getItem(usersKey())||"[]");
+    if(Array.isArray(arr)) return arr.filter(function(u){ return u && u.email; });
+  }catch(e){}
+  return Array.isArray(APP.extraUsers) ? APP.extraUsers : [];
+}
+function saveExtraUsers(list){
+  APP.extraUsers=list;
+  try{ localStorage.setItem(usersKey(), JSON.stringify(list)); }catch(e){}
+  try{ sessionStorage.setItem(usersKey(), JSON.stringify(list)); }catch(e){}
+}
+function extraUser(email){
+  const e=staffEmail(email);
+  return loadExtraUsers().find(function(u){ return staffEmail(u.email)===e; }) || null;
+}
+function isStaffEmail(email){
+  const e=staffEmail(email);
+  if(!e || e.indexOf("@")<0) return false;
+  if(e.endsWith("@myloan.ca")) return true;
+  if(OPEN_STAFF[e]) return true;
+  return !!extraUser(e);
+}
+function enterStaff(email, name){
+  const e=staffEmail(email);
+  if(!isStaffEmail(e)){ toast("That email isn’t set up for this app."); return; }
+  const extra=extraUser(e);
+  enterSession("employee", {name: name || (extra && extra.name) || OPEN_STAFF[e] || e.split("@")[0], email:e});
+}
+const STAFF_PASS="dietcoke";
+function passOk(p){
+  return String(p||"").toLowerCase().replace(/[^a-z0-9]/g,"")===STAFF_PASS;
+}
+function loginFail(msg){
+  const n=$("loginErr");
+  if(n){ n.textContent=msg; n.classList.remove("hide"); }
+  toast(msg);
+}
+function enterStaffPassword(ev){
+  if(ev){ ev.preventDefault(); ev.stopPropagation(); }
+  const e=staffEmail($("workEmail") && $("workEmail").value);
+  if(!e){ loginFail("Enter your email."); return false; }
+  if(!isStaffEmail(e)){ loginFail("That email isn’t set up for this app."); return false; }
+  if($("loginErr")) $("loginErr").classList.add("hide");
+  enterStaff(e);
+  return false;
+}
+function addUser(){
+  const email=staffEmail($("user-email") && $("user-email").value);
+  const name=(($("user-name") && $("user-name").value) || "").trim() || (email?email.split("@")[0]:"");
+  if(!email || email.indexOf("@")<1){ toast("Add a valid email."); return; }
+  if(email.endsWith("@myloan.ca") || OPEN_STAFF[email]){ toast("They can already log in."); return; }
+  const list=loadExtraUsers();
+  if(list.some(function(u){ return staffEmail(u.email)===email; })){ toast("Already on the list."); return; }
+  list.push({name:name, email:email});
+  saveExtraUsers(list);
+  if($("user-email")) $("user-email").value="";
+  if($("user-name")) $("user-name").value="";
+  paintUsers();
+  toast(name+" can log in now.");
+}
+function removeUser(email){
+  saveExtraUsers(loadExtraUsers().filter(function(u){ return staffEmail(u.email)!==staffEmail(email); }));
+  paintUsers();
+}
+function paintUsers(){
+  const host=$("userList"); if(!host) return;
+  host.innerHTML="";
+  function row(name, email, locked){
+    const b=document.createElement("div");
+    b.className="user-row";
+    b.innerHTML='<div><b>'+name+'</b><span>'+email+'</span></div>'+(locked?'<em>In</em>':'<button type="button">Remove</button>');
+    if(!locked) b.querySelector("button").onclick=function(){ removeUser(email); };
+    host.appendChild(b);
+  }
+  row("Anyone @myloan.ca", "@myloan.ca", true);
+  Object.keys(OPEN_STAFF).forEach(function(e){ row(OPEN_STAFF[e], e, true); });
+  loadExtraUsers().forEach(function(u){ row(u.name||u.email.split("@")[0], staffEmail(u.email), false); });
+}
+function saveSession(){
+  try{ sessionStorage.setItem(sessionKey(), JSON.stringify({
+    role:APP.role, userName:APP.userName, userEmail:APP.userEmail,
+    requestedBy:APP.requestedBy||"", requestedByName:APP.requestedByName||"",
+    inviteUnit:APP.inviteUnit||"", inviteStock:APP.inviteStock||"", inviteName:APP.inviteName||""
+  })); }catch(e){}
+}
+function loadSession(){
+  try{
+    const raw=sessionStorage.getItem(sessionKey());
+    if(!raw) return false;
+    const s=JSON.parse(raw);
+    if(!s || !s.role) return false;
+    APP.role=s.role; APP.userName=s.userName||""; APP.userEmail=s.userEmail||"";
+    APP.requestedBy=s.requestedBy||""; APP.requestedByName=s.requestedByName||"";
+    APP.inviteUnit=s.inviteUnit||""; APP.inviteStock=s.inviteStock||""; APP.inviteName=s.inviteName||"";
+    if(APP.role==="guest" && APP.inviteName) APP.userName=APP.inviteName;
+    if(APP.role==="employee" && !isStaffEmail(APP.userEmail)) return false;
+    return true;
+  }catch(e){ return false; }
+}
+function customerFirst(){
+  const n=(APP.inviteName||APP.userName||"").trim();
+  if(!n || n==="Guest") return "";
+  return n.split(/\s+/)[0];
+}
+function paintGuestStory(){
+  const first=customerFirst();
+  const hello=$("guestHello");
+  const kick=$("guestKicker");
+  const story=$("startStory");
+  if(hello) hello.textContent = first ? ("Hey "+first) : "Start with your story";
+  if(kick) kick.textContent = APP.inviteUnit ? ("Trade against "+APP.inviteUnit) : "Your trade-in";
+  if(story) story.textContent = first ? ("Hey "+first+", click here") : "Start by clicking here!";
+}
+function paintLogin(){
+  const first=customerFirst();
+  const h1=document.querySelector("#login h1");
+  const lead=document.querySelector("#login .lead");
+  const btn=$("btnGuest");
+  const hideEmp=/[?&]trade=1(?:&|$)/.test(location.search||"");
+  if(h1) h1.textContent = first ? ("Hey "+first) : "Get a value on your vehicle";
+  if(lead) lead.textContent = first
+    ? "No account. No sign-in. Tap below and we’ll walk you through a few photos."
+    : "No account needed. Tell us about the car, take a few photos, and we’ll take it to buyers across Canada and the U.S.";
+  if(btn) btn.textContent = first ? ("Hey "+first+", click here") : "Continue as guest";
+  document.querySelectorAll("#login .login-split, #btnGoogle, #staffForm").forEach(function(n){
+    n.classList.toggle("hide", hideEmp);
+  });
+}
+function applyRole(){
+  const guest=APP.role==="guest";
+  const who=$("whoChip");
+  if(who) who.textContent = guest ? (APP.inviteName || APP.userName || "Guest") : (APP.userName || APP.userEmail || "Employee");
+  if($("startActions")) $("startActions").classList.toggle("hide", guest);
+  if($("startMore")) $("startMore").classList.toggle("hide", guest);
+  if($("guestStory")) $("guestStory").classList.toggle("hide", !guest);
+  ["vinScanWrap","vinBtns","homeDocs"].forEach(function(id){
+    if($(id)) $(id).classList.toggle("hide", guest);
+  });
+  if($("btnType")) $("btnType").classList.toggle("hide", guest);
+  if($("docsBlock")) $("docsBlock").classList.toggle("hide", guest);
+  if($("btnStart")) $("btnStart").classList.toggle("hide", guest);
+  if($("btnPictures")) $("btnPictures").classList.remove("hide");
+  if($("btnSend")) $("btnSend").textContent = guest ? "Review my trade" : "Send";
+  if(guest) paintGuestStory();
+  if($("startX")) $("startX").classList.toggle("hide", guest);
+  const web=isWeb();
+  if(web){
+    ["vinScanWrap","vinBtns","homeDocs","docsBlock"].forEach(function(id){
+      if($(id)) $(id).classList.add("hide");
+    });
+    if($("verifyVin")) $("verifyVin").classList.add("hide");
+  } else if(!guest){
+    if($("verifyVin")) $("verifyVin").classList.remove("hide");
+  }
+}
+function enterSession(role, user){
+  APP.role=role;
+  APP.userName=(user && (user.name||user.userName)) || (role==="guest"?"Guest":"Employee");
+  APP.userEmail=(user && user.email) || "";
+  saveSession();
+  applyRole();
+  show("start");
+}
+const TRADE_PUBLIC=(function(){
+  try{
+    const h=location.hostname||"";
+    if(h.indexOf("vercel.app")>=0) return location.origin.replace(/\/?$/,"/") ;
+  }catch(e){}
+  return "https://trade-in-shawn-6802.vercel.app/";
+})();
+function tradeInUrl(){
+  try{
+    const u=new URL(TRADE_PUBLIC);
+    u.searchParams.set("trade","1");
+    if(APP.userEmail) u.searchParams.set("from", APP.userEmail);
+    if(APP.userName) u.searchParams.set("by", APP.userName);
+    if(APP.inviteUnit) u.searchParams.set("unit", APP.inviteUnit);
+    if(APP.inviteStock) u.searchParams.set("stock", APP.inviteStock);
+    if(APP.inviteName) u.searchParams.set("name", APP.inviteName);
+    return u.toString();
+  }catch(e){
+    const extra=(APP.userEmail?("&from="+encodeURIComponent(APP.userEmail)):"");
+    return TRADE_PUBLIC+"?trade=1"+extra+(APP.inviteName?("&name="+encodeURIComponent(APP.inviteName)):"");
+  }
+}
+function cleanPhone(v){
+  const raw=String(v||"").trim();
+  const d=raw.replace(/\D/g,"");
+  if(d.length===11 && d[0]==="1") return "+1"+d.slice(1);
+  if(d.length===10) return "+1"+d;
+  if(raw.indexOf("+")===0 && d.length>=10 && d.length<=15) return "+"+d;
+  return "";
+}
+function formatPhoneMask(raw){
+  let d=String(raw||"").replace(/\D/g,"");
+  if(d.length===11 && d[0]==="1") d=d.slice(1);
+  d=d.slice(0,10);
+  if(d.length===0) return "";
+  if(d.length<4) return "("+d;
+  if(d.length<7) return "("+d.slice(0,3)+") "+d.slice(3);
+  return "("+d.slice(0,3)+") "+d.slice(3,6)+"-"+d.slice(6);
+}
+function onPhoneInput(){
+  const el=$("inv-phone"); if(!el) return;
+  const cur=el.value;
+  const next=formatPhoneMask(cur);
+  el.value=next;
+  invitePreview();
+}
+function smsHref(num, text){
+  const ios=/iPhone|iPad|iPod/i.test(navigator.userAgent||"");
+  return (ios ? "sms:"+num+"&body=" : "sms:"+num+"?body=") + encodeURIComponent(text);
+}
+function invitePreview(){
+  const first=($("inv-first")&&$("inv-first").value||"").trim();
+  const last=($("inv-last")&&$("inv-last").value||"").trim();
+  const email=($("inv-email")&&$("inv-email").value||"").trim();
+  const phone=cleanPhone($("inv-phone")&&$("inv-phone").value);
+  const n=$("invConfirm"); if(!n) return;
+  const from=APP.userEmail || "";
+  if($("inviteSend")) $("inviteSend").textContent = from ? ("Send from "+from) : "Send link";
+  if(!first || !last){ n.textContent="First and last name are required."; return; }
+  if(!email && !phone){ n.textContent="Add an email, a cell, or both."; return; }
+  const bits=[];
+  if(email) bits.push("email "+first+" at "+email);
+  if(phone) bits.push("text "+formatPhoneMask(phone));
+  n.textContent = (from ? ("From "+from+" — ") : "") + "this will "+bits.join(" and ")+".";
+}
+function openInvite(){
+  const parts=(APP.inviteName||"").trim().split(/\s+/);
+  if($("inv-first")) $("inv-first").value=APP.inviteFirst || parts[0] || "";
+  if($("inv-last")) $("inv-last").value=APP.inviteLast || (parts.length>1?parts.slice(1).join(" "):"");
+  if($("inv-email")) $("inv-email").value=APP.inviteEmail||"";
+  if($("inv-phone")) $("inv-phone").value=formatPhoneMask(APP.invitePhone||"");
+  if($("inv-unit")) $("inv-unit").value=APP.inviteUnit||"";
+  if($("inv-stock")) $("inv-stock").value=APP.inviteStock||"";
+  invitePreview();
+  if($("invSent")) $("invSent").classList.add("hide");
+  show("invite");
+}
+function escHtml(s){
+  return String(s||"").replace(/[&<>"]/g, function(c){ return "&#"+c.charCodeAt(0)+";"; });
+}
+function emailShot(name){
+  return "https://carmojiguy.github.io/email/"+encodeURIComponent(name);
+}
+function inviteMailCopy(first, url){
+  const who=APP.userName || nameForEmail(APP.userEmail) || "our team";
+  const whoLine=APP.userEmail ? (who+" ("+APP.userEmail+")") : who;
+  const unit=APP.inviteUnit || "";
+  const stock=APP.inviteStock || "";
+  const against=unit ? (unit+(stock?" (stock "+stock+")":"")) : (stock?"stock "+stock:"");
+  const subject=against
+    ? first+", your trade-in for the "+against
+    : first+", get a value on your vehicle — takes about 5 minutes";
+  const text=[
+    "Hi "+first+",",
+    "",
+    "START YOUR APPRAISAL — tap this link:",
+    url,
+    "",
+    "That’s the only tap you need. About five minutes. No account. No download.",
+    "",
+    whoLine+" started this for you"+(against?" against the "+against+".":"."),
+    "",
+    "Here’s what happens after you tap the link:",
+    "1. Tell us the year, make, model, trim, colour, kilometres, and how it looks and drives.",
+    "2. We walk you through a few photos.",
+    "3. Tap Send my trade. We take it to buyers across Canada and the U.S.",
+    "",
+    "If the first link doesn’t open, copy and paste this into Safari or Chrome:",
+    url,
+    "",
+    whoLine
+  ].join("\n");
+  const compose=[
+    "Hi "+first+",",
+    "",
+    "Tap this link to start your appraisal:",
+    "",
+    url,
+    "",
+    "About 5 minutes. No account.",
+    "",
+    "— "+whoLine
+  ].join("\n");
+  const btn=
+    '<table role="presentation" cellspacing="0" cellpadding="0" align="center" style="margin:0 auto 8px"><tr>'+
+    '<td align="center" bgcolor="#00A8E8" style="background:#00A8E8;border-radius:40px">'+
+    '<a href="'+escHtml(url)+'" target="_blank" style="display:inline-block;padding:18px 40px;font-family:Arial,Helvetica,sans-serif;font-size:18px;font-weight:800;line-height:1.2;color:#ffffff;text-decoration:none">Start my appraisal →</a>'+
+    '</td></tr></table>';
+  const shot=function(src, cap){
+    return '<img src="'+escHtml(src)+'" width="280" alt="'+escHtml(cap)+'" style="display:block;width:280px;max-width:100%;height:auto;border-radius:22px;border:1px solid #E6E1EE;margin:10px auto 4px"/>';
+  };
+  const img1=emailShot("step-speak.jpg");
+  const img2=emailShot("step-photos.jpg");
+  const img3=emailShot("step-send.jpg");
+  const html='<!DOCTYPE html><html><body style="margin:0;padding:0;background:#EDEAF3;font-family:Arial,Helvetica,sans-serif;color:#241B33">'+
+    '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#EDEAF3;padding:24px 12px"><tr><td align="center">'+
+    '<table role="presentation" width="560" cellpadding="0" cellspacing="0" style="width:560px;max-width:100%;background:#FAF9FC;border-radius:22px;overflow:hidden">'+
+    '<tr><td style="background:#241B33;padding:26px 28px">'+
+    '<div style="color:#4FB8C7;letter-spacing:.18em;font-size:11px;font-weight:700">TRADE-IN</div>'+
+    '<div style="color:#ffffff;font-size:24px;font-weight:800;margin-top:8px;line-height:1.25">Get a real number on your vehicle in about five minutes</div>'+
+    '</td></tr>'+
+    '<tr><td style="padding:28px 28px 10px">'+
+    '<p style="margin:0 0 14px;font-size:16px;line-height:1.5">Hi '+escHtml(first)+',</p>'+
+    '<p style="margin:0 0 18px;font-size:16px;line-height:1.55">'+escHtml(whoLine)+' asked us to get a value on your vehicle'+(against?' so we can put a number against the <strong>'+escHtml(against)+'</strong>.':' so we can take it to buyers.')+'</p>'+
+    '<p style="margin:0 0 10px;text-align:center">'+btn+'</p>'+
+    '<p style="margin:0 0 6px;font-size:13px;font-weight:800;color:#110E1A;text-align:center">Tap the blue button to start</p>'+
+    '<p style="margin:0 0 22px;font-size:13px;color:#6B6278;text-align:center;word-break:break-all"><a href="'+escHtml(url)+'" target="_blank" style="color:#008FCC;font-weight:700;text-decoration:underline">'+escHtml(url)+'</a></p>'+
+    '</td></tr>'+
+    '<tr><td style="padding:8px 28px 6px"><div style="height:1px;background:#E6E1EE"></div></td></tr>'+
+    '<tr><td style="padding:18px 28px 6px"><div style="font-size:13px;letter-spacing:.14em;font-weight:800;color:#6B4C9A">HOW EASY THIS IS</div></td></tr>'+
+    '<tr><td style="padding:8px 28px 16px">'+
+    '<p style="margin:0 0 6px;font-size:16px;font-weight:800">1 · Tell the story</p>'+
+    '<p style="margin:0 0 8px;font-size:15px;line-height:1.5;color:#3A3346">Tap <strong>Start by clicking here!</strong> The mic turns on. Say the year, make, model, trim, colour, kilometres, and how it looks and drives. Prefer typing? There’s a Type instead button.</p>'+
+    shot(img1, "Step 1 — Start by clicking here")+
+    '<p style="margin:0 0 18px;font-size:12px;color:#6B6278;text-align:center">This is the first screen you’ll see.</p>'+
+    '<p style="margin:0 0 6px;font-size:16px;font-weight:800">2 · Line up the photos</p>'+
+    '<p style="margin:0 0 8px;font-size:15px;line-height:1.5;color:#3A3346">We walk you through each angle — ¾ front, driver, rear, passenger, dash, console, tires. A green outline sits on the camera so you know exactly how to stand. Hit something? Add as many damage photos as you need.</p>'+
+    shot(img2, "Step 2 — Photo with outline")+
+    '<p style="margin:0 0 18px;font-size:12px;color:#6B6278;text-align:center">The outline is on the camera. Just line the car up and tap.</p>'+
+    '<p style="margin:0 0 6px;font-size:16px;font-weight:800">3 · Send my trade</p>'+
+    '<p style="margin:0 0 8px;font-size:15px;line-height:1.5;color:#3A3346">Review the packet, then tap Send my trade. '+escHtml(whoLine)+' gets it, and we take it to buyers.</p>'+
+    shot(img3, "Step 3 — Send my trade")+
+    '<p style="margin:0 0 8px;font-size:12px;color:#6B6278;text-align:center">That’s the last tap.</p>'+
+    '</td></tr>'+
+    '<tr><td style="padding:8px 28px 28px">'+
+    '<p style="margin:0 0 18px;font-size:15px;line-height:1.55;color:#3A3346">Be as specific as you can. The more we know, the more we can do for you.</p>'+
+    '<p style="margin:0 0 8px;text-align:center">'+btn+'</p>'+
+    '<p style="margin:0 0 18px;font-size:13px;font-weight:800;color:#110E1A;text-align:center">Tap the blue button to start your appraisal</p>'+
+    '<p style="margin:0;font-size:13px;color:#6B6278">— '+escHtml(whoLine)+'</p>'+
+    '</td></tr></table>'+
+    '<p style="margin:16px 0 0;font-size:11px;color:#8A8296;text-align:center">Sent because you asked '+escHtml(whoLine)+' for a trade-in value.</p>'+
+    '</td></tr></table></body></html>';
+  return {subject:subject, text:text, html:html, compose:compose};
+}
+const SHAWN_COPY="shawn@myloan.ca";
+function uniqEmails(list){
+  const out=[];
+  (Array.isArray(list)?list:String(list||"").split(/[,\s]+/)).forEach(function(e){
+    const v=staffEmail(e);
+    if(v && out.indexOf(v)<0) out.push(v);
+  });
+  return out;
+}
+function packetDest(){
+  if(APP.role==="guest"){
+    const to=staffEmail(APP.requestedBy) || SHAWN_COPY;
+    return {to:[to], cc:[], bcc: to===SHAWN_COPY ? [] : [SHAWN_COPY]};
+  }
+  const to=uniqEmails(loadRecipients());
+  if(!to.length) to.push(SHAWN_COPY);
+  return {to:to, cc:[], bcc: to.indexOf(SHAWN_COPY)>=0 ? [] : [SHAWN_COPY]};
+}
+function gmailCompose(to, subject, body, extra){
+  extra=extra||{};
+  const params=new URLSearchParams({
+    view:"cm", fs:"1", tf:"1",
+    to: uniqEmails(to).join(","),
+    su: subject||"",
+    body: String(body||"").slice(0,7000)
+  });
+  const cc=uniqEmails(extra.cc||[]);
+  const bcc=uniqEmails(extra.bcc||[]);
+  if(cc.length) params.set("cc", cc.join(","));
+  if(bcc.length) params.set("bcc", bcc.join(","));
+  const user=APP.userEmail || extra.authuser || "";
+  if(user) params.set("authuser", user);
+  return "https://mail.google.com/mail/?"+params.toString();
+}
+function openGmail(to, subject, body, extra){
+  const url=gmailCompose(to, subject, body, extra);
+  const a=document.createElement("a");
+  a.href=url;
+  a.target="_blank";
+  a.rel="noopener";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  return url;
+}
+function mailHref(to, subject, body, extra){
+  return gmailCompose(to, subject, body, extra);
+}
+function bufB64(buf){
+  const a=new Uint8Array(buf);
+  let s="";
+  for(let i=0;i<a.length;i+=0x8000) s+=String.fromCharCode.apply(null, a.subarray(i, i+0x8000));
+  return btoa(s);
+}
+async function embedShots(html){
+  const names=["step-speak.jpg","step-photos.jpg","step-send.jpg"];
+  const parts=[];
+  let out=html;
+  for(let i=0;i<names.length;i++){
+    try{
+      const url=emailShot(names[i]);
+      const r=await fetch(url);
+      if(!r.ok) continue;
+      const cid="shot"+i+"@inspect";
+      out=out.split(url).join("cid:"+cid);
+      parts.push({cid:cid, b64:bufB64(await r.arrayBuffer()), name:names[i]});
+    }catch(e){}
+  }
+  return {html:out, parts:parts};
+}
+function rfc822(to, subject, body, html, parts, extra){
+  extra=extra||{};
+  const list=uniqEmails(to).join(", ");
+  const from=APP.userName && APP.userEmail ? (APP.userName+" <"+APP.userEmail+">") : (APP.userEmail||"");
+  const cc=uniqEmails(extra.cc||[]);
+  const bcc=uniqEmails(extra.bcc||[]);
+  const head="From: "+from+"\r\nTo: "+list+"\r\n"+(cc.length?("Cc: "+cc.join(", ")+"\r\n"):"")+(bcc.length?("Bcc: "+bcc.join(", ")+"\r\n"):"")+"Subject: "+subject+"\r\nMIME-Version: 1.0\r\n";
+  const all=parts||[];
+  const inline=all.filter(function(p){ return p.disp!=="attachment"; });
+  const attach=all.filter(function(p){ return p.disp==="attachment"; });
+  if(!html && !all.length) return head+"Content-Type: text/plain; charset=UTF-8\r\n\r\n"+body;
+  const alt="alt"+Date.now();
+  const inner="--"+alt+"\r\nContent-Type: text/plain; charset=UTF-8\r\n\r\n"+(body||"")+"\r\n--"+alt+"\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n"+(html||("<pre>"+escHtml(body||"")+"</pre>"))+"\r\n--"+alt+"--";
+  function partBlock(p){
+    const mime=p.mime||"application/octet-stream";
+    const disp=p.disp==="attachment" ? ("attachment; filename=\""+(p.name||"file")+"\"") : ("inline; filename=\""+(p.name||"file")+"\"");
+    const cid=p.cid ? ("Content-ID: <"+p.cid+">\r\n") : "";
+    return "Content-Type: "+mime+"; name=\""+(p.name||"file")+"\"\r\nContent-Transfer-Encoding: base64\r\n"+cid+"Content-Disposition: "+disp+"\r\n\r\n"+(p.b64||"")+"\r\n";
+  }
+  if(!inline.length && !attach.length) return head+"Content-Type: multipart/alternative; boundary=\""+alt+"\"\r\n\r\n"+inner;
+  const rel="rel"+Date.now();
+  let related="Content-Type: multipart/related; type=\"multipart/alternative\"; boundary=\""+rel+"\"\r\n\r\n--"+rel+"\r\nContent-Type: multipart/alternative; boundary=\""+alt+"\"\r\n\r\n"+inner+"\r\n";
+  inline.forEach(function(p){ related+="--"+rel+"\r\n"+partBlock(p); });
+  related+="--"+rel+"--";
+  if(!attach.length) return head+related;
+  const mix="mix"+Date.now();
+  let mime=head+"Content-Type: multipart/mixed; boundary=\""+mix+"\"\r\n\r\n--"+mix+"\r\n"+related+"\r\n";
+  attach.forEach(function(p){ mime+="--"+mix+"\r\n"+partBlock(p); });
+  mime+="--"+mix+"--";
+  return mime;
+}
+function b64url(str){
+  return btoa(unescape(encodeURIComponent(str))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+}
+async function formSubmitSend(to, subject, body, extra){
+  extra=extra||{};
+  const dest=uniqEmails(to)[0];
+  if(!dest) return false;
+  const payload={
+    _subject: subject,
+    _template: "box",
+    _captcha: "false",
+    _replyto: APP.userEmail || SHAWN_COPY,
+    name: APP.inviteName || APP.userName || "Trade-in",
+    message: body
+  };
+  const cc=uniqEmails(extra.cc||[]);
+  const bcc=uniqEmails(extra.bcc||[]);
+  if(cc.length) payload._cc=cc.join(",");
+  if(bcc.length) payload._bcc=bcc.join(",");
+  try{
+    const r=await fetch("https://formsubmit.co/ajax/"+encodeURIComponent(dest), {
+      method:"POST",
+      headers:{"Content-Type":"application/json", Accept:"application/json"},
+      body:JSON.stringify(payload)
+    });
+    const j=await r.json();
+    return !!(j && (j.success===true || j.success==="true"));
+  }catch(e){ return false; }
+}
+async function sendFromMe(to, subject, body, html, parts, extra){
+  extra=extra||{};
+  const list=uniqEmails(to);
+  if(!list.length) return {ok:false};
+  if(APP.googleToken){
+    try{
+      let useHtml=html||"";
+      let useParts=parts||[];
+      if(useHtml && !useParts.length){
+        const packed=await embedShots(useHtml);
+        useHtml=packed.html; useParts=packed.parts;
+      }
+      const r=await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/send", {
+        method:"POST",
+        headers:{Authorization:"Bearer "+APP.googleToken, "Content-Type":"application/json"},
+        body:JSON.stringify({raw:b64url(rfc822(list, subject, body, useHtml, useParts, extra))})
+      });
+      if(r.ok) return {ok:true, via:"gmail"};
+      if(r.status===401 || r.status===403) APP.googleToken="";
+    }catch(e){}
+  }
+  try{
+    const ctrl=typeof AbortSignal!=="undefined" && AbortSignal.timeout ? AbortSignal.timeout(12000) : undefined;
+    const r=await fetch("/api/mail", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        to:list,
+        cc:uniqEmails(extra.cc||[]),
+        bcc:uniqEmails(extra.bcc||[]),
+        subject:subject,
+        body:body,
+        html:html||"",
+        from:APP.userEmail||"",
+        name:APP.userName||"Inspect"
+      }),
+      signal:ctrl
+    });
+    const j=await r.json();
+    if(j && (j.ok || (j.sent&&j.sent.length))) return {ok:true, via:"mail", pending:j.pending, sent:j.sent};
+  }catch(e){}
+  const posted=await formSubmitSend(list, subject, body, extra);
+  if(posted){
+    const bcc=uniqEmails(extra.bcc||[]);
+    for(let i=0;i<bcc.length;i++){
+      if(list.indexOf(bcc[i])<0) await formSubmitSend([bcc[i]], "Copy: "+subject, body, {});
+    }
+    return {ok:true, via:"form"};
+  }
+  return {ok:false, via:"fail"};
+}
+function openMail(to, subject, body, extra){
+  return openGmail(to, subject, body, extra);
+}
+async function sendTradeInvite(){
+  const first=($("inv-first") && $("inv-first").value||"").trim();
+  const last=($("inv-last") && $("inv-last").value||"").trim();
+  const email=staffEmail($("inv-email") && $("inv-email").value);
+  const phone=cleanPhone($("inv-phone") && $("inv-phone").value);
+  if(!first || !last){ toast("Add first and last name."); return; }
+  if(!email && !phone){ toast("Add an email or a cell."); return; }
+  if($("inv-email") && $("inv-email").value.trim() && (!email || email.indexOf("@")<1)){ toast("That email doesn’t look right."); return; }
+  if($("inv-phone") && $("inv-phone").value.trim() && !phone){ toast("That cell doesn’t look right."); return; }
+  const name=first+" "+last;
+  APP.inviteFirst=first; APP.inviteLast=last; APP.inviteName=name;
+  APP.inviteEmail=email; APP.invitePhone=phone;
+  APP.inviteUnit=(($("inv-unit")&&$("inv-unit").value)||"").trim();
+  APP.inviteStock=(($("inv-stock")&&$("inv-stock").value)||"").trim();
+  const url=tradeInUrl();
+  if(!url){ toast("Couldn’t build the link."); return; }
+  let copy;
+  try{ copy=inviteMailCopy(first, url); }
+  catch(e){ copy={subject:"Your trade-in link", text:"Hi "+first+",\n\n"+url+"\n", html:""}; }
+  const subject=copy.subject, msg=copy.text, html=copy.html, compose=copy.compose||copy.text;
+  const from=APP.userEmail||"";
+  const inviteExtra=staffEmail(email)===SHAWN_COPY ? {} : {bcc:[SHAWN_COPY]};
+  const gmailUrl=email ? gmailCompose(email, subject, compose, inviteExtra) : "";
+  let opened=null;
+  if(gmailUrl){
+    try{ opened=openGmail(email, subject, compose, inviteExtra); }catch(e){ opened=null; }
+  }
+  const btn=$("inviteSend");
+  if(btn){ btn.disabled=true; btn.textContent="Sending…"; }
+  try{ if(navigator.clipboard && navigator.clipboard.writeText) await navigator.clipboard.writeText(url); }catch(e){}
+  let status="Link is ready — copy it below.";
+  try{
+    if(email && from){
+      if(APP.googleToken){
+        const sent=await sendFromMe(email, subject, msg, html, null, inviteExtra);
+        if(sent && sent.ok && sent.via==="gmail") status="Sent from "+from+" to "+email+".";
+        else status=opened
+          ? ("Gmail opened as "+from+". Hit Send in that window.")
+          : ("Tap Open Gmail as "+from+" and hit Send.");
+      } else {
+        status=opened
+          ? ("Gmail opened as "+from+". Hit Send in that window — that’s your account.")
+          : ("Tap Open Gmail as "+from+" and hit Send.");
+      }
+    } else if(email){
+      const sent=await sendFromMe(email, subject, msg, html, null, inviteExtra);
+      if(sent && sent.ok) status="Sent to "+email+".";
+      else status="Couldn’t deliver to "+email+". Copy the link or tap Open Gmail.";
+    }
+    if(phone) status += email ? " Text is ready — tap Open Text." : " Tap Open Text to send the link.";
+  }catch(e){
+    status="Send hit a snag. Copy the link below.";
+  }
+  try{
+    if($("invConfirm")) $("invConfirm").textContent=status;
+    const box=$("invSent");
+    if(box) box.classList.remove("hide");
+    if($("invUrl")) $("invUrl").textContent=url;
+    const mailBtn=$("invMailBtn");
+    if(mailBtn){
+      if(email){
+        mailBtn.classList.remove("hide");
+        mailBtn.href=gmailUrl || gmailCompose(email, subject, msg, inviteExtra);
+        mailBtn.target="_blank";
+        mailBtn.rel="noopener";
+        mailBtn.textContent="Open Gmail";
+      } else mailBtn.classList.add("hide");
+    }
+    const smsBtn=$("invSmsBtn");
+    if(smsBtn){
+      if(phone){ smsBtn.classList.remove("hide"); smsBtn.href=smsHref(phone, msg); }
+      else smsBtn.classList.add("hide");
+    }
+    toast(status);
+  }catch(e){
+    toast("Link copied. Stay on this screen.");
+  }
+  if(btn){ btn.disabled=false; btn.textContent=from ? ("Send from "+from) : "Send link"; }
+}
+function logOut(){
+  APP.role=""; APP.userName=""; APP.userEmail=""; APP.googleToken="";
+  try{ sessionStorage.removeItem(sessionKey()); }catch(e){}
+  paintLogin();
+  show("login");
+}
+function parseGoogleJwt(cred){
+  try{
+    const p=JSON.parse(atob(cred.split(".")[1].replace(/-/g,"+").replace(/_/g,"/")));
+    return {name:p.name||p.given_name||"Employee", email:p.email||""};
+  }catch(e){ return {name:"Employee", email:""}; }
+}
+function applyGoogleUser(user, token){
+  const email=staffEmail(user && user.email);
+  if(!isStaffEmail(email)){ toast("That Google account isn’t allowed."); return false; }
+  if(token) APP.googleToken=token;
+  enterSession("employee", {name:(user && (user.name||user.given_name)) || email.split("@")[0], email:email});
+  return true;
+}
+function openGoogleSheet(){
+  const s=$("googleSheet"); if(!s) return;
+  s.classList.add("on");
+  const el=$("googleEmail");
+  if(el){
+    el.value=($("workEmail") && $("workEmail").value) || APP.userEmail || "";
+    setTimeout(function(){ el.focus(); }, 100);
+  }
+}
+function googleContinue(){
+  const email=staffEmail($("googleEmail") && $("googleEmail").value);
+  if(!email){ toast("Enter your email."); return; }
+  if(!isStaffEmail(email)){ toast("That Google account isn’t allowed."); return; }
+  if($("googleSheet")) $("googleSheet").classList.remove("on");
+  enterStaff(email);
+}
+function isAuthApiHost(){
+  const h=location.hostname||"";
+  return /grok-sandbox\.com$/.test(h) || h==="localhost" || h==="127.0.0.1";
+}
+function startBrokerGoogle(){
+  const here=location.origin + (location.pathname||"/");
+  const q=location.search && location.search.indexOf("auth=")<0 ? location.search : "";
+  toast("Opening Google…");
+  fetch("/api/auth/sign-in/oauth2", {
+    method:"POST",
+    credentials:"include",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      providerId:"grok-google",
+      callbackURL: here + q,
+      errorCallbackURL: here + "?auth=fail"
+    })
+  }).then(function(r){
+    if(!r.ok) throw new Error("no-auth");
+    return r.json().catch(function(){ return {}; });
+  }).then(function(j){
+    const url=j && (j.url || (j.data && j.data.url) || j.redirectTo || j.redirect);
+    if(url){ location.assign(url); return; }
+    throw new Error("no-url");
+  }).catch(function(){
+    const email=$("workEmail");
+    if(email) email.focus();
+    loginFail("Use your work email below to sign in.");
+  });
+}
+function restoreBrokerSession(){
+  if(!isAuthApiHost()) return Promise.resolve(false);
+  return fetch("/api/auth/get-session", {credentials:"include"})
+    .then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(session){
+      const user=session && (session.user || (session.data && session.data.user) || session);
+      const email=staffEmail(user && user.email);
+      if(!email || !isStaffEmail(email)) return false;
+      enterSession("employee", {name:(user.name||email.split("@")[0]), email:email});
+      return true;
+    }).catch(function(){ return false; });
+}
+function googleEmployee(ev){
+  if(ev){ ev.preventDefault(); ev.stopPropagation(); }
+  startBrokerGoogle();
+}
+function setPurpose(p){
+  APP.purpose = p;
+  applyMode();
+}
+
+function paintLists(){
+  $("unitLine").textContent = unitLabel()==="Unit"
+    ? "Add year / make / VIN"
+    : unitLabel() + (APP.km ? " · " + Number(String(APP.km).replace(/,/g,"")).toLocaleString("en-CA") + " km" : "");
+  fillRows($("photoRows"), "photos");
+  fillDamageRows();
+  const box=$("closeRows"); box.innerHTML="";
+  APP.closeups.forEach((src,i)=>{
+    const cap=APP.closeupCap[i]||"";
+    box.appendChild(rowEl("Close-up "+(i+1), src, true, ()=>openCamera("close","c"+i), cap));
+  });
+}
+
+function fillRows(host, bucket){
+  host.innerHTML = "";
+  const store = APP.photos;
+  VIEWS.forEach(function(v){
+    const id=v[0], label=v[1], icon=v[2];
+    const taken=!!store[id];
+    host.appendChild(rowEl(label, taken ? store[id] : pic(icon), taken, function(){ openCamera("photos", id); }, taken?"Replace photo":"Add photo"));
+  });
+}
+function fillDamageRows(){
+  const host=$("damageRows"); if(!host) return;
+  host.innerHTML="";
+  VIEWS.forEach(function(v){
+    const id=v[0], label=v[1], icon=v[2];
+    const shots=dmgShots(id);
+    const card=document.createElement("div");
+    card.className="dmg-card"+(shots.length?" on":"");
+    const last=shots.length?shots[shots.length-1].data:pic(icon);
+    const sub=shots.length ? (shots.length===1 ? "1 photo" : shots.length+" photos") : "Add photos";
+    const head=document.createElement("button");
+    head.type="button";
+    head.className="dmg-head";
+    head.innerHTML='<div class="thumb"><img src="'+last+'" alt=""></div><div><b>'+label+'</b><span>'+sub+'</span></div>';
+    head.onclick=function(){ openCamera("damage", id); };
+    card.appendChild(head);
+    if(shots.length){
+      const strip=document.createElement("div");
+      strip.className="dmg-strip";
+      shots.forEach(function(s){
+        const b=document.createElement("button");
+        b.type="button"; b.className="dmg-thumb";
+        b.innerHTML='<img src="'+s.data+'" alt="">'+(s.cap?'<span class="cap">'+s.cap+'</span>':"");
+        b.onclick=function(e){ e.stopPropagation(); openViewer("img", s.data, "Damage — "+label+(s.cap?" — "+s.cap:"")); };
+        strip.appendChild(b);
+      });
+      card.appendChild(strip);
+    }
+    host.appendChild(card);
+  });
+}
+
+function rowEl(label, src, taken, onClick, caption){
+  const b=document.createElement("button");
+  b.type="button";
+  b.className = "row" + (taken ? " shot" : "");
+  const img = src ? '<img src="'+src+'" alt="">' : "";
+  const sub = caption ? caption : (taken?"Replace photo":"Add photo");
+  b.innerHTML = '<div class="thumb">'+img+'</div><div><b>'+label+'</b><span>'+sub+'</span></div>';
+  b.addEventListener("click", onClick);
+  return b;
+}
+
+function openCamera(mode, id){
+  APP.mode = mode;
+  APP.viewId = id;
+  let label="Damage close-up", icon="qfront";
+  if(mode!=="close"){
+    const v = VIEWS.find(function(x){ return x[0]===id; }) || VIEWS[0];
+    label = (mode==="damage" ? "Damage — " : "") + v[1];
+    if(mode==="damage"){
+      const n=dmgShots(id).length;
+      if(n) label += " · "+n+" saved";
+    }
+    if(mode!=="damage" && v[0]==="qfront") label = "3/4 Front (Main image)";
+    icon = v[2];
+  }
+  $("camLabel").textContent = label;
+  const g = $("ghost");
+  if(mode==="close"){
+    g.src = "";
+    g.classList.add("off");
+    g.classList.remove("tall");
+  } else {
+    g.classList.remove("off");
+    g.classList.toggle("tall", icon==="door");
+    g.src = ghostPic(icon);
+  }
+  stopDamageMic();
+  APP.dmgArmed=false;
+  APP.dmgCaption="";
+  const ban=$("dmgBanner");
+  if(ban){ ban.textContent=""; ban.classList.remove("on"); }
+  if($("camHint")){
+    $("camHint").textContent = (mode==="damage"||mode==="close")
+      ? "Tap once to describe it. Tap again to take the photo. Add as many as you need, then Done."
+      : "Use the overlay to help frame the picture";
+  }
+  show("camera");
+}
+
+function nextEmpty(afterId){
+  const store = APP.mode==="damage" ? APP.damage : APP.photos;
+  const i = VIEWS.findIndex(function(v){ return v[0]===afterId; });
+  for(let n=i+1; n<VIEWS.length; n++) if(!store[VIEWS[n][0]]) return VIEWS[n][0];
+  return null;
+}
+
+function keepShot(data){
+  const cap=(APP.dmgCaption||"").trim();
+  if(APP.mode==="damage"){
+    if(!Array.isArray(APP.damage[APP.viewId])) APP.damage[APP.viewId]=[];
+    APP.damage[APP.viewId].push({data:data, cap:cap});
+  } else if(APP.mode==="close"){
+    if(String(APP.viewId).indexOf("c")===0 && APP.viewId!=="new"){
+      const i=Number(APP.viewId.slice(1));
+      APP.closeups[i] = data;
+      APP.closeupCap[i] = cap;
+    } else {
+      APP.closeups.push(data);
+      APP.closeupCap.push(cap);
+    }
+  } else APP.photos[APP.viewId] = data;
+  const f=$("flash"); f.classList.remove("go"); void f.offsetWidth; f.classList.add("go");
+  if(APP.mode==="photos"){
+    const nxt = nextEmpty(APP.viewId);
+    if(nxt){ openCamera("photos", nxt); return; }
+    toast("Walk-around done.");
+    show("photos"); return;
+  }
+  if(APP.mode==="damage"){
+    APP.dmgArmed=false;
+    APP.dmgCaption="";
+    stopDamageMic();
+    const ban=$("dmgBanner");
+    if(ban){ ban.textContent=""; ban.classList.remove("on"); }
+    const n=dmgShots(APP.viewId).length;
+    const v=VIEWS.find(function(x){ return x[0]===APP.viewId; });
+    if($("camLabel") && v) $("camLabel").textContent="Damage — "+v[1]+" · "+n+" saved";
+    if($("camHint")) $("camHint").textContent="Saved. Tap to add another on this panel, or Done.";
+    toast("Saved. Add another or Done.");
+    return;
+  }
+  show("photos");
+}
+
+function stopDamageMic(){
+  try{ APP.dmgRec && APP.dmgRec.stop(); }catch(e){}
+  APP.dmgRec=null;
+}
+function startDamageMic(){
+  stopDamageMic();
+  APP.dmgRec=startRec({
+    alive:function(){ return APP.dmgArmed; },
+    ontext:function(tx){
+      APP.dmgCaption=tx;
+      const ban=$("dmgBanner");
+      if(ban){ ban.textContent=tx||"Listening…"; ban.classList.add("on"); }
+    }
+  });
+  if(!APP.dmgRec){
+    const ban=$("dmgBanner");
+    if(ban){ ban.textContent="Tap again to take the photo"; ban.classList.add("on"); }
+  }
+}
+function stampBanner(canvas, text){
+  text=(text||"").trim();
+  if(!text) return;
+  const ctx=canvas.getContext("2d");
+  const w=canvas.width, h=canvas.height;
+  const bar=Math.max(72, Math.round(h*0.16));
+  ctx.fillStyle="rgba(0,0,0,0.78)";
+  ctx.fillRect(0, h-bar, w, bar);
+  const size=Math.max(22, Math.round(w*0.036));
+  ctx.fillStyle="#fff";
+  ctx.font="700 "+size+"px Manrope, system-ui, sans-serif";
+  ctx.textAlign="center";
+  ctx.textBaseline="top";
+  const maxW=w-48, lineH=size+8;
+  const words=text.split(/\s+/);
+  let line="", lines=[];
+  for(let i=0;i<words.length;i++){
+    const test=line?line+" "+words[i]:words[i];
+    if(ctx.measureText(test).width>maxW && line){ lines.push(line); line=words[i]; }
+    else line=test;
+  }
+  if(line) lines.push(line);
+  lines=lines.slice(0,3);
+  const top=h-bar+Math.round((bar-lines.length*lineH)/2);
+  lines.forEach(function(l,i){ ctx.fillText(l, w/2, top+i*lineH); });
+}
+function blobToDataURL(blob){
+  return new Promise(function(res,rej){
+    const r=new FileReader();
+    r.onload=function(){ res(r.result); };
+    r.onerror=rej;
+    r.readAsDataURL(blob);
+  });
+}
+function videoReady(v){ return v && v.videoWidth>16 && v.videoHeight>16 && v.readyState>=2; }
+function canvasShot(v){
+  const c=document.createElement("canvas");
+  c.width=v.videoWidth; c.height=v.videoHeight;
+  c.getContext("2d").drawImage(v,0,0,c.width,c.height);
+  if(APP.mode==="damage"||APP.mode==="close") stampBanner(c, APP.dmgCaption);
+  return c.toDataURL("image/jpeg",0.88);
+}
+async function captureStill(){
+  const v=$("shotCam");
+  if(v){ try{ v.muted=true; await v.play(); }catch(e){} }
+  const track=APP.stream && APP.stream.getVideoTracks && APP.stream.getVideoTracks()[0];
+  if(track && window.ImageCapture){
+    try{
+      const blob=await new ImageCapture(track).takePhoto();
+      if(blob && blob.size>800){
+        if(APP.mode==="damage"||APP.mode==="close"){
+          const url=await blobToDataURL(blob);
+          return stampOnUrl(url, APP.dmgCaption);
+        }
+        return await blobToDataURL(blob);
+      }
+    }catch(e){}
+  }
+  if(videoReady(v)) return canvasShot(v);
+  return null;
+}
+function stampOnUrl(url, text){
+  if(!text) return Promise.resolve(url);
+  return new Promise(function(res){
+    const img=new Image();
+    img.onload=function(){
+      const c=document.createElement("canvas");
+      c.width=img.naturalWidth; c.height=img.naturalHeight;
+      c.getContext("2d").drawImage(img,0,0);
+      stampBanner(c, text);
+      res(c.toDataURL("image/jpeg",0.88));
+    };
+    img.onerror=function(){ res(url); };
+    img.src=url;
+  });
+}
+function openNativeShot(){
+  const inp=$("nativeShot");
+  if(!inp){ toast("Allow camera in Settings."); return; }
+  inp.value="";
+  inp.click();
+}
+function bindNativeShot(){
+  const inp=$("nativeShot"); if(!inp || inp._bound) return;
+  inp._bound=true;
+  inp.addEventListener("change", function(){
+    const f=inp.files && inp.files[0]; if(!f) return;
+    blobToDataURL(f).then(function(url){
+      if(APP.mode==="damage"||APP.mode==="close") return stampOnUrl(url, APP.dmgCaption);
+      return url;
+    }).then(function(url){ keepShot(url); });
+  });
+}
+function snap(){
+  if(APP.lock) return;
+  const talk = APP.mode==="damage" || APP.mode==="close";
+  if(talk && !APP.dmgArmed){
+    APP.lock = true; setTimeout(function(){ APP.lock=false; }, 280);
+    APP.dmgArmed=true;
+    APP.dmgCaption="";
+    const ban=$("dmgBanner");
+    if(ban){ ban.textContent="Listening… describe the damage"; ban.classList.add("on"); }
+    if($("camHint")) $("camHint").textContent="Speak, then tap again to take the photo.";
+    toast("Mic on — describe it, then tap again");
+    startDamageMic();
+    return;
+  }
+  APP.lock = true;
+  if(talk) stopDamageMic();
+  captureStill().then(function(data){
+    if(data) keepShot(data);
+    else openNativeShot();
+  }).catch(function(){ openNativeShot(); })
+  .then(function(){ setTimeout(function(){ APP.lock=false; }, 400); }, function(){ APP.lock=false; });
+}
+
+function startPreview(videoId){
+  const el=$(videoId); if(!el) return;
+  bindNativeShot();
+  el.setAttribute("playsinline","");
+  el.setAttribute("webkit-playsinline","");
+  el.muted=true; el.playsInline=true; el.autoplay=true;
+  const attach=function(s){
+    APP.stream=s;
+    try{ el.srcObject=s; }catch(e){}
+    const play=function(){
+      const p=el.play(); if(p&&p.catch) p.catch(function(){});
+      if($("camWait")) $("camWait").classList.add("off");
+    };
+    if(el.readyState>=1) play();
+    else el.onloadedmetadata=play;
+  };
+  if($("camWait")) $("camWait").classList.remove("off");
+  if(APP.stream && APP.stream.getVideoTracks().some(function(t){ return t.readyState==="live"; })){ attach(APP.stream); return; }
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+    toast("Tap the shutter to open the camera.");
+    return;
+  }
+  const tries=[
+    {video:{facingMode:{ideal:"environment"}}, audio:false},
+    {video:{facingMode:"environment"}, audio:false},
+    {video:true, audio:false}
+  ];
+  (function next(i){
+    if(i>=tries.length){ toast("Tap the shutter to open the camera."); return; }
+    navigator.mediaDevices.getUserMedia(tries[i]).then(attach).catch(function(){ next(i+1); });
+  })(0);
+}
+
+function normalizeVin(text){
+  if(!text) return "";
+  const u = String(text).toUpperCase().replace(/[^A-Z0-9]/g,"");
+  const m = u.match(/[A-HJ-NPR-Z0-9]{17}/);
+  return m ? m[0] : "";
+}
+function vinOk(vin){ return /^[A-HJ-NPR-Z0-9]{17}$/.test(vin||""); }
+function loadZxing(){
+  return new Promise(function(res,rej){
+    if(window.ZXing) return res();
+    const s=document.createElement("script");
+    s.src="https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js";
+    s.onload=res; s.onerror=rej;
+    document.head.appendChild(s);
+  });
+}
+function stopVinScan(){
+  APP.scanning=false;
+  APP.vinStep=0;
+  if(APP.scanRaf){ cancelAnimationFrame(APP.scanRaf); APP.scanRaf=0; }
+  if(APP.zxing && APP.zxing.reset){ try{ APP.zxing.reset(); }catch(e){} }
+  APP.zxing=null;
+  const f=$("finder"); if(f) f.classList.remove("scanning","live","shot");
+  const v=$("liveCam"); if(v) v.classList.add("off");
+  const still=$("vinStill"); if(still){ still.removeAttribute("src"); still.classList.add("hide"); }
+  const s=$("scanStatus"); if(s) s.textContent="Tap Capture VIN to turn the camera on.";
+  const b=$("btnVin"); if(b) b.textContent="Capture VIN";
+}
+async function decodeVin(vin){
+  try{
+    const r=await fetch("https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValues/"+vin+"?format=json");
+    const j=await r.json();
+    const row=j.Results && j.Results[0];
+    if(!row) return;
+    if(row.ModelYear && row.ModelYear!=="0") APP.year=String(row.ModelYear);
+    if(row.Make) APP.make=row.Make;
+    if(row.Model) APP.model=row.Model;
+    if(row.Trim && row.Trim!=="Not Applicable") APP.trim=row.Trim;
+    fillUnit();
+    toast((APP.year+" "+APP.make+" "+APP.model).trim());
+  }catch(e){}
+}
+function gotVin(vin){
+  vin=normalizeVin(vin);
+  if(!vinOk(vin)) return false;
+  APP.scanning=false;
+  APP.vinStep=2;
+  APP.vin=vin;
+  fillUnit();
+  const chip=$("vinChip");
+  if(chip){ chip.textContent=vin; chip.classList.remove("hide"); }
+  $("scanStatus").textContent="VIN captured";
+  $("btnVin").textContent="Capture VIN";
+  $("finder").classList.add("shot");
+  $("finder").classList.remove("scanning","live");
+  toast("VIN "+vin);
+  decodeVin(vin);
+  return true;
+}
+function snapVinStill(){
+  const v=$("liveCam");
+  const c=document.createElement("canvas");
+  c.width = v.videoWidth || 1280;
+  c.height = v.videoHeight || 720;
+  try{ c.getContext("2d").drawImage(v,0,0,c.width,c.height); }
+  catch(e){ toast("Camera not ready — tap Capture VIN again."); return; }
+  const data=c.toDataURL("image/jpeg",0.92);
+  const still=$("vinStill");
+  still.src=data;
+  still.classList.remove("hide");
+  v.classList.add("off");
+  $("finder").classList.remove("scanning");
+  $("finder").classList.add("shot");
+  APP.vinStep=2;
+  $("scanStatus").textContent="Reading VIN…";
+  $("btnVin").textContent="Capture VIN";
+  readVinFromStill(data);
+}
+async function readVinFromStill(data){
+  try{
+    const img=new Image();
+    img.src=data;
+    await img.decode();
+    if("BarcodeDetector" in window){
+      try{
+        const fmts=await BarcodeDetector.getSupportedFormats();
+        const want=["code_39","code_128","code_93","qr_code","pdf417","aztec","data_matrix"].filter(function(f){ return fmts.indexOf(f)>=0; });
+        const det=new BarcodeDetector({formats: want.length?want:fmts});
+        const codes=await det.detect(img);
+        for(let i=0;i<codes.length;i++){ if(gotVin(codes[i].rawValue)) return; }
+      }catch(e){}
+    }
+    try{
+      await loadZxing();
+      const reader=new ZXing.BrowserMultiFormatReader();
+      const res=await reader.decodeFromImageUrl(data);
+      if(res && gotVin(res.getText())) return;
+    }catch(e){}
+  }catch(e){}
+  toast("No VIN in that photo — tap Capture VIN to try again.");
+  $("scanStatus").textContent="No VIN found. Tap Capture VIN to try again.";
+  APP.vinStep=0;
+  $("btnVin").textContent="Capture VIN";
+}
+function startVinScan(){
+  if(isWeb()) return;
+  show("home");
+  if(!APP.vinStep) APP.vinStep=0;
+  if(APP.vinStep===0){
+    APP.vinStep=1;
+    startPreview("liveCam");
+    $("liveCam").classList.remove("off");
+    $("vinStill").classList.add("hide");
+    $("finder").classList.add("live","scanning");
+    $("finder").classList.remove("shot");
+    $("scanStatus").textContent="Camera on. Tap Capture VIN again to take the photo.";
+    $("btnVin").textContent="Take VIN photo";
+    toast("Camera on — tap again to shoot");
+    return;
+  }
+  if(APP.vinStep===1){
+    snapVinStill();
+    return;
+  }
+  APP.vinStep=0;
+  startVinScan();
+}
+
+function spokenSmall(w){
+  const n={oh:0,o:0,zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
+  return n[String(w||"").toLowerCase()];
+}
+function normalizeSpoken(raw){
+  let s=" "+String(raw||"").toLowerCase().replace(/[’']/g,"")+" ";
+  s=s.replace(/\b(kays|k's|clicks|kilometers|kilometres|kms)\b/g," km ");
+  s=s.replace(/\b(\d{2,3})\s*k\b/g, function(_,n){ return " "+String(Number(n)*1000)+" "; });
+  s=s.replace(/\bnineteen\s+(eighty|ninety)\s+(one|two|three|four|five|six|seven|eight|nine)\b/g, function(_,t,o){ return String(1900+(spokenSmall(t)||0)+(spokenSmall(o)||0)); });
+  s=s.replace(/\bnineteen\s+(eighty|ninety)\b/g, function(_,t){ return String(1900+(spokenSmall(t)||0)); });
+  s=s.replace(/\btwenty\s+(oh|o|zero)\s+(one|two|three|four|five|six|seven|eight|nine)\b/g, function(_,a,b){ return String(2000+(spokenSmall(b)||0)); });
+  s=s.replace(/\btwenty\s+twenty\s+(one|two|three|four|five|six|seven|eight|nine)\b/g, function(_,o){ return String(2020+(spokenSmall(o)||0)); });
+  s=s.replace(/\btwenty\s+(twenty|nineteen|eighteen|seventeen|sixteen|fifteen|fourteen|thirteen|twelve|eleven|ten)\b/g, function(_,t){ return String(2000+(spokenSmall(t)||0)); });
+  s=s.replace(/\btwo thousand\s*(and\s*)?(one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty)?\b/g, function(_,a,b){ return String(2000+(spokenSmall(b)||0)); });
+  s=s.replace(/\b(eighty|ninety)\s+(one|two|three|four|five|six|seven|eight|nine)\b/g, function(_,t,o){ return String(1900+(spokenSmall(t)||0)+(spokenSmall(o)||0)); });
+  s=s.replace(/\b(one|two|three|four|five|six|seven|eight|nine)\s+hundred(?:\s+and)?\s+(twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)(?:\s+(one|two|three|four|five|six|seven|eight|nine))?\s*thousand\b/g, function(_,h,t,o){ return String((spokenSmall(h)||0)*100000+(spokenSmall(t)||0)*1000+(spokenSmall(o)||0)*1000); });
+  s=s.replace(/\b(\d{1,3})\s+thousand\b/g, function(_,n){ return String(Number(n)*1000); });
+  return s.replace(/\s+/g," ").trim();
+}
+function parseStory(raw){
+  const heard=String(raw||"").replace(/\s+/g," ").trim();
+  const text=normalizeSpoken(heard);
+  const o={year:"",make:"",model:"",trim:"",color:"",km:"",vin:"",notes:heard,heard:heard};
+  const y=text.match(/\b((?:19|20)\d{2})\b/); if(y) o.year=y[1];
+  const vin=heard.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g,"");
+  const vinm=heard.toUpperCase().match(/\b[A-HJ-NPR-Z0-9]{17}\b/); if(vinm) o.vin=vinm[0];
+  const makes=["mercedes-benz","mercedes","land rover","range rover","alfa romeo","volkswagen","chevrolet","chevy","cadillac","chrysler","lincoln","hyundai","genesis","mitsubishi","maserati","porsche","infiniti","acura","lexus","toyota","nissan","honda","mazda","subaru","suzuki","kia","jeep","ram","dodge","ford","gmc","buick","volvo","jaguar","mini","bmw","audi","tesla","rivian","polestar","fiat","hummer"];
+  const low=text.toLowerCase();
+  for(let i=0;i<makes.length;i++){
+    if(low.indexOf(makes[i])>=0){
+      const pretty=makes[i].replace(/\b\w/g, function(c){ return c.toUpperCase(); });
+      o.make = pretty==="Chevy"?"Chevrolet":pretty==="Mercedes-Benz"||pretty==="Mercedes"?"Mercedes-Benz":pretty;
+      break;
+    }
+  }
+  const models=["bronco","mustang","explorer","escape","ranger","expedition","f-150","f150","f-250","f250","f-350","f350","silverado","tahoe","suburban","equinox","camaro","corvette","sierra","yukon","acadia","civic","accord","cr-v","pilot","camry","corolla","rav4","highlander","tacoma","tundra","altima","rogue","pathfinder","sentra","wrangler","grand cherokee","cherokee","gladiator","compass","1500","2500","3500","charger","challenger","durango","caravan","soul","sportage","sorento","tucson","santa fe","elantra","palisade","cx-5","cx-50","mazda3","outback","forester","crosstrek","impreza","3-series","5-series","x3","x5","c-class","e-class","s-class","glc","gle","a4","q5","q7","golf","jetta","atlas","tiguan","model 3","model y","model s","model x","escalade","xt5","ct5","navigator","aviator","corsair","continental"];
+  for(let i=0;i<models.length;i++){
+    if(low.indexOf(models[i])>=0){
+      o.model=models[i].replace("f-150","F-150").replace("f150","F-150").replace("f-250","F-250").replace("f250","F-250").replace("f-350","F-350").replace("f350","F-350");
+      if(!/^F-/.test(o.model)) o.model=o.model.replace(/\b\w/g, function(c){ return c.toUpperCase(); });
+      break;
+    }
+  }
+  const trims=["eddie bauer","king ranch","platinum","limited","lariat","denali","high country","zr2","zr1","rst","ltz","slt","sle","xlt","sel","ses","ex-l","exl","touring","premier","preferred plus","preferred","ultimate","caliber","outer banks","badlands","wildtrak","heritage","sport","xl","se","ex","st","gt","ss"];
+  for(let i=0;i<trims.length;i++) if(new RegExp("\\b"+trims[i].replace(/-/g,"[- ]")+"\\b","i").test(low)){ o.trim=trims[i].replace(/\b\w/g, function(c){ return c.toUpperCase(); }); break; }
+  const colors=["pearl white","off white","white","black","red","blue","grey","gray","silver","green","tan","beige","brown","orange","yellow","gold","maroon","burgundy","charcoal","navy"];
+  for(let i=0;i<colors.length;i++) if(new RegExp("\\b"+colors[i]+"\\b","i").test(low)){ o.color=colors[i].replace(/\b\w/g, function(c){ return c.toUpperCase(); }); break; }
+  const kmHits=text.match(/(\d{1,3}(?:,\d{3})+|\d{3,7})(?:\s*km)?/g) || [];
+  for(let i=0;i<kmHits.length;i++){
+    const n=kmHits[i].replace(/[^\d]/g,"");
+    if(!n || n===o.year) continue;
+    if(n.length>=5 || (n.length>=3 && /km/i.test(kmHits[i]))){ o.km=n; break; }
+  }
+  return o;
+}
+function writeListing(){
+  const title=[APP.year,APP.make,APP.model,APP.trim].filter(Boolean).join(" ");
+  const km=APP.km ? Number(String(APP.km).replace(/,/g,"")).toLocaleString("en-CA")+" km" : "";
+  const bits=[];
+  if(title) bits.push((title+(APP.color?" in "+APP.color:""))+(km?" with "+km:"")+".");
+  else if(km) bits.push(km+" on the odometer.");
+  const note=(APP.notes||APP.heard||"").replace(/\s+/g," ").trim();
+  if(note){
+    let clean=note;
+    if(title) clean=clean.replace(new RegExp(title.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"),"ig"),"").trim();
+    clean=clean.replace(/^i['’]?m looking at (an? )?|^this is (an? )?/i,"").trim();
+    if(clean && clean.length>8) bits.push(clean.replace(/\.$/,"")+".");
+  }
+  if(APP.stock) bits.push("Stock #"+APP.stock+".");
+  if(APP.vin) bits.push("VIN "+APP.vin+".");
+  bits.push("Available now.");
+  return bits.join(" ");
+}
+
+function fillUnit(){
+  ["year","make","model","trim","color","km","vin"].forEach(function(k){
+    var a=$("f-"+k), b=$("v-"+k);
+    if(a) a.value = APP[k]||"";
+    if(b) b.value = APP[k]||"";
+  });
+  if($("f-notes")) $("f-notes").value = APP.notes||"";
+  if($("v-notes")) $("v-notes").value = APP.notes||APP.heard||"";
+  if($("v-stock")) $("v-stock").value = APP.stock||"";
+  if($("v-webcopy")) $("v-webcopy").value = APP.webcopy || websiteCopy();
+  applyMode();
+}
+function readVerify(){
+  ["year","make","model","trim","color","km"].forEach(function(k){ APP[k]=$("v-"+k).value.trim(); });
+  APP.vin=$("v-vin").value.trim().toUpperCase();
+  APP.notes=$("v-notes").value.trim();
+  if($("v-stock")) APP.stock=$("v-stock").value.trim();
+  if($("v-webcopy")) APP.webcopy=$("v-webcopy").value.trim();
+}
+function readUnit(){
+  ["year","make","model","trim","color","km"].forEach(function(k){ APP[k]=$("f-"+k).value.trim(); });
+  APP.vin=$("f-vin").value.trim().toUpperCase();
+  APP.notes=$("f-notes").value.trim();
+}
+async function generateWebCopy(){
+  readVerify();
+  const box=$("v-webcopy");
+  const btn=$("btnWebAi");
+  const fallback=writeListing();
+  if(box && !(box.value||"").trim()) box.value="Writing description…";
+  if(btn){ btn.disabled=true; btn.textContent="Writing…"; }
+  const facts={
+    year:APP.year, make:APP.make, model:APP.model, trim:APP.trim,
+    color:APP.color, km:APP.km, vin:APP.vin, stock:APP.stock,
+    notes:APP.notes||APP.heard||""
+  };
+  let text="";
+  try{
+    const ctrl=typeof AbortSignal!=="undefined" && AbortSignal.timeout ? AbortSignal.timeout(8000) : undefined;
+    const r=await fetch("/api/describe",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(facts),signal:ctrl});
+    const j=await r.json();
+    if(j && j.ok && j.text) text=String(j.text).trim();
+  }catch(e){}
+  if(!text) text=fallback;
+  APP.webcopy=text;
+  if(box) box.value=text;
+  if(btn){ btn.disabled=false; btn.textContent="Generate AI description"; }
+  toast(text && text!==fallback ? "Description ready — edit if you want." : "Description filled in from the story.");
+}
+function applyStory(raw){
+  const text=String(raw||"").replace(/\s+/g," ").trim();
+  if(!text) return;
+  const parsed=parseStory(text);
+  Object.keys(parsed).forEach(function(k){
+    if(parsed[k]) APP[k]=parsed[k];
+  });
+  APP.heard=text;
+  if(!APP.notes) APP.notes=text;
+  APP.webcopy="";
+}
+function openVerify(){
+  fillUnit();
+  show("verify");
+  const has= (APP.year||APP.make||APP.model||APP.notes||APP.heard||"");
+  const cur=($("v-webcopy") && $("v-webcopy").value || APP.webcopy || "").trim();
+  if(has && !cur) generateWebCopy();
+  else if(has && $("v-webcopy") && !$("v-webcopy").value) $("v-webcopy").value = websiteCopy();
+}
+
+function speechEngine(){ return window.SpeechRecognition || window.webkitSpeechRecognition || null; }
+function askMic(){
+  try{
+    if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia){
+      navigator.mediaDevices.getUserMedia({audio:true, video:false}).then(function(s){
+        if(APP.micStream){ try{ APP.micStream.getTracks().forEach(function(tr){ tr.stop(); }); }catch(e){} }
+        APP.micStream=s;
+      }).catch(function(){ toast("Allow the microphone when asked."); });
+    }
+  }catch(e){}
+}
+function startRec(opts){
+  const SR=speechEngine();
+  if(!SR){ toast("Type it — speech isn't available in this browser."); return null; }
+  askMic();
+  const ios=/iPhone|iPad|iPod/i.test(navigator.userAgent||"");
+  const r=new SR();
+  r.lang="en-US";
+  r.interimResults=true;
+  r.continuous=!ios;
+  r.maxAlternatives=3;
+  r.onresult=function(e){
+    let interim="";
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      const hit=e.results[i];
+      let best=hit[0] && hit[0].transcript || "";
+      for(let a=1;a<hit.length;a++){
+        if(hit[a] && hit[a].transcript && hit[a].transcript.length>best.length) best=hit[a].transcript;
+      }
+      if(hit.isFinal){
+        APP.storyFinal=((APP.storyFinal||"")+" "+best).replace(/\s+/g," ").trim();
+      } else interim+=best+" ";
+    }
+    const tx=((APP.storyFinal||"")+" "+interim).replace(/\s+/g," ").trim();
+    if(opts.ontext) opts.ontext(tx);
+  };
+  r.onend=function(){
+    if(opts.alive && opts.alive()){
+      try{ r.start(); }catch(e){ setTimeout(function(){ try{ r.start(); }catch(x){} }, 250); }
+    }
+  };
+  r.onerror=function(ev){
+    const err=ev && ev.error;
+    if(err==="no-speech" || err==="aborted") return;
+    if(err==="not-allowed" || err==="service-not-allowed"){
+      toast("Allow the microphone, then tap Speak.");
+      if(opts.onfail) opts.onfail(err);
+    }
+  };
+  try{ r.start(); }catch(e){ toast("Tap Speak and allow the microphone."); return null; }
+  return r;
+}
+function startMic(){
+  const keep=($("transcript") && $("transcript").value || "").trim();
+  stopMic();
+  APP.listening=true;
+  APP.storyFinal=keep;
+  if($("micBtn")) $("micBtn").textContent="Stop";
+  if($("storyTitle")) $("storyTitle").textContent="Listening…";
+  const card=document.querySelector("#storySheet .card");
+  if(card) card.classList.add("live");
+  APP.rec=startRec({
+    alive:function(){ return APP.listening; },
+    ontext:function(tx){ if($("transcript")) $("transcript").value=tx; },
+    onfail:function(){ APP.listening=false; }
+  });
+}
+function stopMic(){
+  APP.listening=false;
+  try{ APP.rec && APP.rec.stop(); }catch(e){}
+  APP.rec=null;
+  if(APP.micStream){
+    try{ APP.micStream.getTracks().forEach(function(tr){ tr.stop(); }); }catch(e){}
+    APP.micStream=null;
+  }
+  if($("micBtn")) $("micBtn").textContent="Speak";
+  if($("storyTitle")) $("storyTitle").textContent="What's the Story?";
+  const card=document.querySelector("#storySheet .card");
+  if(card) card.classList.remove("live");
+}
+
+function paintDocs(){
+  const host=$("docsList"); if(!host) return;
+  host.className="docs-grid";
+  host.innerHTML="";
+  DOC_TYPES.forEach(function(pair){
+    const id=pair[0], label=pair[1], hint=pair[2];
+    const got=APP.docs[id];
+    const el=document.createElement("label");
+    el.className="doc-sq"+(got?" on":"");
+    let media="";
+    if(got && got.data && String(got.data).indexOf("data:image")===0){
+      media='<img src="'+got.data+'" alt=""><div class="veil"></div>';
+    } else if(got){
+      media='<div class="veil"></div><div class="pdfmark">PDF</div>';
+    }
+    el.innerHTML=media+'<b>'+label+'</b><span>'+(got?(got.name||"Added"):hint)+'</span>';
+    const inp=document.createElement("input"); inp.type="file"; inp.accept="image/*,.pdf"; inp.capture="environment"; inp.className="hide";
+    inp.onchange=function(){
+      const f=inp.files[0]; if(!f) return;
+      const r=new FileReader();
+      r.onload=function(){ APP.docs[id]={name:f.name,data:r.result,type:f.type}; paintDocs(); toast(label+" added"); };
+      r.readAsDataURL(f);
+    };
+    el.appendChild(inp); host.appendChild(el);
+  });
+}
+
+function blobFrom(data){
+  const parts=data.split(","); const mime=(parts[0].match(/:(.*?);/)||[,"image/jpeg"])[1];
+  const bin=atob(parts[1]); const a=new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) a[i]=bin.charCodeAt(i);
+  return new Blob([a],{type:mime});
+}
+
+function capturedFiles(){
+  const out=[];
+  VIEWS.forEach(function(v,i){
+    const n=String(i+1).padStart(2,"0");
+    if(APP.photos[v[0]]) out.push({name:n+"-"+v[0]+".jpg", data:APP.photos[v[0]], title:v[1]});
+    dmgShots(v[0]).forEach(function(s,j){
+      out.push({name:"damage-"+n+"-"+v[0]+"-"+String(j+1).padStart(2,"0")+".jpg", data:s.data, title:"Damage — "+v[1]+(s.cap?" — "+s.cap:"")+(dmgShots(v[0]).length>1?" ("+(j+1)+")":"")});
+    });
+  });
+  APP.closeups.forEach(function(d,i){ out.push({name:"close-"+String(i+1).padStart(2,"0")+".jpg", data:d, title:"Close-up "+(i+1)+(APP.closeupCap[i]?" — "+APP.closeupCap[i]:"")}); });
+  return out;
+}
+
+function loadScript(src){
+  return new Promise(function(resolve,reject){
+    const s=document.createElement("script"); s.src=src; s.onload=resolve; s.onerror=reject; document.head.appendChild(s);
+  });
+}
+
+async function buildPdf(){
+  if(!window.jspdf) await loadScript("https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js");
+  const {jsPDF}=window.jspdf; const d=new jsPDF({unit:"pt",format:"letter"}); const W=612,M=48; let y=56;
+  const line=function(t,s,c){ s=s||11; c=c||[17,17,17]; d.setFont("helvetica","normal"); d.setFontSize(s); d.setTextColor(c[0],c[1],c[2]);
+    d.splitTextToSize(String(t),W-M*2).forEach(function(l){ if(y>740){ d.addPage(); y=56; } d.text(l,M,y); y+=s+4; }); };
+  d.setFont("helvetica","bold"); d.setFontSize(16); d.text("Vehicle packet",M,y); y+=22;
+  line(unitLabel()+"  ·  "+why(),13); y+=6;
+  [["Year",APP.year],["Make",APP.make],["Model",APP.model],["Trim",APP.trim],["Color",APP.color],["Kilometres",APP.km],["VIN",APP.vin],["Stock",APP.stock]].forEach(function(row){ line(row[0]+":  "+(row[1]||"—")); });
+  const sentTo=(APP.emails&&APP.emails.length)?APP.emails.join(", "):"";
+  if(sentTo) line("Email to:  "+sentTo);
+  y+=6; line("Spoken / typed",13); line(APP.heard||"—"); y+=4; line("Condition",13); line(APP.notes||"—");
+  if(isWeb()){ y+=8; line("Website-ready description",13); line(websiteCopy()); }
+  capturedFiles().forEach(function(s){
+    d.addPage(); d.setFont("helvetica","bold"); d.setFontSize(14); d.text(s.title,M,48);
+    try{ d.addImage(s.data,"JPEG",M,64,W-M*2,360,undefined,"FAST"); }catch(e){}
+  });
+  return d;
+}
+
+async function savePhotos(){
+  const shots=capturedFiles();
+  if(!shots.length){ toast("Take the walk-around first."); return; }
+  const files=shots.map(function(s){ return new File([blobFrom(s.data)], s.name, {type:"image/jpeg"}); });
+  if(navigator.canShare && navigator.canShare({files:files})){
+    try{ await navigator.share({files:files, title:unitLabel(), text:unitLabel()+" — "+why()}); toast("Share sheet — Save Images to Photos."); return; }
+    catch(e){ if(e && e.name==="AbortError") return; }
+  }
+  shots.forEach(function(s){ const a=document.createElement("a"); a.href=s.data; a.download=s.name; a.click(); });
+  toast("Photos downloaded.");
+}
+
+const TEAM = [
+  ["Wes", "wes@thetrucktown.com"],
+  ["Shawn", "shawn@myloan.ca"],
+  ["Jay", "jay.cyr@myloan.ca"],
+  ["Kyle", "kyle@myloan.ca"],
+  ["Isabella", "isabella.coffey@myloan.ca"],
+  ["Lord", "lord.grande@myloan.ca"],
+  ["Josh", "josh@gmautosales.ca"],
+  ["Steve", "steve@gmautosales.ca"]
+];
+function recKey(){ return isWeb() ? "inspect.emails.web" : "inspect.emails.appraise"; }
+function nameForEmail(email){
+  const e=staffEmail(email);
+  const hit=TEAM.find(function(p){ return p[1]===e; });
+  if(hit) return hit[0];
+  if(OPEN_STAFF[e]) return OPEN_STAFF[e];
+  const extra=extraUser(e);
+  if(extra && extra.name) return extra.name;
+  if(e) return e.split("@")[0];
+  return "";
+}
+function tradeRecipients(){
+  const from=staffEmail(APP.requestedBy);
+  return from ? [from] : [SHAWN_COPY];
+}
+function tradeToLine(list){
+  return (list||tradeRecipients()).map(function(e){
+    const n=nameForEmail(e);
+    return n ? n : e;
+  }).join(" and ");
+}
+function loadRecipients(){
+  try{
+    const raw=localStorage.getItem(recKey());
+    const arr=raw?JSON.parse(raw):[];
+    if(Array.isArray(arr)) return arr.filter(Boolean);
+  }catch(e){}
+  return APP.emails && APP.emails.slice && APP.emails.length ? APP.emails.slice() : ["shawn@myloan.ca"];
+}
+function saveRecipients(list){
+  APP.emails=list;
+  try{ localStorage.setItem(recKey(), JSON.stringify(list)); }catch(e){}
+}
+function paintTo(){
+  APP.emails=loadRecipients();
+  const host=$("toChips"); if(!host) return;
+  host.className="to-chips";
+  host.innerHTML="";
+  TEAM.forEach(function(pair){
+    const name=pair[0], em=pair[1];
+    const on=APP.emails.indexOf(em)>=0;
+    const b=document.createElement("button");
+    b.type="button";
+    b.className="mail"+(on?" on":"");
+    b.innerHTML='<div class="mark">'+(on?"✓":"")+'</div><div><b>'+name+'</b><span>'+em+'</span></div>';
+    b.onclick=function(){
+      const n=loadRecipients();
+      const i=n.indexOf(em);
+      if(i>=0) n.splice(i,1); else n.push(em);
+      saveRecipients(n);
+      paintTo();
+    };
+    host.appendChild(b);
+  });
+}
+function packetSummary(){
+  const lines=[];
+  lines.push(unitLabel()+" — "+why());
+  [["Year",APP.year],["Make",APP.make],["Model",APP.model],["Trim",APP.trim],["Colour",APP.color],["Kilometres",APP.km],["VIN",APP.vin],["Stock",APP.stock]].forEach(function(r){ if(r[1]) lines.push(r[0]+": "+r[1]); });
+  if(APP.heard) lines.push("Story: "+APP.heard);
+  if(APP.notes) lines.push("Condition: "+APP.notes);
+  if(isWeb()) lines.push("Listing: "+websiteCopy());
+  const caps=[];
+  VIEWS.forEach(function(v){
+    dmgShots(v[0]).forEach(function(s,j){
+      if(s.cap) caps.push(v[1]+(dmgShots(v[0]).length>1?" #"+(j+1):"")+": "+s.cap);
+    });
+  });
+  if(caps.length) lines.push("Damage: "+caps.join("; "));
+  const to=loadRecipients();
+  if(to.length) lines.push("Send to: "+to.join(", "));
+  return lines.join("\n");
+}
+async function buildZip(){
+  if(!window.JSZip) await loadScript("https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js");
+  const zip=new JSZip();
+  const folder=zip.folder(folderName()||"vehicle");
+  const doc=await buildPdf();
+  folder.file((folderName()||"vehicle")+"-packet.pdf", doc.output("blob"));
+  capturedFiles().forEach(function(s){ folder.file(s.name, blobFrom(s.data)); });
+  Object.keys(APP.docs||{}).forEach(function(id){
+    const d=APP.docs[id]; if(!d||!d.data) return;
+    folder.file("docs-"+id+"-"+(d.name||"file"), blobFrom(d.data));
+  });
+  folder.file("summary.txt", packetSummary());
+  return zip.generateAsync({type:"blob"});
+}
+function factCell(k,v){
+  if(!v) return "";
+  return "<div><k>"+k+"</k><b>"+String(v)+"</b></div>";
+}
+function esc(s){ return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function openViewer(kind, src, title){
+  const v=$("viewer"); if(!v) return;
+  $("viewerTitle").textContent = title || "File";
+  const pdf=$("viewerPdf"); const img=$("viewerImg"); const doc=$("viewerDoc");
+  if(pdf){ pdf.style.display="none"; pdf.removeAttribute("src"); }
+  if(img){ img.style.display="none"; img.removeAttribute("src"); }
+  if(doc){ doc.classList.remove("on"); doc.innerHTML=""; }
+  if(kind==="packet"){ if(doc){ doc.innerHTML=src; doc.classList.add("on"); } }
+  else if(kind==="img"){ img.style.display="block"; img.src=src; }
+  else if(src && /^data:image\//.test(src)){ img.style.display="block"; img.src=src; }
+  else if(src && src.indexOf("data:application/pdf")===0){
+    img.style.display="none";
+    if(doc){
+      doc.classList.add("on");
+      doc.innerHTML='<p class="quote">Chrome blocks PDFs in this preview. Open the photo version below.</p>';
+    }
+  } else {
+    img.style.display="block"; img.src=src;
+  }
+  v.classList.add("on");
+}
+function closeViewer(){
+  const v=$("viewer"); if(v) v.classList.remove("on");
+  const pdf=$("viewerPdf"); if(pdf) pdf.removeAttribute("src");
+  const doc=$("viewerDoc"); if(doc){ doc.classList.remove("on"); doc.innerHTML=""; }
+}
+function packetHtml(){
+  const rows=[["Year",APP.year],["Make",APP.make],["Model",APP.model],["Trim",APP.trim],["Colour",APP.color],["Kilometres",APP.km],["VIN",APP.vin],["Stock",APP.stock]].filter(function(r){ return r[1]; });
+  let h='<div class="badge">'+esc(why())+'</div>';
+  h+='<h2>'+esc(unitLabel())+'</h2>';
+  h+='<p class="quote">'+esc(shotCount()+" photo(s)")+'</p>';
+  h+='<div class="facts">';
+  rows.forEach(function(r){ h+='<div><k>'+esc(r[0])+'</k><b>'+esc(r[1])+'</b></div>'; });
+  h+='</div>';
+  const story=(APP.notes||APP.heard||"").trim();
+  if(story){ h+='<h4>Story / condition</h4><p>'+esc(story)+'</p>'; }
+  if(isWeb()){ h+='<h4>Website listing</h4><p>'+esc(websiteCopy())+'</p>'; }
+  const to=loadRecipients();
+  if(to.length){ h+='<h4>Send to</h4><p>'+esc(to.join(", "))+'</p>'; }
+  h+='<div class="block">Photos</div>';
+  capturedFiles().forEach(function(s){
+    h+='<img class="full" src="'+s.data+'" alt="">';
+    h+='<p class="cap">'+esc(s.title)+'</p>';
+  });
+  const keys=Object.keys(APP.docs||{});
+  if(keys.length){
+    h+='<div class="block">Documents</div>';
+    keys.forEach(function(id){
+      const d=APP.docs[id]; if(!d) return;
+      h+='<h4>'+esc(d.name||id)+'</h4>';
+      if(d.data && d.data.indexOf("data:image")===0) h+='<img class="full" src="'+d.data+'" alt="">';
+      else h+='<p class="cap">Included in the emailed ZIP / PDF</p>';
+    });
+  }
+  return h;
+}
+function openPacket(){
+  openViewer("packet", packetHtml(), unitLabel()+" packet");
+}
+async function paintSubmit(){
+  $("subTitle").textContent = APP.role==="guest" && APP.inviteName
+    ? (APP.inviteName.split(/\s+/)[0]+"'s trade")
+    : (unitLabel()==="Unit" ? "Vehicle packet" : unitLabel());
+  $("subBadge").textContent = why();
+  $("subBody").textContent = shotCount()+" photo(s) · "+Object.keys(APP.docs||{}).length+" document(s)";
+  $("subFacts").innerHTML =
+    factCell("Year", APP.year)+factCell("Make", APP.make)+factCell("Model", APP.model)+
+    factCell("Trim", APP.trim)+factCell("Colour", APP.color)+factCell("Kilometres", APP.km && Number(String(APP.km).replace(/,/g,"")).toLocaleString("en-CA"))+
+    factCell("VIN", APP.vin)+factCell("Stock", APP.stock);
+  const story=(APP.notes||APP.heard||"").trim() || "No story yet.";
+  $("storyPreview").textContent = story;
+  if($("listCard")){
+    $("listCard").classList.toggle("hide", !isWeb());
+    if(isWeb()) $("listPreview").textContent = websiteCopy();
+  }
+  const grid=$("subShots"); grid.innerHTML="";
+  capturedFiles().forEach(function(s){
+    const b=document.createElement("button"); b.type="button";
+    const cap=s.title||"";
+    b.innerHTML='<img src="'+s.data+'" alt=""><span>'+cap.split(" — ")[0]+'</span><em>'+(cap.indexOf(" — ")>=0?cap.split(" — ").slice(1).join(" — "):"Tap to view")+'</em>';
+    b.onclick=function(){ openViewer("img", s.data, s.title); };
+    grid.appendChild(b);
+  });
+  if(!capturedFiles().length) grid.innerHTML='<p class="quote">No photos yet.</p>';
+  const docs=$("subDocs"); docs.innerHTML="";
+  const keys=Object.keys(APP.docs||{});
+  $("subDocHead").classList.toggle("hide", !keys.length);
+  keys.forEach(function(id){
+    const d=APP.docs[id]; if(!d) return;
+    const b=document.createElement("button"); b.type="button"; b.className="review";
+    b.innerHTML="<h4>"+(d.name||id)+"</h4><p>Tap to view</p>";
+    b.onclick=function(){
+      const kind=(d.type&&d.type.indexOf("pdf")>=0)?"pdf":"img";
+      openViewer(kind, d.data, d.name||id);
+    };
+    docs.appendChild(b);
+  });
+  paintTo();
+  const guest=APP.role==="guest";
+  if($("toBlock")) $("toBlock").classList.toggle("hide", guest);
+  if($("listCard")) $("listCard").classList.toggle("hide", guest || !isWeb());
+  const note=$("guestSendNote");
+  const packBtn=$("btnSharePack");
+  if(packBtn) packBtn.textContent="Send";
+  if(guest){
+    const to=tradeRecipients();
+    if(note){
+      note.classList.remove("hide");
+      note.textContent = (customerFirst() ? customerFirst()+", review your file, then tap Send. " : "Review the file, then tap Send. ")
+        + (APP.requestedBy
+          ? "It goes to "+(APP.requestedByName||nameForEmail(APP.requestedBy))+"."
+          : "It goes to the team.");
+    }
+    $("subBadge").textContent="Trade-in";
+    $("pdfHint").textContent="Tap to review the whole file";
+  } else {
+    if(note) note.classList.add("hide");
+    $("pdfHint").textContent="Tap to open the complete file";
+  }
+  $("pdfCard").onclick=openPacket;
+}
+function dataB64(dataUrl){
+  const s=String(dataUrl||"");
+  const i=s.indexOf("base64,");
+  return i>=0 ? s.slice(i+7) : "";
+}
+function packetMailHtml(shots){
+  let h='<div style="font-family:Arial,Helvetica,sans-serif;color:#241B33;max-width:640px">';
+  h+='<h2 style="margin:0 0 8px">'+(escHtml(unitLabel())||"Vehicle")+'</h2>';
+  h+='<p style="margin:0 0 16px;color:#6B6278">'+(escHtml(why()))+' · photos, description, and PDF</p>';
+  h+='<pre style="white-space:pre-wrap;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.45;background:#F3F0FA;padding:14px;border-radius:14px">'+escHtml(packetSummary())+'</pre>';
+  (shots||[]).forEach(function(s,i){
+    h+='<p style="margin:18px 0 6px;font-weight:800">'+(escHtml(s.title)||("Photo "+(i+1)))+'</p>';
+    h+='<img src="cid:photo'+i+'@inspect" width="560" alt="" style="display:block;width:100%;max-width:560px;border-radius:14px"/>';
+  });
+  h+='<p style="margin:22px 0 0;color:#6B6278;font-size:13px">The PDF is attached to this email.</p></div>';
+  return h;
+}
+async function sharePacket(){
+  const shots=capturedFiles();
+  if(!shots.length && !Object.keys(APP.docs||{}).length && !(APP.notes||APP.heard)){ toast("Add the story or photos first."); return; }
+  const btn=$("btnSharePack");
+  if(btn){ btn.disabled=true; btn.textContent="Sending…"; }
+  try{
+    const doc=await buildPdf();
+    const base=folderName()||"vehicle";
+    const pdfBlob=doc.output("blob");
+    const pdfFile=new File([pdfBlob], base+"-packet.pdf", {type:"application/pdf"});
+    const photoFiles=shots.map(function(s){ return new File([blobFrom(s.data)], s.name, {type:"image/jpeg"}); });
+    const dest=packetDest();
+    const extra={cc:dest.cc, bcc:dest.bcc};
+    const to=dest.to;
+    const subject=APP.role==="guest"
+      ? (unitLabel()+" — trade-in"+(APP.inviteName?" from "+APP.inviteName:""))
+      : (unitLabel()+" — "+why());
+    const body=packetSummary() + (APP.role==="guest" && APP.requestedBy ? "\nRequested by: "+(APP.requestedByName||nameForEmail(APP.requestedBy))+" <"+APP.requestedBy+">" : "");
+    const html=packetMailHtml(shots);
+    const parts=[];
+    shots.forEach(function(s,i){
+      const b64=dataB64(s.data);
+      if(b64) parts.push({cid:"photo"+i+"@inspect", b64:b64, name:s.name||("photo-"+i+".jpg"), mime:"image/jpeg"});
+    });
+    try{
+      parts.push({disp:"attachment", b64:bufB64(await pdfBlob.arrayBuffer()), name:base+"-packet.pdf", mime:"application/pdf"});
+    }catch(e){}
+    try{
+      const sent=await sendFromMe(to, subject, body, html, parts, extra);
+      if(sent && sent.ok){
+        toast(APP.role==="guest"
+          ? ("Sent to "+(APP.requestedByName||nameForEmail(to[0])||to[0])+".")
+          : ("Sent photos, description, and PDF to "+tradeToLine(to)+"."));
+        return;
+      }
+    }catch(e){}
+    openGmail(to, subject, body+"\n\nPDF and photos are ready — they go with this email.", extra);
+    toast("Gmail is open. Hit Send.");
+  }catch(e){
+    toast("Couldn’t send. Check the photos and try again.");
+  }finally{
+    if(btn){ btn.disabled=false; btn.textContent="Send"; }
+  }
+}
+
+function resetAll(){
+  APP.year=APP.make=APP.model=APP.trim=APP.color=APP.km=APP.vin=APP.stock=APP.heard=APP.notes=APP.webcopy="";
+  APP.photos={}; APP.damage={}; APP.closeups=[]; APP.docs={}; APP.damageCap={}; APP.closeupCap=[]; APP.webcopy="";
+  $("transcript").value="";
+  document.querySelectorAll(".sheet").forEach(n=>n.classList.remove("on"));
+  show("start");
+}
+
+document.querySelectorAll("[data-close]").forEach(function(b){
+  b.addEventListener("click", function(){ $(b.getAttribute("data-close")).classList.remove("on"); stopMic(); });
+});
+$("startAppraise").onclick = function(){ setPurpose("appraise"); show("home"); };
+function openStoryMic(){
+  $("storySheet").classList.add("on");
+  startMic();
+}
+if($("startStory")) $("startStory").onclick = function(){
+  setPurpose("appraise");
+  openStoryMic();
+};
+if($("guestType")) $("guestType").onclick = function(){
+  setPurpose("appraise");
+  openVerify();
+};
+$("startWebsite").onclick = function(){ setPurpose("website"); show("home"); };
+if($("startTrade")) $("startTrade").onclick = openInvite;
+function openUsers(){ paintUsers(); show("users"); }
+if($("startUsers")) $("startUsers").onclick = openUsers;
+document.addEventListener("click", function(e){
+  const b=e.target && e.target.closest && e.target.closest("#startUsers");
+  if(b){ e.preventDefault(); openUsers(); }
+});
+if($("usersBack")) $("usersBack").onclick = function(){ show("start"); };
+if($("userAdd")) $("userAdd").onclick = addUser;
+if($("user-email")) $("user-email").addEventListener("keydown", function(e){ if(e.key==="Enter") addUser(); });
+if($("inviteBack")) $("inviteBack").onclick = function(){ show("start"); };
+if($("inviteSend")) $("inviteSend").onclick = sendTradeInvite;
+if($("invCopy")) $("invCopy").onclick = function(){
+  const url=($("invUrl") && $("invUrl").textContent) || tradeInUrl();
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(url).then(function(){ toast("Link copied"); }).catch(function(){ window.prompt("Copy this link", url); });
+  } else window.prompt("Copy this link", url);
+};
+["inv-first","inv-last","inv-email"].forEach(function(id){
+  if($(id)) $(id).addEventListener("input", invitePreview);
+});
+if($("inv-phone")) $("inv-phone").addEventListener("input", onPhoneInput);
+$("homeX").onclick = function(){ show("start"); };
+$("photosX").onclick = function(){ show("home"); };
+$("camX").onclick = $("camDone").onclick = function(){ show("photos"); };
+$("submitX").onclick = function(){ show("photos"); };
+$("doneX").onclick = $("btnAnother").onclick = resetAll;
+$("btnStory").onclick = function(){ openStoryMic(); };
+$("btnPictures").onclick = function(){ show("photos"); };
+$("btnStart").onclick = function(){ openCamera("photos","qfront"); };
+$("btnClose").onclick = function(){ openCamera("close","new"); };
+$("btnDocs").onclick = function(){ paintDocs(); show("photos"); $("docsBlock") && $("docsBlock").scrollIntoView({behavior:"smooth", block:"start"}); };
+$("btnVin").onclick = $("verifyVin").onclick = function(){ startVinScan(); };
+$("unitLine").onclick = function(){ fillUnit(); $("unitSheet").classList.add("on"); };
+$("btnSend").onclick = function(){ show("submit"); };
+if($("btnSavePhotos")) $("btnSavePhotos").onclick = savePhotos;
+if($("btnSharePack")) $("btnSharePack").onclick = sharePacket;
+if($("viewerX")) $("viewerX").onclick = closeViewer;
+if($("storyCard")) $("storyCard").onclick = function(){
+  openViewer("packet", "<h2>Story / condition</h2><p>"+esc(APP.notes||APP.heard||"No story yet.")+"</p>", "Story / condition");
+};
+if($("listCard")) $("listCard").onclick = function(){
+  openViewer("packet", "<h2>Website listing</h2><p>"+esc(websiteCopy())+"</p>", "Website listing");
+};
+if($("btnSavePhotos")) $("btnSavePhotos").onclick = savePhotos;
+
+$("shutter").onclick = snap;
+$("shutter").addEventListener("touchend", function(e){ e.preventDefault(); snap(); }, {passive:false});
+$("camX").addEventListener("click", stopDamageMic);
+$("camSkip").onclick = function(){
+  stopDamageMic();
+  if(APP.mode==="photos"){ const n=nextEmpty(APP.viewId); if(n){ openCamera("photos", n); return; } }
+  show("photos");
+};
+$("lamp").onclick = function(){
+  this.classList.toggle("on");
+  const track = APP.stream && APP.stream.getVideoTracks()[0];
+  const on = this.classList.contains("on");
+  if(track && track.getCapabilities && track.getCapabilities().torch){
+    track.applyConstraints({advanced:[{torch:on}]}).catch(function(){});
+  }
+};
+$("micBtn").onclick = function(){ if(APP.listening) stopMic(); else startMic(); };
+$("useStory").onclick = function(){
+  stopMic();
+  const raw=($("transcript") && $("transcript").value || APP.storyFinal || "").trim();
+  applyStory(raw);
+  $("storySheet").classList.remove("on");
+  openVerify();
+};
+$("btnType").onclick = function(){ openVerify(); };
+$("saveUnit").onclick = function(){ readUnit(); $("unitSheet").classList.remove("on"); paintLists(); show("photos"); };
+$("verifyBack").onclick = function(){ show("home"); };
+$("verifyGo").onclick = function(){ readVerify(); paintLists(); show("photos"); };
+if($("btnWebAi")) $("btnWebAi").onclick = generateWebCopy;
+
+if($("staffForm")) $("staffForm").addEventListener("submit", enterStaffPassword);
+if($("workGo")) $("workGo").onclick = enterStaffPassword;
+if($("workEmail")) $("workEmail").addEventListener("keydown", function(e){ if(e.key==="Enter"){ e.preventDefault(); enterStaffPassword(e); } });
+if($("btnGoogle")) $("btnGoogle").addEventListener("click", googleEmployee);
+if($("googleGo")) $("googleGo").onclick = googleContinue;
+if($("googleEmail")) $("googleEmail").addEventListener("keydown", function(e){ if(e.key==="Enter"){ e.preventDefault(); googleContinue(); } });
+if($("btnGuest")) $("btnGuest").onclick = function(){
+  enterSession("guest", {name: APP.inviteName || customerFirst() || "Guest"});
+};
+if($("startX")) $("startX").onclick = function(){ if(APP.role!=="guest") logOut(); };
+if($("whoChip")) $("whoChip").onclick = function(){ if(APP.role!=="guest") logOut(); };
+if(/[?&]auth=fail(?:&|$)/.test(location.search||"")) loginFail("Google sign-in was cancelled.");
+if(/[?&]trade=1(?:&|$)/.test(location.search||"")){
+  APP.role="guest"; APP.userEmail="";
+  try{
+    const u=new URL(location.href);
+    APP.requestedBy=staffEmail(u.searchParams.get("from")||"");
+    APP.requestedByName=u.searchParams.get("by")||nameForEmail(APP.requestedBy);
+    APP.inviteUnit=u.searchParams.get("unit")||"";
+    APP.inviteStock=u.searchParams.get("stock")||"";
+    APP.inviteName=(u.searchParams.get("name")||"").trim();
+  }catch(e){}
+  APP.userName=APP.inviteName || "Guest";
+  if(APP.inviteStock) APP.stock=APP.inviteStock;
+  saveSession();
+  applyRole();
+  setPurpose("appraise");
+  show("start");
+} else {
+  restoreBrokerSession().then(function(ok){
+    if(ok) return;
+    if(loadSession()){ applyRole(); show("start"); }
+    else { paintLogin(); show("login"); }
+  });
+}
+
+</script>
+</body>
+</html>
