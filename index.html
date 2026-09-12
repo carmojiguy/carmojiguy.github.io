@@ -507,6 +507,10 @@ textarea.note { min-height:160px; max-height:none; resize:vertical; overflow:aut
     <div id="toBlock">
       <label class="k">Send to</label>
       <div id="toChips"></div>
+      <div class="vin-row" id="extraMailRow">
+        <input class="f" id="extraMail" type="email" inputmode="email" autocomplete="email" placeholder="Anyone else — name@email.com" />
+        <button class="pill wash" type="button" id="extraMailAdd">Add</button>
+      </div>
     </div>
   </div>
   <div class="dock">
@@ -2722,6 +2726,7 @@ async function savePhotos(){
 const TEAM = [
   ["Wes", "wes@thetrucktown.com"],
   ["Shawn", "shawn@myloan.ca"],
+  ["Shawn (G&M)", "shawn@gmautosales.ca"],
   ["Jay", "jay.cyr@myloan.ca"],
   ["Kyle", "kyle@myloan.ca"],
   ["Isabella", "isabella.coffey@myloan.ca"],
@@ -2767,8 +2772,8 @@ function paintTo(){
   const host=$("toChips"); if(!host) return;
   host.className="to-chips";
   host.innerHTML="";
-  TEAM.forEach(function(pair){
-    const name=pair[0], em=pair[1];
+  const known=TEAM.map(function(p){ return p[1]; });
+  function chip(name, em, canRemove){
     const on=APP.emails.indexOf(em)>=0;
     const b=document.createElement("button");
     b.type="button";
@@ -2777,12 +2782,29 @@ function paintTo(){
     b.onclick=function(){
       const n=loadRecipients();
       const i=n.indexOf(em);
-      if(i>=0) n.splice(i,1); else n.push(em);
+      if(i>=0) n.splice(i,1);
+      else n.push(em);
       saveRecipients(n);
       paintTo();
     };
     host.appendChild(b);
+  }
+  TEAM.forEach(function(pair){ chip(pair[0], pair[1], false); });
+  uniqEmails(APP.emails).forEach(function(em){
+    if(known.indexOf(em)>=0) return;
+    chip(nameForEmail(em)||em, em, true);
   });
+}
+function addExtraRecipient(){
+  const box=$("extraMail");
+  const e=staffEmail(box && box.value);
+  if(!e || e.indexOf("@")<1 || e.indexOf(".")<0){ toast("Type a full email address."); return; }
+  const n=loadRecipients();
+  if(n.indexOf(e)<0) n.push(e);
+  saveRecipients(n);
+  if(box) box.value="";
+  paintTo();
+  toast("Added "+e);
 }
 function packetSummary(){
   const lines=[];
@@ -3122,6 +3144,8 @@ $("unitLine").onclick = function(){ fillUnit(); $("unitSheet").classList.add("on
 $("btnSend").onclick = function(){ killMediaNow(); show("submit"); };
 if($("btnSavePhotos")) $("btnSavePhotos").onclick = savePhotos;
 if($("btnSharePack")) $("btnSharePack").onclick = sharePacket;
+if($("extraMailAdd")) $("extraMailAdd").onclick = addExtraRecipient;
+if($("extraMail")) $("extraMail").addEventListener("keydown", function(e){ if(e.key==="Enter"){ e.preventDefault(); addExtraRecipient(); } });
 if($("viewerX")) $("viewerX").onclick = closeViewer;
 if($("storyCard")) $("storyCard").onclick = function(){
   openViewer("packet", "<h2>Story / condition</h2><p>"+esc(APP.notes||APP.heard||"No story yet.")+"</p>", "Story / condition");
