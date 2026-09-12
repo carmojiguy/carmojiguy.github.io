@@ -152,9 +152,9 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
 .viewer-doc h4 { margin:18px 0 8px; font-size:18px; }
 .viewer-doc .block { margin-top:18px; }
 
-.vin-row { display:flex; gap:8px; align-items:stretch; }
-.vin-row .f { flex:1; }
-.vin-row .pill { width:auto; margin:0; white-space:nowrap; padding:13px 14px; font-size:14px; }
+.to-add { display:flex; gap:8px; align-items:stretch; }
+.to-add .f { flex:1; }
+.to-add .pill { width:auto; margin:0; white-space:nowrap; padding:13px 14px; font-size:14px; }
 .cam { background:#000; color:#fff; padding:0 !important; }
 .screen.cam { display:none; }
 .screen.cam.on { display:flex; flex-direction:column; }
@@ -547,11 +547,10 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
       <div><label class="k">Kilometres</label><input class="f" id="v-km" inputmode="numeric" /></div>
     </div>
     <label class="k">VIN</label>
-    <p class="quote" style="margin-top:0">Best: a photo of the vehicle ownership. Or the VIN on the dash or driver’s door. We’ll read it from the picture.</p>
-    <div class="vin-row">
-      <input class="f" id="v-vin" maxlength="17" style="text-transform:uppercase" />
-      <button class="pill cyan" type="button" id="verifyVin">Take a picture of the ownership</button>
-    </div>
+    <button class="pill cyan" type="button" id="verifyVin">Take a picture of the ownership</button>
+    <p class="quote" style="margin:8px 0 0">Dash plate or door sticker works too. We’ll read the number from the photo.</p>
+    <p class="vin-chip hide" id="vVinChip"></p>
+    <input class="f" id="v-vin" maxlength="17" style="text-transform:uppercase;margin-top:10px" placeholder="Or type the 17-character VIN" />
     <div id="stockWrap" class="hide">
       <label class="k">Stock number</label><input class="f" id="v-stock" placeholder="e.g. A1042" />
     </div>
@@ -662,7 +661,7 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
     <div id="toBlock">
       <label class="k">Send to anyone</label>
       <p class="quote" style="margin:0 0 10px">Type any email. Add as many as you want. They don’t need an account.</p>
-      <div class="vin-row">
+      <div class="to-add">
         <input class="f" id="extraMail" type="email" inputmode="email" autocomplete="email" placeholder="name@email.com" />
         <button class="pill purple" type="button" id="extraMailAdd">Add</button>
       </div>
@@ -2805,6 +2804,8 @@ async function acceptVin(vin){
   fillUnit();
   const chip=$("vinChip");
   if(chip){ chip.textContent=vin; chip.classList.remove("hide"); }
+  const vchip=$("vVinChip");
+  if(vchip){ vchip.textContent=vin; vchip.classList.remove("hide"); }
   if($("v-vin")) $("v-vin").value=vin;
   if($("f-vin")) $("f-vin").value=vin;
   if($("scanStatus")) $("scanStatus").textContent="VIN confirmed";
@@ -3108,6 +3109,11 @@ function fillUnit(){
   if($("v-notes")) $("v-notes").value = APP.notes||APP.heard||"";
   if($("v-stock")) $("v-stock").value = APP.stock||"";
   if($("v-webcopy") && APP.role!=="guest") $("v-webcopy").value = APP.webcopy || (isWeb() ? websiteCopy() : "");
+  const vchip=$("vVinChip");
+  if(vchip){
+    if(APP.vin){ vchip.textContent=APP.vin; vchip.classList.remove("hide"); }
+    else vchip.classList.add("hide");
+  }
   applyMode();
   growTextareas();
 }
