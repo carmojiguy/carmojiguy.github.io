@@ -3425,11 +3425,21 @@ function paintDocs(){
   DOC_TYPES.forEach(function(pair){
     const id=pair[0], label=pair[1], hint=pair[2];
     if(id==="vauto"){
-      const el=document.createElement("button");
-      el.type="button";
+      const el=document.createElement("a");
+      el.href=vautoUrl();
+      el.target="_blank";
       el.className="doc-sq vauto-sq";
+      el.setAttribute("aria-label","Open vAuto");
       el.innerHTML='<img src="docs/vauto.svg" alt="vAuto">';
-      el.onclick=openVauto;
+      el.addEventListener("pointerdown", function(){
+        el.href=vautoUrl();
+        if(currentVin()) copyVin();
+      });
+      el.addEventListener("click", function(){
+        el.href=vautoUrl();
+        if(currentVin()) copyVin();
+        toast("Opening vAuto…");
+      });
       host.appendChild(el);
       return;
     }
@@ -3491,13 +3501,17 @@ function openVauto(){
   if(vin) copyVin();
   const url=vautoUrl();
   toast("Opening vAuto…");
-  const mobile=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent||"");
-  if(mobile){
-    window.location.href=url;
-    return;
-  }
-  const w=window.open(url, "_blank");
-  if(!w) window.location.href=url;
+  try{
+    const w=window.open(url, "_blank");
+    if(w) return;
+  }catch(e){}
+  const a=document.createElement("a");
+  a.href=url;
+  a.target="_blank";
+  a.style.display="none";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
 }
 const OPENLANE_GUIDE="https://app.openlane.ca/marketguide";
 const EBLOCK_GUIDE="https://app.eblock.com/my-market-guide";
