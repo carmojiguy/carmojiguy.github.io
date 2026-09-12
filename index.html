@@ -134,7 +134,15 @@ textarea.note { min-height:160px; max-height:none; resize:vertical; overflow:aut
 .ghost.tall { top:10%; height:70%; }
 .ghost.off { opacity:0; }
 .ghost.flip, .thumb img.flip { transform:scaleX(-1); }
-.cam-wait { position:absolute; left:16px; right:16px; bottom:18px; z-index:2; color:#fff; text-align:center; font-size:14px; font-weight:700; text-shadow:0 1px 8px #000; pointer-events:none; }
+.rec-pill { position:absolute; top:12px; left:12px; z-index:4; border:0; border-radius:999px; background:rgba(226,59,59,.96); color:#fff; font-weight:800; font-size:13px; letter-spacing:.04em; padding:8px 12px; display:flex; align-items:center; gap:8px; }
+.rec-pill i { width:8px; height:8px; border-radius:50%; background:#fff; display:block; animation:livepulse 1.2s infinite; }
+.rec-pill.idle { background:rgba(255,255,255,.18); }
+.rec-pill.idle i { animation:none; background:#E23B3B; }
+.rec-bar { width:100%; border:0; border-radius:16px; padding:13px 14px; background:#1A1630; color:#fff; font-weight:800; margin:0 0 12px; text-align:left; font-size:15px; }
+.rec-bar.idle { background:var(--fill); color:var(--ink); }
+.zoom { position:absolute; right:12px; top:46%; transform:translateY(-50%); z-index:4; display:flex; flex-direction:column; gap:8px; }
+.zoom button { width:42px; height:42px; border-radius:50%; border:0; background:rgba(0,0,0,.5); color:#fff; font-size:24px; font-weight:700; line-height:1; }
+.viewer video { flex:1; width:100%; background:#000; object-fit:contain; }
 .cam-wait.off { display:none; }
 .flash { position:absolute; inset:0; background:#fff; opacity:0; pointer-events:none; }
 .flash.go { animation:pop .16s ease-out; }
@@ -425,6 +433,7 @@ textarea.note { min-height:160px; max-height:none; resize:vertical; overflow:aut
   </div>
   <div class="pad">
     <button class="unit link" type="button" id="unitLine">Add year / make / VIN</button>
+    <button class="rec-bar hide" type="button" id="photosRec">Record the walk-around</button>
     <button class="pill wash" type="button" id="btnStart">Start with 3/4 Front</button>
     <div class="block">Photos</div>
     <div id="photoRows"></div>
@@ -455,6 +464,11 @@ textarea.note { min-height:160px; max-height:none; resize:vertical; overflow:aut
     <video id="shotCam" autoplay playsinline webkit-playsinline muted></video>
     <input id="nativeShot" class="hide" type="file" accept="image/*" capture="environment" />
     <img class="ghost" id="ghost" alt="" />
+    <button class="rec-pill idle" type="button" id="camRec"><i></i><span>REC</span></button>
+    <div class="zoom" id="camZoom">
+      <button type="button" id="zoomIn">+</button>
+      <button type="button" id="zoomOut">−</button>
+    </div>
     <div class="cam-wait" id="camWait">Allow the camera — you’ll see the car through the overlay.</div>
     <div class="flash" id="flash"></div>
     <div class="dmg-banner" id="dmgBanner"></div>
@@ -491,6 +505,8 @@ textarea.note { min-height:160px; max-height:none; resize:vertical; overflow:aut
     </button>
     <div class="block">Photos</div>
     <div class="shot-grid" id="subShots"></div>
+    <div class="block hide" id="subVidHead">Walk-around video</div>
+    <div id="subVids"></div>
     <div class="block" id="subDocHead">Documents</div>
     <div id="subDocs"></div>
     <button class="review pdf-card" type="button" id="pdfCard">
@@ -519,6 +535,7 @@ textarea.note { min-height:160px; max-height:none; resize:vertical; overflow:aut
   </div>
   <iframe id="viewerPdf" title="PDF" class="hide"></iframe>
   <img id="viewerImg" alt="">
+  <video id="viewerVid" class="hide" controls playsinline></video>
   <div class="viewer-doc" id="viewerDoc"></div>
 </div>
 
@@ -630,6 +647,7 @@ window.APP = {
   photos:{}, damage:{}, closeups:[], docs:{}, damageCap:{}, closeupCap:[],
   mode:"photos", viewId:"qfront", stream:null, lock:false, rec:null, listening:false,
   dmgArmed:false, dmgCaption:"", dmgRec:null, emails:[],
+  clips:[], recOn:false, recorder:null, recChunks:[], recTick:null, recStarted:0, recMime:"", zoom:1,
   role:"", userName:"", userEmail:"", googleToken:"", extraUsers:[], requestedBy:"", requestedByName:"",
   inviteUnit:"", inviteStock:"", inviteName:"", inviteEmail:""
 };
@@ -713,7 +731,7 @@ function show(id){
       img.src = assetUrl("start-bgs/" + String(n).padStart(2,"0") + ".jpg?v=10");
     }
   }
-  if(id==="photos"){ paintLists(); paintDocs(); }
+  if(id==="photos"){ paintLists(); paintDocs(); paintRec(); }
   if(id==="camera") startPreview("shotCam");
   if(id==="submit") paintSubmit();
   if(id==="users") paintUsers();
@@ -1511,8 +1529,8 @@ function openCamera(mode, id){
   if(ban){ ban.textContent=""; ban.classList.remove("on"); }
   if($("camHint")){
     $("camHint").textContent = (mode==="damage"||mode==="close")
-      ? "Tap once to describe it. Tap again to take the photo. Add as many as you need, then Done."
-      : "Use the overlay to help frame the picture";
+      ? "Recording. Tap once to describe it. Tap again for the still. Zoom in on the damage."
+      : "Recording the walk-around. Talk as you go — zoom in on rust or dents, then tap the shutter for the still.";
   }
   show("camera");
 }
@@ -1708,6 +1726,7 @@ function snap(){
 function startPreview(videoId){
   const el=$(videoId); if(!el) return;
   bindNativeShot();
+  bindCamZoom();
   el.setAttribute("playsinline","");
   el.setAttribute("webkit-playsinline","");
   el.muted=true; el.playsInline=true; el.autoplay=true;
@@ -1717,18 +1736,23 @@ function startPreview(videoId){
     const play=function(){
       const p=el.play(); if(p&&p.catch) p.catch(function(){});
       if($("camWait")) $("camWait").classList.add("off");
+      if(!APP.recOn && !APP.clips.length) startWalkRec();
+      else paintRec();
     };
     if(el.readyState>=1) play();
     else el.onloadedmetadata=play;
   };
   if($("camWait")) $("camWait").classList.remove("off");
-  if(APP.stream && APP.stream.getVideoTracks().some(function(t){ return t.readyState==="live"; })){ attach(APP.stream); return; }
+  const live=APP.stream && APP.stream.getVideoTracks().some(function(t){ return t.readyState==="live"; });
+  const hasAudio=APP.stream && APP.stream.getAudioTracks && APP.stream.getAudioTracks().some(function(t){ return t.readyState==="live"; });
+  if(live && (hasAudio || APP.recOn)){ attach(APP.stream); return; }
   if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
     toast("Tap the shutter to open the camera.");
     return;
   }
   const tries=[
-    {video:{facingMode:{ideal:"environment"}}, audio:false},
+    {video:{facingMode:{ideal:"environment"}, width:{ideal:1280}, height:{ideal:720}}, audio:{echoCancellation:true, noiseSuppression:true}},
+    {video:{facingMode:{ideal:"environment"}}, audio:true},
     {video:{facingMode:"environment"}, audio:false},
     {video:true, audio:false}
   ];
@@ -1737,6 +1761,139 @@ function startPreview(videoId){
     navigator.mediaDevices.getUserMedia(tries[i]).then(attach).catch(function(){ next(i+1); });
   })(0);
 }
+function recMime(){
+  if(!window.MediaRecorder) return "";
+  const types=["video/mp4","video/mp4;codecs=avc1","video/webm;codecs=vp8,opus","video/webm"];
+  for(let i=0;i<types.length;i++){
+    try{ if(MediaRecorder.isTypeSupported(types[i])) return types[i]; }catch(e){}
+  }
+  return "";
+}
+function recClock(ms){
+  const s=Math.max(0, Math.floor((ms||0)/1000));
+  return Math.floor(s/60)+":"+String(s%60).padStart(2,"0");
+}
+function paintRec(){
+  const live=!!APP.recOn;
+  const t=live ? recClock(Date.now()-APP.recStarted) : (APP.clips[0] ? recClock(APP.clips.reduce(function(n,c){ return n+(c.dur||0); },0)) : "0:00");
+  const cam=$("camRec");
+  if(cam){
+    cam.classList.toggle("idle", !live);
+    cam.querySelector("span").textContent = live ? ("REC  "+t) : (APP.clips.length ? ("Saved  "+t) : "Record");
+  }
+  const bar=$("photosRec");
+  if(bar){
+    bar.classList.toggle("hide", !live && !APP.clips.length);
+    bar.classList.toggle("idle", !live);
+    bar.textContent = live
+      ? ("Recording walk-around  "+t+"  ·  tap to stop")
+      : (APP.clips.length ? (APP.clips.length+" walk-around clip"+(APP.clips.length>1?"s":"")+"  ·  tap to record more") : "Record the walk-around");
+  }
+}
+function startWalkRec(){
+  if(APP.recOn || !APP.stream) return;
+  if(!window.MediaRecorder){ paintRec(); return; }
+  const mime=recMime();
+  APP.recChunks=[];
+  APP.recMime=mime;
+  try{
+    const opts=mime
+      ? {mimeType:mime, videoBitsPerSecond:1200000, audioBitsPerSecond:64000}
+      : {videoBitsPerSecond:1200000, audioBitsPerSecond:64000};
+    APP.recorder=mime ? new MediaRecorder(APP.stream, opts) : new MediaRecorder(APP.stream);
+  }catch(e){
+    try{ APP.recorder=new MediaRecorder(APP.stream); }catch(err){ toast("This phone can’t record the walk-around."); paintRec(); return; }
+  }
+  APP.recorder.ondataavailable=function(ev){ if(ev.data && ev.data.size) APP.recChunks.push(ev.data); };
+  APP.recorder.onstop=function(){
+    const type=(APP.recorder && APP.recorder.mimeType) || APP.recMime || "video/mp4";
+    const blob=new Blob(APP.recChunks, {type:type});
+    APP.recChunks=[];
+    APP.recorder=null;
+    APP.recOn=false;
+    if(APP.recTick){ clearInterval(APP.recTick); APP.recTick=null; }
+    if(blob.size>800){
+      const dur=Date.now()-APP.recStarted;
+      const url=URL.createObjectURL(blob);
+      APP.clips.push({blob:blob, url:url, dur:dur, mime:type});
+      toast("Walk-around saved  "+recClock(dur));
+    }
+    paintRec();
+  };
+  try{ APP.recorder.start(1000); }catch(e){ try{ APP.recorder.start(); }catch(err){ APP.recorder=null; return; } }
+  APP.recOn=true;
+  APP.recStarted=Date.now();
+  if(APP.recTick) clearInterval(APP.recTick);
+  APP.recTick=setInterval(paintRec, 400);
+  paintRec();
+  toast("Recording — talk as you walk. Zoom in on damage.");
+}
+function stopWalkRec(){
+  if(!APP.recOn || !APP.recorder){ paintRec(); return Promise.resolve(); }
+  return new Promise(function(res){
+    const rec=APP.recorder;
+    rec.addEventListener("stop", function(){ res(); }, {once:true});
+    try{ if(rec.state!=="inactive") rec.stop(); else res(); }catch(e){ res(); }
+  });
+}
+function toggleWalkRec(){
+  if(APP.recOn) stopWalkRec();
+  else {
+    if(!APP.stream){ show("camera"); startPreview("shotCam"); return; }
+    startWalkRec();
+  }
+}
+function camTrack(){
+  return APP.stream && APP.stream.getVideoTracks && APP.stream.getVideoTracks()[0];
+}
+function camZoomRange(){
+  const t=camTrack();
+  if(!t || !t.getCapabilities) return null;
+  const c=t.getCapabilities();
+  if(!c || c.zoom==null) return null;
+  return {min:c.zoom.min||1, max:c.zoom.max||1, step:c.zoom.step||0.1};
+}
+function setCamZoom(next){
+  const t=camTrack();
+  const range=camZoomRange();
+  if(t && range){
+    APP.zoom=Math.min(range.max, Math.max(range.min, next));
+    t.applyConstraints({advanced:[{zoom:APP.zoom}]}).catch(function(){});
+    return;
+  }
+  APP.zoom=Math.min(4, Math.max(1, next));
+  const v=$("shotCam");
+  if(v) v.style.transform="scale("+APP.zoom+")";
+}
+function nudgeZoom(dir){
+  const range=camZoomRange();
+  const step=range ? Math.max(range.step||0.1, (range.max-range.min)/8) : 0.25;
+  setCamZoom((APP.zoom||1)+dir*step);
+}
+function bindCamZoom(){
+  const stage=document.querySelector(".stage");
+  if(!stage || stage._zoomBound) return;
+  stage._zoomBound=true;
+  let startDist=0, startZ=1;
+  function dist(touches){
+    const a=touches[0], b=touches[1];
+    return Math.hypot(a.clientX-b.clientX, a.clientY-b.clientY);
+  }
+  stage.addEventListener("touchstart", function(e){
+    if(e.touches.length===2){
+      startDist=dist(e.touches);
+      startZ=APP.zoom||1;
+    }
+  }, {passive:true});
+  stage.addEventListener("touchmove", function(e){
+    if(e.touches.length!==2 || !startDist) return;
+    e.preventDefault();
+    const scale=dist(e.touches)/startDist;
+    setCamZoom(startZ*scale);
+  }, {passive:false});
+}
+
+
 
 function normalizeVin(text){
   if(!text) return "";
@@ -2324,6 +2481,15 @@ async function buildPdf(){
     y=wrap(story, 36, y, W-72, 16);
     y+=18;
   }
+  if(APP.clips && APP.clips.length){
+    setFont(true, 13, INK);
+    d.text("Walk-around video", 36, y);
+    y+=16;
+    setFont(false, 11, INK);
+    const clipLine=APP.clips.map(function(c,i){ return "Clip "+(i+1)+" · "+recClock(c.dur); }).join("   ");
+    y=wrap(clipLine+"  — attached to the email.", 36, y, W-72, 16);
+    y+=18;
+  }
   if(isWeb()){
     const listing=websiteCopy();
     if(listing){
@@ -2461,6 +2627,7 @@ function packetSummary(){
     });
   });
   if(caps.length) lines.push("Damage: "+caps.join("; "));
+  if(APP.clips && APP.clips.length) lines.push("Walk-around video: "+APP.clips.length+" clip"+(APP.clips.length>1?"s":""));
   const to=loadRecipients();
   if(to.length) lines.push("Send to: "+to.join(", "));
   return lines.join("\n");
@@ -2472,6 +2639,10 @@ async function buildZip(){
   const doc=await buildPdf();
   folder.file((folderName()||"vehicle")+"-packet.pdf", doc.output("blob"));
   capturedFiles().forEach(function(s){ folder.file(s.name, blobFrom(s.data)); });
+  (APP.clips||[]).forEach(function(c,i){
+    const ext=(c.mime||"").indexOf("webm")>=0?"webm":"mp4";
+    folder.file("walk-around-"+String(i+1)+"."+ext, c.blob);
+  });
   Object.keys(APP.docs||{}).forEach(function(id){
     const d=APP.docs[id]; if(!d||!d.data) return;
     folder.file("docs-"+id+"-"+(d.name||"file"), blobFrom(d.data));
@@ -2487,11 +2658,13 @@ function esc(s){ return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;")
 function openViewer(kind, src, title){
   const v=$("viewer"); if(!v) return;
   $("viewerTitle").textContent = title || "File";
-  const pdf=$("viewerPdf"); const img=$("viewerImg"); const doc=$("viewerDoc");
+  const pdf=$("viewerPdf"); const img=$("viewerImg"); const doc=$("viewerDoc"); const vid=$("viewerVid");
   if(pdf){ pdf.style.display="none"; pdf.removeAttribute("src"); }
   if(img){ img.style.display="none"; img.removeAttribute("src"); }
+  if(vid){ vid.classList.add("hide"); vid.removeAttribute("src"); vid.pause && vid.pause(); }
   if(doc){ doc.classList.remove("on"); doc.innerHTML=""; }
   if(kind==="packet"){ if(doc){ doc.innerHTML=src; doc.classList.add("on"); } }
+  else if(kind==="vid"){ if(vid){ vid.classList.remove("hide"); vid.src=src; vid.play && vid.play(); } }
   else if(kind==="img"){ img.style.display="block"; img.src=src; }
   else if(src && /^data:image\//.test(src)){ img.style.display="block"; img.src=src; }
   else if(src && src.indexOf("data:application/pdf")===0){
@@ -2508,6 +2681,7 @@ function openViewer(kind, src, title){
 function closeViewer(){
   const v=$("viewer"); if(v) v.classList.remove("on");
   const pdf=$("viewerPdf"); if(pdf) pdf.removeAttribute("src");
+  const vid=$("viewerVid"); if(vid){ try{ vid.pause(); }catch(e){} vid.removeAttribute("src"); vid.classList.add("hide"); }
   const doc=$("viewerDoc"); if(doc){ doc.classList.remove("on"); doc.innerHTML=""; }
 }
 function packetHtml(){
@@ -2548,7 +2722,7 @@ async function paintSubmit(){
     ? (APP.inviteName.split(/\s+/)[0]+"'s trade")
     : (unitLabel()==="Unit" ? "Vehicle packet" : unitLabel());
   $("subBadge").textContent = why();
-  $("subBody").textContent = shotCount()+" photo(s) · "+Object.keys(APP.docs||{}).length+" document(s)";
+  $("subBody").textContent = shotCount()+" photo(s)"+(APP.clips&&APP.clips.length?" · "+APP.clips.length+" video":"")+" · "+Object.keys(APP.docs||{}).length+" document(s)";
   $("subFacts").innerHTML =
     factCell("Year", APP.year)+factCell("Make", APP.make)+factCell("Model", APP.model)+
     factCell("Trim", APP.trim)+factCell("Colour", APP.color)+factCell("Kilometres", APP.km && Number(String(APP.km).replace(/,/g,"")).toLocaleString("en-CA"))+
@@ -2568,6 +2742,17 @@ async function paintSubmit(){
     grid.appendChild(b);
   });
   if(!capturedFiles().length) grid.innerHTML='<p class="quote">No photos yet.</p>';
+  const vids=$("subVids");
+  if(vids){
+    vids.innerHTML="";
+    (APP.clips||[]).forEach(function(c,i){
+      const b=document.createElement("button"); b.type="button"; b.className="review";
+      b.innerHTML="<h4>Walk-around "+(i+1)+"</h4><p>"+recClock(c.dur)+" · tap to play</p>";
+      b.onclick=function(){ openViewer("vid", c.url, "Walk-around "+(i+1)); };
+      vids.appendChild(b);
+    });
+  }
+  if($("subVidHead")) $("subVidHead").classList.toggle("hide", !(APP.clips&&APP.clips.length));
   const docs=$("subDocs"); docs.innerHTML="";
   const keys=Object.keys(APP.docs||{});
   $("subDocHead").classList.toggle("hide", !keys.length);
@@ -2622,12 +2807,12 @@ function packetMailHtml(shots){
     h+='<p style="margin:18px 0 8px;font-weight:800;font-size:13px;letter-spacing:.04em;color:#6B6278">'+(escHtml((s.title||("Photo "+(i+1))).toUpperCase()))+(s.cap?' — '+escHtml(s.cap):'')+'</p>';
     h+='<img src="cid:photo'+i+'@inspect" width="640" alt="" style="display:block;width:100%;max-width:640px;border-radius:12px;background:#111"/>';
   });
-  h+='<p style="margin:22px 0 0;color:#6B6278;font-size:13px">The catalog PDF is attached.</p></div></div>';
+  h+='<p style="margin:22px 0 0;color:#6B6278;font-size:13px">The catalog PDF'+(APP.clips&&APP.clips.length?" and walk-around video":"")+' '+(APP.clips&&APP.clips.length?"are":"is")+' attached.</p></div></div>';
   return h;
 }
 async function sharePacket(){
   const shots=capturedFiles();
-  if(!shots.length && !Object.keys(APP.docs||{}).length && !(APP.notes||APP.heard)){ toast("Add the story or photos first."); return; }
+  if(!shots.length && !(APP.clips&&APP.clips.length) && !Object.keys(APP.docs||{}).length && !(APP.notes||APP.heard)){ toast("Add the story or photos first."); return; }
   const btn=$("btnSharePack");
   if(btn){ btn.disabled=true; btn.textContent="Sending…"; }
   try{
@@ -2652,12 +2837,20 @@ async function sharePacket(){
     try{
       parts.push({disp:"attachment", b64:bufB64(await pdfBlob.arrayBuffer()), name:base+"-packet.pdf", mime:"application/pdf"});
     }catch(e){}
+    for(let i=0;i<(APP.clips||[]).length;i++){
+      const c=APP.clips[i];
+      if(!c || !c.blob || c.blob.size>18000000) continue;
+      try{
+        const ext=(c.mime||"").indexOf("webm")>=0?"webm":"mp4";
+        parts.push({disp:"attachment", b64:bufB64(await c.blob.arrayBuffer()), name:base+"-walk-"+String(i+1)+"."+ext, mime:c.mime||"video/mp4"});
+      }catch(e){}
+    }
     try{
       const sent=await sendFromMe(to, subject, body, html, parts, extra);
       if(sent && sent.ok){
         toast(APP.role==="guest"
           ? ("Sent to "+(APP.requestedByName||nameForEmail(to[0])||to[0])+".")
-          : ("Sent photos, description, and PDF to "+tradeToLine(to)+"."));
+          : ("Sent photos"+(APP.clips&&APP.clips.length?", video":"")+", description, and PDF to "+tradeToLine(to)+"."));
         return;
       }
     }catch(e){}
@@ -2673,6 +2866,8 @@ async function sharePacket(){
 function resetAll(){
   APP.year=APP.make=APP.model=APP.trim=APP.color=APP.km=APP.vin=APP.stock=APP.heard=APP.notes=APP.webcopy="";
   APP.photos={}; APP.damage={}; APP.closeups=[]; APP.docs={}; APP.damageCap={}; APP.closeupCap=[]; APP.webcopy="";
+  APP.clips=[]; APP.recOn=false; APP.recorder=null; APP.recChunks=[]; APP.zoom=1;
+  if(APP.recTick){ clearInterval(APP.recTick); APP.recTick=null; }
   $("transcript").value="";
   document.querySelectorAll(".sheet").forEach(n=>n.classList.remove("on"));
   show("start");
@@ -2729,7 +2924,7 @@ $("btnClose").onclick = function(){ openCamera("close","new"); };
 $("btnDocs").onclick = function(){ paintDocs(); show("photos"); $("docsBlock") && $("docsBlock").scrollIntoView({behavior:"smooth", block:"start"}); };
 $("btnVin").onclick = $("verifyVin").onclick = function(){ startVinScan(); };
 $("unitLine").onclick = function(){ fillUnit(); $("unitSheet").classList.add("on"); };
-$("btnSend").onclick = function(){ show("submit"); };
+$("btnSend").onclick = function(){ stopWalkRec().then(function(){ show("submit"); }); };
 if($("btnSavePhotos")) $("btnSavePhotos").onclick = savePhotos;
 if($("btnSharePack")) $("btnSharePack").onclick = sharePacket;
 if($("viewerX")) $("viewerX").onclick = closeViewer;
@@ -2743,6 +2938,10 @@ if($("btnSavePhotos")) $("btnSavePhotos").onclick = savePhotos;
 
 $("shutter").onclick = snap;
 $("shutter").addEventListener("touchend", function(e){ e.preventDefault(); snap(); }, {passive:false});
+if($("camRec")) $("camRec").onclick = function(e){ e.preventDefault(); e.stopPropagation(); toggleWalkRec(); };
+if($("photosRec")) $("photosRec").onclick = function(){ toggleWalkRec(); };
+if($("zoomIn")) $("zoomIn").onclick = function(){ nudgeZoom(1); };
+if($("zoomOut")) $("zoomOut").onclick = function(){ nudgeZoom(-1); };
 $("camX").addEventListener("click", stopDamageMic);
 $("camSkip").onclick = function(){
   stopDamageMic();
