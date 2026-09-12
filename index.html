@@ -105,8 +105,8 @@ button.doc-sq { width:100%; appearance:none; -webkit-appearance:none; font:inher
 .doc-sq.vauto-sq img { object-fit:cover; pointer-events:none; }
 .doc-sq.openlane-sq { padding:0; border:0; background:#0B1B4A; }
 .doc-sq.openlane-sq img { object-fit:cover; pointer-events:none; }
-.doc-sq.eblock-sq { padding:0; border:0; background:#000; }
-.doc-sq.eblock-sq img { object-fit:cover; pointer-events:none; }
+.doc-sq.eblock-sq { padding:0; border:0; background:#0B0B0B; }
+.doc-sq.eblock-sq img, .doc-sq.eblock-sq svg { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; pointer-events:none; display:block; }
 .doc-sq.vauto-sq .veil { background:transparent; }
 .doc-sq.carfax-sq { padding:0; border:0; background:#fff; }
 .doc-sq.carfax-sq img { object-fit:cover; pointer-events:none; }
@@ -2911,7 +2911,7 @@ function paintDocs(){
       const el=document.createElement("button");
       el.type="button";
       el.className="doc-sq eblock-sq";
-      el.innerHTML='<img src="docs/eblock.jpg" alt="eBlock">';
+      el.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" aria-hidden="true"><rect width="400" height="400" fill="#0B0B0B"/><rect x="0" y="0" width="14" height="400" fill="#00C853"/><text x="200" y="222" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="78" font-weight="800" fill="#FFFFFF">eBlock</text></svg>';
       el.onclick=openEblock;
       host.appendChild(el);
       return;
@@ -2968,18 +2968,21 @@ function copyVin(){
   }catch(e){}
   return vin;
 }
-function openVauto(){
-  copyVin();
-  window.open(VAUTO_APPRAISE, "_blank", "noopener");
+function openBrand(url){
+  const vin=copyVin();
+  if(vin) toast("VIN copied");
+  const a=document.createElement("a");
+  a.href=url;
+  a.target="_blank";
+  a.rel="noopener noreferrer";
+  a.style.display="none";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
 }
-function openOpenlane(){
-  copyVin();
-  window.open(OPENLANE_GUIDE, "_blank", "noopener");
-}
-function openEblock(){
-  copyVin();
-  window.open(EBLOCK_GUIDE, "_blank", "noopener");
-}
+function openVauto(){ openBrand(VAUTO_APPRAISE); }
+function openOpenlane(){ openBrand(OPENLANE_GUIDE); }
+function openEblock(){ openBrand(EBLOCK_GUIDE); }
 function openCarfaxPaste(){
   const el=$("carfaxUrl");
   if(el) el.value="";

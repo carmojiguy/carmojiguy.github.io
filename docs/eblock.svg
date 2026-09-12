@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" role="img" aria-label="eBlock">
+  <rect width="400" height="400" fill="#0B0B0B"/>
+  <rect x="0" y="0" width="12" height="400" fill="#00C853"/>
+  <text x="200" y="222" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="78" font-weight="800" fill="#FFFFFF" letter-spacing="-2">eBlock</text>
+</svg>
