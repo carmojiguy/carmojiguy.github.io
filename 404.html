@@ -490,6 +490,14 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
   </div>
   <div id="vinScanWrap"></div>
   <div class="pad">
+    <div id="typeWrap">
+      <button class="pill" type="button" id="btnDealType">Appraisal type</button>
+      <p class="quote" id="typeQuote">Trade-in, locate, general acquisition, or Canada Drives.</p>
+      <div id="cdWrap" class="hide">
+        <label class="k">Canada Drives application number</label>
+        <input class="f" id="home-cd-app" placeholder="Application number" autocomplete="off" />
+      </div>
+    </div>
     <div id="storyBlock">
     <button class="pill cyan" type="button" id="btnStory">What's the Story?</button>
     <p class="quote" id="storyQuote">Simply press this button. Describe the year, make, model, option, trim, colour, kilometres, and condition of this vehicle.</p>
@@ -726,6 +734,19 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
     <p class="hint">Carfax, vAuto, OpenLane, eBlock — optional.</p>
   </div>
 </div>
+<div class="sheet" id="typeSheet">
+  <div class="card">
+    <button class="x" type="button" data-close="typeSheet">✕</button>
+    <h3>Appraisal type</h3>
+    <p class="hint">Pick one. If it’s Canada Drives, add the application number.</p>
+    <div id="typeChips" class="to-chips"></div>
+    <div id="cdBox" class="hide">
+      <label class="k">Canada Drives application number</label>
+      <input class="f" id="cd-app" placeholder="Application number" autocomplete="off" />
+    </div>
+    <button class="pill purple" type="button" id="typeSave" style="margin-top:14px">Done</button>
+  </div>
+</div>
 <div class="sheet" id="unitSheet">
   <div class="card">
     <button class="x" type="button" data-close="unitSheet">✕</button>
@@ -818,7 +839,8 @@ window.APP = {
   dmgArmed:false, dmgCaption:"", dmgRec:null, emails:[],
   clips:[], recOn:false, recorder:null, recChunks:[], recTick:null, recStarted:0, recMime:"", zoom:1,
   googleToken: window._gtoken || "", extraUsers:[], requestedBy:"", requestedByName:"",
-  inviteUnit:"", inviteStock:"", inviteName:"", inviteEmail:""
+  inviteUnit:"", inviteStock:"", inviteName:"", inviteEmail:"",
+  dealType:"", cdApp:""
 };
 
 function $(id){ return document.getElementById(id); }
@@ -848,8 +870,52 @@ function pic(key){ return (GHOSTS && GHOSTS[key]) || ""; }
 function ghostPic(key){ return (typeof GHOSTS==="object" && GHOSTS[key]) || pic(key); }
 function isPassGhost(key){ return key==="pass" || key==="qfront_pass" || key==="qrear"; }
 function unitLabel(){ return [APP.year, APP.make, APP.model].filter(Boolean).join(" ") || "Unit"; }
-function why(){ return APP.purpose==="website" ? "Website" : "Appraisal"; }
+function why(){
+  if(APP.purpose==="website") return "Website";
+  if(APP.dealType==="Canada Drives" && (APP.cdApp||"").trim()) return "Canada Drives "+APP.cdApp.trim();
+  return APP.dealType || "Appraisal";
+}
 function isWeb(){ return APP.purpose==="website"; }
+const DEAL_TYPES = ["Trade-in","Locate","General acquisition","Canada Drives"];
+function paintDealType(){
+  const t=APP.dealType||"";
+  const cd=t==="Canada Drives";
+  const num=(APP.cdApp||"").trim();
+  const btn=$("btnDealType");
+  if(btn) btn.textContent = t
+    ? (cd && num ? ("Canada Drives · "+num) : (cd ? "Canada Drives · add application #" : t))
+    : "Appraisal type";
+  if($("typeQuote")) $("typeQuote").textContent = t
+    ? (cd ? "Canada Drives — enter the application number so we can match the file." : t+".")
+    : "Trade-in, locate, general acquisition, or Canada Drives.";
+  if($("cdWrap")) $("cdWrap").classList.toggle("hide", !cd);
+  if($("cdBox")) $("cdBox").classList.toggle("hide", !cd);
+  if($("home-cd-app") && $("home-cd-app")!==document.activeElement) $("home-cd-app").value=num;
+  if($("cd-app") && $("cd-app")!==document.activeElement) $("cd-app").value=num;
+  const host=$("typeChips");
+  if(host){
+    host.innerHTML="";
+    DEAL_TYPES.forEach(function(name){
+      const b=document.createElement("button");
+      b.type="button";
+      b.className="mail"+(t===name?" on":"");
+      b.innerHTML='<div class="mark">'+(t===name?"✓":"")+'</div><div><b>'+name+'</b></div>';
+      b.onclick=function(){
+        APP.dealType=name;
+        paintDealType();
+        if(name==="Canada Drives"){
+          const box=$("cd-app")||$("home-cd-app");
+          if(box) setTimeout(function(){ box.focus(); }, 50);
+        }
+      };
+      host.appendChild(b);
+    });
+  }
+}
+function openDealType(){
+  paintDealType();
+  if($("typeSheet")) $("typeSheet").classList.add("on");
+}
 function websiteCopy(){
   if(APP.webcopy && APP.webcopy.trim()) return APP.webcopy.trim();
   return writeListing();
@@ -861,6 +927,7 @@ function applyMode(){
   if($("webWrap")) $("webWrap").classList.toggle("hide", APP.role==="guest");
   if($("webLabel")) $("webLabel").textContent = web ? "Website-ready description" : "Description";
   if($("storyBlock")) $("storyBlock").classList.remove("hide");
+  if($("typeWrap")) $("typeWrap").classList.toggle("hide", web);
   applyRole();
   if($("storyQuote")) $("storyQuote").textContent = web
     ? "Describe the year, make, model, option, trim, colour, kilometres, and condition — this writes the website listing."
@@ -1097,6 +1164,7 @@ function applyRole(){
   if($("btnSend")) $("btnSend").textContent = guest ? "Review my trade" : "Send";
   if(guest) paintGuestStory();
   if($("startX")) $("startX").classList.toggle("hide", guest);
+  if($("typeWrap")) $("typeWrap").classList.toggle("hide", guest || isWeb());
   const web=isWeb();
   if(web){
     ["vinScanWrap","vinBtns","homeDocs","docsBlock"].forEach(function(id){
@@ -4022,6 +4090,8 @@ function addExtraRecipient(){
 function packetSummary(){
   const lines=[];
   lines.push(unitLabel()+" — "+why());
+  if(APP.dealType) lines.push("Appraisal type: "+APP.dealType);
+  if(APP.dealType==="Canada Drives" && (APP.cdApp||"").trim()) lines.push("Canada Drives application #: "+APP.cdApp.trim());
   [["Year",APP.year],["Make",APP.make],["Model",APP.model],["Trim",APP.trim],["Colour",APP.color],["Kilometres",APP.km],["VIN",APP.vin],["Stock",APP.stock]].forEach(function(r){ if(r[1]) lines.push(r[0]+": "+r[1]); });
   if(APP.heard) lines.push("Story: "+APP.heard);
   if(APP.notes) lines.push("Condition: "+APP.notes);
@@ -4101,7 +4171,7 @@ function closeViewer(){
   const doc=$("viewerDoc"); if(doc){ doc.classList.remove("on"); doc.innerHTML=""; }
 }
 function packetHtml(){
-  const rows=[["Year",APP.year],["Make",APP.make],["Model",APP.model],["Trim",APP.trim],["Colour",APP.color],["Kilometres",APP.km],["VIN",APP.vin],["Stock",APP.stock]].filter(function(r){ return r[1]; });
+  const rows=[["Year",APP.year],["Make",APP.make],["Model",APP.model],["Trim",APP.trim],["Colour",APP.color],["Kilometres",APP.km],["VIN",APP.vin],["Stock",APP.stock],["Type",APP.dealType],["Canada Drives #", APP.dealType==="Canada Drives"?APP.cdApp:""]].filter(function(r){ return r[1]; });
   let h='<div class="badge">'+esc(why())+'</div>';
   h+='<h2>'+esc(unitLabel())+'</h2>';
   h+='<p class="quote">'+esc(shotCount()+" photo(s)")+'</p>';
@@ -4351,6 +4421,7 @@ async function sharePacket(){
 function resetAll(){
   releaseHardware();
   APP.year=APP.make=APP.model=APP.trim=APP.color=APP.km=APP.vin=APP.stock=APP.heard=APP.notes=APP.webcopy="";
+  APP.dealType=""; APP.cdApp="";
   APP.photos={}; APP.damage={}; APP.closeups=[]; APP.docs={}; APP.damageCap={}; APP.closeupCap=[]; APP.webcopy="";
   APP.clips=[]; APP.recOn=false; APP.recorder=null; APP.recChunks=[]; APP.zoom=1;
   if(APP.recTick){ clearInterval(APP.recTick); APP.recTick=null; }
@@ -4367,7 +4438,23 @@ document.querySelectorAll("[data-close]").forEach(function(b){
     if(id==="vinSheet") stopVinScan();
   });
 });
-$("startAppraise").onclick = function(){ setPurpose("appraise"); show("home"); };
+$("startAppraise").onclick = function(){ setPurpose("appraise"); paintDealType(); show("home"); };
+if($("btnDealType")) $("btnDealType").onclick = openDealType;
+if($("typeSave")) $("typeSave").onclick = function(){
+  APP.cdApp=(($("cd-app")&&$("cd-app").value)||($("home-cd-app")&&$("home-cd-app").value)||"").trim();
+  if(APP.dealType==="Canada Drives" && !APP.cdApp){ toast("Add the Canada Drives application number."); return; }
+  if($("typeSheet")) $("typeSheet").classList.remove("on");
+  paintDealType();
+};
+function onCdInput(el){
+  if(!el) return;
+  el.addEventListener("input", function(){
+    APP.cdApp=el.value.trim();
+    paintDealType();
+  });
+}
+onCdInput($("cd-app"));
+onCdInput($("home-cd-app"));
 function openStoryMic(){
   killMediaNow();
   $("storySheet").classList.add("on");
