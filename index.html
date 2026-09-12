@@ -384,7 +384,7 @@ textarea.note { min-height:160px; max-height:none; resize:vertical; overflow:aut
     <button class="pill purple" type="button" id="btnPictures" style="margin-top:16px">Just Pictures</button>
     <div id="homeDocs">
     <button class="pill" type="button" id="btnDocs">Appraisial documents</button>
-    <p class="quote">Carfax, vAuto, book, MMR — optional. Photograph the packet if you have it.</p>
+    <p class="quote">Carfax, vAuto, OpenLane, eBlock — optional. Photograph the packet if you have it.</p>
     </div>
     <div id="vinBtns">
     <button class="pill cyan" type="button" id="btnVin">Photo of ownership or VIN</button>
@@ -596,7 +596,7 @@ textarea.note { min-height:160px; max-height:none; resize:vertical; overflow:aut
   <div class="card">
     <button class="x" type="button" data-close="docsSheet">✕</button>
     <h3>Appraisal documents</h3>
-    <p class="hint">Carfax, vAuto, book, MMR — optional.</p>
+    <p class="hint">Carfax, vAuto, OpenLane, eBlock — optional.</p>
   </div>
 </div>
 <div class="sheet" id="unitSheet">
@@ -663,12 +663,13 @@ const VIEWS = [
 ];
 const DOC_TYPES = [
   ["carfax","Carfax","Vehicle history report"],
+  ["vauto","vAuto","vAuto appraisal"],
+  ["openlane","OpenLane","Auction / run list sheet"],
+  ["eblock","eBlock","eBlock recap or bid sheet"],
   ["vauto_summary","vAuto summary","Appraisal summary page"],
   ["vauto_book","vAuto book","Book / wholesale report"],
   ["vauto_comp","Comp set","Competitive set screenshot"],
   ["mmr","MMR","Manheim Market Report"],
-  ["openlane","OpenLane","Auction / run list sheet"],
-  ["eblock","eBlock","eBlock recap or bid sheet"],
   ["other","Other","Anything else in the packet"]
 ];
 
