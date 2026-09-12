@@ -1501,40 +1501,21 @@ async function sendTradeInvite(){
   catch(e){ copy={subject:"Your trade-in link", text:"Hi "+first+",\n\n"+url+"\n", html:""}; }
   const subject=copy.subject, msg=copy.text, html=copy.html, compose=copy.compose||copy.text;
   const from=APP.userEmail||"";
-  const inviteExtra=staffEmail(email)===SHAWN_COPY ? {} : {bcc:[SHAWN_COPY]};
-  const gmailUrl=email ? gmailCompose(email, subject, compose, inviteExtra) : "";
-  let opened=null;
-  if(gmailUrl){
-    try{ opened=openGmail(email, subject, compose, inviteExtra); }catch(e){ opened=null; }
-  }
+  const sms=phone ? inviteSmsCopy(first, url) : "";
   const btn=$("inviteSend");
   if(btn){ btn.disabled=true; btn.textContent="Sending…"; }
   try{ if(navigator.clipboard && navigator.clipboard.writeText) await navigator.clipboard.writeText(url); }catch(e){}
+  let mailed=false;
   let status="Link is ready — copy it below.";
   try{
-    if(email && from){
-      if(APP.googleToken){
-        const sent=await sendFromMe(email, subject, msg, html, null, inviteExtra);
-        if(sent && sent.ok && sent.via==="gmail") status="Sent from "+from+" to "+email+".";
-        else status=opened
-          ? ("Gmail opened as "+from+". Hit Send in that window.")
-          : ("Tap Open Gmail as "+from+" and hit Send.");
-      } else {
-        status=opened
-          ? ("Gmail opened as "+from+". Hit Send in that window — that’s your account.")
-          : ("Tap Open Gmail as "+from+" and hit Send.");
-      }
-    } else if(email){
-      const sent=await sendFromMe(email, subject, msg, html, null, inviteExtra);
-      if(sent && sent.ok) status="Sent to "+email+".";
-      else status="Couldn’t deliver to "+email+". Copy the link or tap Open Gmail.";
+    if(email){
+      const sent=await sendFromMe(email, subject, msg, html, null, {});
+      mailed=!!(sent && sent.ok);
+      status=mailed ? ("Sent to "+email+".") : "Couldn’t send the email. Copy the link below.";
     }
     if(phone){
-      const sms=inviteSmsCopy(first, url);
-      let texted=false;
-      try{ texted=await sendTextTo(phone, sms); }catch(e){}
-      if(!texted) fireSms(phone, sms);
-      status += " Text "+(texted?"sent":"opened")+" to "+formatPhoneMask(phone)+".";
+      fireSms(phone, sms);
+      status += (email?" ":"")+"Text opened for "+formatPhoneMask(phone)+".";
     }
   }catch(e){
     status="Send hit a snag. Copy the link below.";
@@ -1546,9 +1527,9 @@ async function sendTradeInvite(){
     if($("invUrl")) $("invUrl").textContent=url;
     const mailBtn=$("invMailBtn");
     if(mailBtn){
-      if(email){
+      if(email && !mailed){
         mailBtn.classList.remove("hide");
-        mailBtn.href=gmailUrl || gmailCompose(email, subject, msg, inviteExtra);
+        mailBtn.href=gmailCompose(email, subject, compose, {});
         mailBtn.target="_blank";
         mailBtn.rel="noopener";
         mailBtn.textContent="Open Gmail";
@@ -1556,7 +1537,7 @@ async function sendTradeInvite(){
     }
     const smsBtn=$("invSmsBtn");
     if(smsBtn){
-      if(phone){ smsBtn.classList.remove("hide"); smsBtn.href=smsHref(phone, msg); }
+      if(phone){ smsBtn.classList.remove("hide"); smsBtn.href=smsHref(phone, sms); }
       else smsBtn.classList.add("hide");
     }
     toast(status);
