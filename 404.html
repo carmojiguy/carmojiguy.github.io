@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- send-v19 2026-09-12: Send tap connects Gmail then delivers the packet -->
+<!-- send-v20 2026-09-12: remember unfinished jobs, ask continue or start new -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -227,6 +227,21 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
 .guest-story .pill { width:100%; margin:14px 0 0; padding:15px 20px; position:sticky; bottom:0; }
 .guest-story .link { display:block; width:100%; margin:10px 0 0; color:var(--purple-deep); text-align:center; }
 .guest-story p { color:var(--muted); text-shadow:none; font-size:14px; line-height:1.5; margin:0 0 10px; font-weight:600; }
+.resume-card {
+  position:absolute; left:16px; right:16px;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  z-index:8;
+  background:rgba(250,249,252,.97); backdrop-filter:blur(22px); -webkit-backdrop-filter:blur(22px);
+  border-radius:26px; padding:22px 18px 16px;
+  box-shadow:0 18px 50px rgba(0,0,0,.28);
+}
+.resume-card.hide { display:none; }
+.resume-card h2 { margin:0 0 8px; font-size:26px; letter-spacing:-.5px; }
+.resume-card .quote { margin:0 0 16px; }
+.resume-card .pill { margin:0 0 8px; }
+#start.has-resume .start-actions,
+#start.has-resume .start-more,
+#start.has-resume .guest-story { visibility:hidden; pointer-events:none; }
 .guest-steps { display:flex; gap:6px; margin:4px 0 0; }
 .guest-steps span { flex:1; text-align:center; background:var(--fill); color:var(--purple-deep); border-radius:999px; padding:7px 4px; font-size:11px; font-weight:800; letter-spacing:.02em; }
 .start-x { position:absolute; top: calc(12px + env(safe-area-inset-top)); left:16px; z-index:2; }
@@ -328,6 +343,10 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
     left:50%; right:auto; top:50%; transform:translate(-50%, -50%);
     width:min(520px, 46vw); max-width:520px;
   }
+  .resume-card {
+    left:50%; right:auto; top:50%; bottom:auto; transform:translate(-50%, -50%);
+    width:min(480px, 42vw); max-width:480px;
+  }
   .start-actions .pill {
     width:min(360px, 32vw); font-size:18px; padding:18px 24px;
     background:rgba(250,249,252,.92); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
@@ -413,6 +432,13 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
     </div>
     <button class="pill cyan" type="button" id="startStory">Start by clicking here!</button>
     <button class="link" type="button" id="guestType">Type instead</button>
+  </div>
+  <div class="resume-card hide" id="resumeCard">
+    <p class="login-kicker">Unfinished</p>
+    <h2>Pick up where you left off?</h2>
+    <p class="quote" id="resumeLead">We saved the vehicle you were working on.</p>
+    <button class="pill purple" type="button" id="resumeContinue">Continue this vehicle</button>
+    <button class="pill wash" type="button" id="resumeFresh">Start new</button>
   </div>
 </section>
 
@@ -981,6 +1007,7 @@ function show(id){
   document.querySelectorAll(".screen").forEach(n=>n.classList.remove("on"));
   el.classList.add("on");
   window.scrollTo(0,0);
+  APP.screen=id;
   if(id!=="home" && id!=="camera") stopVinScan();
   if(id==="start" || id==="login" || id==="thanks"){
     var img = $(id==="login" ? "loginBg" : id==="thanks" ? "thanksBg" : "startBg");
@@ -998,6 +1025,7 @@ function show(id){
   if(id==="camera") startPreview("shotCam");
   if(id==="submit") paintSubmit();
   if(id==="users") paintUsers();
+  if(id!=="login" && id!=="thanks" && id!=="start") scheduleDraftSave();
 }
 
 function sessionKey(){ return "inspect.session"; }
@@ -1142,6 +1170,8 @@ function paintThanks(){
 }
 function finishGuest(){
   killMediaNow();
+  clearDraft();
+  clearSnapshot();
   paintThanks();
   show("thanks");
 }
@@ -1209,6 +1239,7 @@ function enterSession(role, user){
   saveSession();
   applyRole();
   show("start");
+  offerResume();
 }
 const TRADE_PUBLIC="https://carmojiguy.github.io/";
 function tradeInUrl(){
@@ -1840,49 +1871,188 @@ function idbOp(fn){
     }catch(e){ resolve(null); }
   });
 }
-function saveSnapshot(){
-  const snap={
+function idbPut(key, val){
+  return idbOp(function(db, resolve){
+    const tx=db.transaction("kv","readwrite");
+    tx.objectStore("kv").put(val, key);
+    tx.oncomplete=function(){ resolve(true); };
+    tx.onerror=function(){ resolve(false); };
+  });
+}
+function idbGet(key){
+  return idbOp(function(db, resolve){
+    const tx=db.transaction("kv","readonly");
+    const g=tx.objectStore("kv").get(key);
+    g.onsuccess=function(){ resolve(g.result||null); };
+    g.onerror=function(){ resolve(null); };
+  });
+}
+function idbDel(key){
+  return idbOp(function(db, resolve){
+    const tx=db.transaction("kv","readwrite");
+    tx.objectStore("kv").delete(key);
+    tx.oncomplete=function(){ resolve(true); };
+    tx.onerror=function(){ resolve(false); };
+  });
+}
+function draftOwner(){
+  if(APP.role==="guest") return "guest:"+(APP.inviteName||APP.requestedBy||"anon").toLowerCase();
+  return "staff:"+(staffEmail(APP.userEmail)||"local");
+}
+function draftKey(){ return "draft:"+draftOwner(); }
+function draftHasWork(a){
+  if(!a) return false;
+  if(a.year || a.make || a.model || a.vin || a.heard || a.notes || a.km || a.stock || a.trim || a.color) return true;
+  if(a.photos && Object.keys(a.photos).length) return true;
+  if(a.damage && Object.keys(a.damage).length) return true;
+  if(a.closeups && a.closeups.length) return true;
+  if(a.docs && Object.keys(a.docs).length) return true;
+  if(a.clips && a.clips.length) return true;
+  if(a.inviteName || a.inviteFirst || a.inviteEmail || a.invitePhone) return true;
+  return false;
+}
+function collectDraft(){
+  return {
     app:{
       purpose:APP.purpose, year:APP.year, make:APP.make, model:APP.model, trim:APP.trim,
       color:APP.color, km:APP.km, vin:APP.vin, stock:APP.stock, heard:APP.heard, notes:APP.notes,
       webcopy:APP.webcopy, photos:APP.photos, damage:APP.damage, closeups:APP.closeups,
       damageCap:APP.damageCap, closeupCap:APP.closeupCap, dealType:APP.dealType, cdApp:APP.cdApp,
-      emails:loadRecipients(), role:APP.role, userName:APP.userName, userEmail:APP.userEmail
+      emails:(typeof loadRecipients==="function"?loadRecipients():APP.emails),
+      role:APP.role, userName:APP.userName, userEmail:APP.userEmail,
+      inviteFirst:APP.inviteFirst, inviteLast:APP.inviteLast, inviteName:APP.inviteName,
+      inviteEmail:APP.inviteEmail, invitePhone:APP.invitePhone, inviteUnit:APP.inviteUnit,
+      inviteStock:APP.inviteStock, requestedBy:APP.requestedBy, requestedByName:APP.requestedByName,
+      docs:APP.docs||{},
+      clips:(APP.clips||[]).map(function(c){ return {blob:c.blob, dur:c.dur, mime:c.mime}; })
     },
+    screen: (APP.screen && ["home","verify","photos","submit","invite"].indexOf(APP.screen)>=0) ? APP.screen : (APP.inviteFirst?"invite":"home"),
     at:Date.now()
   };
-  try{ sessionStorage.setItem("inspect.pendingSend","1"); }catch(e){}
-  return idbOp(function(db, resolve){
-    const tx=db.transaction("kv","readwrite");
-    tx.objectStore("kv").put(snap, "pending");
-    tx.oncomplete=function(){ resolve(true); };
-    tx.onerror=function(){ resolve(false); };
+}
+function scheduleDraftSave(){
+  if(APP._resumeOpen) return;
+  if(!draftHasWork(APP)) return;
+  clearTimeout(APP._draftTimer);
+  APP._draftTimer=setTimeout(flushDraft, 700);
+}
+function flushDraft(){
+  if(APP._resumeOpen) return;
+  if(!draftHasWork(APP)) return;
+  const snap=collectDraft();
+  idbPut(draftKey(), snap).catch(function(){});
+}
+function clearDraft(){
+  clearTimeout(APP._draftTimer);
+  idbDel(draftKey());
+}
+function timeAgo(ts){
+  const s=Math.max(0, Math.floor((Date.now()-Number(ts||0))/1000));
+  if(s<45) return "just now";
+  if(s<120) return "a minute ago";
+  if(s<3600) return Math.floor(s/60)+" minutes ago";
+  if(s<7200) return "an hour ago";
+  if(s<86400) return Math.floor(s/3600)+" hours ago";
+  if(s<172800) return "yesterday";
+  return Math.floor(s/86400)+" days ago";
+}
+function hideResume(){
+  APP._resumeOpen=false;
+  APP._resumeSnap=null;
+  if($("resumeCard")) $("resumeCard").classList.add("hide");
+  if($("start")) $("start").classList.remove("has-resume");
+}
+function paintResume(snap){
+  const a=(snap && snap.app) || {};
+  const unit=[a.year, a.make, a.model].filter(Boolean).join(" ") || (a.inviteName ? ("Trade-in for "+a.inviteName) : "Unfinished vehicle");
+  const n=a.photos ? Object.keys(a.photos).length : 0;
+  const bits=[unit];
+  if(a.dealType) bits.push(a.dealType);
+  else if(a.purpose==="website") bits.push("Website");
+  if(n) bits.push(n+" photo"+(n===1?"":"s"));
+  if(a.heard || a.notes) bits.push("story saved");
+  bits.push("saved "+timeAgo(snap.at));
+  if($("resumeLead")) $("resumeLead").textContent=bits.join(" · ");
+  if($("resumeCard")) $("resumeCard").classList.remove("hide");
+  if($("start")) $("start").classList.add("has-resume");
+  APP._resumeOpen=true;
+  APP._resumeSnap=snap;
+}
+function offerResume(){
+  if(APP._resumeOpen) return;
+  if(draftHasWork(APP)) return;
+  if(!$("start") || !$("start").classList.contains("on")) return;
+  idbGet(draftKey()).then(function(snap){
+    if(!snap || !draftHasWork(snap.app)) return;
+    if(snap.at && Date.now()-snap.at > 21*24*60*60*1000){ clearDraft(); return; }
+    if($("start") && $("start").classList.contains("on")) paintResume(snap);
   });
 }
+function continueDraft(){
+  const snap=APP._resumeSnap;
+  hideResume();
+  if(!snap) return;
+  applySnapshot(snap);
+  if($("transcript") && (APP.heard||APP.notes)) $("transcript").value=APP.heard||APP.notes||"";
+  applyRole();
+  paintDealType();
+  const screen=snap.screen||"home";
+  if(screen==="invite"){ openInvite(); return; }
+  if(screen==="verify"){ show("verify"); return; }
+  if(screen==="photos"){ show("photos"); return; }
+  if(screen==="submit"){ show("submit"); return; }
+  show("home");
+}
+function startFresh(){
+  hideResume();
+  clearDraft();
+  wipeJob(false);
+  applyRole();
+  show("start");
+}
+function wipeJob(goStart){
+  APP.year=APP.make=APP.model=APP.trim=APP.color=APP.km=APP.vin=APP.stock=APP.heard=APP.notes=APP.webcopy="";
+  APP.dealType=""; APP.cdApp="";
+  APP.photos={}; APP.damage={}; APP.closeups=[]; APP.docs={}; APP.damageCap={}; APP.closeupCap=[];
+  APP.clips=[]; APP.recOn=false; APP.recorder=null; APP.recChunks=[]; APP.zoom=1;
+  if(APP.role!=="guest"){
+    APP.inviteFirst=APP.inviteLast=APP.inviteName=APP.inviteEmail=APP.invitePhone="";
+    APP.inviteUnit=APP.inviteStock="";
+  }
+  if(APP.recTick){ clearInterval(APP.recTick); APP.recTick=null; }
+  if($("transcript")) $("transcript").value="";
+  document.querySelectorAll(".sheet").forEach(function(n){ n.classList.remove("on"); });
+  if(goStart!==false) show("start");
+}
+function saveSnapshot(){
+  const snap=collectDraft();
+  try{ sessionStorage.setItem("inspect.pendingSend","1"); }catch(e){}
+  idbPut(draftKey(), snap);
+  return idbPut("pending", snap);
+}
 function loadSnapshot(){
-  return idbOp(function(db, resolve){
-    const tx=db.transaction("kv","readonly");
-    const g=tx.objectStore("kv").get("pending");
-    g.onsuccess=function(){ resolve(g.result||null); };
-    g.onerror=function(){ resolve(null); };
+  return idbGet("pending").then(function(p){
+    if(p) return p;
+    return idbGet(draftKey());
   });
 }
 function clearSnapshot(){
   try{ sessionStorage.removeItem("inspect.pendingSend"); }catch(e){}
-  idbOp(function(db, resolve){
-    const tx=db.transaction("kv","readwrite");
-    tx.objectStore("kv").delete("pending");
-    tx.oncomplete=function(){ resolve(true); };
-    tx.onerror=function(){ resolve(false); };
-  });
+  idbDel("pending");
 }
 function applySnapshot(snap){
   if(!snap || !snap.app) return;
   const a=snap.app;
-  ["purpose","year","make","model","trim","color","km","vin","stock","heard","notes","webcopy","photos","damage","closeups","damageCap","closeupCap","dealType","cdApp","role","userName","userEmail"].forEach(function(k){
+  ["purpose","year","make","model","trim","color","km","vin","stock","heard","notes","webcopy","photos","damage","closeups","damageCap","closeupCap","dealType","cdApp","role","userName","userEmail","inviteFirst","inviteLast","inviteName","inviteEmail","invitePhone","inviteUnit","inviteStock","requestedBy","requestedByName","docs"].forEach(function(k){
     if(a[k]!==undefined) APP[k]=a[k];
   });
   if(a.emails) saveRecipients(a.emails);
+  if(Array.isArray(a.clips)){
+    APP.clips=a.clips.map(function(c){
+      const blob=c && c.blob;
+      return {blob:blob, url:blob?URL.createObjectURL(blob):"", dur:c.dur||0, mime:c.mime||""};
+    });
+  }
 }
 function oauthRedirectForSend(){
   saveSnapshot();
@@ -2380,6 +2550,7 @@ function keepShot(data){
       APP.closeupCap.push(cap);
     }
   } else APP.photos[APP.viewId] = data;
+  scheduleDraftSave();
   const f=$("flash"); f.classList.remove("go"); void f.offsetWidth; f.classList.add("go");
   if(APP.mode==="photos"){
     const nxt = nextEmpty(APP.viewId);
@@ -4723,6 +4894,7 @@ async function sharePacket(){
     if(sent && sent.ok){
       finished=true;
       clearSnapshot();
+      clearDraft();
       if(APP.role==="guest"){ finish(""); finishGuest(); return; }
       finish("Sent to "+tradeToLine(to)+".");
       return;
@@ -4748,14 +4920,8 @@ async function sharePacket(){
 
 function resetAll(){
   releaseHardware();
-  APP.year=APP.make=APP.model=APP.trim=APP.color=APP.km=APP.vin=APP.stock=APP.heard=APP.notes=APP.webcopy="";
-  APP.dealType=""; APP.cdApp="";
-  APP.photos={}; APP.damage={}; APP.closeups=[]; APP.docs={}; APP.damageCap={}; APP.closeupCap=[]; APP.webcopy="";
-  APP.clips=[]; APP.recOn=false; APP.recorder=null; APP.recChunks=[]; APP.zoom=1;
-  if(APP.recTick){ clearInterval(APP.recTick); APP.recTick=null; }
-  $("transcript").value="";
-  document.querySelectorAll(".sheet").forEach(n=>n.classList.remove("on"));
-  show("start");
+  clearDraft();
+  wipeJob(true);
 }
 
 document.querySelectorAll("[data-close]").forEach(function(b){
@@ -4905,6 +5071,14 @@ if($("v-vin")){
 }
 if($("btnWebAi")) $("btnWebAi").onclick = generateWebCopy;
 
+if($("resumeContinue")) $("resumeContinue").onclick = continueDraft;
+if($("resumeFresh")) $("resumeFresh").onclick = startFresh;
+document.addEventListener("input", scheduleDraftSave, true);
+document.addEventListener("change", scheduleDraftSave, true);
+document.addEventListener("visibilitychange", function(){
+  if(document.visibilityState==="hidden") flushDraft();
+});
+window.addEventListener("pagehide", function(){ flushDraft(); });
 if($("staffForm")) $("staffForm").addEventListener("submit", enterStaffPassword);
 if($("workGo")) $("workGo").onclick = enterStaffPassword;
 if($("workEmail")) $("workEmail").addEventListener("keydown", function(e){ if(e.key==="Enter"){ e.preventDefault(); enterStaffPassword(e); } });
@@ -4975,7 +5149,9 @@ if(/[?&]trade=1(?:&|$)/.test(location.search||"")){
     paintLogin(); show("login");
   });
 }
-resumePendingSend();
+resumePendingSend().then(function(did){
+  if(!did) offerResume();
+});
 growTextareas();
 
 (function(){
