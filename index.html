@@ -664,10 +664,6 @@ const DOC_TYPES = [
 ];
 
 window.GOOGLE_CLIENT_ID = window.GOOGLE_CLIENT_ID || "612595319762-mdl9686m3t8pu40qnp9oftpn6osju5c4.apps.googleusercontent.com";
-try{
-  const stored=sessionStorage.getItem("inspect.gtoken");
-  if(stored) window._gtoken=stored;
-}catch(e){}
 fetch((function(){
   try{
     const h=location.hostname||"";
@@ -775,6 +771,20 @@ function show(id){
 }
 
 function sessionKey(){ return "inspect.session"; }
+const SESSION_MS=24*60*60*1000;
+function storeGet(k){
+  try{ const v=localStorage.getItem(k); if(v) return v; }catch(e){}
+  try{ return sessionStorage.getItem(k); }catch(e){}
+  return null;
+}
+function storeSet(k,v){
+  try{ localStorage.setItem(k,v); }catch(e){}
+  try{ sessionStorage.setItem(k,v); }catch(e){}
+}
+function storeDel(k){
+  try{ localStorage.removeItem(k); }catch(e){}
+  try{ sessionStorage.removeItem(k); }catch(e){}
+}
 const OPEN_STAFF = {
   "andrew@autocorp.ca":"Andrew",
   "wes@thetrucktown.com":"Wes",
@@ -866,23 +876,26 @@ function paintUsers(){
   loadExtraUsers().forEach(function(u){ row(u.name||u.email.split("@")[0], staffEmail(u.email), false); });
 }
 function saveSession(){
-  try{ sessionStorage.setItem(sessionKey(), JSON.stringify({
-    role:APP.role, userName:APP.userName, userEmail:APP.userEmail,
-    requestedBy:APP.requestedBy||"", requestedByName:APP.requestedByName||"",
-    inviteUnit:APP.inviteUnit||"", inviteStock:APP.inviteStock||"", inviteName:APP.inviteName||""
-  })); }catch(e){}
+  if(APP.role!=="employee" || !APP.userEmail) return;
+  storeSet(sessionKey(), JSON.stringify({
+    role:"employee",
+    userName:APP.userName||"",
+    userEmail:APP.userEmail||"",
+    expires: Date.now()+SESSION_MS
+  }));
 }
 function loadSession(){
   try{
-    const raw=sessionStorage.getItem(sessionKey());
+    const raw=storeGet(sessionKey());
     if(!raw) return false;
     const s=JSON.parse(raw);
-    if(!s || !s.role) return false;
-    APP.role=s.role; APP.userName=s.userName||""; APP.userEmail=s.userEmail||"";
-    APP.requestedBy=s.requestedBy||""; APP.requestedByName=s.requestedByName||"";
-    APP.inviteUnit=s.inviteUnit||""; APP.inviteStock=s.inviteStock||""; APP.inviteName=s.inviteName||"";
-    if(APP.role==="guest" && APP.inviteName) APP.userName=APP.inviteName;
-    if(APP.role==="employee" && !isStaffEmail(APP.userEmail)) return false;
+    if(!s || s.role!=="employee" || !s.userEmail) return false;
+    if(s.expires && Date.now()>s.expires){ storeDel(sessionKey()); return false; }
+    if(!isStaffEmail(s.userEmail)) return false;
+    APP.role="employee";
+    APP.userName=s.userName||s.userEmail.split("@")[0];
+    APP.userEmail=s.userEmail;
+    saveSession();
     return true;
   }catch(e){ return false; }
 }
@@ -1354,19 +1367,27 @@ function whenGis(){
     }, 80);
   });
 }
-function keepGoogleToken(token){
+function keepGoogleToken(token, expiresIn){
   APP.googleToken=token||"";
+  if(!token){ storeDel("inspect.gtoken"); return; }
+  const ms=Math.max(60, Number(expiresIn)||3600)*1000;
+  storeSet("inspect.gtoken", JSON.stringify({token:token, exp:Date.now()+ms}));
+}
+function readGoogleToken(){
   try{
-    if(token) sessionStorage.setItem("inspect.gtoken", token);
-    else sessionStorage.removeItem("inspect.gtoken");
-  }catch(e){}
+    const raw=storeGet("inspect.gtoken");
+    if(!raw) return "";
+    if(raw.charAt(0)!=="{") return raw;
+    const j=JSON.parse(raw);
+    if(!j || !j.token) return "";
+    if(j.exp && Date.now()>j.exp-15000) return "";
+    return j.token;
+  }catch(e){ return ""; }
 }
 function ensureGmailToken(){
   if(APP.googleToken) return Promise.resolve(APP.googleToken);
-  try{
-    const t=sessionStorage.getItem("inspect.gtoken");
-    if(t){ APP.googleToken=t; return Promise.resolve(t); }
-  }catch(e){}
+  const stored=readGoogleToken();
+  if(stored){ APP.googleToken=stored; return Promise.resolve(stored); }
   return whenGis().then(function(ok){
     const cid=window.GOOGLE_CLIENT_ID||"";
     if(!ok || !cid) return "";
@@ -1377,7 +1398,7 @@ function ensureGmailToken(){
           scope:"https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile",
           hint:APP.userEmail||"",
           callback:function(resp){
-            keepGoogleToken((resp && resp.access_token)||"");
+            keepGoogleToken((resp && resp.access_token)||"", resp && resp.expires_in);
             resolve(APP.googleToken);
           },
           error_callback:function(){ resolve(""); }
@@ -1394,14 +1415,23 @@ async function sendFromMe(to, subject, body, html, parts, extra){
   if(!APP.googleToken){
     try{ APP.googleToken=await ensureGmailToken(); }catch(e){}
   }
+  async function gmailSend(token){
+    const rfc=rfc822(list, subject, body, html||"", parts||[], extra);
+    const r=await fetch("https://gmail.googleapis.com/upload/gmail/v1/users/me/messages/send?uploadType=media", {
+      method:"POST",
+      headers:{Authorization:"Bearer "+token, "Content-Type":"message/rfc822"},
+      body:rfc
+    });
+    return r;
+  }
   if(APP.googleToken){
     try{
-      const rfc=rfc822(list, subject, body, html||"", parts||[], extra);
-      const r=await fetch("https://gmail.googleapis.com/upload/gmail/v1/users/me/messages/send?uploadType=media", {
-        method:"POST",
-        headers:{Authorization:"Bearer "+APP.googleToken, "Content-Type":"message/rfc822"},
-        body:rfc
-      });
+      let r=await gmailSend(APP.googleToken);
+      if((r.status===401 || r.status===403)){
+        keepGoogleToken("");
+        APP.googleToken=await ensureGmailToken();
+        if(APP.googleToken) r=await gmailSend(APP.googleToken);
+      }
       if(r.ok) return {ok:true, via:"gmail"};
       if(r.status===401 || r.status===403) keepGoogleToken("");
     }catch(e){}
@@ -1510,7 +1540,8 @@ async function sendTradeInvite(){
 function logOut(){
   releaseHardware();
   APP.role=""; APP.userName=""; APP.userEmail=""; APP.googleToken="";
-  try{ sessionStorage.removeItem(sessionKey()); }catch(e){}
+  storeDel(sessionKey());
+  storeDel("inspect.gtoken");
   paintLogin();
   show("login");
 }
@@ -1559,7 +1590,7 @@ function startGoogleGmail(){
           hint:($("workEmail") && $("workEmail").value) || APP.userEmail || "",
           callback:function(resp){
             if(!resp || !resp.access_token){ loginFail("Google sign-in was cancelled."); return; }
-            keepGoogleToken(resp.access_token);
+            keepGoogleToken(resp.access_token, resp.expires_in);
             fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
               headers:{Authorization:"Bearer "+resp.access_token}
             }).then(function(r){ return r.json(); }).then(function(u){
@@ -1617,7 +1648,7 @@ function startBrokerGoogle(){
 }
 function resumeGoogleSession(){
   try{
-    const t=sessionStorage.getItem("inspect.gtoken") || APP.googleToken;
+    const t=readGoogleToken() || APP.googleToken;
     if(!t) return Promise.resolve(false);
     APP.googleToken=t;
     return fetch("https://www.googleapis.com/oauth2/v3/userinfo", {headers:{Authorization:"Bearer "+t}})
@@ -3415,14 +3446,17 @@ if(/[?&]trade=1(?:&|$)/.test(location.search||"")){
   applyRole();
   setPurpose("appraise");
   show("start");
+} else if(loadSession()){
+  applyRole();
+  show("start");
+  resumeGoogleSession();
 } else {
   restoreBrokerSession().then(function(ok){
     if(ok) return true;
     return resumeGoogleSession();
   }).then(function(ok){
     if(ok) return;
-    if(loadSession()){ applyRole(); show("start"); }
-    else { paintLogin(); show("login"); }
+    paintLogin(); show("login");
   });
 }
 growTextareas();
