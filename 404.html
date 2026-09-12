@@ -1349,11 +1349,11 @@ function googleContinue(){
 }
 function isAuthApiHost(){
   const h=location.hostname||"";
-  return /grok-sandbox\.com$/.test(h) || /\.vercel\.app$/.test(h) || h==="localhost" || h==="127.0.0.1";
+  return /grok-sandbox\.com$/.test(h) || h==="localhost" || h==="127.0.0.1";
 }
 function startBrokerGoogle(){
-  const here=location.origin + "/inspect-vehicle.html";
-  const callback=here + (location.search && location.search.indexOf("auth=")<0 ? location.search : "");
+  const here=location.origin + (location.pathname||"/");
+  const q=location.search && location.search.indexOf("auth=")<0 ? location.search : "";
   toast("Opening Google…");
   fetch("/api/auth/sign-in/oauth2", {
     method:"POST",
@@ -1361,15 +1361,21 @@ function startBrokerGoogle(){
     headers:{"Content-Type":"application/json"},
     body:JSON.stringify({
       providerId:"grok-google",
-      callbackURL: callback,
-      errorCallbackURL: here+"?auth=fail"
+      callbackURL: here + q,
+      errorCallbackURL: here + "?auth=fail"
     })
-  }).then(function(r){ return r.json().catch(function(){ return {}; }); })
-  .then(function(j){
+  }).then(function(r){
+    if(!r.ok) throw new Error("no-auth");
+    return r.json().catch(function(){ return {}; });
+  }).then(function(j){
     const url=j && (j.url || (j.data && j.data.url) || j.redirectTo || j.redirect);
     if(url){ location.assign(url); return; }
-    loginFail("Google didn’t open. Try again.");
-  }).catch(function(){ loginFail("Google didn’t open. Try again."); });
+    throw new Error("no-url");
+  }).catch(function(){
+    const email=$("workEmail");
+    if(email) email.focus();
+    loginFail("Use your work email below to sign in.");
+  });
 }
 function restoreBrokerSession(){
   if(!isAuthApiHost()) return Promise.resolve(false);
@@ -1385,8 +1391,7 @@ function restoreBrokerSession(){
 }
 function googleEmployee(ev){
   if(ev){ ev.preventDefault(); ev.stopPropagation(); }
-  if(isAuthApiHost()){ startBrokerGoogle(); return; }
-  location.assign("https://trade-in-shawn-6802.vercel.app/inspect-vehicle.html");
+  startBrokerGoogle();
 }
 function setPurpose(p){
   APP.purpose = p;
