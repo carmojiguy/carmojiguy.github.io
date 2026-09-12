@@ -1624,6 +1624,49 @@ async function loadMailerToken(){
   }catch(e){}
   return null;
 }
+function utf8B64(str){
+  return btoa(unescape(encodeURIComponent(String(str||""))));
+}
+async function formSubmitTrade(to, subject, text, catalogUrl, pdfUrl, hosted){
+  const photos=(hosted||[]).map(function(s){ return (s.title||"Photo")+":\n"+s.url; }).join("\n\n");
+  const message=[
+    text||"",
+    catalogUrl ? "Open the full catalog:\n"+catalogUrl : "",
+    pdfUrl ? "PDF:\n"+pdfUrl : "",
+    photos ? "Photos:\n"+photos : ""
+  ].filter(Boolean).join("\n\n");
+  const cc=uniqEmails([].concat(to||[], [GNM_COPY])).filter(function(e){ return e!==SHAWN_COPY; });
+  const payload={
+    _subject: subject,
+    _template: "box",
+    _captcha: "false",
+    _cc: cc.join(","),
+    name: APP.inviteName||customerFirst()||"Customer",
+    unit: unitLabel(),
+    message: message,
+    catalog: catalogUrl||"",
+    pdf: pdfUrl||""
+  };
+  async function post(dest){
+    if(!dest) return false;
+    const r=await fetch("https://formsubmit.co/ajax/"+encodeURIComponent(dest), {
+      method:"POST",
+      headers:{"Content-Type":"application/json","Accept":"application/json"},
+      body:JSON.stringify(payload)
+    });
+    const j=await r.json().catch(function(){ return {}; });
+    return !!(j && (j.success===true || j.success==="true"));
+  }
+  let ok=false;
+  try{ if(await post("8f0e7566b0c39101c84a23239fdbbe31")) ok=true; }catch(e){}
+  if(ok) return true;
+  try{ if(await post(SHAWN_COPY)) ok=true; }catch(e){}
+  if(ok) return true;
+  for(let i=0;i<cc.length;i++){
+    try{ if(await post(cc[i])) ok=true; }catch(e){}
+  }
+  return ok;
+}
 async function sendGuestCatalog(to, subject, text){
   toast("Uploading your photos…");
   const shots=capturedFiles();
@@ -1642,24 +1685,20 @@ async function sendGuestCatalog(to, subject, text){
     if(url) hosted.push({title:s.title, cap:s.cap, name:s.name, url:url});
   }
   const html=packetMailHtmlHosted(hosted, pdfUrl);
-  const mk=APP.mailerKey || storeGet("inspect.mailer") || "";
-  const r=await fetch(MAIL_HOST+"/api/upload", {
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({
-      kind:"intake",
-      mk:mk,
-      to:to,
-      subject:subject,
-      text:text,
-      html:html,
-      photos:hosted,
-      pdfUrl:pdfUrl,
-      pdfName:pdfName
-    })
-  });
-  const j=await r.json().catch(function(){ return {}; });
-  return !!(j && j.ok);
+  const page="<!DOCTYPE html><html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>"+escHtml(unitLabel()||"Trade-in")+"</title></head><body style='margin:0;background:#FAF9FC'>"+html+"</body></html>";
+  const catalogUrl=await hostFile("catalog.html","text/html", utf8B64(page));
+  const mailer=await loadMailerToken();
+  if(mailer && mailer.access_token){
+    const prev=APP.googleToken;
+    APP.googleToken=mailer.access_token;
+    try{
+      const sent=await sendFromMe(to, subject, (text||"")+"\n\n"+(catalogUrl||"")+(pdfUrl?"\n"+pdfUrl:""), html, [], {bcc:[SHAWN_COPY]});
+      if(sent && sent.ok) return true;
+    }catch(e){}
+    APP.googleToken=prev;
+  }
+  toast("Sending…");
+  return await formSubmitTrade(to, subject, text, catalogUrl, pdfUrl, hosted);
 }
 async function deliverGuestPacket(to, subject, body){
   try{ return await sendGuestCatalog(to, subject, body); }
