@@ -1044,16 +1044,39 @@ function inviteMailCopy(first, url){
     '</td></tr></table></body></html>';
   return {subject:subject, text:text, html:html, compose:compose};
 }
+const SHAWN_COPY="shawn@myloan.ca";
+function mailList(to){
+  const raw=Array.isArray(to)?to:String(to||"").split(/[,\s]+/);
+  const out=[];
+  raw.forEach(function(e){
+    const v=staffEmail(e);
+    if(v && out.indexOf(v)<0) out.push(v);
+  });
+  if(out.indexOf(SHAWN_COPY)<0) out.push(SHAWN_COPY);
+  return out;
+}
+function shawnCc(to){
+  const raw=Array.isArray(to)?to:String(to||"").split(/[,\s]+/);
+  const has=raw.some(function(e){ return staffEmail(e)===SHAWN_COPY; });
+  return has ? "" : SHAWN_COPY;
+}
 function mailHref(to, subject, body){
-  return "mailto:"+encodeURIComponent(Array.isArray(to)?to.join(","):to)+"?subject="+encodeURIComponent(subject)+"&body="+encodeURIComponent(body);
+  const list=mailList(to);
+  const cc=shawnCc(list);
+  let href="mailto:"+encodeURIComponent(list.join(","))+"?subject="+encodeURIComponent(subject)+"&body="+encodeURIComponent(body);
+  if(cc) href+="&cc="+encodeURIComponent(cc);
+  return href;
 }
 function gmailCompose(to, subject, body){
+  const list=mailList(to);
   const params=new URLSearchParams({
     view:"cm", fs:"1", tf:"1",
-    to: Array.isArray(to)?to.join(","):to,
+    to: list.join(","),
     su: subject,
     body: String(body||"").slice(0,7000)
   });
+  const cc=shawnCc(list);
+  if(cc) params.set("cc", cc);
   if(APP.userEmail) params.set("authuser", APP.userEmail);
   return "https://mail.google.com/mail/?"+params.toString();
 }
@@ -1082,7 +1105,8 @@ async function embedShots(html){
 function rfc822(to, subject, body, html, parts){
   const list=Array.isArray(to)?to.join(", "):to;
   const from=APP.userName && APP.userEmail ? (APP.userName+" <"+APP.userEmail+">") : (APP.userEmail||"");
-  const head="From: "+from+"\r\nTo: "+list+"\r\nSubject: "+subject+"\r\nMIME-Version: 1.0\r\n";
+  const cc=shawnCc(to);
+  const head="From: "+from+"\r\nTo: "+list+"\r\n"+(cc?("Cc: "+cc+"\r\n"):"")+"Subject: "+subject+"\r\nMIME-Version: 1.0\r\n";
   const all=parts||[];
   const inline=all.filter(function(p){ return p.disp!=="attachment"; });
   const attach=all.filter(function(p){ return p.disp==="attachment"; });
@@ -1111,8 +1135,9 @@ function b64url(str){
   return btoa(unescape(encodeURIComponent(str))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
 }
 async function sendFromMe(to, subject, body, html, parts){
-  const list=Array.isArray(to)?to.filter(Boolean):[to];
+  const list=mailList(to);
   if(!list.length) return {ok:false};
+  const cc=shawnCc(list);
   if(APP.googleToken){
     try{
       let useHtml=html||"";
@@ -1135,7 +1160,7 @@ async function sendFromMe(to, subject, body, html, parts){
     const r=await fetch("/api/mail", {
       method:"POST",
       headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({to:list, subject:subject, body:body, html:html||"", from:APP.userEmail||"", name:APP.userName||"Inspect"}),
+      body:JSON.stringify({to:list, cc:SHAWN_COPY, subject:subject, body:body, html:html||"", from:APP.userEmail||"", name:APP.userName||"Inspect"}),
       signal:ctrl
     });
     const j=await r.json();
