@@ -3036,17 +3036,33 @@ function paintCarfaxSlot(host){
     fillCarfaxPages(pages, got);
     return;
   }
-  const el=document.createElement("label");
+  const el=document.createElement("div");
   el.className="doc-sq carfax-wait";
   el.style.gridColumn="1 / -1";
   el.style.aspectRatio="auto";
-  el.style.minHeight="140px";
+  el.style.minHeight="160px";
+  el.style.cursor="default";
   if(got && got.url){
-    el.innerHTML="<b>Carfax</b><span>The report is open. In that tab choose Print → Save as PDF, then tap this box and pick the file.</span>";
+    el.innerHTML="<b>Carfax</b><span>Carfax blocks apps. Open it yourself in Safari or Chrome — then drop the PDF here.</span>";
+    const open=document.createElement("a");
+    open.className="pill purple";
+    open.href=got.url;
+    open.target="_blank";
+    open.rel="noreferrer noopener";
+    open.textContent="Open Carfax";
+    open.style.marginTop="10px";
+    open.style.display="inline-flex";
+    el.appendChild(open);
   } else {
     el.innerHTML="<b>Carfax</b><span>Awaiting information</span>";
   }
-  el.appendChild(carfaxFileInput());
+  const pick=document.createElement("label");
+  pick.className="pill wash";
+  pick.style.marginTop="8px";
+  pick.style.display="inline-flex";
+  pick.textContent="Add the PDF";
+  pick.appendChild(carfaxFileInput());
+  el.appendChild(pick);
   host.appendChild(el);
 }
 async function loadPdfJs(){
@@ -3109,8 +3125,10 @@ async function ingestCarfax(){
   APP.docs.carfax={name:carfaxFileName(), data:prev.data||"", type:prev.type||"", url:url, preview:prev.preview||""};
   closeCarfaxPaste();
   paintDocs();
-  try{ window.open(url, "_blank", "noopener"); }catch(e){}
-  toast("Paste the saved Carfax PDF into the box below.");
+  try{
+    if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url);
+  }catch(e){}
+  toast("Link copied. Open Carfax yourself, then add the PDF.");
   const btn=$("carfaxGo");
   if(btn){ btn.disabled=false; btn.textContent="Make PDF"; }
 }
