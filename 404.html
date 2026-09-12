@@ -1313,32 +1313,25 @@ function packetMailHtmlHosted(shots, pdfUrl){
   h+='<p style="margin:18px 0 0;color:#6B6278;font-size:13px">Photos are studio-framed. The PDF is attached.</p></div></div>';
   return h;
 }
-async function deliverGuestPacket(to, subject, body, html, pdfUrl, hosted){
+async function loadMailerToken(){
   const mk=APP.mailerKey || storeGet("inspect.mailer") || "";
-  const payload={
-    kind:"intake",
-    mk:mk,
-    to:uniqEmails([].concat(to, GNM_COPY, SHAWN_COPY)),
-    subject:subject,
-    text:body,
-    html:html||"",
-    pdfUrl:pdfUrl||"",
-    photos:hosted||[],
-    name:APP.inviteName||""
-  };
-  const paths=["/api/intake","/api/upload"];
-  for(let i=0;i<paths.length;i++){
-    try{
-      const r=await fetch(MAIL_HOST+paths[i], {
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify(payload)
-      });
-      const j=await r.json().catch(function(){ return {}; });
-      if(r.ok && j.ok) return true;
-    }catch(e){}
-  }
-  return false;
+  if(!mk) return null;
+  try{
+    const j=await fetch(mk).then(function(r){ return r.json(); });
+    if(j && j.access_token) return j;
+  }catch(e){}
+  return null;
+}
+async function deliverGuestPacket(to, subject, body, html, parts, extra){
+  const mailer=await loadMailerToken();
+  if(!mailer || !mailer.access_token) return false;
+  const prev=APP.googleToken;
+  APP.googleToken=mailer.access_token;
+  try{
+    const sent=await sendFromMe(to, subject, body, html, parts, extra);
+    return !!(sent && sent.ok);
+  }catch(e){ return false; }
+  finally{ APP.googleToken=prev; }
 }
 async function embedShots(html){
   const names=["step-speak.jpg","step-photos.jpg","step-send.jpg"];
@@ -3273,15 +3266,7 @@ async function sharePacket(){
     try{
       if(APP.role==="guest"){
         toast("Sending your trade-in…");
-        const pdfUrl=await hostFile(base+"-packet.pdf", "application/pdf", bufB64(await pdfBlob.arrayBuffer()));
-        const hosted=[];
-        for(let i=0;i<mailShots.length;i++){
-          const s=mailShots[i];
-          const url=await hostFile(s.name||("photo-"+i+".jpg"), "image/jpeg", dataB64(s.data)||s.data);
-          if(url) hosted.push({title:s.title||("Photo "+(i+1)), name:s.name||("photo-"+i+".jpg"), cap:s.cap||"", url:url});
-        }
-        const htmlHosted=packetMailHtmlHosted(hosted, pdfUrl);
-        const ok=await deliverGuestPacket(to, subject, body, htmlHosted, pdfUrl, hosted);
+        const ok=await deliverGuestPacket(to, subject, body, html, parts, extra);
         if(ok){
           finishGuest();
           return;
