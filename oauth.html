@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Google</title>
+<script>
+(function(){
+  var h = String(location.hash||"").replace(/^#/,"");
+  var q = String(location.search||"").replace(/^\?/,"");
+  var p = new URLSearchParams(h || q);
+  var token = p.get("access_token") || "";
+  var err = p.get("error") || "";
+  try{
+    if(token) sessionStorage.setItem("inspect.gtoken", token);
+    if(err) sessionStorage.setItem("inspect.gerr", err);
+  }catch(e){}
+  location.replace("./" + (err ? "?auth=fail" : ""));
+})();
+</script>
+</head>
+<body style="margin:0;background:#110E1A;color:#fff;font-family:system-ui;display:grid;place-items:center;min-height:100dvh">
+<p>Connecting Google…</p>
+</body>
+</html>

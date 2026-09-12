@@ -625,6 +625,19 @@ const DOC_TYPES = [
 ];
 
 window.GOOGLE_CLIENT_ID = window.GOOGLE_CLIENT_ID || "";
+try{
+  const stored=sessionStorage.getItem("inspect.gtoken");
+  if(stored) window._gtoken=stored;
+}catch(e){}
+fetch((function(){
+  try{
+    const h=location.hostname||"";
+    if(h.indexOf("vercel.app")>=0) return "https://carmojiguy.github.io/google-client.json";
+  }catch(e){}
+  return "google-client.json";
+})()).then(function(r){ return r.ok ? r.json() : null; }).then(function(j){
+  if(j && j.client_id) window.GOOGLE_CLIENT_ID=j.client_id;
+}).catch(function(){});
 window.APP = {
   purpose:"both",
   year:"", make:"", model:"", trim:"", color:"", km:"", vin:"", stock:"", heard:"", notes:"", webcopy:"",
@@ -632,7 +645,7 @@ window.APP = {
   mode:"photos", viewId:"qfront", stream:null, lock:false, rec:null, listening:false,
   dmgArmed:false, dmgCaption:"", dmgRec:null, emails:[],
   clips:[], recOn:false, recorder:null, recChunks:[], recTick:null, recStarted:0, recMime:"", zoom:1,
-  role:"", userName:"", userEmail:"", googleToken:"", extraUsers:[], requestedBy:"", requestedByName:"",
+  googleToken: window._gtoken || "", extraUsers:[], requestedBy:"", requestedByName:"",
   inviteUnit:"", inviteStock:"", inviteName:"", inviteEmail:""
 };
 
@@ -1218,8 +1231,19 @@ function whenGis(){
     }, 80);
   });
 }
+function keepGoogleToken(token){
+  APP.googleToken=token||"";
+  try{
+    if(token) sessionStorage.setItem("inspect.gtoken", token);
+    else sessionStorage.removeItem("inspect.gtoken");
+  }catch(e){}
+}
 function ensureGmailToken(){
   if(APP.googleToken) return Promise.resolve(APP.googleToken);
+  try{
+    const t=sessionStorage.getItem("inspect.gtoken");
+    if(t){ APP.googleToken=t; return Promise.resolve(t); }
+  }catch(e){}
   return whenGis().then(function(ok){
     const cid=window.GOOGLE_CLIENT_ID||"";
     if(!ok || !cid) return "";
@@ -1227,15 +1251,15 @@ function ensureGmailToken(){
       try{
         const client=google.accounts.oauth2.initTokenClient({
           client_id:cid,
-          scope:"https://www.googleapis.com/auth/gmail.send",
+          scope:"https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile",
           hint:APP.userEmail||"",
           callback:function(resp){
-            APP.googleToken=(resp && resp.access_token)||"";
+            keepGoogleToken((resp && resp.access_token)||"");
             resolve(APP.googleToken);
           },
           error_callback:function(){ resolve(""); }
         });
-        client.requestAccessToken({hint:APP.userEmail||""});
+        client.requestAccessToken({hint:APP.userEmail||"", prompt:""});
       }catch(e){ resolve(""); }
     });
   });
@@ -1249,19 +1273,14 @@ async function sendFromMe(to, subject, body, html, parts, extra){
   }
   if(APP.googleToken){
     try{
-      let useHtml=html||"";
-      let useParts=parts||[];
-      if(useHtml && !useParts.length){
-        const packed=await embedShots(useHtml);
-        useHtml=packed.html; useParts=packed.parts;
-      }
-      const r=await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/send", {
+      const rfc=rfc822(list, subject, body, html||"", parts||[], extra);
+      const r=await fetch("https://gmail.googleapis.com/upload/gmail/v1/users/me/messages/send?uploadType=media", {
         method:"POST",
-        headers:{Authorization:"Bearer "+APP.googleToken, "Content-Type":"application/json"},
-        body:JSON.stringify({raw:b64url(rfc822(list, subject, body, useHtml, useParts, extra))})
+        headers:{Authorization:"Bearer "+APP.googleToken, "Content-Type":"message/rfc822"},
+        body:rfc
       });
       if(r.ok) return {ok:true, via:"gmail"};
-      if(r.status===401 || r.status===403) APP.googleToken="";
+      if(r.status===401 || r.status===403) keepGoogleToken("");
     }catch(e){}
   }
   return {ok:false, via:"fail"};
@@ -1398,6 +1417,48 @@ function isAuthApiHost(){
   const h=location.hostname||"";
   return /grok-sandbox\.com$/.test(h) || h==="localhost" || h==="127.0.0.1";
 }
+function startGoogleGmail(){
+  toast("Opening Google…");
+  whenGis().then(function(ok){
+    const cid=window.GOOGLE_CLIENT_ID||"";
+    if(ok && cid){
+      try{
+        const client=google.accounts.oauth2.initTokenClient({
+          client_id:cid,
+          scope:"https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile",
+          hint:($("workEmail") && $("workEmail").value) || APP.userEmail || "",
+          callback:function(resp){
+            if(!resp || !resp.access_token){ loginFail("Google sign-in was cancelled."); return; }
+            keepGoogleToken(resp.access_token);
+            fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+              headers:{Authorization:"Bearer "+resp.access_token}
+            }).then(function(r){ return r.json(); }).then(function(u){
+              if(!applyGoogleUser({name:u.name, email:u.email}, resp.access_token))
+                loginFail("That Google account isn’t allowed.");
+            }).catch(function(){ loginFail("Google sign-in failed."); });
+          },
+          error_callback:function(){ loginFail("Google sign-in was cancelled."); }
+        });
+        client.requestAccessToken({prompt:"consent"});
+        return;
+      }catch(e){}
+    }
+    if(cid){
+      const redir=location.origin.replace(/\/$/,"")+"/oauth.html";
+      const url="https://accounts.google.com/o/oauth2/v2/auth?"+new URLSearchParams({
+        client_id:cid,
+        redirect_uri:redir,
+        response_type:"token",
+        scope:"https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile",
+        include_granted_scopes:"true",
+        prompt:"consent"
+      }).toString();
+      location.assign(url);
+      return;
+    }
+    startBrokerGoogle();
+  });
+}
 function startBrokerGoogle(){
   const here=location.origin + (location.pathname||"/");
   const q=location.search && location.search.indexOf("auth=")<0 ? location.search : "";
@@ -1424,6 +1485,23 @@ function startBrokerGoogle(){
     loginFail("Use your work email below to sign in.");
   });
 }
+function resumeGoogleSession(){
+  try{
+    const t=sessionStorage.getItem("inspect.gtoken") || APP.googleToken;
+    if(!t) return Promise.resolve(false);
+    APP.googleToken=t;
+    return fetch("https://www.googleapis.com/oauth2/v3/userinfo", {headers:{Authorization:"Bearer "+t}})
+      .then(function(r){ return r.ok ? r.json() : null; })
+      .then(function(u){
+        if(u && u.email && isStaffEmail(u.email)){
+          applyGoogleUser({name:u.name, email:u.email}, t);
+          return true;
+        }
+        keepGoogleToken("");
+        return false;
+      }).catch(function(){ return false; });
+  }catch(e){ return Promise.resolve(false); }
+}
 function restoreBrokerSession(){
   if(!isAuthApiHost()) return Promise.resolve(false);
   return fetch("/api/auth/get-session", {credentials:"include"})
@@ -1438,7 +1516,7 @@ function restoreBrokerSession(){
 }
 function googleEmployee(ev){
   if(ev){ ev.preventDefault(); ev.stopPropagation(); }
-  startBrokerGoogle();
+  startGoogleGmail();
 }
 function setPurpose(p){
   APP.purpose = p;
@@ -3008,6 +3086,9 @@ if(/[?&]trade=1(?:&|$)/.test(location.search||"")){
   show("start");
 } else {
   restoreBrokerSession().then(function(ok){
+    if(ok) return true;
+    return resumeGoogleSession();
+  }).then(function(ok){
     if(ok) return;
     if(loadSession()){ applyRole(); show("start"); }
     else { paintLogin(); show("login"); }
