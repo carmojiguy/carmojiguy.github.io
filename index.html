@@ -2877,7 +2877,7 @@ function paintDocs(){
       if(!got || !got.data){
         const el=document.createElement("div");
         el.className="doc-sq carfax-wait";
-        el.innerHTML="<b>Carfax</b><span>Awaiting information</span>";
+        el.innerHTML=APP.carfaxBusy ? "<b>Carfax</b><span>Building PDF…</span>" : "<b>Carfax</b><span>Awaiting information</span>";
         host.appendChild(el);
         return;
       }
@@ -2978,9 +2978,12 @@ async function linkPdf(url){
 async function ingestCarfax(){
   const url=String($("carfaxUrl") && $("carfaxUrl").value || "").trim();
   if(!/^https?:\/\//i.test(url)){ toast("Paste a full Carfax link."); return; }
+  APP.carfaxBusy=true;
+  closeCarfaxPaste();
+  paintDocs();
+  toast("Carfax is building — keep going.");
   const btn=$("carfaxGo");
-  if(btn){ btn.disabled=true; btn.textContent="Building PDF…"; }
-  toast("Pulling the Carfax…");
+  if(btn){ btn.disabled=false; btn.textContent="Make PDF"; }
   let preview="", pdfData="";
   try{
     const shot=await fetch("https://api.microlink.io?"+new URLSearchParams({
@@ -3006,18 +3009,15 @@ async function ingestCarfax(){
     if(!pdfData && preview) pdfData=await screenshotToPdf(preview);
     if(!pdfData) pdfData=await linkPdf(url);
   }catch(e){}
+  APP.carfaxBusy=false;
   if(!pdfData){
+    paintDocs();
     toast("Couldn’t build that PDF. Check the link.");
-    if(btn){ btn.disabled=false; btn.textContent="Make PDF"; }
     return;
   }
   APP.docs.carfax={name:"Carfax.pdf", data:pdfData, type:"application/pdf", url:url, preview:preview||""};
   paintDocs();
-  closeCarfaxPaste();
   toast("Carfax PDF is in.");
-  if(btn){ btn.disabled=false; btn.textContent="Make PDF"; }
-  const slot=document.querySelector(".carfax-pdf, .carfax-wait");
-  if(slot && slot.scrollIntoView) slot.scrollIntoView({behavior:"smooth", block:"center"});
 }
 function openCarfaxPdf(){
   const got=APP.docs.carfax;
