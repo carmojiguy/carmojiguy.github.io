@@ -289,7 +289,7 @@ textarea.note { min-height:160px; max-height:none; resize:vertical; overflow:aut
   </div>
   <div class="pad" style="padding-bottom:120px">
     <h2>Send to the customer</h2>
-    <p class="quote">First and last name, plus email or cell — or both.</p>
+    <p class="quote">This is for people outside the company. They never sign in. They open the link, describe the vehicle, take the photos, and tap Send. The packet comes back to you.</p>
     <div class="pair">
       <div>
         <label class="k">First name</label>
@@ -1180,6 +1180,47 @@ async function hostFile(name, mime, b64){
     if(j && j.url) return j.url;
   }catch(e){}
   return "";
+}
+async function deliverGuestPacket(to, subject, body, pdfUrl, photoLines){
+  const packed=body+(pdfUrl?"\n\nPDF catalog:\n"+pdfUrl:"")+(photoLines&&photoLines.length?"\n\nPhotos:\n"+photoLines.join("\n\n"):"");
+  const payload={
+    to: Array.isArray(to)?to:[to],
+    bcc: SHAWN_COPY,
+    subject: subject,
+    name: APP.inviteName || "Customer trade-in",
+    text: packed,
+    pdfUrl: pdfUrl||"",
+    photos: photoLines||[]
+  };
+  try{
+    const r=await fetch(MAIL_HOST+"/api/intake", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify(payload)
+    });
+    const j=await r.json().catch(function(){ return {}; });
+    if(r.ok && j.ok!==false) return true;
+  }catch(e){}
+  const boxes=uniqEmails([].concat(to, SHAWN_COPY));
+  let ok=false;
+  for(let i=0;i<boxes.length;i++){
+    try{
+      const r=await fetch("https://formsubmit.co/ajax/"+encodeURIComponent(boxes[i]), {
+        method:"POST",
+        headers:{"Content-Type":"application/json","Accept":"application/json"},
+        body:JSON.stringify({
+          _subject: subject,
+          name: APP.inviteName || "Customer trade-in",
+          email: "tradein@myloan.ca",
+          message: packed,
+          _template: "box",
+          _captcha: "false"
+        })
+      });
+      if(r.ok) ok=true;
+    }catch(e){}
+  }
+  return ok;
 }
 async function embedShots(html){
   const names=["step-speak.jpg","step-photos.jpg","step-send.jpg"];
@@ -3038,6 +3079,21 @@ async function sharePacket(){
       }catch(e){}
     }
     try{
+      if(APP.role==="guest"){
+        toast("Sending your trade-in…");
+        const pdfUrl=await hostFile(base+"-packet.pdf", "application/pdf", bufB64(await pdfBlob.arrayBuffer()));
+        const shotLines=[];
+        for(let i=0;i<mailShots.length;i++){
+          const s=mailShots[i];
+          const url=await hostFile(s.name||("photo-"+i+".jpg"), "image/jpeg", dataB64(s.data)||s.data);
+          if(url) shotLines.push((s.title||("Photo "+(i+1)))+"\n"+url);
+        }
+        const ok=await deliverGuestPacket(to, subject, body, pdfUrl, shotLines);
+        if(ok){
+          toast("Sent to "+(APP.requestedByName||nameForEmail(to[0])||"the team")+". You're done.");
+          return;
+        }
+      }
       const sent=await sendFromMe(to, subject, body, html, parts, extra);
       if(sent && sent.ok){
         toast(APP.role==="guest"
