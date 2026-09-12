@@ -1065,7 +1065,7 @@ function packetDest(){
   }
   const to=uniqEmails(loadRecipients());
   if(!to.length) to.push(SHAWN_COPY);
-  return {to:to, cc: to.indexOf(SHAWN_COPY)>=0 ? [] : [SHAWN_COPY], bcc:[]};
+  return {to:to, cc:[], bcc: to.indexOf(SHAWN_COPY)>=0 ? [] : [SHAWN_COPY]};
 }
 function gmailCompose(to, subject, body, extra){
   extra=extra||{};
@@ -1254,7 +1254,7 @@ async function sendTradeInvite(){
   catch(e){ copy={subject:"Your trade-in link", text:"Hi "+first+",\n\n"+url+"\n", html:""}; }
   const subject=copy.subject, msg=copy.text, html=copy.html, compose=copy.compose||copy.text;
   const from=APP.userEmail||"";
-  const inviteExtra={cc:[SHAWN_COPY]};
+  const inviteExtra=staffEmail(email)===SHAWN_COPY ? {} : {bcc:[SHAWN_COPY]};
   const gmailUrl=email ? gmailCompose(email, subject, compose, inviteExtra) : "";
   let opened=null;
   if(gmailUrl){
