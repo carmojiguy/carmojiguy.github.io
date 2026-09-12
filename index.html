@@ -149,11 +149,11 @@ textarea.note { min-height:88px; }
 .toast.on { display:block; }
 .hide { display:none !important; }
 .start { padding:0 !important; position:relative; overflow:hidden; background:#0b0b10; min-height:100dvh; }
-.start-bg { position:absolute; inset:0; background:#0b0b10; }
-.start-bg img { width:100%; height:100%; object-fit:cover; object-position:center 46%; }
+.start-bg { position:absolute; inset:0; background:#0b0b10; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+.start-bg img { width:100%; height:68%; object-fit:contain; object-position:center center; }
 .start-bg, .start-veil { pointer-events:none; }
-.start-veil { position:absolute; inset:0; background:linear-gradient(180deg,rgba(0,0,0,.16),rgba(0,0,0,.02) 40%,rgba(0,0,0,.22)); }
-.start-actions, .guest-story, .login-card, .who, .start-x { pointer-events:auto; }
+.start-veil { position:absolute; inset:0; background:linear-gradient(180deg,rgba(8,6,16,.78) 0%,rgba(8,6,16,.18) 26%,rgba(8,6,16,.04) 48%,rgba(8,6,16,.55) 100%); }
+.start-actions, .guest-story, .login-card, .login-hero, .who, .start-x { pointer-events:auto; }
 .start-actions {
   position:absolute; left:50%; transform:translateX(-50%);
   top: calc(env(safe-area-inset-top, 0px) + 56px + 0.5in);
@@ -178,9 +178,17 @@ textarea.note { min-height:88px; }
 .start-x { position:absolute; top: calc(12px + env(safe-area-inset-top)); left:16px; z-index:2; }
 .phone:has(#start.on), .phone:has(#login.on) { max-width:none; background:#0b0b10; }
 .phone:has(#start.on) .accent, .phone:has(#login.on) .accent { display:none; }
-.login-card { position:absolute; left:18px; right:18px; bottom:calc(22px + env(safe-area-inset-bottom)); z-index:6; max-height:calc(100dvh - 36px); overflow:auto; -webkit-overflow-scrolling:touch; background:rgba(250,249,252,.94); backdrop-filter:blur(22px); -webkit-backdrop-filter:blur(22px); border-radius:26px; padding:24px 20px 20px; box-shadow:0 18px 50px rgba(0,0,0,.28); }
+.login-hero {
+  position:absolute; left:22px; right:22px; z-index:6;
+  top: calc(22px + env(safe-area-inset-top));
+}
+.login-hero .login-kicker { color:#7EE8F2; margin:0 0 10px; }
+.login-hero h1 { margin:0 0 10px; font-size:34px; letter-spacing:-.7px; line-height:1.08; color:#fff; text-shadow:0 2px 28px rgba(0,0,0,.55); }
+.login-hero .lead { margin:0; color:rgba(255,255,255,.88); font-size:16px; line-height:1.45; font-weight:600; text-shadow:0 1px 12px rgba(0,0,0,.45); max-width:22em; }
+.login-card { position:absolute; left:16px; right:16px; bottom:calc(16px + env(safe-area-inset-bottom)); z-index:6; max-height:none; overflow:visible; background:rgba(250,249,252,.94); backdrop-filter:blur(22px); -webkit-backdrop-filter:blur(22px); border-radius:26px; padding:16px 16px 14px; box-shadow:0 18px 50px rgba(0,0,0,.28); }
 .gbtn { width:100%; display:flex; align-items:center; justify-content:center; gap:10px; border:1.5px solid #DADCE0; background:#fff; border-radius:16px; padding:14px 16px; font-size:15px; font-weight:700; cursor:pointer; margin:0; color:#1F1F1F; position:relative; z-index:7; pointer-events:auto; text-decoration:none; min-height:52px; }
 .login-card h1, .guest-story h1 { margin:0 0 8px; font-size:26px; letter-spacing:-.55px; line-height:1.15; color:var(--ink); }
+.guest-story h1 { color:var(--ink); }
 .login-card .lead { color:var(--muted); font-size:15px; line-height:1.45; margin:0 0 18px; }
 .login-kicker { font-size:11px; font-weight:800; letter-spacing:.16em; text-transform:uppercase; color:var(--purple-deep); margin:0 0 8px; }
 .login-card .pill { margin:0 0 4px; }
@@ -209,10 +217,12 @@ textarea.note { min-height:88px; }
 <section class="screen on start" id="login">
   <div class="start-bg"><img id="loginBg" src="start-bgs/01.jpg?v=9" alt=""></div>
   <div class="start-veil"></div>
-  <div class="login-card">
+  <div class="login-hero">
     <p class="login-kicker">Trade-in</p>
     <h1>Get a value on your vehicle</h1>
     <p class="lead">No account needed. Tell us about the car, take a few photos, and we’ll take it to buyers across Canada and the U.S.</p>
+  </div>
+  <div class="login-card">
     <button class="pill cyan" type="button" id="btnGuest">Continue as guest</button>
     <div class="login-split"><span>Employees</span></div>
     <a class="gbtn" id="btnGoogle" href="/auth/popup?providerId=grok-google" target="_blank" rel="noopener">
@@ -483,8 +493,7 @@ textarea.note { min-height:88px; }
     </div>
   </div>
   <div class="dock">
-    <button class="pill purple" type="button" id="btnSharePack">Email / Share packet</button>
-    <button class="pill" type="button" id="btnSavePdf">Save PDF</button>
+    <button class="pill purple" type="button" id="btnSharePack">Send</button>
     <button class="pill wash" type="button" id="btnAnother">Inspect another</button>
   </div>
 </section>
@@ -565,6 +574,15 @@ const GHOSTS = {
   "pass": "ghosts/pass.png?v=5",
   "qfront_pass": "ghosts/qfront_pass.png?v=5"
 };
+const ASSET_BASE=(function(){
+  try{
+    const h=location.hostname||"";
+    if(h.indexOf("vercel.app")>=0) return "https://carmojiguy.github.io/";
+  }catch(e){}
+  return "";
+})();
+function assetUrl(p){ return (ASSET_BASE||"")+String(p||"").replace(/^\//,""); }
+Object.keys(GHOSTS).forEach(function(k){ GHOSTS[k]=assetUrl(GHOSTS[k]); });
 
 const VIEWS = [
   ["qfront", "3/4 Front", "qfront"],
@@ -667,7 +685,7 @@ function show(id){
         for(var i=APP._bgs.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=APP._bgs[i]; APP._bgs[i]=APP._bgs[j]; APP._bgs[j]=t; }
       }
       var n = APP._bgs.pop();
-      img.src = "start-bgs/" + String(n).padStart(2,"0") + ".jpg?v=9";
+      img.src = assetUrl("start-bgs/" + String(n).padStart(2,"0") + ".jpg?v=9");
     }
   }
   if(id==="photos"){ paintLists(); paintDocs(); }
@@ -851,7 +869,13 @@ function enterSession(role, user){
   applyRole();
   show("start");
 }
-const TRADE_PUBLIC="https://carmojiguy.github.io/";
+const TRADE_PUBLIC=(function(){
+  try{
+    const h=location.hostname||"";
+    if(h.indexOf("vercel.app")>=0 || h.indexOf("github.io")>=0) return location.origin.replace(/\/?$/,"/") ;
+  }catch(e){}
+  return "https://carmojiguy.github.io/";
+})();
 function tradeInUrl(){
   try{
     const u=new URL(TRADE_PUBLIC);
@@ -926,8 +950,8 @@ function escHtml(s){
   return String(s||"").replace(/[&<>"]/g, function(c){ return "&#"+c.charCodeAt(0)+";"; });
 }
 function emailShot(name){
-  try{ return new URL("email/"+name, location.href.split("?")[0]).toString(); }
-  catch(e){ return "email/"+name; }
+  try{ return new URL("email/"+name, TRADE_PUBLIC).toString(); }
+  catch(e){ return TRADE_PUBLIC.replace(/\/?$/,"/")+"email/"+name; }
 }
 function inviteMailCopy(first, url){
   const who=APP.userName || nameForEmail(APP.userEmail) || "our team";
@@ -941,30 +965,45 @@ function inviteMailCopy(first, url){
   const text=[
     "Hi "+first+",",
     "",
-    whoLine+" started a trade-in for you"+(against?" against the "+against+".":"."),
-    "",
-    "Open this on your phone. No account. No download. About five minutes.",
-    "",
+    "START YOUR APPRAISAL — tap this link:",
     url,
     "",
-    "Here’s what happens:",
+    "That’s the only tap you need. About five minutes. No account. No download.",
     "",
-    "1. Tap Start by clicking here! and tell us the year, make, model, trim, colour, kilometres, and how it looks and drives. You can type if you’d rather not speak.",
-    "2. We’ll show you what we heard so you can fix anything.",
-    "3. Then we walk you through photos — 3/4 front, sides, rear, dash, tires. An outline sits on the camera so you know the angle. If something is dented or rusty, add those shots too.",
-    "4. Tap Send my trade. We take the packet to buyers across Canada and the U.S. and work the number.",
+    whoLine+" started this for you"+(against?" against the "+against+".":"."),
     "",
-    "The more you tell us, the more we can do for you.",
+    "Here’s what happens after you tap the link:",
+    "1. Tell us the year, make, model, trim, colour, kilometres, and how it looks and drives.",
+    "2. We walk you through a few photos.",
+    "3. Tap Send my trade. We take it to buyers across Canada and the U.S.",
+    "",
+    "If the first link doesn’t open, copy and paste this into Safari or Chrome:",
+    url,
     "",
     whoLine
   ].join("\n");
-  const img1=emailShot("step-speak.jpg");
-  const img2=emailShot("step-photos.jpg");
-  const img3=emailShot("step-send.jpg");
-  const btn='<a href="'+escHtml(url)+'" style="display:inline-block;background:#4FB8C7;color:#ffffff;padding:14px 28px;border-radius:999px;font-weight:800;text-decoration:none;font-size:16px">Open on your phone</a>';
+  const compose=[
+    "Hi "+first+",",
+    "",
+    "Tap this link to start your appraisal:",
+    "",
+    url,
+    "",
+    "About 5 minutes. No account.",
+    "",
+    "— "+whoLine
+  ].join("\n");
+  const btn=
+    '<table role="presentation" cellspacing="0" cellpadding="0" align="center" style="margin:0 auto 8px"><tr>'+
+    '<td align="center" bgcolor="#00A8E8" style="background:#00A8E8;border-radius:40px">'+
+    '<a href="'+escHtml(url)+'" target="_blank" style="display:inline-block;padding:18px 40px;font-family:Arial,Helvetica,sans-serif;font-size:18px;font-weight:800;line-height:1.2;color:#ffffff;text-decoration:none">Start my appraisal →</a>'+
+    '</td></tr></table>';
   const shot=function(src, cap){
     return '<img src="'+escHtml(src)+'" width="280" alt="'+escHtml(cap)+'" style="display:block;width:280px;max-width:100%;height:auto;border-radius:22px;border:1px solid #E6E1EE;margin:10px auto 4px"/>';
   };
+  const img1=emailShot("step-speak.jpg");
+  const img2=emailShot("step-photos.jpg");
+  const img3=emailShot("step-send.jpg");
   const html='<!DOCTYPE html><html><body style="margin:0;padding:0;background:#EDEAF3;font-family:Arial,Helvetica,sans-serif;color:#241B33">'+
     '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#EDEAF3;padding:24px 12px"><tr><td align="center">'+
     '<table role="presentation" width="560" cellpadding="0" cellspacing="0" style="width:560px;max-width:100%;background:#FAF9FC;border-radius:22px;overflow:hidden">'+
@@ -972,12 +1011,12 @@ function inviteMailCopy(first, url){
     '<div style="color:#4FB8C7;letter-spacing:.18em;font-size:11px;font-weight:700">TRADE-IN</div>'+
     '<div style="color:#ffffff;font-size:24px;font-weight:800;margin-top:8px;line-height:1.25">Get a real number on your vehicle in about five minutes</div>'+
     '</td></tr>'+
-    '<tr><td style="padding:28px 28px 8px">'+
+    '<tr><td style="padding:28px 28px 10px">'+
     '<p style="margin:0 0 14px;font-size:16px;line-height:1.5">Hi '+escHtml(first)+',</p>'+
-    '<p style="margin:0 0 14px;font-size:16px;line-height:1.55">'+escHtml(whoLine)+' asked us to get a value on your vehicle'+(against?' so we can put a number against the <strong>'+escHtml(against)+'</strong>.':' so we can take it to buyers.')+'</p>'+
-    '<p style="margin:0 0 18px;font-size:16px;line-height:1.55">No account. No app store. Open the link on your phone, talk (or type), take a few photos, and send. We handle the rest — buyers across Canada and the United States.</p>'+
-    '<p style="margin:0 0 22px;text-align:center">'+btn+'</p>'+
-    '<p style="margin:0 0 6px;font-size:13px;color:#6B6278;text-align:center;word-break:break-all">'+escHtml(url)+'</p>'+
+    '<p style="margin:0 0 18px;font-size:16px;line-height:1.55">'+escHtml(whoLine)+' asked us to get a value on your vehicle'+(against?' so we can put a number against the <strong>'+escHtml(against)+'</strong>.':' so we can take it to buyers.')+'</p>'+
+    '<p style="margin:0 0 10px;text-align:center">'+btn+'</p>'+
+    '<p style="margin:0 0 6px;font-size:13px;font-weight:800;color:#110E1A;text-align:center">Tap the blue button to start</p>'+
+    '<p style="margin:0 0 22px;font-size:13px;color:#6B6278;text-align:center;word-break:break-all"><a href="'+escHtml(url)+'" target="_blank" style="color:#008FCC;font-weight:700;text-decoration:underline">'+escHtml(url)+'</a></p>'+
     '</td></tr>'+
     '<tr><td style="padding:8px 28px 6px"><div style="height:1px;background:#E6E1EE"></div></td></tr>'+
     '<tr><td style="padding:18px 28px 6px"><div style="font-size:13px;letter-spacing:.14em;font-weight:800;color:#6B4C9A">HOW EASY THIS IS</div></td></tr>'+
@@ -997,12 +1036,13 @@ function inviteMailCopy(first, url){
     '</td></tr>'+
     '<tr><td style="padding:8px 28px 28px">'+
     '<p style="margin:0 0 18px;font-size:15px;line-height:1.55;color:#3A3346">Be as specific as you can. The more we know, the more we can do for you.</p>'+
-    '<p style="margin:0 0 22px;text-align:center">'+btn+'</p>'+
+    '<p style="margin:0 0 8px;text-align:center">'+btn+'</p>'+
+    '<p style="margin:0 0 18px;font-size:13px;font-weight:800;color:#110E1A;text-align:center">Tap the blue button to start your appraisal</p>'+
     '<p style="margin:0;font-size:13px;color:#6B6278">— '+escHtml(whoLine)+'</p>'+
     '</td></tr></table>'+
     '<p style="margin:16px 0 0;font-size:11px;color:#8A8296;text-align:center">Sent because you asked '+escHtml(whoLine)+' for a trade-in value.</p>'+
     '</td></tr></table></body></html>';
-  return {subject:subject, text:text, html:html};
+  return {subject:subject, text:text, html:html, compose:compose};
 }
 function mailHref(to, subject, body){
   return "mailto:"+encodeURIComponent(Array.isArray(to)?to.join(","):to)+"?subject="+encodeURIComponent(subject)+"&body="+encodeURIComponent(body);
@@ -1012,7 +1052,7 @@ function gmailCompose(to, subject, body){
     view:"cm", fs:"1", tf:"1",
     to: Array.isArray(to)?to.join(","):to,
     su: subject,
-    body: String(body||"").slice(0,1800)
+    body: String(body||"").slice(0,7000)
   });
   if(APP.userEmail) params.set("authuser", APP.userEmail);
   return "https://mail.google.com/mail/?"+params.toString();
@@ -1043,32 +1083,48 @@ function rfc822(to, subject, body, html, parts){
   const list=Array.isArray(to)?to.join(", "):to;
   const from=APP.userName && APP.userEmail ? (APP.userName+" <"+APP.userEmail+">") : (APP.userEmail||"");
   const head="From: "+from+"\r\nTo: "+list+"\r\nSubject: "+subject+"\r\nMIME-Version: 1.0\r\n";
-  if(!html) return head+"Content-Type: text/plain; charset=UTF-8\r\n\r\n"+body;
+  const all=parts||[];
+  const inline=all.filter(function(p){ return p.disp!=="attachment"; });
+  const attach=all.filter(function(p){ return p.disp==="attachment"; });
+  if(!html && !all.length) return head+"Content-Type: text/plain; charset=UTF-8\r\n\r\n"+body;
   const alt="alt"+Date.now();
-  const inner="--"+alt+"\r\nContent-Type: text/plain; charset=UTF-8\r\n\r\n"+body+"\r\n--"+alt+"\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n"+html+"\r\n--"+alt+"--";
-  if(!parts || !parts.length) return head+"Content-Type: multipart/alternative; boundary=\""+alt+"\"\r\n\r\n"+inner;
+  const inner="--"+alt+"\r\nContent-Type: text/plain; charset=UTF-8\r\n\r\n"+(body||"")+"\r\n--"+alt+"\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n"+(html||("<pre>"+escHtml(body||"")+"</pre>"))+"\r\n--"+alt+"--";
+  function partBlock(p){
+    const mime=p.mime||"application/octet-stream";
+    const disp=p.disp==="attachment" ? ("attachment; filename=\""+(p.name||"file")+"\"") : ("inline; filename=\""+(p.name||"file")+"\"");
+    const cid=p.cid ? ("Content-ID: <"+p.cid+">\r\n") : "";
+    return "Content-Type: "+mime+"; name=\""+(p.name||"file")+"\"\r\nContent-Transfer-Encoding: base64\r\n"+cid+"Content-Disposition: "+disp+"\r\n\r\n"+(p.b64||"")+"\r\n";
+  }
+  if(!inline.length && !attach.length) return head+"Content-Type: multipart/alternative; boundary=\""+alt+"\"\r\n\r\n"+inner;
   const rel="rel"+Date.now();
-  let mime=head+"Content-Type: multipart/related; type=\"multipart/alternative\"; boundary=\""+rel+"\"\r\n\r\n--"+rel+"\r\nContent-Type: multipart/alternative; boundary=\""+alt+"\"\r\n\r\n"+inner+"\r\n";
-  parts.forEach(function(p){
-    mime+="--"+rel+"\r\nContent-Type: image/jpeg; name=\""+p.name+"\"\r\nContent-Transfer-Encoding: base64\r\nContent-ID: <"+p.cid+">\r\nContent-Disposition: inline; filename=\""+p.name+"\"\r\n\r\n"+p.b64+"\r\n";
-  });
-  mime+="--"+rel+"--";
+  let related="Content-Type: multipart/related; type=\"multipart/alternative\"; boundary=\""+rel+"\"\r\n\r\n--"+rel+"\r\nContent-Type: multipart/alternative; boundary=\""+alt+"\"\r\n\r\n"+inner+"\r\n";
+  inline.forEach(function(p){ related+="--"+rel+"\r\n"+partBlock(p); });
+  related+="--"+rel+"--";
+  if(!attach.length) return head+related;
+  const mix="mix"+Date.now();
+  let mime=head+"Content-Type: multipart/mixed; boundary=\""+mix+"\"\r\n\r\n--"+mix+"\r\n"+related+"\r\n";
+  attach.forEach(function(p){ mime+="--"+mix+"\r\n"+partBlock(p); });
+  mime+="--"+mix+"--";
   return mime;
 }
 function b64url(str){
   return btoa(unescape(encodeURIComponent(str))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
 }
-async function sendFromMe(to, subject, body, html){
+async function sendFromMe(to, subject, body, html, parts){
   const list=Array.isArray(to)?to.filter(Boolean):[to];
   if(!list.length) return {ok:false};
   if(APP.googleToken){
     try{
-      let packed={html:html, parts:[]};
-      if(html) packed=await embedShots(html);
+      let useHtml=html||"";
+      let useParts=parts||[];
+      if(useHtml && !useParts.length){
+        const packed=await embedShots(useHtml);
+        useHtml=packed.html; useParts=packed.parts;
+      }
       const r=await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/send", {
         method:"POST",
         headers:{Authorization:"Bearer "+APP.googleToken, "Content-Type":"application/json"},
-        body:JSON.stringify({raw:b64url(rfc822(list, subject, body, packed.html, packed.parts))})
+        body:JSON.stringify({raw:b64url(rfc822(list, subject, body, useHtml, useParts))})
       });
       if(r.ok) return {ok:true, via:"gmail"};
       if(r.status===401 || r.status===403) APP.googleToken="";
@@ -1112,9 +1168,9 @@ async function sendTradeInvite(){
   let copy;
   try{ copy=inviteMailCopy(first, url); }
   catch(e){ copy={subject:"Your trade-in link", text:"Hi "+first+",\n\n"+url+"\n", html:""}; }
-  const subject=copy.subject, msg=copy.text, html=copy.html;
+  const subject=copy.subject, msg=copy.text, html=copy.html, compose=copy.compose||copy.text;
   const from=APP.userEmail||"";
-  const gmailUrl=email && from ? gmailCompose(email, subject, msg) : "";
+  const gmailUrl=email && from ? gmailCompose(email, subject, compose) : "";
   let opened=null;
   if(gmailUrl){
     try{ opened=window.open(gmailUrl, "_blank"); }catch(e){ opened=null; }
@@ -2052,7 +2108,7 @@ function openViewer(kind, src, title){
     img.style.display="none";
     if(doc){
       doc.classList.add("on");
-      doc.innerHTML='<p class="quote">Chrome blocks PDFs in this preview. Use Save PDF, or open the photo version below if we have one.</p>';
+      doc.innerHTML='<p class="quote">Chrome blocks PDFs in this preview. Open the photo version below.</p>';
     }
   } else {
     img.style.display="block"; img.src=src;
@@ -2138,76 +2194,96 @@ async function paintSubmit(){
   paintTo();
   const guest=APP.role==="guest";
   if($("toBlock")) $("toBlock").classList.toggle("hide", guest);
-  if($("btnSavePdf")) $("btnSavePdf").classList.toggle("hide", guest);
   if($("listCard")) $("listCard").classList.toggle("hide", guest || !isWeb());
   const note=$("guestSendNote");
   const packBtn=$("btnSharePack");
+  if(packBtn) packBtn.textContent="Send";
   if(guest){
     const to=tradeRecipients();
     if(note){
       note.classList.remove("hide");
-      note.textContent = (customerFirst() ? customerFirst()+", review your file. " : "Review the file. ")
-        + "Send my trade goes to "+tradeToLine(to)+".";
+      note.textContent = (customerFirst() ? customerFirst()+", review your file, then tap Send. " : "Review the file, then tap Send. ")
+        + "Photos, the description, and the PDF go to "+tradeToLine(to)+".";
     }
-    if(packBtn) packBtn.textContent="Send my trade";
     $("subBadge").textContent="Trade-in";
     $("pdfHint").textContent="Tap to review the whole file";
   } else {
     if(note) note.classList.add("hide");
-    if(packBtn) packBtn.textContent="Email / Share packet";
     $("pdfHint").textContent="Tap to open the complete file";
   }
   $("pdfCard").onclick=openPacket;
 }
+function dataB64(dataUrl){
+  const s=String(dataUrl||"");
+  const i=s.indexOf("base64,");
+  return i>=0 ? s.slice(i+7) : "";
+}
+function packetMailHtml(shots){
+  let h='<div style="font-family:Arial,Helvetica,sans-serif;color:#241B33;max-width:640px">';
+  h+='<h2 style="margin:0 0 8px">'+(escHtml(unitLabel())||"Vehicle")+'</h2>';
+  h+='<p style="margin:0 0 16px;color:#6B6278">'+(escHtml(why()))+' · photos, description, and PDF</p>';
+  h+='<pre style="white-space:pre-wrap;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.45;background:#F3F0FA;padding:14px;border-radius:14px">'+escHtml(packetSummary())+'</pre>';
+  (shots||[]).forEach(function(s,i){
+    h+='<p style="margin:18px 0 6px;font-weight:800">'+(escHtml(s.title)||("Photo "+(i+1)))+'</p>';
+    h+='<img src="cid:photo'+i+'@inspect" width="560" alt="" style="display:block;width:100%;max-width:560px;border-radius:14px"/>';
+  });
+  h+='<p style="margin:22px 0 0;color:#6B6278;font-size:13px">The PDF is attached to this email.</p></div>';
+  return h;
+}
 async function sharePacket(){
   const shots=capturedFiles();
-  if(!shots.length && !Object.keys(APP.docs||{}).length){ toast("Take photos first."); return; }
+  if(!shots.length && !Object.keys(APP.docs||{}).length && !(APP.notes||APP.heard)){ toast("Add the story or photos first."); return; }
   const btn=$("btnSharePack");
   if(btn){ btn.disabled=true; btn.textContent="Sending…"; }
   try{
-    const [doc, zipBlob]=await Promise.all([buildPdf(), buildZip()]);
+    const doc=await buildPdf();
     const base=folderName()||"vehicle";
-    const pdfFile=new File([doc.output("blob")], base+"-packet.pdf", {type:"application/pdf"});
-    const zipFile=new File([zipBlob], base+".zip", {type:"application/zip"});
+    const pdfBlob=doc.output("blob");
+    const pdfFile=new File([pdfBlob], base+"-packet.pdf", {type:"application/pdf"});
+    const photoFiles=shots.map(function(s){ return new File([blobFrom(s.data)], s.name, {type:"image/jpeg"}); });
     let to=APP.role==="guest" ? tradeRecipients() : loadRecipients();
     if(!to.length) to=["shawn@myloan.ca"];
     const subject=APP.role==="guest"
       ? (unitLabel()+" — trade-in"+(APP.inviteName?" from "+APP.inviteName:""))
-      : (unitLabel()+" — "+why()+" packet");
+      : (unitLabel()+" — "+why());
     const body=packetSummary() + (APP.role==="guest" && APP.requestedBy ? "\nRequested by: "+(APP.requestedByName||nameForEmail(APP.requestedBy))+" <"+APP.requestedBy+">" : "");
+    const html=packetMailHtml(shots);
+    const parts=[];
+    shots.forEach(function(s,i){
+      const b64=dataB64(s.data);
+      if(b64) parts.push({cid:"photo"+i+"@inspect", b64:b64, name:s.name||("photo-"+i+".jpg"), mime:"image/jpeg"});
+    });
+    try{
+      parts.push({disp:"attachment", b64:bufB64(await pdfBlob.arrayBuffer()), name:base+"-packet.pdf", mime:"application/pdf"});
+    }catch(e){}
     let mailed=false;
     try{
-      const sent=await sendFromMe(to, subject, body);
+      const sent=await sendFromMe(to, subject, body, html, parts);
       if(sent && sent.ok){
         mailed=true;
-        toast(sent.via==="gmail" ? ("Sent from "+APP.userEmail+" to "+tradeToLine(to)) : ("Opens as "+(APP.userEmail||"your account")));
+        toast("Sent photos, description, and PDF to "+tradeToLine(to)+".");
+        return;
       }
     }catch(e){}
-    const files=[zipFile, pdfFile];
+    const files=photoFiles.concat([pdfFile]);
     if(navigator.canShare && navigator.canShare({files:files})){
       try{
-        await navigator.share({files:files, title:subject, text:(to.length?"To: "+to.join(", ")+"\n\n":"")+body});
-        if(!mailed) toast("Share sheet — pick Mail.");
+        await navigator.share({files:files, title:subject, text:"To: "+to.join(", ")+"\n\n"+body});
+        toast("Sent. Photos, description, and PDF.");
         return;
       }catch(e){ if(e && e.name==="AbortError") return; }
     }
-    const a=document.createElement("a"); a.href=URL.createObjectURL(zipBlob); a.download=base+".zip"; a.click();
-    try{ doc.save(base+"-packet.pdf"); }catch(e){}
-    if(!mailed){
-      toast("ZIP + PDF saved. Use Share or attach them in Mail.");
+    const a=document.createElement("a"); a.href=URL.createObjectURL(pdfBlob); a.download=base+"-packet.pdf"; a.click();
+    photoFiles.forEach(function(f){ const x=document.createElement("a"); x.href=URL.createObjectURL(f); x.download=f.name; x.click(); });
+    if(APP.userEmail){
+      try{ window.open(gmailCompose(to.join(","), subject, body+"\n\nPDF and photos downloaded — they go with this email."), "_blank"); }catch(e){}
     }
+    toast(mailed ? "Sent." : "Photos and PDF ready. Mail is open.");
   }catch(e){
-    toast("Could not pack the file. Try Save PDF.");
+    toast("Couldn’t send. Check the photos and try again.");
   }finally{
-    if(btn){ btn.disabled=false; btn.textContent= APP.role==="guest" ? "Send my trade" : "Email / Share packet"; }
+    if(btn){ btn.disabled=false; btn.textContent="Send"; }
   }
-}
-async function savePdf(){
-  try{
-    const doc=await buildPdf();
-    doc.save(folderName()+"-vehicle.pdf");
-    toast("PDF saved as its own file.");
-  }catch(e){ toast("PDF blocked in this preview. Open the file on the phone."); }
 }
 
 function resetAll(){
@@ -2271,7 +2347,6 @@ $("btnVin").onclick = $("verifyVin").onclick = function(){ startVinScan(); };
 $("unitLine").onclick = function(){ fillUnit(); $("unitSheet").classList.add("on"); };
 $("btnSend").onclick = function(){ show("submit"); };
 if($("btnSavePhotos")) $("btnSavePhotos").onclick = savePhotos;
-$("btnSavePdf").onclick = savePdf;
 if($("btnSharePack")) $("btnSharePack").onclick = sharePacket;
 if($("viewerX")) $("viewerX").onclick = closeViewer;
 if($("storyCard")) $("storyCard").onclick = function(){
