@@ -38,6 +38,9 @@ body { font-family:Manrope,system-ui,sans-serif; color:var(--ink); }
 .lamp { position:absolute; top:12px; right:12px; border:0; background:#fff; border-radius:999px; padding:8px 12px; font-size:14px; font-weight:700; }
 h2 { font-size:26px; font-weight:800; letter-spacing:-.5px; margin:4px 0 14px; }
 .quote { color:var(--muted); font-size:16px; line-height:1.45; margin:8px 0 12px; }
+.start-pose { display:block; width:100%; border:0; padding:0; margin:4px 0 18px; border-radius:22px; overflow:hidden; background:#1A1630; cursor:pointer; text-align:left; font:inherit; color:#fff; }
+.start-pose img { display:block; width:100%; height:auto; aspect-ratio:16/9; object-fit:cover; object-position:center 60%; }
+.start-pose em { display:block; font-style:normal; font-size:13px; font-weight:700; letter-spacing:.01em; padding:11px 14px 13px; }
 #storyHelp .quote:last-child { margin-bottom:18px; }
 .how { margin:4px 0 16px; padding:14px 16px; background:#fff; border:1.5px solid var(--hair); border-radius:18px; }
 .how ol { margin:0; padding:0 0 0 20px; }
@@ -572,7 +575,10 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
   </div>
   <div class="pad">
     <button class="unit link" type="button" id="unitLine">Add year / make / VIN</button>
-    <button class="pill wash" type="button" id="btnStart">Start with 3/4 Front</button>
+    <button class="start-pose" type="button" id="btnStart">
+      <img src="pose-qfront.jpg" alt="Stand about six feet off the front corner, phone out, for the 3/4 front photo">
+      <em>Stand here · about 6 feet off the front corner · tap to shoot</em>
+    </button>
     <div class="block">Photos</div>
     <div id="photoRows"></div>
     <div class="block">Damage</div>
