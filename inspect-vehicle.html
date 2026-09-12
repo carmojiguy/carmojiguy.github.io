@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- send-v18 2026-09-12: SMS fires on tap, no Gmail popup during send, catalog never hangs -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -23,24 +24,30 @@ body { font-family:Manrope,system-ui,sans-serif; color:var(--ink); }
 .accent { height:4px; background:linear-gradient(90deg,var(--cyan),var(--purple)); }
 .screen { display:none; min-height:100dvh; padding:0 0 calc(160px + env(safe-area-inset-bottom)); }
 .screen.on { display:block; }
-.screen.start { padding:0 !important; min-height:100dvh; height:100dvh; overflow:hidden; }
+.screen.start { padding:0 !important; min-height:100svh; height:100svh; overflow:hidden; }
 .nav { display:grid; grid-template-columns:36px 1fr 36px; align-items:center; padding:12px 16px 8px; gap:10px; }
 .nav h1 { margin:0; text-align:center; font-size:15px; font-weight:800; }
 .round { width:36px; height:36px; border:0; border-radius:50%; background:#1A1630; color:#fff; cursor:pointer; }
 .pad { padding:0 20px; }
-.finder { margin:4px 20px 18px; height:220px; background:#EDEAF6; border-radius:22px; position:relative; overflow:hidden; }
+.finder { margin:0; height:260px; background:#111; border-radius:0; position:relative; overflow:hidden; }
 .finder video { width:100%; height:100%; object-fit:cover; display:block; }
 .finder video.off { display:none; }
-.finder .cam-idle { position:absolute; inset:0; display:grid; place-items:center; color:#8a8498; font-size:18px; font-weight:800; letter-spacing:.04em; }
+.finder .cam-idle { position:absolute; inset:0; display:grid; place-items:center; color:#c7c7cc; font-size:16px; font-weight:700; text-align:center; padding:20px; }
 .finder.live .cam-idle, .finder.shot .cam-idle { display:none; }
 #vinStill { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
-.scan { position:absolute; left:8%; right:8%; top:46%; height:2px; background:#8a3a3a; opacity:.7; }
-.finder.scanning .scan { background:var(--cyan); animation:sweep 1.15s linear infinite; }
-@keyframes sweep { from{top:14%} to{top:86%} }
 .finder .status { position:absolute; left:12px; right:12px; bottom:12px; color:#fff; font-size:13px; font-weight:700; text-shadow:0 1px 6px #000; }
 .lamp { position:absolute; top:12px; right:12px; border:0; background:#fff; border-radius:999px; padding:8px 12px; font-size:14px; font-weight:700; }
 h2 { font-size:26px; font-weight:800; letter-spacing:-.5px; margin:4px 0 14px; }
-.quote { color:var(--muted); font-size:16px; line-height:1.35; margin:10px 0 18px; }
+.quote { color:var(--muted); font-size:16px; line-height:1.45; margin:8px 0 12px; }
+.start-pose { display:block; width:100%; border:0; padding:0; margin:4px 0 18px; border-radius:22px; overflow:hidden; background:#1A1630; cursor:pointer; text-align:left; font:inherit; color:#fff; }
+.start-pose img { display:block; width:100%; height:auto; aspect-ratio:16/9; object-fit:cover; object-position:center 60%; }
+.start-pose em { display:block; font-style:normal; font-size:13px; font-weight:700; letter-spacing:.01em; padding:11px 14px 13px; }
+#storyHelp .quote:last-child { margin-bottom:18px; }
+.how { margin:4px 0 16px; padding:14px 16px; background:#fff; border:1.5px solid var(--hair); border-radius:18px; }
+.how ol { margin:0; padding:0 0 0 20px; }
+.how li { color:var(--muted); font-size:15px; line-height:1.45; margin:0 0 10px; }
+.how li:last-child { margin:0; }
+.how b { color:var(--ink); font-weight:800; }
 .link { background:none; border:0; padding:0; color:var(--cyan-deep); font-size:16px; font-weight:700; cursor:pointer; }
 .pill { width:100%; border:1.5px solid var(--hair); background:#fff; border-radius:16px; padding:15px 16px; font-size:16px; font-weight:700; cursor:pointer; margin:0 0 10px; color:var(--ink); }
 .pill.cyan { background:var(--cyan); color:#fff; border-color:var(--cyan); }
@@ -77,7 +84,9 @@ h2 { font-size:26px; font-weight:800; letter-spacing:-.5px; margin:4px 0 14px; }
 label.k { display:block; color:#6e6e73; font-size:13px; margin:11px 0 5px; }
 input.f, textarea.note { width:100%; border:1.5px solid var(--hair); border-radius:16px; padding:13px 14px; font-size:17px; font-family:inherit; }
 textarea.note { min-height:160px; max-height:none; resize:vertical; overflow:auto; field-sizing:content; line-height:1.45; }
-.vin-chip { font-weight:800; letter-spacing:.06em; font-size:15px; color:var(--purple-deep); margin:0 0 12px; }
+.vin-fail { margin-top:14px; padding-top:12px; border-top:1px solid var(--hair); }
+.vin-fail p { color:var(--muted); font-size:15px; line-height:1.4; margin:0 0 12px; }
+.vin-fail .f { letter-spacing:.14em; font-weight:800; text-transform:uppercase; }
 .to-chips { display:flex; flex-direction:column; gap:8px; margin:0 0 12px; }
 .mail { display:flex; align-items:center; gap:12px; width:100%; text-align:left; border:1.5px solid var(--hair); background:#fff; border-radius:16px; padding:12px 14px; cursor:pointer; }
 .mail.on { border-color:var(--purple); background:var(--lavender); }
@@ -101,7 +110,28 @@ textarea.note { min-height:160px; max-height:none; resize:vertical; overflow:aut
 .doc-sq .pdfmark { position:absolute; top:14px; right:14px; background:var(--purple); color:#fff; font-size:11px; font-weight:800; border-radius:8px; padding:4px 8px; letter-spacing:.04em; }
 .doc-sq b { position:relative; font-size:15px; font-weight:800; line-height:1.15; margin:0 0 4px; }
 .doc-sq span { position:relative; font-size:12px; color:var(--muted); line-height:1.3; font-weight:600; }
-.doc-sq.on { border-style:solid; border-color:var(--purple); }
+button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; font:inherit; color:inherit; text-decoration:none; display:block; }
+.doc-sq.vauto-sq { padding:0; border:0; background:#FF6A00; }
+.doc-sq.vauto-sq img { object-fit:cover; pointer-events:none; }
+.doc-sq.openlane-sq { padding:0; border:0; background:#0B1B4A; }
+.doc-sq.openlane-sq img { object-fit:cover; pointer-events:none; }
+.doc-sq.eblock-sq { padding:0; border:0; background:#0B0B0B; }
+.doc-sq.eblock-sq img, .doc-sq.eblock-sq svg { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; pointer-events:none; display:block; }
+.doc-sq.vauto-sq .veil { background:transparent; }
+.doc-sq.carfax-sq { padding:0; border:0; background:#fff; }
+.doc-sq.carfax-sq img { object-fit:cover; pointer-events:none; }
+.doc-sq.carfax-wait { padding:18px 16px; justify-content:center; align-items:center; text-align:center; background:#FAF7F2; border:1.5px dashed #E0D4C4; cursor:pointer; }
+.doc-sq.carfax-wait b { font-size:16px; color:#1A1A1A; }
+.doc-sq.carfax-wait span { color:#8A7B68; }
+.carfax-report { grid-column:1 / -1; background:#E8E4DC; border-radius:20px; padding:14px 12px 18px; max-height:82vh; overflow:auto; }
+.carfax-report h4 { margin:0 0 10px; font-size:14px; font-weight:800; color:#241B33; }
+.carfax-report h4 a { color:#241B33; text-decoration:none; }
+.carfax-bar { display:flex; gap:8px; flex-wrap:wrap; margin:0 0 14px; }
+.carfax-pages { display:flex; flex-direction:column; gap:18px; align-items:center; }
+.carfax-pages canvas, .carfax-pages img { width:100%; max-width:720px; height:auto; background:#fff; box-shadow:0 10px 28px rgba(20,16,30,.18); border-radius:2px; display:block; }
+.data-says { grid-column:1 / -1; margin:6px 0 18px; }
+.data-says .pill { margin:0; }
+.data-says .quote { margin:8px 0 0; }
 .doc-sq.on b, .doc-sq.on span { color:#fff; }
 .shot-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:0 0 16px; }
 .shot-grid button { border:0; padding:0; background:none; border-radius:14px; overflow:hidden; text-align:left; cursor:pointer; position:relative; }
@@ -123,15 +153,24 @@ textarea.note { min-height:160px; max-height:none; resize:vertical; overflow:aut
 .viewer-doc h4 { margin:18px 0 8px; font-size:18px; }
 .viewer-doc .block { margin-top:18px; }
 
-.vin-row { display:flex; gap:8px; align-items:stretch; }
-.vin-row .f { flex:1; }
-.vin-row .pill { width:auto; margin:0; white-space:nowrap; padding:13px 14px; font-size:14px; }
+.to-add { display:flex; gap:8px; align-items:stretch; }
+.to-add .f { flex:1; }
+.to-add .pill { width:auto; margin:0; white-space:nowrap; padding:13px 14px; font-size:14px; }
+.vin-box { display:flex; flex-direction:column; gap:8px; }
+.vin-box .f { width:100%; font-size:16px; letter-spacing:.12em; font-weight:800; text-transform:uppercase; min-height:52px; }
+.vin-box .pill { width:100%; }
+#vinHear { margin:0; min-height:18px; font-weight:700; }
 .cam { background:#000; color:#fff; padding:0 !important; }
+.screen.cam { display:none; }
+.screen.cam.on { display:flex; flex-direction:column; }
 .cam .nav h1 { color:#fff; }
-.stage { position:relative; height:calc(100dvh - 248px); min-height:280px; background:#111; overflow:hidden; }
-.stage video { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:1; background:#111; z-index:0; }
-.ghost { position:absolute; left:6%; right:6%; top:14%; height:58%; width:88%; object-fit:contain; object-position:center; pointer-events:none; opacity:.86; mix-blend-mode:normal; z-index:1; }
-.ghost.tall { top:10%; height:70%; }
+.stage { position:relative; width:100%; aspect-ratio:16/9; height:auto; max-height:calc(100dvh - 220px); min-height:160px; margin:auto 0; background:#000; overflow:hidden; }
+@media (orientation:landscape){
+  .stage { width:auto; max-width:100%; height:calc(100dvh - 132px); max-height:none; aspect-ratio:16/9; }
+}
+.stage video { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center; opacity:1; background:#111; z-index:0; }
+.ghost { position:absolute; left:6%; right:6%; top:8%; height:84%; width:88%; object-fit:contain; object-position:center; pointer-events:none; opacity:.86; mix-blend-mode:normal; z-index:1; }
+.ghost.tall { top:8%; height:84%; }
 .ghost.off { opacity:0; }
 .ghost.flip, .thumb img.flip { transform:scaleX(-1); }
 .cam-wait { position:absolute; left:16px; right:16px; bottom:18px; z-index:2; color:#fff; text-align:center; font-size:14px; font-weight:700; text-shadow:0 1px 8px #000; pointer-events:none; }
@@ -151,7 +190,7 @@ textarea.note { min-height:160px; max-height:none; resize:vertical; overflow:aut
 .toast.on { display:block; }
 .hide { display:none !important; }
 .start { padding:0 !important; position:relative; overflow:hidden; background:#0b0b10; min-height:100dvh; }
-.start-bg { position:absolute; inset:0; background:#0b0b10; overflow:hidden; }
+.start-bg { position:absolute; inset:0; background:#0b0b10 url("https://carmojiguy.github.io/start-bgs/01.jpg?v=10") center 46%/cover no-repeat; overflow:hidden; }
 .start-bg img { width:100%; height:100%; object-fit:cover; object-position:center 46%; display:block; }
 .start-bg, .start-veil { pointer-events:none; }
 .start-veil { position:absolute; inset:0; background:linear-gradient(180deg,rgba(8,6,16,.55) 0%,rgba(8,6,16,.08) 28%,rgba(8,6,16,.04) 52%,rgba(8,6,16,.62) 100%); }
@@ -174,22 +213,27 @@ textarea.note { min-height:160px; max-height:none; resize:vertical; overflow:aut
   background:rgba(250,249,252,.9); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
 }
 .guest-story {
-  position:absolute; left:18px; right:18px; transform:none;
-  top: calc(env(safe-area-inset-top, 0px) + 56px + 1.5in);
+  position:absolute; left:16px; right:16px;
+  top:auto;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
   width:auto; max-width:none;
+  max-height: calc(100svh - 28px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+  overflow-y:auto; -webkit-overflow-scrolling:touch;
   z-index:2;
-  background:rgba(250,249,252,.94); backdrop-filter:blur(22px); -webkit-backdrop-filter:blur(22px);
-  border-radius:26px; padding:22px 20px 18px;
+  background:rgba(250,249,252,.96); backdrop-filter:blur(22px); -webkit-backdrop-filter:blur(22px);
+  border-radius:26px; padding:20px 18px 16px;
   box-shadow:0 18px 50px rgba(0,0,0,.28);
 }
-.guest-story .pill { width:100%; margin:14px 0 0; padding:15px 20px; }
+.guest-story .pill { width:100%; margin:14px 0 0; padding:15px 20px; position:sticky; bottom:0; }
 .guest-story .link { display:block; width:100%; margin:10px 0 0; color:var(--purple-deep); text-align:center; }
 .guest-story p { color:var(--muted); text-shadow:none; font-size:14px; line-height:1.5; margin:0 0 10px; font-weight:600; }
 .guest-steps { display:flex; gap:6px; margin:4px 0 0; }
 .guest-steps span { flex:1; text-align:center; background:var(--fill); color:var(--purple-deep); border-radius:999px; padding:7px 4px; font-size:11px; font-weight:800; letter-spacing:.02em; }
 .start-x { position:absolute; top: calc(12px + env(safe-area-inset-top)); left:16px; z-index:2; }
-.phone:has(#start.on), .phone:has(#login.on) { max-width:none; background:#0b0b10; }
-.phone:has(#start.on) .accent, .phone:has(#login.on) .accent { display:none; }
+.phone:has(#start.on), .phone:has(#login.on), .phone:has(#thanks.on) { max-width:none; background:#0b0b10; }
+.phone:has(#start.on) .accent, .phone:has(#login.on) .accent, .phone:has(#thanks.on) .accent { display:none; }
+.phone:has(#thanks.on) .dock { display:none !important; }
+#thanks.on { position:fixed; inset:0; z-index:120; display:block; background:#0b0b10; overflow:hidden; }
 .login-hero {
   position:absolute; left:22px; right:22px; z-index:6;
   top: calc(22px + env(safe-area-inset-top));
@@ -201,6 +245,12 @@ textarea.note { min-height:160px; max-height:none; resize:vertical; overflow:aut
 .gbtn { width:100%; display:flex; align-items:center; justify-content:center; gap:10px; border:1.5px solid #DADCE0; background:#fff; border-radius:16px; padding:14px 16px; font-size:15px; font-weight:700; cursor:pointer; margin:0; color:#1F1F1F; position:relative; z-index:7; pointer-events:auto; text-decoration:none; min-height:52px; }
 .login-card h1, .guest-story h1 { margin:0 0 8px; font-size:26px; letter-spacing:-.55px; line-height:1.15; color:var(--ink); }
 .guest-story h1 { color:var(--ink); }
+.thanks-card { position:absolute; left:20px; right:20px; bottom:calc(36px + env(safe-area-inset-bottom)); z-index:2; color:#fff; }
+.thanks-card h1 { margin:10px 0 12px; font-size:34px; letter-spacing:-.7px; line-height:1.1; color:#fff; text-shadow:0 2px 18px rgba(0,0,0,.45); }
+.thanks-card .lead { color:rgba(255,255,255,.9); font-size:17px; line-height:1.45; margin:0 0 8px; text-shadow:0 1px 12px rgba(0,0,0,.4); }
+.thanks-card .soft { color:rgba(255,255,255,.78); font-size:15px; line-height:1.45; margin:0; text-shadow:0 1px 10px rgba(0,0,0,.35); }
+.thanks-up { width:64px; height:64px; border-radius:22px; background:rgba(0,168,232,.92); display:grid; place-items:center; box-shadow:0 10px 30px rgba(0,0,0,.28); }
+.thanks-up svg { width:34px; height:34px; fill:#fff; }
 .login-card .lead { color:var(--muted); font-size:15px; line-height:1.45; margin:0 0 18px; }
 .login-kicker { font-size:11px; font-weight:800; letter-spacing:.16em; text-transform:uppercase; color:var(--purple-deep); margin:0 0 8px; }
 .login-card .pill { margin:0 0 4px; }
@@ -220,6 +270,94 @@ textarea.note { min-height:160px; max-height:none; resize:vertical; overflow:aut
 .work-email .pill { margin:0; padding:12px 16px; width:auto; }
 .login-sub { text-align:center; color:var(--muted); font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; margin:4px 0 12px; }
 .who { position:absolute; top: calc(12px + env(safe-area-inset-top)); right:16px; z-index:2; background:rgba(0,0,0,.45); color:#fff; border:0; border-radius:999px; padding:8px 12px; font-size:12px; font-weight:700; }
+
+@media (min-width:980px){
+  html, body { background:#120F1C; }
+  .phone { max-width:none; min-height:100dvh; background:var(--page); }
+  .screen { padding-bottom: calc(120px + env(safe-area-inset-bottom)); }
+  .screen:not(.start):not(.cam) .nav,
+  .screen:not(.start):not(.cam) .pad {
+    max-width:1180px; width:100%; margin-left:auto; margin-right:auto;
+  }
+  .screen:not(.start):not(.cam) .nav { padding:22px 40px 10px; }
+  .screen:not(.start):not(.cam) .pad { padding:0 40px 24px; }
+  .nav h1 { font-size:16px; letter-spacing:.02em; }
+  h2 { font-size:34px; letter-spacing:-.8px; }
+  .block { font-size:26px; margin:28px 0 12px; }
+  .dock {
+    left:50%; transform:translateX(-50%);
+    width:min(1180px, calc(100% - 48px));
+    padding:16px 40px 24px;
+    display:flex; gap:12px; justify-content:flex-end; align-items:center;
+  }
+  .dock .pill { width:auto; min-width:240px; margin:0; }
+  .pill { transition:transform .15s ease, box-shadow .15s ease, background .15s ease; }
+  .pill:hover { transform:translateY(-1px); box-shadow:0 10px 24px rgba(92,63,224,.16); }
+  .row, .dmg-card, .doc-sq, .mail, .review, .gbtn {
+    transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+  }
+  .row:hover, .dmg-card:hover, .mail:hover, .review:hover {
+    transform:translateY(-1px); box-shadow:0 12px 28px rgba(17,14,26,.08);
+  }
+  .doc-sq:hover { transform:translateY(-2px); box-shadow:0 16px 32px rgba(17,14,26,.14); }
+
+  #photoRows { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  #photoRows .row { margin:0; }
+  #damageRows { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  #damageRows .dmg-card { margin:0; }
+  .docs-grid { grid-template-columns:repeat(4, 1fr); gap:16px; }
+  .carfax-pages canvas, .carfax-pages img { max-width:860px; }
+  .how { padding:18px 22px; }
+  .how li { font-size:16px; }
+
+  .sheet { display:none; align-items:center; justify-content:center; padding:48px 24px; background:rgba(18,15,28,.46); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); }
+  .sheet.on { display:flex; }
+  .sheet .card { width:min(560px, 100%); padding:28px 26px; border-radius:28px; }
+
+  .login-hero {
+    left:8%; right:auto; top:50%; transform:translateY(-52%);
+    max-width:560px; width:42%;
+  }
+  .login-hero h1 { font-size:58px; letter-spacing:-1.4px; line-height:1.02; }
+  .login-hero .lead { font-size:19px; max-width:28em; }
+  .login-card {
+    left:auto; right:7%; bottom:auto; top:50%; transform:translateY(-50%);
+    width:min(420px, 36vw); padding:22px 22px 18px;
+  }
+  .guest-story {
+    left:50%; right:auto; top:50%; transform:translate(-50%, -50%);
+    width:min(520px, 46vw); max-width:520px;
+  }
+  .start-actions .pill {
+    width:min(360px, 32vw); font-size:18px; padding:18px 24px;
+    background:rgba(250,249,252,.92); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
+  }
+  #startAppraise { top:22%; }
+  #startWebsite { bottom:24%; }
+  .start-more { width:min(360px, 32vw); bottom:28px; }
+  .thanks-card { left:10%; right:auto; bottom:auto; top:50%; transform:translateY(-50%); max-width:560px; }
+  .thanks-card h1 { font-size:56px; }
+
+  .stage {
+    width:min(1180px, 92vw); max-height:min(72vh, 760px);
+    margin:12px auto; border-radius:18px; overflow:hidden;
+  }
+  .copy, .shut { max-width:1180px; width:100%; margin:0 auto; }
+  .finder { height:min(42vh, 420px); border-radius:0 0 18px 18px; }
+  .toast { width:min(420px, 40vw); bottom:40px; }
+  .viewer-doc { padding:24px 12vw 64px; }
+  .viewer-doc img.full { max-width:920px; }
+  .facts { grid-template-columns:repeat(4, 1fr); }
+  #verify .pad { max-width:760px; }
+  .pair { grid-template-columns:1fr 1fr; gap:14px; }
+}
+
+@media (min-width:1320px){
+  .docs-grid { grid-template-columns:repeat(4, 1fr); }
+  #photoRows, #damageRows { grid-template-columns:repeat(3, 1fr); }
+  .login-hero h1 { font-size:64px; }
+}
+
 </style>
 </head>
 <body>
@@ -227,7 +365,7 @@ textarea.note { min-height:160px; max-height:none; resize:vertical; overflow:aut
 <div class="accent"></div>
 
 <section class="screen on start" id="login">
-  <div class="start-bg"><img id="loginBg" src="start-bgs/01.jpg?v=10" alt=""></div>
+  <div class="start-bg"><img id="loginBg" src="https://carmojiguy.github.io/start-bgs/01.jpg?v=10" alt=""></div>
   <div class="start-veil"></div>
   <div class="login-hero">
     <p class="login-kicker">Trade-in</p>
@@ -251,7 +389,7 @@ textarea.note { min-height:160px; max-height:none; resize:vertical; overflow:aut
 </section>
 
 <section class="screen start" id="start">
-  <div class="start-bg"><img id="startBg" src="start-bgs/01.jpg?v=10" alt=""></div>
+  <div class="start-bg"><img id="startBg" src="https://carmojiguy.github.io/start-bgs/01.jpg?v=10" alt=""></div>
   <div class="start-veil"></div>
   <button class="round start-x" type="button" id="startX">✕</button>
   <button class="who" type="button" id="whoChip">Guest</button>
@@ -266,8 +404,8 @@ textarea.note { min-height:160px; max-height:none; resize:vertical; overflow:aut
   <div class="guest-story hide" id="guestStory">
     <p class="login-kicker" id="guestKicker">Your trade-in</p>
     <h1 id="guestHello">Start with your story</h1>
-    <p>Tap the button and the microphone turns on. Tell us the year, make, model, trim, colour, kilometres, and how the vehicle looks and drives. Be as specific as you can — the more we know, the more we can do for you.</p>
-    <p>We’ll confirm the details, walk you through a few photos, and take it to buyers across Canada and the United States to get you the strongest value we can. Don’t worry — we’ll make it easy.</p>
+    <p>Tap the button — the mic turns on. Tell us the year, make, model, trim, colour, kilometres, and how it looks and drives. The more we know, the stronger the number.</p>
+    <p>Have the ownership? Photograph it after you speak. If not, just read the VIN out loud while you talk.</p>
     <div class="guest-steps">
       <span>1 · Speak</span>
       <span>2 · Confirm</span>
@@ -275,6 +413,20 @@ textarea.note { min-height:160px; max-height:none; resize:vertical; overflow:aut
     </div>
     <button class="pill cyan" type="button" id="startStory">Start by clicking here!</button>
     <button class="link" type="button" id="guestType">Type instead</button>
+  </div>
+</section>
+
+<section class="screen start" id="thanks">
+  <div class="start-bg"><img id="thanksBg" src="https://carmojiguy.github.io/start-bgs/01.jpg?v=10" alt=""></div>
+  <div class="start-veil"></div>
+  <div class="thanks-card">
+    <div class="thanks-up" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M2 10h3v11H2zM7 21h9.3c.9 0 1.7-.6 1.9-1.5l2.3-7.6c.3-1-.4-2-1.5-2H14V6.5C14 5.1 12.9 4 11.5 4h-.2c-.4 0-.8.2-1 .6L8 10.2V21z"/></svg>
+    </div>
+    <p class="login-kicker" style="color:#8EE3FF;margin-top:18px">You're all set</p>
+    <h1 id="thanksHello">Thank you</h1>
+    <p class="lead" id="thanksLead">We've got your vehicle. We're getting to work for you right now.</p>
+    <p class="soft" id="thanksSoft">Sit tight — you can close this page. We'll be in touch.</p>
   </div>
 </section>
 
@@ -286,7 +438,7 @@ textarea.note { min-height:160px; max-height:none; resize:vertical; overflow:aut
   </div>
   <div class="pad" style="padding-bottom:120px">
     <h2>Send to the customer</h2>
-    <p class="quote">First and last name, plus email or cell — or both.</p>
+    <p class="quote">This is for people outside the company. They never sign in. They open the link, describe the vehicle, take the photos, and tap Send. The packet comes back to you.</p>
     <div class="pair">
       <div>
         <label class="k">First name</label>
@@ -348,30 +500,33 @@ textarea.note { min-height:160px; max-height:none; resize:vertical; overflow:aut
     <h1 id="homeTitle">Inspect</h1>
     <button class="round" type="button">•••</button>
   </div>
-  <div id="vinScanWrap">
-  <div class="finder" id="finder">
-    <div class="cam-idle" id="vinIdle">Camera</div>
-    <video id="liveCam" class="off" autoplay playsinline muted></video>
-    <img id="vinStill" class="hide" alt="">
-    <div class="scan"></div>
-    <div class="status" id="scanStatus">Tap Capture VIN to turn the camera on.</div>
-    <button class="lamp" type="button" id="lamp">Light</button>
-  </div>
-  </div>
+  <div id="vinScanWrap"></div>
   <div class="pad">
+    <div id="typeWrap">
+      <button class="pill" type="button" id="btnDealType">Appraisal type</button>
+      <p class="quote" id="typeQuote">Trade-in, locate, general acquisition, or Canada Drives.</p>
+      <div id="cdWrap" class="hide">
+        <label class="k">Canada Drives application number</label>
+        <input class="f" id="home-cd-app" placeholder="Application number" autocomplete="off" />
+      </div>
+    </div>
     <div id="storyBlock">
     <button class="pill cyan" type="button" id="btnStory">What's the Story?</button>
-    <p class="quote" id="storyQuote">Simply press this button. Describe the year, make, model, option, trim, colour, kilometres, and condition of this vehicle.</p>
+    <div id="storyHelp">
+      <p class="quote">Press What’s the Story. The microphone turns on. Talk like you’re standing next to the vehicle with a buyer.</p>
+      <p class="quote">Say the year, make, model, trim or options, colour, and kilometres. Then walk the condition in detail: rust, dents, scratches, paintwork, glass, tires, interior, warning lights, noises, how it drives, accidents, service history, winter tires, extra keys — anything you’d mention in the driveway. Be specific. The more we know, the better.</p>
+      <p class="quote">If you have the ownership (registration), take a photo of it — that’s the easiest VIN. No ownership with you? Just read the 17-character VIN out loud while you tell the story.</p>
+    </div>
     </div>
     <button class="link" type="button" id="btnType">Type it in</button>
     <button class="pill purple" type="button" id="btnPictures" style="margin-top:16px">Just Pictures</button>
     <div id="homeDocs">
     <button class="pill" type="button" id="btnDocs">Appraisial documents</button>
-    <p class="quote">Carfax, vAuto, book, MMR — optional. Photograph the packet if you have it.</p>
+    <p class="quote">Carfax, vAuto, OpenLane, eBlock — optional. Photograph the packet if you have it.</p>
     </div>
     <div id="vinBtns">
-    <button class="pill cyan" type="button" id="btnVin">Capture VIN</button>
-    <p class="quote" id="vinHint">Tap once to turn the camera on. Line up the door-jamb barcode, QR, or VIN plate. Tap again to take the photo.</p>
+    <button class="pill cyan" type="button" id="btnVin">Photo of ownership or VIN</button>
+    <p class="quote" id="vinHint">Best: take a picture of the vehicle ownership (registration). You can also photograph the VIN on the dash or the sticker on the driver’s door. We’ll read the number from the photo.</p>
     <p class="vin-chip hide" id="vinChip"></p>
     </div>
   </div>
@@ -397,10 +552,13 @@ textarea.note { min-height:160px; max-height:none; resize:vertical; overflow:aut
       <div><label class="k">Kilometres</label><input class="f" id="v-km" inputmode="numeric" /></div>
     </div>
     <label class="k">VIN</label>
-    <div class="vin-row">
-      <input class="f" id="v-vin" maxlength="17" style="text-transform:uppercase" />
-      <button class="pill cyan" type="button" id="verifyVin">Capture VIN</button>
+    <div class="vin-box">
+      <input class="f" id="v-vin" maxlength="17" inputmode="text" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="Type the 17-character VIN" />
+      <button class="pill cyan" type="button" id="verifyVinSpeak">Speak the VIN</button>
+      <p class="quote" id="vinHear"></p>
     </div>
+    <button class="pill wash" type="button" id="verifyVin">Take a picture of the ownership</button>
+    <p class="quote" style="margin:8px 0 0">Type it, or tap Speak and read the VIN out loud — letter by letter is fine.</p>
     <div id="stockWrap" class="hide">
       <label class="k">Stock number</label><input class="f" id="v-stock" placeholder="e.g. A1042" />
     </div>
@@ -408,7 +566,7 @@ textarea.note { min-height:160px; max-height:none; resize:vertical; overflow:aut
     <textarea class="note" id="v-notes" rows="8"></textarea>
     <div id="webWrap">
       <label class="k" id="webLabel">Description</label>
-      <textarea class="note" id="v-webcopy" rows="10" style="min-height:180px" placeholder="AI listing appears here — edit anything."></textarea>
+      <textarea class="note" id="v-webcopy" rows="10" style="min-height:180px" placeholder="Listing appears here — edit anything."></textarea>
       <button class="pill cyan" type="button" id="btnWebAi" style="margin-top:10px">Generate AI description</button>
     </div>
   </div>
@@ -425,18 +583,25 @@ textarea.note { min-height:160px; max-height:none; resize:vertical; overflow:aut
   </div>
   <div class="pad">
     <button class="unit link" type="button" id="unitLine">Add year / make / VIN</button>
-    <button class="pill wash" type="button" id="btnStart">Start with 3/4 Front</button>
+    <button class="start-pose" type="button" id="btnStart">
+      <img src="pose-qfront.jpg?v=17" alt="Stand about six feet off the front corner, phone out, for the 3/4 front photo">
+      <em>Stand here · about 6 feet off the front corner · tap to shoot</em>
+    </button>
     <div class="block">Photos</div>
     <div id="photoRows"></div>
     <div class="block">Damage</div>
-    <p class="quote">Tap the panel that’s hit. Take as many photos as you need.</p>
+    <p class="quote">Skip this if the vehicle is clean. If something is damaged, tell us here — rust, a dent, a scratch, a cracked light, a panel that doesn’t open.</p>
+    <div class="how">
+      <ol>
+        <li><b>Tap the part of the car that’s damaged</b> using the same angles as the photos above (¾ front, driver side, rear, and so on).</li>
+        <li><b>First tap turns the microphone on.</b> Say what’s wrong, out loud — “rust on the front fender” or “dent in the passenger door.”</li>
+        <li><b>Second tap takes the picture.</b> Your words stick on the photo. Need a close-up of the same spot? Tap that panel again and shoot as many as you want.</li>
+      </ol>
+    </div>
     <div id="damageRows"></div>
-    <div class="block">Damage close-ups</div>
-    <div id="closeRows"></div>
-    <button class="pill wash" type="button" id="btnClose">Add a close-up</button>
     <div id="docsBlock">
       <div class="block">Appraisal documents</div>
-      <p class="quote">Tap a square. Photograph the page or pick a file.</p>
+      <p class="quote">Tap a square. Screenshots, a PDF, or one screen recording of you scrolling the report — that last one saves a pile of screenshots.</p>
       <div id="docsList" class="docs-grid"></div>
     </div>
   </div>
@@ -502,12 +667,19 @@ textarea.note { min-height:160px; max-height:none; resize:vertical; overflow:aut
     </button>
     <p class="quote hide" id="guestSendNote"></p>
     <div id="toBlock">
-      <label class="k">Send to</label>
+      <label class="k">Send to anyone</label>
+      <p class="quote" style="margin:0 0 10px">Type any email. Add as many as you want. They don’t need an account.</p>
+      <div class="to-add">
+        <input class="f" id="extraMail" type="email" inputmode="email" autocomplete="email" placeholder="name@email.com" />
+        <button class="pill purple" type="button" id="extraMailAdd">Add</button>
+      </div>
+      <label class="k">Team shortcuts</label>
       <div id="toChips"></div>
     </div>
   </div>
   <div class="dock">
     <button class="pill purple" type="button" id="btnSharePack">Send</button>
+    <a class="pill cyan hide" id="mailOpen" href="#" target="_blank" rel="noopener">Open Gmail and send</a>
     <button class="pill wash" type="button" id="btnAnother">Inspect another</button>
   </div>
 </section>
@@ -519,6 +691,7 @@ textarea.note { min-height:160px; max-height:none; resize:vertical; overflow:aut
   </div>
   <iframe id="viewerPdf" title="PDF" class="hide"></iframe>
   <img id="viewerImg" alt="">
+  <video id="viewerVid" class="hide" controls playsinline></video>
   <div class="viewer-doc" id="viewerDoc"></div>
 </div>
 
@@ -535,7 +708,7 @@ textarea.note { min-height:160px; max-height:none; resize:vertical; overflow:aut
   <div class="card">
     <button class="x" type="button" data-close="storySheet">✕</button>
     <h3 id="storyTitle">What's the Story?</h3>
-    <p class="hint">Describe year, make, model, trim, colour, kilometres, VIN, and condition. Allow the microphone when asked — tap Speak if it doesn’t start.</p>
+    <p class="hint">Talk through year, make, model, trim, colour, kilometres, and condition in detail. If you have the ownership, photograph it. If not, read the 17-character VIN out loud. Allow the microphone — tap Speak if it doesn’t start.</p>
     <textarea class="box" id="transcript" rows="8" placeholder="I'm looking at a 1986 Ford Bronco…"></textarea>
     <div class="pair">
       <button class="pill wash" type="button" id="micBtn">Speak</button>
@@ -543,11 +716,57 @@ textarea.note { min-height:160px; max-height:none; resize:vertical; overflow:aut
     </div>
   </div>
 </div>
+<div class="sheet" id="vinSheet">
+  <div class="card" style="padding:0;overflow:hidden">
+    <button class="x" type="button" data-close="vinSheet">✕</button>
+    <div class="finder" id="finder">
+      <div class="cam-idle" id="vinIdle">Camera will show here</div>
+      <video id="liveCam" class="off" autoplay playsinline muted></video>
+      <img id="vinStill" class="hide" alt="">
+      <div class="status" id="scanStatus">Line up the ownership or the VIN plate</div>
+      <button class="lamp" type="button" id="lamp">Light</button>
+    </div>
+    <div style="padding:16px 18px 22px">
+      <h3 style="margin:0 0 8px">Ownership or VIN</h3>
+      <p class="hint">Best: photograph the vehicle ownership (registration). That’s the easiest. You can also photo the VIN on the dash or the sticker on the driver’s door.</p>
+      <button class="pill cyan" type="button" id="btnVinShot">Take photo</button>
+      <div id="vinFail" class="vin-fail hide">
+        <p id="vinFailCopy">We couldn’t read that VIN with 100% confidence. Type the 17 characters, or tap Speak and say them.</p>
+        <input class="f" id="vinManual" maxlength="17" placeholder="17-character VIN" autocomplete="off" spellcheck="false" />
+        <button class="pill purple" type="button" id="vinTypeGo" style="margin-top:10px">Use this VIN</button>
+        <button class="pill cyan" type="button" id="vinSpeak">Speak the VIN</button>
+        <button class="pill wash" type="button" id="vinRetry">Take another photo</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="sheet" id="carfaxSheet">
+  <div class="card">
+    <button class="x" type="button" data-close="carfaxSheet">✕</button>
+    <h3>Carfax link</h3>
+    <p class="hint">Paste the Carfax report link. The box stays empty until you paste.</p>
+    <input class="f" id="carfaxUrl" placeholder="https://vhr.carfax.ca/…" autocomplete="off" spellcheck="false" />
+    <button class="pill purple" type="button" id="carfaxGo" style="margin-top:12px">Make PDF</button>
+  </div>
+</div>
 <div class="sheet" id="docsSheet">
   <div class="card">
     <button class="x" type="button" data-close="docsSheet">✕</button>
     <h3>Appraisal documents</h3>
-    <p class="hint">Carfax, vAuto, book, MMR — optional.</p>
+    <p class="hint">Carfax, vAuto, OpenLane, eBlock — optional.</p>
+  </div>
+</div>
+<div class="sheet" id="typeSheet">
+  <div class="card">
+    <button class="x" type="button" data-close="typeSheet">✕</button>
+    <h3>Appraisal type</h3>
+    <p class="hint">Pick one. If it’s Canada Drives, add the application number.</p>
+    <div id="typeChips" class="to-chips"></div>
+    <div id="cdBox" class="hide">
+      <label class="k">Canada Drives application number</label>
+      <input class="f" id="cd-app" placeholder="Application number" autocomplete="off" />
+    </div>
+    <button class="pill purple" type="button" id="typeSave" style="margin-top:14px">Done</button>
   </div>
 </div>
 <div class="sheet" id="unitSheet">
@@ -588,13 +807,7 @@ const GHOSTS = {
   "pass": "ghosts/driver.png?v=6",
   "qfront_pass": "ghosts/qfront.png?v=6"
 };
-const ASSET_BASE=(function(){
-  try{
-    const h=location.hostname||"";
-    if(h.indexOf("vercel.app")>=0) return "https://carmojiguy.github.io/";
-  }catch(e){}
-  return "";
-})();
+const ASSET_BASE="https://carmojiguy.github.io/";
 function assetUrl(p){ return (ASSET_BASE||"")+String(p||"").replace(/^\//,""); }
 Object.keys(GHOSTS).forEach(function(k){ GHOSTS[k]=assetUrl(GHOSTS[k]); });
 
@@ -613,25 +826,37 @@ const VIEWS = [
   ["interior", "Driver interior", "door"]
 ];
 const DOC_TYPES = [
+  ["vauto","vAuto","vAuto appraisal"],
   ["carfax","Carfax","Vehicle history report"],
-  ["vauto_summary","vAuto summary","Appraisal summary page"],
-  ["vauto_book","vAuto book","Book / wholesale report"],
-  ["vauto_comp","Comp set","Competitive set screenshot"],
-  ["mmr","MMR","Manheim Market Report"],
   ["openlane","OpenLane","Auction / run list sheet"],
   ["eblock","eBlock","eBlock recap or bid sheet"],
-  ["other","Other","Anything else in the packet"]
+  ["vauto_summary","V-Auto documents","PDF, screenshots, or a recording"],
+  ["vauto_book","eBlock documents","PDF, screenshots, or a recording"],
+  ["vauto_comp","OpenLane documents","PDF, screenshots, or a recording"],
+  ["mmr","MMR documents","PDF, screenshots, or a recording"],
+  ["carfax_pdf","Carfax","Awaiting information"]
 ];
 
-window.GOOGLE_CLIENT_ID = window.GOOGLE_CLIENT_ID || "";
+window.GOOGLE_CLIENT_ID = window.GOOGLE_CLIENT_ID || "612595319762-mdl9686m3t8pu40qnp9oftpn6osju5c4.apps.googleusercontent.com";
+fetch((function(){
+  try{
+    const h=location.hostname||"";
+    if(h.indexOf("vercel.app")>=0) return "https://carmojiguy.github.io/google-client.json";
+  }catch(e){}
+  return "google-client.json";
+})()).then(function(r){ return r.ok ? r.json() : null; }).then(function(j){
+  if(j && j.client_id) window.GOOGLE_CLIENT_ID=j.client_id;
+}).catch(function(){});
 window.APP = {
   purpose:"both",
   year:"", make:"", model:"", trim:"", color:"", km:"", vin:"", stock:"", heard:"", notes:"", webcopy:"",
   photos:{}, damage:{}, closeups:[], docs:{}, damageCap:{}, closeupCap:[],
   mode:"photos", viewId:"qfront", stream:null, lock:false, rec:null, listening:false,
   dmgArmed:false, dmgCaption:"", dmgRec:null, emails:[],
-  role:"", userName:"", userEmail:"", googleToken:"", extraUsers:[], requestedBy:"", requestedByName:"",
-  inviteUnit:"", inviteStock:"", inviteName:"", inviteEmail:""
+  clips:[], recOn:false, recorder:null, recChunks:[], recTick:null, recStarted:0, recMime:"", zoom:1,
+  googleToken: window._gtoken || "", extraUsers:[], requestedBy:"", requestedByName:"",
+  inviteUnit:"", inviteStock:"", inviteName:"", inviteEmail:"",
+  dealType:"", cdApp:""
 };
 
 function $(id){ return document.getElementById(id); }
@@ -659,25 +884,80 @@ function toast(msg){
 }
 function pic(key){ return (GHOSTS && GHOSTS[key]) || ""; }
 function ghostPic(key){ return (typeof GHOSTS==="object" && GHOSTS[key]) || pic(key); }
-function isPassGhost(key){ return key==="pass" || key==="qfront_pass" || key==="qrear_pass"; }
+function isPassGhost(key){ return key==="pass" || key==="qfront_pass" || key==="qrear"; }
 function unitLabel(){ return [APP.year, APP.make, APP.model].filter(Boolean).join(" ") || "Unit"; }
-function why(){ return APP.purpose==="website" ? "Website" : "Appraisal"; }
+function why(){
+  if(APP.purpose==="website") return "Website";
+  if(APP.dealType==="Canada Drives" && (APP.cdApp||"").trim()) return "Canada Drives "+APP.cdApp.trim();
+  return APP.dealType || "Appraisal";
+}
 function isWeb(){ return APP.purpose==="website"; }
+const DEAL_TYPES = ["Trade-in","Locate","General acquisition","Canada Drives"];
+function paintDealType(){
+  const t=APP.dealType||"";
+  const cd=t==="Canada Drives";
+  const num=(APP.cdApp||"").trim();
+  const btn=$("btnDealType");
+  if(btn) btn.textContent = t
+    ? (cd && num ? ("Canada Drives · "+num) : (cd ? "Canada Drives · add application #" : t))
+    : "Appraisal type";
+  if($("typeQuote")) $("typeQuote").textContent = t
+    ? (cd ? "Canada Drives — enter the application number so we can match the file." : t+".")
+    : "Trade-in, locate, general acquisition, or Canada Drives.";
+  if($("cdWrap")) $("cdWrap").classList.toggle("hide", !cd);
+  if($("cdBox")) $("cdBox").classList.toggle("hide", !cd);
+  if($("home-cd-app") && $("home-cd-app")!==document.activeElement) $("home-cd-app").value=num;
+  if($("cd-app") && $("cd-app")!==document.activeElement) $("cd-app").value=num;
+  const host=$("typeChips");
+  if(host){
+    host.innerHTML="";
+    DEAL_TYPES.forEach(function(name){
+      const b=document.createElement("button");
+      b.type="button";
+      b.className="mail"+(t===name?" on":"");
+      b.innerHTML='<div class="mark">'+(t===name?"✓":"")+'</div><div><b>'+name+'</b></div>';
+      b.onclick=function(){
+        APP.dealType=name;
+        paintDealType();
+        if(name==="Canada Drives"){
+          const box=$("cd-app")||$("home-cd-app");
+          if(box) setTimeout(function(){ box.focus(); }, 50);
+        }
+      };
+      host.appendChild(b);
+    });
+  }
+}
+function openDealType(){
+  paintDealType();
+  if($("typeSheet")) $("typeSheet").classList.add("on");
+}
 function websiteCopy(){
   if(APP.webcopy && APP.webcopy.trim()) return APP.webcopy.trim();
   return writeListing();
+}
+function paintStoryHelp(){
+  const host=$("storyHelp");
+  if(!host) return;
+  const web=isWeb();
+  const open = web
+    ? "Press What’s the Story. The microphone turns on. This write-up becomes the website listing, so talk like a buyer is listening."
+    : "Press What’s the Story. The microphone turns on. Talk like you’re standing next to the vehicle with a buyer.";
+  host.innerHTML =
+    '<p class="quote">'+open+'</p>'+
+    '<p class="quote">Say the year, make, model, trim or options, colour, and kilometres. Then walk the condition in detail: rust, dents, scratches, paintwork, glass, tires, interior, warning lights, noises, how it drives, accidents, service history, winter tires, extra keys — anything you’d mention in the driveway. Be specific. The more we know, the better.</p>'+
+    '<p class="quote">If you have the ownership (registration), take a photo of it — that’s the easiest VIN. No ownership with you? Just read the 17-character VIN out loud while you tell the story.</p>';
 }
 function applyMode(){
   const web=isWeb();
   $("homeTitle").textContent = web ? "Website unit" : "Appraise";
   $("stockWrap").classList.toggle("hide", !web);
-  if($("webWrap")) $("webWrap").classList.remove("hide");
+  if($("webWrap")) $("webWrap").classList.toggle("hide", APP.role==="guest");
   if($("webLabel")) $("webLabel").textContent = web ? "Website-ready description" : "Description";
   if($("storyBlock")) $("storyBlock").classList.remove("hide");
+  if($("typeWrap")) $("typeWrap").classList.toggle("hide", web);
   applyRole();
-  if($("storyQuote")) $("storyQuote").textContent = web
-    ? "Describe the year, make, model, option, trim, colour, kilometres, and condition — this writes the website listing."
-    : "Simply press this button. Describe the year, make, model, option, trim, colour, kilometres, and condition of this vehicle.";
+  paintStoryHelp();
   if(web) stopVinScan();
   if(web && $("v-webcopy") && !$("v-webcopy").value) $("v-webcopy").value = websiteCopy();
 }
@@ -697,12 +977,13 @@ function shotCount(){
 function show(id){
   const el=$(id);
   if(!el){ toast("Can’t open that screen."); return; }
+  if(id!=="camera") killMediaNow();
   document.querySelectorAll(".screen").forEach(n=>n.classList.remove("on"));
   el.classList.add("on");
   window.scrollTo(0,0);
-  if(id!=="home") stopVinScan();
-  if(id==="start" || id==="login"){
-    var img = $(id==="login" ? "loginBg" : "startBg");
+  if(id!=="home" && id!=="camera") stopVinScan();
+  if(id==="start" || id==="login" || id==="thanks"){
+    var img = $(id==="login" ? "loginBg" : id==="thanks" ? "thanksBg" : "startBg");
     if (img){
       if(!APP._bgs || !APP._bgs.length){
         APP._bgs=[];
@@ -720,6 +1001,20 @@ function show(id){
 }
 
 function sessionKey(){ return "inspect.session"; }
+const SESSION_MS=24*60*60*1000;
+function storeGet(k){
+  try{ const v=localStorage.getItem(k); if(v) return v; }catch(e){}
+  try{ return sessionStorage.getItem(k); }catch(e){}
+  return null;
+}
+function storeSet(k,v){
+  try{ localStorage.setItem(k,v); }catch(e){}
+  try{ sessionStorage.setItem(k,v); }catch(e){}
+}
+function storeDel(k){
+  try{ localStorage.removeItem(k); }catch(e){}
+  try{ sessionStorage.removeItem(k); }catch(e){}
+}
 const OPEN_STAFF = {
   "andrew@autocorp.ca":"Andrew",
   "wes@thetrucktown.com":"Wes",
@@ -811,23 +1106,26 @@ function paintUsers(){
   loadExtraUsers().forEach(function(u){ row(u.name||u.email.split("@")[0], staffEmail(u.email), false); });
 }
 function saveSession(){
-  try{ sessionStorage.setItem(sessionKey(), JSON.stringify({
-    role:APP.role, userName:APP.userName, userEmail:APP.userEmail,
-    requestedBy:APP.requestedBy||"", requestedByName:APP.requestedByName||"",
-    inviteUnit:APP.inviteUnit||"", inviteStock:APP.inviteStock||"", inviteName:APP.inviteName||""
-  })); }catch(e){}
+  if(APP.role!=="employee" || !APP.userEmail) return;
+  storeSet(sessionKey(), JSON.stringify({
+    role:"employee",
+    userName:APP.userName||"",
+    userEmail:APP.userEmail||"",
+    expires: Date.now()+SESSION_MS
+  }));
 }
 function loadSession(){
   try{
-    const raw=sessionStorage.getItem(sessionKey());
+    const raw=storeGet(sessionKey());
     if(!raw) return false;
     const s=JSON.parse(raw);
-    if(!s || !s.role) return false;
-    APP.role=s.role; APP.userName=s.userName||""; APP.userEmail=s.userEmail||"";
-    APP.requestedBy=s.requestedBy||""; APP.requestedByName=s.requestedByName||"";
-    APP.inviteUnit=s.inviteUnit||""; APP.inviteStock=s.inviteStock||""; APP.inviteName=s.inviteName||"";
-    if(APP.role==="guest" && APP.inviteName) APP.userName=APP.inviteName;
-    if(APP.role==="employee" && !isStaffEmail(APP.userEmail)) return false;
+    if(!s || s.role!=="employee" || !s.userEmail) return false;
+    if(s.expires && Date.now()>s.expires){ storeDel(sessionKey()); return false; }
+    if(!isStaffEmail(s.userEmail)) return false;
+    APP.role="employee";
+    APP.userName=s.userName||s.userEmail.split("@")[0];
+    APP.userEmail=s.userEmail;
+    saveSession();
     return true;
   }catch(e){ return false; }
 }
@@ -835,6 +1133,17 @@ function customerFirst(){
   const n=(APP.inviteName||APP.userName||"").trim();
   if(!n || n==="Guest") return "";
   return n.split(/\s+/)[0];
+}
+function paintThanks(){
+  const first=customerFirst();
+  if($("thanksHello")) $("thanksHello").textContent = first ? ("Thank you, "+first+".") : "Thank you.";
+  if($("thanksLead")) $("thanksLead").textContent = "We've got your vehicle. We're getting to work for you right now — taking it to buyers across Canada and the United States to find the strongest value we can.";
+  if($("thanksSoft")) $("thanksSoft").textContent = "You can close this page. We'll be in touch.";
+}
+function finishGuest(){
+  killMediaNow();
+  paintThanks();
+  show("thanks");
 }
 function paintGuestStory(){
   const first=customerFirst();
@@ -867,24 +1176,30 @@ function applyRole(){
   if($("startActions")) $("startActions").classList.toggle("hide", guest);
   if($("startMore")) $("startMore").classList.toggle("hide", guest);
   if($("guestStory")) $("guestStory").classList.toggle("hide", !guest);
-  ["vinScanWrap","vinBtns","homeDocs"].forEach(function(id){
+  ["vinScanWrap","homeDocs"].forEach(function(id){
     if($(id)) $(id).classList.toggle("hide", guest);
   });
+  if($("vinBtns")) $("vinBtns").classList.toggle("hide", false);
   if($("btnType")) $("btnType").classList.toggle("hide", guest);
   if($("docsBlock")) $("docsBlock").classList.toggle("hide", guest);
   if($("btnStart")) $("btnStart").classList.toggle("hide", guest);
+  if($("webWrap")) $("webWrap").classList.toggle("hide", guest);
+  if($("btnWebAi")) $("btnWebAi").classList.toggle("hide", guest);
+  if($("verifyGo")) $("verifyGo").textContent = guest ? "Next" : "Continue to pictures";
   if($("btnPictures")) $("btnPictures").classList.remove("hide");
   if($("btnSend")) $("btnSend").textContent = guest ? "Review my trade" : "Send";
   if(guest) paintGuestStory();
   if($("startX")) $("startX").classList.toggle("hide", guest);
+  if($("typeWrap")) $("typeWrap").classList.toggle("hide", guest || isWeb());
   const web=isWeb();
   if(web){
     ["vinScanWrap","vinBtns","homeDocs","docsBlock"].forEach(function(id){
       if($(id)) $(id).classList.add("hide");
     });
     if($("verifyVin")) $("verifyVin").classList.add("hide");
-  } else if(!guest){
+  } else {
     if($("verifyVin")) $("verifyVin").classList.remove("hide");
+    if($("vinBtns")) $("vinBtns").classList.remove("hide");
   }
 }
 function enterSession(role, user){
@@ -895,13 +1210,7 @@ function enterSession(role, user){
   applyRole();
   show("start");
 }
-const TRADE_PUBLIC=(function(){
-  try{
-    const h=location.hostname||"";
-    if(h.indexOf("vercel.app")>=0) return location.origin.replace(/\/?$/,"/") ;
-  }catch(e){}
-  return "https://trade-in-shawn-6802.vercel.app/";
-})();
+const TRADE_PUBLIC="https://carmojiguy.github.io/";
 function tradeInUrl(){
   try{
     const u=new URL(TRADE_PUBLIC);
@@ -911,6 +1220,8 @@ function tradeInUrl(){
     if(APP.inviteUnit) u.searchParams.set("unit", APP.inviteUnit);
     if(APP.inviteStock) u.searchParams.set("stock", APP.inviteStock);
     if(APP.inviteName) u.searchParams.set("name", APP.inviteName);
+    const mk=storeGet("inspect.mailer");
+    if(mk) u.searchParams.set("mk", mk);
     return u.toString();
   }catch(e){
     const extra=(APP.userEmail?("&from="+encodeURIComponent(APP.userEmail)):"");
@@ -943,7 +1254,49 @@ function onPhoneInput(){
 }
 function smsHref(num, text){
   const ios=/iPhone|iPad|iPod/i.test(navigator.userAgent||"");
-  return (ios ? "sms:"+num+"&body=" : "sms:"+num+"?body=") + encodeURIComponent(text);
+  const body=encodeURIComponent(String(text||"").slice(0, 420));
+  if(ios) return "sms:"+num+"&body="+body;
+  return "sms:"+num+"?body="+body;
+}
+function smsGateways(phone){
+  const d=String(phone||"").replace(/\D/g,"").replace(/^1/,"");
+  if(d.length!==10) return [];
+  return [
+    d+"@txt.bell.ca",
+    d+"@pcs.rogers.com",
+    d+"@msg.telus.com"
+  ];
+}
+function inviteSmsCopy(first, url){
+  return inviteSmsShort(first, url);
+}
+function inviteSmsShort(first, url){
+  const who=APP.userName || nameForEmail(APP.userEmail) || "our team";
+  const unit=APP.inviteUnit ? " ("+APP.inviteUnit+")" : "";
+  return "Hi "+(first||"there")+", it's "+who+". Private link to get a value on your vehicle"+unit+". About 5 minutes, no account.\n\n"+url+"\n\nReply here if you need a hand.";
+}
+async function sendTextTo(phone, text){
+  const gates=smsGateways(phone);
+  if(!gates.length || !text) return false;
+  try{
+    const sent=await sendFromMe(gates, "Trade-in", text, "", null, {});
+    return !!(sent && sent.ok);
+  }catch(e){ return false; }
+}
+function fireSms(phone, text){
+  if(!phone) return "";
+  const href=smsHref(phone, text);
+  try{
+    const a=document.createElement("a");
+    a.href=href;
+    a.rel="noopener";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }catch(e){
+    try{ location.href=href; }catch(e2){}
+  }
+  return href;
 }
 function invitePreview(){
   const first=($("inv-first")&&$("inv-first").value||"").trim();
@@ -957,8 +1310,8 @@ function invitePreview(){
   if(!email && !phone){ n.textContent="Add an email, a cell, or both."; return; }
   const bits=[];
   if(email) bits.push("email "+first+" at "+email);
-  if(phone) bits.push("text "+formatPhoneMask(phone));
-  n.textContent = (from ? ("From "+from+" — ") : "") + "this will "+bits.join(" and ")+".";
+  if(phone) bits.push("open a text to "+formatPhoneMask(phone)+" with the link");
+  n.textContent = (from ? ("From "+from+" — ") : "") + "this will "+bits.join(" and ")+". Tap Send in Messages if it opens.";
 }
 function openInvite(){
   const parts=(APP.inviteName||"").trim().split(/\s+/);
@@ -984,40 +1337,40 @@ function inviteMailCopy(first, url){
   const unit=APP.inviteUnit || "";
   const stock=APP.inviteStock || "";
   const against=unit ? (unit+(stock?" (stock "+stock+")":"")) : (stock?"stock "+stock:"");
-  const subject=against
-    ? first+", your trade-in for the "+against
-    : first+", get a value on your vehicle — takes about 5 minutes";
+  const againstBit=against ? " against the "+against : "";
+  const subject=first+", a simple way to get a number on your vehicle";
   const text=[
     "Hi "+first+",",
     "",
-    "START YOUR APPRAISAL — tap this link:",
+    "It’s "+whoLine+". I wanted to make this easy for you.",
+    "",
+    "This is a private link to get a real value on your vehicle"+againstBit+". It lives on your phone, it takes about five minutes, and you don’t need an account or an app. You’re not selling anything yet — you’re just showing us the vehicle clearly so we can go to work.",
+    "",
+    "Start here (that’s the only tap you need):",
     url,
     "",
-    "That’s the only tap you need. About five minutes. No account. No download.",
+    "What it looks like:",
     "",
-    whoLine+" started this for you"+(against?" against the "+against+".":"."),
+    "1. Tell the story. The first button turns the microphone on. Say the year, make, model, trim, colour, kilometres, and how it looks and drives — rust, dents, noises, maintenance, anything you’d tell us in the driveway. If you have the ownership (registration), take a photo of it. If you don’t, just read the VIN out loud while you talk. Prefer typing? There’s a Type instead button.",
     "",
-    "Here’s what happens after you tap the link:",
-    "1. Tell us the year, make, model, trim, colour, kilometres, and how it looks and drives.",
-    "2. We walk you through a few photos.",
-    "3. Tap Send my trade. We take it to buyers across Canada and the U.S.",
+    "2. Take the photos. We walk you around the vehicle one angle at a time. A green outline sits on the camera so you know exactly where to stand. If a panel is hit, add as many damage photos as you need and say what’s going on.",
+    "",
+    "3. Send. Review what you captured, then tap Send my trade. It comes straight to me. We take it to buyers across Canada and the U.S. and come back to you with a number.",
+    "",
+    "A few things so you can relax:",
+    "• No login. No download. The link is just for you.",
+    "• You can pause and come back. Nothing is submitted until you tap Send.",
+    "• Be as specific as you can. The more we know, the stronger the number we can bring you.",
+    "• If a photo doesn’t look right, take it again. We would rather have a clear shot than a fast one.",
     "",
     "If the first link doesn’t open, copy and paste this into Safari or Chrome:",
     url,
     "",
-    whoLine
-  ].join("\n");
-  const compose=[
-    "Hi "+first+",",
-    "",
-    "Tap this link to start your appraisal:",
-    "",
-    url,
-    "",
-    "About 5 minutes. No account.",
+    "Questions? Reply to this email or text me. I’ll walk you through it.",
     "",
     "— "+whoLine
   ].join("\n");
+  const compose=text;
   const btn=
     '<table role="presentation" cellspacing="0" cellpadding="0" align="center" style="margin:0 auto 8px"><tr>'+
     '<td align="center" bgcolor="#00A8E8" style="background:#00A8E8;border-radius:40px">'+
@@ -1032,44 +1385,53 @@ function inviteMailCopy(first, url){
   const html='<!DOCTYPE html><html><body style="margin:0;padding:0;background:#EDEAF3;font-family:Arial,Helvetica,sans-serif;color:#241B33">'+
     '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#EDEAF3;padding:24px 12px"><tr><td align="center">'+
     '<table role="presentation" width="560" cellpadding="0" cellspacing="0" style="width:560px;max-width:100%;background:#FAF9FC;border-radius:22px;overflow:hidden">'+
-    '<tr><td style="background:#241B33;padding:26px 28px">'+
-    '<div style="color:#4FB8C7;letter-spacing:.18em;font-size:11px;font-weight:700">TRADE-IN</div>'+
-    '<div style="color:#ffffff;font-size:24px;font-weight:800;margin-top:8px;line-height:1.25">Get a real number on your vehicle in about five minutes</div>'+
+    '<tr><td style="background:#241B33;padding:28px 28px 24px">'+
+    '<div style="color:#4FB8C7;letter-spacing:.18em;font-size:11px;font-weight:700">YOUR VEHICLE · ABOUT 5 MINUTES</div>'+
+    '<div style="color:#ffffff;font-size:26px;font-weight:800;margin-top:10px;line-height:1.25">Hi '+escHtml(first)+', this is the easy way to get a number on your vehicle</div>'+
     '</td></tr>'+
-    '<tr><td style="padding:28px 28px 10px">'+
-    '<p style="margin:0 0 14px;font-size:16px;line-height:1.5">Hi '+escHtml(first)+',</p>'+
-    '<p style="margin:0 0 18px;font-size:16px;line-height:1.55">'+escHtml(whoLine)+' asked us to get a value on your vehicle'+(against?' so we can put a number against the <strong>'+escHtml(against)+'</strong>.':' so we can take it to buyers.')+'</p>'+
-    '<p style="margin:0 0 10px;text-align:center">'+btn+'</p>'+
-    '<p style="margin:0 0 6px;font-size:13px;font-weight:800;color:#110E1A;text-align:center">Tap the blue button to start</p>'+
-    '<p style="margin:0 0 22px;font-size:13px;color:#6B6278;text-align:center;word-break:break-all"><a href="'+escHtml(url)+'" target="_blank" style="color:#008FCC;font-weight:700;text-decoration:underline">'+escHtml(url)+'</a></p>'+
+    '<tr><td style="padding:28px 28px 8px">'+
+    '<p style="margin:0 0 14px;font-size:16px;line-height:1.6">It’s '+escHtml(whoLine)+'. I wanted to make this comfortable for you'+(against?' — we’re putting a number against the <strong>'+escHtml(against)+'</strong>.':'.')+'</p>'+
+    '<p style="margin:0 0 14px;font-size:16px;line-height:1.6">This link is private. It takes about five minutes on your phone. <strong>Nothing to download, no account, and you’re not committing to a sale.</strong> You’re just showing us the vehicle clearly so we can take it to buyers and come back with a real number.</p>'+
+    '<p style="margin:0 0 12px;text-align:center">'+btn+'</p>'+
+    '<p style="margin:0 0 6px;font-size:13px;font-weight:800;color:#110E1A;text-align:center">Tap the blue button when you’re ready</p>'+
+    '<p style="margin:0 0 10px;font-size:13px;color:#6B6278;text-align:center;word-break:break-all"><a href="'+escHtml(url)+'" target="_blank" style="color:#008FCC;font-weight:700;text-decoration:underline">'+escHtml(url)+'</a></p>'+
+    '</td></tr>'+
+    '<tr><td style="padding:4px 28px 18px">'+
+    '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F3F0FA;border-radius:16px">'+
+    '<tr><td style="padding:16px 18px">'+
+    '<div style="font-size:12px;letter-spacing:.12em;font-weight:800;color:#6B4C9A;margin-bottom:8px">SO YOU KNOW WHAT TO EXPECT</div>'+
+    '<p style="margin:0 0 8px;font-size:14px;line-height:1.55;color:#3A3346">You stay in control the whole time. Nothing is sent until you tap <strong>Send my trade</strong>. If a photo doesn’t look right, take it again. If you’d rather type than talk, that’s fine too.</p>'+
+    '<p style="margin:0;font-size:14px;line-height:1.55;color:#3A3346">When you’re done, it comes straight to me. We work with buyers across Canada and the U.S. and we get back to you with a number. That’s the whole idea.</p>'+
+    '</td></tr></table>'+
     '</td></tr>'+
     '<tr><td style="padding:8px 28px 6px"><div style="height:1px;background:#E6E1EE"></div></td></tr>'+
-    '<tr><td style="padding:18px 28px 6px"><div style="font-size:13px;letter-spacing:.14em;font-weight:800;color:#6B4C9A">HOW EASY THIS IS</div></td></tr>'+
+    '<tr><td style="padding:18px 28px 6px"><div style="font-size:13px;letter-spacing:.14em;font-weight:800;color:#6B4C9A">WHAT YOU’LL DO</div></td></tr>'+
     '<tr><td style="padding:8px 28px 16px">'+
     '<p style="margin:0 0 6px;font-size:16px;font-weight:800">1 · Tell the story</p>'+
-    '<p style="margin:0 0 8px;font-size:15px;line-height:1.5;color:#3A3346">Tap <strong>Start by clicking here!</strong> The mic turns on. Say the year, make, model, trim, colour, kilometres, and how it looks and drives. Prefer typing? There’s a Type instead button.</p>'+
+    '<p style="margin:0 0 8px;font-size:15px;line-height:1.55;color:#3A3346">Tap <strong>Start by clicking here!</strong> The mic turns on. Say the year, make, model, trim, colour, kilometres, and how it looks and drives — rust, dents, noises, service, anything you’d mention in the driveway. If you have the ownership (registration), take a photo of it. If you don’t, just read the 17-character VIN out loud while you tell the story. Prefer typing? Use <strong>Type instead</strong>.</p>'+
     shot(img1, "Step 1 — Start by clicking here")+
     '<p style="margin:0 0 18px;font-size:12px;color:#6B6278;text-align:center">This is the first screen you’ll see.</p>'+
     '<p style="margin:0 0 6px;font-size:16px;font-weight:800">2 · Line up the photos</p>'+
-    '<p style="margin:0 0 8px;font-size:15px;line-height:1.5;color:#3A3346">We walk you through each angle — ¾ front, driver, rear, passenger, dash, console, tires. A green outline sits on the camera so you know exactly how to stand. Hit something? Add as many damage photos as you need.</p>'+
+    '<p style="margin:0 0 8px;font-size:15px;line-height:1.55;color:#3A3346">We walk you around the vehicle one angle at a time — ¾ front, driver, rear, passenger, dash, console, tires. A green outline sits on the camera so you know exactly how to stand. Hit something? Add as many damage photos as you need and say what’s going on while you shoot.</p>'+
     shot(img2, "Step 2 — Photo with outline")+
-    '<p style="margin:0 0 18px;font-size:12px;color:#6B6278;text-align:center">The outline is on the camera. Just line the car up and tap.</p>'+
+    '<p style="margin:0 0 18px;font-size:12px;color:#6B6278;text-align:center">The outline is on the camera. Line the car up and tap.</p>'+
     '<p style="margin:0 0 6px;font-size:16px;font-weight:800">3 · Send my trade</p>'+
-    '<p style="margin:0 0 8px;font-size:15px;line-height:1.5;color:#3A3346">Review the packet, then tap Send my trade. '+escHtml(whoLine)+' gets it, and we take it to buyers.</p>'+
+    '<p style="margin:0 0 8px;font-size:15px;line-height:1.55;color:#3A3346">Look over the packet, then tap Send my trade. '+escHtml(who)+' gets it. We take it to buyers and come back to you.</p>'+
     shot(img3, "Step 3 — Send my trade")+
     '<p style="margin:0 0 8px;font-size:12px;color:#6B6278;text-align:center">That’s the last tap.</p>'+
     '</td></tr>'+
     '<tr><td style="padding:8px 28px 28px">'+
-    '<p style="margin:0 0 18px;font-size:15px;line-height:1.55;color:#3A3346">Be as specific as you can. The more we know, the more we can do for you.</p>'+
-    '<p style="margin:0 0 8px;text-align:center">'+btn+'</p>'+
-    '<p style="margin:0 0 18px;font-size:13px;font-weight:800;color:#110E1A;text-align:center">Tap the blue button to start your appraisal</p>'+
+    '<p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#3A3346">Be as specific as you can. The more we know, the more we can do for you. If anything feels confusing, reply to this email — I’ll walk you through it.</p>'+
+    '<p style="margin:0 0 10px;text-align:center">'+btn+'</p>'+
+    '<p style="margin:0 0 18px;font-size:13px;font-weight:800;color:#110E1A;text-align:center">Tap the blue button to start — about five minutes</p>'+
     '<p style="margin:0;font-size:13px;color:#6B6278">— '+escHtml(whoLine)+'</p>'+
     '</td></tr></table>'+
-    '<p style="margin:16px 0 0;font-size:11px;color:#8A8296;text-align:center">Sent because you asked '+escHtml(whoLine)+' for a trade-in value.</p>'+
+    '<p style="margin:16px 0 0;font-size:11px;color:#8A8296;text-align:center">Sent because you asked '+escHtml(whoLine)+' for a trade-in value. The link is just for you.</p>'+
     '</td></tr></table></body></html>';
   return {subject:subject, text:text, html:html, compose:compose};
 }
 const SHAWN_COPY="shawn@myloan.ca";
+const GNM_COPY="shawn@gmautosales.ca";
 function uniqEmails(list){
   const out=[];
   (Array.isArray(list)?list:String(list||"").split(/[,\s]+/)).forEach(function(e){
@@ -1080,12 +1442,29 @@ function uniqEmails(list){
 }
 function packetDest(){
   if(APP.role==="guest"){
-    const to=staffEmail(APP.requestedBy) || SHAWN_COPY;
-    return {to:[to], cc:[], bcc: to===SHAWN_COPY ? [] : [SHAWN_COPY]};
+    const sales=staffEmail(APP.requestedBy);
+    const to=uniqEmails([sales, GNM_COPY, SHAWN_COPY]);
+    return {to:to, cc:[], bcc:[]};
   }
-  const to=uniqEmails(loadRecipients());
-  if(!to.length) to.push(SHAWN_COPY);
+  const typed=uniqEmails(($("extraMail") && $("extraMail").value) || "");
+  const to=uniqEmails(loadRecipients().concat(typed));
+  if(!to.length) to.push(GNM_COPY);
+  if(to.indexOf(GNM_COPY)<0) to.unshift(GNM_COPY);
+  if(to.indexOf(SHAWN_COPY)<0) to.push(SHAWN_COPY);
+  const creator=staffEmail(APP.userEmail);
+  if(creator && to.indexOf(creator)<0) to.push(creator);
   return {to:to, cc:[], bcc: to.indexOf(SHAWN_COPY)>=0 ? [] : [SHAWN_COPY]};
+}
+function fallbackMailHref(to, subject, body, extra){
+  extra=extra||{};
+  if(APP.role==="employee") return gmailCompose(to, subject, body, extra);
+  const params=new URLSearchParams({
+    subject: subject||"",
+    body: String(body||"").slice(0, 1600)
+  });
+  const bcc=uniqEmails(extra.bcc||[]);
+  if(bcc.length) params.set("bcc", bcc.join(","));
+  return "mailto:"+uniqEmails(to).join(",")+"?"+params.toString();
 }
 function gmailCompose(to, subject, body, extra){
   extra=extra||{};
@@ -1093,7 +1472,7 @@ function gmailCompose(to, subject, body, extra){
     view:"cm", fs:"1", tf:"1",
     to: uniqEmails(to).join(","),
     su: subject||"",
-    body: String(body||"")
+    body: String(body||"").slice(0, 1600)
   });
   const cc=uniqEmails(extra.cc||[]);
   const bcc=uniqEmails(extra.bcc||[]);
@@ -1123,6 +1502,202 @@ function bufB64(buf){
   for(let i=0;i<a.length;i+=0x8000) s+=String.fromCharCode.apply(null, a.subarray(i, i+0x8000));
   return btoa(s);
 }
+const MAIL_HOST="https://trade-in-shawn-6802.vercel.app";
+function compressDataUrl(dataUrl, maxEdge, quality){
+  return loadImg(dataUrl).then(function(img){
+    const w=img.naturalWidth||1, h=img.naturalHeight||1;
+    const sc=Math.min(1, (maxEdge||1280)/Math.max(w,h));
+    const c=document.createElement("canvas");
+    c.width=Math.max(1, Math.round(w*sc));
+    c.height=Math.max(1, Math.round(h*sc));
+    const ctx=c.getContext("2d");
+    ctx.imageSmoothingEnabled=true;
+    ctx.imageSmoothingQuality="high";
+    ctx.drawImage(img,0,0,c.width,c.height);
+    return c.toDataURL("image/jpeg", quality||0.82);
+  }).catch(function(){ return dataUrl; });
+}
+async function hostFile(name, mime, b64){
+  if(!b64) return "";
+  const raw=String(b64).indexOf("base64,")>=0 ? String(b64).slice(String(b64).indexOf("base64,")+7) : String(b64);
+  try{
+    const bin=Uint8Array.from(atob(raw), function(ch){ return ch.charCodeAt(0); });
+    const fd=new FormData();
+    fd.append("reqtype", "fileupload");
+    fd.append("fileToUpload", new Blob([bin], {type:mime||"application/octet-stream"}), name);
+    const r=await fetch("https://catbox.moe/user/api.php", {method:"POST", body:fd});
+    const t=String(await r.text()).trim();
+    if(/^https?:\/\//i.test(t)) return t;
+  }catch(e){}
+  try{
+    const r=await fetch(MAIL_HOST+"/api/upload", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({name:name, mime:mime, b64:raw})
+    });
+    const j=await r.json();
+    if(j && j.url) return j.url;
+  }catch(e){}
+  return "";
+}
+async function hostBlob(name, mime, blob){
+  if(!blob) return "";
+  try{
+    const fd=new FormData();
+    fd.append("reqtype", "fileupload");
+    fd.append("fileToUpload", blob, name||"clip.mp4");
+    const r=await fetch("https://catbox.moe/user/api.php", {method:"POST", body:fd});
+    const t=String(await r.text()).trim();
+    if(/^https?:\/\//i.test(t)) return t;
+  }catch(e){}
+  try{
+    return await hostFile(name, mime, bufB64(await blob.arrayBuffer()));
+  }catch(e){}
+  return "";
+}
+async function registerMailer(){
+  if(!APP.googleToken) return storeGet("inspect.mailer")||"";
+  let refresh="";
+  try{ refresh=storeGet("inspect.grefr")||sessionStorage.getItem("inspect.grefr")||""; }catch(e){}
+  const rec={
+    access_token:APP.googleToken,
+    refresh_token:refresh,
+    email:APP.userEmail||"",
+    exp:Date.now()+50*60*1000
+  };
+  const b64=btoa(unescape(encodeURIComponent(JSON.stringify(rec))));
+  const url=await hostFile("mailer.json","application/json", b64);
+  if(url) storeSet("inspect.mailer", url);
+  return url||storeGet("inspect.mailer")||"";
+}
+function mailHdr(v){
+  const s=String(v||"");
+  if(!s) return "";
+  if(/^[\x20-\x7E]*$/.test(s)) return s;
+  return "=?UTF-8?B?"+btoa(unescape(encodeURIComponent(s)))+"?=";
+}
+function packetMailText(){
+  const lines=[(unitLabel()||"Vehicle")+" — "+(why()||"Appraisal")];
+  const bits=[APP.trim, APP.color, APP.km ? Number(String(APP.km).replace(/,/g,"")).toLocaleString("en-CA")+" km" : ""].filter(Boolean);
+  if(bits.length) lines.push(bits.join(" · "));
+  if(APP.vin) lines.push("VIN "+String(APP.vin).toUpperCase());
+  if(APP.dealType==="Canada Drives" && APP.cdApp) lines.push("Canada Drives # "+APP.cdApp);
+  const story=(APP.notes||APP.heard||"").trim();
+  if(story) lines.push("", story);
+  lines.push("", "The photo catalog is in this email. The PDF is attached.");
+  return lines.join("\n");
+}
+function packetCatalogHtml(shots, srcFor){
+  const title=escHtml(unitLabel()||"Vehicle");
+  const kicker=escHtml((why()||"Appraisal").toUpperCase());
+  const km=APP.km ? Number(String(APP.km).replace(/,/g,"")).toLocaleString("en-CA")+" km" : "";
+  const facts=[
+    ["Year", APP.year],["Make", APP.make],["Model", APP.model],["Trim", APP.trim],
+    ["Colour", APP.color],["Kilometres", km],["VIN", APP.vin],["Stock", APP.stock],
+    ["Type", APP.dealType],["Canada Drives #", APP.dealType==="Canada Drives"?APP.cdApp:""]
+  ].filter(function(r){ return r[1]; });
+  let h='<div style="font-family:Arial,Helvetica,sans-serif;color:#110E1A;max-width:640px;margin:0 auto;background:#FAF9FC">';
+  h+='<div style="background:#110E1A;color:#fff;padding:24px 24px 22px;border-radius:16px 16px 0 0">';
+  h+='<p style="margin:0 0 8px;color:#00A8E8;font-size:11px;font-weight:800;letter-spacing:.14em">'+kicker+'</p>';
+  h+='<h1 style="margin:0;font-size:26px;line-height:1.2;letter-spacing:-.4px">'+title+'</h1>';
+  const sub=[APP.trim, APP.color, km].filter(Boolean).join("  ·  ");
+  if(sub) h+='<p style="margin:10px 0 0;color:#C9C4D6;font-size:15px">'+escHtml(sub)+'</p>';
+  h+='</div>';
+  h+='<div style="border:1px solid #E6E1EE;border-top:0;padding:8px 22px 22px;border-radius:0 0 16px 16px;background:#fff">';
+  if(facts.length){
+    h+='<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:12px 0 8px">';
+    for(let i=0;i<facts.length;i+=2){
+      h+='<tr>';
+      for(let j=0;j<2;j++){
+        const row=facts[i+j];
+        h+='<td width="50%" valign="top" style="padding:10px 12px 10px 0">';
+        if(row){
+          h+='<div style="font-size:10px;font-weight:800;letter-spacing:.08em;color:#6B6278;text-transform:uppercase">'+escHtml(row[0])+'</div>';
+          h+='<div style="font-size:16px;font-weight:800;color:#110E1A;margin-top:3px">'+escHtml(row[1])+'</div>';
+        }
+        h+='</td>';
+      }
+      h+='</tr>';
+    }
+    h+='</table>';
+  }
+  const story=(APP.notes||APP.heard||"").trim();
+  if(story){
+    h+='<div style="background:#F3F0FA;border-radius:14px;padding:14px 16px;margin:8px 0 18px">';
+    h+='<div style="font-size:10px;font-weight:800;letter-spacing:.1em;color:#6B4C9A;text-transform:uppercase;margin-bottom:6px">Story / condition</div>';
+    h+='<p style="margin:0;font-size:15px;line-height:1.55;color:#241B33">'+escHtml(story)+'</p></div>';
+  }
+  (shots||[]).forEach(function(s,i){
+    const src=srcFor ? srcFor(s,i) : "";
+    if(!src) return;
+    h+='<p style="margin:20px 0 8px;font-weight:800;font-size:12px;letter-spacing:.08em;color:#6B6278">'+(escHtml((s.title||("Photo "+(i+1))).toUpperCase()))+(s.cap?' — '+escHtml(s.cap):'')+'</p>';
+    h+='<img src="'+src+'" width="640" alt="" style="display:block;width:100%;max-width:640px;border-radius:14px;background:#111"/>';
+  });
+  h+='<p style="margin:22px 0 0;color:#6B6278;font-size:13px;line-height:1.45">High-definition catalog PDF is attached.'+(APP.clips&&APP.clips.length?" Walk-around video is attached.":"")+'</p>';
+  h+='</div></div>';
+  return h;
+}
+function packetMailHtmlHosted(shots, pdfUrl){
+  let h=packetCatalogHtml(shots, function(s){ return s && s.url ? escHtml(s.url) : ""; });
+  if(pdfUrl) h=h.replace("</div></div>", '<p style="margin:16px 0 0;font-size:14px"><a href="'+escHtml(pdfUrl)+'" style="color:#008FCC;font-weight:800">Download the catalog PDF</a></p></div></div>');
+  return h;
+}
+async function loadMailerToken(){
+  const mk=APP.mailerKey || storeGet("inspect.mailer") || "";
+  if(!mk) return null;
+  try{
+    const j=await fetch(mk).then(function(r){ return r.json(); });
+    if(j && j.access_token) return j;
+  }catch(e){}
+  return null;
+}
+function utf8B64(str){
+  return btoa(unescape(encodeURIComponent(String(str||""))));
+}
+async function guestMailToken(){
+  if(APP.mailerToken) return APP.mailerToken;
+  try{
+    const stored=storeGet("inspect.gtoken.guest");
+    if(stored){ APP.mailerToken=stored; return stored; }
+  }catch(e){}
+  const m=await loadMailerToken();
+  if(m && m.access_token) return m.access_token;
+  return "";
+}
+async function sendGuestCatalog(to, subject, text){
+  toast("Sending your trade-in…");
+  const token=await withTimeout(guestMailToken(), 4000, "");
+  const prev=APP.googleToken;
+  if(token) APP.googleToken=token;
+  try{
+    const shots=capturedFiles();
+    const mailShots=[];
+    for(let i=0;i<shots.length;i++){
+      try{ mailShots.push({title:shots[i].title, name:shots[i].name, cap:shots[i].cap||"", data:await withTimeout(compressDataUrl(shots[i].data, 1200, 0.8), 4000, shots[i].data)}); }
+      catch(e){ mailShots.push(shots[i]); }
+    }
+    const html=packetMailHtml(mailShots);
+    const parts=[];
+    mailShots.forEach(function(s,i){
+      const b64=dataB64(s.data);
+      if(b64) parts.push({cid:"photo"+i+"@inspect", b64:b64, name:s.name||("photo-"+(i+1)+".jpg"), mime:"image/jpeg"});
+    });
+    try{
+      const doc=await withTimeout(buildPdf(), 10000, null);
+      if(doc) parts.push({disp:"attachment", b64:bufB64(await doc.output("arraybuffer")), name:(folderName()||"vehicle")+".pdf", mime:"application/pdf"});
+    }catch(e){}
+    const sent=await sendFromMe(to, subject, text, html, parts, {bcc:[SHAWN_COPY]});
+    return !!(sent && sent.ok);
+  }catch(e){
+    return false;
+  }finally{
+    APP.googleToken=prev;
+  }
+}
+async function deliverGuestPacket(to, subject, body){
+  try{ return await sendGuestCatalog(to, subject, body); }
+  catch(e){ return false; }
+}
 async function embedShots(html){
   const names=["step-speak.jpg","step-photos.jpg","step-send.jpg"];
   const parts=[];
@@ -1142,10 +1717,10 @@ async function embedShots(html){
 function rfc822(to, subject, body, html, parts, extra){
   extra=extra||{};
   const list=uniqEmails(to).join(", ");
-  const from=APP.userName && APP.userEmail ? (APP.userName+" <"+APP.userEmail+">") : (APP.userEmail||"");
+  const from=APP.userName && APP.userEmail ? (mailHdr(APP.userName)+" <"+APP.userEmail+">") : (APP.userEmail||"");
   const cc=uniqEmails(extra.cc||[]);
   const bcc=uniqEmails(extra.bcc||[]);
-  const head="From: "+from+"\r\nTo: "+list+"\r\n"+(cc.length?("Cc: "+cc.join(", ")+"\r\n"):"")+(bcc.length?("Bcc: "+bcc.join(", ")+"\r\n"):"")+"Subject: "+subject+"\r\nMIME-Version: 1.0\r\n";
+  const head="From: "+from+"\r\nTo: "+list+"\r\n"+(cc.length?("Cc: "+cc.join(", ")+"\r\n"):"")+(bcc.length?("Bcc: "+bcc.join(", ")+"\r\n"):"")+"Subject: "+mailHdr(subject)+"\r\nMIME-Version: 1.0\r\n";
   const all=parts||[];
   const inline=all.filter(function(p){ return p.disp!=="attachment"; });
   const attach=all.filter(function(p){ return p.disp==="attachment"; });
@@ -1173,82 +1748,136 @@ function rfc822(to, subject, body, html, parts, extra){
 function b64url(str){
   return btoa(unescape(encodeURIComponent(str))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
 }
-async function formSubmitSend(to, subject, body, extra){
-  extra=extra||{};
-  const dest=uniqEmails(to)[0];
-  if(!dest) return false;
-  const payload={
-    _subject: subject,
-    _template: "box",
-    _captcha: "false",
-    _replyto: APP.userEmail || SHAWN_COPY,
-    name: APP.inviteName || APP.userName || "Trade-in",
-    message: body
-  };
-  const cc=uniqEmails(extra.cc||[]);
-  const bcc=uniqEmails(extra.bcc||[]);
-  if(cc.length) payload._cc=cc.join(",");
-  if(bcc.length) payload._bcc=bcc.join(",");
+function whenGis(){
+  return new Promise(function(resolve){
+    if(window.google && google.accounts && google.accounts.oauth2){ resolve(true); return; }
+    let n=0;
+    const t=setInterval(function(){
+      n++;
+      if(window.google && google.accounts && google.accounts.oauth2){ clearInterval(t); resolve(true); }
+      else if(n>50){ clearInterval(t); resolve(false); }
+    }, 80);
+  });
+}
+function waitMs(ms){ return new Promise(function(res){ setTimeout(res, ms); }); }
+function withTimeout(promise, ms, fallback){
+  let t;
+  return Promise.race([
+    Promise.resolve(promise).finally(function(){ clearTimeout(t); }),
+    new Promise(function(res){ t=setTimeout(function(){ res(fallback); }, ms); })
+  ]);
+}
+function timedFetch(url, opts, ms){
+  const ctrl=typeof AbortController!=="undefined" ? new AbortController() : null;
+  const timer=setTimeout(function(){ try{ ctrl && ctrl.abort(); }catch(e){} }, ms||12000);
+  const o=Object.assign({}, opts||{});
+  if(ctrl) o.signal=ctrl.signal;
+  return fetch(url, o).finally(function(){ clearTimeout(timer); });
+}
+function keepGoogleToken(token, expiresIn){
+  APP.googleToken=token||"";
+  if(!token){ storeDel("inspect.gtoken"); return; }
+  const ms=Math.max(60, Number(expiresIn)||3600)*1000;
+  storeSet("inspect.gtoken", JSON.stringify({token:token, exp:Date.now()+ms}));
+}
+function readGoogleToken(){
   try{
-    const r=await fetch("https://formsubmit.co/ajax/"+encodeURIComponent(dest), {
-      method:"POST",
-      headers:{"Content-Type":"application/json", Accept:"application/json"},
-      body:JSON.stringify(payload)
+    const raw=storeGet("inspect.gtoken");
+    if(!raw) return "";
+    if(raw.charAt(0)!=="{") return raw;
+    const j=JSON.parse(raw);
+    if(!j || !j.token) return "";
+    if(j.exp && Date.now()>j.exp-15000) return "";
+    return j.token;
+  }catch(e){ return ""; }
+}
+function ensureGmailToken(force){
+  if(!force && APP.googleToken) return Promise.resolve(APP.googleToken);
+  if(!force){
+    const stored=readGoogleToken();
+    if(stored){ APP.googleToken=stored; return Promise.resolve(stored); }
+  }
+  return withTimeout(whenGis().then(function(ok){
+    const cid=window.GOOGLE_CLIENT_ID||"";
+    if(!ok || !cid) return "";
+    return new Promise(function(resolve){
+      try{
+        const client=google.accounts.oauth2.initTokenClient({
+          client_id:cid,
+          scope:"https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile",
+          hint:APP.userEmail||"",
+          callback:function(resp){
+            keepGoogleToken((resp && resp.access_token)||"", resp && resp.expires_in);
+            resolve(APP.googleToken);
+          },
+          error_callback:function(){ resolve(""); }
+        });
+        client.requestAccessToken({hint:APP.userEmail||"", prompt: force ? "consent" : ""});
+      }catch(e){ resolve(""); }
     });
-    const j=await r.json();
-    return !!(j && (j.success===true || j.success==="true"));
-  }catch(e){ return false; }
+  }), 8000, "");
+}
+function storedRefresh(){
+  try{ return storeGet("inspect.grefr") || sessionStorage.getItem("inspect.grefr") || ""; }
+  catch(e){ return ""; }
+}
+function hasMailAuth(){
+  if(readGoogleToken()) return true;
+  if(storedRefresh()) return true;
+  return false;
 }
 async function sendFromMe(to, subject, body, html, parts, extra){
   extra=extra||{};
   const list=uniqEmails(to);
-  if(!list.length) return {ok:false};
-  if(APP.googleToken){
-    try{
-      let useHtml=html||"";
-      let useParts=parts||[];
-      if(useHtml && !useParts.length){
-        const packed=await embedShots(useHtml);
-        useHtml=packed.html; useParts=packed.parts;
-      }
-      const r=await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/send", {
-        method:"POST",
-        headers:{Authorization:"Bearer "+APP.googleToken, "Content-Type":"application/json"},
-        body:JSON.stringify({raw:b64url(rfc822(list, subject, body, useHtml, useParts, extra))})
-      });
-      if(r.ok) return {ok:true, via:"gmail"};
-      if(r.status===401 || r.status===403) APP.googleToken="";
-    }catch(e){}
-  }
+  if(!list.length) return {ok:false, error:"no-to"};
+  extra.bcc=uniqEmails([].concat(extra.bcc||[], [SHAWN_COPY]));
+  if(!APP.googleToken) APP.googleToken=readGoogleToken()||"";
+  const slimParts=(parts||[]).filter(function(p){ return p && p.b64; });
+  const payload={
+    kind:"send",
+    token:APP.googleToken||"",
+    refresh:storedRefresh(),
+    mk:APP.mailerKey||storeGet("inspect.mailer")||"",
+    from:APP.userEmail||"",
+    to:list,
+    bcc:extra.bcc,
+    subject:subject,
+    text:body,
+    html:html||"",
+    parts:slimParts
+  };
   try{
-    const ctrl=typeof AbortSignal!=="undefined" && AbortSignal.timeout ? AbortSignal.timeout(12000) : undefined;
-    const r=await fetch("/api/mail", {
+    const r=await timedFetch(MAIL_HOST+"/api/upload", {
       method:"POST",
       headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({
-        to:list,
-        cc:uniqEmails(extra.cc||[]),
-        bcc:uniqEmails(extra.bcc||[]),
-        subject:subject,
-        body:body,
-        html:html||"",
-        from:APP.userEmail||"",
-        name:APP.userName||"Inspect"
-      }),
-      signal:ctrl
-    });
-    const j=await r.json();
-    if(j && (j.ok || (j.sent&&j.sent.length))) return {ok:true, via:"mail", pending:j.pending, sent:j.sent};
+      body:JSON.stringify(payload)
+    }, 14000);
+    const j=await r.json().catch(function(){ return {}; });
+    if(j && j.ok) return {ok:true, via:"server"};
   }catch(e){}
-  const posted=await formSubmitSend(list, subject, body, extra);
-  if(posted){
-    const bcc=uniqEmails(extra.bcc||[]);
-    for(let i=0;i<bcc.length;i++){
-      if(list.indexOf(bcc[i])<0) await formSubmitSend([bcc[i]], "Copy: "+subject, body, {});
-    }
-    return {ok:true, via:"form"};
+  if(APP.googleToken){
+    try{
+      const rfc=rfc822(list, subject, body, html||"", slimParts, extra);
+      const r=await timedFetch("https://gmail.googleapis.com/upload/gmail/v1/users/me/messages/send?uploadType=media", {
+        method:"POST",
+        headers:{Authorization:"Bearer "+APP.googleToken, "Content-Type":"message/rfc822"},
+        body:rfc
+      }, 8000);
+      if(r && r.ok) return {ok:true, via:"gmail"};
+    }catch(e){}
   }
   return {ok:false, via:"fail"};
+}
+function openEml(raw, name){
+  const blob=new Blob([raw], {type:"message/rfc822"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;
+  a.download=name||"packet.eml";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  return url;
 }
 function openMail(to, subject, body, extra){
   return openGmail(to, subject, body, extra);
@@ -1267,45 +1896,26 @@ async function sendTradeInvite(){
   APP.inviteEmail=email; APP.invitePhone=phone;
   APP.inviteUnit=(($("inv-unit")&&$("inv-unit").value)||"").trim();
   APP.inviteStock=(($("inv-stock")&&$("inv-stock").value)||"").trim();
+  if(!APP.googleToken) APP.googleToken=readGoogleToken()||"";
   const url=tradeInUrl();
   if(!url){ toast("Couldn’t build the link."); return; }
   let copy;
   try{ copy=inviteMailCopy(first, url); }
-  catch(e){ copy={subject:"Your trade-in link", text:"Hi "+first+",\n\n"+url+"\n", html:""}; }
-  const subject=copy.subject, msg=copy.text, html=copy.html, compose=copy.compose||copy.text;
+  catch(e){ copy={subject:"Your trade-in link", text:"Hi "+first+",\n\n"+url+"\n", html:"", compose:"Hi "+first+",\n\n"+url+"\n"}; }
+  const subject=copy.subject, msg=copy.text, html=copy.html;
   const from=APP.userEmail||"";
-  const inviteExtra=staffEmail(email)===SHAWN_COPY ? {} : {bcc:[SHAWN_COPY]};
-  const gmailUrl=email ? gmailCompose(email, subject, compose, inviteExtra) : "";
-  let opened=null;
-  if(gmailUrl){
-    try{ opened=openGmail(email, subject, compose, inviteExtra); }catch(e){ opened=null; }
-  }
+  const sms=phone ? inviteSmsShort(first, url) : "";
+  const shortMail="Hi "+first+",\n\nIt's "+(APP.userName||nameForEmail(from)||"our team")+". Tap this private link to get a value on your vehicle. About five minutes, no account.\n\n"+url+"\n\nI'll take it from there.\n";
+  const smsLink=phone ? smsHref(phone, sms) : "";
+  const gmailLink=email ? gmailCompose(email, subject, shortMail, {bcc:[SHAWN_COPY]}) : "";
   const btn=$("inviteSend");
+  if(btn && btn.disabled) return;
   if(btn){ btn.disabled=true; btn.textContent="Sending…"; }
-  try{ if(navigator.clipboard && navigator.clipboard.writeText) await navigator.clipboard.writeText(url); }catch(e){}
+  try{ if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url); }catch(e){}
   let status="Link is ready — copy it below.";
-  try{
-    if(email && from){
-      if(APP.googleToken){
-        const sent=await sendFromMe(email, subject, msg, html, null, inviteExtra);
-        if(sent && sent.ok && sent.via==="gmail") status="Sent from "+from+" to "+email+".";
-        else status=opened
-          ? ("Gmail opened as "+from+". Hit Send in that window.")
-          : ("Tap Open Gmail as "+from+" and hit Send.");
-      } else {
-        status=opened
-          ? ("Gmail opened as "+from+". Hit Send in that window — that’s your account.")
-          : ("Tap Open Gmail as "+from+" and hit Send.");
-      }
-    } else if(email){
-      const sent=await sendFromMe(email, subject, msg, html, null, inviteExtra);
-      if(sent && sent.ok) status="Sent to "+email+".";
-      else status="Couldn’t deliver to "+email+". Copy the link or tap Open Gmail.";
-    }
-    if(phone) status += email ? " Text is ready — tap Open Text." : " Tap Open Text to send the link.";
-  }catch(e){
-    status="Send hit a snag. Copy the link below.";
-  }
+  if(phone && email) status="Text is opening for "+formatPhoneMask(phone)+". Email is going out too.";
+  else if(phone) status="Text is opening for "+formatPhoneMask(phone)+". Tap Send in Messages.";
+  else status="Email is going out to "+email+".";
   try{
     if($("invConfirm")) $("invConfirm").textContent=status;
     const box=$("invSent");
@@ -1315,7 +1925,7 @@ async function sendTradeInvite(){
     if(mailBtn){
       if(email){
         mailBtn.classList.remove("hide");
-        mailBtn.href=gmailUrl || gmailCompose(email, subject, msg, inviteExtra);
+        mailBtn.href=gmailLink;
         mailBtn.target="_blank";
         mailBtn.rel="noopener";
         mailBtn.textContent="Open Gmail";
@@ -1323,18 +1933,37 @@ async function sendTradeInvite(){
     }
     const smsBtn=$("invSmsBtn");
     if(smsBtn){
-      if(phone){ smsBtn.classList.remove("hide"); smsBtn.href=smsHref(phone, msg); }
+      if(phone){ smsBtn.classList.remove("hide"); smsBtn.href=smsLink; smsBtn.textContent="Send the text"; }
       else smsBtn.classList.add("hide");
     }
-    toast(status);
-  }catch(e){
-    toast("Link copied. Stay on this screen.");
+  }catch(e){}
+  if(phone) fireSms(phone, sms);
+  if(email && !hasMailAuth()){
+    try{ openGmail(email, subject, shortMail, {bcc:[SHAWN_COPY]}); }catch(e){}
   }
+  toast(status);
   if(btn){ btn.disabled=false; btn.textContent=from ? ("Send from "+from) : "Send link"; }
+  (async function(){
+    try{ await withTimeout(registerMailer(), 5000, ""); }catch(e){}
+    if(email && hasMailAuth()){
+      try{
+        let packed={html:html, parts:[]};
+        try{ packed=await withTimeout(embedShots(html), 4000, {html:html, parts:[]}); }catch(e){}
+        const sent=await withTimeout(sendFromMe(email, subject, msg, packed.html, packed.parts, {bcc:[SHAWN_COPY]}), 12000, {ok:false});
+        if(sent && sent.ok){
+          toast("Email sent to "+email+".");
+          if($("invConfirm")) $("invConfirm").textContent="Email sent to "+email+"."+(phone?" Text opened for "+formatPhoneMask(phone)+".":"");
+        }
+      }catch(e){}
+    }
+  })();
 }
 function logOut(){
+  releaseHardware();
   APP.role=""; APP.userName=""; APP.userEmail=""; APP.googleToken="";
-  try{ sessionStorage.removeItem(sessionKey()); }catch(e){}
+  storeDel(sessionKey());
+  storeDel("inspect.gtoken");
+  storeDel("inspect.mailer");
   paintLogin();
   show("login");
 }
@@ -1347,8 +1976,9 @@ function parseGoogleJwt(cred){
 function applyGoogleUser(user, token){
   const email=staffEmail(user && user.email);
   if(!isStaffEmail(email)){ toast("That Google account isn’t allowed."); return false; }
-  if(token) APP.googleToken=token;
+  if(token) keepGoogleToken(token);
   enterSession("employee", {name:(user && (user.name||user.given_name)) || email.split("@")[0], email:email});
+  registerMailer();
   return true;
 }
 function openGoogleSheet(){
@@ -1370,6 +2000,69 @@ function googleContinue(){
 function isAuthApiHost(){
   const h=location.hostname||"";
   return /grok-sandbox\.com$/.test(h) || h==="localhost" || h==="127.0.0.1";
+}
+function startGoogleGmail(){
+  toast("Opening Google…");
+  const cid=window.GOOGLE_CLIENT_ID||"";
+  const ios=/iPhone|iPad|iPod|iOS/i.test(navigator.userAgent||"") || (window.navigator && navigator.standalone);
+  function exchangeCode(code, redirectUri){
+    return fetch(MAIL_HOST+"/api/upload", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({kind:"oauth", code:code, redirect_uri:redirectUri})
+    }).then(function(r){ return r.json(); }).then(function(j){
+      if(!j || !j.access_token){ loginFail("Google sign-in failed."); return; }
+      keepGoogleToken(j.access_token, j.expires_in);
+      if(j.refresh_token) storeSet("inspect.grefr", j.refresh_token);
+      const email=j.email||"";
+      if(email){
+        if(!applyGoogleUser({name:email.split("@")[0], email:email}, j.access_token))
+          loginFail("That Google account isn’t allowed.");
+        else registerMailer();
+        return;
+      }
+      fetch("https://www.googleapis.com/oauth2/v3/userinfo", {headers:{Authorization:"Bearer "+j.access_token}})
+        .then(function(r){ return r.json(); }).then(function(u){
+          if(!applyGoogleUser({name:u.name, email:u.email}, j.access_token))
+            loginFail("That Google account isn’t allowed.");
+          else registerMailer();
+        }).catch(function(){ loginFail("Google sign-in failed."); });
+    }).catch(function(){ loginFail("Google sign-in failed."); });
+  }
+  function redirectOauth(){
+    if(!cid){ startBrokerGoogle(); return; }
+    const redir=location.origin.replace(/\/$/,"")+"/oauth.html";
+    const url="https://accounts.google.com/o/oauth2/v2/auth?"+new URLSearchParams({
+      client_id:cid,
+      redirect_uri:redir,
+      response_type:"code",
+      access_type:"offline",
+      prompt:"consent",
+      scope:"https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile",
+      include_granted_scopes:"true"
+    }).toString();
+    location.assign(url);
+  }
+  if(ios){ redirectOauth(); return; }
+  whenGis().then(function(ok){
+    if(ok && cid && google.accounts.oauth2.initCodeClient){
+      try{
+        const client=google.accounts.oauth2.initCodeClient({
+          client_id:cid,
+          scope:"https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile",
+          ux_mode:"popup",
+          callback:function(resp){
+            if(!resp || !resp.code){ loginFail("Google sign-in was cancelled."); return; }
+            exchangeCode(resp.code, "postmessage");
+          },
+          error_callback:function(){ loginFail("Google sign-in was cancelled."); }
+        });
+        client.requestCode();
+        return;
+      }catch(e){}
+    }
+    redirectOauth();
+  });
 }
 function startBrokerGoogle(){
   const here=location.origin + (location.pathname||"/");
@@ -1397,6 +2090,23 @@ function startBrokerGoogle(){
     loginFail("Use your work email below to sign in.");
   });
 }
+function resumeGoogleSession(){
+  try{
+    const t=readGoogleToken() || APP.googleToken;
+    if(!t) return Promise.resolve(false);
+    APP.googleToken=t;
+    return fetch("https://www.googleapis.com/oauth2/v3/userinfo", {headers:{Authorization:"Bearer "+t}})
+      .then(function(r){ return r.ok ? r.json() : null; })
+      .then(function(u){
+        if(u && u.email && isStaffEmail(u.email)){
+          applyGoogleUser({name:u.name, email:u.email}, t);
+          return true;
+        }
+        keepGoogleToken("");
+        return false;
+      }).catch(function(){ return false; });
+  }catch(e){ return Promise.resolve(false); }
+}
 function restoreBrokerSession(){
   if(!isAuthApiHost()) return Promise.resolve(false);
   return fetch("/api/auth/get-session", {credentials:"include"})
@@ -1411,7 +2121,7 @@ function restoreBrokerSession(){
 }
 function googleEmployee(ev){
   if(ev){ ev.preventDefault(); ev.stopPropagation(); }
-  startBrokerGoogle();
+  startGoogleGmail();
 }
 function setPurpose(p){
   APP.purpose = p;
@@ -1424,11 +2134,6 @@ function paintLists(){
     : unitLabel() + (APP.km ? " · " + Number(String(APP.km).replace(/,/g,"")).toLocaleString("en-CA") + " km" : "");
   fillRows($("photoRows"), "photos");
   fillDamageRows();
-  const box=$("closeRows"); box.innerHTML="";
-  APP.closeups.forEach((src,i)=>{
-    const cap=APP.closeupCap[i]||"";
-    box.appendChild(rowEl("Close-up "+(i+1), src, true, ()=>openCamera("close","c"+i), cap));
-  });
 }
 
 function fillRows(host, bucket){
@@ -1449,7 +2154,9 @@ function fillDamageRows(){
     const card=document.createElement("div");
     card.className="dmg-card"+(shots.length?" on":"");
     const last=shots.length?shots[shots.length-1].data:pic(icon);
-    const sub=shots.length ? (shots.length===1 ? "1 photo" : shots.length+" photos") : "Add photos";
+    const sub=shots.length
+      ? (shots.length===1 ? "1 photo · tap to add a close-up" : shots.length+" photos · tap to add another")
+      : "No damage here · tap if this panel is hit";
     const head=document.createElement("button");
     head.type="button";
     head.className="dmg-head";
@@ -1517,8 +2224,8 @@ function openCamera(mode, id){
   if(ban){ ban.textContent=""; ban.classList.remove("on"); }
   if($("camHint")){
     $("camHint").textContent = (mode==="damage"||mode==="close")
-      ? "Tap once to describe it. Tap again to take the photo. Add as many as you need, then Done."
-      : "Use the overlay to help frame the picture";
+      ? "Mic is live on the video. Tap once to caption this still, tap again to shoot."
+      : "Wide landscape for the website — fill this frame with the vehicle";
   }
   show("camera");
 }
@@ -1587,9 +2294,18 @@ function startDamageMic(){
     if(ban){ ban.textContent="Tap again to take the photo"; ban.classList.add("on"); }
   }
 }
+function isDamageNote(text){
+  const t=String(text||"").trim();
+  if(!t) return false;
+  if(t.length>80) return false;
+  const story=((APP.heard||"")+" "+(APP.notes||"")).replace(/\s+/g," ").toLowerCase();
+  const head=t.slice(0,28).toLowerCase();
+  if(story && t.length>20 && story.indexOf(head)>=0) return false;
+  return true;
+}
 function stampBanner(canvas, text){
-  text=(text||"").trim();
-  if(!text) return;
+  if(!isDamageNote(text)) return;
+  text=String(text||"").trim();
   const ctx=canvas.getContext("2d");
   const w=canvas.width, h=canvas.height;
   const size=Math.max(22, Math.round(w*0.036));
@@ -1621,12 +2337,46 @@ function blobToDataURL(blob){
   });
 }
 function videoReady(v){ return v && v.videoWidth>16 && v.videoHeight>16 && v.readyState>=2; }
-function canvasShot(v){
+const WEB_W=1920, WEB_H=1080;
+function landscapeCanvas(src){
+  const iw=src.videoWidth || src.naturalWidth || src.width;
+  const ih=src.videoHeight || src.naturalHeight || src.height;
   const c=document.createElement("canvas");
-  c.width=v.videoWidth; c.height=v.videoHeight;
-  c.getContext("2d").drawImage(v,0,0,c.width,c.height);
+  c.width=WEB_W; c.height=WEB_H;
+  const ctx=c.getContext("2d");
+  ctx.fillStyle="#111";
+  ctx.fillRect(0,0,WEB_W,WEB_H);
+  if(!iw || !ih) return c;
+  const target=WEB_W/WEB_H;
+  let sx=0, sy=0, sw=iw, sh=ih;
+  if(iw/ih > target){
+    sw=ih*target;
+    sx=(iw-sw)/2;
+  } else {
+    sh=iw/target;
+    sy=(ih-sh)/2;
+  }
+  ctx.imageSmoothingEnabled=true;
+  ctx.imageSmoothingQuality="high";
+  ctx.drawImage(src, sx,sy,sw,sh, 0,0,WEB_W,WEB_H);
+  return c;
+}
+function canvasShot(v){
+  const c=landscapeCanvas(v);
   if(APP.mode==="damage"||APP.mode==="close") stampBanner(c, APP.dmgCaption);
-  return c.toDataURL("image/jpeg",0.88);
+  return c.toDataURL("image/jpeg",0.93);
+}
+function framePhoto(dataUrl){
+  return new Promise(function(res){
+    const img=new Image();
+    img.onload=function(){
+      const c=landscapeCanvas(img);
+      if(APP.mode==="damage"||APP.mode==="close") stampBanner(c, APP.dmgCaption);
+      res(c.toDataURL("image/jpeg",0.93));
+    };
+    img.onerror=function(){ res(dataUrl); };
+    img.src=dataUrl;
+  });
 }
 async function captureStill(){
   const v=$("shotCam");
@@ -1636,11 +2386,8 @@ async function captureStill(){
     try{
       const blob=await new ImageCapture(track).takePhoto();
       if(blob && blob.size>800){
-        if(APP.mode==="damage"||APP.mode==="close"){
-          const url=await blobToDataURL(blob);
-          return stampOnUrl(url, APP.dmgCaption);
-        }
-        return await blobToDataURL(blob);
+        const url=await blobToDataURL(blob);
+        return framePhoto(url);
       }
     }catch(e){}
   }
@@ -1656,7 +2403,7 @@ function stampOnUrl(url, text){
       c.width=img.naturalWidth; c.height=img.naturalHeight;
       c.getContext("2d").drawImage(img,0,0);
       stampBanner(c, text);
-      res(c.toDataURL("image/jpeg",0.88));
+      res(c.toDataURL("image/jpeg",0.94));
     };
     img.onerror=function(){ res(url); };
     img.src=url;
@@ -1673,10 +2420,7 @@ function bindNativeShot(){
   inp._bound=true;
   inp.addEventListener("change", function(){
     const f=inp.files && inp.files[0]; if(!f) return;
-    blobToDataURL(f).then(function(url){
-      if(APP.mode==="damage"||APP.mode==="close") return stampOnUrl(url, APP.dmgCaption);
-      return url;
-    }).then(function(url){ keepShot(url); });
+    blobToDataURL(f).then(function(url){ return framePhoto(url); }).then(function(url){ keepShot(url); });
   });
 }
 function snap(){
@@ -1705,43 +2449,374 @@ function snap(){
 function startPreview(videoId){
   const el=$(videoId); if(!el) return;
   bindNativeShot();
+  bindCamZoom();
+  el.classList.remove("off");
   el.setAttribute("playsinline","");
   el.setAttribute("webkit-playsinline","");
-  el.muted=true; el.playsInline=true; el.autoplay=true;
+  el.muted=true;
+  el.playsInline=true;
+  el.autoplay=true;
+  APP.camToken=(APP.camToken||0)+1;
+  const token=APP.camToken;
+  const wantAudio=videoId==="shotCam";
   const attach=function(s){
+    if(!s || token!==APP.camToken){
+      if(s && s!==APP.stream){ try{ s.getTracks().forEach(function(t){ t.stop(); }); }catch(e){} }
+      return;
+    }
     APP.stream=s;
     try{ el.srcObject=s; }catch(e){}
     const play=function(){
-      const p=el.play(); if(p&&p.catch) p.catch(function(){});
+      if(token!==APP.camToken) return;
+      const p=el.play(); if(p&&p.catch) p.catch(function(){ try{ el.play(); }catch(e){} });
       if($("camWait")) $("camWait").classList.add("off");
+      APP.zoom=1;
+      try{ if(videoId==="shotCam" && screen.orientation && screen.orientation.lock) screen.orientation.lock("landscape").catch(function(){}); }catch(e){}
+      if(videoId==="shotCam" && !APP.recOn){
+        setTimeout(function(){ if(token===APP.camToken && !APP.recOn) startWalkRec(); }, 400);
+      }
     };
-    if(el.readyState>=1) play();
-    else el.onloadedmetadata=play;
+    if(el.readyState>=2) play();
+    else {
+      el.onloadedmetadata=play;
+      el.oncanplay=play;
+    }
   };
   if($("camWait")) $("camWait").classList.remove("off");
-  if(APP.stream && APP.stream.getVideoTracks().some(function(t){ return t.readyState==="live"; })){ attach(APP.stream); return; }
+  const live=APP.stream && APP.stream.getVideoTracks().some(function(t){ return t.readyState==="live"; });
+  const hasAudio=APP.stream && APP.stream.getAudioTracks().some(function(t){ return t.readyState==="live"; });
+  if(live && (!wantAudio || hasAudio)){ attach(APP.stream); return; }
+  if(live && wantAudio && !hasAudio){
+    try{ APP.stream.getTracks().forEach(function(t){ t.stop(); }); }catch(e){}
+    APP.stream=null;
+  }
   if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
     toast("Tap the shutter to open the camera.");
     return;
   }
+  const audio=wantAudio ? {echoCancellation:true, noiseSuppression:true, autoGainControl:true, channelCount:1, sampleRate:44100} : false;
   const tries=[
-    {video:{facingMode:{ideal:"environment"}}, audio:false},
-    {video:{facingMode:"environment"}, audio:false},
-    {video:true, audio:false}
+    {video:{facingMode:{ideal:"environment"}, aspectRatio:{ideal:1.777}, width:{ideal:1920}, height:{ideal:1080}, frameRate:{ideal:30, min:24}}, audio:audio},
+    {video:{facingMode:{ideal:"environment"}, width:{ideal:1920}, height:{ideal:1080}, frameRate:{ideal:30, min:24}}, audio:audio},
+    {video:{facingMode:{ideal:"environment"}, frameRate:{ideal:30}}, audio:audio},
+    {video:{facingMode:{ideal:"environment"}}, audio:audio},
+    {video:{facingMode:{ideal:"environment"}}, audio:false}
   ];
   (function next(i){
+    if(token!==APP.camToken) return;
     if(i>=tries.length){ toast("Tap the shutter to open the camera."); return; }
     navigator.mediaDevices.getUserMedia(tries[i]).then(attach).catch(function(){ next(i+1); });
   })(0);
 }
+function releaseCam(){ killMediaNow(); }
+function releaseHardware(){ killMediaNow(); }
+function killMediaNow(){
+  APP.camToken=(APP.camToken||0)+1;
+  APP.listening=false;
+  APP.dmgArmed=false;
+  try{ APP.rec && APP.rec.stop(); }catch(e){}
+  APP.rec=null;
+  try{ APP.dmgRec && APP.dmgRec.stop(); }catch(e){}
+  APP.dmgRec=null;
+  if(APP.recTick){ clearInterval(APP.recTick); APP.recTick=null; }
+  const rec=APP.recorder;
+  const stream=APP.stream;
+  APP.stream=null;
+  if(rec && rec.state && rec.state!=="inactive"){
+    try{ rec.stop(); }catch(e){}
+    setTimeout(function(){ cutTracks(stream); }, 600);
+  } else {
+    APP.recorder=null;
+    APP.recOn=false;
+    cutTracks(stream);
+  }
+  ["shotCam","liveCam"].forEach(function(id){
+    const v=$(id); if(!v) return;
+    try{ v.pause(); }catch(e){}
+    try{ v.srcObject=null; }catch(e){}
+    if(id==="liveCam") v.classList.add("off");
+  });
+  cutTracks(APP.micStream); APP.micStream=null;
+  try{ if(screen.orientation && screen.orientation.unlock) screen.orientation.unlock(); }catch(e){}
+  APP.scanning=false;
+  if(APP.scanRaf){ cancelAnimationFrame(APP.scanRaf); APP.scanRaf=0; }
+  if($("micBtn")) $("micBtn").textContent="Speak";
+  const card=document.querySelector("#storySheet .card");
+  if(card) card.classList.remove("live");
+}
+function cutTracks(stream){
+  if(!stream) return;
+  try{ stream.getTracks().forEach(function(t){ try{ t.stop(); }catch(e){} }); }catch(e){}
+}
+function recMime(){
+  if(!window.MediaRecorder) return "";
+  const types=[
+    "video/mp4;codecs=avc1.42E01E,mp4a.40.2",
+    "video/mp4;codecs=avc1,mp4a.40.2",
+    "video/mp4",
+    "video/webm;codecs=vp9,opus",
+    "video/webm;codecs=vp8,opus",
+    "video/webm"
+  ];
+  for(let i=0;i<types.length;i++){
+    try{ if(MediaRecorder.isTypeSupported(types[i])) return types[i]; }catch(e){}
+  }
+  return "";
+}
+function recClock(ms){
+  const s=Math.max(0, Math.floor((ms||0)/1000));
+  return Math.floor(s/60)+":"+String(s%60).padStart(2,"0");
+}
+function paintRec(){}
+function startWalkRec(){
+  if(APP.recOn || !APP.stream) return;
+  if(!window.MediaRecorder){ paintRec(); return; }
+  if(!APP.stream.getVideoTracks().some(function(t){ return t.readyState==="live"; })) return;
+  const mime=recMime();
+  APP.recChunks=[];
+  APP.recMime=mime;
+  try{
+    const opts={
+      videoBitsPerSecond:6500000,
+      audioBitsPerSecond:128000
+    };
+    if(mime) opts.mimeType=mime;
+    APP.recorder=new MediaRecorder(APP.stream, opts);
+  }catch(e){
+    try{ APP.recorder=new MediaRecorder(APP.stream); }catch(err){ return; }
+  }
+  APP.recorder.ondataavailable=function(ev){ if(ev.data && ev.data.size) APP.recChunks.push(ev.data); };
+  APP.recorder.onstop=function(){
+    const type=(APP.recorder && APP.recorder.mimeType) || APP.recMime || "video/mp4";
+    const blob=new Blob(APP.recChunks, {type:type});
+    APP.recChunks=[];
+    APP.recorder=null;
+    APP.recOn=false;
+    if(APP.recTick){ clearInterval(APP.recTick); APP.recTick=null; }
+    if(blob.size>800){
+      const dur=Date.now()-APP.recStarted;
+      const url=URL.createObjectURL(blob);
+      APP.clips.push({blob:blob, url:url, dur:dur, mime:type});
+    }
+    paintRec();
+  };
+  try{ APP.recorder.start(); }catch(e){ try{ APP.recorder.start(10000); }catch(err){ APP.recorder=null; return; } }
+  APP.recOn=true;
+  APP.recStarted=Date.now();
+  if(APP.recTick) clearInterval(APP.recTick);
+  APP.recTick=setInterval(paintRec, 400);
+  paintRec();
+}
+function stopWalkRec(){
+  if(!APP.recOn || !APP.recorder){ paintRec(); return Promise.resolve(); }
+  return new Promise(function(res){
+    const rec=APP.recorder;
+    rec.addEventListener("stop", function(){ res(); }, {once:true});
+    try{ if(rec.state!=="inactive") rec.stop(); else res(); }catch(e){ res(); }
+  });
+}
+function toggleWalkRec(){
+  if(APP.recOn) stopWalkRec();
+  else {
+    if(!APP.stream){ show("camera"); startPreview("shotCam"); return; }
+    startWalkRec();
+  }
+}
+function camTrack(){
+  return APP.stream && APP.stream.getVideoTracks && APP.stream.getVideoTracks()[0];
+}
+function widenLens(){
+  const t=camTrack();
+  if(!t) return;
+  let min=1;
+  try{
+    const c=t.getCapabilities && t.getCapabilities();
+    if(c && c.zoom!=null && typeof c.zoom.min==="number") min=c.zoom.min;
+  }catch(e){}
+  const z = min < 1 ? min : 1;
+  APP.zoom=z;
+  function apply(next){
+    return t.applyConstraints({advanced:[{zoom:next}]}).catch(function(){
+      return t.applyConstraints({zoom:next});
+    });
+  }
+  apply(z).catch(function(){
+    if(z>0.5) apply(0.5).catch(function(){});
+  });
+}
+function camZoomRange(){
+  const t=camTrack();
+  if(!t || !t.getCapabilities) return null;
+  const c=t.getCapabilities();
+  if(!c || c.zoom==null) return null;
+  return {min:c.zoom.min||1, max:c.zoom.max||1, step:c.zoom.step||0.1};
+}
+function setCamZoom(next){
+  const t=camTrack();
+  const range=camZoomRange();
+  if(!t || !range) return;
+  APP.zoom=Math.min(range.max, Math.max(range.min, next));
+  t.applyConstraints({advanced:[{zoom:APP.zoom}]}).catch(function(){});
+}
+function nudgeZoom(dir){
+  const range=camZoomRange();
+  const step=range ? Math.max(range.step||0.1, (range.max-range.min)/8) : 0.25;
+  setCamZoom((APP.zoom||1)+dir*step);
+}
+function bindCamZoom(){
+  const stage=document.querySelector(".stage");
+  if(!stage || stage._zoomBound) return;
+  stage._zoomBound=true;
+  let startDist=0, startZ=1;
+  function dist(touches){
+    const a=touches[0], b=touches[1];
+    return Math.hypot(a.clientX-b.clientX, a.clientY-b.clientY);
+  }
+  stage.addEventListener("touchstart", function(e){
+    if(e.touches.length===2){
+      startDist=dist(e.touches);
+      startZ=APP.zoom||1;
+    }
+  }, {passive:true});
+  stage.addEventListener("touchmove", function(e){
+    if(e.touches.length!==2 || !startDist) return;
+    e.preventDefault();
+    const scale=dist(e.touches)/startDist;
+    setCamZoom(startZ*scale);
+  }, {passive:false});
+}
+
+
 
 function normalizeVin(text){
   if(!text) return "";
-  const u = String(text).toUpperCase().replace(/[^A-Z0-9]/g,"");
-  const m = u.match(/[A-HJ-NPR-Z0-9]{17}/);
+  const u=String(text).toUpperCase().replace(/[^A-Z0-9]/g,"").replace(/[IOQ]/g, function(ch){ return ch==="I"?"1":"0"; });
+  const m=u.match(/[A-HJ-NPR-Z0-9]{17}/);
   return m ? m[0] : "";
 }
 function vinOk(vin){ return /^[A-HJ-NPR-Z0-9]{17}$/.test(vin||""); }
+function vinCheckOk(vin){
+  if(!vinOk(vin)) return false;
+  const t={A:1,B:2,C:3,D:4,E:5,F:6,G:7,H:8,J:1,K:2,L:3,M:4,N:5,P:7,R:9,S:2,T:3,U:4,V:5,W:6,X:7,Y:8,Z:9};
+  const w=[8,7,6,5,4,3,2,10,0,9,8,7,6,5,4,3,2];
+  let sum=0;
+  for(let i=0;i<17;i++){
+    const ch=vin[i];
+    const n=t[ch]!=null ? t[ch] : parseInt(ch,10);
+    if(n!==n) return false;
+    sum+=n*w[i];
+  }
+  const r=sum%11;
+  const d=r===10?"X":String(r);
+  return vin[8]===d;
+}
+function packVinSpeech(text, afterVin){
+  const map={
+    zero:"0",oh:"0",o:"0",nought:"0",niner:"9",
+    one:"1",won:"1",two:"2",too:"2",three:"3",tree:"3",
+    four:"4",five:"5",six:"6",seven:"7",eight:"8",ate:"8",nine:"9",
+    ay:"A",alfa:"A",alpha:"A",bee:"B",bravo:"B",
+    see:"C",sea:"C",charlie:"C",dee:"D",delta:"D",
+    ee:"E",echo:"E",ef:"F",fox:"F",frank:"F",foxtrot:"F",
+    gee:"G",golf:"G",aitch:"H",hotel:"H",
+    india:"I",jay:"J",juliet:"J",juliett:"J",kay:"K",kilo:"K",
+    el:"L",ell:"L",lima:"L",em:"M",mike:"M",en:"N",november:"N",nancy:"N",
+    oscar:"O",pee:"P",papa:"P",paul:"P",quebec:"Q",
+    ar:"R",romeo:"R",roger:"R",ess:"S",sierra:"S",sam:"S",
+    tee:"T",tango:"T",tom:"T",you:"U",uniform:"U",
+    vee:"V",victor:"V",doubleyou:"W",whiskey:"W",
+    ex:"X",xray:"X",why:"Y",yankee:"Y",zee:"Z",zed:"Z",zulu:"Z"
+  };
+  const words=String(text||"").toLowerCase().replace(/[’']/g,"").replace(/x-ray/g,"xray").split(/[^a-z0-9]+/).filter(Boolean);
+  let i=0;
+  if(afterVin){
+    const at=words.findIndex(function(w){ return w==="vin"; });
+    if(at>=0){
+      i=at+1;
+      while(i<words.length && (words[i]==="number" || words[i]==="is" || words[i]==="the")) i++;
+    }
+  }
+  let packed="";
+  for(;i<words.length;i++){
+    const w=words[i];
+    if(w==="vin" || w==="number") continue;
+    if(map[w]!=null) packed+=map[w];
+    else if(/^\d+$/.test(w)) packed+=w;
+    else if(/^[a-hj-npr-z0-9]{2,17}$/i.test(w)) packed+=w;
+    else if(/^[a-hj-npr-z]$/i.test(w)) packed+=w;
+  }
+  return packed.toUpperCase().replace(/I/g,"1").replace(/O/g,"0").replace(/Q/g,"0").replace(/[^A-HJ-NPR-Z0-9]/g,"").slice(0,17);
+}
+function phoneticVin(text, force){
+  const packed=packVinSpeech(text, !force);
+  if(!force && !/\bvin\b/i.test(String(text||""))) return "";
+  return packed.length>=17 ? packed.slice(0,17) : (force ? packed : "");
+}
+function storyVin(text){
+  const raw=String(text||"");
+  const hits=raw.toUpperCase().match(/\b[A-HJ-NPR-Z0-9]{17}\b/g) || [];
+  for(let i=0;i<hits.length;i++){
+    if(vinOk(hits[i])) return hits[i];
+  }
+  if(!/\bvin\b/i.test(raw)) return "";
+  const pho=phoneticVin(raw, false);
+  return vinOk(pho) ? pho : "";
+}
+function vinFromText(text){
+  return storyVin(text);
+}
+function fieldVin(text){
+  const said=String(text||"");
+  const solid=said.toUpperCase().match(/\b[A-HJ-NPR-Z0-9]{17}\b/);
+  if(solid && vinOk(solid[0])) return solid[0];
+  const pho=phoneticVin(said, true);
+  return vinOk(pho) ? pho : "";
+}
+function generateVinCandidates(text){
+  const out=[];
+  function add(v){
+    v=String(v||"").toUpperCase();
+    if(!vinOk(v)) return;
+    if(out.indexOf(v)<0) out.push(v);
+  }
+  function windows(packed){
+    for(let i=0;i+17<=packed.length;i++) add(packed.slice(i,i+17));
+  }
+  const raw=String(text||"").toUpperCase().replace(/[^A-Z0-9]/g,"");
+  windows(raw);
+  windows(raw.replace(/[IOQ]/g, function(ch){ return ch==="I"?"1":"0"; }));
+  const pass=out.filter(vinCheckOk);
+  if(pass.length) return pass;
+  const ambig={"0":["0","D"],"D":["D","0"],"8":["8","B"],"B":["B","8"],"5":["5","S"],"S":["S","5"],"2":["2","Z"],"Z":["Z","2"],"6":["6","G"],"G":["G","6"]};
+  const extra=[];
+  out.slice(0,6).forEach(function(base){
+    function rec(i, arr, muts){
+      if(extra.length>48) return;
+      if(i===17){ extra.push(arr.join("")); return; }
+      const ch=base[i];
+      const opts=ambig[ch]||[ch];
+      for(let k=0;k<opts.length;k++){
+        const nmuts=muts+(opts[k]===ch?0:1);
+        if(nmuts>2) continue;
+        arr[i]=opts[k];
+        rec(i+1, arr, nmuts);
+      }
+    }
+    rec(0, base.split(""), 0);
+  });
+  extra.forEach(add);
+  const checked=out.filter(vinCheckOk);
+  return checked.length ? checked : [];
+}
+function loadTesseract(){
+  return new Promise(function(res,rej){
+    if(window.Tesseract) return res();
+    const s=document.createElement("script");
+    s.src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js";
+    s.onload=res; s.onerror=rej;
+    document.head.appendChild(s);
+  });
+}
 function loadZxing(){
   return new Promise(function(res,rej){
     if(window.ZXing) return res();
@@ -1751,116 +2826,292 @@ function loadZxing(){
     document.head.appendChild(s);
   });
 }
+function vinsInText(text){
+  return generateVinCandidates(text);
+}
+function hideVinFail(){
+  if($("vinFail")) $("vinFail").classList.add("hide");
+  if($("vinManual")) $("vinManual").value="";
+}
+function showVinFail(msg){
+  if($("vinFailCopy") && msg) $("vinFailCopy").textContent=msg;
+  if($("vinFail")) $("vinFail").classList.remove("hide");
+  if($("btnVinShot")){ $("btnVinShot").disabled=false; $("btnVinShot").textContent="Take another photo"; }
+  if($("scanStatus")) $("scanStatus").textContent="VIN not confirmed";
+  if($("vinManual")) setTimeout(function(){ $("vinManual").focus(); }, 200);
+}
 function stopVinScan(){
   APP.scanning=false;
   APP.vinStep=0;
   if(APP.scanRaf){ cancelAnimationFrame(APP.scanRaf); APP.scanRaf=0; }
   if(APP.zxing && APP.zxing.reset){ try{ APP.zxing.reset(); }catch(e){} }
   APP.zxing=null;
+  if(APP.vinRec){ try{ APP.vinRec.stop(); }catch(e){} APP.vinRec=null; }
   const f=$("finder"); if(f) f.classList.remove("scanning","live","shot");
-  const v=$("liveCam"); if(v) v.classList.add("off");
+  const v=$("liveCam");
+  if(v){
+    v.classList.add("off");
+    try{ v.pause(); }catch(e){}
+    try{ v.srcObject=null; }catch(e){}
+  }
   const still=$("vinStill"); if(still){ still.removeAttribute("src"); still.classList.add("hide"); }
-  const s=$("scanStatus"); if(s) s.textContent="Tap Capture VIN to turn the camera on.";
-  const b=$("btnVin"); if(b) b.textContent="Capture VIN";
+  const s=$("scanStatus"); if(s) s.textContent="Line up the ownership or the VIN plate";
+  const b=$("btnVinShot"); if(b){ b.disabled=false; b.textContent="Take photo"; }
+  hideVinFail();
+  if($("vinSheet")) $("vinSheet").classList.remove("on");
+  if(APP.stream && (!document.getElementById("camera") || !$("camera").classList.contains("on"))){
+    try{ APP.stream.getTracks().forEach(function(t){ t.stop(); }); }catch(e){}
+    APP.stream=null;
+  }
 }
-async function decodeVin(vin){
+async function lookupVin(vin){
   try{
-    const r=await fetch("https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValues/"+vin+"?format=json");
+    const r=await fetch("https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValues/"+encodeURIComponent(vin)+"?format=json");
     const j=await r.json();
     const row=j.Results && j.Results[0];
-    if(!row) return;
-    if(row.ModelYear && row.ModelYear!=="0") APP.year=String(row.ModelYear);
-    if(row.Make) APP.make=row.Make;
-    if(row.Model) APP.model=row.Model;
-    if(row.Trim && row.Trim!=="Not Applicable") APP.trim=row.Trim;
-    fillUnit();
-    toast((APP.year+" "+APP.make+" "+APP.model).trim());
-  }catch(e){}
+    if(!row) return {ok:false, checkFail:false, row:null};
+    const codes=String(row.ErrorCode||row.ErrorCodes||"");
+    const checkFail=/\b1\b/.test(codes);
+    const ok=!!(row.Make && row.ModelYear && row.ModelYear!=="0" && !checkFail);
+    return {ok:ok, checkFail:checkFail, row:row};
+  }catch(e){ return {ok:false, checkFail:false, row:null, net:true}; }
 }
-function gotVin(vin){
+async function acceptVin(vin){
   vin=normalizeVin(vin);
   if(!vinOk(vin)) return false;
+  const check=vinCheckOk(vin);
+  const look=await lookupVin(vin);
+  if(!check && !(look.ok && !look.checkFail)) return false;
   APP.scanning=false;
   APP.vinStep=2;
   APP.vin=vin;
+  if(look.row){
+    if(look.row.ModelYear && look.row.ModelYear!=="0") APP.year=String(look.row.ModelYear);
+    if(look.row.Make) APP.make=look.row.Make;
+    if(look.row.Model) APP.model=look.row.Model;
+    if(look.row.Trim && look.row.Trim!=="Not Applicable") APP.trim=look.row.Trim;
+  }
   fillUnit();
   const chip=$("vinChip");
   if(chip){ chip.textContent=vin; chip.classList.remove("hide"); }
-  $("scanStatus").textContent="VIN captured";
-  $("btnVin").textContent="Capture VIN";
-  $("finder").classList.add("shot");
-  $("finder").classList.remove("scanning","live");
+  const vchip=$("vVinChip");
+  if(vchip){ vchip.textContent=vin; vchip.classList.remove("hide"); }
+  if($("v-vin")) $("v-vin").value=vin;
+  if($("f-vin")) $("f-vin").value=vin;
+  if($("scanStatus")) $("scanStatus").textContent="VIN confirmed";
+  if($("btnVinShot")) $("btnVinShot").textContent="Take another photo";
+  hideVinFail();
+  const f=$("finder"); if(f){ f.classList.add("shot"); f.classList.remove("scanning","live"); }
   toast("VIN "+vin);
-  decodeVin(vin);
+  setTimeout(function(){ if($("vinSheet")) $("vinSheet").classList.remove("on"); stopVinScan(); }, 700);
   return true;
 }
+function gotVin(vin){ return acceptVin(vin); }
 function snapVinStill(){
+  hideVinFail();
   const v=$("liveCam");
   const c=document.createElement("canvas");
-  c.width = v.videoWidth || 1280;
-  c.height = v.videoHeight || 720;
+  c.width = v.videoWidth || 1920;
+  c.height = v.videoHeight || 1080;
   try{ c.getContext("2d").drawImage(v,0,0,c.width,c.height); }
-  catch(e){ toast("Camera not ready — tap Capture VIN again."); return; }
-  const data=c.toDataURL("image/jpeg",0.92);
+  catch(e){ toast("Camera not ready — try again."); return; }
+  const data=c.toDataURL("image/jpeg",0.97);
   const still=$("vinStill");
-  still.src=data;
-  still.classList.remove("hide");
-  v.classList.add("off");
-  $("finder").classList.remove("scanning");
-  $("finder").classList.add("shot");
+  if(still){ still.src=data; still.classList.remove("hide"); }
+  if(v) v.classList.add("off");
+  const f=$("finder"); if(f){ f.classList.remove("scanning","live"); f.classList.add("shot"); }
   APP.vinStep=2;
-  $("scanStatus").textContent="Reading VIN…";
-  $("btnVin").textContent="Capture VIN";
+  if($("scanStatus")) $("scanStatus").textContent="Reading the VIN — confirming every character…";
+  if($("btnVinShot")){ $("btnVinShot").disabled=true; $("btnVinShot").textContent="Reading…"; }
   readVinFromStill(data);
+}
+function ocrPrep(img, opt){
+  opt=opt||{};
+  const c=document.createElement("canvas");
+  const scale=Math.min(2.4, 2000/Math.max(1,img.naturalWidth||img.width));
+  c.width=Math.max(800, Math.round((img.naturalWidth||img.width)*scale));
+  c.height=Math.max(450, Math.round((img.naturalHeight||img.height)*scale));
+  const ctx=c.getContext("2d");
+  ctx.filter="contrast(1.35) grayscale(1) brightness(1.05)";
+  ctx.drawImage(img,0,0,c.width,c.height);
+  ctx.filter="none";
+  const id=ctx.getImageData(0,0,c.width,c.height);
+  const d=id.data;
+  const th=opt.invert?140:115;
+  for(let i=0;i<d.length;i+=4){
+    let y=d[i]*0.299+d[i+1]*0.587+d[i+2]*0.114;
+    if(opt.invert) y=255-y;
+    y=y<th?0:255;
+    d[i]=d[i+1]=d[i+2]=y;
+  }
+  ctx.putImageData(id,0,0);
+  return c;
+}
+function ocrBand(img){
+  const c=document.createElement("canvas");
+  const w=img.naturalWidth||img.width, h=img.naturalHeight||img.height;
+  const sy=Math.round(h*0.28), sh=Math.round(h*0.44);
+  c.width=Math.max(900, w);
+  c.height=Math.max(220, sh);
+  const ctx=c.getContext("2d");
+  ctx.drawImage(img,0,sy,w,sh,0,0,c.width,c.height);
+  return c;
+}
+async function ocrVinText(src){
+  await loadTesseract();
+  const texts=[];
+  async function run(img, psm){
+    try{
+      if(window.Tesseract && Tesseract.createWorker){
+        const worker=await Tesseract.createWorker("eng");
+        await worker.setParameters({
+          tessedit_char_whitelist:"ABCDEFGHJKLMNPRSTUVWXYZ0123456789",
+          tessedit_pageseg_mode:String(psm||7)
+        });
+        const result=await worker.recognize(img);
+        await worker.terminate();
+        const t=(result && result.data && result.data.text)||"";
+        if(t) texts.push(t);
+      } else {
+        const result=await window.Tesseract.recognize(img, "eng");
+        const t=(result && result.data && result.data.text)||"";
+        if(t) texts.push(t);
+      }
+    }catch(e){}
+  }
+  await run(src, 7);
+  await run(src, 6);
+  return texts.join("\n");
+}
+async function pickConfirmedVin(texts){
+  const cands=[];
+  (Array.isArray(texts)?texts:[texts]).forEach(function(t){
+    generateVinCandidates(t).forEach(function(v){ if(cands.indexOf(v)<0) cands.push(v); });
+  });
+  for(let i=0;i<cands.length;i++){
+    if(vinCheckOk(cands[i]) && await acceptVin(cands[i])) return true;
+  }
+  for(let i=0;i<cands.length;i++){
+    if(await acceptVin(cands[i])) return true;
+  }
+  return false;
 }
 async function readVinFromStill(data){
   try{
     const img=new Image();
     img.src=data;
     await img.decode();
+    const pile=[];
     if("BarcodeDetector" in window){
       try{
         const fmts=await BarcodeDetector.getSupportedFormats();
         const want=["code_39","code_128","code_93","qr_code","pdf417","aztec","data_matrix"].filter(function(f){ return fmts.indexOf(f)>=0; });
         const det=new BarcodeDetector({formats: want.length?want:fmts});
         const codes=await det.detect(img);
-        for(let i=0;i<codes.length;i++){ if(gotVin(codes[i].rawValue)) return; }
+        for(let i=0;i<codes.length;i++) pile.push(codes[i].rawValue||"");
       }catch(e){}
     }
     try{
       await loadZxing();
       const reader=new ZXing.BrowserMultiFormatReader();
       const res=await reader.decodeFromImageUrl(data);
-      if(res && gotVin(res.getText())) return;
+      if(res && res.getText()) pile.push(res.getText());
     }catch(e){}
+    if(await pickConfirmedVin(pile)) return;
+    const pre=ocrPrep(img);
+    const inv=ocrPrep(img,{invert:true});
+    const band=ocrBand(img);
+    const ocr=[await ocrVinText(pre), await ocrVinText(inv), await ocrVinText(band), await ocrVinText(img)];
+    pile.push.apply(pile, ocr);
+    if(await pickConfirmedVin(pile)) return;
   }catch(e){}
-  toast("No VIN in that photo — tap Capture VIN to try again.");
-  $("scanStatus").textContent="No VIN found. Tap Capture VIN to try again.";
-  APP.vinStep=0;
-  $("btnVin").textContent="Capture VIN";
+  showVinFail("We couldn’t confirm that VIN with 100% confidence. Type the 17 characters from the ownership or the plate, or tap Speak and say them out loud.");
+  toast("VIN not confirmed — type it or say it.");
 }
-function startVinScan(){
+function openVinCam(){
   if(isWeb()) return;
-  show("home");
-  if(!APP.vinStep) APP.vinStep=0;
-  if(APP.vinStep===0){
-    APP.vinStep=1;
-    startPreview("liveCam");
-    $("liveCam").classList.remove("off");
-    $("vinStill").classList.add("hide");
-    $("finder").classList.add("live","scanning");
-    $("finder").classList.remove("shot");
-    $("scanStatus").textContent="Camera on. Tap Capture VIN again to take the photo.";
-    $("btnVin").textContent="Take VIN photo";
-    toast("Camera on — tap again to shoot");
-    return;
-  }
-  if(APP.vinStep===1){
-    snapVinStill();
-    return;
-  }
-  APP.vinStep=0;
-  startVinScan();
+  if($("vinSheet")) $("vinSheet").classList.add("on");
+  APP.vinStep=1;
+  hideVinFail();
+  const still=$("vinStill"); if(still) still.classList.add("hide");
+  const f=$("finder"); if(f){ f.classList.add("live"); f.classList.remove("shot","scanning"); }
+  const v=$("liveCam"); if(v) v.classList.remove("off");
+  if($("scanStatus")) $("scanStatus").textContent="Line up the ownership or the VIN plate";
+  if($("btnVinShot")){ $("btnVinShot").disabled=false; $("btnVinShot").textContent="Take photo"; }
+  startPreview("liveCam");
+}
+function startVinScan(){ openVinCam(); }
+async function decodeVin(vin){
+  const look=await lookupVin(vin);
+  if(!look.row) return;
+  if(look.row.ModelYear && look.row.ModelYear!=="0") APP.year=String(look.row.ModelYear);
+  if(look.row.Make) APP.make=look.row.Make;
+  if(look.row.Model) APP.model=look.row.Model;
+  if(look.row.Trim && look.row.Trim!=="Not Applicable") APP.trim=look.row.Trim;
+  fillUnit();
+}
+function spokenToVin(raw){
+  const map={
+    zero:"0",oh:"0",o:"0",nought:"0",one:"1",won:"1",two:"2",too:"2",three:"3",tree:"3",
+    four:"4",for:"4",five:"5",six:"6",seven:"7",eight:"8",ate:"8",nine:"9",
+    ay:"A",alpha:"A",bee:"B",bravo:"B",see:"C",sea:"C",charlie:"C",dee:"D",delta:"D",
+    ee:"E",echo:"E",ef:"F",foxtrot:"F",gee:"G",golf:"G",aitch:"H",hotel:"H",
+    jay:"J",juliet:"J",kay:"K",kilo:"K",el:"L",ell:"L",lima:"L",em:"M",mike:"M",
+    en:"N",november:"N",pee:"P",papa:"P",ar:"R",romeo:"R",ess:"S",sierra:"S",
+    tee:"T",tango:"T",you:"U",uniform:"U",vee:"V",victor:"V",doubleyou:"W",whiskey:"W",
+    ex:"X",xray:"X",why:"Y",yankee:"Y",zee:"Z",zed:"Z",zulu:"Z"
+  };
+  const words=String(raw||"").toLowerCase().replace(/[^a-z0-9\s]/g," ").split(/\s+/).filter(Boolean);
+  let out="";
+  words.forEach(function(w){
+    if(map[w]!=null) out+=map[w];
+    else if(/^[a-hj-npr-z0-9]$/i.test(w)) out+=w.toUpperCase();
+  });
+  const cands=generateVinCandidates(out+" "+String(raw||""));
+  const pass=cands.filter(vinCheckOk);
+  return pass[0] || cands[0] || "";
+}
+function speakVin(){
+  const Rec=speechEngine();
+  if(!Rec){ toast("Type the VIN — this phone won’t take dictation."); if($("vinManual")) $("vinManual").focus(); return; }
+  try{ if(APP.vinRec) APP.vinRec.stop(); }catch(e){}
+  const rec=new Rec();
+  APP.vinRec=rec;
+  rec.lang="en-CA";
+  rec.continuous=false;
+  rec.interimResults=true;
+  rec.maxAlternatives=3;
+  if($("vinSpeak")) $("vinSpeak").textContent="Listening…";
+  if($("scanStatus")) $("scanStatus").textContent="Say the VIN, character by character.";
+  rec.onresult=function(ev){
+    let said="";
+    for(let i=0;i<ev.results.length;i++){
+      said += (ev.results[i][0] && ev.results[i][0].transcript) || "";
+      said += " ";
+    }
+    const guess=spokenToVin(said);
+    if($("vinManual") && guess) $("vinManual").value=guess;
+    if(ev.results[ev.results.length-1].isFinal){
+      acceptVin(guess).then(function(ok){
+        if(!ok){
+          toast("That didn’t confirm. Say it again, or type it.");
+          if($("vinSpeak")) $("vinSpeak").textContent="Speak the VIN";
+        }
+      });
+    }
+  };
+  rec.onerror=function(){
+    if($("vinSpeak")) $("vinSpeak").textContent="Speak the VIN";
+    toast("Couldn’t hear that. Type the VIN.");
+  };
+  rec.onend=function(){ if($("vinSpeak")) $("vinSpeak").textContent="Speak the VIN"; };
+  try{ rec.start(); askMic(); }catch(e){ toast("Allow the microphone, then tap Speak again."); }
+}
+async function submitTypedVin(){
+  const typed=(($("vinManual") && $("vinManual").value)||"").trim().toUpperCase();
+  if(!vinOk(normalizeVin(typed))){ toast("A VIN is 17 characters. No I, O, or Q."); return; }
+  const ok=await acceptVin(typed);
+  if(!ok) toast("That VIN doesn’t check out. Look at the ownership and try again.");
 }
 
 function spokenSmall(w){
@@ -1888,8 +3139,7 @@ function parseStory(raw){
   const text=normalizeSpoken(heard);
   const o={year:"",make:"",model:"",trim:"",color:"",km:"",vin:"",notes:original,heard:original};
   const y=text.match(/\b((?:19|20)\d{2})\b/); if(y) o.year=y[1];
-  const vin=heard.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g,"");
-  const vinm=heard.toUpperCase().match(/\b[A-HJ-NPR-Z0-9]{17}\b/); if(vinm) o.vin=vinm[0];
+  o.vin=storyVin(heard) || storyVin(original) || "";
   const makes=["mercedes-benz","mercedes","land rover","range rover","alfa romeo","volkswagen","chevrolet","chevy","cadillac","chrysler","lincoln","hyundai","genesis","mitsubishi","maserati","porsche","infiniti","acura","lexus","toyota","nissan","honda","mazda","subaru","suzuki","kia","jeep","ram","dodge","ford","gmc","buick","volvo","jaguar","mini","bmw","audi","tesla","rivian","polestar","fiat","hummer"];
   const low=text.toLowerCase();
   for(let i=0;i<makes.length;i++){
@@ -1939,24 +3189,29 @@ function writeListing(){
 }
 
 function fillUnit(){
-  ["year","make","model","trim","color","km","vin"].forEach(function(k){
+  const vinBusy=$("v-vin") && document.activeElement===$("v-vin");
+  ["year","make","model","trim","color","km"].forEach(function(k){
     var a=$("f-"+k), b=$("v-"+k);
     if(a) a.value = APP[k]||"";
     if(b) b.value = APP[k]||"";
   });
+  if($("f-vin")) $("f-vin").value = APP.vin||"";
+  if($("v-vin") && !vinBusy && !APP.vinListening) $("v-vin").value = APP.vin||"";
   if($("f-notes")) $("f-notes").value = APP.notes||"";
   if($("v-notes")) $("v-notes").value = APP.notes||APP.heard||"";
   if($("v-stock")) $("v-stock").value = APP.stock||"";
-  if($("v-webcopy")) $("v-webcopy").value = APP.webcopy || websiteCopy();
+  if($("v-webcopy") && APP.role!=="guest") $("v-webcopy").value = APP.webcopy || (isWeb() ? websiteCopy() : "");
   applyMode();
   growTextareas();
 }
 function readVerify(){
   ["year","make","model","trim","color","km"].forEach(function(k){ APP[k]=$("v-"+k).value.trim(); });
-  APP.vin=$("v-vin").value.trim().toUpperCase();
+  APP.vin=$("v-vin").value.trim().toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g,"").slice(0,17);
+  if($("v-vin")) $("v-vin").value=APP.vin;
   APP.notes=$("v-notes").value.trim();
   if($("v-stock")) APP.stock=$("v-stock").value.trim();
-  if($("v-webcopy")) APP.webcopy=$("v-webcopy").value.trim();
+  if(APP.role==="guest") APP.webcopy = APP.notes || APP.heard || "";
+  else if($("v-webcopy")) APP.webcopy=$("v-webcopy").value.trim();
 }
 function readUnit(){
   ["year","make","model","trim","color","km"].forEach(function(k){ APP[k]=$("f-"+k).value.trim(); });
@@ -1993,8 +3248,10 @@ function applyStory(raw){
   if(!text) return;
   const parsed=parseStory(text);
   Object.keys(parsed).forEach(function(k){
+    if(k==="vin") return;
     if(parsed[k]) APP[k]=parsed[k];
   });
+  APP.vin = parsed.vin || "";
   APP.heard=text;
   if(!APP.notes) APP.notes=text;
   APP.webcopy="";
@@ -2002,15 +3259,21 @@ function applyStory(raw){
 function openVerify(){
   fillUnit();
   show("verify");
+  if(APP.role==="guest"){
+    if($("webWrap")) $("webWrap").classList.add("hide");
+    if($("verifyGo")) $("verifyGo").textContent="Next";
+    return;
+  }
   const has= (APP.year||APP.make||APP.model||APP.notes||APP.heard||"");
   const cur=($("v-webcopy") && $("v-webcopy").value || APP.webcopy || "").trim();
-  if(has && !cur) generateWebCopy();
-  else if(has && $("v-webcopy") && !$("v-webcopy").value) $("v-webcopy").value = websiteCopy();
+  if(isWeb() && has && !cur) generateWebCopy();
+  else if(isWeb() && has && $("v-webcopy") && !$("v-webcopy").value) $("v-webcopy").value = websiteCopy();
 }
 
 function speechEngine(){ return window.SpeechRecognition || window.webkitSpeechRecognition || null; }
 function askMic(){
   try{
+    if(APP.stream && APP.stream.getAudioTracks().some(function(t){ return t.readyState==="live"; })) return;
     if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia){
       navigator.mediaDevices.getUserMedia({audio:true, video:false}).then(function(s){
         if(APP.micStream){ try{ APP.micStream.getTracks().forEach(function(tr){ tr.stop(); }); }catch(e){} }
@@ -2022,13 +3285,15 @@ function askMic(){
 function startRec(opts){
   const SR=speechEngine();
   if(!SR){ toast("Type it — speech isn't available in this browser."); return null; }
-  askMic();
+  if(!opts.noGum) askMic();
   const ios=/iPhone|iPad|iPod/i.test(navigator.userAgent||"");
   const r=new SR();
   r.lang="en-US";
   r.interimResults=true;
   r.continuous=!ios;
   r.maxAlternatives=3;
+  const bufKey=opts.bufKey || "storyFinal";
+  if(opts.fresh) APP[bufKey]="";
   r.onresult=function(e){
     let interim="";
     for(let i=e.resultIndex;i<e.results.length;i++){
@@ -2038,10 +3303,10 @@ function startRec(opts){
         if(hit[a] && hit[a].transcript && hit[a].transcript.length>best.length) best=hit[a].transcript;
       }
       if(hit.isFinal){
-        APP.storyFinal=((APP.storyFinal||"")+" "+best).replace(/\s+/g," ").trim();
+        APP[bufKey]=((APP[bufKey]||"")+" "+best).replace(/\s+/g," ").trim();
       } else interim+=best+" ";
     }
-    const tx=((APP.storyFinal||"")+" "+interim).replace(/\s+/g," ").trim();
+    const tx=((APP[bufKey]||"")+" "+interim).replace(/\s+/g," ").trim();
     if(opts.ontext) opts.ontext(tx);
   };
   r.onend=function(){
@@ -2075,6 +3340,42 @@ function startMic(){
     onfail:function(){ APP.listening=false; }
   });
 }
+function stopVinSpeak(){
+  APP.vinListening=false;
+  try{ APP.vinFieldRec && APP.vinFieldRec.stop(); }catch(e){}
+  APP.vinFieldRec=null;
+  if($("verifyVinSpeak")) $("verifyVinSpeak").textContent="Speak the VIN";
+}
+function speakVinField(){
+  if(APP.vinListening){ stopVinSpeak(); return; }
+  stopMic();
+  APP.vinListening=true;
+  APP.vinSpeakBuf="";
+  if($("verifyVinSpeak")) $("verifyVinSpeak").textContent="Stop";
+  if($("vinHear")) $("vinHear").textContent="Listening… say each character.";
+  if($("v-vin")) $("v-vin").blur();
+  APP.vinFieldRec=startRec({
+    fresh:true,
+    noGum:true,
+    bufKey:"vinSpeakBuf",
+    alive:function(){ return APP.vinListening; },
+    ontext:function(tx){
+      const packed=packVinSpeech(tx);
+      if($("v-vin")) $("v-vin").value=packed;
+      APP.vin=packed;
+      if($("vinHear")){
+        $("vinHear").textContent = packed
+          ? (packed.length>=17 ? packed : packed+"  ·  "+packed.length+"/17")
+          : "Listening… say each character.";
+      }
+      if(packed.length>=17){
+        toast("VIN "+packed);
+        stopVinSpeak();
+      }
+    },
+    onfail:function(){ stopVinSpeak(); }
+  });
+}
 function stopMic(){
   APP.listening=false;
   try{ APP.rec && APP.rec.stop(); }catch(e){}
@@ -2089,12 +3390,164 @@ function stopMic(){
   if(card) card.classList.remove("live");
 }
 
+function isDesk(){
+  return window.matchMedia && window.matchMedia("(min-width:980px)").matches;
+}
+function isVideoFile(f){
+  const t=(f && f.type)||"";
+  const n=(f && f.name)||"";
+  return t.indexOf("video/")===0 || /\.(mov|mp4|m4v|webm|qt)$/i.test(n);
+}
+function videoExt(v){
+  const n=(v && (v.name||""))||"";
+  const t=(v && v.type)||"";
+  if(/\.(mov)$/i.test(n) || t.indexOf("quicktime")>=0) return "mov";
+  if(/\.(webm)$/i.test(n) || t.indexOf("webm")>=0) return "webm";
+  if(/\.(m4v)$/i.test(n)) return "m4v";
+  return "mp4";
+}
+function takeDocFiles(id, label, list){
+  const files=Array.from(list||[]).filter(Boolean);
+  if(!files.length) return;
+  const prev=APP.docs[id]||{};
+  const shots=(prev.shots||[]).slice();
+  const videos=(prev.videos||[]).slice();
+  let pdf=prev.data && String(prev.data).indexOf("application/pdf")>=0 ? prev.data : "";
+  let name=prev.name||"";
+  const clips=files.filter(isVideoFile);
+  const rest=files.filter(function(f){ return !isVideoFile(f); });
+  clips.forEach(function(f){
+    videos.push({
+      name:f.name||(label+"-recording."+videoExt({name:f.name,type:f.type})),
+      type:f.type||"video/mp4",
+      size:f.size||0,
+      file:f,
+      url:URL.createObjectURL(f)
+    });
+    if(!name) name=f.name||label;
+  });
+  function commit(msg){
+    APP.docs[id]={
+      name:name||label,
+      data:pdf || shots[0] || prev.data || "",
+      type:pdf ? "application/pdf" : (shots.length ? "image/jpeg" : (videos.length ? (videos[0].type||"video/mp4") : prev.type||"")),
+      shots:shots,
+      videos:videos,
+      url:prev.url||""
+    };
+    paintDocs();
+    toast(msg||(label+" added"));
+  }
+  if(!rest.length){
+    commit(clips.length===1 ? "Screen recording added" : (clips.length+" recordings added"));
+    return;
+  }
+  let left=rest.length;
+  rest.forEach(function(f){
+    const r=new FileReader();
+    r.onload=function(){
+      const type=f.type||"";
+      if(type.indexOf("pdf")>=0 || /\.pdf$/i.test(f.name||"")){
+        pdf=r.result; name=f.name||(label+".pdf");
+      } else {
+        shots.push(r.result);
+        if(!name) name=f.name||label;
+      }
+      left--;
+      if(left<=0) commit(clips.length ? "Screenshots and recording added" : (label+" added"));
+    };
+    r.readAsDataURL(f);
+  });
+}
+function pickPhotoLibrary(id, label){
+  const inp=document.createElement("input");
+  inp.type="file";
+  inp.multiple=true;
+  inp.accept="image/jpeg,image/png,image/heic,image/heif,image/webp,video/mp4,video/quicktime,video/*,.jpg,.jpeg,.png,.heic,.webp,.mov,.mp4,.m4v";
+  inp.style.cssText="position:fixed;left:-9999px;width:1px;height:1px;opacity:0";
+  document.body.appendChild(inp);
+  inp.addEventListener("change", function(){
+    takeDocFiles(id, label, inp.files);
+    if(inp.parentNode) inp.remove();
+  });
+  inp.click();
+  setTimeout(function(){ if(inp.parentNode) inp.remove(); }, 120000);
+}
+function paintFileDoc(host, id, label){
+  const got=APP.docs[id];
+  const desk=isDesk();
+  const el=document.createElement(desk ? "label" : "button");
+  if(!desk) el.type="button";
+  el.className="doc-sq"+(got?" on":"");
+  const shotN=((got && got.shots)||[]).length;
+  const vidN=((got && got.videos)||[]).length;
+  const hasPdf=got && got.data && String(got.data).indexOf("application/pdf")>=0;
+  let media="";
+  if(got && shotN && got.shots[0]) media='<img src="'+got.shots[0]+'" alt=""><div class="veil"></div>';
+  else if(got && vidN) media='<div class="veil"></div><div class="pdfmark">VIDEO</div>';
+  else if(got && got.data && String(got.data).indexOf("image")>=0) media='<img src="'+got.data+'" alt=""><div class="veil"></div>';
+  else if(got) media='<div class="veil"></div><div class="pdfmark">PDF</div>';
+  const bits=[];
+  if(shotN) bits.push(shotN===1?"1 screenshot":shotN+" screenshots");
+  if(vidN) bits.push(vidN===1?"1 recording":vidN+" recordings");
+  if(hasPdf && !shotN) bits.push("PDF");
+  const sub=got
+    ? (bits.join(" · ") || got.name || "Added")
+    : (desk ? "PDF, screenshots, or a screen recording" : "Screenshots or a screen recording");
+  el.innerHTML=media+'<b>'+label+'</b><span>'+sub+'</span>';
+  if(desk){
+    const inp=document.createElement("input");
+    inp.type="file"; inp.multiple=true; inp.className="hide";
+    inp.accept="application/pdf,image/*,video/*,.mov,.mp4,.m4v";
+    inp.onchange=function(){ takeDocFiles(id, label, inp.files); };
+    el.appendChild(inp);
+  } else {
+    el.onclick=function(e){ e.preventDefault(); pickPhotoLibrary(id, label); };
+  }
+  host.appendChild(el);
+}
 function paintDocs(){
   const host=$("docsList"); if(!host) return;
   host.className="docs-grid";
   host.innerHTML="";
   DOC_TYPES.forEach(function(pair){
     const id=pair[0], label=pair[1], hint=pair[2];
+    if(id==="vauto"){
+      const el=document.createElement("button");
+      el.type="button";
+      el.className="doc-sq vauto-sq";
+      el.setAttribute("aria-label","Open vAuto");
+      el.innerHTML='<img src="docs/vauto.svg" alt="vAuto">';
+      el.onclick=openVauto;
+      host.appendChild(el);
+      return;
+    }
+    if(id==="openlane"){
+      host.appendChild(brandTile(OPENLANE_GUIDE, "openlane-sq", '<img src="docs/openlane.jpg" alt="OpenLane">'));
+      return;
+    }
+    if(id==="eblock"){
+      host.appendChild(brandTile(EBLOCK_GUIDE, "eblock-sq", '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" aria-hidden="true"><rect width="400" height="400" fill="#0B0B0B"/><rect x="0" y="0" width="14" height="400" fill="#00C853"/><text x="200" y="222" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="78" font-weight="800" fill="#FFFFFF">eBlock</text></svg>'));
+      return;
+    }
+    if(id==="carfax"){
+      const el=document.createElement("button");
+      el.type="button";
+      el.className="doc-sq carfax-sq";
+      el.innerHTML='<img src="docs/carfax.jpg" alt="Carfax">';
+      el.onclick=openCarfaxPaste;
+      host.appendChild(el);
+      return;
+    }
+    if(id==="carfax_pdf"){
+      paintCarfaxSlot(host);
+      paintDataSays(host);
+      return;
+    }
+    if(id==="vauto_summary"||id==="vauto_book"||id==="vauto_comp"||id==="mmr"){
+      paintFileDoc(host, id, label);
+      return;
+    }
     const got=APP.docs[id];
     const el=document.createElement("label");
     el.className="doc-sq"+(got?" on":"");
@@ -2115,6 +3568,483 @@ function paintDocs(){
     el.appendChild(inp); host.appendChild(el);
   });
 }
+const VAUTO_APPRAISE="https://www2.vauto.com/Va/Appraisal/Default.aspx?new=true";
+function vautoUrl(){
+  const vin=currentVin();
+  return vin && vin.length>=8
+    ? VAUTO_APPRAISE+"&vin="+encodeURIComponent(vin)
+    : VAUTO_APPRAISE;
+}
+function openVauto(e){
+  if(e){ e.preventDefault(); e.stopPropagation(); }
+  const vin=currentVin();
+  if(vin) copyVin();
+  const url=vautoUrl();
+  toast(vin ? "VIN copied · opening vAuto" : "Opening vAuto…");
+  const standalone=window.navigator.standalone===true || (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches);
+  if(standalone){
+    window.location.assign(url);
+    return;
+  }
+  let w=null;
+  try{ w=window.open(url, "_blank", "noopener"); }catch(err){}
+  if(w) return;
+  window.location.assign(url);
+}
+const OPENLANE_GUIDE="https://app.openlane.ca/marketguide";
+const EBLOCK_GUIDE="https://app.eblock.com/my-market-guide";
+function currentVin(){
+  return String(APP.vin || ($("v-vin") && $("v-vin").value) || ($("f-vin") && $("f-vin").value) || "").trim().toUpperCase();
+}
+function copyVin(){
+  const vin=currentVin();
+  if(!vin) return "";
+  try{
+    if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(vin);
+    const ta=document.createElement("textarea");
+    ta.value=vin; ta.setAttribute("readonly","");
+    ta.style.position="fixed"; ta.style.left="-9999px";
+    document.body.appendChild(ta); ta.select();
+    document.execCommand("copy"); ta.remove();
+  }catch(e){}
+  return vin;
+}
+function brandTile(url, cls, html){
+  const el=document.createElement("a");
+  el.href=url;
+  el.target="_blank";
+  el.rel="noopener noreferrer";
+  el.className="doc-sq "+cls;
+  el.innerHTML=html;
+  el.addEventListener("click", function(){ copyVin(); });
+  return el;
+}
+function openBrand(url){
+  const vin=currentVin();
+  const a=document.createElement("a");
+  a.href=url;
+  a.target="_blank";
+  a.rel="noopener noreferrer";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  if(vin) copyVin();
+}
+function openOpenlane(){ openBrand(OPENLANE_GUIDE); }
+function openEblock(){ openBrand(EBLOCK_GUIDE); }
+function openCarfaxPaste(){
+  const el=$("carfaxUrl");
+  if(el) el.value="";
+  if($("carfaxSheet")) $("carfaxSheet").classList.add("on");
+  setTimeout(function(){ if(el) el.focus(); }, 150);
+}
+function closeCarfaxPaste(){
+  if($("carfaxSheet")) $("carfaxSheet").classList.remove("on");
+}
+function fetchAsData(url){
+  return fetch(url).then(function(r){ return r.blob(); }).then(function(blob){
+    return new Promise(function(res){
+      const fr=new FileReader();
+      fr.onload=function(){ res({data:fr.result, type:blob.type||""}); };
+      fr.readAsDataURL(blob);
+    });
+  });
+}
+function carfaxTitle(){
+  const year=String(APP.year||"").trim();
+  const make=String(APP.make||"").trim();
+  const model=String(APP.model||"").trim();
+  const vin=String(APP.vin||"").toUpperCase().replace(/[^A-Z0-9]/g,"");
+  const last6=vin.length>=6 ? vin.slice(-6) : vin;
+  const unit=[year, make, model].filter(Boolean).join(" ").replace(/\s+/g," ").trim();
+  if(unit && last6) return unit+" "+last6;
+  if(unit) return unit;
+  if(last6) return "VIN "+last6;
+  return "Carfax report";
+}
+function carfaxFileName(){
+  return carfaxTitle().replace(/[^\w\s\-]+/g,"").replace(/\s+/g," ").trim()+".pdf";
+}
+function cleanCarfaxUrl(raw){
+  return String(raw||"").trim().replace(/[\r\n\t]/g,"").replace(/ /g,"+");
+}
+function takeCarfaxFiles(list){
+  const files=Array.from(list||[]).filter(Boolean);
+  if(!files.length) return;
+  const prev=APP.docs.carfax||{};
+  const shots=(prev.shots||[]).slice();
+  let pdf=prev.data && String(prev.data).indexOf("application/pdf")>=0 ? prev.data : "";
+  let pdfType=prev.type||"";
+  let left=files.length;
+  files.forEach(function(f){
+    const r=new FileReader();
+    r.onload=function(){
+      const data=r.result;
+      const type=f.type||"";
+      if(type.indexOf("pdf")>=0 || String(f.name||"").toLowerCase().indexOf(".pdf")>=0){
+        pdf=data; pdfType="application/pdf";
+      } else {
+        shots.push(data);
+      }
+      left--;
+      if(left<=0){
+        APP.docs.carfax={
+          name:carfaxFileName(),
+          data:pdf || shots[0] || "",
+          type:pdf ? "application/pdf" : (type||"image/jpeg"),
+          url:prev.url||"",
+          preview:shots[0]||prev.preview||"",
+          shots:shots
+        };
+        paintDocs();
+        toast(carfaxTitle()+" is in.");
+      }
+    };
+    r.readAsDataURL(f);
+  });
+}
+function carfaxPick(accept, multiple){
+  const inp=document.createElement("input");
+  inp.type="file"; inp.accept=accept; inp.className="hide";
+  if(multiple) inp.multiple=true;
+  inp.onchange=function(){ takeCarfaxFiles(inp.files); };
+  return inp;
+}
+function paintCarfaxSlot(host){
+  const got=APP.docs.carfax || {};
+  if(!got.url && !(got.shots&&got.shots.length) && !got.data){
+    const el=document.createElement("div");
+    el.className="doc-sq carfax-wait";
+    el.style.gridColumn="1 / -1";
+    el.style.aspectRatio="auto";
+    el.style.minHeight="120px";
+    el.style.cursor="default";
+    el.innerHTML="<b>Carfax</b><span>Awaiting information</span>";
+    host.appendChild(el);
+    return;
+  }
+  const wrap=document.createElement("div");
+  wrap.className="carfax-report";
+  const title=document.createElement("h4");
+  if(got.url){
+    const a=document.createElement("a");
+    a.href=got.url;
+    a.target="_blank";
+    a.rel="noreferrer noopener";
+    a.textContent=carfaxTitle();
+    title.appendChild(a);
+  } else {
+    title.textContent=carfaxTitle();
+  }
+  wrap.appendChild(title);
+  const bar=document.createElement("div");
+  bar.className="carfax-bar";
+  if(got.url){
+    const open=document.createElement("a");
+    open.className="pill purple";
+    open.href=got.url;
+    open.target="_blank";
+    open.rel="noreferrer noopener";
+    open.textContent="Open Carfax";
+    bar.appendChild(open);
+  }
+  const shotsLbl=document.createElement("label");
+  shotsLbl.className="pill wash";
+  shotsLbl.textContent="Add screenshots";
+  shotsLbl.appendChild(carfaxPick("image/*", true));
+  bar.appendChild(shotsLbl);
+  const pdfLbl=document.createElement("label");
+  pdfLbl.className="pill wash";
+  pdfLbl.textContent="Add PDF";
+  pdfLbl.appendChild(carfaxPick("application/pdf", false));
+  bar.appendChild(pdfLbl);
+  wrap.appendChild(bar);
+  const pages=document.createElement("div");
+  pages.className="carfax-pages";
+  pages.id="carfaxPages";
+  wrap.appendChild(pages);
+  host.appendChild(wrap);
+  fillCarfaxPages(pages, got);
+}
+async function fillCarfaxPages(host, got){
+  if(!host || !got) return;
+  const shots=got.shots||[];
+  shots.forEach(function(src){
+    const img=document.createElement("img");
+    img.src=src;
+    img.alt=carfaxTitle();
+    host.appendChild(img);
+  });
+  const pdfData=got.data && String(got.data).indexOf("application/pdf")>=0 ? got.data : "";
+  if(!pdfData) return;
+  try{
+    const lib=await loadPdfJs();
+    if(!lib) throw new Error("pdfjs");
+    const pdf=await lib.getDocument({data:dataToBytes(pdfData)}).promise;
+    for(let i=1;i<=pdf.numPages;i++){
+      const page=await pdf.getPage(i);
+      const viewport=page.getViewport({scale:1.6});
+      const canvas=document.createElement("canvas");
+      canvas.width=viewport.width;
+      canvas.height=viewport.height;
+      await page.render({canvasContext:canvas.getContext("2d"), viewport:viewport}).promise;
+      host.appendChild(canvas);
+    }
+  }catch(e){}
+}
+async function loadPdfJs(){
+  if(window.pdfjsLib) return window.pdfjsLib;
+  await loadScript("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js");
+  if(window.pdfjsLib){
+    window.pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+  }
+  return window.pdfjsLib;
+}
+function dataToBytes(dataUrl){
+  const b64=String(dataUrl||"").split(",")[1]||"";
+  const bin=atob(b64);
+  const bytes=new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
+  return bytes;
+}
+const DATA_SOURCES = [
+  ["vauto_summary","V-Auto"],
+  ["vauto_book","eBlock"],
+  ["vauto_comp","OpenLane"],
+  ["mmr","MMR"],
+  ["carfax","Carfax"]
+];
+function paintDataSays(host){
+  const wrap=document.createElement("div");
+  wrap.className="data-says";
+  const btn=document.createElement("button");
+  btn.type="button";
+  btn.className="pill purple";
+  btn.textContent="What the data says";
+  btn.onclick=openDataSays;
+  wrap.appendChild(btn);
+  const note=document.createElement("p");
+  note.className="quote";
+  note.textContent=APP.docs.data_says
+    ? "Summary is ready. Tap to open. It goes out with the pictures, to you and to Shawn."
+    : "Builds a one-file brief from V-Auto, eBlock, OpenLane, MMR, and Carfax.";
+  wrap.appendChild(note);
+  host.appendChild(wrap);
+}
+async function pdfTextFrom(dataUrl){
+  try{
+    const lib=await loadPdfJs();
+    if(!lib) return "";
+    const pdf=await lib.getDocument({data:dataToBytes(dataUrl)}).promise;
+    let t="";
+    const n=Math.min(pdf.numPages, 8);
+    for(let i=1;i<=n;i++){
+      const page=await pdf.getPage(i);
+      const content=await page.getTextContent();
+      t+=(content.items||[]).map(function(x){ return x.str||""; }).join(" ")+" ";
+    }
+    return t.replace(/\s+/g," ").trim();
+  }catch(e){ return ""; }
+}
+async function pdfPageJpegs(dataUrl, maxPages){
+  const out=[];
+  try{
+    const lib=await loadPdfJs();
+    if(!lib) return out;
+    const pdf=await lib.getDocument({data:dataToBytes(dataUrl)}).promise;
+    const n=Math.min(pdf.numPages, maxPages||4);
+    for(let i=1;i<=n;i++){
+      const page=await pdf.getPage(i);
+      const viewport=page.getViewport({scale:1.25});
+      const canvas=document.createElement("canvas");
+      canvas.width=viewport.width;
+      canvas.height=viewport.height;
+      await page.render({canvasContext:canvas.getContext("2d"), viewport:viewport}).promise;
+      out.push(canvas.toDataURL("image/jpeg", 0.82));
+    }
+  }catch(e){}
+  return out;
+}
+function docBundle(id){
+  const d=APP.docs[id]||{};
+  const shots=(d.shots||[]).slice();
+  const pdf=d.data && String(d.data).indexOf("application/pdf")>=0 ? d.data : "";
+  const img=d.data && String(d.data).indexOf("image/")>=0 ? d.data : "";
+  if(img && shots.indexOf(img)<0) shots.unshift(img);
+  return {name:d.name||"", url:d.url||"", pdf:pdf, shots:shots, has:!!(pdf||shots.length||d.url)};
+}
+async function openDataSays(){
+  toast("Building the brief…");
+  try{
+    const pdf=await buildDataSaysPdf();
+    const data=pdf.output("datauristring");
+    APP.docs.data_says={name:(unitLabel()||"Vehicle")+" — What the data says.pdf", data:data, type:"application/pdf"};
+    paintDocs();
+    try{
+      const blob=blobFrom(data);
+      const url=URL.createObjectURL(blob);
+      window.open(url, "_blank", "noopener");
+    }catch(e){
+      openViewer("pdf", data, "What the data says");
+    }
+    toast("Brief is ready. It goes with the packet.");
+  }catch(e){
+    toast("Couldn’t build the brief yet. Add the reports, then try again.");
+  }
+}
+async function buildDataSaysPdf(){
+  if(!window.jspdf) await loadScript("https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js");
+  const {jsPDF}=window.jspdf;
+  const d=new jsPDF({unit:"pt", format:"letter", compress:true});
+  const W=612, H=792;
+  const INK=[17,14,26], MUTED=[107,98,120], CYAN=[0,168,232], WHITE=[255,255,255];
+  function setFont(bold, size, rgb){
+    d.setFont("helvetica", bold?"bold":"normal");
+    d.setFontSize(size);
+    const c=rgb||INK;
+    d.setTextColor(c[0], c[1], c[2]);
+  }
+  function wrap(text, x, y, max, leading){
+    const lines=d.splitTextToSize(String(text||""), max);
+    lines.forEach(function(l){ d.text(l, x, y); y+=leading; });
+    return y;
+  }
+  function darkHead(title){
+    d.setFillColor(10,11,16);
+    d.rect(0,0,W,64,"F");
+    d.setFillColor(CYAN[0], CYAN[1], CYAN[2]);
+    d.rect(0,0,W,6,"F");
+    setFont(true, 10, CYAN);
+    d.text("WHAT THE DATA SAYS", 36, 28);
+    setFont(true, 16, WHITE);
+    d.text(title, 36, 50);
+  }
+  const sources=[];
+  for(let i=0;i<DATA_SOURCES.length;i++){
+    const id=DATA_SOURCES[i][0], label=DATA_SOURCES[i][1];
+    const b=docBundle(id);
+    let text="";
+    const pages=[];
+    if(b.pdf){
+      text=await pdfTextFrom(b.pdf);
+      const jpgs=await pdfPageJpegs(b.pdf, 4);
+      jpgs.forEach(function(p){ pages.push(p); });
+    }
+    (b.shots||[]).forEach(function(s){ pages.push(s); });
+    sources.push({id:id, label:label, has:b.has, text:text, pages:pages, url:b.url});
+  }
+
+  d.setFillColor(10,11,16);
+  d.rect(0,0,W,H,"F");
+  d.setFillColor(CYAN[0], CYAN[1], CYAN[2]);
+  d.rect(0,0,W,6,"F");
+  setFont(true, 11, CYAN);
+  d.text("WHAT THE DATA SAYS", 36, 48);
+  setFont(true, 28, WHITE);
+  let y=wrap(unitLabel()||"Vehicle", 36, 84, W-72, 32);
+  y+=10;
+  setFont(false, 12, [180,176,190]);
+  const bits=[APP.color, APP.trim, APP.km ? Number(String(APP.km).replace(/,/g,"")).toLocaleString("en-CA")+" km" : ""].filter(Boolean).join("  ·  ");
+  if(bits){ d.text(bits, 36, y); y+=18; }
+  if(APP.vin){ setFont(true, 11, WHITE); d.text("VIN  "+String(APP.vin).toUpperCase(), 36, y); y+=18; }
+  if(APP.stock){ setFont(false, 11, [180,176,190]); d.text("Stock  "+APP.stock, 36, y); y+=18; }
+  y+=10;
+  setFont(false, 10, MUTED);
+  const who=(APP.userName||"")+(APP.userEmail?("  ·  "+APP.userEmail):"");
+  d.text("Prepared for "+(who||"the desk")+"  ·  copy to Shawn", 36, y);
+  y+=28;
+  setFont(true, 12, CYAN);
+  d.text("SOURCES IN THIS FILE", 36, y);
+  y+=18;
+  sources.forEach(function(s){
+    setFont(true, 12, WHITE);
+    d.text(s.label, 36, y);
+    setFont(false, 11, s.has ? CYAN : MUTED);
+    d.text(s.has ? "In the file" : "Not yet", 200, y);
+    y+=18;
+  });
+  y+=16;
+  const story=(APP.notes||APP.heard||"").trim();
+  if(story){
+    setFont(true, 12, CYAN);
+    d.text("STORY", 36, y); y+=16;
+    setFont(false, 11, [210,208,218]);
+    y=wrap(story, 36, y, W-72, 15);
+  }
+
+  sources.forEach(function(s){
+    if(!s.has && !s.text && !s.pages.length) return;
+    d.addPage();
+    darkHead(s.label);
+    y=92;
+    if(s.url){
+      setFont(false, 9, CYAN);
+      y=wrap(s.url, 36, y, W-72, 13); y+=8;
+    }
+    if(s.text){
+      setFont(false, 10, INK);
+      d.setTextColor(40,36,48);
+      const clip=s.text.length>2400 ? s.text.slice(0,2400)+"…" : s.text;
+      y=wrap(clip, 36, y, W-72, 14);
+      y+=12;
+    } else {
+      setFont(false, 11, MUTED);
+      d.text("No text layer — pages below.", 36, y); y+=18;
+    }
+    s.pages.slice(0,4).forEach(function(img, idx){
+      if(idx===0 && y>520){ d.addPage(); darkHead(s.label); y=92; }
+      else if(idx>0){ d.addPage(); darkHead(s.label+"  ·  "+(idx+1)); y=92; }
+      try{
+        d.addImage(img, "JPEG", 36, y, W-72, 620, undefined, "FAST");
+      }catch(e){
+        try{ d.addImage(img, "PNG", 36, y, W-72, 620, undefined, "FAST"); }catch(err){}
+      }
+    });
+  });
+
+  d.setProperties({
+    title:(unitLabel()||"Vehicle")+" — What the data says",
+    author:APP.userName||APP.userEmail||"",
+    subject:"vAuto, eBlock, OpenLane, MMR, Carfax brief"
+  });
+  return d;
+}
+async function ingestCarfax(){
+  const url=cleanCarfaxUrl($("carfaxUrl") && $("carfaxUrl").value || "");
+  if(!/^https?:\/\//i.test(url)){ toast("Paste a full Carfax link."); return; }
+  const prev=APP.docs.carfax||{};
+  APP.docs.carfax={
+    name:carfaxFileName(),
+    data:prev.data||"",
+    type:prev.type||"",
+    url:url,
+    preview:prev.preview||"",
+    shots:prev.shots||[]
+  };
+  closeCarfaxPaste();
+  paintDocs();
+  try{
+    if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url);
+  }catch(e){}
+  toast("Tap the Carfax title to open the report.");
+  const btn=$("carfaxGo");
+  if(btn){ btn.disabled=false; btn.textContent="Make PDF"; }
+}
+function openCarfaxPdf(){
+  const got=APP.docs.carfax;
+  if(!got) return;
+  const title=got.name || carfaxTitle();
+  if(got.data){
+    try{
+      const blob=blobFrom(got.data);
+      const file=new File([blob], title.replace(/\.pdf$/i,"")+".pdf", {type:got.type||"application/pdf"});
+      const href=URL.createObjectURL(file);
+      window.open(href, "_blank", "noopener");
+    }catch(e){ openViewer("pdf", got.data, title); }
+    return;
+  }
+  if(got.url) window.open(got.url, "_blank", "noopener");
+}
 
 function blobFrom(data){
   const parts=data.split(","); const mime=(parts[0].match(/:(.*?);/)||[,"image/jpeg"])[1];
@@ -2127,13 +4057,45 @@ function capturedFiles(){
   const out=[];
   VIEWS.forEach(function(v,i){
     const n=String(i+1).padStart(2,"0");
-    if(APP.photos[v[0]]) out.push({name:n+"-"+v[0]+".jpg", data:APP.photos[v[0]], title:v[1]});
+    if(APP.photos[v[0]]) out.push({name:n+"-"+v[0]+".jpg", data:APP.photos[v[0]], title:v[1], kind:"walk", n:i+1, view:v[0], cap:""});
+  });
+  VIEWS.forEach(function(v,i){
+    const n=String(i+1).padStart(2,"0");
     dmgShots(v[0]).forEach(function(s,j){
-      out.push({name:"damage-"+n+"-"+v[0]+"-"+String(j+1).padStart(2,"0")+".jpg", data:s.data, title:"Damage — "+v[1]+(s.cap?" — "+s.cap:"")+(dmgShots(v[0]).length>1?" ("+(j+1)+")":"")});
+      const note=isDamageNote(s.cap)?s.cap:"";
+      out.push({
+        name:"damage-"+n+"-"+v[0]+"-"+String(j+1).padStart(2,"0")+".jpg",
+        data:s.data,
+        title:"Damage — "+v[1],
+        kind:"damage",
+        n:i+1,
+        view:v[0],
+        cap:note
+      });
     });
   });
-  APP.closeups.forEach(function(d,i){ out.push({name:"close-"+String(i+1).padStart(2,"0")+".jpg", data:d, title:"Close-up "+(i+1)+(APP.closeupCap[i]?" — "+APP.closeupCap[i]:"")}); });
+  APP.closeups.forEach(function(d,i){
+    out.push({name:"close-"+String(i+1).padStart(2,"0")+".jpg", data:d, title:"Close-up "+(i+1), kind:"close", n:i+1, cap:isDamageNote(APP.closeupCap[i])?APP.closeupCap[i]:""});
+  });
   return out;
+}
+
+function loadImg(src){
+  return new Promise(function(res, rej){
+    const img=new Image();
+    img.onload=function(){ res(img); };
+    img.onerror=function(){ rej(new Error("img")); };
+    img.src=src;
+  });
+}
+function studioPlate(dataUrl){
+  return loadImg(dataUrl).then(function(img){
+    return landscapeCanvas(img).toDataURL("image/jpeg", 0.93);
+  }).catch(function(){ return dataUrl; });
+}
+
+function packetWhen(){
+  try{ return new Date().toLocaleString("en-CA", {dateStyle:"medium", timeStyle:"short"}); }catch(e){ return new Date().toISOString().slice(0,16); }
 }
 
 function loadScript(src){
@@ -2144,20 +4106,146 @@ function loadScript(src){
 
 async function buildPdf(){
   if(!window.jspdf) await loadScript("https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js");
-  const {jsPDF}=window.jspdf; const d=new jsPDF({unit:"pt",format:"letter"}); const W=612,M=48; let y=56;
-  const line=function(t,s,c){ s=s||11; c=c||[17,17,17]; d.setFont("helvetica","normal"); d.setFontSize(s); d.setTextColor(c[0],c[1],c[2]);
-    d.splitTextToSize(String(t),W-M*2).forEach(function(l){ if(y>740){ d.addPage(); y=56; } d.text(l,M,y); y+=s+4; }); };
-  d.setFont("helvetica","bold"); d.setFontSize(16); d.text("Vehicle packet",M,y); y+=22;
-  line(unitLabel()+"  ·  "+why(),13); y+=6;
-  [["Year",APP.year],["Make",APP.make],["Model",APP.model],["Trim",APP.trim],["Color",APP.color],["Kilometres",APP.km],["VIN",APP.vin],["Stock",APP.stock]].forEach(function(row){ line(row[0]+":  "+(row[1]||"—")); });
-  const sentTo=(APP.emails&&APP.emails.length)?APP.emails.join(", "):"";
-  if(sentTo) line("Email to:  "+sentTo);
-  y+=6; line("Spoken / typed",13); line(APP.heard||"—"); y+=4; line("Condition",13); line(APP.notes||"—");
-  if(isWeb()){ y+=8; line("Website-ready description",13); line(websiteCopy()); }
-  capturedFiles().forEach(function(s){
-    d.addPage(); d.setFont("helvetica","bold"); d.setFontSize(14); d.text(s.title,M,48);
-    try{ d.addImage(s.data,"JPEG",M,64,W-M*2,360,undefined,"FAST"); }catch(e){}
+  const {jsPDF}=window.jspdf;
+  const d=new jsPDF({unit:"pt", format:"letter", compress:true});
+  const W=612, H=792;
+  const INK=[17,14,26], MUTED=[107,98,120], CYAN=[0,168,232], WHITE=[255,255,255];
+  const shots=capturedFiles();
+  const walk=shots.filter(function(s){ return s.kind==="walk"; });
+  const dmg=shots.filter(function(s){ return s.kind==="damage"; });
+  const close=shots.filter(function(s){ return s.kind==="close"; });
+  const framed={};
+  for(let i=0;i<shots.length;i++){
+    try{ framed[shots[i].name]=await studioPlate(shots[i].data); }
+    catch(e){ framed[shots[i].name]=shots[i].data; }
+  }
+  const hero=walk[0] ? framed[walk[0].name] : (shots[0] ? framed[shots[0].name] : "");
+  function setFont(bold, size, rgb){
+    d.setFont("helvetica", bold?"bold":"normal");
+    d.setFontSize(size);
+    const c=rgb||INK;
+    d.setTextColor(c[0], c[1], c[2]);
+  }
+  function wrap(text, x, y, max, leading){
+    const lines=d.splitTextToSize(String(text||""), max);
+    lines.forEach(function(l){ d.text(l, x, y); y+=leading; });
+    return y;
+  }
+  function darkPage(){
+    d.setFillColor(10,11,16);
+    d.rect(0,0,W,H,"F");
+  }
+
+  darkPage();
+  d.setFillColor(CYAN[0], CYAN[1], CYAN[2]);
+  d.rect(0,0,W,6,"F");
+  if(hero){
+    const hh=Math.round(W*9/16);
+    try{ d.addImage(hero, "JPEG", 0, 36, W, hh, undefined, "NONE"); }catch(e){}
+  }
+  let y=hero ? 36+Math.round(W*9/16)+28 : 80;
+  setFont(true, 11, CYAN);
+  d.text((why()||"APPRAISAL").toUpperCase(), 36, y);
+  y+=28;
+  setFont(true, 28, WHITE);
+  y=wrap(unitLabel()||"Vehicle", 36, y, W-72, 32);
+  y+=8;
+  setFont(false, 12, [180,176,190]);
+  const sub=[APP.color, APP.km ? Number(String(APP.km).replace(/,/g,"")).toLocaleString("en-CA")+" km" : "", APP.trim].filter(Boolean).join("  ·  ");
+  if(sub){ d.text(sub, 36, y); y+=18; }
+  d.text(packetWhen(), 36, y);
+  setFont(false, 9, [90,90,100]);
+  d.text("Walk-around  ·  "+walk.length+" photos"+(dmg.length?"  ·  "+dmg.length+" damage":""), 36, H-28);
+
+  d.addPage();
+  d.setFillColor(250,249,252);
+  d.rect(0,0,W,H,"F");
+  d.setFillColor(CYAN[0], CYAN[1], CYAN[2]);
+  d.rect(0,0,W,6,"F");
+  y=40;
+  setFont(true, 20, INK);
+  d.text("Vehicle details", 36, y);
+  y+=10;
+  const specs=[
+    ["Year", APP.year],["Make", APP.make],["Model", APP.model],["Trim", APP.trim],
+    ["Colour", APP.color],["Kilometres", APP.km ? Number(String(APP.km).replace(/,/g,"")).toLocaleString("en-CA") : ""],
+    ["VIN", APP.vin],["Stock", APP.stock]
+  ];
+  const colW=(W-72-16)/2;
+  specs.forEach(function(row, i){
+    const col=i%2, rown=Math.floor(i/2);
+    const x=36+col*(colW+16);
+    const yy=y+16+rown*52;
+    d.setFillColor(243,240,250);
+    d.roundedRect(x, yy, colW, 44, 8, 8, "F");
+    setFont(true, 8, MUTED);
+    d.text((row[0]||"").toUpperCase(), x+12, yy+16);
+    setFont(true, 13, INK);
+    d.text(String(row[1]||"—"), x+12, yy+34);
   });
+  y=y+16+4*52+18;
+  const story=(APP.notes||APP.heard||"").trim();
+  if(story){
+    setFont(true, 13, INK);
+    d.text("Owner notes", 36, y);
+    y+=16;
+    setFont(false, 11, INK);
+    y=wrap(story, 36, y, W-72, 16);
+    y+=18;
+  }
+  if(APP.clips && APP.clips.length){
+    setFont(true, 13, INK);
+    d.text("Walk-around video", 36, y);
+    y+=16;
+    setFont(false, 11, INK);
+    const clipLine=APP.clips.map(function(c,i){ return "Clip "+(i+1)+" · "+recClock(c.dur); }).join("   ");
+    y=wrap(clipLine+"  — attached to the email.", 36, y, W-72, 16);
+    y+=18;
+  }
+  if(isWeb()){
+    const listing=websiteCopy();
+    if(listing){
+      setFont(true, 13, INK);
+      d.text("Website listing", 36, y);
+      y+=16;
+      setFont(false, 11, INK);
+      y=wrap(listing, 36, y, W-72, 16);
+    }
+  }
+  if(APP.inviteName || APP.requestedBy){
+    y+=20;
+    setFont(false, 9, MUTED);
+    const who=APP.inviteName ? ("Submitted by "+APP.inviteName) : "";
+    const req=APP.requestedBy ? ("Requested by "+(APP.requestedByName||APP.requestedBy)) : "";
+    d.text([who, req].filter(Boolean).join("  ·  "), 36, Math.min(y, H-28));
+  }
+
+  function photoPage(shot, index, total, section){
+    d.addPage("letter", "landscape");
+    d.setFillColor(10,11,16);
+    d.rect(0,0,792,612,"F");
+    d.setFillColor(CYAN[0], CYAN[1], CYAN[2]);
+    d.rect(0,0,792,4,"F");
+    setFont(true, 9, CYAN);
+    d.text(String(index).padStart(2,"0")+"   "+String(shot.title||"").toUpperCase(), 24, 22);
+    setFont(false, 9, [160,160,170]);
+    d.text((section||"Walk-around")+"  ·  "+(unitLabel()||""), 768, 22, {align:"right"});
+    const img=framed[shot.name]||shot.data;
+    const pw=744, ph=Math.round(pw*9/16);
+    try{ d.addImage(img, "JPEG", 24, 52, pw, ph, undefined, "NONE"); }catch(e){
+      try{ d.addImage(img, "JPEG", 24, 52, pw, ph, undefined, "FAST"); }catch(err){}
+    }
+    if(shot.cap){
+      setFont(false, 10, WHITE);
+      d.text(shot.cap, 24, 552);
+    }
+    setFont(false, 8, [90,90,100]);
+    d.text(index+" / "+total, 768, 598, {align:"right"});
+  }
+
+  walk.forEach(function(s,i){ photoPage(s, i+1, walk.length, "Walk-around"); });
+  dmg.forEach(function(s,i){ photoPage(s, i+1, dmg.length, "Damage"); });
+  close.forEach(function(s,i){ photoPage(s, i+1, close.length, "Close-up"); });
   return d;
 }
 
@@ -2176,6 +4264,7 @@ async function savePhotos(){
 const TEAM = [
   ["Wes", "wes@thetrucktown.com"],
   ["Shawn", "shawn@myloan.ca"],
+  ["Shawn (G&M)", "shawn@gmautosales.ca"],
   ["Jay", "jay.cyr@myloan.ca"],
   ["Kyle", "kyle@myloan.ca"],
   ["Isabella", "isabella.coffey@myloan.ca"],
@@ -2221,8 +4310,8 @@ function paintTo(){
   const host=$("toChips"); if(!host) return;
   host.className="to-chips";
   host.innerHTML="";
-  TEAM.forEach(function(pair){
-    const name=pair[0], em=pair[1];
+  const known=TEAM.map(function(p){ return p[1]; });
+  function chip(name, em, canRemove){
     const on=APP.emails.indexOf(em)>=0;
     const b=document.createElement("button");
     b.type="button";
@@ -2231,16 +4320,35 @@ function paintTo(){
     b.onclick=function(){
       const n=loadRecipients();
       const i=n.indexOf(em);
-      if(i>=0) n.splice(i,1); else n.push(em);
+      if(i>=0) n.splice(i,1);
+      else n.push(em);
       saveRecipients(n);
       paintTo();
     };
     host.appendChild(b);
+  }
+  TEAM.forEach(function(pair){ chip(pair[0], pair[1], false); });
+  uniqEmails(APP.emails).forEach(function(em){
+    if(known.indexOf(em)>=0) return;
+    chip(nameForEmail(em)||em, em, true);
   });
+}
+function addExtraRecipient(){
+  const box=$("extraMail");
+  const added=uniqEmails(box && box.value);
+  if(!added.length){ toast("Type an email address."); return; }
+  const n=loadRecipients();
+  added.forEach(function(e){ if(n.indexOf(e)<0) n.push(e); });
+  saveRecipients(n);
+  if(box) box.value="";
+  paintTo();
+  toast(added.length===1 ? "Added "+added[0] : "Added "+added.length+" addresses");
 }
 function packetSummary(){
   const lines=[];
   lines.push(unitLabel()+" — "+why());
+  if(APP.dealType) lines.push("Appraisal type: "+APP.dealType);
+  if(APP.dealType==="Canada Drives" && (APP.cdApp||"").trim()) lines.push("Canada Drives application #: "+APP.cdApp.trim());
   [["Year",APP.year],["Make",APP.make],["Model",APP.model],["Trim",APP.trim],["Colour",APP.color],["Kilometres",APP.km],["VIN",APP.vin],["Stock",APP.stock]].forEach(function(r){ if(r[1]) lines.push(r[0]+": "+r[1]); });
   if(APP.heard) lines.push("Story: "+APP.heard);
   if(APP.notes) lines.push("Condition: "+APP.notes);
@@ -2252,6 +4360,10 @@ function packetSummary(){
     });
   });
   if(caps.length) lines.push("Damage: "+caps.join("; "));
+  if(APP.clips && APP.clips.length) lines.push("Walk-around video: "+APP.clips.length+" clip"+(APP.clips.length>1?"s":""));
+  let recs=0;
+  Object.keys(APP.docs||{}).forEach(function(id){ recs+=((APP.docs[id]&&APP.docs[id].videos)||[]).length; });
+  if(recs) lines.push("Market-data recordings: "+recs);
   const to=loadRecipients();
   if(to.length) lines.push("Send to: "+to.join(", "));
   return lines.join("\n");
@@ -2263,9 +4375,20 @@ async function buildZip(){
   const doc=await buildPdf();
   folder.file((folderName()||"vehicle")+"-packet.pdf", doc.output("blob"));
   capturedFiles().forEach(function(s){ folder.file(s.name, blobFrom(s.data)); });
+  (APP.clips||[]).forEach(function(c,i){
+    const ext=(c.mime||"").indexOf("webm")>=0?"webm":"mp4";
+    folder.file("walk-around-"+String(i+1)+"."+ext, c.blob);
+  });
   Object.keys(APP.docs||{}).forEach(function(id){
-    const d=APP.docs[id]; if(!d||!d.data) return;
-    folder.file("docs-"+id+"-"+(d.name||"file"), blobFrom(d.data));
+    const d=APP.docs[id]; if(!d) return;
+    if(d.data) folder.file("docs-"+id+"-"+(d.name||"file"), blobFrom(d.data));
+    (d.shots||[]).forEach(function(s,i){
+      folder.file("docs-"+id+"-page-"+String(i+1)+".jpg", blobFrom(s));
+    });
+    (d.videos||[]).forEach(function(v,i){
+      const blob=v.file||v.blob;
+      if(blob) folder.file("docs-"+id+"-video-"+String(i+1)+"."+videoExt(v), blob);
+    });
   });
   folder.file("summary.txt", packetSummary());
   return zip.generateAsync({type:"blob"});
@@ -2278,11 +4401,13 @@ function esc(s){ return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;")
 function openViewer(kind, src, title){
   const v=$("viewer"); if(!v) return;
   $("viewerTitle").textContent = title || "File";
-  const pdf=$("viewerPdf"); const img=$("viewerImg"); const doc=$("viewerDoc");
+  const pdf=$("viewerPdf"); const img=$("viewerImg"); const doc=$("viewerDoc"); const vid=$("viewerVid");
   if(pdf){ pdf.style.display="none"; pdf.removeAttribute("src"); }
   if(img){ img.style.display="none"; img.removeAttribute("src"); }
+  if(vid){ vid.classList.add("hide"); vid.removeAttribute("src"); vid.pause && vid.pause(); }
   if(doc){ doc.classList.remove("on"); doc.innerHTML=""; }
   if(kind==="packet"){ if(doc){ doc.innerHTML=src; doc.classList.add("on"); } }
+  else if(kind==="vid"){ if(vid){ vid.classList.remove("hide"); vid.src=src; vid.play && vid.play(); } }
   else if(kind==="img"){ img.style.display="block"; img.src=src; }
   else if(src && /^data:image\//.test(src)){ img.style.display="block"; img.src=src; }
   else if(src && src.indexOf("data:application/pdf")===0){
@@ -2299,10 +4424,11 @@ function openViewer(kind, src, title){
 function closeViewer(){
   const v=$("viewer"); if(v) v.classList.remove("on");
   const pdf=$("viewerPdf"); if(pdf) pdf.removeAttribute("src");
+  const vid=$("viewerVid"); if(vid){ try{ vid.pause(); }catch(e){} vid.removeAttribute("src"); vid.classList.add("hide"); }
   const doc=$("viewerDoc"); if(doc){ doc.classList.remove("on"); doc.innerHTML=""; }
 }
 function packetHtml(){
-  const rows=[["Year",APP.year],["Make",APP.make],["Model",APP.model],["Trim",APP.trim],["Colour",APP.color],["Kilometres",APP.km],["VIN",APP.vin],["Stock",APP.stock]].filter(function(r){ return r[1]; });
+  const rows=[["Year",APP.year],["Make",APP.make],["Model",APP.model],["Trim",APP.trim],["Colour",APP.color],["Kilometres",APP.km],["VIN",APP.vin],["Stock",APP.stock],["Type",APP.dealType],["Canada Drives #", APP.dealType==="Canada Drives"?APP.cdApp:""]].filter(function(r){ return r[1]; });
   let h='<div class="badge">'+esc(why())+'</div>';
   h+='<h2>'+esc(unitLabel())+'</h2>';
   h+='<p class="quote">'+esc(shotCount()+" photo(s)")+'</p>';
@@ -2325,8 +4451,13 @@ function packetHtml(){
     keys.forEach(function(id){
       const d=APP.docs[id]; if(!d) return;
       h+='<h4>'+esc(d.name||id)+'</h4>';
-      if(d.data && d.data.indexOf("data:image")===0) h+='<img class="full" src="'+d.data+'" alt="">';
-      else h+='<p class="cap">Included in the emailed ZIP / PDF</p>';
+      (d.shots||[]).forEach(function(s){ h+='<img class="full" src="'+s+'" alt="">'; });
+      (d.videos||[]).forEach(function(v,i){
+        h+='<p class="cap">Screen recording '+(i+1)+(v.name?(" · "+v.name):"")+'</p>';
+        if(v.url) h+='<video class="full" src="'+v.url+'" controls playsinline style="width:100%;border-radius:14px;background:#111;margin:8px 0"></video>';
+      });
+      if(d.data && d.data.indexOf("data:image")===0 && !(d.shots||[]).length) h+='<img class="full" src="'+d.data+'" alt="">';
+      else if(d.data && d.data.indexOf("application/pdf")>=0) h+='<p class="cap">PDF included in the emailed ZIP</p>';
     });
   }
   return h;
@@ -2365,8 +4496,9 @@ async function paintSubmit(){
   keys.forEach(function(id){
     const d=APP.docs[id]; if(!d) return;
     const b=document.createElement("button"); b.type="button"; b.className="review";
-    b.innerHTML="<h4>"+(d.name||id)+"</h4><p>Tap to view</p>";
+    b.innerHTML="<h4>"+(d.name||id)+"</h4><p>"+(((d.videos||[]).length)?"Screen recording — tap to play":"Tap to view")+"</p>";
     b.onclick=function(){
+      if(d.videos && d.videos[0] && d.videos[0].url){ openViewer("vid", d.videos[0].url, d.name||id); return; }
       const kind=(d.type&&d.type.indexOf("pdf")>=0)?"pdf":"img";
       openViewer(kind, d.data, d.name||id);
     };
@@ -2402,75 +4534,134 @@ function dataB64(dataUrl){
   return i>=0 ? s.slice(i+7) : "";
 }
 function packetMailHtml(shots){
-  let h='<div style="font-family:Arial,Helvetica,sans-serif;color:#241B33;max-width:640px">';
-  h+='<h2 style="margin:0 0 8px">'+(escHtml(unitLabel())||"Vehicle")+'</h2>';
-  h+='<p style="margin:0 0 16px;color:#6B6278">'+(escHtml(why()))+' · photos, description, and PDF</p>';
-  h+='<pre style="white-space:pre-wrap;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.45;background:#F3F0FA;padding:14px;border-radius:14px">'+escHtml(packetSummary())+'</pre>';
-  (shots||[]).forEach(function(s,i){
-    h+='<p style="margin:18px 0 6px;font-weight:800">'+(escHtml(s.title)||("Photo "+(i+1)))+'</p>';
-    h+='<img src="cid:photo'+i+'@inspect" width="560" alt="" style="display:block;width:100%;max-width:560px;border-radius:14px"/>';
-  });
-  h+='<p style="margin:22px 0 0;color:#6B6278;font-size:13px">The PDF is attached to this email.</p></div>';
-  return h;
+  return packetCatalogHtml(shots, function(s,i){ return "cid:photo"+i+"@inspect"; });
 }
 async function sharePacket(){
   const shots=capturedFiles();
-  if(!shots.length && !Object.keys(APP.docs||{}).length && !(APP.notes||APP.heard)){ toast("Add the story or photos first."); return; }
+  if(!shots.length && !(APP.clips&&APP.clips.length) && !Object.keys(APP.docs||{}).length && !(APP.notes||APP.heard)){ toast("Add the story or photos first."); return; }
   const btn=$("btnSharePack");
+  if(btn && btn.disabled) return;
+  const dest=packetDest();
+  const extra={cc:dest.cc, bcc:dest.bcc};
+  const to=dest.to;
+  const subject=APP.role==="guest"
+    ? (unitLabel()+" — trade-in"+(APP.inviteName?" from "+APP.inviteName:""))
+    : (unitLabel()+" — "+why());
+  const body=packetMailText() + (APP.role==="guest" && APP.requestedBy ? "\nRequested by: "+(APP.requestedByName||nameForEmail(APP.requestedBy))+" <"+APP.requestedBy+">" : "");
+  const href=fallbackMailHref(to, subject, body, extra);
+  if($("mailOpen")){
+    $("mailOpen").href=href;
+    $("mailOpen").textContent = APP.role==="employee" ? "Open Gmail and send" : "Open Mail and send";
+    $("mailOpen").classList.add("hide");
+  }
+  if(APP.role!=="guest" && !hasMailAuth()){
+    try{ openGmail(to, subject, body, extra); }catch(e){}
+    if($("mailOpen")) $("mailOpen").classList.remove("hide");
+    toast("Gmail is open — tap Send.");
+    return;
+  }
   if(btn){ btn.disabled=true; btn.textContent="Sending…"; }
+  let finished=false;
+  function finish(msg, openMail){
+    if(btn){ btn.disabled=false; btn.textContent="Send"; }
+    if(openMail){
+      if($("mailOpen")){
+        $("mailOpen").href=href;
+        $("mailOpen").textContent = APP.role==="employee" ? "Open Gmail and send" : "Open Mail and send";
+        $("mailOpen").classList.remove("hide");
+      }
+    }
+    if(msg) toast(msg);
+    if(openMail===false && msg) finished=true;
+  }
+  const watch=setTimeout(function(){
+    if(!finished) finish("Still working — use the mail button if nothing arrives.", true);
+  }, 18000);
   try{
-    const doc=await buildPdf();
-    const base=folderName()||"vehicle";
-    const pdfBlob=doc.output("blob");
-    const pdfFile=new File([pdfBlob], base+"-packet.pdf", {type:"application/pdf"});
-    const photoFiles=shots.map(function(s){ return new File([blobFrom(s.data)], s.name, {type:"image/jpeg"}); });
-    const dest=packetDest();
-    const extra={cc:dest.cc, bcc:dest.bcc};
-    const to=dest.to;
-    const subject=APP.role==="guest"
-      ? (unitLabel()+" — trade-in"+(APP.inviteName?" from "+APP.inviteName:""))
-      : (unitLabel()+" — "+why());
-    const body=packetSummary() + (APP.role==="guest" && APP.requestedBy ? "\nRequested by: "+(APP.requestedByName||nameForEmail(APP.requestedBy))+" <"+APP.requestedBy+">" : "");
-    const html=packetMailHtml(shots);
+    if(!APP.googleToken) APP.googleToken=readGoogleToken()||"";
+    toast("Sending the catalog…");
+    const mailShots=[];
+    for(let i=0;i<shots.length;i++){
+      try{ mailShots.push({title:shots[i].title, name:shots[i].name, cap:shots[i].cap||"", data:await withTimeout(compressDataUrl(shots[i].data, 1100, 0.76), 3500, shots[i].data)}); }
+      catch(e){ mailShots.push(shots[i]); }
+    }
+    const html=packetMailHtml(mailShots);
     const parts=[];
-    shots.forEach(function(s,i){
+    mailShots.forEach(function(s,i){
       const b64=dataB64(s.data);
-      if(b64) parts.push({cid:"photo"+i+"@inspect", b64:b64, name:s.name||("photo-"+i+".jpg"), mime:"image/jpeg"});
+      if(!b64) return;
+      parts.push({cid:"photo"+i+"@inspect", b64:b64, name:s.name||("photo-"+i+".jpg"), mime:"image/jpeg"});
     });
     try{
-      parts.push({disp:"attachment", b64:bufB64(await pdfBlob.arrayBuffer()), name:base+"-packet.pdf", mime:"application/pdf"});
+      const doc=await withTimeout(buildPdf(), 8000, null);
+      if(doc) parts.push({disp:"attachment", b64:bufB64(await doc.output("arraybuffer")), name:(folderName()||"vehicle")+".pdf", mime:"application/pdf"});
     }catch(e){}
-    try{
-      const sent=await sendFromMe(to, subject, body, html, parts, extra);
-      if(sent && sent.ok){
-        toast(APP.role==="guest"
-          ? ("Sent to "+(APP.requestedByName||nameForEmail(to[0])||to[0])+".")
-          : ("Sent photos, description, and PDF to "+tradeToLine(to)+"."));
-        return;
-      }
-    }catch(e){}
-    openGmail(to, subject, body+"\n\nPDF and photos are ready — they go with this email.", extra);
-    toast("Gmail is open. Hit Send.");
+    const sent=await withTimeout(sendFromMe(to, subject, body, html, parts, extra), 15000, {ok:false});
+    clearTimeout(watch);
+    if(sent && sent.ok){
+      finished=true;
+      if(APP.role==="guest"){ finish(""); finishGuest(); return; }
+      finish("Sent to "+tradeToLine(to)+".");
+      return;
+    }
+    const slim=parts.filter(function(p){ return p.disp==="attachment"; });
+    const slimSent=slim.length ? await withTimeout(sendFromMe(to, subject, body, "", slim, extra), 8000, {ok:false}) : {ok:false};
+    if(slimSent && slimSent.ok){
+      finished=true;
+      if(APP.role==="guest"){ finish(""); finishGuest(); return; }
+      finish("Sent the PDF to "+tradeToLine(to)+".");
+      return;
+    }
+    finish("Couldn’t send from here. Tap the mail button.", true);
   }catch(e){
-    toast("Couldn’t send. Check the photos and try again.");
+    clearTimeout(watch);
+    finish("Couldn’t send. Tap the mail button.", true);
   }finally{
+    clearTimeout(watch);
     if(btn){ btn.disabled=false; btn.textContent="Send"; }
+    releaseHardware();
   }
 }
 
 function resetAll(){
+  releaseHardware();
   APP.year=APP.make=APP.model=APP.trim=APP.color=APP.km=APP.vin=APP.stock=APP.heard=APP.notes=APP.webcopy="";
+  APP.dealType=""; APP.cdApp="";
   APP.photos={}; APP.damage={}; APP.closeups=[]; APP.docs={}; APP.damageCap={}; APP.closeupCap=[]; APP.webcopy="";
+  APP.clips=[]; APP.recOn=false; APP.recorder=null; APP.recChunks=[]; APP.zoom=1;
+  if(APP.recTick){ clearInterval(APP.recTick); APP.recTick=null; }
   $("transcript").value="";
   document.querySelectorAll(".sheet").forEach(n=>n.classList.remove("on"));
   show("start");
 }
 
 document.querySelectorAll("[data-close]").forEach(function(b){
-  b.addEventListener("click", function(){ $(b.getAttribute("data-close")).classList.remove("on"); stopMic(); });
+  b.addEventListener("click", function(){
+    const id=b.getAttribute("data-close");
+    $(id).classList.remove("on");
+    stopMic();
+    if(id==="vinSheet") stopVinScan();
+  });
 });
-$("startAppraise").onclick = function(){ setPurpose("appraise"); show("home"); };
+$("startAppraise").onclick = function(){ setPurpose("appraise"); paintDealType(); show("home"); };
+if($("btnDealType")) $("btnDealType").onclick = openDealType;
+if($("typeSave")) $("typeSave").onclick = function(){
+  APP.cdApp=(($("cd-app")&&$("cd-app").value)||($("home-cd-app")&&$("home-cd-app").value)||"").trim();
+  if(APP.dealType==="Canada Drives" && !APP.cdApp){ toast("Add the Canada Drives application number."); return; }
+  if($("typeSheet")) $("typeSheet").classList.remove("on");
+  paintDealType();
+};
+function onCdInput(el){
+  if(!el) return;
+  el.addEventListener("input", function(){
+    APP.cdApp=el.value.trim();
+    paintDealType();
+  });
+}
+onCdInput($("cd-app"));
+onCdInput($("home-cd-app"));
 function openStoryMic(){
+  killMediaNow();
   $("storySheet").classList.add("on");
   startMic();
 }
@@ -2513,13 +4704,21 @@ $("doneX").onclick = $("btnAnother").onclick = resetAll;
 $("btnStory").onclick = function(){ openStoryMic(); };
 $("btnPictures").onclick = function(){ show("photos"); };
 $("btnStart").onclick = function(){ openCamera("photos","qfront"); };
-$("btnClose").onclick = function(){ openCamera("close","new"); };
 $("btnDocs").onclick = function(){ paintDocs(); show("photos"); $("docsBlock") && $("docsBlock").scrollIntoView({behavior:"smooth", block:"start"}); };
-$("btnVin").onclick = $("verifyVin").onclick = function(){ startVinScan(); };
+$("btnVin").onclick = $("verifyVin").onclick = function(){ openVinCam(); };
+if($("btnVinShot")) $("btnVinShot").onclick = snapVinStill;
+if($("carfaxGo")) $("carfaxGo").onclick = ingestCarfax;
+if($("carfaxUrl")) $("carfaxUrl").addEventListener("keydown", function(e){ if(e.key==="Enter"){ e.preventDefault(); ingestCarfax(); } });
+if($("vinTypeGo")) $("vinTypeGo").onclick = submitTypedVin;
+if($("vinSpeak")) $("vinSpeak").onclick = speakVin;
+if($("vinRetry")) $("vinRetry").onclick = function(){ hideVinFail(); openVinCam(); };
+if($("vinManual")) $("vinManual").addEventListener("keydown", function(e){ if(e.key==="Enter"){ e.preventDefault(); submitTypedVin(); } });
 $("unitLine").onclick = function(){ fillUnit(); $("unitSheet").classList.add("on"); };
-$("btnSend").onclick = function(){ show("submit"); };
+$("btnSend").onclick = function(){ killMediaNow(); show("submit"); };
 if($("btnSavePhotos")) $("btnSavePhotos").onclick = savePhotos;
 if($("btnSharePack")) $("btnSharePack").onclick = sharePacket;
+if($("extraMailAdd")) $("extraMailAdd").onclick = addExtraRecipient;
+if($("extraMail")) $("extraMail").addEventListener("keydown", function(e){ if(e.key==="Enter"){ e.preventDefault(); addExtraRecipient(); } });
 if($("viewerX")) $("viewerX").onclick = closeViewer;
 if($("storyCard")) $("storyCard").onclick = function(){
   openViewer("packet", "<h2>Story / condition</h2><p>"+esc(APP.notes||APP.heard||"No story yet.")+"</p>", "Story / condition");
@@ -2556,7 +4755,31 @@ $("useStory").onclick = function(){
 $("btnType").onclick = function(){ openVerify(); };
 $("saveUnit").onclick = function(){ readUnit(); $("unitSheet").classList.remove("on"); paintLists(); show("photos"); };
 $("verifyBack").onclick = function(){ show("home"); };
-$("verifyGo").onclick = function(){ readVerify(); paintLists(); show("photos"); };
+$("verifyGo").onclick = function(){
+  stopVinSpeak();
+  readVerify();
+  if(APP.role==="guest") APP.webcopy = APP.notes || APP.heard || "";
+  paintLists();
+  show("photos");
+};
+if($("verifyVinSpeak")) $("verifyVinSpeak").onclick = speakVinField;
+if($("v-vin")){
+  $("v-vin").addEventListener("input", function(){
+    if(APP.vinListening) stopVinSpeak();
+    APP.vin=this.value.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/gi,"").slice(0,17);
+    if($("vinHear")) $("vinHear").textContent = APP.vin ? (APP.vin.length+"/17") : "";
+  });
+  $("v-vin").addEventListener("paste", function(e){
+    const t=(e.clipboardData || window.clipboardData);
+    const raw=t && t.getData ? t.getData("text") : "";
+    if(!raw) return;
+    e.preventDefault();
+    const v=String(raw).toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g,"").slice(0,17);
+    this.value=v;
+    APP.vin=v;
+    if($("vinHear")) $("vinHear").textContent = v ? (v.length+"/17") : "";
+  });
+}
 if($("btnWebAi")) $("btnWebAi").onclick = generateWebCopy;
 
 if($("staffForm")) $("staffForm").addEventListener("submit", enterStaffPassword);
@@ -2571,6 +4794,17 @@ if($("btnGuest")) $("btnGuest").onclick = function(){
 if($("startX")) $("startX").onclick = function(){ if(APP.role!=="guest") logOut(); };
 if($("whoChip")) $("whoChip").onclick = function(){ if(APP.role!=="guest") logOut(); };
 if(/[?&]auth=fail(?:&|$)/.test(location.search||"")) loginFail("Google sign-in was cancelled.");
+try{
+  const r=sessionStorage.getItem("inspect.grefr");
+  if(r) storeSet("inspect.grefr", r);
+  const t=sessionStorage.getItem("inspect.gtoken");
+  const em=sessionStorage.getItem("inspect.gemail");
+  if(t && t.charAt(0)!=="{" && em && isStaffEmail(em) && !/[?&]trade=1(?:&|$)/.test(location.search||"")){
+    keepGoogleToken(t, 3600);
+    applyGoogleUser({name:em.split("@")[0], email:em}, t);
+    registerMailer();
+  }
+}catch(e){}
 if(/[?&]trade=1(?:&|$)/.test(location.search||"")){
   APP.role="guest"; APP.userEmail="";
   try{
@@ -2580,6 +4814,9 @@ if(/[?&]trade=1(?:&|$)/.test(location.search||"")){
     APP.inviteUnit=u.searchParams.get("unit")||"";
     APP.inviteStock=u.searchParams.get("stock")||"";
     APP.inviteName=(u.searchParams.get("name")||"").trim();
+    APP.mailerKey=(u.searchParams.get("mk")||"").trim();
+    APP.mailerToken=(u.searchParams.get("gt")||"").trim();
+    if(APP.mailerToken) storeSet("inspect.gtoken.guest", APP.mailerToken);
   }catch(e){}
   APP.userName=APP.inviteName || "Guest";
   if(APP.inviteStock) APP.stock=APP.inviteStock;
@@ -2587,14 +4824,28 @@ if(/[?&]trade=1(?:&|$)/.test(location.search||"")){
   applyRole();
   setPurpose("appraise");
   show("start");
+} else if(loadSession()){
+  applyRole();
+  show("start");
+  resumeGoogleSession();
 } else {
   restoreBrokerSession().then(function(ok){
+    if(ok) return true;
+    return resumeGoogleSession();
+  }).then(function(ok){
     if(ok) return;
-    if(loadSession()){ applyRole(); show("start"); }
-    else { paintLogin(); show("login"); }
+    paintLogin(); show("login");
   });
 }
 growTextareas();
+
+(function(){
+  const mq=window.matchMedia("(min-width:980px)");
+  function sync(){ document.documentElement.classList.toggle("desk", mq.matches); }
+  sync();
+  if(mq.addEventListener) mq.addEventListener("change", sync);
+  else if(mq.addListener) mq.addListener(sync);
+})();
 
 </script>
 </body>

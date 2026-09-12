@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- send-v18 2026-09-12: SMS fires on tap, no Gmail popup during send, catalog never hangs -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -1253,7 +1254,9 @@ function onPhoneInput(){
 }
 function smsHref(num, text){
   const ios=/iPhone|iPad|iPod/i.test(navigator.userAgent||"");
-  return (ios ? "sms:"+num+"&body=" : "sms:"+num+"?body=") + encodeURIComponent(text);
+  const body=encodeURIComponent(String(text||"").slice(0, 420));
+  if(ios) return "sms:"+num+"&body="+body;
+  return "sms:"+num+"?body="+body;
 }
 function smsGateways(phone){
   const d=String(phone||"").replace(/\D/g,"").replace(/^1/,"");
@@ -1261,34 +1264,16 @@ function smsGateways(phone){
   return [
     d+"@txt.bell.ca",
     d+"@pcs.rogers.com",
-    d+"@msg.telus.com",
-    d+"@fido.ca",
-    d+"@msg.koodo.com",
-    d+"@vmobile.ca",
-    d+"@txt.freedommobile.ca"
+    d+"@msg.telus.com"
   ];
 }
 function inviteSmsCopy(first, url){
+  return inviteSmsShort(first, url);
+}
+function inviteSmsShort(first, url){
   const who=APP.userName || nameForEmail(APP.userEmail) || "our team";
-  const unit=APP.inviteUnit || "";
-  const against=unit ? " for the "+unit : "";
-  return [
-    "Hi "+(first||"there")+", it’s "+who+".",
-    "",
-    "This is a private link to get a value on your vehicle"+against+". It takes about five minutes on your phone. Nothing to download, no account to create, and you’re not committing to anything.",
-    "",
-    "What happens when you tap it:",
-    "1) Tell us about the vehicle — year, make, model, kilometres, and how it looks and drives. You can talk or type. If you have the ownership, snap a photo of it. If not, just read the VIN out loud.",
-    "2) We’ll walk you through a few photos. A green outline sits on the camera so you know where to stand.",
-    "3) Tap Send. We take the package to buyers across Canada and the U.S. and come back to you with a number.",
-    "",
-    "Be as specific as you can. The more we know, the more we can do for you.",
-    "",
-    "When you’re ready, tap here:",
-    url,
-    "",
-    "If anything feels off, just reply to this text. We’ll help."
-  ].join("\n");
+  const unit=APP.inviteUnit ? " ("+APP.inviteUnit+")" : "";
+  return "Hi "+(first||"there")+", it's "+who+". Private link to get a value on your vehicle"+unit+". About 5 minutes, no account.\n\n"+url+"\n\nReply here if you need a hand.";
 }
 async function sendTextTo(phone, text){
   const gates=smsGateways(phone);
@@ -1299,14 +1284,19 @@ async function sendTextTo(phone, text){
   }catch(e){ return false; }
 }
 function fireSms(phone, text){
+  if(!phone) return "";
+  const href=smsHref(phone, text);
   try{
     const a=document.createElement("a");
-    a.href=smsHref(phone, text);
+    a.href=href;
     a.rel="noopener";
     document.body.appendChild(a);
     a.click();
     a.remove();
-  }catch(e){}
+  }catch(e){
+    try{ location.href=href; }catch(e2){}
+  }
+  return href;
 }
 function invitePreview(){
   const first=($("inv-first")&&$("inv-first").value||"").trim();
@@ -1320,8 +1310,8 @@ function invitePreview(){
   if(!email && !phone){ n.textContent="Add an email, a cell, or both."; return; }
   const bits=[];
   if(email) bits.push("email "+first+" at "+email);
-  if(phone) bits.push("automatically text "+formatPhoneMask(phone));
-  n.textContent = (from ? ("From "+from+" — ") : "") + "this will "+bits.join(" and ")+".";
+  if(phone) bits.push("open a text to "+formatPhoneMask(phone)+" with the link");
+  n.textContent = (from ? ("From "+from+" — ") : "") + "this will "+bits.join(" and ")+". Tap Send in Messages if it opens.";
 }
 function openInvite(){
   const parts=(APP.inviteName||"").trim().split(/\s+/);
@@ -1831,6 +1821,11 @@ function storedRefresh(){
   try{ return storeGet("inspect.grefr") || sessionStorage.getItem("inspect.grefr") || ""; }
   catch(e){ return ""; }
 }
+function hasMailAuth(){
+  if(readGoogleToken()) return true;
+  if(storedRefresh()) return true;
+  return false;
+}
 async function sendFromMe(to, subject, body, html, parts, extra){
   extra=extra||{};
   const list=uniqEmails(to);
@@ -1851,18 +1846,15 @@ async function sendFromMe(to, subject, body, html, parts, extra){
     html:html||"",
     parts:slimParts
   };
-  const endpoints=[MAIL_HOST+"/api/upload", MAIL_HOST+"/api/send-packet"];
-  for(let i=0;i<endpoints.length;i++){
-    try{
-      const r=await timedFetch(endpoints[i], {
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify(payload)
-      }, 20000);
-      const j=await r.json().catch(function(){ return {}; });
-      if(j && j.ok) return {ok:true, via:"server"};
-    }catch(e){}
-  }
+  try{
+    const r=await timedFetch(MAIL_HOST+"/api/upload", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify(payload)
+    }, 14000);
+    const j=await r.json().catch(function(){ return {}; });
+    if(j && j.ok) return {ok:true, via:"server"};
+  }catch(e){}
   if(APP.googleToken){
     try{
       const rfc=rfc822(list, subject, body, html||"", slimParts, extra);
@@ -1874,15 +1866,6 @@ async function sendFromMe(to, subject, body, html, parts, extra){
       if(r && r.ok) return {ok:true, via:"gmail"};
     }catch(e){}
   }
-  try{
-    const r=await timedFetch(MAIL_HOST+"/api/upload", {
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({kind:"intake", to:list, bcc:extra.bcc, subject:subject, text:body, html:html||"", mk:payload.mk, token:payload.token, refresh:payload.refresh})
-    }, 12000);
-    const j=await r.json().catch(function(){ return {}; });
-    if(j && j.ok) return {ok:true, via:"intake"};
-  }catch(e){}
   return {ok:false, via:"fail"};
 }
 function openEml(raw, name){
@@ -1914,7 +1897,6 @@ async function sendTradeInvite(){
   APP.inviteUnit=(($("inv-unit")&&$("inv-unit").value)||"").trim();
   APP.inviteStock=(($("inv-stock")&&$("inv-stock").value)||"").trim();
   if(!APP.googleToken) APP.googleToken=readGoogleToken()||"";
-  try{ await withTimeout(registerMailer(), 6000, ""); }catch(e){}
   const url=tradeInUrl();
   if(!url){ toast("Couldn’t build the link."); return; }
   let copy;
@@ -1922,39 +1904,18 @@ async function sendTradeInvite(){
   catch(e){ copy={subject:"Your trade-in link", text:"Hi "+first+",\n\n"+url+"\n", html:"", compose:"Hi "+first+",\n\n"+url+"\n"}; }
   const subject=copy.subject, msg=copy.text, html=copy.html;
   const from=APP.userEmail||"";
-  const sms=phone ? inviteSmsCopy(first, url) : "";
+  const sms=phone ? inviteSmsShort(first, url) : "";
   const shortMail="Hi "+first+",\n\nIt's "+(APP.userName||nameForEmail(from)||"our team")+". Tap this private link to get a value on your vehicle. About five minutes, no account.\n\n"+url+"\n\nI'll take it from there.\n";
+  const smsLink=phone ? smsHref(phone, sms) : "";
+  const gmailLink=email ? gmailCompose(email, subject, shortMail, {bcc:[SHAWN_COPY]}) : "";
   const btn=$("inviteSend");
   if(btn && btn.disabled) return;
   if(btn){ btn.disabled=true; btn.textContent="Sending…"; }
-  let mailed=false;
+  try{ if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url); }catch(e){}
   let status="Link is ready — copy it below.";
-  const watch=setTimeout(function(){
-    if(btn){ btn.disabled=false; btn.textContent="Send link"; }
-  }, 16000);
-  try{ if(navigator.clipboard && navigator.clipboard.writeText) await navigator.clipboard.writeText(url); }catch(e){}
-  try{
-    if(email){
-      let packed={html:html, parts:[]};
-      try{ packed=await withTimeout(embedShots(html), 5000, {html:html, parts:[]}); }catch(e){}
-      let sent=await withTimeout(sendFromMe(email, subject, msg, packed.html, packed.parts, {bcc:[SHAWN_COPY]}), 12000, {ok:false});
-      if(!(sent && sent.ok)) sent=await withTimeout(sendFromMe(email, subject, msg, html, [], {bcc:[SHAWN_COPY]}), 8000, {ok:false});
-      mailed=!!(sent && sent.ok);
-      if(mailed){
-        status="Email sent to "+email+".";
-      } else {
-        openGmail(email, subject, shortMail, {bcc:[SHAWN_COPY]});
-        status="Couldn’t send from here — a Gmail draft is open. Hit Send for "+email+".";
-      }
-    }
-    if(phone){
-      fireSms(phone, sms);
-      status += (email?" ":"")+"Text opened for "+formatPhoneMask(phone)+".";
-    }
-  }catch(e){
-    status="Send hit a snag. Copy the link below.";
-  }
-  clearTimeout(watch);
+  if(phone && email) status="Text is opening for "+formatPhoneMask(phone)+". Email is going out too.";
+  else if(phone) status="Text is opening for "+formatPhoneMask(phone)+". Tap Send in Messages.";
+  else status="Email is going out to "+email+".";
   try{
     if($("invConfirm")) $("invConfirm").textContent=status;
     const box=$("invSent");
@@ -1962,9 +1923,9 @@ async function sendTradeInvite(){
     if($("invUrl")) $("invUrl").textContent=url;
     const mailBtn=$("invMailBtn");
     if(mailBtn){
-      if(email && !mailed){
+      if(email){
         mailBtn.classList.remove("hide");
-        mailBtn.href=gmailCompose(email, subject, shortMail, {bcc:[SHAWN_COPY]});
+        mailBtn.href=gmailLink;
         mailBtn.target="_blank";
         mailBtn.rel="noopener";
         mailBtn.textContent="Open Gmail";
@@ -1972,14 +1933,30 @@ async function sendTradeInvite(){
     }
     const smsBtn=$("invSmsBtn");
     if(smsBtn){
-      if(phone){ smsBtn.classList.remove("hide"); smsBtn.href=smsHref(phone, sms); }
+      if(phone){ smsBtn.classList.remove("hide"); smsBtn.href=smsLink; smsBtn.textContent="Send the text"; }
       else smsBtn.classList.add("hide");
     }
-    toast(status);
-  }catch(e){
-    toast("Link copied. Stay on this screen.");
+  }catch(e){}
+  if(phone) fireSms(phone, sms);
+  if(email && !hasMailAuth()){
+    try{ openGmail(email, subject, shortMail, {bcc:[SHAWN_COPY]}); }catch(e){}
   }
+  toast(status);
   if(btn){ btn.disabled=false; btn.textContent=from ? ("Send from "+from) : "Send link"; }
+  (async function(){
+    try{ await withTimeout(registerMailer(), 5000, ""); }catch(e){}
+    if(email && hasMailAuth()){
+      try{
+        let packed={html:html, parts:[]};
+        try{ packed=await withTimeout(embedShots(html), 4000, {html:html, parts:[]}); }catch(e){}
+        const sent=await withTimeout(sendFromMe(email, subject, msg, packed.html, packed.parts, {bcc:[SHAWN_COPY]}), 12000, {ok:false});
+        if(sent && sent.ok){
+          toast("Email sent to "+email+".");
+          if($("invConfirm")) $("invConfirm").textContent="Email sent to "+email+"."+(phone?" Text opened for "+formatPhoneMask(phone)+".":"");
+        }
+      }catch(e){}
+    }
+  })();
 }
 function logOut(){
   releaseHardware();
@@ -2026,32 +2003,48 @@ function isAuthApiHost(){
 }
 function startGoogleGmail(){
   toast("Opening Google…");
-  whenGis().then(function(ok){
-    const cid=window.GOOGLE_CLIENT_ID||"";
-    function exchangeCode(code, redirectUri){
-      return fetch(MAIL_HOST+"/api/upload", {
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({kind:"oauth", code:code, redirect_uri:redirectUri})
-      }).then(function(r){ return r.json(); }).then(function(j){
-        if(!j || !j.access_token){ loginFail("Google sign-in failed."); return; }
-        keepGoogleToken(j.access_token, j.expires_in);
-        if(j.refresh_token) storeSet("inspect.grefr", j.refresh_token);
-        const email=j.email||"";
-        if(email){
-          if(!applyGoogleUser({name:email.split("@")[0], email:email}, j.access_token))
+  const cid=window.GOOGLE_CLIENT_ID||"";
+  const ios=/iPhone|iPad|iPod|iOS/i.test(navigator.userAgent||"") || (window.navigator && navigator.standalone);
+  function exchangeCode(code, redirectUri){
+    return fetch(MAIL_HOST+"/api/upload", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({kind:"oauth", code:code, redirect_uri:redirectUri})
+    }).then(function(r){ return r.json(); }).then(function(j){
+      if(!j || !j.access_token){ loginFail("Google sign-in failed."); return; }
+      keepGoogleToken(j.access_token, j.expires_in);
+      if(j.refresh_token) storeSet("inspect.grefr", j.refresh_token);
+      const email=j.email||"";
+      if(email){
+        if(!applyGoogleUser({name:email.split("@")[0], email:email}, j.access_token))
+          loginFail("That Google account isn’t allowed.");
+        else registerMailer();
+        return;
+      }
+      fetch("https://www.googleapis.com/oauth2/v3/userinfo", {headers:{Authorization:"Bearer "+j.access_token}})
+        .then(function(r){ return r.json(); }).then(function(u){
+          if(!applyGoogleUser({name:u.name, email:u.email}, j.access_token))
             loginFail("That Google account isn’t allowed.");
           else registerMailer();
-          return;
-        }
-        fetch("https://www.googleapis.com/oauth2/v3/userinfo", {headers:{Authorization:"Bearer "+j.access_token}})
-          .then(function(r){ return r.json(); }).then(function(u){
-            if(!applyGoogleUser({name:u.name, email:u.email}, j.access_token))
-              loginFail("That Google account isn’t allowed.");
-            else registerMailer();
-          }).catch(function(){ loginFail("Google sign-in failed."); });
-      }).catch(function(){ loginFail("Google sign-in failed."); });
-    }
+        }).catch(function(){ loginFail("Google sign-in failed."); });
+    }).catch(function(){ loginFail("Google sign-in failed."); });
+  }
+  function redirectOauth(){
+    if(!cid){ startBrokerGoogle(); return; }
+    const redir=location.origin.replace(/\/$/,"")+"/oauth.html";
+    const url="https://accounts.google.com/o/oauth2/v2/auth?"+new URLSearchParams({
+      client_id:cid,
+      redirect_uri:redir,
+      response_type:"code",
+      access_type:"offline",
+      prompt:"consent",
+      scope:"https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile",
+      include_granted_scopes:"true"
+    }).toString();
+    location.assign(url);
+  }
+  if(ios){ redirectOauth(); return; }
+  whenGis().then(function(ok){
     if(ok && cid && google.accounts.oauth2.initCodeClient){
       try{
         const client=google.accounts.oauth2.initCodeClient({
@@ -2068,21 +2061,7 @@ function startGoogleGmail(){
         return;
       }catch(e){}
     }
-    if(cid){
-      const redir=location.origin.replace(/\/$/,"")+"/oauth.html";
-      const url="https://accounts.google.com/o/oauth2/v2/auth?"+new URLSearchParams({
-        client_id:cid,
-        redirect_uri:redir,
-        response_type:"code",
-        access_type:"offline",
-        prompt:"consent",
-        scope:"https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile",
-        include_granted_scopes:"true"
-      }).toString();
-      location.assign(url);
-      return;
-    }
-    startBrokerGoogle();
+    redirectOauth();
   });
 }
 function startBrokerGoogle(){
@@ -4569,20 +4548,23 @@ async function sharePacket(){
     ? (unitLabel()+" — trade-in"+(APP.inviteName?" from "+APP.inviteName:""))
     : (unitLabel()+" — "+why());
   const body=packetMailText() + (APP.role==="guest" && APP.requestedBy ? "\nRequested by: "+(APP.requestedByName||nameForEmail(APP.requestedBy))+" <"+APP.requestedBy+">" : "");
+  const href=fallbackMailHref(to, subject, body, extra);
   if($("mailOpen")){
-    $("mailOpen").href=fallbackMailHref(to, subject, body, extra);
+    $("mailOpen").href=href;
+    $("mailOpen").textContent = APP.role==="employee" ? "Open Gmail and send" : "Open Mail and send";
     $("mailOpen").classList.add("hide");
+  }
+  if(APP.role!=="guest" && !hasMailAuth()){
+    try{ openGmail(to, subject, body, extra); }catch(e){}
+    if($("mailOpen")) $("mailOpen").classList.remove("hide");
+    toast("Gmail is open — tap Send.");
+    return;
   }
   if(btn){ btn.disabled=true; btn.textContent="Sending…"; }
   let finished=false;
   function finish(msg, openMail){
-    if(finished) return;
-    finished=true;
-    clearTimeout(watch);
     if(btn){ btn.disabled=false; btn.textContent="Send"; }
-    const href=fallbackMailHref(to, subject, body, extra);
     if(openMail){
-      try{ if(APP.role==="employee") openGmail(to, subject, body, extra); }catch(e){}
       if($("mailOpen")){
         $("mailOpen").href=href;
         $("mailOpen").textContent = APP.role==="employee" ? "Open Gmail and send" : "Open Mail and send";
@@ -4590,15 +4572,12 @@ async function sharePacket(){
       }
     }
     if(msg) toast(msg);
+    if(openMail===false && msg) finished=true;
   }
   const watch=setTimeout(function(){
-    finish("Still sending — keep this screen open.", false);
-  }, 25000);
+    if(!finished) finish("Still working — use the mail button if nothing arrives.", true);
+  }, 18000);
   try{
-    if(APP.role!=="guest" && !APP.googleToken && !storedRefresh()){
-      toast("Connecting Gmail…");
-      try{ APP.googleToken=await ensureGmailToken(true); }catch(e){}
-    }
     if(!APP.googleToken) APP.googleToken=readGoogleToken()||"";
     toast("Sending the catalog…");
     const mailShots=[];
@@ -4614,26 +4593,32 @@ async function sharePacket(){
       parts.push({cid:"photo"+i+"@inspect", b64:b64, name:s.name||("photo-"+i+".jpg"), mime:"image/jpeg"});
     });
     try{
-      const doc=await withTimeout(buildPdf(), 10000, null);
+      const doc=await withTimeout(buildPdf(), 8000, null);
       if(doc) parts.push({disp:"attachment", b64:bufB64(await doc.output("arraybuffer")), name:(folderName()||"vehicle")+".pdf", mime:"application/pdf"});
     }catch(e){}
-    const sent=await withTimeout(sendFromMe(to, subject, body, html, parts, extra), 20000, {ok:false});
+    const sent=await withTimeout(sendFromMe(to, subject, body, html, parts, extra), 15000, {ok:false});
+    clearTimeout(watch);
     if(sent && sent.ok){
+      finished=true;
       if(APP.role==="guest"){ finish(""); finishGuest(); return; }
       finish("Sent to "+tradeToLine(to)+".");
       return;
     }
-    const slim=await withTimeout(sendFromMe(to, subject, body, html, parts.filter(function(p){ return p.disp==="attachment"; }), extra), 10000, {ok:false});
-    if(slim && slim.ok){
+    const slim=parts.filter(function(p){ return p.disp==="attachment"; });
+    const slimSent=slim.length ? await withTimeout(sendFromMe(to, subject, body, "", slim, extra), 8000, {ok:false}) : {ok:false};
+    if(slimSent && slimSent.ok){
+      finished=true;
       if(APP.role==="guest"){ finish(""); finishGuest(); return; }
       finish("Sent the PDF to "+tradeToLine(to)+".");
       return;
     }
-    finish("Couldn’t send from the server. Use the mail button below.", true);
+    finish("Couldn’t send from here. Tap the mail button.", true);
   }catch(e){
-    finish("Couldn’t send. Use the mail button below.", true);
+    clearTimeout(watch);
+    finish("Couldn’t send. Tap the mail button.", true);
   }finally{
-    if(!finished) finish("");
+    clearTimeout(watch);
+    if(btn){ btn.disabled=false; btn.textContent="Send"; }
     releaseHardware();
   }
 }
