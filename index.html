@@ -4593,8 +4593,12 @@ async function sharePacket(){
   }
   const watch=setTimeout(function(){
     finish("Still sending — keep this screen open.", false);
-  }, 22000);
+  }, 25000);
   try{
+    if(APP.role!=="guest" && !APP.googleToken && !storedRefresh()){
+      toast("Connecting Gmail…");
+      try{ APP.googleToken=await ensureGmailToken(true); }catch(e){}
+    }
     if(!APP.googleToken) APP.googleToken=readGoogleToken()||"";
     toast("Sending the catalog…");
     const mailShots=[];
