@@ -12,8 +12,8 @@
 (function(){
   var u="";
   try{ u=new URLSearchParams(location.search).get("u")||""; }catch(e){}
-  var ok=/^https:\/\/(provision\.vauto\.app\.coxautoinc\.com|app\.vauto\.com)\//i.test(u);
-  if(!ok) u="https://provision.vauto.app.coxautoinc.com/Va/Appraisal/Default.aspx?new=true";
+  var ok=/^https:\/\/(www2\.vauto\.com|provision\.vauto\.app\.coxautoinc\.com)\//i.test(u);
+  if(!ok) u="https://www2.vauto.com/Va/Appraisal/Default.aspx?new=true";
   location.replace(u);
 })();
 </script>

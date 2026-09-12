@@ -3427,7 +3427,7 @@ function paintDocs(){
     el.appendChild(inp); host.appendChild(el);
   });
 }
-const VAUTO_APPRAISE="https://provision.vauto.app.coxautoinc.com/Va/Appraisal/Default.aspx?new=true";
+const VAUTO_APPRAISE="https://www2.vauto.com/Va/Appraisal/Default.aspx?new=true";
 function vautoUrl(){
   const vin=currentVin();
   return vin && vin.length>=8
@@ -3439,18 +3439,16 @@ function openVauto(e){
   const vin=currentVin();
   if(vin) copyVin();
   const url=vautoUrl();
-  toast("Opening vAuto…");
-  let w=null;
-  try{ w=window.open(url, "_blank"); }catch(err){}
-  if(w){
-    try{ w.opener=null; }catch(err){}
+  toast(vin ? "VIN copied · opening vAuto" : "Opening vAuto…");
+  const standalone=window.navigator.standalone===true || (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches);
+  if(standalone){
+    window.location.assign(url);
     return;
   }
-  try{ w=window.open("about:blank", "_blank"); }catch(err){}
-  if(w){
-    try{ w.opener=null; w.location=url; return; }catch(err){}
-  }
-  location.assign("go-vauto.html?u="+encodeURIComponent(url));
+  let w=null;
+  try{ w=window.open(url, "_blank", "noopener"); }catch(err){}
+  if(w) return;
+  window.location.assign(url);
 }
 const OPENLANE_GUIDE="https://app.openlane.ca/marketguide";
 const EBLOCK_GUIDE="https://app.eblock.com/my-market-guide";
