@@ -28,15 +28,12 @@ body { font-family:Manrope,system-ui,sans-serif; color:var(--ink); }
 .nav h1 { margin:0; text-align:center; font-size:15px; font-weight:800; }
 .round { width:36px; height:36px; border:0; border-radius:50%; background:#1A1630; color:#fff; cursor:pointer; }
 .pad { padding:0 20px; }
-.finder { margin:4px 20px 18px; height:220px; background:#EDEAF6; border-radius:22px; position:relative; overflow:hidden; }
+.finder { margin:0; height:260px; background:#111; border-radius:0; position:relative; overflow:hidden; }
 .finder video { width:100%; height:100%; object-fit:cover; display:block; }
 .finder video.off { display:none; }
-.finder .cam-idle { position:absolute; inset:0; display:grid; place-items:center; color:#8a8498; font-size:18px; font-weight:800; letter-spacing:.04em; }
+.finder .cam-idle { position:absolute; inset:0; display:grid; place-items:center; color:#c7c7cc; font-size:16px; font-weight:700; text-align:center; padding:20px; }
 .finder.live .cam-idle, .finder.shot .cam-idle { display:none; }
 #vinStill { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
-.scan { position:absolute; left:8%; right:8%; top:46%; height:2px; background:#8a3a3a; opacity:.7; }
-.finder.scanning .scan { background:var(--cyan); animation:sweep 1.15s linear infinite; }
-@keyframes sweep { from{top:14%} to{top:86%} }
 .finder .status { position:absolute; left:12px; right:12px; bottom:12px; color:#fff; font-size:13px; font-weight:700; text-shadow:0 1px 6px #000; }
 .lamp { position:absolute; top:12px; right:12px; border:0; background:#fff; border-radius:999px; padding:8px 12px; font-size:14px; font-weight:700; }
 h2 { font-size:26px; font-weight:800; letter-spacing:-.5px; margin:4px 0 14px; }
@@ -351,16 +348,7 @@ textarea.note { min-height:160px; max-height:none; resize:vertical; overflow:aut
     <h1 id="homeTitle">Inspect</h1>
     <button class="round" type="button">•••</button>
   </div>
-  <div id="vinScanWrap">
-  <div class="finder" id="finder">
-    <div class="cam-idle" id="vinIdle">Camera</div>
-    <video id="liveCam" class="off" autoplay playsinline muted></video>
-    <img id="vinStill" class="hide" alt="">
-    <div class="scan"></div>
-    <div class="status" id="scanStatus">Tap Capture VIN to turn the camera on.</div>
-    <button class="lamp" type="button" id="lamp">Light</button>
-  </div>
-  </div>
+  <div id="vinScanWrap"></div>
   <div class="pad">
     <div id="storyBlock">
     <button class="pill cyan" type="button" id="btnStory">What's the Story?</button>
@@ -373,8 +361,8 @@ textarea.note { min-height:160px; max-height:none; resize:vertical; overflow:aut
     <p class="quote">Carfax, vAuto, book, MMR — optional. Photograph the packet if you have it.</p>
     </div>
     <div id="vinBtns">
-    <button class="pill cyan" type="button" id="btnVin">Capture VIN</button>
-    <p class="quote" id="vinHint">Tap once to turn the camera on. Line up the door-jamb barcode, QR, or VIN plate. Tap again to take the photo.</p>
+    <button class="pill cyan" type="button" id="btnVin">Photo of ownership or VIN</button>
+    <p class="quote" id="vinHint">Best: take a picture of the vehicle ownership (registration). You can also photograph the VIN on the dash or the sticker on the driver’s door. We’ll read the number from the photo.</p>
     <p class="vin-chip hide" id="vinChip"></p>
     </div>
   </div>
@@ -400,9 +388,10 @@ textarea.note { min-height:160px; max-height:none; resize:vertical; overflow:aut
       <div><label class="k">Kilometres</label><input class="f" id="v-km" inputmode="numeric" /></div>
     </div>
     <label class="k">VIN</label>
+    <p class="quote" style="margin-top:0">Best: a photo of the vehicle ownership. Or the VIN on the dash or driver’s door. We’ll read it from the picture.</p>
     <div class="vin-row">
       <input class="f" id="v-vin" maxlength="17" style="text-transform:uppercase" />
-      <button class="pill cyan" type="button" id="verifyVin">Capture VIN</button>
+      <button class="pill cyan" type="button" id="verifyVin">Photo VIN</button>
     </div>
     <div id="stockWrap" class="hide">
       <label class="k">Stock number</label><input class="f" id="v-stock" placeholder="e.g. A1042" />
@@ -550,6 +539,23 @@ textarea.note { min-height:160px; max-height:none; resize:vertical; overflow:aut
     <div class="pair">
       <button class="pill wash" type="button" id="micBtn">Speak</button>
       <button class="pill purple" type="button" id="useStory">Use this</button>
+    </div>
+  </div>
+</div>
+<div class="sheet" id="vinSheet">
+  <div class="card" style="padding:0;overflow:hidden">
+    <button class="x" type="button" data-close="vinSheet">✕</button>
+    <div class="finder" id="finder">
+      <div class="cam-idle" id="vinIdle">Camera will show here</div>
+      <video id="liveCam" class="off" autoplay playsinline muted></video>
+      <img id="vinStill" class="hide" alt="">
+      <div class="status" id="scanStatus">Line up the ownership or the VIN plate</div>
+      <button class="lamp" type="button" id="lamp">Light</button>
+    </div>
+    <div style="padding:16px 18px 22px">
+      <h3 style="margin:0 0 8px">Ownership or VIN</h3>
+      <p class="hint">Best: photograph the vehicle ownership (registration). That’s the easiest. You can also photo the VIN on the dash or the sticker on the driver’s door.</p>
+      <button class="pill cyan" type="button" id="btnVinShot">Take photo</button>
     </div>
   </div>
 </div>
@@ -892,9 +898,10 @@ function applyRole(){
   if($("startActions")) $("startActions").classList.toggle("hide", guest);
   if($("startMore")) $("startMore").classList.toggle("hide", guest);
   if($("guestStory")) $("guestStory").classList.toggle("hide", !guest);
-  ["vinScanWrap","vinBtns","homeDocs"].forEach(function(id){
+  ["vinScanWrap","homeDocs"].forEach(function(id){
     if($(id)) $(id).classList.toggle("hide", guest);
   });
+  if($("vinBtns")) $("vinBtns").classList.toggle("hide", false);
   if($("btnType")) $("btnType").classList.toggle("hide", guest);
   if($("docsBlock")) $("docsBlock").classList.toggle("hide", guest);
   if($("btnStart")) $("btnStart").classList.toggle("hide", guest);
@@ -908,8 +915,9 @@ function applyRole(){
       if($(id)) $(id).classList.add("hide");
     });
     if($("verifyVin")) $("verifyVin").classList.add("hide");
-  } else if(!guest){
+  } else {
     if($("verifyVin")) $("verifyVin").classList.remove("hide");
+    if($("vinBtns")) $("vinBtns").classList.remove("hide");
   }
 }
 function enterSession(role, user){
@@ -2112,6 +2120,15 @@ function normalizeVin(text){
   return m ? m[0] : "";
 }
 function vinOk(vin){ return /^[A-HJ-NPR-Z0-9]{17}$/.test(vin||""); }
+function loadTesseract(){
+  return new Promise(function(res,rej){
+    if(window.Tesseract) return res();
+    const s=document.createElement("script");
+    s.src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js";
+    s.onload=res; s.onerror=rej;
+    document.head.appendChild(s);
+  });
+}
 function loadZxing(){
   return new Promise(function(res,rej){
     if(window.ZXing) return res();
@@ -2120,6 +2137,20 @@ function loadZxing(){
     s.onload=res; s.onerror=rej;
     document.head.appendChild(s);
   });
+}
+function vinsInText(text){
+  const raw=String(text||"").toUpperCase();
+  const packed=raw.replace(/[^A-Z0-9]/g,"");
+  const hits=[];
+  function add(v){
+    v=normalizeVin(v);
+    if(vinOk(v) && hits.indexOf(v)<0) hits.push(v);
+  }
+  (packed.match(/[A-HJ-NPR-Z0-9]{17}/g)||[]).forEach(add);
+  const messy=raw.replace(/[^A-Z0-9]/g,"");
+  const fixed=messy.replace(/[IOQ]/g, function(ch){ return ch==="I"?"1":"0"; });
+  (fixed.match(/[A-HJ-NPR-Z0-9]{17}/g)||[]).forEach(add);
+  return hits;
 }
 function stopVinScan(){
   APP.scanning=false;
@@ -2135,26 +2166,13 @@ function stopVinScan(){
     try{ v.srcObject=null; }catch(e){}
   }
   const still=$("vinStill"); if(still){ still.removeAttribute("src"); still.classList.add("hide"); }
-  const s=$("scanStatus"); if(s) s.textContent="Tap Capture VIN to turn the camera on.";
-  const b=$("btnVin"); if(b) b.textContent="Capture VIN";
+  const s=$("scanStatus"); if(s) s.textContent="Line up the ownership or the VIN plate";
+  const b=$("btnVinShot"); if(b){ b.disabled=false; b.textContent="Take photo"; }
+  if($("vinSheet")) $("vinSheet").classList.remove("on");
   if(APP.stream && (!document.getElementById("camera") || !$("camera").classList.contains("on"))){
     try{ APP.stream.getTracks().forEach(function(t){ t.stop(); }); }catch(e){}
     APP.stream=null;
   }
-}
-async function decodeVin(vin){
-  try{
-    const r=await fetch("https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValues/"+vin+"?format=json");
-    const j=await r.json();
-    const row=j.Results && j.Results[0];
-    if(!row) return;
-    if(row.ModelYear && row.ModelYear!=="0") APP.year=String(row.ModelYear);
-    if(row.Make) APP.make=row.Make;
-    if(row.Model) APP.model=row.Model;
-    if(row.Trim && row.Trim!=="Not Applicable") APP.trim=row.Trim;
-    fillUnit();
-    toast((APP.year+" "+APP.make+" "+APP.model).trim());
-  }catch(e){}
 }
 function gotVin(vin){
   vin=normalizeVin(vin);
@@ -2165,32 +2183,48 @@ function gotVin(vin){
   fillUnit();
   const chip=$("vinChip");
   if(chip){ chip.textContent=vin; chip.classList.remove("hide"); }
-  $("scanStatus").textContent="VIN captured";
-  $("btnVin").textContent="Capture VIN";
-  $("finder").classList.add("shot");
-  $("finder").classList.remove("scanning","live");
+  if($("v-vin")) $("v-vin").value=vin;
+  if($("scanStatus")) $("scanStatus").textContent="VIN captured";
+  if($("btnVinShot")) $("btnVinShot").textContent="Take another photo";
+  const f=$("finder"); if(f){ f.classList.add("shot"); f.classList.remove("scanning","live"); }
   toast("VIN "+vin);
   decodeVin(vin);
+  setTimeout(function(){ if($("vinSheet")) $("vinSheet").classList.remove("on"); stopVinScan(); }, 900);
   return true;
 }
 function snapVinStill(){
   const v=$("liveCam");
   const c=document.createElement("canvas");
-  c.width = v.videoWidth || 1280;
-  c.height = v.videoHeight || 720;
+  c.width = v.videoWidth || 1600;
+  c.height = v.videoHeight || 900;
   try{ c.getContext("2d").drawImage(v,0,0,c.width,c.height); }
-  catch(e){ toast("Camera not ready — tap Capture VIN again."); return; }
+  catch(e){ toast("Camera not ready — try again."); return; }
   const data=c.toDataURL("image/jpeg",0.92);
   const still=$("vinStill");
-  still.src=data;
-  still.classList.remove("hide");
-  v.classList.add("off");
-  $("finder").classList.remove("scanning");
-  $("finder").classList.add("shot");
+  if(still){ still.src=data; still.classList.remove("hide"); }
+  if(v) v.classList.add("off");
+  const f=$("finder"); if(f){ f.classList.remove("scanning","live"); f.classList.add("shot"); }
   APP.vinStep=2;
-  $("scanStatus").textContent="Reading VIN…";
-  $("btnVin").textContent="Capture VIN";
+  if($("scanStatus")) $("scanStatus").textContent="Reading the VIN from your photo…";
+  if($("btnVinShot")){ $("btnVinShot").disabled=true; $("btnVinShot").textContent="Reading…"; }
   readVinFromStill(data);
+}
+function ocrPrep(img){
+  const c=document.createElement("canvas");
+  const scale=Math.min(2.2, 1800/Math.max(1,img.naturalWidth||img.width));
+  c.width=Math.max(640, Math.round((img.naturalWidth||img.width)*scale));
+  c.height=Math.max(360, Math.round((img.naturalHeight||img.height)*scale));
+  const ctx=c.getContext("2d");
+  ctx.drawImage(img,0,0,c.width,c.height);
+  const id=ctx.getImageData(0,0,c.width,c.height);
+  const d=id.data;
+  for(let i=0;i<d.length;i+=4){
+    let y=d[i]*0.299+d[i+1]*0.587+d[i+2]*0.114;
+    y=y<110?0:255;
+    d[i]=d[i+1]=d[i+2]=y;
+  }
+  ctx.putImageData(id,0,0);
+  return c;
 }
 async function readVinFromStill(data){
   try{
@@ -2207,39 +2241,54 @@ async function readVinFromStill(data){
       }catch(e){}
     }
     try{
+      await loadTesseract();
+      const pre=ocrPrep(img);
+      const result=await window.Tesseract.recognize(pre, "eng");
+      const text=(result && result.data && result.data.text) || "";
+      const found=vinsInText(text);
+      if(found[0] && gotVin(found[0])) return;
+    }catch(e){}
+    try{
       await loadZxing();
       const reader=new ZXing.BrowserMultiFormatReader();
       const res=await reader.decodeFromImageUrl(data);
       if(res && gotVin(res.getText())) return;
     }catch(e){}
   }catch(e){}
-  toast("No VIN in that photo — tap Capture VIN to try again.");
-  $("scanStatus").textContent="No VIN found. Tap Capture VIN to try again.";
-  APP.vinStep=0;
-  $("btnVin").textContent="Capture VIN";
+  toast("Couldn’t read a VIN. Try the ownership, closer and flatter.");
+  if($("scanStatus")) $("scanStatus").textContent="No VIN yet — take another photo.";
+  APP.vinStep=1;
+  if($("btnVinShot")){ $("btnVinShot").disabled=false; $("btnVinShot").textContent="Take photo"; }
+  const v=$("liveCam");
+  if(v){ v.classList.remove("off"); try{ v.play(); }catch(e){} }
+  const still=$("vinStill"); if(still) still.classList.add("hide");
+  const f=$("finder"); if(f){ f.classList.add("live"); f.classList.remove("shot"); }
 }
-function startVinScan(){
+function openVinCam(){
   if(isWeb()) return;
-  show("home");
-  if(!APP.vinStep) APP.vinStep=0;
-  if(APP.vinStep===0){
-    APP.vinStep=1;
-    startPreview("liveCam");
-    $("liveCam").classList.remove("off");
-    $("vinStill").classList.add("hide");
-    $("finder").classList.add("live","scanning");
-    $("finder").classList.remove("shot");
-    $("scanStatus").textContent="Camera on. Tap Capture VIN again to take the photo.";
-    $("btnVin").textContent="Take VIN photo";
-    toast("Camera on — tap again to shoot");
-    return;
-  }
-  if(APP.vinStep===1){
-    snapVinStill();
-    return;
-  }
-  APP.vinStep=0;
-  startVinScan();
+  if($("vinSheet")) $("vinSheet").classList.add("on");
+  APP.vinStep=1;
+  const still=$("vinStill"); if(still) still.classList.add("hide");
+  const f=$("finder"); if(f){ f.classList.add("live"); f.classList.remove("shot","scanning"); }
+  const v=$("liveCam"); if(v) v.classList.remove("off");
+  if($("scanStatus")) $("scanStatus").textContent="Line up the ownership or the VIN plate";
+  if($("btnVinShot")){ $("btnVinShot").disabled=false; $("btnVinShot").textContent="Take photo"; }
+  startPreview("liveCam");
+}
+function startVinScan(){ openVinCam(); }
+async function decodeVin(vin){
+  try{
+    const r=await fetch("https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValues/"+vin+"?format=json");
+    const j=await r.json();
+    const row=j.Results && j.Results[0];
+    if(!row) return;
+    if(row.ModelYear && row.ModelYear!=="0") APP.year=String(row.ModelYear);
+    if(row.Make) APP.make=row.Make;
+    if(row.Model) APP.model=row.Model;
+    if(row.Trim && row.Trim!=="Not Applicable") APP.trim=row.Trim;
+    fillUnit();
+    toast((APP.year+" "+APP.make+" "+APP.model).trim());
+  }catch(e){}
 }
 
 function spokenSmall(w){
@@ -3149,7 +3198,12 @@ function resetAll(){
 }
 
 document.querySelectorAll("[data-close]").forEach(function(b){
-  b.addEventListener("click", function(){ $(b.getAttribute("data-close")).classList.remove("on"); stopMic(); });
+  b.addEventListener("click", function(){
+    const id=b.getAttribute("data-close");
+    $(id).classList.remove("on");
+    stopMic();
+    if(id==="vinSheet") stopVinScan();
+  });
 });
 $("startAppraise").onclick = function(){ setPurpose("appraise"); show("home"); };
 function openStoryMic(){
@@ -3198,7 +3252,8 @@ $("btnPictures").onclick = function(){ show("photos"); };
 $("btnStart").onclick = function(){ openCamera("photos","qfront"); };
 $("btnClose").onclick = function(){ openCamera("close","new"); };
 $("btnDocs").onclick = function(){ paintDocs(); show("photos"); $("docsBlock") && $("docsBlock").scrollIntoView({behavior:"smooth", block:"start"}); };
-$("btnVin").onclick = $("verifyVin").onclick = function(){ startVinScan(); };
+$("btnVin").onclick = $("verifyVin").onclick = function(){ openVinCam(); };
+if($("btnVinShot")) $("btnVinShot").onclick = snapVinStill;
 $("unitLine").onclick = function(){ fillUnit(); $("unitSheet").classList.add("on"); };
 $("btnSend").onclick = function(){ killMediaNow(); show("submit"); };
 if($("btnSavePhotos")) $("btnSavePhotos").onclick = savePhotos;
