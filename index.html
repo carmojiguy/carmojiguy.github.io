@@ -1445,7 +1445,7 @@ function gmailCompose(to, subject, body, extra){
     view:"cm", fs:"1", tf:"1",
     to: uniqEmails(to).join(","),
     su: subject||"",
-    body: String(body||"")
+    body: String(body||"").slice(0, 1600)
   });
   const cc=uniqEmails(extra.cc||[]);
   const bcc=uniqEmails(extra.bcc||[]);
@@ -1713,10 +1713,12 @@ function readGoogleToken(){
     return j.token;
   }catch(e){ return ""; }
 }
-function ensureGmailToken(){
-  if(APP.googleToken) return Promise.resolve(APP.googleToken);
-  const stored=readGoogleToken();
-  if(stored){ APP.googleToken=stored; return Promise.resolve(stored); }
+function ensureGmailToken(force){
+  if(!force && APP.googleToken) return Promise.resolve(APP.googleToken);
+  if(!force){
+    const stored=readGoogleToken();
+    if(stored){ APP.googleToken=stored; return Promise.resolve(stored); }
+  }
   return whenGis().then(function(ok){
     const cid=window.GOOGLE_CLIENT_ID||"";
     if(!ok || !cid) return "";
@@ -1732,7 +1734,7 @@ function ensureGmailToken(){
           },
           error_callback:function(){ resolve(""); }
         });
-        client.requestAccessToken({hint:APP.userEmail||"", prompt:""});
+        client.requestAccessToken({hint:APP.userEmail||"", prompt: force ? "consent" : ""});
       }catch(e){ resolve(""); }
     });
   });
@@ -1801,15 +1803,14 @@ async function sendTradeInvite(){
   let copy;
   try{ copy=inviteMailCopy(first, url); }
   catch(e){ copy={subject:"Your trade-in link", text:"Hi "+first+",\n\n"+url+"\n", html:"", compose:"Hi "+first+",\n\n"+url+"\n"}; }
-  const subject=copy.subject, msg=copy.text, html=copy.html, compose=copy.compose||copy.text;
+  const subject=copy.subject, msg=copy.text, html=copy.html;
   const from=APP.userEmail||"";
   const sms=phone ? inviteSmsCopy(first, url) : "";
+  const shortMail="Hi "+first+",\n\nIt's "+(APP.userName||nameForEmail(from)||"our team")+". Tap this private link to get a value on your vehicle. About five minutes, no account.\n\n"+url+"\n\nI'll take it from there.\n";
   const btn=$("inviteSend");
   if(btn){ btn.disabled=true; btn.textContent="Sending…"; }
-  let mailTab=null;
-  if(email){
-    try{ mailTab=window.open("about:blank","tradeInviteMail"); }catch(e){}
-  }
+  try{ if(email) await ensureGmailToken(); }catch(e){}
+  if(email && !APP.googleToken){ try{ await ensureGmailToken(true); }catch(e){} }
   try{ if(navigator.clipboard && navigator.clipboard.writeText) await navigator.clipboard.writeText(url); }catch(e){}
   let mailed=false;
   let status="Link is ready — copy it below.";
@@ -1817,18 +1818,14 @@ async function sendTradeInvite(){
     if(email){
       let packed={html:html, parts:[]};
       try{ packed=await embedShots(html); }catch(e){}
-      const sent=await sendFromMe(email, subject, msg, packed.html, packed.parts, {bcc:[SHAWN_COPY]});
+      let sent=await sendFromMe(email, subject, msg, packed.html, packed.parts, {bcc:[SHAWN_COPY]});
+      if(!(sent && sent.ok)) sent=await sendFromMe(email, subject, msg, html, [], {bcc:[SHAWN_COPY]});
       mailed=!!(sent && sent.ok);
       if(mailed){
-        try{ if(mailTab && !mailTab.closed) mailTab.close(); }catch(e){}
         status="Email sent to "+email+".";
       } else {
-        const href=gmailCompose(email, subject, compose, {bcc:[SHAWN_COPY]});
-        try{
-          if(mailTab && !mailTab.closed) mailTab.location.href=href;
-          else window.open(href, "_blank", "noopener");
-        }catch(e){ openGmail(email, subject, compose, {bcc:[SHAWN_COPY]}); }
-        status="Gmail is open — hit Send for "+email+".";
+        openGmail(email, subject, shortMail, {bcc:[SHAWN_COPY]});
+        status="Couldn’t send from here — a short Gmail draft is open. Hit Send for "+email+".";
       }
     }
     if(phone){
@@ -1847,7 +1844,7 @@ async function sendTradeInvite(){
     if(mailBtn){
       if(email && !mailed){
         mailBtn.classList.remove("hide");
-        mailBtn.href=gmailCompose(email, subject, compose, {});
+        mailBtn.href=gmailCompose(email, subject, shortMail, {bcc:[SHAWN_COPY]});
         mailBtn.target="_blank";
         mailBtn.rel="noopener";
         mailBtn.textContent="Open Gmail";
