@@ -163,7 +163,7 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
 @media (orientation:landscape){
   .stage { width:auto; max-width:100%; height:calc(100dvh - 132px); max-height:none; aspect-ratio:16/9; }
 }
-.stage video { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; object-position:center; opacity:1; background:#111; z-index:0; }
+.stage video { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center; opacity:1; background:#111; z-index:0; }
 .ghost { position:absolute; left:6%; right:6%; top:8%; height:84%; width:88%; object-fit:contain; object-position:center; pointer-events:none; opacity:.86; mix-blend-mode:normal; z-index:1; }
 .ghost.tall { top:8%; height:84%; }
 .ghost.off { opacity:0; }
@@ -2320,12 +2320,18 @@ function landscapeCanvas(src){
   ctx.fillStyle="#111";
   ctx.fillRect(0,0,WEB_W,WEB_H);
   if(!iw || !ih) return c;
-  const scale=Math.min(WEB_W/iw, WEB_H/ih);
-  const dw=iw*scale, dh=ih*scale;
-  const dx=(WEB_W-dw)/2, dy=(WEB_H-dh)/2;
+  const target=WEB_W/WEB_H;
+  let sx=0, sy=0, sw=iw, sh=ih;
+  if(iw/ih > target){
+    sw=ih*target;
+    sx=(iw-sw)/2;
+  } else {
+    sh=iw/target;
+    sy=(ih-sh)/2;
+  }
   ctx.imageSmoothingEnabled=true;
   ctx.imageSmoothingQuality="high";
-  ctx.drawImage(src, 0,0,iw,ih, dx,dy,dw,dh);
+  ctx.drawImage(src, sx,sy,sw,sh, 0,0,WEB_W,WEB_H);
   return c;
 }
 function canvasShot(v){
@@ -2437,7 +2443,7 @@ function startPreview(videoId){
       if(token!==APP.camToken) return;
       const p=el.play(); if(p&&p.catch) p.catch(function(){ try{ el.play(); }catch(e){} });
       if($("camWait")) $("camWait").classList.add("off");
-      widenLens();
+      APP.zoom=1;
       try{ if(videoId==="shotCam" && screen.orientation && screen.orientation.lock) screen.orientation.lock("landscape").catch(function(){}); }catch(e){}
       if(videoId==="shotCam" && !APP.recOn){
         setTimeout(function(){ if(token===APP.camToken && !APP.recOn) startWalkRec(); }, 400);
@@ -2463,9 +2469,9 @@ function startPreview(videoId){
   }
   const audio=wantAudio ? {echoCancellation:true, noiseSuppression:true, autoGainControl:true, channelCount:1, sampleRate:44100} : false;
   const tries=[
-    {video:{facingMode:{ideal:"environment"}, zoom:{ideal:0.5, max:1}, width:{ideal:1920}, height:{ideal:1080}, frameRate:{ideal:30, min:24}}, audio:audio},
-    {video:{facingMode:{ideal:"environment"}, zoom:{ideal:0.5}, frameRate:{ideal:30}}, audio:audio},
+    {video:{facingMode:{ideal:"environment"}, aspectRatio:{ideal:1.777}, width:{ideal:1920}, height:{ideal:1080}, frameRate:{ideal:30, min:24}}, audio:audio},
     {video:{facingMode:{ideal:"environment"}, width:{ideal:1920}, height:{ideal:1080}, frameRate:{ideal:30, min:24}}, audio:audio},
+    {video:{facingMode:{ideal:"environment"}, frameRate:{ideal:30}}, audio:audio},
     {video:{facingMode:{ideal:"environment"}}, audio:audio},
     {video:{facingMode:{ideal:"environment"}}, audio:false}
   ];
@@ -3950,66 +3956,7 @@ function loadImg(src){
 }
 function studioPlate(dataUrl){
   return loadImg(dataUrl).then(function(img){
-    const src=document.createElement("canvas");
-    let w=img.naturalWidth, h=img.naturalHeight;
-    if(w<8 || h<8) return dataUrl;
-    src.width=w; src.height=h;
-    const sctx=src.getContext("2d");
-    sctx.drawImage(img,0,0);
-    const pix=sctx.getImageData(0,0,w,h).data;
-    function lum(x,y){
-      const i=(Math.max(0,Math.min(h-1,y|0))*w+Math.max(0,Math.min(w-1,x|0)))*4;
-      return pix[i]*0.299+pix[i+1]*0.587+pix[i+2]*0.114;
-    }
-    const yStep=Math.max(1, Math.floor(h/220));
-    const xStep=Math.max(1, Math.floor(w/90));
-    let bot=h, darkRows=0;
-    for(let y=h-1;y>h*0.68;y-=yStep){
-      let s=0,n=0;
-      for(let x=0;x<w;x+=xStep){ s+=lum(x,y); n++; }
-      if(n && s/n<40){ darkRows++; bot=y; } else break;
-    }
-    if(darkRows>2 && (h-bot)/h>0.07 && (h-bot)/h<0.3) h=Math.max(Math.round(h*0.55), bot);
-    const step=Math.max(2, Math.floor(Math.min(w,h)/280));
-    let minX=w, minY=h, maxX=0, maxY=0, hits=0;
-    for(let y=0;y<h;y+=step){
-      for(let x=0;x<w;x+=step){
-        if(lum(x,y)>34){
-          hits++;
-          if(x<minX) minX=x;
-          if(y<minY) minY=y;
-          if(x>maxX) maxX=x;
-          if(y>maxY) maxY=y;
-        }
-      }
-    }
-    let cx=0, cy=0, cw=w, ch=h;
-    const rw=maxX-minX, rh=maxY-minY;
-    if(hits>40 && rw>w*0.42 && rh>h*0.42 && (rw*rh)<w*h*0.96){
-      const px=Math.round(rw*0.03), py=Math.round(rh*0.03);
-      cx=Math.max(0, minX-px);
-      cy=Math.max(0, minY-py);
-      cw=Math.min(w, maxX+px)-cx;
-      ch=Math.min(h, maxY+py)-cy;
-    }
-    const TW=1920, TH=1080;
-    const c=document.createElement("canvas");
-    c.width=TW; c.height=TH;
-    const ctx=c.getContext("2d");
-    const g=ctx.createRadialGradient(TW*0.5, TH*0.62, 50, TW*0.5, TH*0.5, TW*0.74);
-    g.addColorStop(0, "#2c3948");
-    g.addColorStop(0.5, "#141920");
-    g.addColorStop(1, "#07090c");
-    ctx.fillStyle=g;
-    ctx.fillRect(0,0,TW,TH);
-    const pad=0.055;
-    const boxW=TW*(1-pad*2), boxH=TH*(1-pad*2);
-    const sc=Math.min(boxW/cw, boxH/ch);
-    const dw=cw*sc, dh=ch*sc;
-    ctx.imageSmoothingEnabled=true;
-    ctx.imageSmoothingQuality="high";
-    ctx.drawImage(src, cx, cy, cw, ch, (TW-dw)/2, (TH-dh)/2, dw, dh);
-    return c.toDataURL("image/jpeg", 0.93);
+    return landscapeCanvas(img).toDataURL("image/jpeg", 0.93);
   }).catch(function(){ return dataUrl; });
 }
 
@@ -4059,9 +4006,10 @@ async function buildPdf(){
   d.setFillColor(CYAN[0], CYAN[1], CYAN[2]);
   d.rect(0,0,W,6,"F");
   if(hero){
-    try{ d.addImage(hero, "JPEG", 0, 36, W, W*2/3, undefined, "NONE"); }catch(e){}
+    const hh=Math.round(W*9/16);
+    try{ d.addImage(hero, "JPEG", 0, 36, W, hh, undefined, "NONE"); }catch(e){}
   }
-  let y=hero ? 36+W*2/3+28 : 80;
+  let y=hero ? 36+Math.round(W*9/16)+28 : 80;
   setFont(true, 11, CYAN);
   d.text((why()||"APPRAISAL").toUpperCase(), 36, y);
   y+=28;
@@ -4149,8 +4097,9 @@ async function buildPdf(){
     setFont(false, 9, [160,160,170]);
     d.text((section||"Walk-around")+"  ·  "+(unitLabel()||""), 768, 22, {align:"right"});
     const img=framed[shot.name]||shot.data;
-    try{ d.addImage(img, "JPEG", 24, 36, 744, 496, undefined, "NONE"); }catch(e){
-      try{ d.addImage(img, "JPEG", 24, 36, 744, 496, undefined, "FAST"); }catch(err){}
+    const pw=744, ph=Math.round(pw*9/16);
+    try{ d.addImage(img, "JPEG", 24, 52, pw, ph, undefined, "NONE"); }catch(e){
+      try{ d.addImage(img, "JPEG", 24, 52, pw, ph, undefined, "FAST"); }catch(err){}
     }
     if(shot.cap){
       setFont(false, 10, WHITE);
