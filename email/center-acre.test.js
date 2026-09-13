@@ -244,10 +244,18 @@ must(/function apptStageOf\(/, "API stage field maps booked vs on-site");
 must(/sel90QtMNs2kN0MbE/, "Canada Drives source id");
 must(/function needsAppraiseAppt\(/, "Canada Drives stays gated until an appointment is picked");
 must(/function usesCaAppointments\(/, "appointments UI is Canada Drives only");
-must(/src!=="Canada Drives"\) return false/, "My Loan / My Auto / Carla skip the appointment gate");
-must(/s\.id==="Canada Drives"\) openAppointments\(\)/, "only Canada Drives opens the appointment book");
-must(/else startNewApplication\(\)/, "other CA sources start a new application");
-must(/function startNewApplication\(\)\{[\s\S]*?show\("home"\)/, "new application opens the full Appraise form");
+must(/src && src!=="Canada Drives"\) return false/, "My Loan / My Auto / Carla skip the appointment gate");
+must(/function needsNewApplication\(/, "non–Canada Drives CA sources start a New application");
+must(/function completeNewApplication\(/, "New application creates the file and continues into Appraise");
+must(/function openNewApplicationDesk\(/, "non-CD sources open the New application desk");
+must(/function openCaSource\(/, "lead source routes CD to appointments and everyone else to New application");
+must(/id="newAppForm"/, "New application is a real create form");
+must(/id="newAppGo"/, "New application has a complete-and-continue button");
+must(/Create application and continue/, "New application continue CTA is explicit");
+must(/id="newAppCta"/, "non-CD sources get a big New application CTA");
+must(/id="na-vin"/, "New application collects VIN");
+must(/id="na-first"/, "New application collects customer name");
+must(/upsertCenterFromApp\(\{source:"appraise"\}\)/, "completed New application lands as a real Center file");
 (function testLoadAppointmentsLiveEmpty() {
   const m = html.match(/async function loadAppointments\(\)\{[\s\S]*?\n\}/);
   assert.ok(m, "loadAppointments source is extractable");
@@ -392,11 +400,31 @@ must(/inbox:"Incoming"/, "Center lanes stay Incoming / On-site / History");
   assert.strictEqual(needsAppraiseAppt({ purpose: "appraise", dealType: "Consumer Acquisition", leadSource: "Canada Drives", apptId: "" }, true), true, "Canada Drives without appointment stays gated");
   assert.strictEqual(needsAppraiseAppt({ purpose: "appraise", dealType: "Consumer Acquisition", leadSource: "Canada Drives", apptId: "rec1" }, true), false, "picked appointment unlocks");
   assert.strictEqual(needsAppraiseAppt({ purpose: "appraise", dealType: "Consumer Acquisition", leadSource: "Canada Drives", apptId: "new", newApplication: true }, true), false, "Canada Drives new application unlocks");
+  assert.strictEqual(needsAppraiseAppt({ purpose: "appraise", dealType: "Consumer Acquisition", leadSource: "Canada Drives", apptId: "", newApplication: true }, true), false, "Canada Drives New application unlocks appointments gate");
   assert.strictEqual(needsAppraiseAppt({ purpose: "appraise", dealType: "Consumer Acquisition", leadSource: "My Loan", apptId: "" }, true), false, "My Loan is new application only");
   assert.strictEqual(needsAppraiseAppt({ purpose: "appraise", dealType: "Consumer Acquisition", leadSource: "My Auto", apptId: "" }, true), false, "My Auto is new application only");
   assert.strictEqual(needsAppraiseAppt({ purpose: "appraise", dealType: "Consumer Acquisition", leadSource: "Carla", apptId: "" }, true), false, "Carla is new application only");
   assert.strictEqual(needsAppraiseAppt({ purpose: "appraise", dealType: "Trade-in", apptId: "" }, true), false, "Trade-in does not need an appointment");
   assert.strictEqual(needsAppraiseAppt({ purpose: "website", dealType: "Consumer Acquisition", leadSource: "Canada Drives", apptId: "" }, true), false, "website path skips appointments");
+})();
+(function testNeedsNewApplication() {
+  const m = html.match(/function needsNewApplication\(job, staff\)\{[\s\S]*?\n\}/);
+  assert.ok(m, "needsNewApplication source is extractable");
+  const needsAppraiseType = function () { return false; };
+  const needsLeadSource = function (job) {
+    return job && job.dealType === "Consumer Acquisition" && !job.leadSource;
+  };
+  const isConsumerAcquisition = function (item) {
+    const t = item ? item.dealType : "";
+    return t === "Consumer Acquisition" || t === "Canada Drives";
+  };
+  const needsNewApplication = eval("(" + m[0].replace("function needsNewApplication", "function") + ")");
+  assert.strictEqual(needsNewApplication({ purpose: "appraise", dealType: "Consumer Acquisition", leadSource: "My Loan" }, true), true, "My Loan stays gated until New application is created");
+  assert.strictEqual(needsNewApplication({ purpose: "appraise", dealType: "Consumer Acquisition", leadSource: "My Auto" }, true), true, "My Auto stays gated until New application is created");
+  assert.strictEqual(needsNewApplication({ purpose: "appraise", dealType: "Consumer Acquisition", leadSource: "Carla" }, true), true, "Carla stays gated until New application is created");
+  assert.strictEqual(needsNewApplication({ purpose: "appraise", dealType: "Consumer Acquisition", leadSource: "My Loan", newApplication: true }, true), false, "completed New application unlocks Appraise");
+  assert.strictEqual(needsNewApplication({ purpose: "appraise", dealType: "Consumer Acquisition", leadSource: "Canada Drives" }, true), false, "Canada Drives uses appointments, not the New application gate");
+  assert.strictEqual(needsNewApplication({ purpose: "appraise", dealType: "Trade-in" }, true), false, "Trade-in does not need New application");
 })();
 
 (function testDefaultPerms() {
@@ -423,6 +451,10 @@ assert.ok(fs.existsSync(path.join(root, "api/extract.js")), "document extract li
   assert.strictEqual(api.mapStage("On-Site Visit"), "on-site");
   const f = api.formula("Canada Drives");
   assert.ok(f.indexOf("Appointment Booked") >= 0 && f.indexOf("On-Site Visit") >= 0, "formula includes both live stages");
+  assert.strictEqual(api.formula("My Loan"), "", "My Loan has no appointment formula");
+  assert.strictEqual(api.formula("Car Loans Canada"), "", "Carla / Car Loans Canada has no appointment formula");
+  assert.strictEqual(api.usesAppointmentsSource("Canada Drives"), true, "Canada Drives uses appointments");
+  assert.strictEqual(api.usesAppointmentsSource("My Auto"), false, "My Auto does not use appointments");
   const src = fs.readFileSync(path.join(root, "api/appointments.js"), "utf8");
   assert.ok(!/sample appointments/i.test(src), "API never mentions sample appointments");
 })();
