@@ -30,6 +30,7 @@ must(/if\(guest\) hideMailOpen\(\);/, "finally keeps guest mail hidden");
 mustNot(/Open Mail and send/, "guest never sees Open Mail and send");
 must(/if\(guest\) finish\("Couldn’t send — try again", false\);\s*else finish\("Still working — tap Open Gmail and send\.", true\)/, "guest watch is retry; staff hang still offers Gmail");
 must(/if\(!sentOk\) revealMail\(\);|else if\(!sentOk\) revealMail\(\);/, "staff fail still reveals mail");
+must(/pushVoiceParts\(parts, shots\)/, "Send attaches spoken damage audio with the photos");
 
 assert.ok(/function hideMailOpen\(\)\{/.test(html), "hideMailOpen exists");
 assert.ok(/if\(APP\.role==="guest"\)\{ hideMailOpen\(\); return ""; \}/.test(html), "revealMailOpen never shows mail to guests");

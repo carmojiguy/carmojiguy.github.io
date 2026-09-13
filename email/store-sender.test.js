@@ -53,6 +53,7 @@ async function route(body) {
 
   const rfc = upload.buildRfc822({
     to: "sales@gmautosales.ca",
+    cc: "christina@carmoji.ca",
     subject: "2024 Tucson trade-in",
     text: "plain",
     html: "<p>hi</p>"
@@ -60,6 +61,7 @@ async function route(body) {
   assert.ok(rfc.indexOf("From: store@gmautosales.ca") >= 0);
   assert.ok(rfc.indexOf("text/html") >= 0);
   assert.ok(rfc.indexOf("2024 Tucson") >= 0);
+  assert.ok(rfc.indexOf("Cc: christina@carmoji.ca") >= 0);
 
   console.log("store-sender: ok");
 })().catch(function (err) {

@@ -107,9 +107,25 @@ must(/STAFF_DENY=/, "denied staff get one-sentence copy");
 must(/LOGIN_SCOPES="openid email profile"/, "login does not ask for Gmail send");
 must(/function packetSenderLine\(/, "email names who sent the packet");
 must(/You’re offline\. Your work is saved/, "offline Send keeps the draft");
+must(/function startDamageAudio\(/, "damage capture records spoken audio");
+must(/function stopDamageAudio\(/, "damage audio stops on shutter");
+must(/function damageCaptionLine\(/, "long speech gets a short tattoo line");
+must(/id="viewerCapMore"/, "More expands the rest of the dialogue");
+must(/id="viewerCapSheet"/, "long caption expands below the photo");
+must(/view-cap-sheet/, "caption sheet sits under the photo");
+must(/function openShotViewer\(/, "gallery and packet play the tied audio");
+must(/function pushVoiceParts\(/, "Send attaches spoken damage audio");
+must(/APP\.closeupAudio/, "employee close-ups keep the same voice note");
+must(/tattooed on the bottom/, "guest and staff copy says the words are burned in");
+mustNot(/if\(t\.length>80\) return false/, "long spoken notes still tattoo");
 must(/PAGE=\[250,249,252\]/, "sales-grade bright PDF cover");
 must(/item\.interest=APP\.inviteUnit/, "trade-in persist interest vehicle");
 must(/item\.salesperson=/, "persist salesperson on center files");
+must(/CHRISTINA_COPY="christina@carmoji.ca"/, "Christina Chase is on appraisal Send");
+must(/function appraisalCc\(/, "appraisal Send builds a Christina CC");
+must(/function isAppraisalSend\(/, "website-only posts skip Christina");
+must(/cc:appraisalCc\(\)/, "guest catalog Send CCs Christina");
+must(/cc:extra\.cc/, "store mailer payload keeps CC");
 
 ["404.html", "inspect-vehicle.html"].forEach(function (name) {
   const copy = fs.readFileSync(path.join(root, name), "utf8");

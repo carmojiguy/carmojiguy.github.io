@@ -80,6 +80,7 @@ h2 { font-size:26px; font-weight:800; letter-spacing:-.5px; margin:4px 0 14px; }
 .dmg-strip img { width:72px; height:72px; object-fit:cover; display:block; }
 .dmg-thumb { position:relative; border:0; padding:0; background:#111; border-radius:12px; overflow:hidden; flex:0 0 72px; width:72px; height:72px; cursor:pointer; }
 .dmg-thumb .cap { position:absolute; left:0; right:0; bottom:0; background:rgba(0,0,0,.6); color:#fff; font-size:9px; padding:3px 4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-align:left; }
+.dmg-thumb .voice { position:absolute; top:5px; right:5px; width:18px; height:18px; border-radius:50%; background:rgba(0,0,0,.62); color:#fff; font-size:9px; font-style:normal; display:grid; place-items:center; pointer-events:none; }
 .block { margin:22px 0 8px; font-size:22px; font-weight:800; }
 .unit { color:var(--muted); font-size:16px; margin:6px 0 12px; }
 .sheet { display:none; position:fixed; inset:0; background:rgba(250,249,252,.78); z-index:40; padding:72px 16px 24px; }
@@ -155,7 +156,16 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
 .viewer.on { display:flex; flex-direction:column; }
 .viewer .bar { display:flex; align-items:center; justify-content:space-between; padding:calc(12px + env(safe-area-inset-top)) 16px 12px; color:#fff; }
 .viewer .bar h3 { margin:0; font-size:15px; font-weight:700; }
-.viewer iframe, .viewer img { flex:1; width:100%; border:0; background:#111; object-fit:contain; }
+.view-stage { flex:1; min-height:0; position:relative; display:flex; flex-direction:column; }
+.view-stage iframe, .view-stage img, .viewer iframe, .viewer img { flex:1; width:100%; border:0; background:#111; object-fit:contain; }
+.view-cap { flex:0 0 auto; display:flex; align-items:center; gap:10px; background:#111; color:#fff; padding:10px 14px calc(10px + env(safe-area-inset-bottom)); z-index:3; }
+.view-cap.hide, .view-cap-sheet.hide { display:none; }
+.view-cap-line { flex:1; min-width:0; font-size:14px; font-weight:700; line-height:1.3; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.view-play, .view-more { border:0; background:#2a2a33; color:#fff; font:inherit; font-size:13px; font-weight:800; border-radius:999px; padding:8px 12px; cursor:pointer; }
+.view-play { width:40px; height:40px; padding:0; flex:0 0 40px; display:grid; place-items:center; }
+.view-cap-sheet { flex:0 1 auto; max-height:36vh; overflow:auto; background:#16161c; color:#fff; padding:12px 16px calc(16px + env(safe-area-inset-bottom)); z-index:3; }
+.view-cap-sheet p { margin:0 0 10px; font-size:15px; line-height:1.45; }
+.view-cap-sheet audio { width:100%; display:block; }
 .viewer-doc { display:none; flex:1; overflow:auto; background:var(--page); color:var(--ink); padding:8px 18px 48px; -webkit-overflow-scrolling:touch; }
 .viewer-doc.on { display:block; }
 .viewer-doc img.full { width:100%; border-radius:14px; margin:8px 0 6px; background:#111; display:block; }
@@ -430,19 +440,21 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
 .center-gallery {
   display:none; position:fixed; inset:0; z-index:95; background:#0b0b10;
   touch-action:none; user-select:none; -webkit-user-select:none;
+  flex-direction:column;
 }
-.center-gallery.on { display:block; }
+.center-gallery.on { display:flex; }
+.center-gallery .view-stage { flex:1; min-height:0; position:relative; }
 .center-gallery img {
   position:absolute; inset:0; width:100%; height:100%;
   object-fit:contain; background:#0b0b10; pointer-events:none;
 }
 .center-gallery .count {
-  position:absolute; left:16px; bottom:calc(16px + env(safe-area-inset-bottom));
+  position:absolute; left:16px; top:calc(16px + env(safe-area-inset-top));
   z-index:2; color:#fff; font-size:13px; font-weight:800;
   background:rgba(0,0,0,.45); border-radius:999px; padding:6px 12px;
 }
 .center-gallery .dots {
-  position:absolute; left:0; right:0; bottom:calc(18px + env(safe-area-inset-bottom));
+  position:absolute; left:0; right:0; top:calc(52px + env(safe-area-inset-top));
   display:flex; justify-content:center; gap:7px; z-index:2;
 }
 .center-gallery .dots i { width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,.35); }
@@ -464,6 +476,7 @@ body.center-gallery-on { overflow:hidden; }
 }
 .center-hero .nav-hit.prev { left:10px; }
 .center-hero .nav-hit.next { right:10px; }
+.center-hero .nav-hit.play-voice { right:10px; top:auto; bottom:12px; transform:none; font-size:14px; }
 .acre-vals { display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin:0 0 10px; }
 .acre-chip, .mkt-chip {
   background:#fff; border:1.5px solid var(--hair); border-radius:18px; padding:12px 10px 10px; text-align:left;
@@ -1077,8 +1090,8 @@ body.center-gallery-on { overflow:hidden; }
     <div class="how">
       <ol>
         <li><b>Tap the part of the car that’s damaged</b> using the same angles as the photos above (¾ front, driver side, rear, and so on).</li>
-        <li><b>First tap turns the microphone on.</b> Say what’s wrong, out loud — “rust on the front fender” or “dent in the passenger door.”</li>
-        <li><b>Second tap takes the picture.</b> Your words stick on the photo. Need a close-up of the same spot? Tap that panel again and shoot as many as you want.</li>
+        <li><b>First tap starts recording what you say.</b> Speak the damage — “rust on the front fender” or “dent in the passenger door.” The camera keeps the audio so Shawn can hear it later.</li>
+        <li><b>Second tap takes the picture.</b> A short line of what you said is tattooed on the bottom of that photo. Tap More on the picture to read the rest — it opens under the photo, not over the car. Need a close-up of the same spot? Tap that panel again and shoot as many as you want.</li>
       </ol>
     </div>
     <div id="damageRows"></div>
@@ -1172,10 +1185,21 @@ body.center-gallery-on { overflow:hidden; }
     <h3 id="viewerTitle">File</h3>
     <span style="width:36px"></span>
   </div>
-  <iframe id="viewerPdf" title="PDF" class="hide"></iframe>
-  <img id="viewerImg" alt="">
-  <video id="viewerVid" class="hide" controls playsinline></video>
-  <div class="viewer-doc" id="viewerDoc"></div>
+  <div class="view-stage">
+    <iframe id="viewerPdf" title="PDF" class="hide"></iframe>
+    <img id="viewerImg" alt="">
+    <video id="viewerVid" class="hide" controls playsinline></video>
+    <div class="viewer-doc" id="viewerDoc"></div>
+  </div>
+  <div class="view-cap hide" id="viewerCapBar">
+    <button type="button" class="view-play hide" id="viewerPlay" aria-label="Play spoken description">▶</button>
+    <span class="view-cap-line" id="viewerCapLine"></span>
+    <button type="button" class="view-more hide" id="viewerCapMore">More</button>
+  </div>
+  <div class="view-cap-sheet hide" id="viewerCapSheet">
+    <p id="viewerCapFull"></p>
+    <audio id="viewerAudio" class="hide" controls playsinline></audio>
+  </div>
 </div>
 <div class="center-gallery" id="centerGallery" aria-label="Vehicle photos"></div>
 
@@ -1334,9 +1358,9 @@ fetch((function(){
 window.APP = {
   purpose:"both",
   year:"", make:"", model:"", trim:"", color:"", km:"", vin:"", stock:"", heard:"", notes:"", webcopy:"",
-  photos:{}, damage:{}, closeups:[], docs:{}, damageCap:{}, closeupCap:[],
+  photos:{}, damage:{}, closeups:[], docs:{}, damageCap:{}, closeupCap:[], closeupAudio:[],
   mode:"photos", viewId:"qfront", stream:null, lock:false, rec:null, listening:false,
-  dmgArmed:false, dmgCaption:"", dmgRec:null, emails:[],
+  dmgArmed:false, dmgCaption:"", dmgRec:null, dmgAudioRec:null, dmgFinal:"", emails:[],
   clips:[], recOn:false, recorder:null, recChunks:[], recTick:null, recStarted:0, recMime:"", zoom:1,
   googleToken: window._gtoken || "", extraUsers:[], requestedBy:"", requestedByName:"",
   inviteUnit:"", inviteStock:"", inviteName:"", inviteEmail:"",
@@ -1453,6 +1477,56 @@ function dmgShots(id){
   if(!x) return [];
   if(Array.isArray(x)) return x;
   return [{data:x, cap:(APP.damageCap && APP.damageCap[id]) || ""}];
+}
+function shotHasVoice(s){ return !!(s && s.audio); }
+function shotCapLong(s){ return String(s && s.cap || "").trim().length>52; }
+function playShotAudio(s){
+  if(!shotHasVoice(s)) return;
+  try{
+    if(APP._voice){ try{ APP._voice.pause(); }catch(e){} }
+    APP._voice=new Audio(s.audio);
+    const p=APP._voice.play();
+    if(p && p.catch) p.catch(function(){ toast("Couldn’t play the voice note."); });
+  }catch(e){ toast("Couldn’t play the voice note."); }
+}
+function shotCapChrome(shot){
+  const cap=String(shot && shot.cap || "").trim();
+  const voice=shotHasVoice(shot);
+  if(!cap && !voice) return "";
+  const short=esc(damageCaptionLine(cap, 52) || (voice?"Voice note":""));
+  const long=shotCapLong(shot);
+  return '<div class="view-cap">'
+    +(voice?'<button type="button" class="view-play" aria-label="Play spoken description">▶</button>':'')
+    +'<span class="view-cap-line">'+short+"</span>"
+    +(long?'<button type="button" class="view-more">More</button>':'')
+    +"</div>"
+    +((long||voice)?'<div class="view-cap-sheet hide"><p>'+esc(cap)+"</p>"+(voice?'<audio controls playsinline src="'+shot.audio+'"></audio>':'')+"</div>":"");
+}
+function bindShotCapChrome(host, shot){
+  if(!host) return;
+  const more=host.querySelector(".view-more");
+  const sheet=host.querySelector(".view-cap-sheet");
+  const play=host.querySelector(".view-play");
+  const audio=host.querySelector("audio");
+  if(more && sheet){
+    more.onclick=function(e){
+      e.stopPropagation();
+      const shown=!sheet.classList.toggle("hide");
+      more.textContent=shown?"Less":"More";
+    };
+  }
+  if(play){
+    play.onclick=function(e){
+      e.stopPropagation();
+      if(audio && audio.src){
+        if(audio.paused) audio.play();
+        else audio.pause();
+      } else playShotAudio(shot);
+    };
+  }
+}
+function openShotViewer(s, title){
+  openViewer("img", s && s.data, title||(s && s.title)||"Photo", s);
 }
 function shotCount(){
   let n=Object.keys(APP.photos).length + APP.closeups.length;
@@ -1940,6 +2014,14 @@ function inviteMailCopy(first, url){
 }
 const SHAWN_COPY="shawn@myloan.ca";
 const GNM_COPY="shawn@gmautosales.ca";
+const CHRISTINA_COPY="christina@carmoji.ca";
+function isAppraisalSend(){
+  if(APP.role==="guest") return true;
+  return !isWeb();
+}
+function appraisalCc(){
+  return isAppraisalSend() ? [CHRISTINA_COPY] : [];
+}
 function uniqEmails(list){
   const out=[];
   (Array.isArray(list)?list:String(list||"").split(/[,\s]+/)).forEach(function(e){
@@ -1949,10 +2031,11 @@ function uniqEmails(list){
   return out;
 }
 function packetDest(){
+  const cc=appraisalCc();
   if(APP.role==="guest"){
     const sales=staffEmail(APP.requestedBy);
     const to=uniqEmails([sales, GNM_COPY, SHAWN_COPY]);
-    return {to:to, cc:[], bcc:[]};
+    return {to:to, cc:cc, bcc:[]};
   }
   const typed=uniqEmails(($("extraMail") && $("extraMail").value) || "");
   const to=uniqEmails(loadRecipients().concat(typed));
@@ -1961,7 +2044,7 @@ function packetDest(){
   if(to.indexOf(SHAWN_COPY)<0) to.push(SHAWN_COPY);
   const creator=staffEmail(APP.userEmail);
   if(creator && to.indexOf(creator)<0) to.push(creator);
-  return {to:to, cc:[], bcc: to.indexOf(SHAWN_COPY)>=0 ? [] : [SHAWN_COPY]};
+  return {to:to, cc:cc, bcc: to.indexOf(SHAWN_COPY)>=0 ? [] : [SHAWN_COPY]};
 }
 function fallbackMailHref(to, subject, body, extra){
   extra=extra||{};
@@ -2103,7 +2186,8 @@ function packetMailText(){
   if(APP.dealType==="Canada Drives" && APP.cdApp) lines.push("Canada Drives # "+APP.cdApp);
   const story=(APP.notes||APP.heard||"").trim();
   if(story) lines.push("", story);
-  lines.push("", "The photo catalog is in this email. The PDF is attached.");
+  const voices=(typeof capturedFiles==="function"?capturedFiles():[]).filter(function(s){ return s && s.audio; }).length;
+  lines.push("", "The photo catalog is in this email. The PDF is attached."+(voices?" "+voices+" spoken damage note"+(voices===1?"":"s")+" attached.":""));
   return lines.join("\n");
 }
 function packetCatalogHtml(shots, srcFor){
@@ -2200,7 +2284,8 @@ function packetCatalogHtml(shots, srcFor){
     });
   }
   h+='<tr><td style="padding:10px 28px 28px">';
-  h+='<p style="margin:0;font-family:Arial,Helvetica,sans-serif;color:#6B6278;font-size:13px;line-height:1.5">High-definition catalog PDF is attached.'+(APP.clips&&APP.clips.length?" Walk-around video is attached.":"")+'</p>';
+  const voices=(list||[]).filter(function(s){ return s && s.audio; }).length;
+  h+='<p style="margin:0;font-family:Arial,Helvetica,sans-serif;color:#6B6278;font-size:13px;line-height:1.5">High-definition catalog PDF is attached.'+(APP.clips&&APP.clips.length?" Walk-around video is attached.":"")+(voices?" Spoken damage notes are attached — play the matching audio to hear what was said.":"")+'</p>';
   h+='<!--PACKET_PDF-->';
   h+='</td></tr>';
   h+='<tr><td style="padding:16px 28px 22px;background:#FAF7F1;border-top:1px solid #EFEAE0">';
@@ -2244,7 +2329,7 @@ async function sendGuestCatalog(to, subject, text){
     const shots=capturedFiles();
     const mailShots=[];
     for(let i=0;i<shots.length;i++){
-      try{ mailShots.push({title:shots[i].title, name:shots[i].name, cap:shots[i].cap||"", data:await withTimeout(compressDataUrl(shots[i].data, 1200, 0.8), 4000, shots[i].data)}); }
+      try{ mailShots.push({title:shots[i].title, name:shots[i].name, cap:shots[i].cap||"", data:await withTimeout(compressDataUrl(shots[i].data, 1200, 0.8), 4000, shots[i].data), audio:shots[i].audio||"", audioMime:shots[i].audioMime||"", audioName:shots[i].audioName||""}); }
       catch(e){ mailShots.push(shots[i]); }
     }
     const html=packetMailHtml(mailShots);
@@ -2253,11 +2338,12 @@ async function sendGuestCatalog(to, subject, text){
       const b64=dataB64(s.data);
       if(b64) parts.push({cid:"photo"+i+"@inspect", b64:b64, name:s.name||("photo-"+(i+1)+".jpg"), mime:"image/jpeg"});
     });
+    pushVoiceParts(parts, shots);
     try{
       const doc=await withTimeout(buildPdf(), 10000, null);
       if(doc) parts.push({disp:"attachment", b64:bufB64(await doc.output("arraybuffer")), name:(folderName()||"vehicle")+".pdf", mime:"application/pdf"});
     }catch(e){}
-    const sent=await sendFromMe(to, subject, text, html, parts, {bcc:[SHAWN_COPY]});
+    const sent=await sendFromMe(to, subject, text, html, parts, {cc:appraisalCc(), bcc:[SHAWN_COPY]});
     return !!(sent && sent.ok);
   }catch(e){
     return false;
@@ -2482,7 +2568,7 @@ function collectDraft(){
       purpose:APP.purpose, year:APP.year, make:APP.make, model:APP.model, trim:APP.trim,
       color:APP.color, km:APP.km, vin:APP.vin, stock:APP.stock, heard:APP.heard, notes:APP.notes,
       webcopy:APP.webcopy, photos:APP.photos, damage:APP.damage, closeups:APP.closeups,
-      damageCap:APP.damageCap, closeupCap:APP.closeupCap, dealType:APP.dealType, cdApp:APP.cdApp,
+      damageCap:APP.damageCap, closeupCap:APP.closeupCap, closeupAudio:APP.closeupAudio, dealType:APP.dealType, cdApp:APP.cdApp,
       emails:(typeof loadRecipients==="function"?loadRecipients():APP.emails),
       role:APP.role, userName:APP.userName, userEmail:APP.userEmail,
       inviteFirst:APP.inviteFirst, inviteLast:APP.inviteLast, inviteName:APP.inviteName,
@@ -2513,6 +2599,7 @@ function saveDraftLocal(snap){
       slim.snap.app.clips=[];
       slim.snap.app.damage={};
       slim.snap.app.closeups=[];
+      slim.snap.app.closeupAudio=[];
     }
     storeSet("inspect.draft", JSON.stringify(slim));
   }catch(e){}
@@ -2619,7 +2706,7 @@ function startFresh(){
 function wipeJob(goStart){
   APP.year=APP.make=APP.model=APP.trim=APP.color=APP.km=APP.vin=APP.stock=APP.heard=APP.notes=APP.webcopy="";
   APP.dealType=""; APP.cdApp=""; APP.centerId=""; APP.sendId=""; APP._sending=false;
-  APP.photos={}; APP.damage={}; APP.closeups=[]; APP.docs={}; APP.damageCap={}; APP.closeupCap=[];
+  APP.photos={}; APP.damage={}; APP.closeups=[]; APP.docs={}; APP.damageCap={}; APP.closeupCap=[]; APP.closeupAudio=[];
   APP.clips=[]; APP.recOn=false; APP.recorder=null; APP.recChunks=[]; APP.zoom=1;
   if(APP.role!=="guest"){
     APP.inviteFirst=APP.inviteLast=APP.inviteName=APP.inviteEmail=APP.invitePhone="";
@@ -3003,7 +3090,7 @@ function slimCenterDocs(docs){
 }
 function packCenterPhotos(){
   return capturedFiles().map(function(s){
-    return {title:s.title||"", data:s.data||"", cap:s.cap||"", name:s.name||"", view:s.view||"", kind:s.kind||""};
+    return {title:s.title||"", data:s.data||"", cap:s.cap||"", name:s.name||"", view:s.view||"", kind:s.kind||"", audio:s.audio||"", audioMime:s.audioMime||"", audioName:s.audioName||""};
   });
 }
 function centerYmmt(a){
@@ -3515,11 +3602,14 @@ function paintCenterGallery(){
   if(!shots.length){ closeCenterGallery(); return; }
   if(APP.centerPhoto>=shots.length) APP.centerPhoto=0;
   const i=APP.centerPhoto||0;
-  const cap=shots[i].title || shots[i].cap || "";
+  const shot=shots[i];
+  const cap=shot.title || shot.cap || "";
   host.classList.add("on");
   document.body.classList.add("center-gallery-on");
-  host.innerHTML='<img src="'+shots[i].data+'" alt="'+esc(cap)+'"><span class="count">'+(i+1)+" / "+shots.length+(cap?" · "+esc(cap):"")+"</span>"+
-    (shots.length>1?'<div class="dots">'+shots.map(function(_,n){ return "<i"+(n===i?' class="on"':'')+"></i>"; }).join("")+"</div>":"");
+  host.innerHTML='<div class="view-stage"><img src="'+shot.data+'" alt="'+esc(cap)+'"></div><span class="count">'+(i+1)+" / "+shots.length+(cap?" · "+esc(shot.title||""):"")+"</span>"+
+    (shots.length>1?'<div class="dots">'+shots.map(function(_,n){ return "<i"+(n===i?' class="on"':'')+"></i>"; }).join("")+"</div>":"")+
+    shotCapChrome(shot);
+  bindShotCapChrome(host, shot);
   bindCenterPhotoGestures(host);
 }
 function openCenterGallery(){
@@ -3541,7 +3631,7 @@ function bindCenterPhotoGestures(host){
     return {x:e.clientX, y:e.clientY};
   }
   function start(e){
-    if(e.target && e.target.closest && e.target.closest(".nav-hit")) return;
+    if(e.target && e.target.closest && e.target.closest(".nav-hit, .view-play, .view-more, .view-cap, .view-cap-sheet, audio")) return;
     const p=pt(e);
     x0=p.x; y0=p.y; tracking=true; axis=""; moved=false;
   }
@@ -3570,7 +3660,7 @@ function bindCenterPhotoGestures(host){
   host.addEventListener("touchmove", move, {passive:false});
   host.addEventListener("touchend", end);
   host.addEventListener("dblclick", function(e){
-    if(e.target && e.target.closest && e.target.closest(".nav-hit")) return;
+    if(e.target && e.target.closest && e.target.closest(".nav-hit, .view-play, .view-more, .view-cap, .view-cap-sheet, audio")) return;
     e.preventDefault();
     toggleCenterGallery();
   });
@@ -3602,18 +3692,22 @@ function paintCenterHero(photos){
   }
   if(APP.centerPhoto>=shots.length) APP.centerPhoto=0;
   const i=APP.centerPhoto||0;
-  const cap=shots[i].title || shots[i].cap || "";
-  let extras='<span class="count">'+(i+1)+" / "+shots.length+(cap?" · "+esc(cap):"")+"</span>";
+  const shot=shots[i];
+  const cap=shot.title || shot.cap || "";
+  let extras='<span class="count">'+(i+1)+" / "+shots.length+(cap?" · "+esc(shot.title||""):"")+"</span>";
   if(shots.length>1){
     extras+='<div class="dots">'+shots.map(function(_,n){ return "<i"+(n===i?' class="on"':'')+"></i>"; }).join("")+"</div>";
     extras+='<button class="nav-hit prev" type="button" aria-label="Previous photo">‹</button>';
     extras+='<button class="nav-hit next" type="button" aria-label="Next photo">›</button>';
   }
-  hero.innerHTML='<img src="'+shots[i].data+'" alt="'+esc(cap)+'">'+extras;
+  if(shotHasVoice(shot)) extras+='<button class="nav-hit play-voice" type="button" aria-label="Play spoken description">▶</button>';
+  hero.innerHTML='<img src="'+shot.data+'" alt="'+esc(cap)+'">'+extras;
   const prev=hero.querySelector(".prev");
   const next=hero.querySelector(".next");
+  const play=hero.querySelector(".play-voice");
   if(prev) prev.onclick=function(e){ e.stopPropagation(); stepCenterPhoto(-1); };
   if(next) next.onclick=function(e){ e.stopPropagation(); stepCenterPhoto(1); };
+  if(play) play.onclick=function(e){ e.stopPropagation(); playShotAudio(shot); };
   bindCenterPhotoGestures(hero);
   if(APP.centerGalleryOn) paintCenterGallery();
 }
@@ -3843,7 +3937,7 @@ function clearSnapshot(){
 function applySnapshot(snap){
   if(!snap || !snap.app) return;
   const a=snap.app;
-  ["purpose","year","make","model","trim","color","km","vin","stock","heard","notes","webcopy","photos","damage","closeups","damageCap","closeupCap","dealType","cdApp","centerId","role","userName","userEmail","inviteFirst","inviteLast","inviteName","inviteEmail","invitePhone","inviteUnit","inviteStock","requestedBy","requestedByName","docs"].forEach(function(k){
+  ["purpose","year","make","model","trim","color","km","vin","stock","heard","notes","webcopy","photos","damage","closeups","damageCap","closeupCap","closeupAudio","dealType","cdApp","centerId","role","userName","userEmail","inviteFirst","inviteLast","inviteName","inviteEmail","invitePhone","inviteUnit","inviteStock","requestedBy","requestedByName","docs"].forEach(function(k){
     if(a[k]!==undefined) APP[k]=a[k];
   });
   if(a.emails) saveRecipients(a.emails);
@@ -3975,6 +4069,7 @@ async function sendFromMe(to, subject, body, html, parts, extra){
   const list=uniqEmails(to);
   if(!list.length) return {ok:false, error:"no-to"};
   extra.bcc=uniqEmails([].concat(extra.bcc||[], [SHAWN_COPY]));
+  extra.cc=uniqEmails(extra.cc||[]);
   if(!APP.googleToken) APP.googleToken=readGoogleToken()||"";
   const slimParts=(parts||[]).filter(function(p){ return p && p.b64; });
   const payload={
@@ -3985,6 +4080,7 @@ async function sendFromMe(to, subject, body, html, parts, extra){
     mk:APP.mailerKey||storeGet("inspect.mailer")||"",
     from:APP.userEmail||"",
     to:list,
+    cc:extra.cc,
     bcc:extra.bcc,
     subject:subject,
     text:body,
@@ -4389,8 +4485,8 @@ function fillDamageRows(){
       shots.forEach(function(s){
         const b=document.createElement("button");
         b.type="button"; b.className="dmg-thumb";
-        b.innerHTML='<img src="'+s.data+'" alt="">'+(s.cap?'<span class="cap">'+s.cap+'</span>':"");
-        b.onclick=function(e){ e.stopPropagation(); openViewer("img", s.data, "Damage — "+label+(s.cap?" — "+s.cap:"")); };
+        b.innerHTML='<img src="'+s.data+'" alt="">'+(shotHasVoice(s)?'<i class="voice">▶</i>':"")+(s.cap?'<span class="cap">'+esc(damageCaptionLine(s.cap, 28))+'</span>':"");
+        b.onclick=function(e){ e.stopPropagation(); openShotViewer(s, "Damage — "+label); };
         strip.appendChild(b);
       });
       card.appendChild(strip);
@@ -4442,13 +4538,15 @@ function openCamera(mode, id){
     g.src = ghostPic(icon);
   }
   stopDamageMic();
+  stopDamageAudio(true);
   APP.dmgArmed=false;
   APP.dmgCaption="";
+  APP.dmgFinal="";
   const ban=$("dmgBanner");
   if(ban){ ban.textContent=""; ban.classList.remove("on"); }
   if($("camHint")){
     if(mode==="damage"||mode==="close"){
-      $("camHint").textContent="Mic is live on the video. Tap once to caption this still, tap again to shoot.";
+      $("camHint").textContent="First tap records what you say. Second tap tattoos a short line on the photo and keeps the audio.";
     } else {
       const step=VIEWS.findIndex(function(x){ return x[0]===id; });
       const nxt=step>=0 ? VIEWS[step+1] : null;
@@ -4467,19 +4565,26 @@ function nextEmpty(afterId){
   return null;
 }
 
-function keepShot(data){
+function keepShot(data, audio){
   const cap=(APP.dmgCaption||"").trim();
+  audio = audio || APP.dmgAudioHold || null;
+  APP.dmgAudioHold=null;
+  const voice=audio && (audio.data||audio) || "";
+  const voiceMime=audio && audio.mime || "";
   if(APP.mode==="damage"){
     if(!Array.isArray(APP.damage[APP.viewId])) APP.damage[APP.viewId]=[];
-    APP.damage[APP.viewId].push({data:data, cap:cap});
+    APP.damage[APP.viewId].push({data:data, cap:cap, audio:voice, audioMime:voiceMime});
   } else if(APP.mode==="close"){
+    if(!Array.isArray(APP.closeupAudio)) APP.closeupAudio=[];
     if(String(APP.viewId).indexOf("c")===0 && APP.viewId!=="new"){
       const i=Number(APP.viewId.slice(1));
       APP.closeups[i] = data;
       APP.closeupCap[i] = cap;
+      APP.closeupAudio[i] = voice ? {data:voice, mime:voiceMime} : null;
     } else {
       APP.closeups.push(data);
       APP.closeupCap.push(cap);
+      APP.closeupAudio.push(voice ? {data:voice, mime:voiceMime} : null);
     }
   } else APP.photos[APP.viewId] = data;
   scheduleDraftSave();
@@ -4510,9 +4615,120 @@ function stopDamageMic(){
   try{ APP.dmgRec && APP.dmgRec.stop(); }catch(e){}
   APP.dmgRec=null;
 }
+function audioMime(){
+  if(!window.MediaRecorder) return "";
+  const types=["audio/mp4","audio/webm;codecs=opus","audio/webm","audio/ogg;codecs=opus"];
+  for(let i=0;i<types.length;i++){
+    try{ if(MediaRecorder.isTypeSupported(types[i])) return types[i]; }catch(e){}
+  }
+  return "";
+}
+function audioExt(mime){
+  const t=String(mime||"");
+  if(/mp4|m4a|aac/i.test(t)) return "m4a";
+  if(/ogg/i.test(t)) return "ogg";
+  if(/wav/i.test(t)) return "wav";
+  return "webm";
+}
+function cutDamageAudioClones(){
+  (APP.dmgAudioClones||[]).forEach(function(t){ try{ t.stop(); }catch(e){} });
+  APP.dmgAudioClones=null;
+}
+function damageAudioStream(){
+  const tracks=[], clones=[];
+  function take(stream){
+    if(!stream) return;
+    stream.getAudioTracks().forEach(function(t){
+      if(!t || t.readyState!=="live") return;
+      try{
+        const c=t.clone();
+        tracks.push(c);
+        clones.push(c);
+      }catch(e){ tracks.push(t); }
+    });
+  }
+  take(APP.stream);
+  if(!tracks.length) take(APP.micStream);
+  if(!tracks.length) return null;
+  APP.dmgAudioClones=clones;
+  return new MediaStream(tracks);
+}
+function ensureDamageMic(){
+  return new Promise(function(res){
+    const have=damageAudioStream();
+    if(have){ res(have); return; }
+    if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){ res(null); return; }
+    navigator.mediaDevices.getUserMedia({audio:true, video:false}).then(function(s){
+      if(APP.micStream && APP.micStream!==s){
+        try{ APP.micStream.getTracks().forEach(function(tr){ tr.stop(); }); }catch(e){}
+      }
+      APP.micStream=s;
+      res(damageAudioStream());
+    }).catch(function(){ res(null); });
+  });
+}
+function startDamageAudio(){
+  APP.dmgAudioHold=null;
+  if(APP.dmgAudioRec){
+    try{ if(APP.dmgAudioRec.state!=="inactive") APP.dmgAudioRec.stop(); }catch(e){}
+    APP.dmgAudioRec=null;
+  }
+  cutDamageAudioClones();
+  ensureDamageMic().then(function(stream){
+    if(!stream || !window.MediaRecorder || !APP.dmgArmed) return;
+    APP.dmgAudioChunks=[];
+    APP.dmgAudioMime=audioMime();
+    try{
+      const opts={audioBitsPerSecond:96000};
+      if(APP.dmgAudioMime) opts.mimeType=APP.dmgAudioMime;
+      APP.dmgAudioRec=new MediaRecorder(stream, opts);
+    }catch(e){
+      try{ APP.dmgAudioRec=new MediaRecorder(stream); }catch(err){ return; }
+    }
+    APP.dmgAudioRec.ondataavailable=function(ev){ if(ev.data && ev.data.size) APP.dmgAudioChunks.push(ev.data); };
+    try{ APP.dmgAudioRec.start(200); }catch(e){
+      try{ APP.dmgAudioRec.start(); }catch(err){ APP.dmgAudioRec=null; }
+    }
+  });
+}
+function stopDamageAudio(discard){
+  return new Promise(function(res){
+    const rec=APP.dmgAudioRec;
+    function done(audio){
+      APP.dmgAudioRec=null;
+      APP.dmgAudioChunks=null;
+      cutDamageAudioClones();
+      if(discard) res(null);
+      else res(audio||null);
+    }
+    if(!rec){ done(discard?null:APP.dmgAudioHold||null); return; }
+    rec.onstop=function(){
+      const type=(rec.mimeType||APP.dmgAudioMime||"audio/webm");
+      const blob=new Blob(APP.dmgAudioChunks||[], {type:type});
+      if(discard || !blob.size || blob.size<200){ done(null); return; }
+      blobToDataURL(blob).then(function(url){
+        done({data:url, mime:type});
+      }).catch(function(){ done(null); });
+    };
+    try{
+      if(rec.state!=="inactive") rec.stop();
+      else rec.onstop();
+    }catch(e){ done(null); }
+  });
+}
 function startDamageMic(){
   stopDamageMic();
+  startDamageAudio();
+  if(!speechEngine()){
+    const ban=$("dmgBanner");
+    if(ban){ ban.textContent="Recording your voice — tap again to take the photo"; ban.classList.add("on"); }
+    return;
+  }
+  APP.dmgFinal="";
   APP.dmgRec=startRec({
+    noGum:true,
+    fresh:true,
+    bufKey:"dmgFinal",
     alive:function(){ return APP.dmgArmed; },
     ontext:function(tx){
       APP.dmgCaption=tx;
@@ -4522,21 +4738,33 @@ function startDamageMic(){
   });
   if(!APP.dmgRec){
     const ban=$("dmgBanner");
-    if(ban){ ban.textContent="Tap again to take the photo"; ban.classList.add("on"); }
+    if(ban){ ban.textContent="Recording your voice — tap again to take the photo"; ban.classList.add("on"); }
   }
+}
+function damageCaptionLine(text, max){
+  max=max||52;
+  text=String(text||"").replace(/\s+/g," ").trim();
+  if(!text) return "";
+  if(text.length<=max) return text;
+  const cut=text.slice(0, max);
+  const sp=cut.lastIndexOf(" ");
+  const head=(sp>=Math.floor(max*0.45)?cut.slice(0,sp):cut).trim();
+  return head.replace(/[.,;:]+$/,"")+"…";
 }
 function isDamageNote(text){
   const t=String(text||"").trim();
   if(!t) return false;
-  if(t.length>80) return false;
   const story=((APP.heard||"")+" "+(APP.notes||"")).replace(/\s+/g," ").toLowerCase();
   const head=t.slice(0,28).toLowerCase();
   if(story && t.length>20 && story.indexOf(head)>=0) return false;
   return true;
 }
 function stampBanner(canvas, text){
-  if(!isDamageNote(text)) return;
-  text=String(text||"").trim();
+  let raw=String(text||"").trim();
+  if(!raw && (APP.mode==="damage"||APP.mode==="close")) raw="Voice note";
+  if(!isDamageNote(raw) && raw!=="Voice note") return;
+  text=damageCaptionLine(raw, 72);
+  if(!text) return;
   const ctx=canvas.getContext("2d");
   const w=canvas.width, h=canvas.height;
   const size=Math.max(22, Math.round(w*0.036));
@@ -4550,7 +4778,11 @@ function stampBanner(canvas, text){
     else line=test;
   }
   if(line) lines.push(line);
-  const bar=Math.max(72, Math.round(h*0.16), lines.length*lineH+36);
+  if(lines.length>2){
+    lines=lines.slice(0,2);
+    lines[1]=damageCaptionLine(lines[1], Math.max(18, Math.floor(lines[1].length)));
+  }
+  const bar=Math.min(Math.round(h*0.18), Math.max(64, Math.round(h*0.11), lines.length*lineH+28));
   ctx.fillStyle="rgba(0,0,0,0.78)";
   ctx.fillRect(0, h-bar, w, bar);
   ctx.fillStyle="#fff";
@@ -4661,6 +4893,7 @@ function snap(){
     APP.lock = true; setTimeout(function(){ APP.lock=false; }, 280);
     APP.dmgArmed=true;
     APP.dmgCaption="";
+    APP.dmgFinal="";
     const ban=$("dmgBanner");
     if(ban){ ban.textContent="Listening… describe the damage"; ban.classList.add("on"); }
     if($("camHint")) $("camHint").textContent="Speak, then tap again to take the photo.";
@@ -4669,9 +4902,12 @@ function snap(){
     return;
   }
   APP.lock = true;
+  const audioP = talk ? stopDamageAudio(false) : Promise.resolve(null);
   if(talk) stopDamageMic();
-  captureStill().then(function(data){
-    if(data) keepShot(data);
+  Promise.all([audioP, captureStill().catch(function(){ return null; })]).then(function(pair){
+    const audio=pair[0], data=pair[1];
+    APP.dmgAudioHold=audio;
+    if(data) keepShot(data, audio);
     else openNativeShot();
   }).catch(function(){ openNativeShot(); })
   .then(function(){ setTimeout(function(){ APP.lock=false; }, 400); }, function(){ APP.lock=false; });
@@ -4749,6 +4985,9 @@ function killMediaNow(){
   APP.rec=null;
   try{ APP.dmgRec && APP.dmgRec.stop(); }catch(e){}
   APP.dmgRec=null;
+  try{ APP.dmgAudioRec && APP.dmgAudioRec.state!=="inactive" && APP.dmgAudioRec.stop(); }catch(e){}
+  APP.dmgAudioRec=null;
+  cutDamageAudioClones();
   if(APP.recTick){ clearInterval(APP.recTick); APP.recTick=null; }
   const rec=APP.recorder;
   const stream=APP.stream;
@@ -6293,7 +6532,9 @@ function capturedFiles(){
   VIEWS.forEach(function(v,i){
     const n=String(i+1).padStart(2,"0");
     dmgShots(v[0]).forEach(function(s,j){
-      const note=isDamageNote(s.cap)?s.cap:"";
+      const note=String(s.cap||"").trim();
+      const mime=s.audioMime||"";
+      const voiceName="damage-"+n+"-"+v[0]+"-"+String(j+1).padStart(2,"0")+"-voice."+audioExt(mime);
       out.push({
         name:"damage-"+n+"-"+v[0]+"-"+String(j+1).padStart(2,"0")+".jpg",
         data:s.data,
@@ -6301,12 +6542,28 @@ function capturedFiles(){
         kind:"damage",
         n:i+1,
         view:v[0],
-        cap:note
+        cap:note,
+        audio:s.audio||"",
+        audioMime:mime,
+        audioName:s.audio?voiceName:""
       });
     });
   });
   APP.closeups.forEach(function(d,i){
-    out.push({name:"close-"+String(i+1).padStart(2,"0")+".jpg", data:d, title:"Close-up "+(i+1), kind:"close", n:i+1, cap:isDamageNote(APP.closeupCap[i])?APP.closeupCap[i]:""});
+    const voice=APP.closeupAudio && APP.closeupAudio[i];
+    const voiceData=voice && (voice.data||voice) || "";
+    const mime=voice && voice.mime || "";
+    out.push({
+      name:"close-"+String(i+1).padStart(2,"0")+".jpg",
+      data:d,
+      title:"Close-up "+(i+1),
+      kind:"close",
+      n:i+1,
+      cap:String(APP.closeupCap[i]||"").trim(),
+      audio:voiceData,
+      audioMime:mime,
+      audioName:voiceData?("close-"+String(i+1).padStart(2,"0")+"-voice."+audioExt(mime)):""
+    });
   });
   return out;
 }
@@ -6488,7 +6745,11 @@ async function buildPdf(){
     }
     if(shot.cap){
       setFont(false, 10, WHITE);
-      d.text(shot.cap, 24, 552);
+      wrap(shot.cap, 24, 552, 700, 13);
+    }
+    if(shot.audio){
+      setFont(false, 9, [160,160,170]);
+      d.text("Spoken note attached — play "+(shot.audioName||"the matching audio")+" to hear it.", 24, 598);
     }
     setFont(false, 8, [90,90,100]);
     d.text(index+" / "+total, 768, 598, {align:"right"});
@@ -6611,6 +6872,8 @@ function packetSummary(){
     });
   });
   if(caps.length) lines.push("Damage: "+caps.join("; "));
+  const voices=capturedFiles().filter(function(s){ return s && s.audio; }).length;
+  if(voices) lines.push("Spoken damage notes: "+voices);
   if(APP.clips && APP.clips.length) lines.push("Walk-around video: "+APP.clips.length+" clip"+(APP.clips.length>1?"s":""));
   let recs=0;
   Object.keys(APP.docs||{}).forEach(function(id){ recs+=((APP.docs[id]&&APP.docs[id].videos)||[]).length; });
@@ -6625,7 +6888,10 @@ async function buildZip(){
   const folder=zip.folder(folderName()||"vehicle");
   const doc=await buildPdf();
   folder.file((folderName()||"vehicle")+"-packet.pdf", doc.output("blob"));
-  capturedFiles().forEach(function(s){ folder.file(s.name, blobFrom(s.data)); });
+  capturedFiles().forEach(function(s){
+    folder.file(s.name, blobFrom(s.data));
+    if(s.audio) folder.file(s.audioName||s.name.replace(/\.jpg$/i,"-voice.webm"), blobFrom(s.audio));
+  });
   (APP.clips||[]).forEach(function(c,i){
     const ext=(c.mime||"").indexOf("webm")>=0?"webm":"mp4";
     folder.file("walk-around-"+String(i+1)+"."+ext, c.blob);
@@ -6649,7 +6915,47 @@ function factCell(k,v){
   return "<div><k>"+k+"</k><b>"+String(v)+"</b></div>";
 }
 function esc(s){ return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
-function openViewer(kind, src, title){
+function bindViewerShot(s){
+  const bar=$("viewerCapBar"), more=$("viewerCapMore"), line=$("viewerCapLine");
+  const sheet=$("viewerCapSheet"), full=$("viewerCapFull"), play=$("viewerPlay"), audio=$("viewerAudio");
+  if(!bar) return;
+  const cap=String(s && s.cap || "").trim();
+  const voice=s && s.audio;
+  if(!cap && !voice){
+    bar.classList.add("hide");
+    if(sheet) sheet.classList.add("hide");
+    if(audio){ try{ audio.pause(); }catch(e){} audio.removeAttribute("src"); audio.classList.add("hide"); }
+    return;
+  }
+  bar.classList.remove("hide");
+  if(line) line.textContent=damageCaptionLine(cap, 52) || (voice?"Voice note":"");
+  if(more){
+    more.classList.toggle("hide", cap.length<=52);
+    more.textContent="More";
+  }
+  if(play) play.classList.toggle("hide", !voice);
+  if(full) full.textContent=cap;
+  if(sheet) sheet.classList.add("hide");
+  if(audio){
+    try{ audio.pause(); }catch(e){}
+    if(voice){ audio.src=voice; audio.classList.remove("hide"); }
+    else { audio.removeAttribute("src"); audio.classList.add("hide"); }
+  }
+}
+function toggleViewerCap(){
+  const sheet=$("viewerCapSheet");
+  const more=$("viewerCapMore");
+  if(!sheet) return;
+  const shown=!sheet.classList.toggle("hide");
+  if(more) more.textContent=shown?"Less":"More";
+}
+function playViewerVoice(){
+  const a=$("viewerAudio");
+  if(!a || !a.src) return;
+  if(a.paused) a.play();
+  else a.pause();
+}
+function openViewer(kind, src, title, meta){
   const v=$("viewer"); if(!v) return;
   $("viewerTitle").textContent = title || "File";
   const pdf=$("viewerPdf"); const img=$("viewerImg"); const doc=$("viewerDoc"); const vid=$("viewerVid");
@@ -6670,6 +6976,7 @@ function openViewer(kind, src, title){
   } else {
     img.style.display="block"; img.src=src;
   }
+  bindViewerShot(meta||null);
   v.classList.add("on");
 }
 function closeViewer(){
@@ -6677,6 +6984,8 @@ function closeViewer(){
   const pdf=$("viewerPdf"); if(pdf) pdf.removeAttribute("src");
   const vid=$("viewerVid"); if(vid){ try{ vid.pause(); }catch(e){} vid.removeAttribute("src"); vid.classList.add("hide"); }
   const doc=$("viewerDoc"); if(doc){ doc.classList.remove("on"); doc.innerHTML=""; }
+  const audio=$("viewerAudio"); if(audio){ try{ audio.pause(); }catch(e){} audio.removeAttribute("src"); }
+  bindViewerShot(null);
 }
 function packetHtml(){
   const rows=[["Year",APP.year],["Make",APP.make],["Model",APP.model],["Trim",APP.trim],["Colour",APP.color],["Kilometres",APP.km],["VIN",APP.vin],["Stock",APP.stock],["Type",APP.dealType],["Canada Drives #", APP.dealType==="Canada Drives"?APP.cdApp:""]].filter(function(r){ return r[1]; });
@@ -6694,7 +7003,8 @@ function packetHtml(){
   h+='<div class="block">Photos</div>';
   capturedFiles().forEach(function(s){
     h+='<img class="full" src="'+s.data+'" alt="">';
-    h+='<p class="cap">'+esc(s.title)+'</p>';
+    h+='<p class="cap">'+esc(s.title)+(s.cap?" — "+esc(s.cap):"")+'</p>';
+    if(s.audio) h+='<audio class="full" src="'+s.audio+'" controls playsinline style="width:100%;border-radius:14px;background:#111;margin:0 0 18px"></audio>';
   });
   const keys=Object.keys(APP.docs||{});
   if(keys.length){
@@ -6736,8 +7046,9 @@ async function paintSubmit(){
   capturedFiles().forEach(function(s){
     const b=document.createElement("button"); b.type="button";
     const cap=s.title||"";
-    b.innerHTML='<img src="'+s.data+'" alt=""><span>'+cap.split(" — ")[0]+'</span><em>'+(cap.indexOf(" — ")>=0?cap.split(" — ").slice(1).join(" — "):"Tap to view")+'</em>';
-    b.onclick=function(){ openViewer("img", s.data, s.title); };
+    const sub=s.cap ? damageCaptionLine(s.cap, 42) : (s.audio ? "Voice note — tap to hear" : (cap.indexOf(" — ")>=0?cap.split(" — ").slice(1).join(" — "):"Tap to view"));
+    b.innerHTML='<img src="'+s.data+'" alt=""><span>'+esc(cap.split(" — ")[0])+'</span><em>'+esc(sub)+'</em>';
+    b.onclick=function(){ openShotViewer(s, s.title); };
     grid.appendChild(b);
   });
   if(!capturedFiles().length) grid.innerHTML='<p class="quote">No photos yet.</p>';
@@ -6784,6 +7095,18 @@ function dataB64(dataUrl){
   const s=String(dataUrl||"");
   const i=s.indexOf("base64,");
   return i>=0 ? s.slice(i+7) : "";
+}
+function pushVoiceParts(parts, shots){
+  (shots||[]).forEach(function(s){
+    const b64=dataB64(s && s.audio);
+    if(!b64) return;
+    parts.push({
+      disp:"attachment",
+      b64:b64,
+      name:s.audioName || ((s.name||"voice").replace(/\.jpg$/i,"")+"-voice."+audioExt(s.audioMime)),
+      mime:s.audioMime || "audio/webm"
+    });
+  });
 }
 function packetMailHtml(shots){
   return packetCatalogHtml(shots, function(s,i){ return "cid:photo"+i+"@inspect"; });
@@ -6874,7 +7197,7 @@ async function sharePacket(){
     }
     const mailShots=[];
     for(let i=0;i<shots.length;i++){
-      try{ mailShots.push({title:shots[i].title, name:shots[i].name, cap:shots[i].cap||"", data:await withTimeout(compressDataUrl(shots[i].data, 1100, 0.76), 3500, shots[i].data)}); }
+      try{ mailShots.push({title:shots[i].title, name:shots[i].name, cap:shots[i].cap||"", data:await withTimeout(compressDataUrl(shots[i].data, 1100, 0.76), 3500, shots[i].data), audio:shots[i].audio||"", audioMime:shots[i].audioMime||"", audioName:shots[i].audioName||""}); }
       catch(e){ mailShots.push(shots[i]); }
     }
     if(shots.length && mailShots.length!==shots.length){
@@ -6906,6 +7229,7 @@ async function sharePacket(){
       return;
     }
     parts.push({disp:"attachment", b64:bufB64(await doc.output("arraybuffer")), name:(folderName()||"vehicle")+".pdf", mime:"application/pdf"});
+    pushVoiceParts(parts, shots);
     let sent=await withTimeout(sendFromMe(to, subject, body, html, parts, extra), 20000, {ok:false});
     if(!(sent && sent.ok)) sent=await withTimeout(sendFromMe(to, subject, body, html, parts, extra), 20000, {ok:false});
     if(!(sent && sent.ok)){
@@ -7081,6 +7405,8 @@ if($("btnSharePack")) $("btnSharePack").onclick = kickShare;
 if($("extraMailAdd")) $("extraMailAdd").onclick = addExtraRecipient;
 if($("extraMail")) $("extraMail").addEventListener("keydown", function(e){ if(e.key==="Enter"){ e.preventDefault(); addExtraRecipient(); } });
 if($("viewerX")) $("viewerX").onclick = closeViewer;
+if($("viewerCapMore")) $("viewerCapMore").onclick = toggleViewerCap;
+if($("viewerPlay")) $("viewerPlay").onclick = playViewerVoice;
 document.addEventListener("keydown", function(e){
   if(e.key==="Escape" && APP.centerGalleryOn) closeCenterGallery();
 });
