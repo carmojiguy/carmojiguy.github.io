@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-13 build d29t: flags-complete OR remote.lane=onsite wins On-site after Incoming pull; Open packet PDF and remote photos persist; newest VIN wins; 3-pill docs; sales PDF packet stays; Thank-you frozen; zero Center samples -->
+<!-- center-v3 + desk-home 2026-09-13 build d30a: On-site Shabot FINAL decision document; flags-complete OR remote.lane=onsite wins On-site after Incoming pull; Open packet PDF and remote photos persist; newest VIN wins; 3-pill docs; Thank-you frozen; sales PDF packet stays; zero Center samples -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -1028,6 +1028,77 @@ body.center-gallery-on { overflow:hidden; }
 .team-mm .f { padding:10px 8px; font-size:14px; text-align:center; }
 .team-card textarea { min-height:72px; margin-top:10px; }
 .team-card .team-why { width:100%; margin-top:10px; min-height:48px; font-size:15px; }
+.final-decision-box {
+  display:block; width:100%; border:0; cursor:pointer; text-align:left; font:inherit;
+  margin:2px 0 18px; padding:18px 16px 16px; border-radius:24px;
+  background:linear-gradient(135deg, rgba(255,255,255,.94), rgba(239,232,255,.9) 46%, rgba(216,243,252,.92));
+  box-shadow:0 16px 36px rgba(124,92,255,.16), inset 0 1px 0 rgba(255,255,255,.85);
+  backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+}
+.final-decision-box .final-kicker {
+  font-size:11px; font-weight:800; letter-spacing:.16em; text-transform:uppercase;
+  color:var(--purple-deep); margin:0 0 4px;
+}
+.final-decision-box .final-path {
+  font-size:14px; font-weight:700; color:var(--cyan-deep); margin:0 0 12px;
+}
+.final-decision-box .final-nums { display:grid; grid-template-columns:1fr 1.25fr 1fr; gap:8px; }
+.final-decision-box .fn {
+  display:flex; flex-direction:column; gap:2px; text-align:center;
+  background:rgba(255,255,255,.74); border-radius:16px; padding:10px 8px;
+}
+.final-decision-box .fn k {
+  font-size:10px; font-weight:800; letter-spacing:.1em; text-transform:uppercase; color:var(--muted);
+}
+.final-decision-box .fn b { font-size:18px; font-weight:800; letter-spacing:-.4px; color:var(--ink); }
+.final-decision-box .fn.target {
+  background:linear-gradient(180deg,#FFFFFF,#EFE8FF);
+  box-shadow:0 0 0 1.5px var(--purple), 0 8px 18px rgba(124,92,255,.16);
+}
+.final-decision-box .fn.target b { font-size:24px; color:var(--purple-deep); }
+.final-decision-box .final-cta { margin:12px 0 0; font-size:14px; font-weight:800; color:var(--purple-deep); }
+.final-chip {
+  display:inline-block; border-radius:999px; padding:5px 10px; font-size:11px; font-weight:800;
+  background:linear-gradient(135deg,#EFE8FF,#D8F3FC); color:var(--purple-deep); letter-spacing:.02em;
+}
+.final-decision-doc {
+  background:linear-gradient(180deg,#FFFFFF 0%, var(--page) 42%, #F3FBFF 100%);
+  border-radius:22px; padding:6px 0 28px; color:var(--ink);
+}
+.final-decision-doc .final-hero {
+  background:linear-gradient(135deg,#EFE8FF,#D8F3FC);
+  border-radius:22px; padding:20px 18px 16px; margin:0 0 18px;
+  box-shadow:0 12px 28px rgba(124,92,255,.12);
+}
+.final-decision-doc .final-hero h2 { margin:0 0 6px; font-size:28px; letter-spacing:-.6px; }
+.final-decision-doc .final-band { display:grid; grid-template-columns:1fr 1.25fr 1fr; gap:8px; margin:12px 0 8px; }
+.final-decision-doc .final-band span {
+  background:rgba(255,255,255,.84); border-radius:16px; padding:10px 8px; text-align:center;
+}
+.final-decision-doc .final-band k { display:block; font-size:10px; font-weight:800; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); }
+.final-decision-doc .final-band b { font-size:20px; font-weight:800; }
+.final-decision-doc .final-band .hit { box-shadow:0 0 0 1.5px var(--purple); }
+.final-decision-doc .final-band .hit b { color:var(--purple-deep); font-size:24px; }
+.final-decision-doc h3 { margin:22px 0 10px; font-size:18px; letter-spacing:-.3px; color:var(--purple-deep); }
+.final-decision-doc h4 { margin:16px 0 8px; font-size:15px; color:var(--cyan-deep); }
+.final-decision-doc .final-table { width:100%; border-collapse:collapse; font-size:13px; background:#fff; border-radius:16px; overflow:hidden; }
+.final-decision-doc .final-table th {
+  text-align:left; font-size:11px; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--muted); padding:8px 6px; border-bottom:1.5px solid var(--hair);
+}
+.final-decision-doc .final-table td { padding:10px 6px; border-bottom:1px solid var(--hair); vertical-align:top; font-weight:700; }
+.final-decision-doc .comp {
+  background:#fff; border:1.5px solid var(--hair); border-radius:16px; padding:12px 14px; margin:0 0 8px;
+}
+.final-decision-doc .comp b { display:block; font-size:16px; }
+.final-decision-doc .comp span { display:block; color:var(--muted); font-size:13px; font-weight:600; }
+.final-decision-doc .empty, .final-decision-doc .miss {
+  background:#FFF8E8; border-radius:14px; padding:12px 14px; font-size:14px; font-weight:700; color:#6B5340;
+}
+.final-decision-doc .risk {
+  background:#FFF0F5; border-radius:14px; padding:10px 14px; margin:0 0 8px; font-weight:700;
+}
+.final-decision-doc .empty-call { font-style:normal; color:#8A7B68; font-weight:700; }
 .center-detail-empty {
   min-height:calc(100dvh - 80px); display:grid; place-items:center; text-align:center; padding:40px 24px;
 }
@@ -1642,6 +1713,7 @@ body.center-gallery-on { overflow:hidden; }
     </div>
     <h2 id="centerDetailTitle">Vehicle</h2>
     <p class="quote" id="centerDetailSub"></p>
+    <div id="centerFinalBox" class="hide"></div>
     <div class="needs-banner hide" id="centerNeedsBanner"></div>
     <div class="acre-tags" id="centerTags"></div>
     <a class="packet-pdf hide" id="centerPacketPdf" href="#" target="_blank" rel="noopener noreferrer">
@@ -1829,7 +1901,7 @@ body.center-gallery-on { overflow:hidden; }
     <p class="quote" id="vinHint">Best: take a picture of the vehicle ownership (registration). You can also photograph the VIN on the dash or the sticker on the driver’s door. We’ll read the number from the photo.</p>
     <p class="vin-chip hide" id="vinChip"></p>
     </div>
-    <p class="build-stamp" id="buildStamp">build d29t</p>
+    <p class="build-stamp" id="buildStamp">build d30a</p>
   </div>
 </section>
 
@@ -2288,7 +2360,7 @@ body.center-gallery-on { overflow:hidden; }
   <div class="card">
     <button class="x" type="button" data-close="typeSheet">✕</button>
     <h3>Appraisal type</h3>
-    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d29t</span></p>
+    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d30a</span></p>
     <div id="typeChips" class="to-chips"></div>
     <div id="leadBox" class="lead-box hide">
       <p class="hint">Lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a New application — no appointment calendar.</p>
@@ -5493,6 +5565,315 @@ function moneyShort(v){
   if(n>=1000) return "$"+(n/1000).toFixed(n>=10000?0:1).replace(/\.0$/,"")+"k";
   return "$"+n.toLocaleString("en-CA");
 }
+function emptyAppraisalFinal(){
+  return {min:"", target:"", max:"", path:"", at:0, authors:[]};
+}
+function emptyPanelRationale(){
+  return {min:"", target:"", max:"", sidedWith:false, why:""};
+}
+function emptyFinalRationale(){
+  return {
+    schema_version:"1.0",
+    vehicle:{ymmt:"", vin:"", km:"", stock:"", customer:"", lane:""},
+    shabot:{min:"", target:"", max:"", path:"", note:""},
+    panel:{
+      rybot:emptyPanelRationale(),
+      webot:emptyPanelRationale(),
+      drebot:emptyPanelRationale(),
+      tbot:emptyPanelRationale()
+    },
+    marketEvidence:{vauto:[], openlane:[], eblock:[], carfax:[]},
+    seasonality:{adjustment:"", note:""},
+    condition:{damage:"", recon:"", tires:"", story:""},
+    missingData:[],
+    risks:[],
+    whatMovesNumber:[],
+    timestamp:0,
+    authors:[]
+  };
+}
+function normalizeCompRow(raw){
+  if(!raw || typeof raw!=="object") return null;
+  return {price:raw.price||"", km:raw.km||"", date:raw.date||"", notes:raw.notes||"", source:raw.source||""};
+}
+function normalizePanelRationale(raw){
+  raw=raw&&typeof raw==="object"?raw:{};
+  return {min:raw.min||"", target:raw.target||"", max:raw.max||"", sidedWith:!!raw.sidedWith, why:raw.why||""};
+}
+function normalizeFinalRationale(raw){
+  const base=emptyFinalRationale();
+  if(!raw || typeof raw!=="object") return base;
+  if(raw.schema_version) base.schema_version=String(raw.schema_version);
+  if(raw.vehicle && typeof raw.vehicle==="object"){
+    base.vehicle.ymmt=raw.vehicle.ymmt||"";
+    base.vehicle.vin=raw.vehicle.vin||"";
+    base.vehicle.km=raw.vehicle.km||"";
+    base.vehicle.stock=raw.vehicle.stock||"";
+    base.vehicle.customer=raw.vehicle.customer||"";
+    base.vehicle.lane=raw.vehicle.lane||"";
+  }
+  if(raw.shabot && typeof raw.shabot==="object"){
+    base.shabot.min=raw.shabot.min||"";
+    base.shabot.target=raw.shabot.target||"";
+    base.shabot.max=raw.shabot.max||"";
+    base.shabot.path=raw.shabot.path||"";
+    base.shabot.note=raw.shabot.note||"";
+  }
+  ["rybot","webot","drebot","tbot"].forEach(function(k){
+    base.panel[k]=normalizePanelRationale(raw.panel && raw.panel[k]);
+  });
+  ["vauto","openlane","eblock","carfax"].forEach(function(k){
+    const arr=raw.marketEvidence && raw.marketEvidence[k];
+    base.marketEvidence[k]=Array.isArray(arr)?arr.map(normalizeCompRow).filter(Boolean):[];
+  });
+  if(raw.seasonality && typeof raw.seasonality==="object"){
+    base.seasonality.adjustment=raw.seasonality.adjustment||"";
+    base.seasonality.note=raw.seasonality.note||"";
+  }
+  if(raw.condition && typeof raw.condition==="object"){
+    base.condition.damage=raw.condition.damage||"";
+    base.condition.recon=raw.condition.recon||"";
+    base.condition.tires=raw.condition.tires||"";
+    base.condition.story=raw.condition.story||"";
+  }
+  base.missingData=Array.isArray(raw.missingData)?raw.missingData.map(String):[];
+  base.risks=Array.isArray(raw.risks)?raw.risks.map(String):[];
+  base.whatMovesNumber=Array.isArray(raw.whatMovesNumber)?raw.whatMovesNumber.map(String):[];
+  base.timestamp=Number(raw.timestamp)||0;
+  base.authors=Array.isArray(raw.authors)?raw.authors.map(String):[];
+  return base;
+}
+function hasAppraisalFinalNumbers(min, target, max){
+  return !!(String(min||"").trim() || String(target||"").trim() || String(max||"").trim());
+}
+function resolveAppraisalFinal(item){
+  if(!item) return null;
+  const af=item.appraisalFinal||{};
+  if(hasAppraisalFinalNumbers(af.min, af.target, af.max)){
+    return {min:af.min||"", target:af.target||"", max:af.max||"", path:af.path||"", at:Number(af.at)||0, authors:Array.isArray(af.authors)?af.authors.slice():[]};
+  }
+  const slot=teamSlot((item.team||{}).shabot);
+  if(hasAppraisalFinalNumbers(slot.min, slot.target, slot.max)){
+    return {min:slot.min||"", target:slot.target||"", max:slot.max||"", path:af.path||"", at:Number(af.at)||0, authors:Array.isArray(af.authors)?af.authors.slice():[]};
+  }
+  if(hasAppraisalFinalNumbers(item.finalMin, item.finalTarget, item.finalMax)){
+    return {min:item.finalMin||"", target:item.finalTarget||"", max:item.finalMax||"", path:af.path||item.finalPath||"", at:Number(af.at||item.finalAt)||0, authors:Array.isArray(af.authors)?af.authors.slice():[]};
+  }
+  const board=item.final && typeof item.final==="object" ? item.final : (item.scoreboard && typeof item.scoreboard==="object" ? item.scoreboard : null);
+  if(board && hasAppraisalFinalNumbers(board.min, board.target, board.max)){
+    return {min:board.min||"", target:board.target||"", max:board.max||"", path:board.path||"", at:Number(board.at)||0, authors:Array.isArray(board.authors)?board.authors.slice():[]};
+  }
+  return null;
+}
+function syncAppraisalFinalFromTeam(item){
+  if(!item) return;
+  const keep=item.finalRationale;
+  const slot=teamSlot((item.team||{}).shabot);
+  if(!hasAppraisalFinalNumbers(slot.min, slot.target, slot.max)){
+    if(keep) item.finalRationale=keep;
+    return;
+  }
+  const prev=item.appraisalFinal||emptyAppraisalFinal();
+  item.appraisalFinal={
+    min:slot.min||"",
+    target:slot.target||"",
+    max:slot.max||"",
+    path:prev.path||"",
+    at:prev.at||Date.now(),
+    authors:Array.isArray(prev.authors)?prev.authors.slice():[]
+  };
+  if(keep) item.finalRationale=keep;
+}
+function hasStoredFinalRationale(item){
+  if(!item || !item.finalRationale) return false;
+  const r=item.finalRationale;
+  if(r.shabot && (r.shabot.target||r.shabot.min||r.shabot.max||r.shabot.note)) return true;
+  const ev=r.marketEvidence||{};
+  return ["vauto","openlane","eblock","carfax"].some(function(k){ return ev[k] && ev[k].length; });
+}
+function isOnsiteDeskItem(item){
+  if(!item) return false;
+  if(typeof centerLaneOf==="function" && centerLaneOf(item)==="onsite") return true;
+  return item.lane==="onsite";
+}
+function finalEsc(s){
+  return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+function finalBlank(v, miss){
+  const s=String(v||"").trim();
+  return s?finalEsc(s):'<em class="empty-call">'+(miss||"Not recorded")+'</em>';
+}
+function finalCompsHtml(list, label){
+  let h="<h4>"+finalEsc(label)+"</h4>";
+  if(!list || !list.length){
+    h+='<p class="empty">No '+finalEsc(label)+' comps extracted.</p>';
+    return h;
+  }
+  list.forEach(function(c){
+    h+='<div class="comp">';
+    h+="<b>"+finalBlank(c.price,"No price")+"</b>";
+    const bits=[c.km?finalEsc(c.km)+" km":"", c.date?finalEsc(c.date):"", c.source?finalEsc(c.source):""].filter(Boolean);
+    if(bits.length) h+="<span>"+bits.join(" · ")+"</span>";
+    if(c.notes) h+="<span>"+finalEsc(c.notes)+"</span>";
+    h+="</div>";
+  });
+  return h;
+}
+function buildFinalDecisionHtml(item){
+  item=item||{};
+  const fin=resolveAppraisalFinal(item)||emptyAppraisalFinal();
+  const rat=normalizeFinalRationale(item.finalRationale);
+  const veh={
+    ymmt:rat.vehicle.ymmt||item.ymmt||item.interest||"",
+    vin:rat.vehicle.vin||item.vin||"",
+    km:rat.vehicle.km||item.km||"",
+    stock:rat.vehicle.stock||item.stock||"",
+    customer:rat.vehicle.customer||(item.customer&&(item.customer.name||item.customer))||"",
+    lane:rat.vehicle.lane||""
+  };
+  if(!veh.lane){
+    try{
+      if(typeof centerLaneOf==="function"){
+        const lane=centerLaneOf(item);
+        veh.lane=(typeof centerLaneLabel==="function"?centerLaneLabel(lane):lane)||item.lane||"";
+      } else veh.lane=item.lane||"";
+    }catch(e){ veh.lane=item.lane||""; }
+  } else if(typeof centerLaneLabel==="function" && /^(inbox|onsite|history|needsdocs)$/.test(veh.lane)){
+    veh.lane=centerLaneLabel(veh.lane);
+  }
+  const slot=teamSlot((item.team||{}).shabot);
+  const sh={
+    min:rat.shabot.min||fin.min||slot.min||"",
+    target:rat.shabot.target||fin.target||slot.target||"",
+    max:rat.shabot.max||fin.max||slot.max||"",
+    path:rat.shabot.path||fin.path||"",
+    note:rat.shabot.note||slot.note||""
+  };
+  const team=item.team||{};
+  ["rybot","webot","drebot","tbot"].forEach(function(k){
+    const bot=teamSlot(team[k]);
+    const p=rat.panel[k];
+    if(!p.min) p.min=bot.min;
+    if(!p.target) p.target=bot.target;
+    if(!p.max) p.max=bot.max;
+    if(!p.why) p.why=bot.note;
+  });
+  const authors=(rat.authors&&rat.authors.length)?rat.authors:(fin.authors||[]);
+  const ts=rat.timestamp||fin.at||item.updatedAt||0;
+  const money=function(v){ return (typeof moneyShort==="function")?moneyShort(v):(String(v||"").trim()||"—"); };
+  let h='<div class="final-decision-doc">';
+  h+='<div class="final-hero">';
+  h+='<div class="badge">Shabot FINAL</div>';
+  h+="<h2>"+finalBlank(veh.ymmt,"Vehicle")+"</h2>";
+  h+='<p class="quote">How the Appraisal Team got to this number</p>';
+  h+='<div class="final-band">';
+  h+="<span><k>MIN</k><b>"+finalEsc(money(sh.min))+"</b></span>";
+  h+='<span class="hit"><k>TARGET</k><b>'+finalEsc(money(sh.target))+"</b></span>";
+  h+="<span><k>MAX</k><b>"+finalEsc(money(sh.max))+"</b></span>";
+  h+="</div>";
+  h+='<p class="final-path-line">'+(sh.path?finalEsc(sh.path)+" path":'<em class="empty-call">Path not set — Retail, Wholesale, or Auction</em>')+"</p>";
+  h+="</div>";
+  h+="<h3>Vehicle identity</h3>";
+  h+='<div class="facts">';
+  [["YMMT",veh.ymmt],["VIN",veh.vin],["Kilometres",veh.km],["Stock",veh.stock],["Customer",veh.customer],["Lane",veh.lane]].forEach(function(r){
+    h+="<div><k>"+finalEsc(r[0])+"</k><b>"+finalBlank(r[1],"Missing")+"</b></div>";
+  });
+  h+="</div>";
+  h+="<h3>Shabot FINAL</h3>";
+  h+='<div class="facts">';
+  [["MIN",sh.min],["TARGET",sh.target],["MAX",sh.max],["Path",sh.path]].forEach(function(r){
+    h+="<div><k>"+finalEsc(r[0])+"</k><b>"+finalBlank(r[1], r[0]==="Path"?"Retail / Wholesale / Auction not set":"Not set")+"</b></div>";
+  });
+  h+="</div>";
+  if(sh.note) h+="<p>"+finalEsc(sh.note).replace(/\n/g,"</p><p>")+"</p>";
+  else h+='<p class="empty">Shabot has not written a long-form FINAL note yet.</p>';
+  h+="<h3>Panel</h3>";
+  h+='<table class="final-table"><thead><tr><th>Bot</th><th>MIN</th><th>TARGET</th><th>MAX</th><th>Sided</th><th>Why</th></tr></thead><tbody>';
+  [["rybot","Rybot"],["webot","Webot"],["drebot","Drebot"],["tbot","TBot"]].forEach(function(pair){
+    const p=rat.panel[pair[0]];
+    h+="<tr><td>"+pair[1]+"</td><td>"+finalEsc(money(p.min))+"</td><td>"+finalEsc(money(p.target))+"</td><td>"+finalEsc(money(p.max))+"</td><td>"+(p.sidedWith?"Sided with":"Not sided")+"</td><td>"+finalBlank(p.why,"No why yet")+"</td></tr>";
+  });
+  h+="</tbody></table>";
+  h+="<h3>Market evidence</h3>";
+  h+=finalCompsHtml(rat.marketEvidence.vauto, "V Auto");
+  h+=finalCompsHtml(rat.marketEvidence.openlane, "OpenLane");
+  h+=finalCompsHtml(rat.marketEvidence.eblock, "eBlock");
+  h+=finalCompsHtml(rat.marketEvidence.carfax, "Carfax");
+  h+="<h3>Seasonality</h3>";
+  if(rat.seasonality.adjustment || rat.seasonality.note){
+    if(rat.seasonality.adjustment) h+="<p><b>Adjustment:</b> "+finalEsc(rat.seasonality.adjustment)+"</p>";
+    if(rat.seasonality.note) h+="<p>"+finalEsc(rat.seasonality.note)+"</p>";
+  } else {
+    h+='<p class="empty">No seasonality / time-of-year adjustment recorded.</p>';
+  }
+  h+="<h3>Condition</h3>";
+  const cond=rat.condition;
+  const condBits=[["Damage",cond.damage],["Recon",cond.recon],["Tires",cond.tires],["Story",cond.story||item.story||""]];
+  const anyCond=condBits.some(function(r){ return String(r[1]||"").trim(); });
+  if(anyCond){
+    h+='<div class="facts">';
+    condBits.forEach(function(r){ h+="<div><k>"+finalEsc(r[0])+"</k><b>"+finalBlank(r[1],"Not recorded")+"</b></div>"; });
+    h+="</div>";
+  } else {
+    h+='<p class="empty">No condition / damage / recon / tires / story factors recorded.</p>';
+  }
+  h+="<h3>Missing data</h3>";
+  if(rat.missingData.length){
+    h+='<ul class="miss">'+rat.missingData.map(function(m){ return "<li>"+finalEsc(m)+"</li>"; }).join("")+"</ul>";
+  } else {
+    h+='<p class="empty">No missing data called out (T1/T2 flags will appear here when Shabot fills them).</p>';
+  }
+  h+="<h3>Risks</h3>";
+  if(rat.risks.length){
+    rat.risks.forEach(function(r){ h+='<div class="risk">'+finalEsc(r)+"</div>"; });
+  } else {
+    h+='<p class="empty">No risks recorded yet.</p>';
+  }
+  h+="<h4>What would move the number</h4>";
+  if(rat.whatMovesNumber.length){
+    h+="<ul>"+rat.whatMovesNumber.map(function(m){ return "<li>"+finalEsc(m)+"</li>"; }).join("")+"</ul>";
+  } else {
+    h+='<p class="empty">Nothing listed yet for what would move the number.</p>';
+  }
+  h+="<h3>Timestamp + authors</h3>";
+  let when="Not stamped yet";
+  if(ts){
+    try{ when=new Date(ts).toLocaleString("en-CA"); }catch(err){ when=String(ts); }
+  }
+  h+="<p><b>Timestamp:</b> "+finalEsc(when)+"</p>";
+  h+="<p><b>Authors:</b> "+(authors.length?finalEsc(authors.join(" · ")):'<em class="empty-call">Authors not recorded yet</em>')+"</p>";
+  h+="</div>";
+  return h;
+}
+function openFinalDecision(item){
+  if(!item) return;
+  openViewer("packet", buildFinalDecisionHtml(item), "Shabot FINAL");
+}
+function paintCenterFinalBox(item){
+  const host=$("centerFinalBox"); if(!host) return;
+  const needs=typeof isNeedsDocsItem==="function" && isNeedsDocsItem(item);
+  const fin=resolveAppraisalFinal(item);
+  const show=!needs && isOnsiteDeskItem(item) && !!fin;
+  host.classList.toggle("hide", !show);
+  if(!show){
+    host.innerHTML="";
+    return;
+  }
+  const path=fin.path||"";
+  host.innerHTML=
+    '<button type="button" class="final-decision-box" id="centerFinalOpen">'+
+      '<div class="final-kicker">Shabot FINAL</div>'+
+      '<div class="final-path">'+(path?finalEsc(path)+" path":"Tap for the full decision")+"</div>"+
+      '<div class="final-nums">'+
+        '<span class="fn min"><k>MIN</k><b>'+finalEsc(moneyShort(fin.min))+"</b></span>"+
+        '<span class="fn target"><k>TARGET</k><b>'+finalEsc(moneyShort(fin.target))+"</b></span>"+
+        '<span class="fn max"><k>MAX</k><b>'+finalEsc(moneyShort(fin.max))+"</b></span>"+
+      "</div>"+
+      '<div class="final-cta">Open detailed decision</div>'+
+    "</button>";
+  const btn=$("centerFinalOpen") || host.querySelector(".final-decision-box");
+  if(btn) btn.onclick=function(){ openFinalDecision(item); };
+}
 function centerStore(){
   try{
     const raw=JSON.parse(localStorage.getItem(CENTER_KEY)||"{}");
@@ -6764,11 +7145,13 @@ function acreRow(item){
   const thumb=item.thumb
     ? '<img src="'+item.thumb+'" alt="">'
     : esc((item.interest||item.make||item.ymmt||"?").slice(0,3).toUpperCase());
+  const fin=(lane==="onsite" && !isNeedsDocsItem(item)) ? resolveAppraisalFinal(item) : null;
   const flags=
     (item.sample?'<i class="sample-badge">Sample</i>':'')+
     '<em class="stage-tag '+(status==="Done"?"done":(isNeedsDocsItem(item)?"docs":"wait"))+'">'+esc(isNeedsDocsItem(item)?"Needs docs":(lane==="inbox" && !item.photoCount ? "Incomplete" : status))+'</em>'+
     (item.deskTeam?'<i class="acre-team">'+esc(item.deskTeam)+'</i>':'')+
-    (aged?'<i class="arch-tag">90-day archive</i>':'');
+    (aged?'<i class="arch-tag">90-day archive</i>':'')+
+    (fin && fin.target ? '<i class="final-chip">TARGET '+esc(moneyShort(fin.target))+'</i>':'');
   const btn=document.createElement("button");
   btn.type="button";
   btn.className="acre-row"+(lane==="inbox"?" inbox":"")+(APP.centerViewId===item.id?" on":"");
@@ -7117,6 +7500,10 @@ function teamWhyHtml(item, botId){
   return h;
 }
 function openTeamWhy(item, botId){
+  if(botId==="shabot" && item && (resolveAppraisalFinal(item) || hasStoredFinalRationale(item))){
+    openFinalDecision(item);
+    return;
+  }
   const pair=CENTER_TEAM.find(function(t){ return t[0]===botId; }) || [botId, botId, "Opinion"];
   openViewer("packet", teamWhyHtml(item, botId), pair[1]+" — why");
 }
@@ -7198,18 +7585,24 @@ function paintCenterTeam(item){
       inp.value=slot[k]||"";
       inp.addEventListener("input", function(){
         patchCenter(item.id, function(x){
+          const keepRat=x.finalRationale;
           x.team=x.team||emptyTeam();
           x.team[pair[0]]=teamSlot(x.team[pair[0]]);
           x.team[pair[0]][k]=inp.value.trim();
+          if(pair[0]==="shabot") syncAppraisalFinalFromTeam(x);
+          if(keepRat) x.finalRationale=keepRat;
         });
+        if(pair[0]==="shabot") paintCenterFinalBox(getCenter(item.id)||item);
       });
     });
     ta.addEventListener("input", function(){
       growArea(ta);
       patchCenter(item.id, function(x){
+        const keepRat=x.finalRationale;
         x.team=x.team||emptyTeam();
         x.team[pair[0]]=teamSlot(x.team[pair[0]]);
         x.team[pair[0]].note=ta.value;
+        if(keepRat) x.finalRationale=keepRat;
       });
     });
     host.appendChild(card);
@@ -7244,7 +7637,7 @@ function paintCenterDetailEmpty(){
 function ensureCenterDetailScaffold(){
   const body=$("centerDetailBody");
   if(!body) return;
-  if($("centerDetailTitle") && $("centerHero") && $("centerTeam")) return;
+  if($("centerDetailTitle") && $("centerHero") && $("centerTeam") && $("centerFinalBox")) return;
   body.innerHTML=
     '<div class="center-detail-bar">'+
       '<button class="round center-close-x" type="button" id="centerDetailClose" aria-label="Close vehicle">✕</button>'+
@@ -7252,6 +7645,7 @@ function ensureCenterDetailScaffold(){
     '</div>'+
     '<h2 id="centerDetailTitle">Vehicle</h2>'+
     '<p class="quote" id="centerDetailSub"></p>'+
+    '<div id="centerFinalBox" class="hide"></div>'+
     '<div class="needs-banner hide" id="centerNeedsBanner"></div>'+
     '<div class="acre-tags" id="centerTags"></div>'+
     '<a class="packet-pdf hide" id="centerPacketPdf" href="#" target="_blank" rel="noopener noreferrer">'+
@@ -7398,12 +7792,13 @@ function paintCenterDetail(){
       $("centerStageBtn").textContent=item.stage==="Appraised"?"Return to desk lane":"Complete";
     }
   }
-  ["centerValStrip","centerMarket","centerWhyDocs","centerTeam","centerTeamHead"].forEach(function(id){
+  ["centerValStrip","centerMarket","centerWhyDocs","centerTeam","centerTeamHead","centerFinalBox"].forEach(function(id){
     if($(id)) $(id).classList.toggle("hide", needs);
   });
   const starter=(item.photos && item.photos.length) ? item.photos : (item.thumb ? [{data:item.thumb, title:item.ymmt}] : []);
   paintCenterHero(starter);
   paintCenterDocs(item, {docs:item.docs});
+  paintCenterFinalBox(item);
   if(!needs){
     paintCenterWhyDocs(item);
     paintCenterVals(item);
