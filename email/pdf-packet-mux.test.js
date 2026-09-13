@@ -28,9 +28,9 @@ function mustNot(re, msg) {
 
 assert.equal(html, copy404, "404.html matches index.html");
 assert.equal(html, inspect, "inspect-vehicle.html matches index.html");
-must(/id="buildStamp">build d29p</, "home footer stamp is d29p");
-must(/id="typeSheet"[\s\S]*build d29p/, "type sheet stamp is d29p");
-must(/build d29p: sales PDF email packet/, "file header names the PDF packet stamp");
+must(/id="buildStamp">build d29q</, "home footer stamp is d29q");
+must(/id="typeSheet"[\s\S]*build d29q/, "type sheet stamp is d29q");
+must(/sales PDF packet stays/, "file header keeps the sales PDF packet");
 
 must(/function liveDamageCaption\(/, "live caption helper exists");
 must(/function muxDamageWalkClip\(/, "damage photos+voice mux into one clip");

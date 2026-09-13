@@ -53,16 +53,8 @@ const matchSrc = html.match(/function findCenterMatch\(store, hint\)\{[\s\S]*?\n
   "function findCenterMatch",
   "function"
 );
-const MARKET_DOC_REQ = [
-  {id:"summary", label:"vAuto Appraisal summary", aliases:["summary","vauto_summary"]},
-  {id:"blackbook", label:"vAuto Book", aliases:["blackbook","vauto_book","book"]},
-  {id:"compset", label:"vAuto Competitive set", aliases:["compset","vauto_comp"]},
-  {id:"carfax", label:"vAuto Carfax", aliases:["carfax","carfax_pdf"]},
-  {id:"mmr", label:"vAuto MMR", aliases:["mmr"]},
-  {id:"olguide", label:"OpenLane Market Guide", aliases:["olguide","openlane_guide","openlane"]},
-  {id:"olforecast", label:"OpenLane Forecast", aliases:["olforecast","openlane_forecast"]},
-  {id:"ebguide", label:"eBlock Market Guide", aliases:["ebguide","eblock_guide","eblock"]}
-];
+const MARKET_DOC_REQ = eval("(" + html.match(/const MARKET_DOC_REQ=(\[[\s\S]*?\]);/)[1] + ")");
+assert.strictEqual(MARKET_DOC_REQ.length, 3, "MARKET_DOC_REQ is the 3-pill desk");
 const haveM = html.match(/function packetDocHave\(docs, spec\)\{[\s\S]*?\n\}/);
 const missM = html.match(/function missingMarketDocs\(docs\)\{[\s\S]*?\n\}/);
 const doneM = html.match(/function marketDocsComplete\(docs\)\{[\s\S]*?\n\}/);
@@ -88,9 +80,30 @@ function isCenterSample(item) {
   const id = String(item.id || "");
   return /^sample[-_]/i.test(id);
 }
+function takeFn(name, next) {
+  const start = html.indexOf("function " + name + "(");
+  assert.ok(start > 0, name + " found");
+  const end = html.indexOf("\nfunction " + next + "(", start);
+  assert.ok(end > start, name + " ends before " + next);
+  return html.slice(start, end).replace("function " + name, "function");
+}
+const sharedItemStamp = eval("(" + takeFn("sharedItemStamp", "sharedDocsHaveCount") + ")");
+const sharedDocsHaveCount = eval("(" + takeFn("sharedDocsHaveCount", "sharedRemoteBeats") + ")");
+const sharedRemoteBeats = eval("(" + takeFn("sharedRemoteBeats", "reviveSharedCenterItem") + ")");
+const reviveSharedCenterItem = eval("(" + takeFn("reviveSharedCenterItem", "collapseSharedRemotes") + ")");
+const collapseSharedRemotes = eval("(" + takeFn("collapseSharedRemotes", "collapseCenterVinDupes") + ")");
+const collapseCenterVinDupes = eval("(" + takeFn("collapseCenterVinDupes", "findCenterMatch") + ")");
 const APP = { sendId: "", centerId: "open-other", vin: "", inviteName: "" };
 const findCenterMatch = eval("(" + matchSrc + ")");
 const applySharedIncoming = eval("(" + applySrc + ")");
+const landSendM = html.match(/function landingLaneForSend\(app, docs, leaderSend\)\{[\s\S]*?\n\}/);
+assert.ok(landSendM, "landingLaneForSend extractable");
+const landingLaneForSend = eval("(" + landSendM[0].replace("function landingLaneForSend", "function") + ")");
+const slimSharedSrc = html.match(/function slimSharedCenterItem\(item\)\{[\s\S]*?\n\}/)[0].replace(
+  "function slimSharedCenterItem",
+  "function"
+);
+const slimSharedCenterItem = eval("(" + slimSharedSrc + ")");
 
 function emptyTeam() { return {}; }
 function emptyVals() { return {}; }
@@ -223,7 +236,7 @@ function slimSharedDocs(docs) {
   store.items.forEach(function (row) {
     assert.equal(row.lane, "needsdocs", row.ymmt + " empty docs → Needs docs");
     assert.equal(row.docsIncomplete, true);
-    assert.ok(row.missingDocs && row.missingDocs.length >= 8, row.ymmt + " missingDocs lists the market set");
+    assert.ok(row.missingDocs && row.missingDocs.length >= 3, row.ymmt + " missingDocs lists the 3-pill set");
     assert.equal(centerLaneOf(row), "needsdocs");
   });
 })();
@@ -246,9 +259,9 @@ function slimSharedDocs(docs) {
   });
   assert.equal(item.lane, "needsdocs", "remote lane inbox is ignored when docs are empty");
   assert.equal(item.docsIncomplete, true);
-  assert.ok(item.missingDocs.indexOf("vAuto Appraisal summary") >= 0);
-  assert.ok(item.missingDocs.indexOf("OpenLane Market Guide") >= 0);
-  assert.ok(item.missingDocs.indexOf("eBlock Market Guide") >= 0);
+  assert.ok(item.missingDocs.indexOf("V Auto documents") >= 0);
+  assert.ok(item.missingDocs.indexOf("OpenLane documents") >= 0);
+  assert.ok(item.missingDocs.indexOf("eBlock documents") >= 0);
 })();
 
 (function testCompleteDocsMoveOnsite() {
@@ -264,6 +277,91 @@ function slimSharedDocs(docs) {
   assert.equal(item.docsIncomplete, false);
   assert.deepStrictEqual(item.missingDocs, []);
   assert.equal(centerLaneOf(item), "onsite");
+})();
+
+(function testThreePillFlagsAreOnsite() {
+  const item = applySharedIncoming({ id: "pills-1", lane: "inbox", archived: true, stage: "Appraised", sentAt: 1757792340000, docs: {} }, {
+    id: "cmu0avif7rslu",
+    sendId: "s1ex074",
+    vin: "2T3B1RFVXRC466025",
+    sentAt: 1789339609336,
+    updatedAt: 1789339999999,
+    docs: { vauto: { have: true }, openlane: { have: true }, eblock: { have: true } },
+    customer: { name: "Chris Cyr" }
+  });
+  assert.equal(item.archived, false, "newer complete pull un-archives");
+  assert.equal(item.stage, "Waiting", "false Appraised from a stale date is cleared");
+  assert.equal(item.lane, "onsite", "V Auto + OpenLane + eBlock land On-site");
+  assert.equal(item.sentAt, 1789339609336, "newer sentAt wins");
+  assert.equal(centerLaneOf(item), "onsite");
+})();
+
+(function testOlderEmptyStubCannotHideNewerComplete() {
+  const store = {
+    seq: 1000,
+    items: [{
+      id: "guest-chris-rav4-20260913",
+      sendId: "old-rav4",
+      vin: "2T3B1RFVXRC466025",
+      ymmt: "2024 Toyota RAV4",
+      source: "guest",
+      lane: "inbox",
+      stage: "Appraised",
+      archived: true,
+      sentAt: 1757792340000,
+      updatedAt: 1757792340000,
+      docs: {},
+      customer: { name: "Chris Cyr" }
+    }]
+  };
+  function centerStore() { return store; }
+  function saveCenterStore() {}
+  const mergeIncomingShared = eval("(" + mergeSrc + ")");
+  const changed = mergeIncomingShared([
+    {
+      id: "cmu0avif7rslu",
+      sendId: "s1ex074",
+      vin: "2T3B1RFVXRC466025",
+      ymmt: "2024 TOYOTA RAV4",
+      sentAt: 1789339609336,
+      updatedAt: 1789339999999,
+      source: "appraise",
+      docs: { vauto: { have: true }, openlane: { have: true }, eblock: { have: true }, summary: { have: true } },
+      customer: { name: "Chris Cyr" },
+      photoCount: 13
+    },
+    {
+      id: "guest-chris-rav4-20260913",
+      sendId: "old-rav4",
+      vin: "2T3B1RFVXRC466025",
+      ymmt: "2024 Toyota RAV4",
+      sentAt: 1757792340000,
+      docs: {},
+      customer: { name: "Chris Cyr" }
+    }
+  ]);
+  assert.equal(changed, true);
+  assert.equal(store.items.length, 1, "one live row per VIN");
+  const row = store.items[0];
+  assert.equal(row.archived, false, "stale archive is cleared");
+  assert.equal(row.lane, "onsite", "complete 3-pill file is On-site");
+  assert.equal(row.sentAt, 1789339609336, "older stub does not win sentAt");
+  assert.equal(row.docs.vauto.have, true, "empty stub does not wipe pills");
+  assert.equal(row.sendId, "s1ex074", "newer sendId stays");
+  assert.equal(centerLaneOf(row), "onsite");
+})();
+
+(function testSlimSharedSendsTwoHomeLane() {
+  const empty = slimSharedCenterItem({ source: "guest", docs: {}, stage: "Waiting" });
+  assert.equal(empty.lane, "needsdocs", "submitted empty packet is Needs docs, not inbox");
+  const full = slimSharedCenterItem({
+    source: "appraise",
+    purpose: "appraise",
+    docs: { vauto: { have: true }, openlane: { have: true }, eblock: { have: true } }
+  });
+  assert.equal(full.lane, "onsite", "3-pill slim lands On-site");
+  const web = slimSharedCenterItem({ source: "website", purpose: "website", docs: {} });
+  assert.equal(web.lane, "inbox", "website still lands Incoming");
 })();
 
 (function testLeftoverLocalInboxPurged() {

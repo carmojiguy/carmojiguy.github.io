@@ -106,6 +106,38 @@ assert.equal(incoming.isPacketSend({
   assert.equal(afterSkip.body.items.length, 1, "sample land is not listed");
   assert.equal(afterSkip.body.items[0].id, "guest-christine-blazer-20260913");
 
+  incoming.resetStore();
+  incoming.route("POST", {
+    kind: "land",
+    item: {
+      id: "cmu0avif7rslu",
+      sendId: "s1ex074",
+      vin: "2T3B1RFVXRC466025",
+      ymmt: "2024 TOYOTA RAV4",
+      lane: "onsite",
+      sentAt: 1789339609336,
+      docs: { vauto: { have: true }, openlane: { have: true }, eblock: { have: true } },
+      customer: { name: "Chris Cyr" }
+    }
+  });
+  assert.equal(incoming.listItems()[0].lane, "onsite", "complete land keeps On-site");
+  incoming.route("POST", {
+    kind: "land",
+    item: {
+      id: "guest-chris-rav4-20260913",
+      sendId: "old-rav4",
+      vin: "2T3B1RFVXRC466025",
+      sentAt: 1757792340000,
+      docs: {},
+      customer: { name: "Chris Cyr" }
+    }
+  });
+  const rav4 = incoming.listItems();
+  assert.equal(rav4.length, 1, "VIN collapse stays one row");
+  assert.equal(rav4[0].docs.vauto.have, true, "empty stub does not wipe 3-pill docs");
+  assert.equal(rav4[0].sentAt, 1789339609336, "older stub does not win sentAt");
+  assert.equal(rav4[0].sendId, "s1ex074");
+
   console.log("incoming-api: ok");
 })().catch(function (err) {
   console.error(err);

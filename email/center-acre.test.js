@@ -75,7 +75,8 @@ mustNot(/sample-v5-/, "v5 sample ids are gone");
 mustNot(/sample-v8-/, "v8 sample ids are gone");
 mustNot(/Maya Patel/, "Incoming sample customer is gone");
 mustNot(/2024 Honda Civic Sport/, "Honda smoke sample is gone");
-must(/lane:"inbox"/, "shared Incoming still lands inbox");
+must(/landingLaneForSend\(app, docs, false\)/, "shared slim uses landingLaneForSend");
+mustNot(/function slimSharedCenterItem\([\s\S]*?lane:"inbox"/, "shared slim no longer hardcodes inbox");
 must(/lane\|\|"onsite"/, "On-site remains a Center lane");
 must(/blackbook/, "Black Book doc slot");
 must(/photoCount=photos\.length/, "real Send still counts the walk");
@@ -201,8 +202,8 @@ must(/id="typeGateNote"/, "plain-English type-first note on the Appraise form");
 must(/classList\.toggle\("home-gate", !!\(lock && !pending\)\)/, "gated Appraise actions are grayed unless the create form is showing");
 must(/id="home"[\s\S]*id="newAppWrap"[\s\S]*id="storyBlock"/, "New application form sits on the HOME Appraise desk");
 mustNot(/id="workbench"[\s\S]*id="newAppWrap"/, "create form is not workbench-only after My Loan");
-must(/id="buildStamp">build d29p</, "home footer has a visible build stamp");
-must(/id="typeSheet"[\s\S]*build d29p/, "type sheet hint includes the build stamp");
+must(/id="buildStamp">build d29q</, "home footer has a visible build stamp");
+must(/id="typeSheet"[\s\S]*build d29q/, "type sheet hint includes the build stamp");
 must(/id="exitChrome"/, "global Close/Back/Home chrome sits above every sheet");
 must(/id="exitClose"/, "visible Close X is always on the exit chrome");
 must(/id="exitBack"/, "Back is on the exit chrome");
@@ -694,16 +695,13 @@ mustNot(/window\.alert\(|\balert\(/, "docs gate never uses a native alert");
   const gateM = html.match(/function needsMarketDocsGate\(app\)\{[\s\S]*?\n\}/);
   const landM = html.match(/function landingLaneForSend\(app, docs, leaderSend\)\{[\s\S]*?\n\}/);
   assert.ok(haveM && missM && doneM && gateM && landM, "market-docs helpers extractable");
-  const MARKET_DOC_REQ = [
-    {id:"summary", label:"vAuto Appraisal summary", aliases:["summary","vauto_summary"]},
-    {id:"blackbook", label:"vAuto Book", aliases:["blackbook","vauto_book","book"]},
-    {id:"compset", label:"vAuto Competitive set", aliases:["compset","vauto_comp"]},
-    {id:"carfax", label:"vAuto Carfax", aliases:["carfax","carfax_pdf"]},
-    {id:"mmr", label:"vAuto MMR", aliases:["mmr"]},
-    {id:"olguide", label:"OpenLane Market Guide", aliases:["olguide","openlane_guide","openlane"]},
-    {id:"olforecast", label:"OpenLane Forecast", aliases:["olforecast","openlane_forecast"]},
-    {id:"ebguide", label:"eBlock Market Guide", aliases:["ebguide","eblock_guide","eblock"]}
-  ];
+  const reqM = html.match(/const MARKET_DOC_REQ=(\[[\s\S]*?\]);/);
+  assert.ok(reqM, "MARKET_DOC_REQ extractable");
+  const MARKET_DOC_REQ = eval("(" + reqM[1] + ")");
+  assert.strictEqual(MARKET_DOC_REQ.length, 3, "completeness is the 3-pill desk");
+  assert.strictEqual(MARKET_DOC_REQ[0].id, "vauto");
+  assert.strictEqual(MARKET_DOC_REQ[1].id, "openlane");
+  assert.strictEqual(MARKET_DOC_REQ[2].id, "eblock");
   const helpers = eval("(function(MARKET_DOC_REQ){\n" +
     haveM[0] + "\n" + missM[0] + "\n" + doneM[0] + "\n" + gateM[0] + "\n" + landM[0] + "\n" +
     "return {packetDocHave:packetDocHave, missingMarketDocs:missingMarketDocs, needsMarketDocsGate:needsMarketDocsGate, landingLaneForSend:landingLaneForSend};\n})(" + JSON.stringify(MARKET_DOC_REQ) + ")");
@@ -715,19 +713,23 @@ mustNot(/window\.alert\(|\balert\(/, "docs gate never uses a native alert");
   assert.strictEqual(needsMarketDocsGate({ role:"employee", purpose:"website" }), false, "website Send skips the gate");
   assert.strictEqual(needsMarketDocsGate({ role:"employee", purpose:"appraise" }), true, "staff appraisal Send is gated");
   const none = missingMarketDocs({});
-  assert.ok(none.length >= 8, "empty packet is incomplete");
+  assert.ok(none.length >= 3, "empty packet is incomplete");
   const partial = missingMarketDocs({ summary:{have:true}, carfax:{have:true} });
   assert.ok(partial.length >= 1 && partial.length < none.length, "a portion present is incomplete");
   const full = {};
   MARKET_DOC_REQ.forEach(function (s) { full[s.id] = { have:true }; });
-  assert.deepStrictEqual(missingMarketDocs(full), [], "full vAuto + OpenLane + eBlock pack is complete");
+  assert.deepStrictEqual(missingMarketDocs(full), [], "full V Auto + OpenLane + eBlock pack is complete");
+  assert.deepStrictEqual(missingMarketDocs({ vauto:{have:true}, openlane:{have:true}, eblock:{have:true} }), [], "3-pill flags are complete");
   assert.strictEqual(landingLaneForSend({ role:"guest" }, {}, false), "needsdocs", "guest Send without market docs lands Needs docs");
   assert.strictEqual(landingLaneForSend({ role:"employee", purpose:"website" }, {}, false), "inbox", "website still lands Incoming");
   assert.strictEqual(landingLaneForSend({ role:"employee", purpose:"appraise" }, { summary:{have:true} }, false), "needsdocs", "partial staff packet never enters the AI lane");
   assert.strictEqual(landingLaneForSend({ role:"employee", purpose:"appraise" }, full, false), "onsite", "complete staff packet lands On-site");
   assert.strictEqual(landingLaneForSend({ role:"guest" }, full, false), "onsite", "complete guest packet lands On-site");
+  assert.strictEqual(landingLaneForSend({ role:"guest" }, { vauto:{have:true}, openlane:{have:true}, eblock:{have:true} }, false), "onsite", "3-pill guest lands On-site");
   assert.strictEqual(landingLaneForSend({ role:"employee", purpose:"appraise" }, {}, true), "needsdocs", "leader Send stays Needs docs");
+  assert.ok(packetDocHave({ vauto:{have:true} }, MARKET_DOC_REQ[0]), "vauto pill counts as V Auto");
   assert.ok(packetDocHave({ vauto_summary:{have:true} }, MARKET_DOC_REQ[0]), "vAuto summary alias counts");
+  assert.ok(packetDocHave({ vauto_docs:{have:true} }, MARKET_DOC_REQ[0]), "vauto_docs pack counts");
 })();
 
 must(/id="webStudio"/, "Website photos studio screen");

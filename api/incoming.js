@@ -98,7 +98,7 @@ function slimItem(raw) {
   item.sentAt = Number(raw.sentAt || Date.now());
   item.updatedAt = Number(raw.updatedAt || Date.now());
   item.source = raw.source || "guest";
-  item.lane = "inbox";
+  item.lane = (raw.lane === "needsdocs" || raw.lane === "onsite") ? raw.lane : (raw.lane || "inbox");
   item.stage = raw.stage || "Waiting";
   item.customer = slimCustomer(raw.customer);
   item.docs = slimDocs(raw.docs);
@@ -126,6 +126,16 @@ function persistItem(raw) {
   const idx = list.findIndex(function (x) { return sameSeat(x, item); });
   if (idx >= 0) {
     const prev = list[idx];
+    const incomingHave = Object.keys(item.docs || {}).filter(function (k) {
+      return item.docs[k] && item.docs[k].have;
+    }).length;
+    const prevHave = Object.keys(prev.docs || {}).filter(function (k) {
+      return prev.docs[k] && prev.docs[k].have;
+    }).length;
+    const sameSend = !!(item.sendId && prev.sendId && item.sendId === prev.sendId);
+    const sameId = !!(item.id && prev.id && item.id === prev.id);
+    if (!sameSend && !sameId && incomingHave === 0 && prevHave > 0) return prev;
+    if (item.sentAt && prev.sentAt && item.sentAt < prev.sentAt && incomingHave <= prevHave) return prev;
     const next = slimItem(Object.assign({}, prev, item, {
       id: prev.id || item.id,
       customer: {

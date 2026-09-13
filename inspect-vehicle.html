@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-13 build d29p: sales PDF email packet + one muxed damage clip; History reopen stays; zero Center samples -->
+<!-- center-v3 + desk-home 2026-09-13 build d29q: Center two-home land; newest VIN wins; 3-pill docs; sales PDF packet stays; zero Center samples -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -1810,7 +1810,7 @@ body.center-gallery-on { overflow:hidden; }
     <p class="quote" id="vinHint">Best: take a picture of the vehicle ownership (registration). You can also photograph the VIN on the dash or the sticker on the driver’s door. We’ll read the number from the photo.</p>
     <p class="vin-chip hide" id="vinChip"></p>
     </div>
-    <p class="build-stamp" id="buildStamp">build d29p</p>
+    <p class="build-stamp" id="buildStamp">build d29q</p>
   </div>
 </section>
 
@@ -2269,7 +2269,7 @@ body.center-gallery-on { overflow:hidden; }
   <div class="card">
     <button class="x" type="button" data-close="typeSheet">✕</button>
     <h3>Appraisal type</h3>
-    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d29p</span></p>
+    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d29q</span></p>
     <div id="typeChips" class="to-chips"></div>
     <div id="leadBox" class="lead-box hide">
       <p class="hint">Lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a New application — no appointment calendar.</p>
@@ -2415,14 +2415,9 @@ const PACKET_DOCS = PACKET_LAUNCH.concat(PACKET_ADDS).concat([
   {id:"ebguide", label:"eBlock Market Guide", kind:"derived", hint:"Average of vehicles and km"}
 ]);
 const MARKET_DOC_REQ=[
-  {id:"summary", label:"vAuto Appraisal summary", aliases:["summary","vauto_summary"]},
-  {id:"blackbook", label:"vAuto Book", aliases:["blackbook","vauto_book","book"]},
-  {id:"compset", label:"vAuto Competitive set", aliases:["compset","vauto_comp"]},
-  {id:"carfax", label:"vAuto Carfax", aliases:["carfax","carfax_pdf"]},
-  {id:"mmr", label:"vAuto MMR", aliases:["mmr"]},
-  {id:"olguide", label:"OpenLane Market Guide", aliases:["olguide","openlane_guide","openlane"]},
-  {id:"olforecast", label:"OpenLane Forecast", aliases:["olforecast","openlane_forecast"]},
-  {id:"ebguide", label:"eBlock Market Guide", aliases:["ebguide","eblock_guide","eblock"]}
+  {id:"vauto", label:"V Auto documents", aliases:["vauto","vauto_docs","vauto_summary","summary","compset","vauto_comp"]},
+  {id:"openlane", label:"OpenLane documents", aliases:["openlane","openlane_docs","openlane_guide","olguide","olforecast","openlane_forecast"]},
+  {id:"eblock", label:"eBlock documents", aliases:["eblock","eblock_docs","eblock_guide","ebguide"]}
 ];
 const DOC_TYPES = PACKET_DOCS.map(function(d){ return [d.id, d.label, d.hint||d.label]; });
 function packetDocHave(docs, spec){
@@ -5911,9 +5906,9 @@ function slimCenterDocs(docs){
   const src=docs||{};
   const out={};
   const map={
-    vauto:["vauto","vauto_summary"],
-    openlane:["openlane","vauto_comp"],
-    eblock:["eblock","vauto_book"],
+    vauto:["vauto","vauto_docs","vauto_summary","summary"],
+    openlane:["openlane","openlane_docs","olguide","olforecast","openlane_guide"],
+    eblock:["eblock","eblock_docs","ebguide","eblock_guide"],
     carfax:["carfax","carfax_pdf","data_says"],
     mmr:["mmr"],
     blackbook:["blackbook","book"]
@@ -5947,6 +5942,77 @@ function centerSource(){
 function centerSourceLabel(src){
   return ({guest:"Guest story", website:"Website", appraise:"Appraise", "trade-in":"Trade-in link"})[src] || "Sent";
 }
+function sharedItemStamp(x){
+  return Number((x && (x.sentAt||x.updatedAt||x.createdAt))||0);
+}
+function sharedDocsHaveCount(docs){
+  docs=docs||{};
+  let n=0;
+  Object.keys(docs).forEach(function(k){
+    const d=docs[k];
+    if(d && (d.have || d.data || d.extract || d.preview || (d.shots&&d.shots.length))) n++;
+  });
+  return n;
+}
+function sharedRemoteBeats(remote, local){
+  if(!local) return true;
+  const rD=sharedDocsHaveCount(remote && remote.docs);
+  const lD=sharedDocsHaveCount(local.docs);
+  if(rD>0 && lD===0) return true;
+  if(rD===0 && lD>0) return false;
+  const rT=sharedItemStamp(remote), lT=sharedItemStamp(local);
+  if(rT && lT && rT<lT) return false;
+  return true;
+}
+function reviveSharedCenterItem(item){
+  if(!item) return item;
+  const archiveMs=typeof CENTER_ARCHIVE_MS==="number"?CENTER_ARCHIVE_MS:90*24*60*60*1000;
+  const localWhen=sharedItemStamp(item);
+  const stale=!!(localWhen && (Date.now()-localWhen)>archiveMs);
+  if(item.stage==="Appraised" && (item.archived || stale)) item.stage="Waiting";
+  item.archived=false;
+  return item;
+}
+function collapseSharedRemotes(rows){
+  const list=[];
+  (rows||[]).forEach(function(remote){
+    if(!remote || typeof remote!=="object" || isCenterSample(remote)) return;
+    const vin=String(remote.vin||"").trim().toUpperCase();
+    const sendId=remote.sendId||"";
+    let hit=-1;
+    for(let i=0;i<list.length;i++){
+      const cur=list[i];
+      const cv=String(cur.vin||"").trim().toUpperCase();
+      if(sendId && cur.sendId && sendId===cur.sendId){ hit=i; break; }
+      if(vin.length===17 && cv===vin){ hit=i; break; }
+    }
+    if(hit<0) list.push(remote);
+    else if(sharedRemoteBeats(remote, list[hit])) list[hit]=remote;
+  });
+  return list;
+}
+function collapseCenterVinDupes(store){
+  if(!store || !Array.isArray(store.items)) return false;
+  const drop={};
+  const keep={};
+  store.items.forEach(function(item, i){
+    if(!item || isCenterSample(item)) return;
+    const vin=String(item.vin||"").trim().toUpperCase();
+    if(vin.length!==17) return;
+    if(keep[vin]==null){ keep[vin]=i; return; }
+    const prev=store.items[keep[vin]];
+    if(sharedRemoteBeats(item, prev)){
+      drop[keep[vin]]=true;
+      keep[vin]=i;
+    } else {
+      drop[i]=true;
+    }
+  });
+  const idx=Object.keys(drop);
+  if(!idx.length) return false;
+  store.items=store.items.filter(function(_,i){ return !drop[i]; });
+  return true;
+}
 function findCenterMatch(store, hint){
   hint=hint||{};
   const shared=!!hint.shared;
@@ -5965,8 +6031,15 @@ function findCenterMatch(store, hint){
   }
   const vin=String(hint.vin || (shared?"":APP.vin) || "").trim().toUpperCase();
   if(vin.length===17){
-    const byVin=store.items.find(function(x){ return x && !x.sample && String(x.vin||"").toUpperCase()===vin; });
-    if(byVin) return byVin;
+    const hits=store.items.filter(function(x){ return x && !x.sample && String(x.vin||"").toUpperCase()===vin; });
+    if(hits.length){
+      if(sendId){
+        const bySendVin=hits.find(function(x){ return x.sendId && x.sendId===sendId; });
+        if(bySendVin) return bySendVin;
+      }
+      hits.sort(function(a,b){ return sharedItemStamp(b)-sharedItemStamp(a); });
+      return hits[0];
+    }
   }
   const name=String(hint.customerName || (shared?"":APP.inviteName) || "").trim().toLowerCase();
   if(name){
@@ -5994,6 +6067,10 @@ function slimSharedDocs(docs){
 function slimSharedCenterItem(item){
   item=item||{};
   const cust=item.customer||{};
+  const docs=slimSharedDocs(item.docs);
+  const routed=laneFromMarketDocs(docs);
+  const app={role:item.source==="guest"?"guest":"employee", purpose:item.purpose||item.source||""};
+  const lane=landingLaneForSend(app, docs, false);
   return {
     id:item.id||"",
     sendId:item.sendId||APP.sendId||"",
@@ -6010,8 +6087,10 @@ function slimSharedCenterItem(item){
     dealType:item.dealType||"",
     leadSource:item.leadSource||"",
     source:item.source||"guest",
-    lane:"inbox",
-    stage:"Waiting",
+    lane:lane,
+    stage:item.stage||"Waiting",
+    docsIncomplete:routed.docsIncomplete,
+    missingDocs:routed.missingDocs,
     story:item.story||"",
     webcopy:item.webcopy||"",
     photoCount:Number(item.photoCount||0),
@@ -6024,7 +6103,7 @@ function slimSharedCenterItem(item){
     interest:item.interest||"",
     sentAt:item.sentAt||Date.now(),
     updatedAt:item.updatedAt||Date.now(),
-    docs:slimSharedDocs(item.docs),
+    docs:docs,
     inviteUnit:item.inviteUnit||APP.inviteUnit||item.interest||""
   };
 }
@@ -6043,8 +6122,9 @@ function shareIncomingBestEffort(item){
 function applySharedIncoming(item, remote){
   const cust=remote.customer||{};
   const prev=item.customer||{};
+  const remoteWhen=sharedItemStamp(remote);
+  const localWhen=sharedItemStamp(item);
   item.source="guest";
-  item.stage="Waiting";
   item.linkSent=false;
   item.sendId=remote.sendId||item.sendId||"";
   item.vin=remote.vin||item.vin||"";
@@ -6074,10 +6154,19 @@ function applySharedIncoming(item, remote){
   item.salesperson=remote.salesperson||item.salesperson||"";
   item.interest=remote.interest||item.interest||"";
   item.inviteUnit=remote.inviteUnit||item.inviteUnit||item.interest||"";
-  item.sentAt=remote.sentAt||item.sentAt||Date.now();
-  item.updatedAt=remote.updatedAt||Date.now();
-  if(remote.docs) item.docs=slimSharedDocs(remote.docs);
+  if(remote.docs){
+    const incoming=slimSharedDocs(remote.docs);
+    if(!(sharedDocsHaveCount(incoming)===0 && sharedDocsHaveCount(item.docs)>0)) item.docs=incoming;
+  }
   if(!item.docs) item.docs={};
+  if(remoteWhen && (!localWhen || remoteWhen>=localWhen)){
+    item.sentAt=remote.sentAt||item.sentAt||Date.now();
+    item.updatedAt=remote.updatedAt||Date.now();
+  } else {
+    item.updatedAt=Date.now();
+  }
+  reviveSharedCenterItem(item);
+  if(item.stage!=="Appraised") item.stage=remote.stage||item.stage||"Waiting";
   const routed=laneFromMarketDocs(item.docs);
   item.lane=routed.lane;
   item.docsIncomplete=routed.docsIncomplete;
@@ -6092,10 +6181,24 @@ function mergeIncomingShared(list){
     if(!rows || !rows.length) return false;
     const store=centerStore();
     let changed=false;
-    rows.forEach(function(remote){
+    collapseSharedRemotes(rows).forEach(function(remote){
       if(!remote || typeof remote!=="object" || isCenterSample(remote)) return;
       const name=remote.customer && remote.customer.name || "";
       let item=findCenterMatch(store, {shared:true, sendId:remote.sendId||"", vin:remote.vin||"", customerName:name});
+      if(item && !sharedRemoteBeats(remote, item)){
+        if(sharedDocsHaveCount(item.docs)>0){
+          const wasStuck=!!(item.archived || item.stage==="Appraised");
+          reviveSharedCenterItem(item);
+          const routed=laneFromMarketDocs(item.docs);
+          if(wasStuck || item.lane!==routed.lane || item.docsIncomplete!==routed.docsIncomplete){
+            item.lane=routed.lane;
+            item.docsIncomplete=routed.docsIncomplete;
+            item.missingDocs=routed.missingDocs;
+            changed=true;
+          }
+        }
+        return;
+      }
       if(!item){
         item={
           id:remote.id||("c"+Date.now().toString(36)+Math.random().toString(36).slice(2,6)),
@@ -6112,6 +6215,7 @@ function mergeIncomingShared(list){
       applySharedIncoming(item, remote);
       changed=true;
     });
+    if(collapseCenterVinDupes(store)) changed=true;
     if(changed) saveCenterStore(store);
     if(typeof purgeDocsLaneDrift==="function") purgeDocsLaneDrift();
     return changed;
@@ -6208,6 +6312,7 @@ function upsertCenterFromApp(extra){
   item.salesperson=APP.requestedByName||APP.userName||item.salesperson||item.sentBy||"";
   item.interest=APP.inviteUnit||item.interest||"";
   if(extra.sent){
+    reviveSharedCenterItem(item);
     const miss=Array.isArray(extra.missingDocs)?extra.missingDocs:missingMarketDocs(APP.docs);
     const want=extra.lane || landingLaneForSend(APP, APP.docs, extra.docsIncomplete);
     const incomplete=want==="needsdocs" || extra.docsIncomplete || (!!miss.length && APP.purpose!=="website");
