@@ -222,7 +222,7 @@ assert.equal(rav4.docs.carfax.pending, true, "docs.carfax.pending");
 assert.ok(/carfax-sample/.test(rav4.docs.carfax.url), "docs.carfax.url is carfax-sample");
 assert.equal(rav4.finalRationale.schema_version, "1.0", "rationale schema 1.0");
 assert.equal(rav4.finalRationale.panel.webot.sidedWith, true, "Webot sidedWith true");
-assert.deepStrictEqual(rav4.finalRationale.marketEvidence.openlane, [], "openlane:[] — no invented solds");
+assert.ok(Array.isArray(rav4.finalRationale.marketEvidence.openlane) && rav4.finalRationale.marketEvidence.openlane.length === 0, "openlane:[] — no invented solds");
 assert.ok(rav4.finalRationale.marketEvidence.vauto.length > 0, "public retail asks seed as directional vauto comps");
 assert.ok(fs.existsSync(path.join(root, "docs/HOW-WE-GOT-HERE-2T3B1RFVXRC466025.md")), "HOW-WE-GOT-HERE markdown is in docs/");
 assert.ok(fs.existsSync(path.join(root, "docs/rav4-2T3B1RFVXRC466025-carfax-sample.pdf")), "carfax-sample PDF is in docs/");
