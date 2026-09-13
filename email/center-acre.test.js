@@ -171,6 +171,13 @@ must(/function paintAppraiseGate\(/, "Story, pictures, docs, and VIN gray until 
 must(/id="typeGateNote"/, "plain-English type-first note on the Appraise form");
 must(/classList\.toggle\("home-gate", lock\)/, "gated Appraise actions are grayed");
 must(/DEAL_TYPES = \["Trade-in","Locate","General acquisition","Consumer Acquisition"\]/, "Appraise types are Trade-in, Locate, General acquisition, Consumer Acquisition");
+must(/const soon=name==="Locate"/, "Locate chip is Coming soon, not a start-dock button");
+must(/Coming soon/, "Locate chip is labeled Coming soon");
+must(/b\.setAttribute\("aria-disabled","true"\)/, "Locate chip is aria-disabled");
+must(/b\.disabled=true/, "Locate chip is not clickable");
+must(/if\(name==="Locate"\) return;/, "new picks cannot set APP.dealType to Locate");
+must(/to-chips \.mail\.soon/, "Locate soon style mirrors start-actions .pill.soon");
+mustNot(/APP\.dealType="Locate"/, "no code path assigns Locate as a new pick");
 must(/p\.purpose==="website"\) return false/, "website photos stay off the Appraise type gate");
 must(/startAppraise"\)\.onclick[\s\S]{0,900}openDealType\(\)/, "Appraise vehicle opens type before other actions");
 must(/el\.disabled=!!lock/, "gated Appraise buttons are actually disabled");
