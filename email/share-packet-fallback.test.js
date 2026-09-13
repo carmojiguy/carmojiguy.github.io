@@ -40,13 +40,27 @@ mustNot(/Open Gmail and send/, "sharePacket never unhides Open Gmail");
 mustNot(/Tap Open Gmail/, "staff fail is not Gmail homework");
 mustNot(/requestGmailThenSend\(/, "sharePacket never starts GIS Send OAuth");
 mustNot(/oauthRedirectForSend\(/, "sharePacket never redirects to Google for Send");
-mustNot(/classList\.remove\("hide"\)/, "sharePacket never unhides #mailOpen");
+mustNot(/\$\("mailOpen"\)[\s\S]{0,80}classList\.remove\("hide"\)/, "sharePacket never unhides #mailOpen");
+must(/if\(!sentOk\) restoreSend\(\)/, "packet finally restores Send only on fail");
+must(/else hideSend\(\)/, "packet finally hides Send on success");
 must(/pushVoiceParts\(parts, shots\)/, "Send attaches spoken damage audio with the photos");
 
 assert.ok(/function hideMailOpen\(\)\{/.test(html), "hideMailOpen exists");
-assert.ok(/if\(APP\.role==="guest"\)\{ hideMailOpen\(\); return ""; \}/.test(html), "revealMailOpen never shows mail to guests");
+(function testRevealMailOpenHideOnly() {
+  const a = html.indexOf("function revealMailOpen(){");
+  const b = html.indexOf("\nfunction armMailFallback()", a);
+  assert.ok(a > 0 && b > a, "revealMailOpen found");
+  const rev = html.slice(a, b);
+  assert.ok(/hideMailOpen\(\)/.test(rev), "revealMailOpen hides #mailOpen");
+  assert.ok(/hideInvMailBtn\(\)/.test(rev), "revealMailOpen hides #invMailBtn");
+  assert.ok(!/classList\.remove\("hide"\)/.test(rev), "revealMailOpen never unhides");
+  assert.ok(!/\.href\s*=/.test(rev), "revealMailOpen never sets href");
+  assert.ok(!/Open Gmail/.test(rev), "revealMailOpen never writes Open Gmail");
+  assert.ok(!/textContent\s*=/.test(rev), "revealMailOpen never changes label");
+})();
 assert.ok(/function kickShare\(\)\{/.test(html), "kickShare exists");
 assert.ok(/hideMailOpen\(\);/.test(kick), "kickShare hides #mailOpen before Send");
+assert.ok(/hideInvMailBtn\(\);/.test(kick), "kickShare hides #invMailBtn before Send");
 assert.ok(/sharePacket\(\);/.test(kick), "kickShare sends without a Gmail wall");
 assert.ok(!/requestGmailThenSend\(/.test(kick), "kickShare does not call requestGmailThenSend");
 assert.ok(!/oauthRedirectForSend\(/.test(kick), "kickShare does not call oauthRedirectForSend");
@@ -89,12 +103,24 @@ function runFinishContract(opts) {
   }
   let finished = false;
   let sentOk = false;
-  function finish(msg) {
-    finished = true;
+  function restoreSend() {
     btn.disabled = false;
     btn.textContent = "Send";
+    btn.classList.remove("hide");
+  }
+  function hideSend() {
+    btn.classList.add("hide");
+    btn.disabled = true;
+  }
+  function finish(msg) {
+    finished = true;
     hideMailOpen();
-    if (msg) toasts.push(msg);
+    if (msg) {
+      restoreSend();
+      toasts.push(msg);
+    } else {
+      hideSend();
+    }
   }
   function simulate(result) {
     if (result && result.ok && result.verified) {
@@ -104,8 +130,8 @@ function runFinishContract(opts) {
     } else {
       finish("Couldn’t send — try again");
     }
-    btn.disabled = false;
-    btn.textContent = "Send";
+    if (!sentOk) restoreSend();
+    else hideSend();
     hideMailOpen();
   }
   simulate(opts.sent);
@@ -135,12 +161,16 @@ const guestSilent = runFinishContract({ role: "guest", sent: { ok: true, verifie
 assert.equal(guestSilent.sentOk, true);
 assert.equal(guestSilent.APP.screen, "thanks");
 assert.ok(guestSilent.mail.classList.contains("hide"), "guest success never shows mail");
+assert.ok(guestSilent.btn.classList.contains("hide"), "guest success hides #btnSharePack");
+assert.equal(guestSilent.btn.disabled, true);
 assert.deepEqual(guestSilent.toasts, []);
 
 const staffOk = runFinishContract({ role: "employee", sent: { ok: true, verified: true } });
 assert.equal(staffOk.sentOk, true);
 assert.equal(staffOk.APP.screen, "thanks", "staff success lands on Thank you");
 assert.ok(staffOk.mail.classList.contains("hide"), "successful staff send keeps fallback hidden");
+assert.ok(staffOk.btn.classList.contains("hide"), "staff success hides #btnSharePack");
+assert.equal(staffOk.btn.disabled, true);
 assert.deepEqual(staffOk.toasts, [], "staff success is Thank you, not a toast-only Sent");
 
 const copies = ["404.html", "inspect-vehicle.html"].map(f => fs.readFileSync(path.join(__dirname, "..", f), "utf8"));
@@ -160,6 +190,13 @@ assert.ok(/hideInvMailBtn\(\)/.test(invSrc), "trade-in Send always hides #invMai
 assert.ok(/sendFromMe\(/.test(invSrc), "trade-in Send uses the silent store mailer");
 assert.ok(/upsertCenterInvite\(\)/.test(invSrc), "Incoming invite row still lands");
 assert.ok(/Thank you\./.test(invSrc), "success is Thank you, not Open Gmail");
+assert.ok(/function thankYouOnly\(\)\{/.test(invSrc), "trade-in success has Thank you only helper");
+assert.ok(/try\{ finishGuest\(\); \}/.test(invSrc), "trade-in success uses the real Thank you screen");
+assert.ok(/btn\.classList\.add\("hide"\)/.test(invSrc), "success hides #inviteSend");
+assert.ok(/if\(sent && sent\.ok\)\{\s*thankYouOnly\(\);/.test(invSrc), "email success never restoreSend");
+assert.ok(/if\(!email\)\{\s*thankYouOnly\(\);\s*return;/.test(invSrc), "phone-only success never restoreSend");
+assert.ok(/restoreSend\(\)/.test(invSrc), "fail can restore Send");
+assert.ok(!/thankYouOnly\(\);[\s\S]{0,40}restoreSend\(\)/.test(invSrc), "Thank you path never restoreSend");
 assert.ok(/Couldn’t send — try again/.test(invSrc), "fail is retry, not Gmail homework");
 assert.ok(!/hasMailAuth\(/.test(invSrc), "trade-in Send does not require a Google token");
 assert.ok(!/openGmail\(/.test(invSrc), "trade-in Send never calls openGmail");
@@ -179,21 +216,33 @@ function runInviteContract(opts) {
   const confirm = new FakeEl("invConfirm");
   confirm.textContent = "Sending…";
   const toasts = [];
+  const APP = { screen: "invite" };
   function hideInvMailBtn() {
     mail.classList.add("hide");
     mail.href = "";
   }
   function toast(msg) { toasts.push(msg); }
+  function restoreSend() {
+    hideInvMailBtn();
+    btn.classList.remove("hide");
+    btn.disabled = false;
+    btn.textContent = "Send from shawn@myloan.ca";
+  }
+  function hideSend() {
+    hideInvMailBtn();
+    btn.classList.add("hide");
+    btn.disabled = true;
+  }
   hideInvMailBtn();
   if (opts.sent && opts.sent.ok) {
     confirm.textContent = "Thank you.";
+    hideSend();
+    APP.screen = "thanks";
   } else {
     toast("Couldn’t send — try again");
+    restoreSend();
   }
-  btn.disabled = false;
-  btn.textContent = "Send from shawn@myloan.ca";
-  hideInvMailBtn();
-  return { mail, btn, confirm, toasts };
+  return { mail, btn, confirm, toasts, APP };
 }
 
 const inviteOk = runInviteContract({ sent: { ok: true, verified: true } });
@@ -201,7 +250,10 @@ assert.ok(inviteOk.mail.classList.contains("hide"), "success must NEVER unhide #
 assert.equal(inviteOk.mail.href, "", "success never points #invMailBtn at Gmail");
 assert.equal(inviteOk.confirm.textContent, "Thank you.");
 assert.deepEqual(inviteOk.toasts, [], "success is Thank you, not a Gmail toast");
-assert.equal(inviteOk.btn.disabled, false);
+assert.ok(inviteOk.btn.classList.contains("hide"), "success hides #inviteSend");
+assert.equal(inviteOk.btn.disabled, true, "success does not restoreSend");
+assert.equal(inviteOk.APP.screen, "thanks", "success is the real Thank you screen");
+assert.notEqual(inviteOk.btn.textContent, "Send from shawn@myloan.ca");
 
 const inviteFail = runInviteContract({ sent: { ok: false } });
 assert.ok(inviteFail.mail.classList.contains("hide"), "fail must NEVER unhide #invMailBtn");
