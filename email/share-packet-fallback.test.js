@@ -33,7 +33,10 @@ must(/if\(!sentOk\) revealMail\(\);|else if\(!sentOk\) revealMail\(\);/, "staff 
 
 assert.ok(/function hideMailOpen\(\)\{/.test(html), "hideMailOpen exists");
 assert.ok(/if\(APP\.role==="guest"\)\{ hideMailOpen\(\); return ""; \}/.test(html), "revealMailOpen never shows mail to guests");
-assert.ok(/if\(APP\.role==="guest"\)\{ hideMailOpen\(\); sharePacket\(\); return; \}/.test(html), "kickShare does not reveal mail before guest Send");
+assert.ok(/function kickShare\(\)\{/.test(html), "kickShare exists");
+assert.ok(/if\(APP\.role==="guest"\) hideMailOpen\(\);/.test(html), "kickShare hides mail for guests");
+assert.ok(/sharePacket\(\);/.test(html), "kickShare sends without a Gmail wall");
+assert.ok(!/requestGmailThenSend\(\)/.test(html.slice(html.indexOf("function kickShare()"), html.indexOf("function packetSendId("))), "guest/staff Send does not require Gmail OAuth first");
 assert.ok(/if\(guest\) hideMailOpen\(\);/.test(html), "paintSubmit / applyRole hide guest mail");
 assert.ok(/store:\s*true/.test(html), "sendFromMe asks the store sender when token/mk are empty");
 assert.ok(!/Open Mail and send/.test(html), "Open Mail and send copy is gone from the SPA");

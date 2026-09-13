@@ -43,7 +43,8 @@ const sandbox = {
     });
   },
   unitLabel: function () { return "2024 Hyundai Tucson"; },
-  why: function () { return "Trade-in"; }
+  why: function () { return "Trade-in"; },
+  packetSenderLine: function () { return "Maya Patel · customer trade-in"; }
 };
 vm.createContext(sandbox);
 vm.runInContext(src + "\nthis.packetCatalogHtml=packetCatalogHtml;", sandbox);

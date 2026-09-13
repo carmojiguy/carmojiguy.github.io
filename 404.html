@@ -298,7 +298,10 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
 .login-hero h1 { margin:0 0 10px; font-size:34px; letter-spacing:-.7px; line-height:1.08; color:#fff; text-shadow:0 2px 28px rgba(0,0,0,.55); }
 .login-hero .lead { margin:0; color:rgba(255,255,255,.88); font-size:16px; line-height:1.45; font-weight:600; text-shadow:0 1px 12px rgba(0,0,0,.45); max-width:22em; }
 .login-card { position:absolute; left:16px; right:16px; bottom:calc(16px + env(safe-area-inset-bottom)); z-index:6; max-height:none; overflow:visible; background:rgba(250,249,252,.94); backdrop-filter:blur(22px); -webkit-backdrop-filter:blur(22px); border-radius:26px; padding:16px 16px 14px; box-shadow:0 18px 50px rgba(0,0,0,.28); }
-.gbtn { width:100%; display:flex; align-items:center; justify-content:center; gap:10px; border:1.5px solid #DADCE0; background:#fff; border-radius:16px; padding:14px 16px; font-size:15px; font-weight:700; cursor:pointer; margin:0; color:#1F1F1F; position:relative; z-index:7; pointer-events:auto; text-decoration:none; min-height:52px; }
+.gbtn { width:100%; display:flex; align-items:center; justify-content:center; gap:10px; border:1.5px solid #DADCE0; background:#fff; border-radius:16px; padding:16px 16px; font-size:17px; font-weight:800; cursor:pointer; margin:0; color:#1F1F1F; position:relative; z-index:7; pointer-events:auto; text-decoration:none; min-height:56px; }
+.gbtn[disabled] { opacity:.7; cursor:wait; }
+.login-staff-note { margin:0 0 12px; color:var(--muted); font-size:14px; font-weight:600; line-height:1.4; }
+.login-fallback { display:block; width:100%; margin:12px 0 0; text-align:center; font-size:14px; }
 .login-card h1, .guest-story h1 { margin:0 0 8px; font-size:26px; letter-spacing:-.55px; line-height:1.15; color:var(--ink); }
 .guest-story h1 { color:var(--ink); }
 .thanks-card { position:absolute; left:20px; right:20px; bottom:calc(36px + env(safe-area-inset-bottom)); z-index:2; color:#fff; }
@@ -754,16 +757,17 @@ body.center-gallery-on { overflow:hidden; }
   </div>
   <div class="login-card">
     <button class="pill cyan" type="button" id="btnGuest">Continue as guest</button>
-    <div class="login-split"><span>Employees</span></div>
+    <div class="login-split" id="staffSplit"><span>Employees</span></div>
+    <p class="login-staff-note" id="staffNote">Tap Google. Use your work account — anyone @myloan.ca is already in.</p>
     <button class="gbtn" type="button" id="btnGoogle">
       <svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.9 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 8 3.1l5.7-5.7C34.2 6.1 29.4 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.2-.1-2.3-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 16 19 12 24 12c3.1 0 5.8 1.2 8 3.1l5.7-5.7C34.2 6.1 29.4 4 24 4 16.3 4 9.6 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 10-2 13.6-5.2l-6.3-5.3C29.2 35.1 26.7 36 24 36c-5.3 0-9.7-3.1-11.3-7.5l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-1.1 3.2-4.1 5.5-7.6 6.5l6.3 5.3C36.9 41.9 44 36 44 24c0-1.2-.1-2.3-.4-3.5z"/></svg>
-      Sign in with Google
+      <span class="gbtn-label">Continue with Google</span>
     </button>
-    <div class="login-split"><span>or email</span></div>
-    <form id="staffForm" action="#" method="post">
-      <input class="f" id="workEmail" type="email" inputmode="email" autocomplete="username" placeholder="Email" />
-      <p class="login-err hide" id="loginErr"></p>
-      <button class="pill purple" type="submit" id="workGo" style="margin-top:10px">Sign in</button>
+    <p class="login-err hide" id="loginErr"></p>
+    <button class="link login-fallback" type="button" id="staffEmailToggle">Google didn’t open? Use work email</button>
+    <form id="staffForm" class="hide" action="#" method="post">
+      <input class="f" id="workEmail" type="email" inputmode="email" autocomplete="username" placeholder="Work email" />
+      <button class="pill purple" type="submit" id="workGo" style="margin-top:10px">Sign in with email</button>
     </form>
   </div>
 </section>
@@ -1336,7 +1340,7 @@ window.APP = {
   clips:[], recOn:false, recorder:null, recChunks:[], recTick:null, recStarted:0, recMime:"", zoom:1,
   googleToken: window._gtoken || "", extraUsers:[], requestedBy:"", requestedByName:"",
   inviteUnit:"", inviteStock:"", inviteName:"", inviteEmail:"",
-  dealType:"", cdApp:"", centerId:"", centerFilter:"all", centerPhoto:0,
+  dealType:"", cdApp:"", centerId:"", sendId:"", centerFilter:"all", centerPhoto:0,
   centerHistory:false, centerLane:"", centerQuery:"", centerRange:"all", centerYear:new Date().getFullYear(),
   centerShots:[], centerGalleryOn:false
 };
@@ -1496,7 +1500,9 @@ function show(id){
 }
 
 function sessionKey(){ return "inspect.session"; }
-const SESSION_MS=24*60*60*1000;
+const SESSION_MS=30*24*60*60*1000;
+const STAFF_DENY="That Google account isn’t on the list. Use your @myloan.ca account, or ask Shawn to add you.";
+const LOGIN_SCOPES="openid email profile";
 function storeGet(k){
   try{ const v=localStorage.getItem(k); if(v) return v; }catch(e){}
   try{ return sessionStorage.getItem(k); }catch(e){}
@@ -1546,7 +1552,7 @@ function isStaffEmail(email){
 }
 function enterStaff(email, name){
   const e=staffEmail(email);
-  if(!isStaffEmail(e)){ toast("That email isn’t set up for this app."); return; }
+  if(!isStaffEmail(e)){ loginFail(STAFF_DENY); return; }
   const extra=extraUser(e);
   enterSession("employee", {name: name || (extra && extra.name) || OPEN_STAFF[e] || e.split("@")[0], email:e});
 }
@@ -1562,8 +1568,8 @@ function loginFail(msg){
 function enterStaffPassword(ev){
   if(ev){ ev.preventDefault(); ev.stopPropagation(); }
   const e=staffEmail($("workEmail") && $("workEmail").value);
-  if(!e){ loginFail("Enter your email."); return false; }
-  if(!isStaffEmail(e)){ loginFail("That email isn’t set up for this app."); return false; }
+  if(!e){ loginFail("Enter your work email."); return false; }
+  if(!isStaffEmail(e)){ loginFail(STAFF_DENY); return false; }
   if($("loginErr")) $("loginErr").classList.add("hide");
   enterStaff(e);
   return false;
@@ -1636,7 +1642,7 @@ function paintThanks(){
   if($("thanksSoft")) $("thanksSoft").textContent = "You can close this page. We'll be in touch.";
 }
 function finishGuest(){
-  landInCenter({source:"guest", sent:true, stage:"Waiting"});
+  landIncomingPacket({source:"guest", sent:true, stage:"Waiting", sendId:APP.sendId||packetSendId()});
   killMediaNow();
   clearDraft();
   clearSnapshot();
@@ -1663,9 +1669,10 @@ function paintLogin(){
     ? "No account. No sign-in. Tap below and we’ll walk you through a few photos."
     : "No account needed. Tell us about the car, take a few photos, and we’ll take it to buyers across Canada and the U.S.";
   if(btn) btn.textContent = first ? ("Hey "+first+", click here") : "Continue as guest";
-  document.querySelectorAll("#login .login-split, #btnGoogle, #staffForm").forEach(function(n){
-    n.classList.toggle("hide", hideEmp);
+  ["staffSplit","staffNote","btnGoogle","staffEmailToggle","staffForm","loginErr"].forEach(function(id){
+    if($(id)) $(id).classList.toggle("hide", hideEmp);
   });
+  if(!hideEmp && $("staffForm") && $("staffEmailToggle")) $("staffForm").classList.add("hide");
 }
 function applyRole(){
   const guest=APP.role==="guest";
@@ -2077,8 +2084,19 @@ function mailHdr(v){
   if(/^[\x20-\x7E]*$/.test(s)) return s;
   return "=?UTF-8?B?"+btoa(unescape(encodeURIComponent(s)))+"?=";
 }
+function packetSenderLine(){
+  if(APP.role==="guest"){
+    const name=(APP.inviteName||"").trim() || "Customer";
+    const via=APP.requestedByName||nameForEmail(APP.requestedBy)||"";
+    return via ? (name+" · link from "+via) : (name+" · customer trade-in");
+  }
+  const who=(APP.userName||"Employee").trim();
+  const email=staffEmail(APP.userEmail);
+  return email ? (who+" <"+email+">") : who;
+}
 function packetMailText(){
   const lines=[(unitLabel()||"Vehicle")+" — "+(why()||"Appraisal")];
+  lines.push("Sent by: "+packetSenderLine());
   const bits=[APP.trim, APP.color, APP.km ? Number(String(APP.km).replace(/,/g,"")).toLocaleString("en-CA")+" km" : ""].filter(Boolean);
   if(bits.length) lines.push(bits.join(" · "));
   if(APP.vin) lines.push("VIN "+String(APP.vin).toUpperCase());
@@ -2093,9 +2111,7 @@ function packetCatalogHtml(shots, srcFor){
   const kicker=escHtml((why()||"Appraisal").toUpperCase());
   const km=APP.km ? Number(String(APP.km).replace(/,/g,"")).toLocaleString("en-CA")+" km" : "";
   const guest=APP.role==="guest";
-  const who=guest
-    ? escHtml((APP.inviteName||"").trim() || "Customer trade-in")
-    : escHtml((APP.userName||APP.userEmail||"G&M Auto Sales").trim());
+  const who=escHtml(packetSenderLine());
   const facts=[
     ["Year", APP.year],["Make", APP.make],["Model", APP.model],["Trim", APP.trim],
     ["Colour", APP.color],["Kilometres", km],["VIN", APP.vin],["Stock", APP.stock],
@@ -2602,7 +2618,7 @@ function startFresh(){
 }
 function wipeJob(goStart){
   APP.year=APP.make=APP.model=APP.trim=APP.color=APP.km=APP.vin=APP.stock=APP.heard=APP.notes=APP.webcopy="";
-  APP.dealType=""; APP.cdApp=""; APP.centerId="";
+  APP.dealType=""; APP.cdApp=""; APP.centerId=""; APP.sendId=""; APP._sending=false;
   APP.photos={}; APP.damage={}; APP.closeups=[]; APP.docs={}; APP.damageCap={}; APP.closeupCap=[];
   APP.clips=[]; APP.recOn=false; APP.recorder=null; APP.recChunks=[]; APP.zoom=1;
   if(APP.role!=="guest"){
@@ -2986,8 +3002,8 @@ function slimCenterDocs(docs){
   return out;
 }
 function packCenterPhotos(){
-  return capturedFiles().slice(0,12).map(function(s){
-    return {title:s.title||"", data:s.data||"", cap:s.cap||""};
+  return capturedFiles().map(function(s){
+    return {title:s.title||"", data:s.data||"", cap:s.cap||"", name:s.name||"", view:s.view||"", kind:s.kind||""};
   });
 }
 function centerYmmt(a){
@@ -3006,6 +3022,11 @@ function findCenterMatch(store, hint){
   if(hint.id){
     const byId=store.items.find(function(x){ return x.id===hint.id; });
     if(byId) return byId;
+  }
+  const sendId=hint.sendId || APP.sendId || "";
+  if(sendId){
+    const bySend=store.items.find(function(x){ return x.sendId && x.sendId===sendId; });
+    if(bySend) return bySend;
   }
   if(APP.centerId){
     const open=store.items.find(function(x){ return x.id===APP.centerId; });
@@ -3027,8 +3048,8 @@ function findCenterMatch(store, hint){
 }
 function persistCenterMedia(id, photos, docs){
   const payload={photos:photos||[], docs:docs||{}};
-  idbPut(centerMediaKey(id), payload).catch(function(){});
   try{ sessionStorage.setItem(centerMediaKey(id), JSON.stringify(payload)); }catch(e){}
+  return idbPut(centerMediaKey(id), payload);
 }
 function loadCenterMedia(id){
   const item=getCenter(id);
@@ -3096,11 +3117,14 @@ function upsertCenterFromApp(extra){
   item.sentBy=APP.userName||APP.userEmail||item.sentBy||"";
   item.salesperson=APP.requestedByName||APP.userName||item.salesperson||item.sentBy||"";
   item.interest=APP.inviteUnit||item.interest||"";
-  if(item.stage!=="Appraised" && !item.archived){
+  if(extra.sent){
+    item.lane="inbox";
+    item.sentAt=now;
+    item.sendId=extra.sendId||APP.sendId||item.sendId||"";
+  } else if(item.stage!=="Appraised" && !item.archived){
     item.lane=(item.source==="guest" || item.source==="trade-in") ? "inbox" : (item.lane||"onsite");
   }
   item.updatedAt=now;
-  if(extra.sent) item.sentAt=now;
   if(extra.stage) item.stage=extra.stage;
   if(first && first.length>180000){
     compressDataUrl(first, 360, 0.55).then(function(small){
@@ -3913,17 +3937,38 @@ function packetReady(){
 }
 function kickShare(){
   if(!packetReady()){ toast("Add the story or photos first."); return; }
-  landInCenter({sent:false, stage:"Waiting"});
-  if(APP.role==="guest"){ hideMailOpen(); sharePacket(); return; }
-  revealMailOpen();
-  if(hasMailAuth()){ sharePacket(); return; }
-  const ios=/iPhone|iPad|iPod/i.test(navigator.userAgent||"") || !!(window.navigator && navigator.standalone);
-  if(ios){
-    toast("Connect Gmail to send…");
-    if(!oauthRedirectForSend()) armMailFallback();
+  if(APP.role==="guest") hideMailOpen();
+  if(typeof navigator!=="undefined" && navigator.onLine===false){
+    flushDraft();
+    toast("You’re offline. Your work is saved — try Send again when you’re back.");
     return;
   }
-  requestGmailThenSend();
+  sharePacket();
+}
+function packetSendId(){
+  if(APP.sendId) return APP.sendId;
+  const raw=[APP.centerId||"", APP.role||"", APP.userEmail||"", APP.inviteName||"", APP.vin||"", unitLabel(), String((APP.notes||APP.heard||"").length), String(capturedFiles().length)].join("|");
+  let h=2166136261;
+  for(let i=0;i<raw.length;i++){ h^=raw.charCodeAt(i); h=Math.imul(h,16777619); }
+  APP.sendId="s"+(h>>>0).toString(36);
+  return APP.sendId;
+}
+function mailedKey(id){ return "inspect.mailed."+id; }
+function sentKey(id){ return "inspect.sent."+id; }
+function wasMailed(id){ return !!(id && storeGet(mailedKey(id))); }
+function wasDelivered(id){ return !!(id && storeGet(sentKey(id))); }
+function markMailed(id){ if(id) storeSet(mailedKey(id), "1"); }
+function markDelivered(id){ if(id) storeSet(sentKey(id), String(Date.now())); }
+function landIncomingPacket(extra){
+  extra=Object.assign({sent:true, stage:"Waiting", lane:"inbox", sendId:packetSendId()}, extra||{});
+  const item=upsertCenterFromApp(extra);
+  if(!item || !item.id) return Promise.resolve(null);
+  const photos=packCenterPhotos();
+  const docs=slimCenterDocs(APP.docs);
+  return persistCenterMedia(item.id, photos, docs).then(function(ok){
+    if(ok) return item;
+    return persistCenterMedia(item.id, photos, docs).then(function(ok2){ return ok2 ? item : null; });
+  }).catch(function(){ return null; });
 }
 async function sendFromMe(to, subject, body, html, parts, extra){
   extra=extra||{};
@@ -3932,6 +3977,34 @@ async function sendFromMe(to, subject, body, html, parts, extra){
   extra.bcc=uniqEmails([].concat(extra.bcc||[], [SHAWN_COPY]));
   if(!APP.googleToken) APP.googleToken=readGoogleToken()||"";
   const slimParts=(parts||[]).filter(function(p){ return p && p.b64; });
+  const payload={
+    kind:"send",
+    store:true,
+    token:"",
+    refresh:"",
+    mk:APP.mailerKey||storeGet("inspect.mailer")||"",
+    from:APP.userEmail||"",
+    to:list,
+    bcc:extra.bcc,
+    subject:subject,
+    text:body,
+    html:html||"",
+    parts:slimParts
+  };
+  async function postStore(ms){
+    const r=await timedFetch(MAIL_HOST+"/api/upload", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify(payload)
+    }, ms||22000);
+    const j=await r.json().catch(function(){ return {}; });
+    if(j && j.ok) return {ok:true, verified:true, via:j.via||"server", id:j.id||j.messageId||j.gmailId||""};
+    return {ok:false, via:"store", error:(j && j.error)||"mailer"};
+  }
+  try{
+    const store=await postStore(APP.role==="guest" ? 22000 : 18000);
+    if(store && store.ok) return store;
+  }catch(e){}
   if(APP.googleToken){
     try{
       const rfc=rfc822(list, subject, body, html||"", slimParts, extra);
@@ -3946,30 +4019,6 @@ async function sendFromMe(to, subject, body, html, parts, extra){
       }
     }catch(e){}
   }
-  const payload={
-    kind:"send",
-    store:true,
-    token:APP.googleToken||"",
-    refresh:storedRefresh(),
-    mk:APP.mailerKey||storeGet("inspect.mailer")||"",
-    from:APP.userEmail||"",
-    to:list,
-    bcc:extra.bcc,
-    subject:subject,
-    text:body,
-    html:html||"",
-    parts:slimParts
-  };
-  try{
-    const r=await timedFetch(MAIL_HOST+"/api/upload", {
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify(payload)
-    }, APP.role==="guest" ? 22000 : 14000);
-    const j=await r.json().catch(function(){ return {}; });
-    if(j && j.ok && (j.id || j.messageId || j.gmailId)) return {ok:true, verified:true, via:"server", id:j.id||j.messageId||j.gmailId};
-    if(j && j.ok) return {ok:true, verified:false, via:"server"};
-  }catch(e){}
   return {ok:false, via:"fail"};
 }
 function openEml(raw, name){
@@ -4080,7 +4129,7 @@ function parseGoogleJwt(cred){
 }
 function applyGoogleUser(user, token){
   const email=staffEmail(user && user.email);
-  if(!isStaffEmail(email)){ toast("That Google account isn’t allowed."); return false; }
+  if(!isStaffEmail(email)){ loginFail(STAFF_DENY); return false; }
   if(token) keepGoogleToken(token);
   enterSession("employee", {name:(user && (user.name||user.given_name)) || email.split("@")[0], email:email});
   registerMailer();
@@ -4224,9 +4273,75 @@ function restoreBrokerSession(){
       return true;
     }).catch(function(){ return false; });
 }
+function loginBusy(on){
+  const b=$("btnGoogle");
+  if(!b) return;
+  b.disabled=!!on;
+  const label=b.querySelector(".gbtn-label");
+  if(label) label.textContent=on?"Opening Google…":"Continue with Google";
+}
+function startStaffGoogle(){
+  if($("loginErr")) $("loginErr").classList.add("hide");
+  loginBusy(true);
+  const cid=window.GOOGLE_CLIENT_ID||"";
+  const ios=/iPhone|iPad|iPod/i.test(navigator.userAgent||"") || !!(window.navigator && navigator.standalone);
+  function fail(msg){
+    loginBusy(false);
+    loginFail(msg||"Couldn’t open Google. Tap Continue with Google again, or use your work email.");
+  }
+  function redirectLogin(){
+    if(!cid){ fail("Couldn’t open Google. Use your work email."); return; }
+    const redir=location.origin.replace(/\/$/,"")+"/oauth.html";
+    const nonce=String(Date.now())+Math.random().toString(36).slice(2);
+    try{ sessionStorage.setItem("inspect.gnonce", nonce); }catch(e){}
+    location.assign("https://accounts.google.com/o/oauth2/v2/auth?"+new URLSearchParams({
+      client_id:cid,
+      redirect_uri:redir,
+      response_type:"id_token",
+      scope:LOGIN_SCOPES,
+      nonce:nonce,
+      prompt:"select_account"
+    }).toString());
+  }
+  if(ios){ redirectLogin(); return; }
+  whenGis().then(function(ok){
+    if(!ok || !cid){ redirectLogin(); return; }
+    try{
+      const client=google.accounts.oauth2.initTokenClient({
+        client_id:cid,
+        scope:LOGIN_SCOPES,
+        callback:function(resp){
+          if(!resp || !resp.access_token){ fail("Sign-in was cancelled. Tap Continue with Google to try again."); return; }
+          fetch("https://www.googleapis.com/oauth2/v3/userinfo", {headers:{Authorization:"Bearer "+resp.access_token}})
+            .then(function(r){ return r.ok ? r.json() : null; })
+            .then(function(u){
+              loginBusy(false);
+              if(!u || !u.email){ fail("Couldn’t read that Google account. Try again."); return; }
+              if(!applyGoogleUser({name:u.name, email:u.email})) return;
+            }).catch(function(){ fail("Couldn’t finish Google sign-in. Try again."); });
+        },
+        error_callback:function(){ fail("Sign-in was cancelled. Tap Continue with Google to try again."); }
+      });
+      client.requestAccessToken({prompt:""});
+    }catch(e){ redirectLogin(); }
+  });
+}
+function takeGoogleLogin(){
+  if(/[?&]trade=1(?:&|$)/.test(location.search||"")) return false;
+  try{
+    const gid=sessionStorage.getItem("inspect.gid");
+    if(!gid) return false;
+    sessionStorage.removeItem("inspect.gid");
+    const user=parseGoogleJwt(gid);
+    if(!user.email) return false;
+    if(!isStaffEmail(user.email)){ paintLogin(); show("login"); loginFail(STAFF_DENY); return true; }
+    enterSession("employee", {name:user.name, email:user.email});
+    return true;
+  }catch(e){ return false; }
+}
 function googleEmployee(ev){
   if(ev){ ev.preventDefault(); ev.stopPropagation(); }
-  startGoogleGmail();
+  startStaffGoogle();
 }
 function setPurpose(p){
   APP.purpose = p;
@@ -6676,22 +6791,24 @@ function packetMailHtml(shots){
 async function sharePacket(){
   const shots=capturedFiles();
   if(!shots.length && !(APP.clips&&APP.clips.length) && !Object.keys(APP.docs||{}).length && !(APP.notes||APP.heard)){ toast("Add the story or photos first."); return; }
-  landInCenter({sent:false, stage:"Waiting"});
   const dest=packetDest();
   const extra={cc:dest.cc, bcc:dest.bcc};
   const to=dest.to;
   const subject=packetMailSubject();
   const body=packetMailText() + (APP.role==="guest" && APP.requestedBy ? "\nRequested by: "+(APP.requestedByName||nameForEmail(APP.requestedBy))+" <"+APP.requestedBy+">" : "");
   const guest=APP.role==="guest";
+  const sendId=packetSendId();
   if(guest) hideMailOpen();
-  const href=guest ? "" : revealMailOpen();
+  const href=guest ? "" : fallbackMailHref(to, subject, packetMailText(), extra);
   const btn=$("btnSharePack");
-  if(btn && btn.disabled){
+  if(APP._sending || (btn && btn.disabled)){
     if(guest) toast("Still sending…");
-    else toast("Still working — tap Open Gmail and send if nothing arrives.");
+    else toast("Still sending…");
     return;
   }
   if(btn){ btn.disabled=true; btn.textContent="Sending…"; }
+  APP._sending=true;
+  flushDraft();
   let finished=false;
   let sentOk=false;
   function revealMail(){
@@ -6706,25 +6823,70 @@ async function sharePacket(){
   }
   function finish(msg, openMail){
     finished=true;
+    APP._sending=false;
     if(btn){ btn.disabled=false; btn.textContent="Send"; }
     if(guest) hideMailOpen();
     else if(openMail) revealMail();
     if(msg) toast(msg);
+  }
+  async function completeIncoming(){
+    let row=await landIncomingPacket({sendId:sendId, sent:true, stage:"Waiting", source:centerSource()});
+    if(!row) row=await landIncomingPacket({sendId:sendId, sent:true, stage:"Waiting", source:centerSource()});
+    return row;
+  }
+  async function succeed(){
+    const row=await completeIncoming();
+    if(!row){
+      markMailed(sendId);
+      if(guest) finish("Couldn’t send — try again", false);
+      else finish("Couldn’t save to Incoming. Tap Send to try again.", false);
+      return false;
+    }
+    markDelivered(sendId);
+    markMailed(sendId);
+    clearSnapshot();
+    clearDraft();
+    if(guest){
+      sentOk=true;
+      finish("");
+      try{ finishGuest(); }catch(e){}
+      return true;
+    }
+    sentOk=true;
+    finish("Sent to "+tradeToLine(to)+".");
+    return true;
   }
   const watch=setTimeout(function(){
     if(!finished){
       if(guest) finish("Couldn’t send — try again", false);
       else finish("Still working — tap Open Gmail and send.", true);
     }
-  }, guest ? 22000 : 8000);
+  }, 28000);
   try{
-    if(!APP.googleToken) APP.googleToken=readGoogleToken()||"";
-    toast(guest ? "Sending…" : "Sending the catalog…");
-    if(!guest) revealMail();
+    if(wasDelivered(sendId)){
+      await succeed();
+      return;
+    }
+    toast(guest ? "Sending…" : "Sending…");
+    if(wasMailed(sendId)){
+      await succeed();
+      return;
+    }
     const mailShots=[];
     for(let i=0;i<shots.length;i++){
       try{ mailShots.push({title:shots[i].title, name:shots[i].name, cap:shots[i].cap||"", data:await withTimeout(compressDataUrl(shots[i].data, 1100, 0.76), 3500, shots[i].data)}); }
       catch(e){ mailShots.push(shots[i]); }
+    }
+    if(shots.length && mailShots.length!==shots.length){
+      if(guest) finish("Couldn’t send — try again", false);
+      else finish("Couldn’t pack the photos. Tap Send to try again.", false);
+      return;
+    }
+    const missing=mailShots.filter(function(s){ return !dataB64(s.data); }).length;
+    if(shots.length && missing){
+      if(guest) finish("Couldn’t send — try again", false);
+      else finish("Couldn’t pack the photos. Tap Send to try again.", false);
+      return;
     }
     const html=packetMailHtml(mailShots);
     const parts=[];
@@ -6733,49 +6895,32 @@ async function sharePacket(){
       if(!b64) return;
       parts.push({cid:"photo"+i+"@inspect", b64:b64, name:s.name||("photo-"+i+".jpg"), mime:"image/jpeg"});
     });
-    try{
-      const doc=await withTimeout(buildPdf(), 8000, null);
-      if(doc) parts.push({disp:"attachment", b64:bufB64(await doc.output("arraybuffer")), name:(folderName()||"vehicle")+".pdf", mime:"application/pdf"});
-    }catch(e){}
-    const sent=await withTimeout(sendFromMe(to, subject, body, html, parts, extra), guest ? 20000 : 15000, {ok:false});
-    if(sent && sent.ok && sent.verified){
-      finished=true;
-      landInCenter({sent:true, stage:"Waiting"});
-      clearSnapshot();
-      clearDraft();
-      if(guest){
-        sentOk=true;
-        finish("");
-        try{ finishGuest(); }catch(e){}
-        return;
-      }
-      sentOk=true;
-      finish("Sent to "+tradeToLine(to)+".");
+    let doc=null;
+    try{ doc=await withTimeout(buildPdf(), 8000, null); }catch(e){ doc=null; }
+    if(!doc){
+      try{ doc=await withTimeout(buildPdf(), 8000, null); }catch(e){ doc=null; }
+    }
+    if(!doc){
+      if(guest) finish("Couldn’t send — try again", false);
+      else finish("Couldn’t build the PDF. Tap Send to try again.", false);
       return;
     }
-    const slim=parts.filter(function(p){ return p.disp==="attachment"; });
-    const slimSent=slim.length ? await withTimeout(sendFromMe(to, subject, body, "", slim, extra), guest ? 16000 : 8000, {ok:false}) : {ok:false};
-    if(slimSent && slimSent.ok && slimSent.verified){
-      finished=true;
-      landInCenter({sent:true, stage:"Waiting"});
-      if(guest){
-        sentOk=true;
-        finish("");
-        try{ finishGuest(); }catch(e){}
-        return;
-      }
-      sentOk=true;
-      finish("Sent the PDF to "+tradeToLine(to)+".");
+    parts.push({disp:"attachment", b64:bufB64(await doc.output("arraybuffer")), name:(folderName()||"vehicle")+".pdf", mime:"application/pdf"});
+    let sent=await withTimeout(sendFromMe(to, subject, body, html, parts, extra), 20000, {ok:false});
+    if(!(sent && sent.ok)) sent=await withTimeout(sendFromMe(to, subject, body, html, parts, extra), 20000, {ok:false});
+    if(!(sent && sent.ok)){
+      if(guest) finish("Couldn’t send — try again", false);
+      else finish("Couldn’t send from here. Tap Open Gmail and send.", true);
       return;
     }
-    landInCenter({sent:false, stage:"Waiting"});
-    if(guest) finish("Couldn’t send — try again", false);
-    else finish("Couldn’t send from here. Tap Open Gmail and send.", true);
+    markMailed(sendId);
+    await succeed();
   }catch(e){
     if(guest) finish("Couldn’t send — try again", false);
-    else finish("Couldn’t send. Tap the mail button.", true);
+    else finish("Couldn’t send. Tap Send to try again.", true);
   }finally{
     clearTimeout(watch);
+    APP._sending=false;
     if(btn){ btn.disabled=false; btn.textContent="Send"; }
     if(guest) hideMailOpen();
     else if(!sentOk) revealMail();
@@ -7013,6 +7158,10 @@ if($("staffForm")) $("staffForm").addEventListener("submit", enterStaffPassword)
 if($("workGo")) $("workGo").onclick = enterStaffPassword;
 if($("workEmail")) $("workEmail").addEventListener("keydown", function(e){ if(e.key==="Enter"){ e.preventDefault(); enterStaffPassword(e); } });
 if($("btnGoogle")) $("btnGoogle").addEventListener("click", googleEmployee);
+if($("staffEmailToggle")) $("staffEmailToggle").onclick = function(){
+  if($("staffForm")) $("staffForm").classList.toggle("hide");
+  if($("workEmail") && $("staffForm") && !$("staffForm").classList.contains("hide")) $("workEmail").focus();
+};
 if($("googleGo")) $("googleGo").onclick = googleContinue;
 if($("googleEmail")) $("googleEmail").addEventListener("keydown", function(e){ if(e.key==="Enter"){ e.preventDefault(); googleContinue(); } });
 if($("btnGuest")) $("btnGuest").onclick = function(){
@@ -7034,7 +7183,7 @@ async function resumePendingSend(){
   setTimeout(function(){ sharePacket(); }, 400);
   return true;
 }
-if(/[?&]auth=fail(?:&|$)/.test(location.search||"")) loginFail("Google sign-in was cancelled.");
+if(/[?&]auth=fail(?:&|$)/.test(location.search||"")) loginFail("Sign-in was cancelled. Tap Continue with Google to try again.");
 try{
   const r=sessionStorage.getItem("inspect.grefr");
   if(r) storeSet("inspect.grefr", r);
@@ -7065,6 +7214,7 @@ if(/[?&]trade=1(?:&|$)/.test(location.search||"")){
   applyRole();
   setPurpose("appraise");
   show("start");
+} else if(takeGoogleLogin()){
 } else if(loadSession()){
   applyRole();
   show("start");
