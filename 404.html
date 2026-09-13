@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-13 build d26s: Center Incoming reads MAIL_HOST /api/incoming -->
+<!-- center-v3 + desk-home 2026-09-13 build d27x: close-X on d26s Incoming land -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -658,18 +658,36 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
 #center .quote { margin:0 0 8px; }
 .center-sheet-dim {
   display:none; position:fixed; inset:0; z-index:27;
-  background:rgba(17,14,26,.38);
+  background:linear-gradient(180deg, rgba(239,232,255,.42), rgba(232,247,255,.7));
+  backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+  cursor:pointer;
 }
 .center-sheet-dim.on { display:block; }
 .center-sheet {
   display:none; position:fixed; left:0; right:0; bottom:0; top:10vh; z-index:28;
   background:var(--page); overflow:auto; -webkit-overflow-scrolling:touch;
   border-radius:28px 28px 0 0;
-  box-shadow:0 -18px 50px rgba(17,14,26,.18);
+  box-shadow:0 -18px 50px rgba(124,92,255,.14);
   padding-bottom:calc(28px + env(safe-area-inset-bottom));
 }
 .center-sheet.on { display:block; }
-.center-sheet .nav { padding-top:14px; }
+.center-sheet .nav { padding-top:14px; grid-template-columns:44px 1fr auto; }
+#center > .nav { grid-template-columns:44px 1fr auto; }
+.center-close-x {
+  width:44px; height:44px; min-width:44px;
+  border:1.5px solid #D4C8F5;
+  background:#fff;
+  color:var(--purple-deep);
+  box-shadow:0 8px 22px rgba(124,92,255,.16);
+  font-size:20px; font-weight:800; line-height:1;
+}
+.center-detail-bar {
+  display:flex; align-items:center; gap:12px;
+  position:sticky; top:0; z-index:4;
+  background:linear-gradient(180deg, var(--page) 72%, rgba(250,249,252,0));
+  padding:4px 0 14px;
+}
+.center-detail-bar .badge { margin:0; }
 .center-search { margin:0 0 12px; min-height:52px; }
 .center-date { position:relative; margin:0 0 18px; }
 .center-date .pill { margin:0; padding:16px 18px; font-size:17px; }
@@ -850,6 +868,21 @@ body.center-gallery-on { overflow:hidden; }
 }
 .center-detail-empty b { display:block; font-size:28px; letter-spacing:-.6px; margin:0 0 8px; }
 .center-detail-empty p { color:var(--muted); font-size:16px; font-weight:600; margin:0; }
+@media (max-width:767px){
+  #center.center-has-detail #centerDetailBody{
+    position:fixed; left:0; right:0; bottom:0;
+    top:max(8vh, env(safe-area-inset-top));
+    z-index:28; width:auto; max-width:none;
+    background:var(--page); overflow:auto; -webkit-overflow-scrolling:touch;
+    border-radius:28px 28px 0 0;
+    box-shadow:0 -18px 50px rgba(124,92,255,.14);
+    padding:10px 20px calc(120px + env(safe-area-inset-bottom));
+  }
+  #center.center-has-detail #centerDock{
+    z-index:29; width:100%; max-width:none; left:0; transform:none;
+  }
+  #center.center-has-detail #centerSheetDim{ display:block; }
+}
 
 /* Tablet: purpose-built desk + list rail (iPad portrait/landscape, ~768–1199) */
 @media (min-width:768px){
@@ -1403,7 +1436,7 @@ body.center-gallery-on { overflow:hidden; }
 
 <section class="screen" id="center">
   <div class="nav">
-    <button class="round" type="button" id="centerBack">✕</button>
+    <button class="round center-close-x" type="button" id="centerBack" aria-label="Close Appraisal Center">✕</button>
     <h1>Appraisal Center</h1>
     <button class="nav-hist" type="button" id="centerNavHistBtn">History</button>
   </div>
@@ -1427,7 +1460,10 @@ body.center-gallery-on { overflow:hidden; }
     </button>
   </div>
   <div class="pad center-desk" id="centerDetailBody">
-    <div class="badge" id="centerDetailBadge">Waiting</div>
+    <div class="center-detail-bar">
+      <button class="round center-close-x" type="button" id="centerDetailClose" aria-label="Close vehicle">✕</button>
+      <div class="badge" id="centerDetailBadge">Waiting</div>
+    </div>
     <h2 id="centerDetailTitle">Vehicle</h2>
     <p class="quote" id="centerDetailSub"></p>
     <div class="needs-banner hide" id="centerNeedsBanner"></div>
@@ -1459,7 +1495,7 @@ body.center-gallery-on { overflow:hidden; }
   <div class="center-sheet-dim" id="centerSheetDim"></div>
   <div class="center-sheet" id="centerSheet">
     <div class="nav">
-      <button class="round" type="button" id="centerSheetClose">✕</button>
+      <button class="round center-close-x" type="button" id="centerSheetClose" aria-label="Close list">✕</button>
       <h1 id="centerTitleNav">Incoming</h1>
       <button class="nav-hist" type="button" id="centerSheetHistBtn">History</button>
     </div>
@@ -1612,7 +1648,7 @@ body.center-gallery-on { overflow:hidden; }
     <p class="quote" id="vinHint">Best: take a picture of the vehicle ownership (registration). You can also photograph the VIN on the dash or the sticker on the driver’s door. We’ll read the number from the photo.</p>
     <p class="vin-chip hide" id="vinChip"></p>
     </div>
-    <p class="build-stamp" id="buildStamp">build d26s</p>
+    <p class="build-stamp" id="buildStamp">build d27x</p>
   </div>
 </section>
 
@@ -2071,7 +2107,7 @@ body.center-gallery-on { overflow:hidden; }
   <div class="card">
     <button class="x" type="button" data-close="typeSheet">✕</button>
     <h3>Appraisal type</h3>
-    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d26s</span></p>
+    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d27x</span></p>
     <div id="typeChips" class="to-chips"></div>
     <div id="leadBox" class="lead-box hide">
       <p class="hint">Lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a New application — no appointment calendar.</p>
@@ -6333,44 +6369,141 @@ function patchCenter(id, fn){
 function getCenter(id){
   return loadCenter().find(function(x){ return x.id===id; }) || null;
 }
+function centerSplitLayout(){
+  return window.matchMedia && window.matchMedia("(min-width:768px)").matches;
+}
+function centerHistState(){
+  try{ return history.state && typeof history.state==="object" ? history.state : {}; }
+  catch(e){ return {}; }
+}
+function pushCenterHist(layer){
+  try{
+    history.pushState({ac:layer, lane:APP.centerLane||"", id:APP.centerViewId||""}, "");
+    APP._centerHist=layer;
+  }catch(e){}
+}
+function replaceCenterHist(layer){
+  try{
+    history.replaceState({ac:layer, lane:APP.centerLane||"", id:APP.centerViewId||""}, "");
+    APP._centerHist=layer;
+  }catch(e){}
+}
+function consumeCenterHist(layer){
+  if(APP._centerFromPop) return;
+  const s=centerHistState();
+  if(s.ac===layer || s.ac==="lane" || s.ac==="detail" || s.ac==="gallery"){
+    APP._centerClosed=true;
+    try{ history.back(); }catch(e){ APP._centerClosed=false; }
+  } else {
+    replaceCenterHist("desk");
+  }
+}
+function bindCenterDetailClose(){
+  const b=$("centerDetailClose");
+  if(!b || b._boundClose) return;
+  b._boundClose=true;
+  b.onclick=function(e){
+    if(e){ e.preventDefault(); e.stopPropagation(); }
+    closeCenterDetail();
+  };
+}
+function syncCenterLayers(){
+  const hasDetail=!!(APP.centerViewId && typeof getCenter==="function" && getCenter(APP.centerViewId));
+  if($("center")) $("center").classList.toggle("center-has-detail", hasDetail);
+  const dimOn=!!APP.centerLane || (hasDetail && !centerSplitLayout());
+  if($("centerSheet")) $("centerSheet").classList.toggle("on", !!APP.centerLane);
+  if($("centerSheetDim")) $("centerSheetDim").classList.toggle("on", dimOn);
+  bindCenterDetailClose();
+}
+function closeCenterOverlay(){
+  if(APP.centerGalleryOn){ closeCenterGallery(); return; }
+  if(APP.centerViewId && !centerSplitLayout()){ closeCenterDetail(); return; }
+  if(APP.centerLane){ closeCenterLane(); return; }
+}
+function exitCenterChrome(){
+  if(APP.centerGalleryOn){ closeCenterGallery(); return; }
+  if(APP.centerViewId){ closeCenterDetail(); return; }
+  if(APP.centerLane){ closeCenterLane(); return; }
+  APP.centerLane="";
+  show("start");
+  if(centerHistState().ac==="desk") consumeCenterHist("desk");
+}
+function closeCenterDetail(fromPop){
+  closeCenterGallery();
+  APP.centerViewId="";
+  APP.centerPhoto=0;
+  if(!centerSplitLayout()){
+    APP.centerLane="";
+    APP.centerHistory=false;
+  }
+  if($("centerDateMenu")) $("centerDateMenu").classList.remove("on");
+  if(APP.screen==="center"){
+    paintCenter();
+    paintCenterDetail();
+  } else {
+    syncCenterLayers();
+  }
+  if(!fromPop) consumeCenterHist("detail");
+}
 function openCenter(){
   if(!canUseCenter()){ denyCenter(); return; }
   APP.centerHistory=false;
   APP.centerLane="";
+  APP.centerViewId="";
+  APP.centerPhoto=0;
+  if(typeof closeCenterGallery==="function") closeCenterGallery();
   if($("centerSheet")) $("centerSheet").classList.remove("on");
   if($("centerSheetDim")) $("centerSheetDim").classList.remove("on");
   try{ scheduleIncomingPull(); }catch(e){}
   show("center");
+  syncCenterLayers();
+  if(centerHistState().ac!=="desk") pushCenterHist("desk");
 }
 function openCenterLane(lane){
   if(!canUseCenter()){ denyCenter(); return; }
-  APP.centerLane=lane==="inbox"||lane==="onsite"||lane==="history"||lane==="needsdocs" ? lane : "inbox";
+  const next=lane==="inbox"||lane==="onsite"||lane==="history"||lane==="needsdocs" ? lane : "inbox";
+  const same=APP.centerLane===next && $("centerSheet") && $("centerSheet").classList.contains("on");
+  APP.centerLane=next;
   APP.centerHistory=APP.centerLane==="history";
-  if($("centerSheet")) $("centerSheet").classList.add("on");
-  if($("centerSheetDim")) $("centerSheetDim").classList.add("on");
   if(APP.screen!=="center") show("center");
   else { paintCenter(); paintCenterDetail(); }
+  syncCenterLayers();
+  if(!same){
+    if(centerHistState().ac==="lane") replaceCenterHist("lane");
+    else pushCenterHist("lane");
+  }
 }
-function closeCenterLane(){
+function closeCenterLane(fromPop){
   APP.centerLane="";
   APP.centerHistory=false;
   if($("centerSheet")) $("centerSheet").classList.remove("on");
-  if($("centerSheetDim")) $("centerSheetDim").classList.remove("on");
   if($("centerDateMenu")) $("centerDateMenu").classList.remove("on");
   paintCenter();
-}
-function centerSplitLayout(){
-  return window.matchMedia && window.matchMedia("(min-width:768px)").matches;
+  syncCenterLayers();
+  if(!fromPop) consumeCenterHist("lane");
 }
 function openCenterDetail(id){
   if(!canUseCenter()){ denyCenter(); return; }
   if(APP.centerViewId!==id) closeCenterGallery();
+  const replacingLane=!centerSplitLayout() && !!APP.centerLane;
   APP.centerViewId=id;
   APP.centerPhoto=0;
-  if(!centerSplitLayout()) closeCenterLane();
+  if(!centerSplitLayout()){
+    APP.centerLane="";
+    APP.centerHistory=false;
+    if($("centerDateMenu")) $("centerDateMenu").classList.remove("on");
+  }
   show("center");
   paintCenterDetail();
   if(centerSplitLayout() && APP.centerLane) paintCenter();
+  syncCenterLayers();
+  const s=centerHistState();
+  if(replacingLane || s.ac==="lane" || s.ac==="detail") replaceCenterHist("detail");
+  else if(s.ac==="desk") pushCenterHist("detail");
+  else {
+    pushCenterHist("desk");
+    pushCenterHist("detail");
+  }
 }
 function centerWhen(item){
   return Number(item.sentAt||item.updatedAt||item.createdAt||0);
@@ -6556,9 +6689,8 @@ function paintCenter(){
   APP.centerHistory=lane==="history";
   archiveOldCenter();
   paintCenterPops();
-  if($("centerSheet")) $("centerSheet").classList.toggle("on", !!lane);
-  if($("centerSheetDim")) $("centerSheetDim").classList.toggle("on", !!lane);
   if($("centerTitleNav")) $("centerTitleNav").textContent=centerLaneLabel(lane||"inbox");
+  syncCenterLayers();
   if($("centerHistoryBar")) $("centerHistoryBar").classList.toggle("hide", !lane);
   if($("centerArchiveBanner")) $("centerArchiveBanner").classList.toggle("hide", lane!=="history");
   const dateBox=document.querySelector("#centerSheet .center-date");
@@ -6679,10 +6811,12 @@ function stepCenterPhoto(dir){
   paintCenterHero(shots);
 }
 function closeCenterGallery(){
+  const was=!!APP.centerGalleryOn;
   APP.centerGalleryOn=false;
   const host=$("centerGallery");
   if(host){ host.classList.remove("on"); host.innerHTML=""; }
   document.body.classList.remove("center-gallery-on");
+  if(was && !APP._centerFromPop && centerHistState().ac==="gallery") consumeCenterHist("gallery");
 }
 function paintCenterGallery(){
   const host=$("centerGallery");
@@ -6705,6 +6839,7 @@ function openCenterGallery(){
   if(!centerWalkShots().length) return;
   APP.centerGalleryOn=true;
   paintCenterGallery();
+  if(centerHistState().ac!=="gallery") pushCenterHist("gallery");
 }
 function toggleCenterGallery(){
   if(APP.centerGalleryOn) closeCenterGallery();
@@ -6982,13 +7117,17 @@ function paintCenterDetailEmpty(){
   body.innerHTML='<div class="center-detail-empty"><b>One car at a time</b><p>This desk is the workbench. Open <b>Incoming</b>, <b>On-site</b>, <b>Needs docs</b>, or <b>History</b> — tap a vehicle, and it lands here.</p></div>';
   if($("centerStageBtn")) $("centerStageBtn").classList.add("hide");
   if($("centerDock")) $("centerDock").classList.add("hide");
+  syncCenterLayers();
 }
 function ensureCenterDetailScaffold(){
   const body=$("centerDetailBody");
   if(!body) return;
   if($("centerDetailTitle") && $("centerHero") && $("centerTeam")) return;
   body.innerHTML=
-    '<div class="badge" id="centerDetailBadge">Waiting</div>'+
+    '<div class="center-detail-bar">'+
+      '<button class="round center-close-x" type="button" id="centerDetailClose" aria-label="Close vehicle">✕</button>'+
+      '<div class="badge" id="centerDetailBadge">Waiting</div>'+
+    '</div>'+
     '<h2 id="centerDetailTitle">Vehicle</h2>'+
     '<p class="quote" id="centerDetailSub"></p>'+
     '<div class="needs-banner hide" id="centerNeedsBanner"></div>'+
@@ -7028,6 +7167,7 @@ function ensureCenterDetailScaffold(){
       patchCenter(APP.centerViewId, function(x){ x.approval=el.value.trim(); });
     });
   }
+  bindCenterDetailClose();
 }
 function isCenterAppraisal(item){
   if(!item) return false;
@@ -7039,6 +7179,7 @@ function isCenterAppraisal(item){
 function paintCenterDetail(){
   const item=getCenter(APP.centerViewId);
   if(!item){
+    if(APP.centerViewId) APP.centerViewId="";
     paintCenterDetailEmpty();
     return;
   }
@@ -7139,6 +7280,7 @@ function paintCenterDetail(){
   });
   if(centerLaneOf(item)==="onsite" && item.stage!=="Appraised" && !item.sample) syncOnsiteAttention(item);
   syncCenterDesk();
+  syncCenterLayers();
 }
 function landInCenter(extra){
   try{ return upsertCenterFromApp(extra||{}); }
@@ -10805,9 +10947,28 @@ $("startAppraise").onclick = function(){
   openDealType();
 };
 if($("startCenter")) $("startCenter").onclick = openCenter;
-if($("centerBack")) $("centerBack").onclick = function(){ APP.centerLane=""; show("start"); };
-if($("centerSheetClose")) $("centerSheetClose").onclick = closeCenterLane;
-if($("centerSheetDim")) $("centerSheetDim").onclick = closeCenterLane;
+if($("centerBack")) $("centerBack").onclick = exitCenterChrome;
+if($("centerSheetClose")) $("centerSheetClose").onclick = function(){ closeCenterLane(); };
+if($("centerSheetDim")) $("centerSheetDim").onclick = closeCenterOverlay;
+bindCenterDetailClose();
+window.addEventListener("popstate", function(){
+  if(APP._centerClosed){ APP._centerClosed=false; return; }
+  APP._centerFromPop=true;
+  try{
+    if(APP.centerGalleryOn){ closeCenterGallery(); return; }
+    if(APP.screen==="center" && APP.centerViewId){ closeCenterDetail(true); return; }
+    if(APP.screen==="center" && APP.centerLane){ closeCenterLane(true); return; }
+    if(APP.screen==="center" && centerHistState().ac!=="desk") show("start");
+  }finally{
+    APP._centerFromPop=false;
+  }
+});
+if(window.matchMedia){
+  const deskMq=window.matchMedia("(min-width:768px)");
+  const onDeskMq=function(){ if(APP.screen==="center") syncCenterLayers(); };
+  if(deskMq.addEventListener) deskMq.addEventListener("change", onDeskMq);
+  else if(deskMq.addListener) deskMq.addListener(onDeskMq);
+}
 if($("centerInboxBtn")) $("centerInboxBtn").onclick = function(){ openCenterLane("inbox"); };
 if($("centerOnsiteBtn")) $("centerOnsiteBtn").onclick = function(){ openCenterLane("onsite"); };
 if($("centerNeedsBtn")) $("centerNeedsBtn").onclick = function(){ openCenterLane("needsdocs"); };
