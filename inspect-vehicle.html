@@ -5416,10 +5416,12 @@ async function sendTradeInvite(){
     if(sent && sent.ok){
       if($("invConfirm")) $("invConfirm").textContent="Thank you.";
     } else {
+      if($("invConfirm")) $("invConfirm").textContent="Couldn’t send — try again";
       toast("Couldn’t send — try again");
     }
   }catch(e){
     hideInvMailBtn();
+    if($("invConfirm")) $("invConfirm").textContent="Couldn’t send — try again";
     toast("Couldn’t send — try again");
   }
   restoreSend();
