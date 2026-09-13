@@ -118,6 +118,23 @@ label.k { display:block; color:#6e6e73; font-size:13px; margin:11px 0 5px; }
 .appt-stage.booked{background:var(--lavender);color:var(--purple-deep)}
 .appt-stage.onsite{background:#D8F3FC;color:var(--cyan-deep)}
 .appt-empty{color:var(--muted);font-size:14px;line-height:1.45;margin:8px 2px 0}
+.appt-toolbar{display:flex;flex-direction:column;gap:10px;margin:0 0 12px}
+.appt-search{display:block;margin:0}
+.appt-search-lbl{display:block;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--cyan-deep);margin:0 0 6px}
+.appt-search input{width:100%;min-height:52px;border:1.5px solid #BFE8F7;border-radius:16px;padding:12px 16px;font-size:17px;font-weight:700;background:#F3FBFF;color:var(--ink)}
+.appt-search input:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,164,226,.18);background:#fff}
+.appt-rowbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.appt-actions{display:flex;flex-wrap:wrap;gap:8px;width:100%}
+.appt-tracker,.appt-new{border:1.5px solid var(--hair);background:#fff;border-radius:999px;padding:10px 14px;font-size:13px;font-weight:800;cursor:pointer;text-decoration:none;color:var(--ink);line-height:1.2;display:inline-flex;align-items:center;justify-content:center;min-height:40px}
+.appt-tracker{background:#E8F8FF;border-color:#7AD4F0;color:var(--cyan-deep)}
+.appt-new{background:var(--purple);border-color:var(--purple);color:#fff}
+.appt-empty-cta{margin:14px 0 4px;padding:16px;border-radius:18px;background:linear-gradient(180deg,#F4FBFF,#F3F0FF);border:1.5px dashed rgba(124,92,255,.35)}
+.appt-empty-cta b{display:block;font-size:16px;margin:0 0 4px}
+.appt-empty-cta p{margin:0 0 12px;color:var(--muted);font-size:14px;font-weight:600;line-height:1.4}
+@media (min-width:720px){
+  .appt-rowbar{align-items:center}
+  .appt-actions{width:auto;margin-left:auto}
+}
 .lead-box{margin:12px 0 0}
 .lead-box .hint{margin-bottom:10px}
 #workbench{background:
@@ -160,6 +177,8 @@ textarea.note { min-height:160px; max-height:none; resize:vertical; overflow:aut
 .mail.on .mark { background:var(--purple); border-color:var(--purple); }
 .mail b { display:block; font-size:15px; }
 .mail span { color:var(--muted); font-size:13px; }
+.mail.soon, .mail:disabled { opacity:.42; filter:grayscale(.28); cursor:not-allowed; pointer-events:none; }
+.mail.soon span { font-weight:800; color:#8A3B12; }
 
 .badge { display:inline-block; background:var(--lavender); color:var(--purple-deep); border-radius:999px; padding:5px 12px; font-size:12px; font-weight:800; letter-spacing:.04em; text-transform:uppercase; margin:0 0 10px; }
 .facts { display:grid; grid-template-columns:1fr 1fr; gap:8px 12px; margin:0 0 18px; }
@@ -1166,7 +1185,6 @@ body.center-gallery-on { overflow:hidden; }
     </div>
     </div>
     <button class="link" type="button" id="btnType">Type it in</button>
-    <button class="pill purple" type="button" id="btnPictures" style="margin-top:16px">Just Pictures</button>
     <div id="homeDocs">
     <button class="pill" type="button" id="btnDocs">Appraisial documents</button>
     <p class="quote">Same document pills everywhere. vAuto, OpenLane, and eBlock copy the VIN and open the site. Carfax, MMR, Black Book, appraisal summary, and competitive set read the file you add.</p>
@@ -1193,17 +1211,30 @@ body.center-gallery-on { overflow:hidden; }
         <p id="wbPickLead">Pick the booked appointment. The workbench opens already filled — we don’t ask again for what Airtable already has.</p>
       </div>
       <div id="apptWrap" class="appt-wrap">
-        <div class="appt-tabs" id="apptTabs">
-          <button type="button" data-appt-region="GTA">GTA</button>
-          <button type="button" data-appt-region="Ottawa">Ottawa</button>
-          <div class="appt-dates" id="apptDates">
-            <button type="button" id="apptDateBtn">Today</button>
-            <div class="date-menu" id="apptDateMenu">
-              <button type="button" data-appt-range="today">Today</button>
-              <button type="button" data-appt-range="tomorrow">Tomorrow</button>
-              <button type="button" data-appt-range="month">This month</button>
-              <button type="button" data-appt-range="lastMonth">Last month</button>
-              <button type="button" data-appt-range="calendar">Calendar</button>
+        <div class="appt-toolbar" id="apptToolbar">
+          <label class="appt-search" for="apptSearch">
+            <span class="appt-search-lbl">Application #</span>
+            <input id="apptSearch" type="search" inputmode="search" autocomplete="off" placeholder="APP-… or Canada Drives app #" />
+          </label>
+          <div class="appt-rowbar">
+            <div class="appt-tabs" id="apptTabs">
+              <button type="button" data-appt-region="GTA">GTA</button>
+              <button type="button" data-appt-region="Ottawa">Ottawa</button>
+              <div class="appt-dates" id="apptDates">
+                <button type="button" id="apptDateBtn">Today</button>
+                <div class="date-menu" id="apptDateMenu">
+                  <button type="button" data-appt-range="today">Today</button>
+                  <button type="button" data-appt-range="tomorrow">Tomorrow</button>
+                  <button type="button" data-appt-range="month">This month</button>
+                  <button type="button" data-appt-range="lastMonth">Last month</button>
+                  <button type="button" data-appt-range="calendar">Calendar</button>
+                </div>
+              </div>
+            </div>
+            <div class="appt-actions">
+              <a class="appt-tracker" id="apptTrackerGta" href="https://docs.google.com/spreadsheets/d/1DXKFHK_k1cC_upbxzBIVTLbMKpOIv0u5MB2NbKq5XhM/edit?usp=sharing" target="_blank" rel="noopener noreferrer">GTA Tracker</a>
+              <a class="appt-tracker" id="apptTrackerOttawa" href="https://docs.google.com/spreadsheets/d/1QRmPSMX_-nksYs4ucJxZUfTQcvrMlfbnylJgTL0ckNU/edit?usp=sharing" target="_blank" rel="noopener noreferrer">Ottawa Tracker</a>
+              <button type="button" class="appt-new" id="apptNewApp">New application</button>
             </div>
           </div>
         </div>
@@ -1640,7 +1671,8 @@ window.APP = {
   dealType:"", leadSource:"", cdApp:"", centerId:"", sendId:"", centerFilter:"all", centerPhoto:0,
   centerHistory:false, centerLane:"", centerQuery:"", centerRange:"all", centerYear:new Date().getFullYear(),
   centerShots:[], centerGalleryOn:false, lockedFromAirtable:false, deskTeam:"", userFilter:"all", userEdit:"",
-  apptId:"", apptSeller:"", apptRegion:"GTA", apptRange:"today", apptItems:[]
+  apptId:"", apptSeller:"", apptRegion:"GTA", apptRange:"today", apptItems:[],
+  apptSearch:"", newApplication:false
 };
 
 function $(id){ return document.getElementById(id); }
@@ -1713,12 +1745,17 @@ function requireCdApp(item){
   }
   return true;
 }
+function isLocateSoon(name){
+  return String(name||"").trim()==="Locate";
+}
 function needsAppraiseType(job, staff){
   var isStaff=staff===undefined?(APP.role!=="guest"):!!staff;
   if(!isStaff) return false;
   var p=job||APP;
   if(!p || p.purpose==="website") return false;
-  return !String(p.dealType||"").trim();
+  var t=String(p.dealType||"").trim();
+  if(t==="Locate") return true;
+  return !t;
 }
 function needsLeadSource(job, staff){
   if(needsAppraiseType(job, staff)) return false;
@@ -1761,11 +1798,11 @@ function requireAppraiseType(){
 }
 function paintAppraiseGate(){
   var lock=appraiseLocked();
-  ["storyBlock","btnType","btnPictures","homeDocs","vinBtns"].forEach(function(id){
+  ["storyBlock","btnType","homeDocs","vinBtns"].forEach(function(id){
     var el=$(id);
     if(el) el.classList.toggle("home-gate", lock);
   });
-  ["btnStory","btnType","btnPictures","btnDocs","btnVin"].forEach(function(id){
+  ["btnStory","btnType","btnDocs","btnVin"].forEach(function(id){
     var el=$(id);
     if(!el) return;
     el.disabled=!!lock;
@@ -1800,6 +1837,7 @@ function leadSpec(name){
   return LEAD_SOURCES.find(function(s){ return s.id===name; }) || {id:name, airtable:name, sel:""};
 }
 function paintDealType(){
+  if(isLocateSoon(APP.dealType)) APP.dealType="";
   const t=APP.dealType||"";
   const ca=isConsumerAcquisition();
   const cd=isCanadaDrives();
@@ -1824,17 +1862,27 @@ function paintDealType(){
     host.innerHTML="";
     DEAL_TYPES.forEach(function(name){
       if(name==="Consumer Acquisition" && APP.role==="employee" && !canPerm("ca")) return;
+      const soon=isLocateSoon(name);
       const b=document.createElement("button");
       b.type="button";
-      b.className="mail"+(t===name?" on":"");
-      b.innerHTML='<div class="mark">'+(t===name?"✓":"")+'</div><div><b>'+name+'</b></div>';
+      b.className="mail"+(t===name && !soon?" on":"")+(soon?" soon":"");
+      b.disabled=!!soon;
+      b.setAttribute("aria-disabled", soon?"true":"false");
+      b.innerHTML=soon
+        ? '<div class="mark"></div><div><b>'+name+'</b><span>Coming soon</span></div>'
+        : '<div class="mark">'+(t===name?"✓":"")+'</div><div><b>'+name+'</b></div>';
+      if(soon){
+        b.onclick=function(e){ if(e) e.preventDefault(); };
+        host.appendChild(b);
+        return;
+      }
       b.onclick=function(){
         if(name==="Consumer Acquisition" && APP.role==="employee" && !canPerm("ca")){
           toast("You don’t have Consumer Acquisition. Only Shawn can turn that on.");
           return;
         }
         APP.dealType=name;
-        if(name!=="Consumer Acquisition"){ APP.leadSource=""; APP.apptId=""; APP.apptSeller=""; APP.lockedFromAirtable=false; }
+        if(name!=="Consumer Acquisition"){ APP.leadSource=""; APP.apptId=""; APP.apptSeller=""; APP.lockedFromAirtable=false; APP.newApplication=false; }
         paintDealType();
         if(name==="Consumer Acquisition" && APP.leadSource) openAppointments();
       };
@@ -1855,6 +1903,7 @@ function paintDealType(){
         APP.apptItems=[];
         APP.apptId="";
         APP.apptSeller="";
+        APP.newApplication=false;
         paintDealType();
         openAppointments();
       };
@@ -1973,6 +2022,14 @@ const APPTS_AIRTABLE={
   source:"sel90QtMNs2kN0MbE",
   path:"/api/appointments"
 };
+// Human schedule sheets (MyCar.ca). Open in a new tab — not dual-pulled into /api/appointments.
+const TRACKER_GTA_URL="https://docs.google.com/spreadsheets/d/1DXKFHK_k1cC_upbxzBIVTLbMKpOIv0u5MB2NbKq5XhM/edit?usp=sharing";
+const TRACKER_OTTAWA_URL="https://docs.google.com/spreadsheets/d/1QRmPSMX_-nksYs4ucJxZUfTQcvrMlfbnylJgTL0ckNU/edit?usp=sharing";
+function bindTrackerLinks(){
+  const g=$("apptTrackerGta"), o=$("apptTrackerOttawa");
+  if(g){ g.href=TRACKER_GTA_URL; g.target="_blank"; g.rel="noopener noreferrer"; }
+  if(o){ o.href=TRACKER_OTTAWA_URL; o.target="_blank"; o.rel="noopener noreferrer"; }
+}
 async function loadAppointments(){
   try{
     const spec=leadSpec(APP.leadSource||"Canada Drives");
@@ -2004,9 +2061,15 @@ function filteredAppointments(){
   const region=APP.apptRegion||"GTA";
   const source=APP.leadSource||"";
   const kind=APP.apptRange||"today";
+  const q=String(($("apptSearch") && $("apptSearch").value) || APP.apptSearch || "").trim();
   const bounds=apptRangeBounds(kind, $("apptFrom")&&$("apptFrom").value, $("apptTo")&&$("apptTo").value);
   return (APP.apptItems||[]).filter(function(row){
     if(source && row.source && row.source!==source) return false;
+    if(q){
+      const needle=String(q).toUpperCase().replace(/[^A-Z0-9]/g,"");
+      const app=String((row.appNo||row.cdApp)||"").toUpperCase().replace(/[^A-Z0-9]/g,"");
+      return !!(needle && app && (app.indexOf(needle)>=0 || needle.indexOf(app)>=0));
+    }
     if((row.region||"GTA")!==region) return false;
     if(!bounds) return true;
     const when=apptWhen(row);
@@ -2014,12 +2077,41 @@ function filteredAppointments(){
     return when>=bounds.start && when<=bounds.end;
   });
 }
+function startNewApplication(){
+  if(APP.role==="employee" && !canPerm("ca")){
+    toast("You don’t have Consumer Acquisition. Only Shawn can turn that on.");
+    return;
+  }
+  if(!APP.leadSource){
+    toast("Pick the lead source first — Canada Drives, My Loan, My Auto, or Carla.");
+    openDealType();
+    return;
+  }
+  const q=String(($("apptSearch") && $("apptSearch").value) || APP.apptSearch || "").trim();
+  APP.dealType="Consumer Acquisition";
+  APP.newApplication=true;
+  APP.apptId="new";
+  APP.apptSeller="";
+  APP.lockedFromAirtable=false;
+  if(q) APP.cdApp=q;
+  if($("wb-cd-app") && APP.cdApp) $("wb-cd-app").value=APP.cdApp;
+  if($("home-cd-app") && APP.cdApp) $("home-cd-app").value=APP.cdApp;
+  if($("cd-app") && APP.cdApp) $("cd-app").value=APP.cdApp;
+  paintDealType();
+  paintAppointments();
+  paintWorkbench();
+  paintAppraiseGate();
+  show("workbench");
+  toast(q ? ("New application "+q+" — full appraisal.") : "New application — full appraisal.");
+}
 function paintAppointments(){
   const wrap=$("apptWrap");
   if(!wrap) return;
   const show=APP.role!=="guest" && !isWeb() && isConsumerAcquisition() && !!APP.leadSource;
   wrap.classList.toggle("hide", !show);
+  bindTrackerLinks();
   if($("wbPickKicker")) $("wbPickKicker").textContent = (APP.leadSource||"Consumer Acquisition")+" · Appointments";
+  if($("apptSearch") && $("apptSearch")!==document.activeElement) $("apptSearch").value=APP.apptSearch||"";
   if(!show) return;
   document.querySelectorAll("#apptTabs [data-appt-region]").forEach(function(b){
     b.classList.toggle("on", b.getAttribute("data-appt-region")===(APP.apptRegion||"GTA"));
@@ -2042,7 +2134,13 @@ function paintAppointments(){
   host.innerHTML="";
   const rows=filteredAppointments();
   if(!rows.length){
-    host.innerHTML='<p class="appt-empty">No booked '+(APP.leadSource||"Consumer Acquisition")+' appointments in this date range for '+(APP.apptRegion||"GTA")+'.</p>';
+    const q=String(($("apptSearch") && $("apptSearch").value) || APP.apptSearch || "").trim();
+    if(q){
+      host.innerHTML='<div class="appt-empty-cta"><b>No live match for '+escHtml(q)+'</b><p>Nothing booked or on-site with that application number. Start a new application and do the full appraisal.</p><button type="button" class="appt-new" id="apptEmptyNew">New application</button></div>';
+    } else {
+      host.innerHTML='<p class="appt-empty">No booked '+(APP.leadSource||"Consumer Acquisition")+' appointments in this date range for '+(APP.apptRegion||"GTA")+'.</p><div class="appt-empty-cta"><b>Need a new one?</b><p>Start a new application and do the full appraisal.</p><button type="button" class="appt-new" id="apptEmptyNew">New application</button></div>';
+    }
+    if($("apptEmptyNew")) $("apptEmptyNew").onclick=startNewApplication;
     return;
   }
   rows.forEach(function(row){
@@ -2080,6 +2178,7 @@ function applyAppointment(row){
   if(a.source) APP.leadSource=a.source;
   APP.apptId=a.id;
   APP.apptSeller=a.seller;
+  APP.newApplication=false;
   APP.lockedFromAirtable=true;
   if(a.appNo) APP.cdApp=a.appNo;
   if(a.vin && a.vin!=="TBD") APP.vin=a.vin;
@@ -2107,9 +2206,9 @@ function paintWorkbench(){
   if(pick) pick.classList.toggle("hide", !on || !!ready);
   if(job) job.classList.toggle("hide", !ready);
   if(!on) return;
-  if($("wbPickLead")) $("wbPickLead").textContent="Pick the booked "+(APP.leadSource||"")+" appointment. Year, make, VIN, app #, and seller come with it.";
+  if($("wbPickLead")) $("wbPickLead").textContent="Pick the booked "+(APP.leadSource||"")+" appointment, search an app #, or start a new application. Year, make, VIN, app #, and seller come with a live row.";
   if(!ready) return;
-  const ymm=[APP.year,APP.make,APP.model,APP.trim].filter(Boolean).join(" ") || "Vehicle";
+  const ymm=[APP.year,APP.make,APP.model,APP.trim].filter(Boolean).join(" ") || (APP.newApplication || APP.apptId==="new" ? "New application" : "Vehicle");
   if($("wbKicker")) $("wbKicker").textContent="Consumer Acquisition · "+(APP.leadSource||"");
   if($("wbYmm")) $("wbYmm").textContent=ymm;
   if($("wbSeller")) $("wbSeller").textContent=(APP.apptSeller||APP.inviteName||"Seller")+(APP.cdApp?" · "+APP.cdApp:"");
@@ -2311,14 +2410,13 @@ const CENTER_STAFF = {
   "shane@myloan.ca":"Shane"
 };
 const CENTER_DENY="Appraisal Center is only for Shawn, Ryan, Andrew, Wes, Kyle, and Shane.";
-const DESK_TEAMS=["Team Flash","Team Retail","Team Evo","Team ABC","Team Saskatchewan","Team Fire","Team House","Team Consumer Acquisition"];
+const DESK_TEAMS=["Team Flash","Team Retail","Team Evo","Team ABC","Team Saskatchewan","Team Fire","Team House","Team Consumer Acquisition","Team Trucktown Richmond","Team Trucktown Smith Falls","Team Trucktown Rockland"];
 const ALWAYS_ON_PERMS=["trade","website"];
 const PERM_KEYS=[
   {id:"trade", label:"Send trade-in link", deny:"You don’t have Send trade-in link. Ask Shawn to turn it on.", always:true},
   {id:"website", label:"Website photos", deny:"You don’t have Website photos. Ask Shawn to turn it on.", always:true},
   {id:"center", label:"Appraisal Center", deny:"You don’t have Appraisal Center. Ask Shawn to turn it on."},
   {id:"appraise", label:"Appraise", deny:"You don’t have Appraise. Ask Shawn to turn it on.", ui:"Appraisals"},
-  {id:"pictures", label:"Pictures", deny:"You don’t have Pictures. Ask Shawn or a team leader to turn it on."},
   {id:"admin", label:"Admin", deny:"Only Shawn or an admin can open Users."},
   {id:"ca", label:"Consumer Acquisition", deny:"You don’t have Consumer Acquisition. Only Shawn can turn that on."}
 ];
@@ -2355,7 +2453,7 @@ function shawnAlias(email){
   if(e==="shawn@gmautosales.ca") return "shawn@myloan.ca";
   return e;
 }
-function allPermsOn(){ return {trade:true, appraise:true, website:true, center:true, admin:true, pictures:true, ca:true}; }
+function allPermsOn(){ return {trade:true, appraise:true, website:true, center:true, admin:true, ca:true}; }
 function defaultPerms(email){
   const e=shawnAlias(email);
   if(e==="shawn@myloan.ca") return allPermsOn();
@@ -2897,7 +2995,6 @@ function applyRole(){
   if($("webWrap")) $("webWrap").classList.toggle("hide", guest);
   if($("btnWebAi")) $("btnWebAi").classList.toggle("hide", guest);
   if($("verifyGo")) $("verifyGo").textContent = guest ? "Next" : "Continue to pictures";
-  if($("btnPictures")) $("btnPictures").classList.remove("hide");
   if($("btnSend")) $("btnSend").textContent = guest ? "Review my trade" : "Send";
   if(guest) paintGuestStory();
   hideMailOpen();
@@ -3710,7 +3807,7 @@ function collectDraft(){
       purpose:APP.purpose, year:APP.year, make:APP.make, model:APP.model, trim:APP.trim,
       color:APP.color, km:APP.km, vin:APP.vin, stock:APP.stock, heard:APP.heard, notes:APP.notes,
       webcopy:APP.webcopy, photos:APP.photos, damage:APP.damage, closeups:APP.closeups,
-      damageCap:APP.damageCap, closeupCap:APP.closeupCap, closeupAudio:APP.closeupAudio, dealType:APP.dealType, leadSource:APP.leadSource, cdApp:APP.cdApp, apptId:APP.apptId, apptSeller:APP.apptSeller, lockedFromAirtable:APP.lockedFromAirtable, deskTeam:APP.deskTeam,
+      damageCap:APP.damageCap, closeupCap:APP.closeupCap, closeupAudio:APP.closeupAudio, dealType:APP.dealType, leadSource:APP.leadSource, cdApp:APP.cdApp, apptId:APP.apptId, apptSeller:APP.apptSeller, lockedFromAirtable:APP.lockedFromAirtable, newApplication:!!APP.newApplication, deskTeam:APP.deskTeam,
       emails:(typeof loadRecipients==="function"?loadRecipients():APP.emails),
       role:APP.role, userName:APP.userName, userEmail:APP.userEmail,
       inviteFirst:APP.inviteFirst, inviteLast:APP.inviteLast, inviteName:APP.inviteName,
@@ -3847,7 +3944,7 @@ function startFresh(){
 }
 function wipeJob(goStart){
   APP.year=APP.make=APP.model=APP.trim=APP.color=APP.km=APP.vin=APP.stock=APP.heard=APP.notes=APP.webcopy="";
-  APP.dealType=""; APP.leadSource=""; APP.cdApp=""; APP.apptId=""; APP.apptSeller=""; APP.lockedFromAirtable=false; APP.centerId=""; APP.sendId=""; APP._sending=false; APP.deskTeam="";
+  APP.dealType=""; APP.leadSource=""; APP.cdApp=""; APP.apptId=""; APP.apptSeller=""; APP.lockedFromAirtable=false; APP.newApplication=false; APP.apptSearch=""; APP.centerId=""; APP.sendId=""; APP._sending=false; APP.deskTeam="";
   APP.photos={}; APP.damage={}; APP.closeups=[]; APP.docs={}; APP.damageCap={}; APP.closeupCap=[]; APP.closeupAudio=[];
   APP.clips=[]; APP.recOn=false; APP.recorder=null; APP.recChunks=[]; APP.zoom=1;
   if(APP.role!=="guest"){
@@ -5177,7 +5274,7 @@ function clearSnapshot(){
 function applySnapshot(snap){
   if(!snap || !snap.app) return;
   const a=snap.app;
-  ["purpose","year","make","model","trim","color","km","vin","stock","heard","notes","webcopy","photos","damage","closeups","damageCap","closeupCap","closeupAudio","dealType","leadSource","cdApp","apptId","apptSeller","lockedFromAirtable","deskTeam","centerId","role","userName","userEmail","inviteFirst","inviteLast","inviteName","inviteEmail","invitePhone","inviteUnit","inviteStock","requestedBy","requestedByName","docs"].forEach(function(k){
+  ["purpose","year","make","model","trim","color","km","vin","stock","heard","notes","webcopy","photos","damage","closeups","damageCap","closeupCap","closeupAudio","dealType","leadSource","cdApp","apptId","apptSeller","lockedFromAirtable","newApplication","deskTeam","centerId","role","userName","userEmail","inviteFirst","inviteLast","inviteName","inviteEmail","invitePhone","inviteUnit","inviteStock","requestedBy","requestedByName","docs"].forEach(function(k){
     if(a[k]!==undefined) APP[k]=a[k];
   });
   if(a.emails) saveRecipients(a.emails);
@@ -6937,7 +7034,7 @@ function applyStory(raw){
   APP.heard=text;
   if(!APP.notes) APP.notes=text;
   APP.webcopy="";
-  if(APP.lockedFromAirtable || (isConsumerAcquisition() && APP.apptId)) return;
+  if(APP.lockedFromAirtable || (isConsumerAcquisition() && APP.apptId && APP.apptId!=="new")) return;
   const parsed=parseStory(text);
   Object.keys(parsed).forEach(function(k){
     if(k==="vin" || k==="heard" || k==="notes") return;
@@ -8555,6 +8652,8 @@ $("startAppraise").onclick = function(){
   APP.apptId="";
   APP.apptSeller="";
   APP.lockedFromAirtable=false;
+  APP.newApplication=false;
+  APP.apptSearch="";
   APP.apptItems=[];
   if($("home-cd-app")) $("home-cd-app").value="";
   if($("cd-app")) $("cd-app").value="";
@@ -8758,6 +8857,11 @@ function onCdInput(el){
 onCdInput($("cd-app"));
 onCdInput($("home-cd-app"));
 onCdInput($("wb-cd-app"));
+if($("apptSearch")) $("apptSearch").addEventListener("input", function(){
+  APP.apptSearch=this.value;
+  paintAppointments();
+});
+if($("apptNewApp")) $("apptNewApp").onclick = startNewApplication;
 if($("apptTabs")) $("apptTabs").addEventListener("click", function(e){
   const b=e.target && e.target.closest && e.target.closest("[data-appt-region]");
   if(!b) return;
@@ -8783,12 +8887,13 @@ document.addEventListener("click", function(e){
   menu.classList.remove("on");
 });
 if($("wbBack")) $("wbBack").onclick = function(){
-  if(isConsumerAcquisition() && APP.apptId){
+  if(isConsumerAcquisition() && (APP.apptId || APP.newApplication)){
     APP.apptId="";
     APP.apptSeller="";
     APP.lockedFromAirtable=false;
+    APP.newApplication=false;
     paintWorkbench();
-    toast("Pick another booked appointment.");
+    toast("Pick another booked appointment or start a new application.");
     return;
   }
   show("start");
@@ -8873,11 +8978,6 @@ $("camX").onclick = $("camDone").onclick = function(){ show("photos"); };
 $("submitX").onclick = function(){ show("photos"); };
 $("doneX").onclick = $("btnAnother").onclick = resetAll;
 $("btnStory").onclick = function(){ if(!requireAppraiseType()) return; openStoryMic(); };
-$("btnPictures").onclick = function(){
-  if(APP.role==="employee" && !canPerm("pictures")){ toast(permDeny("pictures")); return; }
-  if(!requireAppraiseType()) return;
-  show("photos");
-};
 $("btnStart").onclick = function(){ openCamera("photos","qfront"); };
 $("btnDocs").onclick = function(){ if(!requireAppraiseType()) return; paintDocs(); show("photos"); $("docsBlock") && $("docsBlock").scrollIntoView({behavior:"smooth", block:"start"}); };
 $("btnVin").onclick = $("verifyVin").onclick = function(){ if(!requireAppraiseType()) return; openVinCam(); };

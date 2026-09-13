@@ -168,6 +168,10 @@ must(/function paintAppraiseGate\(/, "Story, pictures, docs, and VIN gray until 
 must(/id="typeGateNote"/, "plain-English type-first note on the Appraise form");
 must(/classList\.toggle\("home-gate", lock\)/, "gated Appraise actions are grayed");
 must(/DEAL_TYPES = \["Trade-in","Locate","General acquisition","Consumer Acquisition"\]/, "Appraise types are Trade-in, Locate, General acquisition, Consumer Acquisition");
+must(/function isLocateSoon\(/, "Locate is a coming-soon type");
+must(/Coming soon/, "Locate chip shows Coming soon");
+must(/soon\?" soon":""/, "Locate chip is grayed");
+must(/b\.disabled=!!soon/, "Locate chip is not clickable");
 must(/p\.purpose==="website"\) return false/, "website photos stay off the Appraise type gate");
 must(/startAppraise"\)\.onclick[\s\S]{0,900}openDealType\(\)/, "Appraise vehicle opens type before other actions");
 must(/el\.disabled=!!lock/, "gated Appraise buttons are actually disabled");
@@ -181,7 +185,7 @@ must(/data-appraise-gate/, "Appraise form exposes the type-gate state");
   assert.strictEqual(needsAppraiseType({ purpose: "appraise", dealType: "Trade-in" }, true), false, "chosen type unlocks Appraise");
   assert.strictEqual(needsAppraiseType({ purpose: "website", dealType: "" }, true), false, "website path is not gated");
   assert.strictEqual(needsAppraiseType({ purpose: "appraise", dealType: "" }, false), false, "guests are not gated");
-  assert.strictEqual(needsAppraiseType({ purpose: "appraise", dealType: "Locate" }, true), false, "Locate is a valid type");
+  assert.strictEqual(needsAppraiseType({ purpose: "appraise", dealType: "Locate" }, true), true, "Locate is coming soon and stays gated");
   assert.strictEqual(needsAppraiseType({ purpose: "appraise", dealType: "General acquisition" }, true), false, "General acquisition is a valid type");
   assert.strictEqual(needsAppraiseType({ purpose: "appraise", dealType: "Consumer Acquisition" }, true), false, "Consumer Acquisition is a valid type");
 })();
@@ -280,6 +284,39 @@ must(/function needsAppraiseAppt\(/, "Canada Drives stays gated until an appoint
   assert.ok(ids("today").indexOf("t") < 0, "tomorrow leaves Today");
   assert.ok(ids("today").indexOf("o") < 0, "region filter still drops Ottawa");
 })();
+(function testApptSearchFiltersLiveList() {
+  const filterM = html.match(/function filteredAppointments\(\)\{[\s\S]*?\n\}/);
+  const boundsM = html.match(/function apptRangeBounds\(kind, fromVal, toVal\)\{[\s\S]*?\n\}/);
+  const whenM = html.match(/function apptWhen\(row\)\{[\s\S]*?\n\}/);
+  assert.ok(filterM && boundsM && whenM, "search uses the live appointment filter");
+  function startOfDay(d) {
+    const x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    return x.getTime();
+  }
+  const apptRangeBounds = eval("(" + boundsM[0].replace(/^function apptRangeBounds/, "function") + ")");
+  const apptWhen = eval("(" + whenM[0].replace(/^function apptWhen/, "function") + ")");
+  var searchVal = "APP-4412";
+  function $(id) { return { value: id === "apptSearch" ? searchVal : "" }; }
+  var APP = {
+    apptRegion: "GTA",
+    leadSource: "Canada Drives",
+    apptRange: "today",
+    apptSearch: searchVal,
+    apptItems: [
+      { id: "hit", region: "Ottawa", source: "Canada Drives", date: "2019-01-01", appNo: "APP-4412" },
+      { id: "miss", region: "GTA", source: "Canada Drives", date: "", appNo: "APP-9900" }
+    ]
+  };
+  const filteredAppointments = eval("(" + filterM[0].replace(/^function filteredAppointments/, "function") + ")");
+  const ids = filteredAppointments().map(function (r) { return r.id; });
+  assert.deepStrictEqual(ids, ["hit"], "app # search finds the live row across region and date");
+  searchVal = "4412";
+  APP.apptSearch = "4412";
+  assert.deepStrictEqual(filteredAppointments().map(function (r) { return r.id; }), ["hit"], "bare Canada Drives digits still match APP-");
+  searchVal = "APP-0000";
+  APP.apptSearch = "APP-0000";
+  assert.deepStrictEqual(filteredAppointments(), [], "unknown app # is empty");
+})();
 must(/function defaultPerms\(/, "named staff have default permission toggles");
 must(/function canPerm\(/, "dock buttons read permission toggles");
 must(/function setPerm\(/, "admin can flip permission toggles");
@@ -289,7 +326,18 @@ must(/label:"Appraise"/, "Users screen has Appraise toggle");
 must(/label:"Website photos"/, "Users screen has Website photos toggle");
 must(/label:"Appraisal Center"/, "Users screen has Appraisal Center toggle");
 must(/label:"Admin"/, "Users screen has Admin toggle");
-must(/label:"Pictures"/, "Users screen has Pictures toggle");
+mustNot(/label:"Pictures"/, "Users screen has no Pictures-only toggle");
+mustNot(/Just Pictures/, "Appraise has no Just Pictures button");
+mustNot(/id="btnPictures"/, "pictures-only Appraise path is gone");
+mustNot(/id:"pictures"/, "no orphan pictures permission");
+must(/id="apptSearch"/, "CA toolbar searches application number");
+must(/id="apptNewApp"/, "CA toolbar has New application");
+must(/id="apptTrackerGta"/, "GTA Tracker button");
+must(/id="apptTrackerOttawa"/, "Ottawa Tracker button");
+must(/TRACKER_GTA_URL="https:\/\/docs\.google\.com\/spreadsheets\/d\/1DXKFHK_k1cC_upbxzBIVTLbMKpOIv0u5MB2NbKq5XhM\/edit\?usp=sharing"/, "GTA Tracker is the MyCar.ca GTA sheet");
+must(/TRACKER_OTTAWA_URL="https:\/\/docs\.google\.com\/spreadsheets\/d\/1QRmPSMX_-nksYs4ucJxZUfTQcvrMlfbnylJgTL0ckNU\/edit\?usp=sharing"/, "Ottawa Tracker is the MyCar.ca Ottawa sheet");
+must(/function startNewApplication\(/, "empty search can start a new CA appraisal");
+must(/target="_blank"/, "tracker buttons open a new tab");
 must(/label:"Consumer Acquisition"/, "Users screen has Consumer Acquisition toggle");
 must(/Only Shawn can grant Consumer Acquisition/, "CA grant is Shawn-only");
 must(/id="btnDeskTeam"/, "appraisal create has a Team button");
@@ -302,6 +350,10 @@ must(/"Team Saskatchewan"/, "Team Saskatchewan exists");
 must(/"Team Fire"/, "Team Fire exists");
 must(/"Team House"/, "Team House exists");
 must(/"Team Consumer Acquisition"/, "Team Consumer Acquisition exists");
+must(/"Team Trucktown Richmond"/, "Team Trucktown Richmond exists");
+must(/"Team Trucktown Smith Falls"/, "Team Trucktown Smith Falls exact spelling");
+must(/"Team Trucktown Rockland"/, "Team Trucktown Rockland exists");
+mustNot(/Team Trucktown Smiths Falls/, "Smith Falls is not Smiths Falls");
 must(/elias\.abdi@myloan\.ca/, "Elias Abdi is on the roster");
 must(/david\.m@myloan\.ca":"David Madrid"/, "David Madrid seed name");
 must(/tushar\.gupta@myloan\.ca":\["Team Evo"\]/, "Tushar leads Team Evo");

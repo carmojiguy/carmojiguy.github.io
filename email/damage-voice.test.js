@@ -100,6 +100,6 @@ mailbox.APP.role = "employee";
 mailbox.APP.purpose = "both";
 assert.deepEqual(mailbox.appraisalCc(), ["christina@carmoji.ca"], "staff appraisal CCs Christina");
 mailbox.APP.purpose = "website";
-assert.deepEqual(mailbox.appraisalCc(), [], "website-only / Just Pictures website posts skip Christina");
+assert.deepEqual(mailbox.appraisalCc(), [], "website-only posts skip Christina");
 
 console.log("damage-voice: ok");
