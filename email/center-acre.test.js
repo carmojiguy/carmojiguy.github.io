@@ -289,6 +289,27 @@ must(/label:"Appraise"/, "Users screen has Appraise toggle");
 must(/label:"Website photos"/, "Users screen has Website photos toggle");
 must(/label:"Appraisal Center"/, "Users screen has Appraisal Center toggle");
 must(/label:"Admin"/, "Users screen has Admin toggle");
+must(/label:"Pictures"/, "Users screen has Pictures toggle");
+must(/label:"Consumer Acquisition"/, "Users screen has Consumer Acquisition toggle");
+must(/Only Shawn can grant Consumer Acquisition/, "CA grant is Shawn-only");
+must(/id="btnDeskTeam"/, "appraisal create has a Team button");
+must(/item\.deskTeam=APP\.deskTeam/, "appraisals persist the desk team");
+must(/"Team Flash"/, "Team Flash exists");
+must(/"Team Retail"/, "Team Retail exists");
+must(/"Team Evo"/, "Team Evo exists");
+must(/"Team ABC"/, "Team ABC exists");
+must(/"Team Saskatchewan"/, "Team Saskatchewan exists");
+must(/"Team Fire"/, "Team Fire exists");
+must(/"Team House"/, "Team House exists");
+must(/"Team Consumer Acquisition"/, "Team Consumer Acquisition exists");
+must(/elias\.abdi@myloan\.ca/, "Elias Abdi is on the roster");
+must(/david\.m@myloan\.ca":"David Madrid"/, "David Madrid seed name");
+must(/tushar\.gupta@myloan\.ca":\["Team Evo"\]/, "Tushar leads Team Evo");
+must(/ernest@myloan\.ca":\["Team Flash"\]/, "Ernest leads Team Flash");
+must(/tony\.wiebe@myloan\.ca":\["Team Saskatchewan"\]/, "Tony leads Team Saskatchewan");
+must(/function isTeamLeader\(/, "Team Leader role exists");
+must(/Salesperson/, "Salesperson role exists");
+mustNot(/ACCESS_LEVELS/, "no Admin\/Manager\/Sales\/Viewer rank list");
 must(/inbox:"Incoming"/, "Center lanes stay Incoming / On-site / History");
 
 (function testNeedsAppraiseAppt() {
