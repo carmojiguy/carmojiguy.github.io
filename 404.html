@@ -115,13 +115,13 @@ textarea.note { min-height:160px; max-height:none; resize:vertical; overflow:aut
 .review { background:#fff; border:1.5px solid var(--hair); border-radius:18px; padding:14px; margin:0 0 12px; cursor:pointer; text-align:left; width:100%; }
 .review h4 { margin:0 0 6px; font-size:16px; }
 .review p { margin:0; color:var(--muted); font-size:14px; line-height:1.4; }
-.docs-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:4px 0 24px; }
-.doc-sq { position:relative; aspect-ratio:1; border-radius:20px; overflow:hidden; border:1.5px dashed #D9D3E8; background:linear-gradient(180deg,#FFFFFF 0%, #F3F0FA 100%); cursor:pointer; padding:14px 14px 12px; display:flex; flex-direction:column; justify-content:flex-end; text-align:left; }
+.docs-grid, .center-docs, .center-why-docs { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:4px 0 24px; }
+.doc-sq { position:relative; aspect-ratio:1; min-height:168px; border-radius:22px; overflow:hidden; border:1.5px dashed #D9D3E8; background:linear-gradient(180deg,#FFFFFF 0%, #F3F0FA 100%); cursor:pointer; padding:18px 16px 16px; display:flex; flex-direction:column; justify-content:flex-end; text-align:left; }
 .doc-sq img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
 .doc-sq .veil { position:absolute; inset:0; background:linear-gradient(180deg,rgba(17,14,26,0) 28%, rgba(17,14,26,.82) 100%); }
 .doc-sq .pdfmark { position:absolute; top:14px; right:14px; background:var(--purple); color:#fff; font-size:11px; font-weight:800; border-radius:8px; padding:4px 8px; letter-spacing:.04em; }
-.doc-sq b { position:relative; font-size:15px; font-weight:800; line-height:1.15; margin:0 0 4px; }
-.doc-sq span { position:relative; font-size:12px; color:var(--muted); line-height:1.3; font-weight:600; }
+.doc-sq b { position:relative; font-size:18px; font-weight:800; line-height:1.2; margin:0 0 6px; }
+.doc-sq span { position:relative; font-size:14px; color:var(--muted); line-height:1.35; font-weight:600; }
 button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; font:inherit; color:inherit; text-decoration:none; display:block; }
 .doc-sq.vauto-sq { padding:0; border:0; background:#FF6A00; }
 .doc-sq.vauto-sq img { object-fit:cover; pointer-events:none; }
@@ -238,6 +238,11 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
 .start-actions .pill.cyan { background:var(--cyan); color:#fff; border-color:var(--cyan); }
 #startCenter {
   background:rgba(255,255,255,.94); color:var(--ink);
+}
+#startCenter.locked {
+  background:rgba(250,249,252,.38);
+  color:rgba(36,27,51,.42);
+  box-shadow:none;
 }
 #startAppraise, #startCenter, #startWebsite { top:auto; bottom:auto; transform:none; }
 .start-actions .pill.soon {
@@ -485,11 +490,11 @@ body.center-gallery-on { overflow:hidden; }
 .acre-chip b, .mkt-chip b { display:block; font-size:18px; letter-spacing:-.4px; }
 .acre-market { display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; margin:0 0 18px; }
 .mkt-chip b { font-size:14px; }
-.center-docs { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:4px 0 8px; }
+.center-docs, .center-why-docs { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:4px 0 8px; }
 .doc-slot {
-  position:relative; min-height:118px; border-radius:20px; overflow:hidden;
+  position:relative; min-height:168px; border-radius:22px; overflow:hidden;
   border:1.5px dashed #D9D3E8; background:#fff; cursor:pointer;
-  padding:14px; display:flex; flex-direction:column; justify-content:flex-end; text-align:left;
+  padding:18px 16px 16px; display:flex; flex-direction:column; justify-content:flex-end; text-align:left;
   font:inherit; color:inherit; width:100%;
 }
 .doc-slot.on { border-style:solid; border-color:#C4B6FF; background:#F6F3FF; }
@@ -501,8 +506,8 @@ body.center-gallery-on { overflow:hidden; }
   letter-spacing:.06em; border-radius:8px; padding:4px 7px;
 }
 .doc-slot b, .doc-slot span { position:relative; }
-.doc-slot b { font-size:15px; margin:0 0 2px; }
-.doc-slot span { font-size:12px; color:var(--muted); font-weight:600; }
+.doc-slot b { font-size:18px; margin:0 0 6px; line-height:1.2; }
+.doc-slot span { font-size:14px; color:var(--muted); font-weight:600; line-height:1.35; }
 .doc-slot.on b, .doc-slot.on span { color:#fff; }
 .team-rail { display:flex; flex-direction:column; gap:10px; }
 .team-card { background:#fff; border:1.5px solid var(--hair); border-radius:20px; padding:14px; }
@@ -514,6 +519,7 @@ body.center-gallery-on { overflow:hidden; }
 .team-mm label { margin:0; }
 .team-mm .f { padding:10px 8px; font-size:14px; text-align:center; }
 .team-card textarea { min-height:72px; margin-top:10px; }
+.team-card .team-why { width:100%; margin-top:10px; min-height:48px; font-size:15px; }
 .center-detail-empty {
   min-height:calc(100dvh - 80px); display:grid; place-items:center; text-align:center; padding:40px 24px;
 }
@@ -601,7 +607,9 @@ body.center-gallery-on { overflow:hidden; }
   #center h2{ font-size:34px; }
   #center .center-hero{ min-height:280px; border-radius:26px; }
   #center .center-hero img{ height:min(36vh, 340px); }
-  #center .center-docs{ grid-template-columns:repeat(3, 1fr); }
+  #center .center-docs, #center .center-why-docs, #center .docs-grid{ grid-template-columns:1fr 1fr; }
+  #center .doc-slot, #center .doc-sq { min-height:196px; }
+  #center .doc-slot b, #center .doc-sq b { font-size:20px; }
   #center .team-rail{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
   #center .team-card.final{ grid-column:1 / -1; }
   #center .facts{ grid-template-columns:repeat(3, 1fr); }
@@ -687,7 +695,10 @@ body.center-gallery-on { overflow:hidden; }
   #photoRows .row { margin:0; }
   #damageRows { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
   #damageRows .dmg-card { margin:0; }
-  .docs-grid { grid-template-columns:repeat(4, 1fr); gap:16px; }
+  .docs-grid, .center-docs, .center-why-docs { grid-template-columns:1fr 1fr; gap:18px; }
+  .doc-sq, .doc-slot { min-height:200px; }
+  .doc-sq b, .doc-slot b { font-size:20px; }
+  .doc-sq span, .doc-slot span { font-size:15px; }
   .carfax-pages canvas, .carfax-pages img { max-width:860px; }
   .how { padding:18px 22px; }
   .how li { font-size:16px; }
@@ -749,7 +760,7 @@ body.center-gallery-on { overflow:hidden; }
 }
 
 @media (min-width:1320px){
-  .docs-grid { grid-template-columns:repeat(4, 1fr); }
+  .docs-grid, .center-docs, .center-why-docs { grid-template-columns:1fr 1fr; }
   #photoRows, #damageRows { grid-template-columns:repeat(3, 1fr); }
   .login-hero h1 { font-size:64px; }
 }
@@ -793,7 +804,7 @@ body.center-gallery-on { overflow:hidden; }
   <div class="start-dock" id="startDock">
     <div class="start-actions" id="startActions">
       <button class="pill purple" type="button" id="startAppraise">Appraise vehicle</button>
-      <button class="pill" type="button" id="startCenter">Appraisal Center</button>
+      <button class="pill" type="button" id="startCenter" aria-disabled="false">Appraisal Center</button>
       <button class="pill cyan" type="button" id="startWebsite">Post vehicle to website</button>
     </div>
     <div class="start-more" id="startMore">
@@ -935,7 +946,10 @@ body.center-gallery-on { overflow:hidden; }
     <div class="block">Documents</div>
     <div class="center-docs" id="centerDocs"></div>
     <div class="block">Appraisal team</div>
+    <div class="center-why-docs" id="centerWhyDocs"></div>
     <div class="team-rail" id="centerTeam"></div>
+    <label class="k">Shawn approval / buy number</label>
+    <input class="f" id="centerApproval" inputmode="decimal" placeholder="Enter the actual buy number" />
     <label class="k">Desk notes</label>
     <textarea class="note" id="centerNotes" placeholder="Anything the team should know"></textarea>
   </div>
@@ -1595,6 +1609,30 @@ const OPEN_STAFF = {
   "wes@thetrucktown.com":"Wes",
   "ryan@papered.com":"Ryan"
 };
+const CENTER_STAFF = {
+  "shawn@myloan.ca":"Shawn",
+  "shawn@gmautosales.ca":"Shawn",
+  "ryan@papered.com":"Ryan",
+  "andrew@autocorp.ca":"Andrew",
+  "wes@thetrucktown.com":"Wes",
+  "kyle@myloan.ca":"Kyle",
+  "shane@myloan.ca":"Shane"
+};
+const CENTER_DENY="Appraisal Center is only for Shawn, Ryan, Andrew, Wes, Kyle, and Shane.";
+function canUseCenter(){
+  if(APP.role!=="employee") return false;
+  return !!CENTER_STAFF[staffEmail(APP.userEmail)];
+}
+function denyCenter(){
+  toast(CENTER_DENY);
+}
+function paintCenterAccess(){
+  const btn=$("startCenter");
+  if(!btn) return;
+  const ok=APP.role!=="employee" || canUseCenter();
+  btn.classList.toggle("locked", APP.role==="employee" && !canUseCenter());
+  btn.setAttribute("aria-disabled", canUseCenter() || APP.role!=="employee" ? "false" : "true");
+}
 function staffEmail(v){ return String(v||"").trim().toLowerCase(); }
 function usersKey(){ return "inspect.users"; }
 function loadExtraUsers(){
@@ -1782,6 +1820,7 @@ function applyRole(){
     if($("verifyVin")) $("verifyVin").classList.remove("hide");
     if($("vinBtns")) $("vinBtns").classList.remove("hide");
   }
+  paintCenterAccess();
 }
 function enterSession(role, user){
   APP.role=role;
@@ -2719,7 +2758,7 @@ function wipeJob(goStart){
 }
 
 const CENTER_KEY="inspect.center";
-const CENTER_SAMPLE_VER="acre6";
+const CENTER_SAMPLE_VER="acre7";
 const CENTER_TEAM=[
   ["shabot","Shabot","FINAL"],
   ["rybot","Rybot","Opinion"],
@@ -2827,11 +2866,11 @@ function sampleTeam(n, notes){
   n=Number(n)||0;
   notes=notes||{};
   const t=emptyTeam();
-  t.shabot={min:String(n-900),target:String(n),max:String(n+700),note:notes.shabot||"Final sits here. Clean file, books support it."};
-  t.rybot={min:String(n-1400),target:String(n+200),max:String(n+600),note:notes.rybot||"I'd be a touch over book if the walk stays this clean."};
-  t.webot={min:String(n-1100),target:String(n-200),max:String(n+400),note:notes.webot||"Retail is there. Watch recon on the leading edge."};
-  t.drebot={min:String(n-1600),target:String(n-400),max:String(n+200),note:notes.drebot||"Wholesale is fine. I wouldn't chase it."};
-  t.tbot={min:String(n-800),target:String(n+100),max:String(n+500),note:notes.tbot||"AFC covers it. I'd take it to the block."};
+  t.shabot={min:String(n-900),target:String(n),max:String(n+700),note:notes.shabot||"Final sits here. The walk, Carfax, and books all point to the same number. I'm not stretching it and I'm not leaving money on the table."};
+  t.rybot={min:String(n-1400),target:String(n+200),max:String(n+600),note:notes.rybot||"I'd be a touch over book if the walk stays this clean. The deal on the lot has room — don't buy the new car with the trade."};
+  t.webot={min:String(n-1100),target:String(n-200),max:String(n+400),note:notes.webot||"Retail is there. I'd still walk the leading edges in person and budget a little recon before we advertise it."};
+  t.drebot={min:String(n-1600),target:String(n-400),max:String(n+200),note:notes.drebot||"Wholesale is fine as a trade. I wouldn't chase it if they want retail money."};
+  t.tbot={min:String(n-800),target:String(n+100),max:String(n+500),note:notes.tbot||"AFC covers the number. If they walk, take it to the block — the file is complete enough to run."};
   return t;
 }
 function sampleDocSvg(kind, item){
@@ -2913,7 +2952,7 @@ function centerSampleItems(){
       story:"Guest packet is in. Full walk, Carfax, and the books are on the file. One-owner AWD Santa Fe against a new Tucson. Maya can come in this week.",
       notes:"Ready to walk. Photos and market sheets attached.",
       tags:["Incoming","Packet in","AWD"],
-      opinions:{shabot:"I'd sit at 24.8. Clean AWD Santa Fe, books agree.",rybot:"Tucson deal has room. Don't give the trade away.",webot:"Paint is honest. I'd still peek the rear bumper in person.",drebot:"Wholesale is there. No reason to stretch.",tbot:"AFC covers 24. I'd take it."}
+      opinions:{shabot:"I'd sit at 24.8. Clean AWD Santa Fe, books agree, and the packet is complete. That's the final — not a penny more until someone walks the car and finds a surprise.",rybot:"Tucson deal has room. Don't give the trade away. I'd live at 24.8–25.0 if Maya is real this week.",webot:"Paint is honest on the walk. I'd still peek the rear bumper in person before we write a listing.",drebot:"Wholesale is there around 23. No reason to stretch a clean but ordinary Santa Fe.",tbot:"AFC covers 24. I'd take it. If they hesitate, run it — the file is ready."}
     }),
     finishSample({
       id:"sample-v5-f150", lane:"inbox", stage:"Waiting", source:"trade-in", walk:"suv", ask:14200,
@@ -3280,6 +3319,7 @@ function getCenter(id){
   return loadCenter().find(function(x){ return x.id===id; }) || null;
 }
 function openCenter(){
+  if(!canUseCenter()){ denyCenter(); return; }
   APP.centerHistory=false;
   APP.centerLane="";
   if($("centerSheet")) $("centerSheet").classList.remove("on");
@@ -3287,6 +3327,7 @@ function openCenter(){
   show("center");
 }
 function openCenterLane(lane){
+  if(!canUseCenter()){ denyCenter(); return; }
   APP.centerLane=lane==="inbox"||lane==="onsite"||lane==="history" ? lane : "inbox";
   APP.centerHistory=APP.centerLane==="history";
   if($("centerSheet")) $("centerSheet").classList.add("on");
@@ -3306,6 +3347,7 @@ function centerSplitLayout(){
   return window.matchMedia && window.matchMedia("(min-width:768px)").matches;
 }
 function openCenterDetail(id){
+  if(!canUseCenter()){ denyCenter(); return; }
   if(APP.centerViewId!==id) closeCenterGallery();
   APP.centerViewId=id;
   APP.centerPhoto=0;
@@ -3732,6 +3774,41 @@ function paintCenterDocs(item, media){
     host.appendChild(el);
   });
 }
+function teamWhyHtml(item, botId){
+  const pair=CENTER_TEAM.find(function(t){ return t[0]===botId; }) || [botId, botId, "Opinion"];
+  const slot=teamSlot((item.team||{})[botId]);
+  const why=String(slot.note||"").trim() || "No thought process written yet.";
+  let h='<div class="badge">'+esc(pair[2])+'</div>';
+  h+='<h2>'+esc(pair[1])+' — why this number</h2>';
+  h+='<p class="quote">'+esc(item.interest||item.ymmt||"Vehicle")+'</p>';
+  h+='<div class="facts">';
+  [["Min",slot.min],["Target",slot.target],["Max",slot.max],["VIN",item.vin],["Kilometres",item.km],["Colour",item.color]].forEach(function(r){
+    if(r[1]) h+='<div><k>'+esc(r[0])+'</k><b>'+esc(r[1])+'</b></div>';
+  });
+  h+='</div>';
+  h+='<h4>Thought process</h4><p>'+esc(why).replace(/\n/g,"</p><p>")+'</p>';
+  if(item.story) h+='<h4>File story</h4><p>'+esc(item.story)+'</p>';
+  return h;
+}
+function openTeamWhy(item, botId){
+  const pair=CENTER_TEAM.find(function(t){ return t[0]===botId; }) || [botId, botId, "Opinion"];
+  openViewer("packet", teamWhyHtml(item, botId), pair[1]+" — why");
+}
+function paintCenterWhyDocs(item){
+  const host=$("centerWhyDocs"); if(!host) return;
+  host.innerHTML="";
+  host.className="center-why-docs";
+  const team=item.team||emptyTeam();
+  CENTER_TEAM.forEach(function(pair){
+    const slot=teamSlot(team[pair[0]]);
+    const el=document.createElement("button");
+    el.type="button";
+    el.className="doc-slot"+(slot.note?" on":"");
+    el.innerHTML='<i class="fmt">WHY</i><b>'+esc(pair[1])+'</b><span>'+esc(pair[2]==="FINAL"?"Final thought process":"Opinion — how they got here")+'</span>';
+    el.onclick=function(){ openTeamWhy(item, pair[0]); };
+    host.appendChild(el);
+  });
+}
 function bindValInput(item, key, inp){
   inp.addEventListener("input", function(){
     patchCenter(item.id, function(x){
@@ -3784,9 +3861,12 @@ function paintCenterTeam(item){
         '<label class="k">Target<input class="f" data-k="target" inputmode="decimal" placeholder="TARGET" /></label>'+
         '<label class="k">Max<input class="f" data-k="max" inputmode="decimal" placeholder="MAX" /></label>'+
       "</div>"+
-      '<textarea class="note" placeholder="'+(pair[2]==="FINAL"?"Final number and why":"Opinion")+'">'+'</textarea>';
+      '<textarea class="note" placeholder="'+(pair[2]==="FINAL"?"Final number and why — this becomes the openable thought-process doc":"Opinion and how you got there")+'">'+'</textarea>'+
+      '<button type="button" class="pill wash team-why">Open thought process</button>';
     const ta=card.querySelector("textarea");
     ta.value=slot.note||"";
+    const whyBtn=card.querySelector(".team-why");
+    if(whyBtn) whyBtn.onclick=function(){ openTeamWhy(item, pair[0]); };
     card.querySelectorAll("input[data-k]").forEach(function(inp){
       const k=inp.getAttribute("data-k");
       inp.value=slot[k]||"";
@@ -3851,7 +3931,10 @@ function ensureCenterDetailScaffold(){
     '<div class="block">Documents</div>'+
     '<div class="center-docs" id="centerDocs"></div>'+
     '<div class="block">Appraisal team</div>'+
+    '<div class="center-why-docs" id="centerWhyDocs"></div>'+
     '<div class="team-rail" id="centerTeam"></div>'+
+    '<label class="k">Shawn approval / buy number</label>'+
+    '<input class="f" id="centerApproval" inputmode="decimal" placeholder="Enter the actual buy number" />'+
     '<label class="k">Desk notes</label>'+
     '<textarea class="note" id="centerNotes" placeholder="Anything the team should know"></textarea>';
   if($("centerNotes")){
@@ -3862,6 +3945,20 @@ function ensureCenterDetailScaffold(){
       patchCenter(APP.centerViewId, function(x){ x.notes=el.value; });
     });
   }
+  if($("centerApproval")){
+    $("centerApproval").addEventListener("input", function(){
+      const el=this;
+      if(!APP.centerViewId) return;
+      patchCenter(APP.centerViewId, function(x){ x.approval=el.value.trim(); });
+    });
+  }
+}
+function isCenterAppraisal(item){
+  if(!item) return false;
+  const src=String(item.source||"").toLowerCase();
+  const purpose=String(item.purpose||"").toLowerCase();
+  if(src==="website" || purpose==="website") return false;
+  return true;
 }
 function paintCenterDetail(){
   const item=getCenter(APP.centerViewId);
@@ -3900,10 +3997,18 @@ function paintCenterDetail(){
     $("centerNotes").value=item.notes||"";
     growArea($("centerNotes"));
   }
+  if($("centerApproval")){
+    $("centerApproval").value=item.approval||"";
+    $("centerApproval").oninput=function(){
+      const el=this;
+      patchCenter(item.id, function(x){ x.approval=el.value.trim(); });
+    };
+  }
   if($("centerStageBtn")) $("centerStageBtn").textContent=item.stage==="Appraised"?"Return to desk lane":"Complete";
   const starter=(item.photos && item.photos.length) ? item.photos : (item.thumb ? [{data:item.thumb, title:item.ymmt}] : []);
   paintCenterHero(starter);
   paintCenterDocs(item, {docs:item.docs});
+  paintCenterWhyDocs(item);
   paintCenterVals(item);
   paintCenterTeam(item);
   loadCenterMedia(item.id).then(function(media){
@@ -7310,19 +7415,112 @@ document.addEventListener("click", function(e){
   if(e.target && e.target.closest && e.target.closest(".center-date")) return;
   menu.classList.remove("on");
 });
-if($("centerStageBtn")) $("centerStageBtn").onclick = function(){
+async function buildApprovalPdf(item, num){
+  if(!window.jspdf) await loadScript("https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js");
+  const {jsPDF}=window.jspdf;
+  const d=new jsPDF({unit:"pt", format:"letter", compress:true});
+  const W=612, H=792;
+  const INK=[17,14,26], MUTED=[107,98,120], CYAN=[0,168,232], PURPLE=[124,92,255];
+  d.setFillColor(250,249,252); d.rect(0,0,W,H,"F");
+  d.setFillColor(CYAN[0], CYAN[1], CYAN[2]); d.rect(0,0,W,6,"F");
+  d.setFillColor(PURPLE[0], PURPLE[1], PURPLE[2]); d.rect(W-6,0,6,H,"F");
+  d.setFont("helvetica","bold"); d.setFontSize(11); d.setTextColor(CYAN[0],CYAN[1],CYAN[2]);
+  d.text("SHAWN APPROVAL", 36, 48);
+  d.setFontSize(26); d.setTextColor(INK[0],INK[1],INK[2]);
+  d.text(String(item.interest||item.ymmt||"Vehicle"), 36, 84);
+  d.setFont("helvetica","normal"); d.setFontSize(12); d.setTextColor(MUTED[0],MUTED[1],MUTED[2]);
+  d.text([item.ymmt, item.vin, item.color, item.km].filter(Boolean).join("  ·  "), 36, 106);
+  d.setFillColor(255,255,255);
+  d.roundedRect(36, 128, W-72, 88, 12, 12, "F");
+  d.setFont("helvetica","bold"); d.setFontSize(10); d.setTextColor(MUTED[0],MUTED[1],MUTED[2]);
+  d.text("APPROVAL / BUY NUMBER", 52, 156);
+  d.setFontSize(28); d.setTextColor(INK[0],INK[1],INK[2]);
+  d.text(String(num||"—"), 52, 192);
+  let y=244;
+  d.setFontSize(13); d.text("Packet context", 36, y); y+=20;
+  d.setFont("helvetica","normal"); d.setFontSize(11); d.setTextColor(INK[0],INK[1],INK[2]);
+  const lines=[
+    item.customer && item.customer.name ? "Customer: "+item.customer.name : "",
+    item.salesperson ? "Salesperson: "+item.salesperson : "",
+    item.sentBy ? "Sent by: "+item.sentBy : "",
+    item.story ? "Story: "+item.story : "",
+    item.notes ? "Desk notes: "+item.notes : ""
+  ].filter(Boolean);
+  lines.forEach(function(line){
+    const wrap=d.splitTextToSize(line, W-72);
+    wrap.forEach(function(l){ d.text(l, 36, y); y+=15; });
+    y+=6;
+  });
+  const team=item.team||{};
+  CENTER_TEAM.forEach(function(pair){
+    const slot=teamSlot(team[pair[0]]);
+    if(!(slot.target||slot.note)) return;
+    d.setFont("helvetica","bold"); d.setFontSize(12);
+    d.text(pair[1]+" ("+pair[2]+")  "+[slot.min,slot.target,slot.max].filter(Boolean).join(" / "), 36, y);
+    y+=16;
+    if(slot.note){
+      d.setFont("helvetica","normal"); d.setFontSize(10);
+      d.splitTextToSize(slot.note, W-72).forEach(function(l){ d.text(l, 36, y); y+=13; });
+      y+=8;
+    }
+  });
+  d.setFont("helvetica","normal"); d.setFontSize(9); d.setTextColor(MUTED[0],MUTED[1],MUTED[2]);
+  d.text("Emailed to Shawn and Christina · Appraisal Center complete", 36, H-28);
+  return d;
+}
+async function emailApprovalPacket(item, num){
+  const doc=await buildApprovalPdf(item, num);
+  const parts=[{
+    disp:"attachment",
+    b64:bufB64(await doc.output("arraybuffer")),
+    name:((item.ymmt||item.interest||"vehicle")+"-approval.pdf").replace(/[^\w.\-]+/g,"-"),
+    mime:"application/pdf"
+  }];
+  const subject=(item.interest||item.ymmt||"Vehicle")+" — Shawn approval "+num;
+  const text=["Shawn approval / buy number: "+num, item.interest||item.ymmt||"", item.vin||"", item.story||""].filter(Boolean).join("\n");
+  const extra={cc:[CHRISTINA_COPY], bcc:[SHAWN_COPY]};
+  let sent=await withTimeout(sendFromMe([SHAWN_COPY], subject, text, "", parts, extra), 20000, {ok:false});
+  if(!(sent && sent.ok)) sent=await withTimeout(sendFromMe([SHAWN_COPY], subject, text, "", parts, extra), 20000, {ok:false});
+  return !!(sent && sent.ok);
+}
+async function completeCenterFile(){
   const item=getCenter(APP.centerViewId);
   if(!item) return;
-  const next=item.stage==="Appraised"?"Waiting":"Appraised";
+  if(!canUseCenter()){ denyCenter(); return; }
+  if(item.stage==="Appraised"){
+    patchCenter(item.id, function(x){
+      x.stage="Waiting";
+      x.lane=(x.source==="guest"||x.source==="trade-in")?"inbox":"onsite";
+      x.archived=false;
+    });
+    toast("Back on the desk.");
+    paintCenter();
+    paintCenterDetail();
+    return;
+  }
+  const appraisal=isCenterAppraisal(item);
+  if(appraisal){
+    const num=(($("centerApproval")&&$("centerApproval").value)||item.approval||"").trim();
+    if(!num){ toast("Enter Shawn’s approval number first."); return; }
+    patchCenter(item.id, function(x){ x.approval=num; });
+    const btn=$("centerStageBtn");
+    if(btn){ btn.disabled=true; btn.textContent="Sending…"; }
+    let sent=false;
+    try{ sent=await emailApprovalPacket(getCenter(item.id)||item, num); }
+    catch(e){ sent=false; }
+    if(btn){ btn.disabled=false; btn.textContent="Complete"; }
+    if(!sent){ toast("Couldn’t send the approval PDF — try Complete again."); return; }
+  }
   patchCenter(item.id, function(x){
-    x.stage=next;
-    if(next==="Appraised"){ x.lane="history"; }
-    else { x.lane=(x.source==="guest"||x.source==="trade-in")?"inbox":"onsite"; x.archived=false; }
+    x.stage="Appraised";
+    x.lane="history";
+    if(appraisal) x.approvalMailed=true;
   });
-  toast(next==="Appraised"?"Moved to History.":"Back on the desk.");
+  toast(appraisal?"Approval emailed to Shawn and Christina. Moved to History.":"Moved to History.");
   paintCenter();
   paintCenterDetail();
-};
+}
+if($("centerStageBtn")) $("centerStageBtn").onclick = completeCenterFile;
 if($("centerNotes")) $("centerNotes").addEventListener("input", function(){
   const el=this;
   growArea(el);
