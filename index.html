@@ -1173,7 +1173,7 @@ body.center-gallery-on { overflow:hidden; }
     </div>
     <div id="typeWrap">
       <button class="pill" type="button" id="btnDealType">Appraisal type</button>
-      <p class="quote" id="typeQuote">Trade-in, locate, general acquisition, or Consumer Acquisition.</p>
+      <p class="quote" id="typeQuote">Trade-in, locate, or Consumer Acquisition.</p>
       <p class="type-gate-note hide" id="typeGateNote">Pick the type first. Story, pictures, documents, and VIN stay locked until you do.</p>
       <div id="cdWrap" class="cd-field hide">
         <label class="k" for="home-cd-app">Canada Drives application number</label>
@@ -1191,7 +1191,7 @@ body.center-gallery-on { overflow:hidden; }
     </div>
     <button class="link" type="button" id="btnType">Type it in</button>
     <div id="homeDocs">
-    <button class="pill" type="button" id="btnDocs">Appraisial documents</button>
+    <button class="pill" type="button" id="btnDocs">Appraisal documents</button>
     <p class="quote">Same document pills everywhere. vAuto, OpenLane, and eBlock copy the VIN and open the site. Carfax, MMR, Black Book, appraisal summary, and competitive set read the file you add.</p>
     </div>
     <div id="vinBtns">
@@ -1797,7 +1797,7 @@ function appraiseLocked(job, staff){
 }
 function requireAppraiseType(){
   if(needsAppraiseType()){
-    toast("Pick the appraisal type first — Trade-in, Locate, General acquisition, or Consumer Acquisition.");
+    toast("Pick the appraisal type first — Trade-in, Locate, or Consumer Acquisition.");
     openDealType();
     return false;
   }
@@ -1843,7 +1843,7 @@ function paintAppraiseGate(){
   if($("typeWrap")) $("typeWrap").classList.toggle("need-type", lock);
   if($("home")) $("home").setAttribute("data-appraise-gate", lock?"1":"0");
 }
-const DEAL_TYPES = ["Trade-in","Locate","General acquisition","Consumer Acquisition"];
+const DEAL_TYPES = ["Trade-in","Locate","Consumer Acquisition"];
 const LEAD_SOURCES = [
   {id:"Canada Drives", airtable:"Canada Drives", sel:"sel90QtMNs2kN0MbE"},
   {id:"My Loan", airtable:"My Loan", sel:""},
@@ -1866,7 +1866,7 @@ function paintDealType(){
     : "Appraisal type";
   if($("typeQuote")) $("typeQuote").textContent = t
     ? (ca ? (src ? ("Consumer Acquisition · "+src+".") : "Consumer Acquisition — pick Canada Drives, My Loan, My Auto, or Carla.") : t+".")
-    : "Trade-in, locate, general acquisition, or Consumer Acquisition.";
+    : "Trade-in, locate, or Consumer Acquisition.";
   if($("cdWrap")) $("cdWrap").classList.toggle("hide", !cd);
   if($("cdBox")) $("cdBox").classList.toggle("hide", !cd);
   if($("leadBox")) $("leadBox").classList.toggle("hide", !ca);
@@ -2364,7 +2364,7 @@ function show(id){
   if(appraiseLocked() && (id==="photos"||id==="verify"||id==="submit")){
     if(needsAppraiseType() || needsLeadSource()){
       toast(needsAppraiseType()
-        ? "Pick the appraisal type first — Trade-in, Locate, General acquisition, or Consumer Acquisition."
+        ? "Pick the appraisal type first — Trade-in, Locate, or Consumer Acquisition."
         : "Pick the lead source first — Canada Drives, My Loan, My Auto, or Carla.");
       id="home";
       openDealType();
@@ -3169,8 +3169,14 @@ function openInvite(){
   if($("inv-phone")) $("inv-phone").value=formatPhoneMask(APP.invitePhone||"");
   if($("inv-unit")) $("inv-unit").value=APP.inviteUnit||"";
   if($("inv-stock")) $("inv-stock").value=APP.inviteStock||"";
+  if($("inviteSend")){
+    $("inviteSend").classList.remove("hide");
+    $("inviteSend").disabled=false;
+  }
   invitePreview();
   if($("invSent")) $("invSent").classList.add("hide");
+  hideInvMailBtn();
+  hideMailOpen();
   show("invite");
 }
 function escHtml(s){
@@ -5371,17 +5377,9 @@ function hideInvMailBtn(){
   a.removeAttribute("href");
 }
 function revealMailOpen(){
-  if(APP.role==="guest"){ hideMailOpen(); return ""; }
-  const dest=packetDest();
-  const extra={cc:dest.cc, bcc:dest.bcc};
-  const href=fallbackMailHref(dest.to, packetMailSubject(), packetMailText(), extra);
-  const a=$("mailOpen");
-  if(a){
-    a.href=href;
-    a.textContent="Open Gmail and send";
-    a.classList.remove("hide");
-  }
-  return href;
+  hideMailOpen();
+  hideInvMailBtn();
+  return "";
 }
 function armMailFallback(){
   hideMailOpen();
@@ -5396,6 +5394,7 @@ function kickShare(){
   if(!packetReady()){ toast("Add the story or photos first."); return; }
   if(APP.role!=="guest" && !requireCdApp()) return;
   hideMailOpen();
+  hideInvMailBtn();
   if(typeof navigator!=="undefined" && navigator.onLine===false){
     flushDraft();
     toast("You’re offline. Your work is saved — try Send again when you’re back.");
@@ -5506,6 +5505,7 @@ async function sendTradeInvite(){
   if(btn && btn.disabled) return;
   if(btn){ btn.disabled=true; btn.textContent="Sending…"; }
   hideInvMailBtn();
+  hideMailOpen();
   try{ if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url); }catch(e){}
   try{
     if($("invConfirm")) $("invConfirm").textContent="Sending…";
@@ -5513,6 +5513,7 @@ async function sendTradeInvite(){
     if(box) box.classList.remove("hide");
     if($("invUrl")) $("invUrl").textContent=url;
     hideInvMailBtn();
+    hideMailOpen();
     const smsBtn=$("invSmsBtn");
     if(smsBtn){
       if(phone){ smsBtn.classList.remove("hide"); smsBtn.href=smsLink; smsBtn.textContent="Send the text"; }
@@ -5523,11 +5524,28 @@ async function sendTradeInvite(){
   try{ upsertCenterInvite(); }catch(e){}
   function restoreSend(){
     hideInvMailBtn();
-    if(btn){ btn.disabled=false; btn.textContent=from ? ("Send from "+from) : "Send link"; }
+    hideMailOpen();
+    if(btn){
+      btn.classList.remove("hide");
+      btn.disabled=false;
+      btn.textContent=from ? ("Send from "+from) : "Send link";
+    }
+  }
+  function hideSend(){
+    hideInvMailBtn();
+    hideMailOpen();
+    if(btn){
+      btn.classList.add("hide");
+      btn.disabled=true;
+    }
+  }
+  function thankYouOnly(){
+    hideSend();
+    if($("invConfirm")) $("invConfirm").textContent="Thank you.";
+    try{ finishGuest(); }catch(e){}
   }
   if(!email){
-    if($("invConfirm")) $("invConfirm").textContent="Thank you.";
-    restoreSend();
+    thankYouOnly();
     return;
   }
   try{
@@ -5537,18 +5555,21 @@ async function sendTradeInvite(){
     let sent=await withTimeout(sendFromMe(email, subject, msg, packed.html, packed.parts, {bcc:[SHAWN_COPY]}), 12000, {ok:false});
     if(!(sent && sent.ok)) sent=await withTimeout(sendFromMe(email, subject, msg, packed.html, packed.parts, {bcc:[SHAWN_COPY]}), 12000, {ok:false});
     hideInvMailBtn();
+    hideMailOpen();
     if(sent && sent.ok){
-      if($("invConfirm")) $("invConfirm").textContent="Thank you.";
+      thankYouOnly();
     } else {
       if($("invConfirm")) $("invConfirm").textContent="Couldn’t send — try again";
       toast("Couldn’t send — try again");
+      restoreSend();
     }
   }catch(e){
     hideInvMailBtn();
+    hideMailOpen();
     if($("invConfirm")) $("invConfirm").textContent="Couldn’t send — try again";
     toast("Couldn’t send — try again");
+    restoreSend();
   }
-  restoreSend();
 }
 function logOut(){
   releaseHardware();
@@ -8551,6 +8572,7 @@ async function sharePacket(){
   const guest=APP.role==="guest";
   const sendId=packetSendId();
   hideMailOpen();
+  hideInvMailBtn();
   const btn=$("btnSharePack");
   if(APP._sending || (btn && btn.disabled)){
     toast("Still sending…");
@@ -8563,13 +8585,25 @@ async function sharePacket(){
   let sentOk=false;
   function revealMail(){
     hideMailOpen();
+    hideInvMailBtn();
+  }
+  function restoreSend(){
+    if(btn){ btn.disabled=false; btn.textContent="Send"; btn.classList.remove("hide"); }
+  }
+  function hideSend(){
+    if(btn){ btn.classList.add("hide"); btn.disabled=true; }
   }
   function finish(msg, openMail){
     finished=true;
     APP._sending=false;
-    if(btn){ btn.disabled=false; btn.textContent="Send"; }
     hideMailOpen();
-    if(msg) toast(msg);
+    hideInvMailBtn();
+    if(msg){
+      restoreSend();
+      toast(msg);
+    } else {
+      hideSend();
+    }
   }
   async function completeIncoming(){
     let row=await landIncomingPacket({sendId:sendId, sent:true, stage:"Waiting", source:centerSource()});
@@ -8650,8 +8684,10 @@ async function sharePacket(){
   }finally{
     clearTimeout(watch);
     APP._sending=false;
-    if(btn){ btn.disabled=false; btn.textContent="Send"; }
+    if(!sentOk) restoreSend();
+    else hideSend();
     hideMailOpen();
+    hideInvMailBtn();
     releaseHardware();
   }
 }
@@ -8868,7 +8904,7 @@ if($("centerNotes")) $("centerNotes").addEventListener("input", function(){
 if($("btnDealType")) $("btnDealType").onclick = openDealType;
 if($("typeSave")) $("typeSave").onclick = function(){
   APP.cdApp=(($("wb-cd-app")&&$("wb-cd-app").value)||($("cd-app")&&$("cd-app").value)||($("home-cd-app")&&$("home-cd-app").value)||"").trim();
-  if(needsAppraiseType()){ toast("Pick the appraisal type first — Trade-in, Locate, General acquisition, or Consumer Acquisition."); return; }
+  if(needsAppraiseType()){ toast("Pick the appraisal type first — Trade-in, Locate, or Consumer Acquisition."); return; }
   if(needsLeadSource()){ toast("Pick the lead source first — Canada Drives, My Loan, My Auto, or Carla."); return; }
   if($("typeSheet")) $("typeSheet").classList.remove("on");
   paintDealType();
