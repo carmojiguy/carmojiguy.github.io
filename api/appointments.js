@@ -19,6 +19,8 @@
  *
  * Filters (fixed):
  *   Stage = Appointment Booked (selqqamHvfGvK4CmK)
+ *        OR On-Site Visit (selaCJ91ZmmGKF7i1)
+ *   Field Stage = fldTyRUrsJS9ffZ3Z  (Airtable only — not sheets)
  *   Consumer Acquisition Source = the requested lead source
  *   My Loan / My Auto have no Airtable choice yet — returns live:false
  *   Carla maps to Airtable "Car Loans Canada" (sel1yiqhhgbkHpABm)
@@ -47,6 +49,9 @@ const F = {
   source: "fldPIGZz38Fd4X5I8"
 };
 const STAGE_BOOKED = "selqqamHvfGvK4CmK";
+const STAGE_ONSITE = "selaCJ91ZmmGKF7i1";
+const STAGE_BOOKED_NAME = "Appointment Booked";
+const STAGE_ONSITE_NAME = "On-Site Visit";
 const SOURCE_CD = "sel90QtMNs2kN0MbE";
 
 function cors(origin) {
@@ -102,7 +107,8 @@ function mapRecord(rec) {
     vin: cellName(f[F.vin]),
     date: pickDate(f),
     region: apptRegion(f[F.location]),
-    source: cellName(f[F.source])
+    source: cellName(f[F.source]),
+    stage: cellName(f[F.stage])
   };
 }
 
@@ -120,7 +126,7 @@ function formula(sourceName) {
   if (src === "My Loan" || src === "My Auto") {
     return "";
   }
-  return "AND({Stage}='Appointment Booked',{Consumer Acquisition Source}='" + src.replace(/'/g, "\\'") + "')";
+  return "AND(OR({Stage}='" + STAGE_BOOKED_NAME + "',{Stage}='" + STAGE_ONSITE_NAME + "'),{Consumer Acquisition Source}='" + src.replace(/'/g, "\\'") + "')";
 }
 
 async function airtablePage(offset, sourceName) {
@@ -128,14 +134,14 @@ async function airtablePage(offset, sourceName) {
   if (!token) return { live: false, records: [], reason: "AIRTABLE_TOKEN is not set on the mailer host." };
   const src = airtableSourceName(sourceName);
   if (src === "My Loan" || src === "My Auto") {
-    return { live: false, records: [], reason: "Airtable does not have a " + src + " source choice yet. Using sample appointments." };
+    return { live: false, records: [], reason: "Airtable does not have a " + src + " source choice yet." };
   }
   const q = new URLSearchParams();
   q.set("filterByFormula", formula(src));
   q.set("pageSize", "100");
   [
     F.appNo, F.apptDate, F.bookedAt, F.seller, F.vin, F.ymm, F.ymmFormula,
-    F.year, F.make, F.model, F.trim, F.location
+    F.year, F.make, F.model, F.trim, F.location, F.stage
   ].forEach(function (id) { q.append("fields[]", id); });
   if (offset) q.set("offset", offset);
   const r = await fetch("https://api.airtable.com/v0/" + BASE + "/" + TABLE + "?" + q.toString(), {
@@ -179,10 +185,10 @@ async function handle(req, res) {
       ok: true,
       live: true,
       items: pulled.records.map(mapRecord),
-      source: { base: BASE, table: TABLE, stage: "Appointment Booked", source: airtableSourceName(sourceName) }
+      source: { base: BASE, table: TABLE, stageField: F.stage, stages: [STAGE_BOOKED_NAME, STAGE_ONSITE_NAME], stageIds: [STAGE_BOOKED, STAGE_ONSITE], source: airtableSourceName(sourceName) }
     }, origin);
   } catch (e) {
-    return json(res, 200, { ok: true, live: false, items: [], reason: "Couldn’t reach Airtable. Using the in-app sample list." }, origin);
+    return json(res, 200, { ok: true, live: false, items: [], reason: "Couldn’t reach Airtable." }, origin);
   }
 }
 

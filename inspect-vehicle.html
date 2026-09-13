@@ -1887,6 +1887,12 @@ function normalizeAppt(row){
     vin:String(row.vin||"").replace(/\s+/g,"").toUpperCase(),
     date:String(row.date||"").slice(0,10),
     region:apptRegionOf(row.region||row.location||"GTA")||"GTA",
+    stage:(function(s){
+      s=String(s||"").trim();
+      if(/on[\s-]*site/i.test(s)) return "On-Site Visit";
+      if(/appointment booked/i.test(s)) return "Appointment Booked";
+      return s;
+    })(row.stage||""),
     source:(function(s){
       s=String(s||"").trim();
       if(/car loans canada/i.test(s)) return "Carla";
@@ -1898,9 +1904,14 @@ function normalizeAppt(row){
 const APPTS_AIRTABLE={
   base:"appfy57egeT1utqaI",
   table:"tbl2QiJ40S6A7IzyR",
+  stageField:"fldTyRUrsJS9ffZ3Z",
   stage:"selqqamHvfGvK4CmK",
+  stageBooked:"selqqamHvfGvK4CmK",
+  stageOnsite:"selaCJ91ZmmGKF7i1",
+  stages:["selqqamHvfGvK4CmK","selaCJ91ZmmGKF7i1"],
   source:"sel90QtMNs2kN0MbE",
-  path:"/api/appointments"
+  path:"/api/appointments",
+  wire:"Airtable only — Stage Appointment Booked and On-Site Visit. Not sheets."
 };
 async function loadAppointments(){
   APP.apptLoading=true;
@@ -2001,7 +2012,8 @@ function paintAppointments(){
     b.type="button";
     b.className="appt-row"+(APP.apptId===row.id?" on":"");
     const when=row.date ? new Date(row.date+"T12:00:00").toLocaleDateString("en-CA",{month:"short",day:"numeric",year:"numeric"}) : "Date TBA";
-    b.innerHTML="<b>"+escHtml(row.appNo||"Application")+" · "+escHtml(row.ymm||"Vehicle")+"</b><span>"+escHtml(row.seller||"Seller")+" · "+escHtml(row.vin||"VIN TBA")+" · "+escHtml(when)+"</span>";
+    const stage=row.stage && /on[\s-]*site/i.test(row.stage) ? "On-site" : (row.stage ? "Booked" : "");
+    b.innerHTML="<b>"+escHtml(row.appNo||"Application")+" · "+escHtml(row.ymm||"Vehicle")+"</b><span>"+(stage?escHtml(stage)+" · ":"")+escHtml(row.seller||"Seller")+" · "+escHtml(row.vin||"VIN TBA")+" · "+escHtml(when)+"</span>";
     b.onclick=function(){ applyAppointment(row); };
     host.appendChild(b);
   });

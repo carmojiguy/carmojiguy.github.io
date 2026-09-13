@@ -229,6 +229,8 @@ mustNot(/These are sample appointments so you can still pick one/, "live path do
 must(/appfy57egeT1utqaI/, "Command Center base id is documented");
 must(/tbl2QiJ40S6A7IzyR/, "Consumer Acquisitions table id is documented");
 must(/selqqamHvfGvK4CmK/, "Appointment Booked stage id");
+must(/selaCJ91ZmmGKF7i1/, "On-Site Visit stage id");
+must(/fldTyRUrsJS9ffZ3Z/, "Stage field id");
 must(/sel90QtMNs2kN0MbE/, "Canada Drives source id");
 must(/function needsAppraiseAppt\(/, "Canada Drives stays gated until an appointment is picked");
 must(/function defaultPerms\(/, "named staff have default permission toggles");
@@ -276,7 +278,15 @@ must(/inbox:"Incoming"/, "Center lanes stay Incoming / On-site / History");
   assert.strictEqual(defaultPerms("someone@myloan.ca").center, false, "others start grayed");
 })();
 
+const apptsApi = fs.readFileSync(path.join(root, "api/appointments.js"), "utf8");
 assert.ok(fs.existsSync(path.join(root, "api/appointments.js")), "appointments live-wire API exists");
+assert.ok(/selaCJ91ZmmGKF7i1/.test(apptsApi), "API includes On-Site Visit stage id");
+assert.ok(/selqqamHvfGvK4CmK/.test(apptsApi), "API includes Appointment Booked stage id");
+assert.ok(/fldTyRUrsJS9ffZ3Z/.test(apptsApi), "API Stage field is fldTyRUrsJS9ffZ3Z");
+assert.ok(/STAGE_BOOKED_NAME = "Appointment Booked"/.test(apptsApi), "API names Appointment Booked");
+assert.ok(/STAGE_ONSITE_NAME = "On-Site Visit"/.test(apptsApi), "API names On-Site Visit");
+assert.ok(apptsApi.indexOf("OR({Stage}='\" + STAGE_BOOKED_NAME + \"',{Stage}='\" + STAGE_ONSITE_NAME") >= 0, "API formula includes both live stages");
+assert.ok(!/googleusercontent|docs\.google|spreadsheets/i.test(apptsApi), "appointments API is Airtable only, not sheets");
 assert.ok(fs.existsSync(path.join(root, "api/extract.js")), "document extract live-wire API exists");
 
 ["404.html", "inspect-vehicle.html"].forEach(function (name) {
