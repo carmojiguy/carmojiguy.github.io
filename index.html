@@ -2496,7 +2496,7 @@ function paintCenter(){
     const empty=document.createElement("div");
     empty.className="center-empty";
     if(hist){
-      empty.innerHTML="<p>Nothing in this range.</p>";
+      empty.innerHTML="<p>Nothing in History yet.</p>";
     } else {
       empty.innerHTML='<p>Nothing sent yet.</p><button class="link" type="button">Appraise a vehicle</button>';
       empty.querySelector("button").onclick=function(){ setPurpose("appraise"); paintDealType(); show("home"); };
