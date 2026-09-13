@@ -99,7 +99,7 @@ label.k { display:block; color:#6e6e73; font-size:13px; margin:11px 0 5px; }
 .cd-field .need { color:#8A3B12; font-size:14px; font-weight:700; margin:0 0 10px; line-height:1.35; }
 .cd-field .f { min-height:52px; font-size:18px; }
 .home-gate{opacity:.42;filter:grayscale(.28);pointer-events:none}
-.home-gate .pill,.home-gate .link{cursor:not-allowed}
+.home-gate .pill,.home-gate .link,#home .pill:disabled,#home .link:disabled{cursor:not-allowed}
 .type-gate-note{margin:0 0 14px;color:var(--ink);font-size:15px;line-height:1.45;font-weight:700}
 #typeWrap.need-type #btnDealType{border-color:var(--purple);box-shadow:0 0 0 3px rgba(124,92,255,.18)}
 input.f, textarea.note { width:100%; border:1.5px solid var(--hair); border-radius:16px; padding:13px 14px; font-size:17px; font-family:inherit; }
@@ -1476,8 +1476,15 @@ function paintAppraiseGate(){
     var el=$(id);
     if(el) el.classList.toggle("home-gate", lock);
   });
+  ["btnStory","btnType","btnPictures","btnDocs","btnVin"].forEach(function(id){
+    var el=$(id);
+    if(!el) return;
+    el.disabled=!!lock;
+    el.setAttribute("aria-disabled", lock?"true":"false");
+  });
   if($("typeGateNote")) $("typeGateNote").classList.toggle("hide", !lock);
   if($("typeWrap")) $("typeWrap").classList.toggle("need-type", lock);
+  if($("home")) $("home").setAttribute("data-appraise-gate", lock?"1":"0");
 }
 const DEAL_TYPES = ["Trade-in","Locate","General acquisition","Canada Drives"];
 function paintDealType(){
@@ -7473,14 +7480,14 @@ document.querySelectorAll("[data-close]").forEach(function(b){
 });
 $("startAppraise").onclick = function(){
   setPurpose("appraise");
-  if(!liveJobProgress() || !String(APP.dealType||"").trim()){
-    APP.dealType="";
-    APP.cdApp="";
-    scheduleDraftSave();
-  }
+  APP.dealType="";
+  APP.cdApp="";
+  if($("home-cd-app")) $("home-cd-app").value="";
+  if($("cd-app")) $("cd-app").value="";
+  scheduleDraftSave();
   paintDealType();
   show("home");
-  if(needsAppraiseType()) openDealType();
+  openDealType();
 };
 if($("startCenter")) $("startCenter").onclick = openCenter;
 if($("centerBack")) $("centerBack").onclick = function(){ APP.centerLane=""; show("start"); };

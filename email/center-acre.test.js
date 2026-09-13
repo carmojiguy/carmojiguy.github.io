@@ -163,7 +163,22 @@ must(/id="typeGateNote"/, "plain-English type-first note on the Appraise form");
 must(/classList\.toggle\("home-gate", lock\)/, "gated Appraise actions are grayed");
 must(/DEAL_TYPES = \["Trade-in","Locate","General acquisition","Canada Drives"\]/, "Appraise types stay Trade-in, Locate, General acquisition, Canada Drives");
 must(/p\.purpose==="website"\) return false/, "website photos stay off the Appraise type gate");
-must(/startAppraise"\)\.onclick[\s\S]{0,280}needsAppraiseType\(\)\) openDealType/, "Appraise vehicle opens type before other actions");
+must(/startAppraise"\)\.onclick[\s\S]{0,360}openDealType\(\)/, "Appraise vehicle opens type before other actions");
+must(/el\.disabled=!!lock/, "gated Appraise buttons are actually disabled");
+must(/data-appraise-gate/, "Appraise form exposes the type-gate state");
+
+(function testNeedsAppraiseType() {
+  const m = html.match(/function needsAppraiseType\(job, staff\)\{[\s\S]*?\n\}/);
+  assert.ok(m, "needsAppraiseType source is extractable");
+  const needsAppraiseType = eval("(" + m[0].replace("function needsAppraiseType", "function") + ")");
+  assert.strictEqual(needsAppraiseType({ purpose: "appraise", dealType: "" }, true), true, "staff Appraise with no type is gated");
+  assert.strictEqual(needsAppraiseType({ purpose: "appraise", dealType: "Trade-in" }, true), false, "chosen type unlocks Appraise");
+  assert.strictEqual(needsAppraiseType({ purpose: "website", dealType: "" }, true), false, "website path is not gated");
+  assert.strictEqual(needsAppraiseType({ purpose: "appraise", dealType: "" }, false), false, "guests are not gated");
+  assert.strictEqual(needsAppraiseType({ purpose: "appraise", dealType: "Locate" }, true), false, "Locate is a valid type");
+  assert.strictEqual(needsAppraiseType({ purpose: "appraise", dealType: "General acquisition" }, true), false, "General acquisition is a valid type");
+  assert.strictEqual(needsAppraiseType({ purpose: "appraise", dealType: "Canada Drives" }, true), false, "Canada Drives is a valid type");
+})();
 must(/\$\("startTrade"\)\.onclick = openInvite;/, "Send trade-in link stays a direct start-dock action");
 must(/startWebsite"\)\.onclick = function\(\)\{ setPurpose\("website"\);/, "Post vehicle to website stays its own path");
 mustNot(/startTrade[\s\S]{0,120}requireAppraiseType/, "trade-in link is not behind the appraisal-type gate");
