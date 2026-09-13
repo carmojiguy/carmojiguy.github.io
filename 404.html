@@ -3700,6 +3700,179 @@ function bufB64(buf){
   return btoa(s);
 }
 const MAIL_HOST="https://gnm-guest-mailer-shawn-6802.vercel.app";
+/* ===== 15-min reminders (Shawn lock) =====
+   Pages only register/cancel. The 15-minute cron lives on gnm-guest-mailer POST /api/remind.
+   Incomplete-docs owns the Send-incomplete modal + team-leader queue — do not fight that PR.
+   Hook: set incomplete / leader-lane / on-site attention flags, then patchCenter or land the file.
+*/
+const SHAWN_REMIND_EMAIL="shawn@myloan.ca";
+const REMIND_PASSTHROUGH=["incomplete","docsIncomplete","docsStatus","packetStatus","leaderLane","teamLeaderLane","sentIncomplete","needsAttention","onsiteAttention","onsiteDone","promoted","missing","missingDocs","leaderEmails"];
+function normalizeDeskTeam(v){
+  const s=String(v||"").trim();
+  if(!s) return "";
+  const teams=typeof DESK_TEAMS!=="undefined"?DESK_TEAMS:[];
+  if(teams.indexOf(s)>=0) return s;
+  const low=s.toLowerCase().replace(/^team\s+/,"");
+  const hit=teams.find(function(t){ return t.toLowerCase().replace(/^team\s+/,"")===low; });
+  return hit||s;
+}
+function fileSalesEmail(item){
+  const cands=[item&&item.salespersonEmail, item&&item.requestedBy, item&&item.sentBy];
+  for(let i=0;i<cands.length;i++){
+    const e=staffEmail(cands[i]);
+    if(e.indexOf("@")>0) return e;
+  }
+  if(typeof APP!=="undefined"){
+    const live=staffEmail(APP.userEmail||APP.requestedBy);
+    if(live.indexOf("@")>0) return live;
+  }
+  return "";
+}
+function fileDeskTeam(item){
+  if(item && item.deskTeam) return normalizeDeskTeam(item.deskTeam);
+  if(item && typeof item.team==="string") return normalizeDeskTeam(item.team);
+  if(typeof APP!=="undefined" && APP.deskTeam) return normalizeDeskTeam(APP.deskTeam);
+  const email=fileSalesEmail(item);
+  if(email && typeof personTeams==="function"){
+    const teams=personTeams(email);
+    if(teams && teams.length===1) return teams[0];
+  }
+  if(email && typeof SEED_LEADERS==="object" && SEED_LEADERS[email] && SEED_LEADERS[email].length===1) return SEED_LEADERS[email][0];
+  return "";
+}
+function leadersForDeskTeam(team){
+  const name=normalizeDeskTeam(team);
+  const out=[];
+  function add(email){
+    const e=staffEmail(email);
+    if(!e || out.indexOf(e)<0) out.push(e);
+  }
+  if(!name) return out;
+  try{
+    if(typeof loadRoster==="function"){
+      (loadRoster()||[]).forEach(function(p){
+        if(!p || !p.leader) return;
+        const teams=typeof normalizeTeams==="function"?normalizeTeams(p.teams):[].concat(p.teams||[]);
+        if(teams.indexOf(name)>=0) add(p.email);
+      });
+    }
+  }catch(e){}
+  if(!out.length && typeof SEED_LEADERS==="object"){
+    Object.keys(SEED_LEADERS).forEach(function(email){
+      if((SEED_LEADERS[email]||[]).indexOf(name)>=0) add(email);
+    });
+  }
+  return out;
+}
+function missingDocsFor(item){
+  if(item && Array.isArray(item.missing) && item.missing.length) return item.missing.slice();
+  if(item && Array.isArray(item.missingDocs) && item.missingDocs.length) return item.missingDocs.slice();
+  const docs=(item && item.docs) || (typeof APP!=="undefined" && APP.docs) || {};
+  const need=(typeof PACKET_DOCS!=="undefined"?PACKET_DOCS:[]).filter(function(d){ return d && d.kind==="extract"; });
+  return need.filter(function(d){
+    const slot=docs[d.id];
+    return !(slot && (slot.have || slot.data || (slot.shots&&slot.shots.length) || (slot.videos&&slot.videos.length)));
+  }).map(function(d){ return d.label; });
+}
+function fileIsComplete(item){
+  if(!item) return true;
+  if(item.stage==="Appraised" || item.archived || item.promoted || item.completed || item.onsiteDone) return true;
+  const lane=String(item.lane||"").toLowerCase();
+  if(lane==="history") return true;
+  return false;
+}
+function isIncompleteLeaderLane(item){
+  if(!item || fileIsComplete(item)) return false;
+  const lane=String(item.lane||"").toLowerCase();
+  const status=String(item.docsStatus||item.packetStatus||item.status||"").toLowerCase();
+  if(item.incomplete===true || item.docsIncomplete===true || item.incompleteDocs===true || item.sentIncomplete===true) return true;
+  if(item.leaderLane===true || item.teamLeaderLane===true) return true;
+  if(status==="incomplete") return true;
+  if(lane==="leader" || lane==="leaders" || lane==="team-leader" || lane==="completion" || lane==="needsdocs") return true;
+  return false;
+}
+function isOnsiteAttention(item){
+  if(!item || fileIsComplete(item)) return false;
+  if(item.needsAttention===false || item.onsiteAttention===false) return false;
+  if(item.needsAttention===true || item.onsiteAttention===true || item.attention===true) return true;
+  return String(item.lane||"").toLowerCase()==="onsite";
+}
+function remindSnapshot(item){
+  if(!item) return {incomplete:false, onsite:false, id:""};
+  return {incomplete:isIncompleteLeaderLane(item), onsite:isOnsiteAttention(item), id:item.id||""};
+}
+function remindDetails(kind, item){
+  const bits=[kind==="incomplete"
+    ? "Incomplete packet on the team-leader completion lane"
+    : "On-site Appraisal Center item needs attention"];
+  const unit=(item && (item.ymmt||item.interest))||"";
+  if(unit) bits.push(unit);
+  if(item && item.vin) bits.push("VIN "+item.vin);
+  if(item && item.salesperson) bits.push("Salesperson "+item.salesperson);
+  const miss=missingDocsFor(item);
+  if(miss.length) bits.push("Missing: "+miss.join(", "));
+  return bits.join(". ");
+}
+function remindPayload(action, kind, item){
+  item=item||{};
+  const missing=missingDocsFor(item);
+  let toEmail="";
+  let toPhone=item.toPhone||"";
+  if(kind==="onsite"){
+    toEmail=SHAWN_REMIND_EMAIL;
+    toPhone=item.toPhone||item.shawnPhone||"";
+  }else{
+    if(item.leaderEmails) toEmail=uniqEmails(item.leaderEmails).join(",");
+    else if(item.toEmail) toEmail=uniqEmails(item.toEmail).join(",");
+    else toEmail=leadersForDeskTeam(fileDeskTeam(item)).join(",");
+  }
+  return {
+    action:action==="done"?"done":"open",
+    kind:kind==="onsite"?"onsite":"incomplete",
+    id:item.id||"",
+    unit:item.ymmt||item.interest||((typeof unitLabel==="function")?unitLabel():"")||"",
+    vin:item.vin||"",
+    appNo:item.appNo||"",
+    salespersonEmail:fileSalesEmail(item),
+    salespersonName:item.salesperson||item.requestedByName||item.sentBy||"",
+    team:fileDeskTeam(item),
+    missing:missing,
+    details:remindDetails(kind, item),
+    toEmail:toEmail,
+    toPhone:toPhone
+  };
+}
+function postRemind(action, kind, item){
+  try{
+    const payload=remindPayload(action, kind, item);
+    if(!payload.id) return Promise.resolve(null);
+    const url=MAIL_HOST+"/api/remind";
+    const req={method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(payload)};
+    const p=(typeof timedFetch==="function") ? timedFetch(url, req, 8000) : fetch(url, req);
+    return Promise.resolve(p).catch(function(){ return null; });
+  }catch(e){
+    return Promise.resolve(null);
+  }
+}
+function remindOpen(kind, item){ return postRemind("open", kind, item); }
+function remindDone(kind, item){ return postRemind("done", kind, item); }
+function syncFileReminders(item, prev){
+  if(!item || !item.id) return;
+  const next=remindSnapshot(item);
+  const was=prev||{incomplete:false, onsite:false};
+  if(next.incomplete && !was.incomplete) postRemind("open", "incomplete", item);
+  if(!next.incomplete && was.incomplete) postRemind("done", "incomplete", item);
+  if(next.onsite && !was.onsite) postRemind("open", "onsite", item);
+  if(!next.onsite && was.onsite) postRemind("done", "onsite", item);
+}
+function applyRemindExtra(item, extra){
+  if(!item || !extra) return item;
+  REMIND_PASSTHROUGH.forEach(function(k){ if(extra[k]!=null) item[k]=extra[k]; });
+  const lane=String(extra.lane||"").toLowerCase();
+  if(lane==="leader" || lane==="leaders" || lane==="team-leader" || lane==="completion" || lane==="needsdocs") item.lane=extra.lane;
+  return item;
+}
+/* ===== /15-min reminders ===== */
 function compressDataUrl(dataUrl, maxEdge, quality){
   return loadImg(dataUrl).then(function(img){
     const w=img.naturalWidth||1, h=img.naturalHeight||1;
@@ -4800,6 +4973,7 @@ function upsertCenterFromApp(extra){
   const docs=slimCenterDocs(APP.docs);
   const vin=String(APP.vin||"").trim().toUpperCase();
   let item=findCenterMatch(store, extra);
+  const prevRemind=item ? remindSnapshot(item) : null;
   if(!item){
     item={
       id:"c"+now.toString(36)+Math.random().toString(36).slice(2,6),
@@ -4867,6 +5041,7 @@ function upsertCenterFromApp(extra){
   }
   item.updatedAt=now;
   if(extra.stage) item.stage=extra.stage;
+  applyRemindExtra(item, extra);
   if(first && first.length>180000){
     compressDataUrl(first, 360, 0.55).then(function(small){
       const latest=centerStore();
@@ -4881,6 +5056,7 @@ function upsertCenterFromApp(extra){
   }, {});
   APP.centerId=item.id;
   saveCenterStore(store);
+  syncFileReminders(item, prevRemind);
   return item;
 }
 function upsertCenterInvite(){
@@ -4926,9 +5102,11 @@ function patchCenter(id, fn){
   const store=centerStore();
   const item=store.items.find(function(x){ return x.id===id; });
   if(!item) return null;
+  const prevRemind=remindSnapshot(item);
   fn(item);
   item.updatedAt=Date.now();
   saveCenterStore(store);
+  syncFileReminders(item, prevRemind);
   return item;
 }
 function getCenter(id){
