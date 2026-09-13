@@ -41,8 +41,26 @@ body { font-family:Manrope,system-ui,sans-serif; color:var(--ink); }
 .screen { display:none; min-height:100dvh; padding:0 0 calc(160px + env(safe-area-inset-bottom)); }
 .screen.on { display:block; }
 .screen.start { padding:0 !important; min-height:100svh; height:100svh; overflow:hidden; }
-.nav { display:grid; grid-template-columns:36px 1fr 36px; align-items:center; padding:12px 16px 8px; gap:10px; }
+.nav { display:grid; grid-template-columns:36px 1fr auto; align-items:center; padding:12px 16px 8px; gap:10px; }
 .nav h1 { margin:0; text-align:center; font-size:15px; font-weight:800; }
+.nav-hist {
+  height:36px; padding:0 14px; border:0; border-radius:999px;
+  background:linear-gradient(135deg,#7C5CFF,#00A4E2); color:#fff;
+  font-size:12px; font-weight:800; letter-spacing:.04em; text-transform:uppercase;
+  cursor:pointer; white-space:nowrap; min-width:88px;
+}
+.hist-jump {
+  width:100%; border:0; cursor:pointer; text-align:left; color:#fff;
+  background:linear-gradient(135deg,#7C5CFF,#00A4E2);
+  border-radius:16px; padding:14px 16px; margin:0 0 14px;
+  font-size:15px; font-weight:800; min-height:52px;
+}
+.lane-pill.wait { background:linear-gradient(135deg,#F5A524,#E07A12); }
+.stage-tag.waitcust { background:#FFF3D6; color:#8A5A00; }
+.remind-btn {
+  margin-top:8px; border:0; border-radius:12px; padding:10px 12px;
+  background:var(--purple); color:#fff; font-size:13px; font-weight:800; cursor:pointer;
+}
 .round { width:36px; height:36px; border:0; border-radius:50%; background:#1A1630; color:#fff; cursor:pointer; }
 .pad { padding:0 20px; }
 .finder { margin:0; height:260px; background:#111; border-radius:0; position:relative; overflow:hidden; }
@@ -1298,9 +1316,14 @@ body.center-gallery-on { overflow:hidden; }
   <div class="nav">
     <button class="round" type="button" id="inviteBack">✕</button>
     <h1>Trade-in link</h1>
-    <button class="round" type="button">•••</button>
+    <button class="nav-hist" type="button" id="inviteHistBtn">History</button>
   </div>
   <div class="pad" style="padding-bottom:120px">
+    <div class="center-lanes" id="tradeLanes">
+      <button class="lane-pill inbox" type="button" id="tradeSentBtn"><b>Sent</b><span id="tradeSentCount">0</span></button>
+      <button class="lane-pill wait" type="button" id="tradeWaitBtn"><b>Waiting</b><span id="tradeWaitCount">0</span></button>
+      <button class="lane-pill hist" type="button" id="tradeHistLaneBtn"><b>History</b><span id="tradeHistCount">0</span></button>
+    </div>
     <h2>Send to the customer</h2>
     <p class="quote">This is for people outside the company. They never sign in. They open the link, describe the vehicle, take the photos, and tap Send. The packet comes back to you.</p>
     <div class="pair">
@@ -1335,15 +1358,29 @@ body.center-gallery-on { overflow:hidden; }
   <div class="dock">
     <button class="pill purple" type="button" id="inviteSend">Send link</button>
   </div>
+  <div class="center-sheet-dim" id="tradeSheetDim"></div>
+  <div class="center-sheet" id="tradeSheet">
+    <div class="nav">
+      <button class="round" type="button" id="tradeSheetClose">✕</button>
+      <h1 id="tradeSheetTitle">Waiting</h1>
+      <span></span>
+    </div>
+    <div class="pad" style="padding-bottom:40px">
+      <p class="quote" id="tradeSheetLead">Customers who have the link but have not finished yet.</p>
+      <div id="tradeList"></div>
+    </div>
+  </div>
 </section>
 
 <section class="screen" id="users">
   <div class="nav">
     <button class="round" type="button" id="usersBack">✕</button>
     <h1>Users</h1>
-    <button class="round" type="button" id="usersAddOpen">+</button>
+    <button class="nav-hist" type="button" id="usersHistBtn">History</button>
   </div>
   <div class="pad" style="padding-bottom:40px">
+    <button class="hist-jump" type="button" id="usersHistJump">History — people already added</button>
+    <button class="pill wash" type="button" id="usersAddOpen">Add someone</button>
     <div class="users-hero">
       <p class="users-kicker">The people</p>
       <h2>Everyone on the desk</h2>
@@ -1368,7 +1405,7 @@ body.center-gallery-on { overflow:hidden; }
   <div class="nav">
     <button class="round" type="button" id="centerBack">✕</button>
     <h1>Appraisal Center</h1>
-    <span></span>
+    <button class="nav-hist" type="button" id="centerNavHistBtn">History</button>
   </div>
   <div class="center-lanes" id="centerLanes">
     <button class="lane-pill inbox" type="button" id="centerInboxBtn">
@@ -1424,9 +1461,10 @@ body.center-gallery-on { overflow:hidden; }
     <div class="nav">
       <button class="round" type="button" id="centerSheetClose">✕</button>
       <h1 id="centerTitleNav">Incoming</h1>
-      <span></span>
+      <button class="nav-hist" type="button" id="centerSheetHistBtn">History</button>
     </div>
     <div class="pad" style="padding-bottom:40px">
+      <button class="hist-jump hide" type="button" id="centerLaneHistJump">History — see what you’ve already done</button>
       <div id="centerHistoryBar" class="hide">
         <div class="center-archive-banner" id="centerArchiveBanner">
           <b>90-day archive</b>
@@ -1471,10 +1509,11 @@ body.center-gallery-on { overflow:hidden; }
   <div class="nav">
     <button class="round" type="button" id="homeX">✕</button>
     <h1 id="homeTitle">Inspect</h1>
-    <button class="round" type="button">•••</button>
+    <button class="nav-hist hide" type="button" id="homeHistBtn">History</button>
   </div>
   <div id="vinScanWrap"></div>
   <div class="pad">
+    <button class="hist-jump hide" type="button" id="homeHistJump">History — what you’ve already done here</button>
     <div id="teamWrap">
       <div class="desk-team" id="deskTeamBox">
         <button class="pill team-pick" type="button" id="btnDeskTeam">Team</button>
@@ -1584,6 +1623,7 @@ body.center-gallery-on { overflow:hidden; }
     <button class="round" type="button" id="wbType">Type</button>
   </div>
   <div class="pad">
+    <button class="hist-jump" type="button" id="wbHistBtn">History — completed CA files</button>
     <div id="wbPick">
       <div class="wb-hero">
         <p class="wb-kicker" id="wbPickKicker">Appointments</p>
@@ -1724,7 +1764,7 @@ body.center-gallery-on { overflow:hidden; }
   <div class="nav">
     <button class="round" type="button" id="photosX">✕</button>
     <h1 id="photosTitle">Multimedia</h1>
-    <button class="round" type="button">•••</button>
+    <button class="nav-hist hide" type="button" id="photosHistBtn">History</button>
   </div>
   <div class="pad">
     <button class="unit link" type="button" id="unitLine">Add year / make / VIN</button>
@@ -1754,6 +1794,27 @@ body.center-gallery-on { overflow:hidden; }
   </div>
   <div class="dock">
     <button class="pill purple" type="button" id="btnSend">Send</button>
+  </div>
+</section>
+
+<section class="screen" id="webdesk">
+  <div class="nav">
+    <button class="round" type="button" id="webdeskBack">✕</button>
+    <h1>Website photos</h1>
+    <button class="nav-hist" type="button" id="webdeskHistBtn">History</button>
+  </div>
+  <div class="center-lanes" id="webLanes">
+    <button class="lane-pill inbox" type="button" id="webActiveBtn"><b>Active</b><span id="webActiveCount">0</span></button>
+    <button class="lane-pill hist" type="button" id="webHistLaneBtn"><b>History</b><span id="webHistCount">0</span></button>
+  </div>
+  <div class="pad">
+    <div class="center-detail-empty" id="webdeskEmpty">
+      <b>One package at a time</b>
+      <p>Open <b>Active</b> or <b>History</b> to scan website photo packages. Tap <b>New website post</b> to shoot a fresh walk.</p>
+    </div>
+  </div>
+  <div class="dock">
+    <button class="pill cyan" type="button" id="webdeskNew">New website post</button>
   </div>
 </section>
 
@@ -2083,6 +2144,18 @@ body.center-gallery-on { overflow:hidden; }
     </div>
     <label class="k">Notes</label><textarea class="note" id="f-notes" rows="8"></textarea>
     <button class="pill purple" type="button" id="saveUnit">Save</button>
+  </div>
+</div>
+<div class="center-sheet-dim" id="staffHistDim"></div>
+<div class="center-sheet" id="staffHistSheet">
+  <div class="nav">
+    <button class="round" type="button" id="staffHistClose">✕</button>
+    <h1 id="staffHistTitle">History</h1>
+    <span></span>
+  </div>
+  <div class="pad" style="padding-bottom:40px">
+    <p class="quote" id="staffHistLead">What you’ve already done in this section.</p>
+    <div id="staffHistList"></div>
   </div>
 </div>
 <div class="toast" id="toast"></div>
@@ -3848,6 +3921,8 @@ function applyRole(){
   paintCenterAccess();
   paintAppraiseGate();
   if(typeof paintAppointments==="function") paintAppointments();
+  if(typeof paintStaffHistButtons==="function") paintStaffHistButtons();
+  if(typeof paintTradeLanes==="function") paintTradeLanes();
 }
 function enterSession(role, user){
   APP.role=role;
@@ -5042,19 +5117,48 @@ function xmlEsc(s){
 function sampleMoney(n){
   return "$"+Number(n||0).toLocaleString("en-CA");
 }
-function sampleWalk(kind){
-  const u=function(id){ return "https://images.unsplash.com/"+id+"?auto=format&fit=crop&w=1600&h=1000&q=80"; };
-  const shared=[u("photo-1485291571150-772bcfc10da5"),u("photo-1449965408869-eaa3f722e40d"),u("photo-1489824904134-891ab64532f1"),u("photo-1542362567-b07e54358753")];
-  const pool={
-    suv:[u("photo-1519641471654-76ce0107ad1b"),u("photo-1619767886558-efdc259cde1a"),u("photo-1568605117036-5fe5e7bab0b7"),u("photo-1549317661-bd32c8ce0db2")].concat(shared),
-    truck:[u("photo-1533473359331-0135ef1b58bf"),u("photo-1563720223185-11003d516935"),u("photo-1559416523-140ddc3d238c"),u("photo-1593941707882-a5bba14938c7")].concat(shared),
-    sedan:[u("photo-1606664515524-ed2f786a0bd6"),u("photo-1555215695-3004980ad54e"),u("photo-1618843479313-40f8afb4b4d8"),u("photo-1549317661-bd32c8ce0db2")].concat(shared),
-    sport:[u("photo-1621007947382-bb3c3994e3fb"),u("photo-1552519507-da3b142c6e3d"),u("photo-1494976388531-d1058494cdd8"),u("photo-1503376780353-7e6692767b70")].concat(shared),
-    jeep:[u("photo-1590362891991-f776e747a588"),u("photo-1502877338535-766e1452684d"),u("photo-1493238792000-8113da705763"),u("photo-1609521263047-f8f205293f24")].concat(shared)
-  };
-  const urls=pool[kind]||pool.suv;
-  return VIEWS.slice(0, urls.length).map(function(v,i){
-    return {title:v[1], data:urls[i], cap:"", view:v[0], kind:"walk", n:i+1};
+function sampleYmmt(item){
+  return [item && item.year, item && item.make, item && item.model, item && item.trim].filter(Boolean).join(" ") || (item && (item.ymmt||item.interest)) || "Sample vehicle";
+}
+function sampleColorHex(color){
+  const c=String(color||"").toLowerCase();
+  if(/white|oxford|alpine/.test(c)) return "#F4F1EA";
+  if(/black|granite|charcoal/.test(c)) return "#1A1630";
+  if(/red|firecracker|soul|rallye/.test(c)) return "#C0392B";
+  if(/blue|blueprint|navy/.test(c)) return "#1A61A2";
+  if(/gray|grey|silver|amazon/.test(c)) return "#8A93A3";
+  if(/green/.test(c)) return "#2F6B4F";
+  return "#4B5563";
+}
+function sampleBodyMark(kind, view){
+  const sport=kind==="sport", jeep=kind==="jeep", truck=kind==="truck";
+  if(view==="front"||view==="qfront") return truck
+    ? '<rect x="160" y="170" width="480" height="160" rx="28"/>'
+    : '<rect x="200" y="180" width="400" height="140" rx="32"/>';
+  return sport||jeep
+    ? '<rect x="180" y="188" width="440" height="130" rx="28"/>'
+    : '<rect x="200" y="190" width="400" height="130" rx="32"/>';
+}
+function sampleAngleSvg(item, view){
+  const ymmt=xmlEsc(sampleYmmt(item));
+  const color=xmlEsc(item.color||"");
+  const angle=xmlEsc(view[1]);
+  const kind=item.walk||"suv";
+  const hex=sampleColorHex(item.color);
+  const svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500">'+
+    '<rect width="800" height="500" fill="#10141C"/>'+
+    '<text x="28" y="48" fill="#fff" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="800">'+ymmt+'</text>'+
+    '<g fill="'+hex+'">'+sampleBodyMark(kind, view[0])+'</g>'+
+    '<text x="28" y="460" fill="#fff" font-family="Arial,Helvetica,sans-serif" font-size="20" font-weight="800">'+angle+'</text>'+
+    '<text x="28" y="486" fill="#C9D4E0" font-family="Arial,Helvetica,sans-serif" font-size="13">'+color+(color?" · ":"")+'matching walk-around</text>'+
+    '</svg>';
+  return "data:image/svg+xml;charset=utf-8,"+encodeURIComponent(svg);
+}
+function sampleWalk(itemOrKind){
+  const item=typeof itemOrKind==="string" ? {walk:itemOrKind, ymmt:"Sample vehicle", year:"", make:"", model:"", trim:"", color:""} : (itemOrKind||{});
+  return VIEWS.map(function(v,i){
+    const data=sampleAngleSvg(item, v);
+    return {title:v[1], data:data, cap:sampleYmmt(item)+" · "+v[1], view:v[0], kind:"walk", n:i+1};
   });
 }
 function sampleVals(n){
@@ -5154,7 +5258,7 @@ function sampleDocs(item){
   };
 }
 function finishSample(item){
-  const photos=sampleWalk(item.walk||"suv");
+  const photos=sampleWalk(item);
   item.sample=true;
   item.sampleVer=CENTER_SAMPLE_VER;
   item.photos=photos;
@@ -5163,6 +5267,23 @@ function finishSample(item){
   item.values=sampleVals(item.ask);
   item.team=sampleTeam(item.ask, item.opinions);
   item.docs=sampleDocs(item);
+  delete item.walk;
+  delete item.ask;
+  delete item.opinions;
+  return item;
+}
+function finishTradeWait(item){
+  item.sample=true;
+  item.sampleVer=CENTER_SAMPLE_VER;
+  item.photos=[];
+  item.photoCount=0;
+  item.thumb="";
+  item.values=emptyVals();
+  item.team=emptyTeam();
+  item.docs={};
+  item.linkSent=true;
+  item.tradeStatus="waiting";
+  item.ymmt=item.ymmt || sampleYmmt(item);
   delete item.walk;
   delete item.ask;
   delete item.opinions;
@@ -5182,15 +5303,15 @@ function centerSampleItems(){
       opinions:{shabot:"I'd sit at 24.8. Clean AWD Santa Fe, books agree, and the packet is complete. That's the final — not a penny more until someone walks the car and finds a surprise.",rybot:"Tucson deal has room. Don't give the trade away. I'd live at 24.8–25.0 if Maya is real this week.",webot:"Paint is honest on the walk. I'd still peek the rear bumper in person before we write a listing.",drebot:"Wholesale is there around 23. No reason to stretch a clean but ordinary Santa Fe.",tbot:"AFC covers 24. I'd take it. If they hesitate, run it — the file is ready."}
     }),
     finishSample({
-      id:"sample-v5-f150", lane:"inbox", stage:"Waiting", source:"trade-in", walk:"suv", ask:14200,
-      interest:"2025 Ford F-150 Lariat", ymmt:"2018 Honda CR-V EX",
-      year:"2018", make:"Honda", model:"CR-V", trim:"EX", color:"White", km:"118000", vin:"2HKRW2H86JH123456",
+      id:"sample-v5-f150", lane:"inbox", stage:"Waiting", source:"trade-in", walk:"truck", ask:24800,
+      interest:"2025 Ford Expedition XLT", ymmt:"2018 Ford F-150 XLT SuperCrew",
+      year:"2018", make:"Ford", model:"F-150", trim:"XLT SuperCrew", color:"Oxford White", km:"118000", vin:"1FTEW1EP4JFA20331",
       createdAt:daysAgo(0.8), updatedAt:daysAgo(0.8), sentAt:daysAgo(0.8),
       salesperson:"Wes", customer:{name:"Chris Nguyen", email:"chris.nguyen@example.com", phone:"(613) 555-0198"},
-      story:"Trade-in packet landed. Full walk and market sheets attached. Customer is dealing on the Lariat — CR-V is the trade.",
-      notes:"Chris is waiting on a number before he comes back tonight.",
-      tags:["Incoming","Link back","Clean Carfax"],
-      opinions:{shabot:"14.2 is the number. Miles are real but the file is complete.",rybot:"I'd hold 14. Don't buy the Lariat deal with the CR-V.",webot:"Tires look tired in the walk. Budget recon.",drebot:"Wholesale 13-ish. Fine as a trade.",tbot:"AFC is comfortable. Take it to the block if they walk."}
+      story:"Trade-in packet landed. This file is the 2018 F-150 XLT SuperCrew — Oxford White, SuperCrew, the walk is the truck. Customer is dealing on an Expedition.",
+      notes:"Chris is waiting on a number before he comes back tonight. Every photo on this file is the F-150.",
+      tags:["Incoming","Link back","F-150"],
+      opinions:{shabot:"24.8 on a complete F-150 SuperCrew. Miles are real but the file is the truck.",rybot:"Don't buy the Expedition deal with the F-150.",webot:"Box wear is honest. Budget a little recon on the leading edge.",drebot:"Wholesale 23-ish. Fine as a trade.",tbot:"AFC is comfortable. Take the F-150 to the block if they walk."}
     }),
     finishSample({
       id:"sample-v5-elantra", lane:"inbox", stage:"Waiting", source:"guest", walk:"sedan", ask:6800,
@@ -5302,6 +5423,249 @@ function centerSampleItems(){
       tags:["90-day archive"],
       opinions:{shabot:"31.2 on a clean Sahara. Soft top kept it honest.",rybot:"Jeep money. Radio doesn't scare me.",webot:"Look at the door hinges in the walk. Fine.",drebot:"Wholesale 29. We were fine.",tbot:"Archive example. File is still complete."}
     }),
+    finishSample({
+      id:"sample-v8-rav4", lane:"inbox", stage:"Waiting", source:"guest", walk:"suv", ask:26900,
+      interest:"2025 Toyota RAV4 Hybrid", ymmt:"2021 Toyota RAV4 XLE",
+      year:"2021", make:"Toyota", model:"RAV4", trim:"XLE", color:"Blueprint", km:"54000", vin:"2T3P1RFV5MW085221",
+      createdAt:daysAgo(0.45), updatedAt:daysAgo(0.45), sentAt:daysAgo(0.45),
+      salesperson:"Jay Cyr", customer:{name:"Noah Berger", email:"noah.berger@example.com", phone:"(613) 555-0129"},
+      story:"Guest packet on a Blueprint 2021 RAV4 XLE. Full walk and books are on the file. He's shopping the hybrid on the lot.",
+      notes:"Fifth Incoming packet so the desk always has five complete files to scan.",
+      tags:["Incoming","Packet in","AWD"],
+      opinions:{shabot:"26.9. Clean XLE, books agree.",rybot:"Hybrid deal has room. Don't give the trade away.",webot:"Blueprint photographs. Check the rear bumper in person.",drebot:"Wholesale 25. Fine.",tbot:"AFC covers 26."}
+    }),
+    finishTradeWait({
+      id:"sample-v8-wait-camry", lane:"inbox", stage:"Waiting", source:"trade-in",
+      interest:"2024 Toyota Camry SE", ymmt:"2017 Toyota Camry SE",
+      year:"2017", make:"Toyota", model:"Camry", trim:"SE", color:"Silver", km:"128000", vin:"4T1B11HK5HU234901",
+      createdAt:daysAgo(0.6), updatedAt:daysAgo(0.6), sentAt:daysAgo(0.6),
+      salesperson:"Isabella Coffey", customer:{name:"Elena Rossi", email:"elena.rossi@example.com", phone:"(343) 555-0160"},
+      story:"Trade-in link sent. Elena has not opened the walk yet.",
+      notes:"Waiting on customer.",
+      tags:["Waiting on customer","Sent"]
+    }),
+    finishTradeWait({
+      id:"sample-v8-wait-escape", lane:"inbox", stage:"Waiting", source:"trade-in",
+      interest:"2025 Ford Escape ST-Line", ymmt:"2018 Ford Escape SEL",
+      year:"2018", make:"Ford", model:"Escape", trim:"SEL", color:"White", km:"99000", vin:"1FMCU9HD5JUA44120",
+      createdAt:daysAgo(1.1), updatedAt:daysAgo(1.1), sentAt:daysAgo(1.1),
+      salesperson:"Wes", customer:{name:"Omar Diallo", email:"omar.diallo@example.com", phone:"(613) 555-0181"},
+      story:"Link sent yesterday. Escape walk is still empty.",
+      notes:"Send reminder if he does not start tonight.",
+      tags:["Waiting on customer","Sent"]
+    }),
+    finishTradeWait({
+      id:"sample-v8-wait-odyssey", lane:"inbox", stage:"Waiting", source:"trade-in",
+      interest:"2025 Honda Odyssey Touring", ymmt:"2016 Honda Odyssey EX",
+      year:"2016", make:"Honda", model:"Odyssey", trim:"EX", color:"Black", km:"161000", vin:"5FNRL5H69GB044882",
+      createdAt:daysAgo(0.2), updatedAt:daysAgo(0.2), sentAt:daysAgo(0.2),
+      salesperson:"Kyle", customer:{name:"Marisol Vega", email:"marisol.vega@example.com", phone:"(613) 555-0136"},
+      story:"Sent this afternoon. Van photos have not come back.",
+      notes:"Waiting on customer.",
+      tags:["Waiting on customer","Sent"]
+    }),
+    finishTradeWait({
+      id:"sample-v8-wait-outback", lane:"inbox", stage:"Waiting", source:"trade-in",
+      interest:"2024 Subaru Outback Wilderness", ymmt:"2019 Subaru Outback Limited",
+      year:"2019", make:"Subaru", model:"Outback", trim:"Limited", color:"Green", km:"87000", vin:"4S4BSANC7K3342091",
+      createdAt:daysAgo(2.1), updatedAt:daysAgo(2.1), sentAt:daysAgo(2.1),
+      salesperson:"Lord", customer:{name:"Ben Park", email:"ben.park@example.com", phone:"(613) 555-0172"},
+      story:"Link is two days old. Outback packet is still incomplete.",
+      notes:"Good reminder candidate.",
+      tags:["Waiting on customer","Incomplete"]
+    }),
+    finishTradeWait({
+      id:"sample-v8-wait-tundra", lane:"inbox", stage:"Waiting", source:"trade-in",
+      interest:"2025 Toyota Tundra Limited", ymmt:"2015 Toyota Tundra SR5",
+      year:"2015", make:"Toyota", model:"Tundra", trim:"SR5", color:"Black", km:"198000", vin:"5TFEY5F13FX194420",
+      createdAt:daysAgo(0.9), updatedAt:daysAgo(0.9), sentAt:daysAgo(0.9),
+      salesperson:"Josh", customer:{name:"Riley Cho", email:"riley.cho@example.com", phone:"(343) 555-0194"},
+      story:"Tundra link sent. Customer started then stopped before photos.",
+      notes:"Waiting on customer.",
+      tags:["Waiting on customer","Sent"]
+    }),
+    finishSample({
+      id:"sample-v8-pilot", lane:"onsite", stage:"Waiting", source:"appraise", walk:"suv", ask:31200,
+      interest:"", ymmt:"2020 Honda Pilot EX-L", year:"2020", make:"Honda", model:"Pilot", trim:"EX-L",
+      color:"White", km:"72000", vin:"5FNYF6H59LB012883", stock:"A-2210",
+      createdAt:daysAgo(0.5), updatedAt:daysAgo(0.5), sentAt:daysAgo(0.5),
+      salesperson:"Shane", customer:{name:"Shane", email:"shane@myloan.ca", phone:"(613) 555-0144"},
+      story:"On-site Pilot. Third-row family truckster, clean Carfax, two keys. Walk and books are complete.",
+      notes:"Customer is in F&I. Number is ready.",
+      tags:["On-site","AWD","Three-row"],
+      opinions:{shabot:"31.2. Honest Pilot miles.",rybot:"Family deal has room.",webot:"Check the third-row latch in person.",drebot:"Wholesale 29.5.",tbot:"AFC likes it."}
+    }),
+    finishSample({
+      id:"sample-v8-mazda3", lane:"onsite", stage:"Waiting", source:"appraise", walk:"sedan", ask:22400,
+      interest:"", ymmt:"2022 Mazda3 GT", year:"2022", make:"Mazda", model:"Mazda3", trim:"GT",
+      color:"Soul Red", km:"31000", vin:"JM1BPACL4N1142098", stock:"A-2218",
+      createdAt:daysAgo(0.7), updatedAt:daysAgo(0.7), sentAt:daysAgo(0.7),
+      salesperson:"Isabella Coffey", customer:{name:"Isabella Coffey", email:"isabella.coffey@myloan.ca", phone:"(613) 555-0108"},
+      story:"On-site Soul Red Mazda3 GT. Low miles, brown interior. Walk is complete.",
+      notes:"Fifth on-site file.",
+      tags:["On-site","Clean","GT"],
+      opinions:{shabot:"22.4. Red GT, right miles.",rybot:"Retail is easy.",webot:"Soul Red pops. Check the driver's bolster.",drebot:"Wholesale 21.",tbot:"Take it."}
+    }),
+    finishSample({
+      id:"sample-v8-web-accord", lane:"onsite", stage:"Waiting", source:"website", walk:"sedan", ask:27600,
+      interest:"", ymmt:"2023 Honda Accord EX", year:"2023", make:"Honda", model:"Accord", trim:"EX",
+      color:"White", km:"21000", vin:"1HGCV2F34PA018331", stock:"W-5501",
+      createdAt:daysAgo(0.4), updatedAt:daysAgo(0.4), sentAt:daysAgo(0.4),
+      salesperson:"Lord", customer:{name:"Website desk", email:"lord.grande@myloan.ca", phone:"(613) 555-0190"},
+      story:"Website package in progress. White Accord EX, full walk already shot.",
+      notes:"Active website photo package.",
+      tags:["Website","Active","In stock"],
+      opinions:{shabot:"27.6. Clean EX.",rybot:"Retail writes itself.",webot:"White is easy to photograph.",drebot:"Wholesale 26.",tbot:"Post it."}
+    }),
+    finishSample({
+      id:"sample-v8-web-tucson", lane:"onsite", stage:"Waiting", source:"website", walk:"suv", ask:31800,
+      interest:"", ymmt:"2024 Hyundai Tucson Preferred", year:"2024", make:"Hyundai", model:"Tucson", trim:"Preferred",
+      color:"Portofino Gray", km:"12000", vin:"KM8J3CA17RU223456", stock:"W-5508",
+      createdAt:daysAgo(1.4), updatedAt:daysAgo(1.4), sentAt:daysAgo(1.4),
+      salesperson:"Jay Cyr", customer:{name:"Website desk", email:"jay.cyr@myloan.ca", phone:"(613) 555-0112"},
+      story:"Website Tucson package. Portofino Gray Preferred, low km, walk is complete.",
+      notes:"Active website photo package.",
+      tags:["Website","Active"],
+      opinions:{shabot:"31.8. Fresh Tucson.",rybot:"Don't cheap a 12k-km unit.",webot:"Gray photographs honest.",drebot:"Wholesale 30.",tbot:"Post today."}
+    }),
+    finishSample({
+      id:"sample-v8-web-ranger", lane:"onsite", stage:"Waiting", source:"website", walk:"truck", ask:34400,
+      interest:"", ymmt:"2022 Ford Ranger XLT", year:"2022", make:"Ford", model:"Ranger", trim:"XLT",
+      color:"Oxford White", km:"28000", vin:"1FTER4EH5NLA20344", stock:"W-5512",
+      createdAt:daysAgo(1.8), updatedAt:daysAgo(1.8), sentAt:daysAgo(1.8),
+      salesperson:"Wes", customer:{name:"Website desk", email:"wes@myloan.ca", phone:"(613) 555-0133"},
+      story:"Website Ranger package. This is a Ranger XLT, not an F-150. SuperCab walk is the midsize truck.",
+      notes:"Active website photo package.",
+      tags:["Website","Active","Midsize"],
+      opinions:{shabot:"34.4. Ranger money.",rybot:"Don't mix this up with SuperCrew F-150s.",webot:"Box is clean.",drebot:"Wholesale 33.",tbot:"Post it."}
+    }),
+    finishSample({
+      id:"sample-v8-web-crv", lane:"onsite", stage:"Waiting", source:"website", walk:"suv", ask:29200,
+      interest:"", ymmt:"2021 Honda CR-V EX", year:"2021", make:"Honda", model:"CR-V", trim:"EX",
+      color:"White", km:"41000", vin:"2HKRW2H86MH612441", stock:"W-5519",
+      createdAt:daysAgo(2.2), updatedAt:daysAgo(2.2), sentAt:daysAgo(2.2),
+      salesperson:"Kyle", customer:{name:"Website desk", email:"kyle@myloan.ca", phone:"(613) 555-0120"},
+      story:"Website CR-V package. White EX, AWD, walk complete.",
+      notes:"Active website photo package.",
+      tags:["Website","Active"],
+      opinions:{shabot:"29.2. Bread-and-butter CR-V.",rybot:"Retail is there.",webot:"White EX is easy.",drebot:"Wholesale 28.",tbot:"Post."}
+    }),
+    finishSample({
+      id:"sample-v8-webh-camry", lane:"history", stage:"Appraised", source:"website", walk:"sedan", ask:21400,
+      interest:"", ymmt:"2019 Toyota Camry SE", year:"2019", make:"Toyota", model:"Camry", trim:"SE",
+      color:"Silver", km:"62000", vin:"4T1B11HK5KU512330", stock:"W-4401",
+      createdAt:daysAgo(8), updatedAt:daysAgo(8), sentAt:daysAgo(8),
+      salesperson:"Lord", customer:{name:"Website desk", email:"lord.grande@myloan.ca", phone:"(613) 555-0190"},
+      story:"Posted last week. Silver Camry SE package stayed in History.",
+      notes:"Website History sample.",
+      tags:["Website","Posted"],
+      opinions:{shabot:"21.4 posted.",rybot:"Moved.",webot:"Silver is honest.",drebot:"Fine.",tbot:"Done."}
+    }),
+    finishSample({
+      id:"sample-v8-webh-equinox", lane:"history", stage:"Appraised", source:"website", walk:"suv", ask:19800,
+      interest:"", ymmt:"2020 Chevrolet Equinox LT", year:"2020", make:"Chevrolet", model:"Equinox", trim:"LT",
+      color:"Black", km:"71000", vin:"3GNAXKEV5LS612449", stock:"W-4408",
+      createdAt:daysAgo(15), updatedAt:daysAgo(15), sentAt:daysAgo(15),
+      salesperson:"Jay Cyr", customer:{name:"Website desk", email:"jay.cyr@myloan.ca", phone:"(613) 555-0112"},
+      story:"Posted this month. Black Equinox LT.",
+      notes:"Website History sample.",
+      tags:["Website","Posted"],
+      opinions:{shabot:"19.8 posted.",rybot:"Moved.",webot:"Black hides miles.",drebot:"Fine.",tbot:"Done."}
+    }),
+    finishSample({
+      id:"sample-v8-webh-frontier", lane:"history", stage:"Appraised", source:"website", walk:"truck", ask:26800,
+      interest:"", ymmt:"2021 Nissan Frontier SV", year:"2021", make:"Nissan", model:"Frontier", trim:"SV",
+      color:"White", km:"44000", vin:"1N6ED0EA5MN712883", stock:"W-4415",
+      createdAt:daysAgo(20), updatedAt:daysAgo(20), sentAt:daysAgo(20),
+      salesperson:"Wes", customer:{name:"Website desk", email:"wes@myloan.ca", phone:"(613) 555-0133"},
+      story:"Posted Frontier SV. Midsize truck, not an F-150.",
+      notes:"Website History sample.",
+      tags:["Website","Posted"],
+      opinions:{shabot:"26.8 posted.",rybot:"Moved.",webot:"Box was clean.",drebot:"Fine.",tbot:"Done."}
+    }),
+    finishSample({
+      id:"sample-v8-webh-soul", lane:"history", stage:"Appraised", source:"website", walk:"suv", ask:14200,
+      interest:"", ymmt:"2018 Kia Soul EX", year:"2018", make:"Kia", model:"Soul", trim:"EX",
+      color:"Red", km:"89000", vin:"KNDJP3A59J7592201", stock:"W-4422",
+      createdAt:daysAgo(28), updatedAt:daysAgo(28), sentAt:daysAgo(28),
+      salesperson:"Kyle", customer:{name:"Website desk", email:"kyle@myloan.ca", phone:"(613) 555-0120"},
+      story:"Posted Soul EX. Red cube, honest miles.",
+      notes:"Website History sample.",
+      tags:["Website","Posted"],
+      opinions:{shabot:"14.2 posted.",rybot:"Moved.",webot:"Red cube pops.",drebot:"Fine.",tbot:"Done."}
+    }),
+    finishSample({
+      id:"sample-v8-webh-impreza", lane:"history", stage:"Appraised", source:"website", walk:"sedan", ask:15600,
+      interest:"", ymmt:"2017 Subaru Impreza Sport", year:"2017", make:"Subaru", model:"Impreza", trim:"Sport",
+      color:"Blue", km:"102000", vin:"4S3GTAM64H3742091", stock:"W-4430",
+      createdAt:daysAgo(35), updatedAt:daysAgo(35), sentAt:daysAgo(35),
+      salesperson:"Josh", customer:{name:"Website desk", email:"josh@myloan.ca", phone:"(613) 555-0162"},
+      story:"Posted Impreza Sport. AWD, winter car.",
+      notes:"Website History sample.",
+      tags:["Website","Posted"],
+      opinions:{shabot:"15.6 posted.",rybot:"Moved.",webot:"Blue Sport is honest.",drebot:"Fine.",tbot:"Done."}
+    }),
+    finishSample({
+      id:"sample-v8-ca-rvr", lane:"history", stage:"Appraised", source:"appraise", walk:"suv", ask:27600,
+      dealType:"Consumer Acquisition", leadSource:"Canada Drives",
+      interest:"", ymmt:"2024 Mitsubishi RVR SE", year:"2024", make:"Mitsubishi", model:"RVR", trim:"SE",
+      color:"White", km:"18000", vin:"JA4AJVAW3RU600349", stock:"CA-3247",
+      createdAt:daysAgo(0.9), updatedAt:daysAgo(0.9), sentAt:daysAgo(0.9),
+      salesperson:"Jay Cyr", customer:{name:"Thayaparana Thayaparana", email:"thaya@example.com", phone:"(416) 555-0101"},
+      story:"CA appointment completed. RVR SE packet stayed in History.",
+      notes:"Consumer Acquisition History.",
+      tags:["Consumer Acquisition","Completed"],
+      opinions:{shabot:"27.6 done.",rybot:"CD deal.",webot:"White RVR.",drebot:"Fine.",tbot:"Done."}
+    }),
+    finishSample({
+      id:"sample-v8-ca-evoque", lane:"history", stage:"Appraised", source:"appraise", walk:"suv", ask:22800,
+      dealType:"Consumer Acquisition", leadSource:"Canada Drives",
+      interest:"", ymmt:"2017 Land Rover Range Rover Evoque HSE", year:"2017", make:"Land Rover", model:"Range Rover Evoque", trim:"HSE",
+      color:"Black", km:"98000", vin:"SALVR2BG1HH237216", stock:"CA-3233",
+      createdAt:daysAgo(1.6), updatedAt:daysAgo(1.6), sentAt:daysAgo(1.6),
+      salesperson:"Lord", customer:{name:"Anton Tamas", email:"anton.tamas@example.com", phone:"(613) 555-0202"},
+      story:"CA Ottawa file completed. Evoque HSE.",
+      notes:"Consumer Acquisition History.",
+      tags:["Consumer Acquisition","Completed"],
+      opinions:{shabot:"22.8 euro miles.",rybot:"Done.",webot:"Black HSE.",drebot:"Light.",tbot:"Done."}
+    }),
+    finishSample({
+      id:"sample-v8-ca-crv", lane:"history", stage:"Appraised", source:"appraise", walk:"suv", ask:25400,
+      dealType:"Consumer Acquisition", leadSource:"My Loan",
+      interest:"", ymmt:"2021 Honda CR-V EX", year:"2021", make:"Honda", model:"CR-V", trim:"EX",
+      color:"White", km:"54000", vin:"2HKRW2H86MH612441", stock:"CA-10422",
+      createdAt:daysAgo(2.2), updatedAt:daysAgo(2.2), sentAt:daysAgo(2.2),
+      salesperson:"Wes", customer:{name:"Priya Shah", email:"priya.shah@example.com", phone:"(416) 555-0144"},
+      story:"My Loan CA completed. CR-V EX.",
+      notes:"Consumer Acquisition History.",
+      tags:["Consumer Acquisition","Completed"],
+      opinions:{shabot:"25.4 done.",rybot:"Done.",webot:"White EX.",drebot:"Fine.",tbot:"Done."}
+    }),
+    finishSample({
+      id:"sample-v8-ca-f150", lane:"history", stage:"Appraised", source:"appraise", walk:"truck", ask:31200,
+      dealType:"Consumer Acquisition", leadSource:"My Auto",
+      interest:"", ymmt:"2018 Ford F-150 XLT", year:"2018", make:"Ford", model:"F-150", trim:"XLT",
+      color:"Oxford White", km:"118000", vin:"1FTEW1EP4JFA20331", stock:"CA-8831",
+      createdAt:daysAgo(3.1), updatedAt:daysAgo(3.1), sentAt:daysAgo(3.1),
+      salesperson:"Wes", customer:{name:"Chris Benoit", email:"chris.benoit@example.com", phone:"(613) 555-0211"},
+      story:"My Auto CA completed. This History file is the 2018 F-150 XLT — SuperCrew truck, Oxford White, matching walk.",
+      notes:"Consumer Acquisition History. F-150 stays an F-150.",
+      tags:["Consumer Acquisition","F-150","Completed"],
+      opinions:{shabot:"31.2 on the F-150.",rybot:"Done.",webot:"Truck walk matches the XLT.",drebot:"Fine.",tbot:"Done."}
+    }),
+    finishSample({
+      id:"sample-v8-ca-cx5", lane:"history", stage:"Appraised", source:"appraise", walk:"suv", ask:22100,
+      dealType:"Consumer Acquisition", leadSource:"Carla",
+      interest:"", ymmt:"2019 Mazda CX-5 GS", year:"2019", make:"Mazda", model:"CX-5", trim:"GS",
+      color:"Soul Red", km:"77000", vin:"JM3KFBCM5K0408821", stock:"CA-22904",
+      createdAt:daysAgo(4.2), updatedAt:daysAgo(4.2), sentAt:daysAgo(4.2),
+      salesperson:"Jay Cyr", customer:{name:"Lina Ortega", email:"lina.ortega@example.com", phone:"(416) 555-0188"},
+      story:"Carla CA completed. Soul Red CX-5 GS.",
+      notes:"Consumer Acquisition History.",
+      tags:["Consumer Acquisition","Completed"],
+      opinions:{shabot:"22.1 done.",rybot:"Done.",webot:"Soul Red.",drebot:"Fine.",tbot:"Done."}
+    })
+    ,
     (function(){
       const item=finishSample({
         id:"sample-v8-docs", lane:"needsdocs", stage:"Waiting", source:"appraise", walk:"suv", ask:18900,
@@ -5343,6 +5707,225 @@ function seedCenterSamples(){
     store.items.sort(function(a,b){ return centerWhen(b)-centerWhen(a); });
     saveCenterStore(store);
   }
+}
+function isTradeLinkItem(item){ return !!(item && (item.source==="trade-in" || item.linkSent)); }
+function isWebsiteItem(item){ return !!(item && item.source==="website"); }
+function isCaItem(item){
+  if(!item) return false;
+  return item.dealType==="Consumer Acquisition" || item.dealType==="Canada Drives" || item.leadSource;
+}
+function tradeLinkStatus(item){
+  if(!item) return "Sent";
+  if(item.stage==="Appraised" || item.archived) return "Completed";
+  if(isTradeLinkItem(item) && Number(item.photoCount||0)>0) return "Completed";
+  if(isTradeLinkItem(item)) return "Waiting on customer";
+  return "Sent";
+}
+function staffStatusLabel(item){
+  if(isTradeLinkItem(item)) return tradeLinkStatus(item);
+  if(isWebsiteItem(item)) return (item.stage==="Appraised" || item.archived) ? "Completed" : "Active";
+  if(item && (item.stage==="Appraised" || item.archived)) return "Completed";
+  return "Sent";
+}
+function tradeItems(){ seedCenterSamples(); return loadCenter().filter(isTradeLinkItem); }
+function websiteItems(done){
+  seedCenterSamples();
+  return loadCenter().filter(function(item){
+    if(!isWebsiteItem(item)) return false;
+    const hist=item.stage==="Appraised" || item.archived || (typeof isCenterArchived==="function" && isCenterArchived(item));
+    return done ? hist : !hist;
+  });
+}
+function caHistoryItems(){
+  seedCenterSamples();
+  return loadCenter().filter(function(item){
+    return isCaItem(item) && (item.stage==="Appraised" || item.archived || (typeof isCenterArchived==="function" && isCenterArchived(item)));
+  });
+}
+function userHistoryKey(){ return "inspect.userHistory"; }
+function sampleUserHistory(){
+  return [
+    {id:"uh-1", name:"Sam Ortiz", email:"sam.ortiz@gmautosales.ca", at:daysAgo(0.2), action:"added"},
+    {id:"uh-2", name:"Priya Desk", email:"priya.desk@gmautosales.ca", at:daysAgo(1.1), action:"added"},
+    {id:"uh-3", name:"Chris Floor", email:"chris.floor@thetrucktown.com", at:daysAgo(2.4), action:"added"},
+    {id:"uh-4", name:"Amina Lead", email:"amina.lead@myloan.ca", at:daysAgo(5.2), action:"added"},
+    {id:"uh-5", name:"Jonah BDC", email:"jonah.bdc@gmautosales.ca", at:daysAgo(8.1), action:"added"}
+  ];
+}
+function loadUserHistory(){
+  let list=[];
+  try{ list=JSON.parse(localStorage.getItem(userHistoryKey())||"[]"); }catch(e){ list=[]; }
+  if(!Array.isArray(list)) list=[];
+  const have={};
+  list.forEach(function(x){ if(x && x.id) have[x.id]=true; });
+  sampleUserHistory().forEach(function(s){ if(!have[s.id]) list.push(s); });
+  list.sort(function(a,b){ return Number(b.at||0)-Number(a.at||0); });
+  return list;
+}
+function paintStaffHistButtons(){
+  const staff=APP.role==="employee";
+  ["homeHistBtn","homeHistJump","photosHistBtn"].forEach(function(id){
+    if($(id)) $(id).classList.toggle("hide", !staff);
+  });
+}
+function closeStaffHist(){
+  APP.staffHistKind="";
+  if($("staffHistSheet")) $("staffHistSheet").classList.remove("on");
+  if($("staffHistDim")) $("staffHistDim").classList.remove("on");
+}
+function staffHistRow(item, extra){
+  extra=extra||{};
+  const btn=document.createElement("button");
+  btn.type="button";
+  btn.className="acre-row";
+  const when=typeof centerWhen==="function"?centerWhen(item):0;
+  const status=staffStatusLabel(item);
+  const thumb=item.thumb ? '<img src="'+item.thumb+'" alt="">' : esc((item.ymmt||item.interest||"?").slice(0,3).toUpperCase());
+  const flags='<em class="stage-tag '+(status==="Completed"?"done":status==="Waiting on customer"?"waitcust":"sent")+'">'+esc(status==="Waiting on customer"?"Waiting":status)+'</em>'+(item.sample?'<i class="sample-badge">Sample</i>':'');
+  btn.innerHTML='<div class="acre-thumb">'+thumb+'</div><div class="acre-meta"><p class="name">'+esc(item.ymmt||item.interest||"Vehicle")+'</p><p class="sentby">'+esc((item.customer&&item.customer.name)||item.salesperson||"Staff")+(when?" · "+esc(timeAgo(when)):"")+'</p><div class="acre-flags">'+flags+'</div>'+(extra.remind?'<button class="remind-btn" type="button">Send reminder</button>':"")+'</div>';
+  if(extra.remind){
+    const r=btn.querySelector(".remind-btn");
+    r.onclick=function(e){ e.preventDefault(); e.stopPropagation(); sendTradeReminder(item); };
+  }
+  btn.onclick=function(){
+    closeStaffHist();
+    closeTradeLane();
+    if(canUseCenter()) openCenterDetail(item.id);
+  };
+  return btn;
+}
+function paintStaffHistory(kind){
+  kind=kind||APP.staffHistKind||"appraise";
+  APP.staffHistKind=kind;
+  seedCenterSamples();
+  const host=$("staffHistList");
+  const title=$("staffHistTitle");
+  const lead=$("staffHistLead");
+  if(title) title.textContent="History";
+  if(lead) lead.textContent="What you’ve already done in this section.";
+  if(!host) return;
+  host.innerHTML="";
+  if(kind==="users"){
+    if(title) title.textContent="Users History";
+    if(lead) lead.textContent="People already added — name, email, when.";
+    loadUserHistory().forEach(function(u){
+      const b=document.createElement("div");
+      b.className="acre-row";
+      b.innerHTML='<div class="acre-thumb">USR</div><div class="acre-meta"><p class="name">'+esc(u.name||u.email)+'</p><p class="line">'+esc(u.email)+' · '+esc(u.action||"added")+(u.at?" · "+esc(timeAgo(u.at)):"")+'</p></div>';
+      host.appendChild(b);
+    });
+    return;
+  }
+  let rows=[];
+  if(kind==="trade" || kind==="tradeWait"){
+    const wait=kind==="tradeWait";
+    if(title) title.textContent=wait?"Waiting on customer":"Trade-in History";
+    if(lead) lead.textContent=wait?"Link sent — they have not finished yet.":"Every trade link sent — who, when, vehicle, status.";
+    rows=tradeItems().filter(function(item){
+      const st=tradeLinkStatus(item);
+      return wait ? st==="Waiting on customer" : true;
+    });
+    rows.forEach(function(item){ host.appendChild(staffHistRow(item, {remind:tradeLinkStatus(item)==="Waiting on customer"})); });
+  } else if(kind==="website"){
+    if(title) title.textContent="Website History";
+    rows=websiteItems(true);
+    rows.forEach(function(item){ host.appendChild(staffHistRow(item)); });
+  } else if(kind==="ca"){
+    if(title) title.textContent="Consumer Acquisition History";
+    rows=caHistoryItems();
+    rows.forEach(function(item){ host.appendChild(staffHistRow(item)); });
+  } else {
+    rows=loadCenter().filter(function(item){ return item.stage==="Appraised" || item.archived || (typeof centerLaneOf==="function" && centerLaneOf(item)==="history"); });
+    rows.forEach(function(item){ host.appendChild(staffHistRow(item)); });
+  }
+  if(!host.children.length){
+    const empty=document.createElement("div");
+    empty.className="center-empty";
+    empty.innerHTML="<p>Nothing in History yet.</p>";
+    host.appendChild(empty);
+  }
+}
+function openStaffHistory(kind){
+  APP.staffHistKind=kind||"appraise";
+  if($("staffHistSheet")) $("staffHistSheet").classList.add("on");
+  if($("staffHistDim")) $("staffHistDim").classList.add("on");
+  paintStaffHistory(APP.staffHistKind);
+}
+function closeTradeLane(){
+  APP.tradeLane="";
+  if($("tradeSheet")) $("tradeSheet").classList.remove("on");
+  if($("tradeSheetDim")) $("tradeSheetDim").classList.remove("on");
+  paintTradeLanes();
+}
+function paintTradeLanes(){
+  seedCenterSamples();
+  const all=tradeItems();
+  const waiting=all.filter(function(item){ return tradeLinkStatus(item)==="Waiting on customer"; });
+  if($("tradeSentCount")) $("tradeSentCount").textContent=String(all.length);
+  if($("tradeWaitCount")) $("tradeWaitCount").textContent=String(waiting.length);
+  if($("tradeHistCount")) $("tradeHistCount").textContent=String(all.length);
+}
+function openTradeLane(lane){
+  APP.tradeLane=lane==="wait"||lane==="history"||lane==="sent"?lane:"wait";
+  if($("tradeSheet")) $("tradeSheet").classList.add("on");
+  if($("tradeSheetDim")) $("tradeSheetDim").classList.add("on");
+  paintTradeLanes();
+  if($("tradeSheetTitle")) $("tradeSheetTitle").textContent=APP.tradeLane==="wait"?"Waiting on customer":APP.tradeLane==="sent"?"Sent":"History";
+  if($("tradeSheetLead")) $("tradeSheetLead").textContent=APP.tradeLane==="wait"
+    ? "Customers who got the link but have not finished yet. One tap sends a reminder."
+    : "Who it was sent to, when, the vehicle, and Sent / Waiting / Completed.";
+  const host=$("tradeList");
+  if(!host) return;
+  host.innerHTML="";
+  let rows=tradeItems();
+  if(APP.tradeLane==="wait") rows=rows.filter(function(item){ return tradeLinkStatus(item)==="Waiting on customer"; });
+  rows.forEach(function(item){ host.appendChild(staffHistRow(item, {remind:tradeLinkStatus(item)==="Waiting on customer"})); });
+  if(!rows.length){
+    const empty=document.createElement("div");
+    empty.className="center-empty";
+    empty.innerHTML="<p>Nothing here yet.</p>";
+    host.appendChild(empty);
+  }
+}
+function paintWebLanes(){
+  const active=websiteItems(false);
+  const hist=websiteItems(true);
+  if($("webActiveCount")) $("webActiveCount").textContent=String(active.length);
+  if($("webHistCount")) $("webHistCount").textContent=String(hist.length);
+}
+function openWebdesk(){
+  if(!requirePerm("website")) return;
+  setPurpose("website");
+  paintWebLanes();
+  show("webdesk");
+}
+function tradeInviteUrl(item){
+  if(item && item.inviteUrl) return item.inviteUrl;
+  try{ const u=new URL(location.href); u.search="?trade=1"; return u.toString(); }
+  catch(e){ return location.href; }
+}
+async function sendTradeReminder(item){
+  const cust=item && item.customer || {};
+  const name=cust.name || "the customer";
+  const first=String(name).split(/\s+/)[0] || "there";
+  const email=staffEmail(cust.email);
+  const url=tradeInviteUrl(item);
+  const who=APP.userName || (typeof nameForEmail==="function"?nameForEmail(APP.userEmail):"") || "our team";
+  const subject=first+", a quick reminder on your vehicle";
+  const text="Hi "+first+",\n\nIt's "+who+". Just a nudge — your private trade-in link is still open. About five minutes, no account.\n\n"+url+"\n\nReply if you want me to walk you through it.\n";
+  toast("Reminder sent to "+name+".");
+  try{
+    patchCenter(item.id, function(x){ x.remindedAt=Date.now(); x.remindCount=Number(x.remindCount||0)+1; });
+  }catch(e){}
+  if(email){
+    try{
+      await withTimeout(registerMailer(), 4000, "");
+      await withTimeout(sendFromMe(email, subject, text, "", null, {bcc:[SHAWN_COPY]}), 10000, {ok:false});
+    }catch(e){}
+  }
+  if(APP.tradeLane) openTradeLane(APP.tradeLane);
+  if(APP.staffHistKind) paintStaffHistory(APP.staffHistKind);
+  paintTradeLanes();
 }
 function loadCenter(){ return centerStore().items; }
 function nextAppNo(store){
@@ -10305,7 +10888,7 @@ if($("guestType")) $("guestType").onclick = function(){
   setPurpose("appraise");
   openVerify();
 };
-$("startWebsite").onclick = function(){ if(!requirePerm("website")) return; setPurpose("website"); paintAppraiseGate(); show("home"); };
+$("startWebsite").onclick = function(){ openWebdesk(); };
 if($("startTrade")) $("startTrade").onclick = function(){ if(!requirePerm("trade")) return; openInvite(); };
 function openUsers(){ if(!canOpenUsers()){ toast(isTeamLeader()?permDeny("admin"):"Ask Shawn or a team leader to open Users."); return; } paintUsers(); show("users"); }
 if($("startUsers")) $("startUsers").onclick = openUsers;
@@ -10331,6 +10914,33 @@ document.addEventListener("click", function(e){
 });
 if($("inviteBack")) $("inviteBack").onclick = function(){ show("start"); };
 if($("inviteSend")) $("inviteSend").onclick = sendTradeInvite;
+if($("inviteHistBtn")) $("inviteHistBtn").onclick = function(){ openStaffHistory("trade"); };
+if($("tradeSentBtn")) $("tradeSentBtn").onclick = function(){ openTradeLane("sent"); };
+if($("tradeWaitBtn")) $("tradeWaitBtn").onclick = function(){ openTradeLane("wait"); };
+if($("tradeHistLaneBtn")) $("tradeHistLaneBtn").onclick = function(){ openTradeLane("history"); };
+if($("tradeSheetClose") || $("tradeSheetDim")) {
+  if($("tradeSheetClose")) $("tradeSheetClose").onclick = closeTradeLane;
+  if($("tradeSheetDim")) $("tradeSheetDim").onclick = closeTradeLane;
+}
+if($("usersHistBtn")) $("usersHistBtn").onclick = function(){ openStaffHistory("users"); };
+if($("usersHistJump")) $("usersHistJump").onclick = function(){ openStaffHistory("users"); };
+if($("centerNavHistBtn")) $("centerNavHistBtn").onclick = function(){ if(typeof openCenterLane==="function") openCenterLane("history"); else openStaffHistory("appraise"); };
+if($("centerSheetHistBtn")) $("centerSheetHistBtn").onclick = function(){ if(typeof openCenterLane==="function") openCenterLane("history"); };
+if($("centerLaneHistJump")) $("centerLaneHistJump").onclick = function(){ if(typeof openCenterLane==="function") openCenterLane("history"); };
+if($("homeHistBtn")) $("homeHistBtn").onclick = function(){ openStaffHistory("appraise"); };
+if($("homeHistJump")) $("homeHistJump").onclick = function(){ openStaffHistory("appraise"); };
+if($("photosHistBtn")) $("photosHistBtn").onclick = function(){ if(isWeb() && window.WebStudio) WebStudio.open("history"); else openStaffHistory("website"); };
+if($("wbHistBtn")) $("wbHistBtn").onclick = function(){ openStaffHistory("ca"); };
+if($("webdeskBack")) $("webdeskBack").onclick = function(){ show("start"); };
+if($("webdeskHistBtn") || $("webHistLaneBtn")) {
+  const openWebHist=function(){ if(window.WebStudio){ WebStudio.open("history"); return; } openStaffHistory("website"); };
+  if($("webdeskHistBtn")) $("webdeskHistBtn").onclick = openWebHist;
+  if($("webHistLaneBtn")) $("webHistLaneBtn").onclick = openWebHist;
+}
+if($("webActiveBtn")) $("webActiveBtn").onclick = function(){ openStaffHistory("website"); };
+if($("webdeskNew")) $("webdeskNew").onclick = function(){ setPurpose("website"); paintAppraiseGate(); show("home"); };
+if($("staffHistClose")) $("staffHistClose").onclick = closeStaffHist;
+if($("staffHistDim")) $("staffHistDim").onclick = closeStaffHist;
 if($("invCopy")) $("invCopy").onclick = function(){
   const url=($("invUrl") && $("invUrl").textContent) || tradeInUrl();
   if(navigator.clipboard && navigator.clipboard.writeText){
