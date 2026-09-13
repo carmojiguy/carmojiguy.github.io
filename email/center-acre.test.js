@@ -585,6 +585,13 @@ mustNot(/window\.alert\(|\balert\(/, "docs gate never uses a native alert");
   assert.ok(packetDocHave({ vauto_summary:{have:true} }, MARKET_DOC_REQ[0]), "vAuto summary alias counts");
 })();
 
+must(/id="webStudio"/, "Website photos studio screen");
+must(/data-ws-tab="history"/, "Website photos History tab");
+must(/id="wsHistoryList"/, "History packages list");
+must(/Damage stays\. Dirt goes\./, "damage-preserving retouch copy");
+must(/web-studio\.js/, "studio engine is a separate file");
+must(/id="webHistJump"/, "photos screen History jump");
+
 ["404.html", "inspect-vehicle.html"].forEach(function (name) {
   const copy = fs.readFileSync(path.join(root, name), "utf8");
   assert.equal(copy, html, name + " must stay in sync with index.html");
