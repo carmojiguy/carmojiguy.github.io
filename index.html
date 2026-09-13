@@ -960,6 +960,110 @@ body.center-gallery-on { overflow:hidden; }
   .login-hero h1 { font-size:64px; }
 }
 
+/* Website photos studio */
+#webStudio{ background:linear-gradient(180deg,#F4FBFF 0%,#FFF9EC 42%,#FAF9FC 100%); }
+#webStudio .nav h1{ letter-spacing:.01em; }
+.ws-jump{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  width:100%; margin:0 0 14px; padding:12px 14px; border:0; border-radius:16px;
+  background:linear-gradient(90deg,#E8F8FF,#FFF4C8); color:var(--ink);
+  font:inherit; font-weight:800; cursor:pointer; text-align:left;
+}
+.ws-jump span{ color:var(--muted); font-size:13px; font-weight:700; }
+.ws-hero{ margin:4px 0 16px; }
+.ws-kicker{ margin:0 0 6px; color:#1A61A2; font-size:12px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
+#webStudio h2{ margin:0 0 6px; font-size:32px; letter-spacing:-.7px; }
+.ws-lock{
+  display:inline-block; margin:0 0 12px; padding:6px 12px; border-radius:999px;
+  background:#FFE14A; color:#1A1630; font-size:13px; font-weight:800;
+}
+.ws-badges{ display:flex; flex-wrap:wrap; gap:8px; }
+.ws-badge{
+  display:inline-block; padding:5px 10px; border-radius:999px;
+  background:#fff; border:1.5px solid #D6EEF8; color:#1A61A2;
+  font-size:12px; font-weight:800;
+}
+.ws-badge.mint{ background:#D8FFF3; border-color:#3EE0B8; color:#0A5A44; }
+.ws-tabs{ display:flex; gap:8px; margin:0 0 16px; }
+.ws-tab{
+  flex:1; border:0; border-radius:14px; padding:12px 10px; background:#fff;
+  color:var(--muted); font:inherit; font-weight:800; cursor:pointer;
+  box-shadow:0 8px 24px rgba(0,164,226,.08);
+}
+.ws-tab.on{ background:#00A4E2; color:#fff; }
+.ws-steps{ display:flex; gap:8px; list-style:none; margin:0 0 16px; padding:0; overflow-x:auto; }
+.ws-steps li{
+  flex:0 0 auto; padding:8px 12px; border-radius:999px; background:#fff;
+  color:var(--muted); font-size:13px; font-weight:800;
+}
+.ws-steps li.on{ background:#1A1630; color:#fff; }
+.ws-card{
+  background:#fff; border-radius:22px; padding:16px; margin:0 0 14px;
+  box-shadow:0 16px 40px rgba(0,164,226,.08);
+}
+.ws-card h3{ margin:0 0 6px; font-size:18px; }
+.ws-card .quote{ margin:0 0 12px; }
+.ws-switch{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin:0 0 10px; }
+.ws-switch b{ display:block; font-size:15px; }
+.ws-switch span{ display:block; color:var(--muted); font-size:13px; font-weight:600; }
+.ws-switch input{ width:22px; height:22px; accent-color:#00A4E2; }
+.ws-bg-mode{ display:grid; gap:8px; margin:0 0 12px; }
+.ws-bg-mode label{
+  display:flex; align-items:center; gap:10px; padding:12px; border-radius:14px;
+  background:var(--fill); font-weight:700; cursor:pointer;
+}
+.ws-chips{ display:flex; gap:8px; margin:0 0 12px; }
+.ws-chip{
+  flex:1; border:0; border-radius:12px; padding:10px 8px; background:#F3F0FA;
+  color:var(--ink); font:inherit; font-weight:800; cursor:pointer;
+}
+.ws-chip.on{ background:#19C6FF; color:#083048; }
+.ws-plates{
+  display:grid; grid-template-columns:repeat(3,1fr); gap:8px;
+  max-height:320px; min-height:200px; overflow:auto; padding-bottom:4px;
+}
+.ws-plate{
+  border:2px solid transparent; border-radius:14px; padding:0; background:#f4f7fb;
+  overflow:hidden; cursor:pointer; text-align:left;
+}
+.ws-plate img{ display:block; width:100%; height:64px; object-fit:cover; }
+.ws-plate span{ display:block; padding:6px 7px 8px; font-size:11px; font-weight:800; line-height:1.25; }
+.ws-plate.on{ border-color:#00A4E2; box-shadow:0 0 0 3px rgba(0,164,226,.2); }
+.ws-shot{
+  background:#fff; border-radius:20px; padding:12px; margin:0 0 12px;
+  box-shadow:0 12px 32px rgba(17,14,26,.06);
+}
+.ws-shot.ok{ outline:2px solid #3EE0B8; }
+.ws-shot header{ display:flex; flex-wrap:wrap; align-items:baseline; gap:8px; margin:0 0 10px; }
+.ws-shot header b{ font-size:15px; }
+.ws-shot header em{ color:var(--muted); font-size:12px; font-style:normal; font-weight:700; }
+.ws-ok{ margin-left:auto; color:#0A5A44; background:#D8FFF3; border-radius:999px; padding:3px 8px; font-size:11px; font-weight:800; }
+.ws-ba{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.ws-ba figure{ margin:0; }
+.ws-ba img{ width:100%; height:110px; object-fit:cover; border-radius:12px; background:#111; display:block; }
+.ws-ba figcaption{ font-size:11px; font-weight:800; color:var(--muted); padding:6px 2px 0; }
+.ws-shot-actions{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px; }
+.ws-shot-actions .pill{ margin:0; }
+.ws-hist{
+  display:flex; gap:12px; width:100%; text-align:left; border:0; background:#fff;
+  border-radius:18px; padding:10px; margin:0 0 10px; cursor:pointer;
+  box-shadow:0 12px 32px rgba(0,164,226,.08);
+}
+.ws-hist img{ width:92px; height:68px; object-fit:cover; border-radius:12px; background:#dce8f0; flex:0 0 92px; }
+.ws-hist b{ display:block; font-size:15px; }
+.ws-hist span, .ws-hist em{ display:block; color:var(--muted); font-size:12px; font-style:normal; font-weight:600; }
+.ws-dock{ display:flex; flex-direction:column; gap:8px; }
+#webStudio .dock .pill{ width:100%; margin:0; }
+@media (min-width:980px){
+  #webStudio .ws-pad{ max-width:1180px; }
+  .ws-layout{ display:grid; grid-template-columns:minmax(320px,420px) 1fr; gap:22px; align-items:start; }
+  .ws-plates{ grid-template-columns:repeat(3,1fr); max-height:420px; }
+  .ws-ba img{ height:180px; }
+  .ws-dock{ flex-direction:row; justify-content:flex-end; }
+  #webStudio .dock .pill{ width:auto; min-width:180px; }
+  #webStudio h2{ font-size:44px; }
+}
+
 </style>
 </head>
 <body>
@@ -1462,11 +1566,12 @@ body.center-gallery-on { overflow:hidden; }
 <section class="screen" id="photos">
   <div class="nav">
     <button class="round" type="button" id="photosX">✕</button>
-    <h1>Multimedia</h1>
+    <h1 id="photosTitle">Multimedia</h1>
     <button class="round" type="button">•••</button>
   </div>
   <div class="pad">
     <button class="unit link" type="button" id="unitLine">Add year / make / VIN</button>
+    <button class="ws-jump hide" type="button" id="webHistJump">Website History<span>Open a past catalog set</span></button>
     <button class="start-pose" type="button" id="btnStart">
       <img src="pose-qfront.jpg?v=17" alt="Stand about six feet off the front corner, phone out, for the 3/4 front photo">
       <em>Stand here · about 6 feet off the front corner · tap to shoot</em>
@@ -1492,6 +1597,78 @@ body.center-gallery-on { overflow:hidden; }
   </div>
   <div class="dock">
     <button class="pill purple" type="button" id="btnSend">Send</button>
+  </div>
+</section>
+
+<section class="screen" id="webStudio">
+  <div class="nav">
+    <button class="round" type="button" id="webStudioX">✕</button>
+    <h1>Website photos</h1>
+    <button class="round" type="button">•••</button>
+  </div>
+  <div class="pad ws-pad">
+    <div class="ws-hero">
+      <p class="ws-kicker">Catalog studio</p>
+      <h2>Make it lot-ready</h2>
+      <p class="quote" id="wsHeroSub">After the walk-around — before the website.</p>
+      <p class="ws-lock" id="wsLock">Damage stays. Dirt goes.</p>
+      <div class="ws-badges">
+        <span class="ws-badge" id="wsEngineBadge">Demo mode · local enhance</span>
+        <span class="ws-badge mint">Auto AI retouch on</span>
+      </div>
+    </div>
+    <div class="ws-tabs" role="tablist">
+      <button class="ws-tab on" type="button" data-ws-tab="studio">Studio</button>
+      <button class="ws-tab" type="button" data-ws-tab="history">History</button>
+    </div>
+    <div id="wsStudioPane">
+      <ol class="ws-steps" id="wsSteps"></ol>
+      <div class="ws-layout">
+        <div>
+          <div class="ws-card">
+            <div class="ws-switch">
+              <div>
+                <b>Auto AI retouch</b>
+                <span>Dirt and grime off. Scratches, dents, and chips stay.</span>
+              </div>
+              <input id="wsRetouch" type="checkbox" checked />
+            </div>
+            <button class="pill cyan" type="button" id="wsRetouchAll">Apply retouch to all</button>
+          </div>
+          <div class="ws-card">
+            <h3>Background</h3>
+            <p class="quote">Exteriors can take a plate. Interiors stay clean — optional soft studio only.</p>
+            <div class="ws-bg-mode">
+              <label><input id="wsKeepBg" type="radio" name="wsBg" checked /> Keep real background</label>
+              <label><input id="wsApplyBg" type="radio" name="wsBg" /> Apply selected plate</label>
+            </div>
+            <div class="ws-chips" id="wsSeries"></div>
+            <div class="ws-plates" id="wsPlateGrid"></div>
+            <button class="pill" type="button" id="wsBgAll" style="margin-top:10px">Apply background to all exteriors</button>
+            <label class="ws-switch" style="margin-top:12px">
+              <div>
+                <b>Soft-blur number plate</b>
+                <span>Optional. Front and rear only.</span>
+              </div>
+              <input id="wsBlurPlate" type="checkbox" />
+            </label>
+          </div>
+        </div>
+        <div>
+          <div class="block">Before / after · approve each</div>
+          <div id="wsPhotoList"></div>
+        </div>
+      </div>
+    </div>
+    <div id="wsHistoryPane" class="hide">
+      <p class="quote">Posted and saved website sets. Open one to change the series, re-retouch, approve, and resend.</p>
+      <div id="wsHistoryList"></div>
+    </div>
+  </div>
+  <div class="dock ws-dock">
+    <button class="pill wash" type="button" id="wsSaveHist">Save to History</button>
+    <button class="pill cyan" type="button" id="wsApproveAll">Approve all</button>
+    <button class="pill purple" type="button" id="wsPost">Post to website</button>
   </div>
 </section>
 
@@ -1737,6 +1914,7 @@ body.center-gallery-on { overflow:hidden; }
 <div class="toast" id="toast"></div>
 <button class="hide" type="button" id="doneX"></button>
 </div>
+<script src="web-studio.js?v=4"></script>
 <script>
 
 const GHOSTS = {
@@ -2581,9 +2759,17 @@ function paintStoryHelp(){
       : "Say the year, make, model, trim or options, colour, and kilometres. Then walk the condition in detail: rust, dents, scratches, paintwork, glass, tires, interior, warning lights, noises, how it drives, accidents, service history, winter tires, extra keys — anything you’d mention in the driveway. Be specific. The more we know, the better.")+'</p>'+
     (ca ? "" : '<p class="quote">If you have the ownership (registration), take a photo of it — that’s the easiest VIN. No ownership with you? Just read the 17-character VIN out loud while you tell the story.</p>');
 }
+function paintWebsitePhotosChrome(){
+  const web=isWeb();
+  const guest=APP.role==="guest";
+  if($("photosTitle")) $("photosTitle").textContent = web ? "Website photos" : "Multimedia";
+  if($("webHistJump")) $("webHistJump").classList.toggle("hide", !web || guest);
+  if($("btnSend") && !guest) $("btnSend").textContent = web ? "Retouch & post" : "Send";
+}
 function applyMode(){
   const web=isWeb();
   $("homeTitle").textContent = web ? "Website unit" : "Appraise";
+  paintWebsitePhotosChrome();
   $("stockWrap").classList.toggle("hide", !web);
   if($("webWrap")) $("webWrap").classList.toggle("hide", APP.role==="guest");
   if($("webLabel")) $("webLabel").textContent = web ? "Website-ready description" : "Description";
@@ -2705,7 +2891,8 @@ function show(id){
       img.src = assetUrl("start-bgs/" + String(n).padStart(2,"0") + ".jpg?v=10");
     }
   }
-  if(id==="photos"){ paintLists(); paintDocs(); }
+  if(id==="photos"){ paintLists(); paintDocs(); paintWebsitePhotosChrome(); }
+  if(id==="webStudio" && window.WebStudio) WebStudio.paint();
   if(id==="home"){
     paintAppraiseGate();
     paintNewApplication();
@@ -3356,7 +3543,8 @@ function applyRole(){
   if($("webWrap")) $("webWrap").classList.toggle("hide", guest);
   if($("btnWebAi")) $("btnWebAi").classList.toggle("hide", guest);
   if($("verifyGo")) $("verifyGo").textContent = guest ? "Next" : "Continue to pictures";
-  if($("btnSend")) $("btnSend").textContent = guest ? "Review my trade" : "Send";
+  if($("btnSend")) $("btnSend").textContent = guest ? "Review my trade" : (isWeb() ? "Retouch & post" : "Send");
+  paintWebsitePhotosChrome();
   if(guest) paintGuestStory();
   hideMailOpen();
   if($("startX")) $("startX").classList.toggle("hide", guest);
@@ -9817,7 +10005,11 @@ if($("vinSpeak")) $("vinSpeak").onclick = speakVin;
 if($("vinRetry")) $("vinRetry").onclick = function(){ hideVinFail(); openVinCam(); };
 if($("vinManual")) $("vinManual").addEventListener("keydown", function(e){ if(e.key==="Enter"){ e.preventDefault(); submitTypedVin(); } });
 $("unitLine").onclick = function(){ fillUnit(); $("unitSheet").classList.add("on"); };
-$("btnSend").onclick = function(){ killMediaNow(); show("submit"); };
+$("btnSend").onclick = function(){
+  killMediaNow();
+  if(isWeb() && APP.role!=="guest" && window.WebStudio){ WebStudio.open("studio"); return; }
+  show("submit");
+};
 if($("btnSavePhotos")) $("btnSavePhotos").onclick = savePhotos;
 if($("btnSharePack")) $("btnSharePack").onclick = kickShare;
 if($("extraMailAdd")) $("extraMailAdd").onclick = addExtraRecipient;
@@ -10007,6 +10199,10 @@ growTextareas();
   if(mq.addEventListener) mq.addEventListener("change", sync);
   else if(mq.addListener) mq.addListener(sync);
 })();
+if(window.WebStudio){
+  WebStudio.bind();
+  WebStudio.seedSamples({storeGet:storeGet, storeSet:storeSet, idbPut:idbPut, idbGet:idbGet});
+}
 
 </script>
 </body>
