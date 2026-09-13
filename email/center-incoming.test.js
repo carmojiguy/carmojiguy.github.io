@@ -100,6 +100,13 @@ function persistCenterMedia(id, photos, docs) {
   return { catch: function () { return this; } };
 }
 const findCenterMatch = eval("(" + matchSrc + ")");
+const teamSlot = eval("(" + html.match(/function teamSlot\(raw\)\{[\s\S]*?\n\}/)[0].replace("function teamSlot", "function") + ")");
+const moneyShort = eval("(" + html.match(/function moneyShort\(v\)\{[\s\S]*?\n\}/)[0].replace("function moneyShort", "function") + ")");
+const emptyAppraisalFinal = eval("(" + html.match(/function emptyAppraisalFinal\(\)\{[\s\S]*?\n\}/)[0].replace("function emptyAppraisalFinal", "function") + ")");
+const hasAppraisalFinalNumbers = eval("(" + html.match(/function hasAppraisalFinalNumbers\(min, target, max\)\{[\s\S]*?\n\}/)[0].replace("function hasAppraisalFinalNumbers", "function") + ")");
+const resolveAppraisalFinal = eval("(" + html.match(/function resolveAppraisalFinal\(item\)\{[\s\S]*?\n\}/)[0].replace("function resolveAppraisalFinal", "function") + ")");
+const hasStoredFinalRationale = eval("(" + html.match(/function hasStoredFinalRationale\(item\)\{[\s\S]*?\n\}/)[0].replace("function hasStoredFinalRationale", "function") + ")");
+const seedSharedIncomingFinal = eval("(" + takeFn("seedSharedIncomingFinal", "applySharedIncoming") + ")");
 const applySharedIncoming = eval("(" + applySrc + ")");
 const landSendM = html.match(/function landingLaneForSend\(app, docs, leaderSend\)\{[\s\S]*?\n\}/);
 assert.ok(landSendM, "landingLaneForSend extractable");
@@ -646,8 +653,166 @@ function slimSharedDocs(docs) {
   assert.equal(isNeedsDocsItem(row), false);
 })();
 
+function isOnsiteDeskItem(item) {
+  if (!item) return false;
+  if (typeof centerLaneOf === "function" && centerLaneOf(item) === "onsite") return true;
+  return item.lane === "onsite";
+}
+function finalEsc(s) {
+  return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+const paintHost = { classList: { hide: true, toggle: function (name, on) { this.hide = !!on; } }, innerHTML: "", querySelector: function () { return this.btn; } };
+function $(id) {
+  if (id === "centerFinalBox") return paintHost;
+  if (id === "centerFinalOpen") return paintHost.btn;
+  return null;
+}
+const paintCenterFinalBox = eval("(" + takeFn("paintCenterFinalBox", "centerStore") + ")");
+
+(function testIncomingFinalSeedPaintsBox() {
+  paintHost.classList.hide = true;
+  paintHost.innerHTML = "";
+  paintHost.btn = { onclick: null };
+  const full = {};
+  MARKET_DOC_REQ.forEach(function (s) { full[s.id] = { have: true }; });
+  const item = applySharedIncoming({
+    id: "final-seed-1",
+    lane: "inbox",
+    docs: {},
+    team: emptyTeam()
+  }, {
+    sendId: "s-final",
+    vin: "2T3B1RFVXRC466025",
+    ymmt: "2024 TOYOTA RAV4",
+    source: "guest",
+    lane: "onsite",
+    docs: full,
+    customer: { name: "Chris Cyr" },
+    appraisalFinal: { min: "22800", target: "24000", max: "25000", path: "Retail" }
+  });
+  const fin = resolveAppraisalFinal(item);
+  assert.ok(fin, "Incoming appraisalFinal resolves on the Center item");
+  assert.equal(fin.min, "22800");
+  assert.equal(fin.target, "24000");
+  assert.equal(fin.max, "25000");
+  assert.equal(item.appraisalFinal.target, "24000");
+  assert.equal(item.finalMin, "22800");
+  assert.equal(item.finalTarget, "24000");
+  assert.equal(item.finalMax, "25000");
+  assert.equal(item.team.shabot.target, "24000", "Shabot slot is seeded from Incoming FINAL");
+  assert.equal(item.lane, "onsite");
+  paintCenterFinalBox(item);
+  assert.equal(paintHost.classList.hide, false, "FINAL box is shown after Incoming seed");
+  assert.ok(/\$23k/.test(paintHost.innerHTML), "painted box includes seeded MIN");
+  assert.ok(/\$24k/.test(paintHost.innerHTML), "painted box includes seeded TARGET");
+  assert.ok(/\$25k/.test(paintHost.innerHTML), "painted box includes seeded MAX");
+  assert.ok(/Shabot FINAL/.test(paintHost.innerHTML), "painted box keeps the FINAL kicker");
+})();
+
+(function testIncomingTeamShabotAndRationaleSeed() {
+  const item = applySharedIncoming({ id: "final-team-1", lane: "onsite", docs: {} }, {
+    sendId: "s-shabot",
+    vin: "2T3B1RFVXRC466025",
+    lane: "onsite",
+    docs: { vauto: { have: true }, openlane: { have: true }, eblock: { have: true } },
+    customer: { name: "Chris Cyr" },
+    team: { shabot: { min: "22800", target: "24000", max: "25000", note: "Retail hold" } },
+    finalRationale: { shabot: { min: "22800", target: "24000", max: "25000", note: "Sided with Rybot" } }
+  });
+  const fin = resolveAppraisalFinal(item);
+  assert.equal(fin.target, "24000", "team.shabot numbers resolve after Incoming pull");
+  assert.equal(item.finalRationale.shabot.note, "Sided with Rybot", "remote rationale lands");
+  assert.equal(item.team.shabot.note, "Retail hold");
+})();
+
+(function testEmptyRemoteDoesNotWipeFinal() {
+  const rich = {
+    schema_version: "1.0",
+    shabot: { min: "22800", target: "24000", max: "25000", note: "Local how-we-got-here" },
+    marketEvidence: { vauto: [{ price: "24100", source: "V Auto" }], openlane: [], eblock: [], carfax: [] }
+  };
+  const item = applySharedIncoming({
+    id: "keep-final",
+    lane: "onsite",
+    docs: { vauto: { have: true }, openlane: { have: true }, eblock: { have: true } },
+    appraisalFinal: { min: "22800", target: "24000", max: "25000", path: "Retail" },
+    finalMin: "22800",
+    finalTarget: "24000",
+    finalMax: "25000",
+    finalRationale: rich,
+    team: { shabot: { min: "22800", target: "24000", max: "25000", note: "keep" } }
+  }, {
+    sendId: "s-empty-final",
+    vin: "2T3B1RFVXRC466025",
+    lane: "onsite",
+    docs: { vauto: { have: true }, openlane: { have: true }, eblock: { have: true } },
+    customer: { name: "Chris Cyr" }
+  });
+  const fin = resolveAppraisalFinal(item);
+  assert.equal(fin.target, "24000", "empty remote does not wipe FINAL numbers");
+  assert.equal(item.finalRationale.shabot.note, "Local how-we-got-here", "empty remote does not wipe richer local rationale");
+  assert.equal(item.team.shabot.note, "keep");
+})();
+
+(function testMergeIncomingSharedSeedsNewItemFinal() {
+  const store = { seq: 1000, items: [] };
+  function centerStore() { return store; }
+  function saveCenterStore() {}
+  const mergeIncomingShared = eval("(" + mergeSrc + ")");
+  mergeIncomingShared([{
+    id: "remote-final-new",
+    sendId: "s-new-final",
+    vin: "2T3B1RFVXRC466025",
+    ymmt: "2024 TOYOTA RAV4",
+    source: "guest",
+    lane: "onsite",
+    docs: { vauto: { have: true }, openlane: { have: true }, eblock: { have: true } },
+    customer: { name: "Chris Cyr" },
+    appraisalFinal: { min: "22800", target: "24000", max: "25000" }
+  }]);
+  assert.equal(store.items.length, 1);
+  const row = store.items[0];
+  const fin = resolveAppraisalFinal(row);
+  assert.equal(fin.min, "22800");
+  assert.equal(fin.target, "24000");
+  assert.equal(fin.max, "25000");
+  assert.equal(row.finalTarget, "24000");
+})();
+
+(function testSlimSharedKeepsFinalOnReland() {
+  const slim = slimSharedCenterItem({
+    source: "guest",
+    lane: "onsite",
+    docs: { vauto: { have: true }, openlane: { have: true }, eblock: { have: true } },
+    appraisalFinal: { min: "22800", target: "24000", max: "25000", path: "Retail", at: 1, authors: ["Shabot"] },
+    finalRationale: { shabot: { min: "22800", target: "24000", max: "25000", note: "Keep me" } },
+    finalMin: "22800",
+    finalTarget: "24000",
+    finalMax: "25000",
+    team: { shabot: { min: "22800", target: "24000", max: "25000", note: "slot" } }
+  });
+  assert.equal(slim.appraisalFinal.target, "24000", "slim keeps appraisalFinal");
+  assert.equal(slim.finalRationale.shabot.note, "Keep me", "slim keeps finalRationale");
+  assert.equal(slim.finalMin, "22800");
+  assert.equal(slim.finalTarget, "24000");
+  assert.equal(slim.finalMax, "25000");
+  assert.ok(slim.team && slim.team.shabot, "slim keeps team.shabot when present");
+  assert.equal(slim.team.shabot.target, "24000");
+  const landed = applySharedIncoming({ id: "re-land", lane: "inbox", docs: {} }, slim);
+  assert.equal(resolveAppraisalFinal(landed).target, "24000", "re-land slim does not strip FINAL");
+  assert.equal(landed.finalRationale.shabot.note, "Keep me");
+})();
+
 assert.ok(/scheduleIncomingPull\(\)/.test(html), "Center boot/paint schedules the Incoming pull");
-assert.ok(/build d30a/.test(html), "build stamp bumped to d30a");
+assert.ok(/build d30c/.test(html), "build stamp bumped to d30c");
+assert.ok(/function seedSharedIncomingFinal\(/.test(html), "Incoming FINAL seed helper exists");
+assert.ok(/seedSharedIncomingFinal\(item, remote\)/.test(html), "applySharedIncoming copies Incoming FINAL");
+assert.ok(/appraisalFinal:\{/.test(html), "slimSharedCenterItem includes appraisalFinal");
+assert.ok(/finalRationale:item\.finalRationale/.test(html), "slimSharedCenterItem includes finalRationale");
+assert.ok(/finalMin:item\.finalMin/.test(html), "slimSharedCenterItem includes finalMin");
+assert.ok(/finalTarget:item\.finalTarget/.test(html), "slimSharedCenterItem includes finalTarget");
+assert.ok(/finalMax:item\.finalMax/.test(html), "slimSharedCenterItem includes finalMax");
+assert.ok(/item\.team && item\.team\.shabot/.test(html), "slimSharedCenterItem keeps team.shabot when present");
 assert.ok(/item\.pdfUrl=remote\.pdfUrl\|\|item\.pdfUrl/.test(html), "applySharedIncoming copies remote.pdfUrl");
 assert.ok(/item\.pdfName=remote\.pdfName\|\|item\.pdfName/.test(html), "applySharedIncoming copies remote.pdfName");
 assert.ok(/id="centerPacketPdf"/.test(html), "detail sheet has Open packet PDF control");

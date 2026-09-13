@@ -13,9 +13,9 @@ function must(re, msg) {
   assert.ok(re.test(html), msg);
 }
 
-must(/id="buildStamp">build d30a</, "footer stamp is build d30a");
-must(/<!--[\s\S]*build d30a[\s\S]*sales PDF packet stays; zero Center samples/, "HTML comment stamp is d30a and keeps the sales PDF / zero-sample lock");
-must(/id="typeSheet"[\s\S]*build d30a/, "type sheet stamp is build d30a");
+must(/id="buildStamp">build d30c</, "footer stamp is build d30c");
+must(/<!--[\s\S]*build d30c[\s\S]*sales PDF packet stays; zero Center samples/, "HTML comment stamp is d30c and keeps the sales PDF / zero-sample lock");
+must(/id="typeSheet"[\s\S]*build d30c/, "type sheet stamp is build d30c");
 
 must(/item\.appraisalFinal/, "durable appraisalFinal shape");
 must(/item\.finalRationale/, "durable finalRationale shape");
@@ -32,6 +32,8 @@ must(/item\.finalMax/, "resolveAppraisalFinal seeds finalMax alias");
 
 must(/id="centerFinalBox"/, "FINAL box host in markup");
 must(/paintCenterFinalBox\(item\)/, "paintCenterDetail paints the FINAL box");
+must(/function seedSharedIncomingFinal\(/, "Incoming pull seeds FINAL onto the Center item");
+must(/seedSharedIncomingFinal\(item, remote\)/, "applySharedIncoming copies remote FINAL");
 must(/class="final-decision-box"/, "tappable FINAL box class");
 must(/class="final-decision-doc"/, "sales-grade decision document class");
 must(/openViewer\("packet", buildFinalDecisionHtml\(item\)/, "FINAL opens via openViewer packet");
