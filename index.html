@@ -305,8 +305,8 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
 .work-email .pill { margin:0; padding:12px 16px; width:auto; }
 .login-sub { text-align:center; color:var(--muted); font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; margin:4px 0 12px; }
 .who { position:absolute; top: calc(12px + env(safe-area-inset-top)); right:16px; z-index:2; background:rgba(0,0,0,.45); color:#fff; border:0; border-radius:999px; padding:8px 12px; font-size:12px; font-weight:700; }
-.center-top { display:flex; align-items:center; justify-content:flex-end; margin:4px 0 18px; }
-.center-top .link { font-size:16px; padding:10px 4px; }
+.center-top { margin:0 0 20px; }
+.center-top .pill { margin:0; padding:16px 18px; font-size:17px; }
 .center-search { margin:0 0 12px; }
 .center-date { position:relative; margin:0 0 22px; }
 .center-date .pill { margin:0; }
@@ -583,7 +583,7 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
   </div>
   <div class="pad" style="padding-bottom:40px">
     <div class="center-top">
-      <button class="link" type="button" id="centerHistoryBtn">History</button>
+      <button class="pill" type="button" id="centerHistoryBtn">History</button>
     </div>
     <div id="centerHistoryBar" class="hide">
       <input class="f center-search" id="centerSearch" type="search" placeholder="Search name, VIN, or vehicle" />
@@ -2478,7 +2478,7 @@ function paintCenter(){
   if(!host) return;
   const hist=!!APP.centerHistory;
   if($("centerTitleNav")) $("centerTitleNav").textContent=hist ? "History" : "Appraisal Center";
-  if($("centerHistoryBtn")) $("centerHistoryBtn").textContent=hist ? "Back" : "History";
+  if($("centerHistoryBtn")) $("centerHistoryBtn").textContent=hist ? "Back to Center" : "History";
   if($("centerHistoryBar")) $("centerHistoryBar").classList.toggle("hide", !hist);
   if($("centerDateBtn")) $("centerDateBtn").textContent=dateBtnLabel();
   const q=String(APP.centerQuery||"").trim().toLowerCase();
