@@ -305,10 +305,10 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
 .work-email .pill { margin:0; padding:12px 16px; width:auto; }
 .login-sub { text-align:center; color:var(--muted); font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; margin:4px 0 12px; }
 .who { position:absolute; top: calc(12px + env(safe-area-inset-top)); right:16px; z-index:2; background:rgba(0,0,0,.45); color:#fff; border:0; border-radius:999px; padding:8px 12px; font-size:12px; font-weight:700; }
-.center-toolbar { margin:0 0 18px; }
-.center-toolbar .pill { margin:0; }
+.center-top { display:flex; align-items:center; justify-content:flex-end; margin:4px 0 18px; }
+.center-top .link { font-size:16px; padding:10px 4px; }
 .center-search { margin:0 0 12px; }
-.center-date { position:relative; margin:0 0 18px; }
+.center-date { position:relative; margin:0 0 22px; }
 .center-date .pill { margin:0; }
 .date-menu { display:none; position:absolute; left:0; right:0; top:calc(100% + 8px); z-index:12; background:#fff; border-radius:18px; box-shadow:0 18px 50px rgba(17,14,26,.16); padding:8px; }
 .date-menu.on { display:block; }
@@ -317,17 +317,18 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
 .date-cal { display:none; padding:8px 8px 12px; }
 .date-cal.on { display:block; }
 .date-cal .pair { margin-top:8px; }
-.center-empty { background:#fff; border:1.5px solid var(--hair); border-radius:22px; padding:36px 22px; text-align:center; }
-.center-empty p { color:var(--muted); font-size:16px; line-height:1.45; margin:0 0 18px; font-weight:600; }
-.center-empty .pill { margin:0; }
-.center-card { background:#fff; border:1.5px solid var(--hair); border-radius:22px; padding:18px 16px; margin:0 0 14px; }
-.center-card .name { margin:0 0 8px; font-size:20px; font-weight:800; letter-spacing:-.3px; line-height:1.2; }
-.center-card .line { color:var(--muted); font-size:15px; line-height:1.45; margin:0 0 4px; font-weight:600; }
-.center-card .foot { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:16px; }
-.stage-tag { display:inline-block; border-radius:999px; padding:7px 12px; font-size:12px; font-weight:800; letter-spacing:.04em; }
+.center-empty { padding:48px 8px 12px; text-align:center; }
+.center-empty p { color:var(--muted); font-size:17px; line-height:1.45; margin:0 0 14px; font-weight:600; }
+.center-card { background:#fff; border:1.5px solid var(--hair); border-radius:22px; padding:22px 18px; margin:0 0 16px; }
+.center-card .name { margin:0 0 10px; font-size:22px; font-weight:800; letter-spacing:-.4px; line-height:1.2; }
+.center-card .line { color:var(--muted); font-size:15px; line-height:1.45; margin:0; font-weight:600; }
+.center-card .foot { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:20px; }
+.stage-tag { display:inline-block; border-radius:999px; padding:8px 12px; font-size:13px; font-weight:800; }
 .stage-tag.wait { background:#FFF3D6; color:#8A5A00; }
 .stage-tag.done { background:#D8F5E5; color:#0F6B3C; }
-.center-card .open { width:auto; min-width:120px; margin:0; padding:12px 18px; }
+.center-card .open { width:auto; min-width:132px; margin:0; padding:14px 22px; font-size:16px; }
+#centerDetail .block { margin:28px 0 10px; }
+#centerDetail .quote { margin:0 0 8px; }
 .center-hero { position:relative; margin:0 0 16px; border-radius:18px; overflow:hidden; background:#111; min-height:180px; }
 .center-hero img { width:100%; height:220px; object-fit:cover; display:block; background:#111; }
 .center-hero .ph { min-height:180px; display:grid; place-items:center; color:#c7c7cc; font-size:14px; font-weight:700; padding:24px; text-align:center; }
@@ -340,6 +341,7 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
 .team-card { background:#fff; border:1.5px solid var(--hair); border-radius:18px; padding:14px; margin:0 0 10px; }
 .team-card.final { border-color:#C4B6FF; background:#F6F3FF; }
 .team-card k { display:block; color:var(--muted); font-size:11px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; margin:0 0 4px; }
+.team-card k:empty { display:none; }
 .team-card b { display:block; font-size:16px; margin:0 0 8px; }
 .team-card textarea { min-height:88px; }
 .val-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:0 0 8px; }
@@ -576,14 +578,12 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
 <section class="screen" id="center">
   <div class="nav">
     <button class="round" type="button" id="centerBack">✕</button>
-    <h1>Appraisal Center</h1>
+    <h1 id="centerTitleNav">Appraisal Center</h1>
     <button class="round" type="button">•••</button>
   </div>
   <div class="pad" style="padding-bottom:40px">
-    <h2 id="centerTitle">Appraisal Center</h2>
-    <p class="quote" id="centerLead">Every send lands here.</p>
-    <div class="center-toolbar">
-      <button class="pill" type="button" id="centerHistoryBtn">History</button>
+    <div class="center-top">
+      <button class="link" type="button" id="centerHistoryBtn">History</button>
     </div>
     <div id="centerHistoryBar" class="hide">
       <input class="f center-search" id="centerSearch" type="search" placeholder="Search name, VIN, or vehicle" />
@@ -632,14 +632,13 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
     <div class="docs-grid" id="centerDocs"></div>
     <div class="block">Values</div>
     <div class="val-grid" id="centerVals"></div>
-    <div class="block">Appraisal Team</div>
-    <p class="quote">Shabot writes the FINAL. The others leave an opinion. Bots can hook in later.</p>
+    <div class="block">Team</div>
     <div id="centerTeam"></div>
     <label class="k">Notes</label>
     <textarea class="note" id="centerNotes" placeholder="Anything the team should know"></textarea>
   </div>
   <div class="dock">
-    <button class="pill purple" type="button" id="centerStageBtn">Done — History</button>
+    <button class="pill purple" type="button" id="centerStageBtn">Done</button>
   </div>
 </section>
 
@@ -2478,8 +2477,7 @@ function paintCenter(){
   const host=$("centerList");
   if(!host) return;
   const hist=!!APP.centerHistory;
-  if($("centerTitle")) $("centerTitle").textContent=hist ? "History" : "Appraisal Center";
-  if($("centerLead")) $("centerLead").textContent=hist ? "Older and finished files." : "Every send lands here.";
+  if($("centerTitleNav")) $("centerTitleNav").textContent=hist ? "History" : "Appraisal Center";
   if($("centerHistoryBtn")) $("centerHistoryBtn").textContent=hist ? "Back" : "History";
   if($("centerHistoryBar")) $("centerHistoryBar").classList.toggle("hide", !hist);
   if($("centerDateBtn")) $("centerDateBtn").textContent=dateBtnLabel();
@@ -2500,7 +2498,7 @@ function paintCenter(){
     if(hist){
       empty.innerHTML="<p>Nothing in this range.</p>";
     } else {
-      empty.innerHTML='<p>Nothing sent yet.</p><button class="pill purple" type="button">Appraise a vehicle</button>';
+      empty.innerHTML='<p>Nothing sent yet.</p><button class="link" type="button">Appraise a vehicle</button>';
       empty.querySelector("button").onclick=function(){ setPurpose("appraise"); paintDealType(); show("home"); };
     }
     host.appendChild(empty);
@@ -2510,15 +2508,12 @@ function paintCenter(){
     const card=document.createElement("div");
     card.className="center-card";
     const when=centerWhen(item);
-    const sent=when ? ("Sent "+timeAgo(when)) : "";
-    const vin=centerVinLine(item);
-    const km=centerKmLine(item);
+    const sent=when ? timeAgo(when) : "";
+    const meta=[centerVinLine(item), centerKmLine(item), sent].filter(Boolean).join("  ·  ");
     const status=centerStatus(item);
     card.innerHTML=
       '<p class="name">'+esc(item.ymmt||"Vehicle")+'</p>'+
-      (vin?'<p class="line">'+esc(vin)+'</p>':'')+
-      (km?'<p class="line">'+esc(km)+'</p>':'')+
-      (sent?'<p class="line">'+esc(sent)+'</p>':'')+
+      (meta?'<p class="line">'+esc(meta)+'</p>':'')+
       '<div class="foot"><em class="stage-tag '+(status==="Done"?"done":"wait")+'">'+esc(status)+'</em><button class="pill purple open" type="button">Open</button></div>';
     card.querySelector(".open").onclick=function(){ openCenterDetail(item.id); };
     host.appendChild(card);
@@ -2598,7 +2593,7 @@ function paintCenterTeam(item){
   CENTER_TEAM.forEach(function(pair){
     const card=document.createElement("div");
     card.className="team-card"+(pair[2]==="FINAL"?" final":"");
-    card.innerHTML='<k>'+esc(pair[2])+'</k><b>'+esc(pair[1])+'</b><textarea class="note" placeholder="'+(pair[2]==="FINAL"?"Shabot FINAL number and call.":"Opinion for the file.")+'"></textarea>';
+    card.innerHTML='<k>'+esc(pair[2]==="FINAL"?"Final":"")+'</k><b>'+esc(pair[1])+'</b><textarea class="note" placeholder="'+(pair[2]==="FINAL"?"Final number":"Note")+'">'+'</textarea>';
     const ta=card.querySelector("textarea");
     ta.value=team[pair[0]]||"";
     ta.addEventListener("input", function(){
@@ -2615,32 +2610,26 @@ function paintCenterTeam(item){
 function paintCenterDetail(){
   const item=getCenter(APP.centerViewId);
   if(!item){ show("center"); return; }
-  if($("centerDetailHead")) $("centerDetailHead").textContent=item.appNo||"Appraisal";
+  if($("centerDetailHead")) $("centerDetailHead").textContent="File";
   if($("centerDetailBadge")) $("centerDetailBadge").textContent=centerStatus(item);
   if($("centerDetailTitle")) $("centerDetailTitle").textContent=item.ymmt||"Vehicle";
-  const bits=[];
-  if(item.customer && item.customer.name) bits.push(item.customer.name);
-  bits.push(centerSourceLabel(item.source));
-  if(item.dealType) bits.push(item.dealType);
-  if(item.sentAt) bits.push("Sent "+timeAgo(item.sentAt));
-  else bits.push("Updated "+timeAgo(item.updatedAt||item.createdAt));
-  if($("centerDetailSub")) $("centerDetailSub").textContent=bits.join(" · ");
+  const bits=[centerVinLine(item), centerKmLine(item)];
+  if(item.customer && item.customer.name) bits.unshift(item.customer.name);
+  if(item.sentAt) bits.push(timeAgo(item.sentAt));
+  if($("centerDetailSub")) $("centerDetailSub").textContent=bits.filter(Boolean).join("  ·  ");
   if($("centerFacts")){
     $("centerFacts").innerHTML=
-      factCell("App #", item.appNo)+factCell("VIN", item.vin)+
-      factCell("Year", item.year)+factCell("Make", item.make)+
-      factCell("Model", item.model)+factCell("Trim", item.trim)+
+      factCell("VIN", item.vin)+
       factCell("Colour", item.color)+
       factCell("Kilometres", item.km && Number(String(item.km).replace(/,/g,"")).toLocaleString("en-CA"))+
-      factCell("Stock", item.stock)+
-      factCell("Customer", item.customer && item.customer.name);
+      factCell("Stock", item.stock);
   }
   if($("centerStory")) $("centerStory").textContent=item.story||item.webcopy||"No story yet.";
   if($("centerNotes")){
     $("centerNotes").value=item.notes||"";
     growArea($("centerNotes"));
   }
-  if($("centerStageBtn")) $("centerStageBtn").textContent=item.stage==="Appraised"?"Move back to Center":"Done — History";
+  if($("centerStageBtn")) $("centerStageBtn").textContent=item.stage==="Appraised"?"Waiting":"Done";
   paintCenterHero(item.thumb ? [{data:item.thumb, title:item.ymmt}] : []);
   paintCenterDocs(item, {docs:item.docs});
   paintCenterVals(item);
@@ -5627,7 +5616,7 @@ if($("centerStageBtn")) $("centerStageBtn").onclick = function(){
   const next=item.stage==="Appraised"?"Waiting":"Appraised";
   patchCenter(item.id, function(x){ x.stage=next; });
   paintCenterDetail();
-  toast(next==="Appraised"?"Moved to History.":"Back in Center.");
+  toast(next==="Appraised"?"Moved to History.":"Back to Waiting.");
 };
 if($("centerNotes")) $("centerNotes").addEventListener("input", function(){
   const el=this;
