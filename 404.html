@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-13 build d28x: appraisal exit chrome on d28 market desk; zero Center samples -->
+<!-- center-v3 + desk-home 2026-09-13 build d28y: History reopen for full appraisal rework; zero Center samples -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -1662,7 +1662,7 @@ body.center-gallery-on { overflow:hidden; }
       <button class="nav-hist" type="button" id="centerSheetHistBtn">History</button>
     </div>
     <div class="pad" style="padding-bottom:40px">
-      <button class="hist-jump hide" type="button" id="centerLaneHistJump">History — see what you’ve already done</button>
+      <button class="hist-jump hide" type="button" id="centerLaneHistJump">History — open a file to keep working</button>
       <div id="centerHistoryBar" class="hide">
         <div class="center-archive-banner" id="centerArchiveBanner">
           <b>90-day archive</b>
@@ -1711,7 +1711,7 @@ body.center-gallery-on { overflow:hidden; }
   </div>
   <div id="vinScanWrap"></div>
   <div class="pad">
-    <button class="hist-jump hide" type="button" id="homeHistJump">History — what you’ve already done here</button>
+    <button class="hist-jump hide" type="button" id="homeHistJump">History — open a file to keep working</button>
     <div id="teamWrap">
       <div class="desk-team" id="deskTeamBox">
         <button class="pill team-pick" type="button" id="btnDeskTeam">Team</button>
@@ -1810,7 +1810,7 @@ body.center-gallery-on { overflow:hidden; }
     <p class="quote" id="vinHint">Best: take a picture of the vehicle ownership (registration). You can also photograph the VIN on the dash or the sticker on the driver’s door. We’ll read the number from the photo.</p>
     <p class="vin-chip hide" id="vinChip"></p>
     </div>
-    <p class="build-stamp" id="buildStamp">build d28x</p>
+    <p class="build-stamp" id="buildStamp">build d28y</p>
   </div>
 </section>
 
@@ -2269,7 +2269,7 @@ body.center-gallery-on { overflow:hidden; }
   <div class="card">
     <button class="x" type="button" data-close="typeSheet">✕</button>
     <h3>Appraisal type</h3>
-    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d28x</span></p>
+    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d28y</span></p>
     <div id="typeChips" class="to-chips"></div>
     <div id="leadBox" class="lead-box hide">
       <p class="hint">Lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a New application — no appointment calendar.</p>
@@ -2352,7 +2352,7 @@ body.center-gallery-on { overflow:hidden; }
     <span></span>
   </div>
   <div class="pad" style="padding-bottom:40px">
-    <p class="quote" id="staffHistLead">What you’ve already done in this section.</p>
+    <p class="quote" id="staffHistLead">Tap a file to keep working — edit, add photos, documents, or the story, then save or send.</p>
     <div id="staffHistList"></div>
   </div>
 </div>
@@ -3517,10 +3517,12 @@ function pageBack(){
 function pageClose(){
   if(dismissOpenLayer()){ syncExitChrome(); return; }
   if(APP.screen==="center"){ exitCenterChrome(); return; }
-  if(["home","workbench","verify","photos","camera","submit","webStudio"].indexOf(APP.screen)>=0){
+  if(["home","workbench","verify","photos","camera","submit"].indexOf(APP.screen)>=0){
+    if(typeof parkAppraisalToHistory==="function") parkAppraisalToHistory();
     pageHome();
     return;
   }
+  if(APP.screen==="webStudio"){ pageHome(); return; }
   pageBack();
 }
 
@@ -5616,6 +5618,14 @@ function staffHistRow(item, extra){
   btn.onclick=function(){
     closeStaffHist();
     closeTradeLane();
+    if(typeof isWebsiteItem==="function" && isWebsiteItem(item)){
+      if(canUseCenter()) openCenterDetail(item.id);
+      return;
+    }
+    if(typeof reopenHistoryAppraisal==="function"){
+      reopenHistoryAppraisal(item.id);
+      return;
+    }
     if(canUseCenter()) openCenterDetail(item.id);
   };
   return btn;
@@ -5628,7 +5638,7 @@ function paintStaffHistory(kind){
   const title=$("staffHistTitle");
   const lead=$("staffHistLead");
   if(title) title.textContent="History";
-  if(lead) lead.textContent="What you’ve already done in this section.";
+  if(lead) lead.textContent="Tap a file to keep working — edit, add photos, documents, or the story, then save or send.";
   if(!host) return;
   host.innerHTML="";
   if(kind==="users"){
@@ -5658,9 +5668,11 @@ function paintStaffHistory(kind){
     rows.forEach(function(item){ host.appendChild(staffHistRow(item)); });
   } else if(kind==="ca"){
     if(title) title.textContent="Consumer Acquisition History";
+    if(lead) lead.textContent="Tap a file to keep working — edit, add photos, documents, or the story, then save or send.";
     rows=caHistoryItems();
     rows.forEach(function(item){ host.appendChild(staffHistRow(item)); });
   } else {
+    if(lead) lead.textContent="Tap a file to keep working — edit, add photos, documents, or the story, then save or send.";
     rows=loadCenter().filter(function(item){ return item.stage==="Appraised" || item.archived || (typeof centerLaneOf==="function" && centerLaneOf(item)==="history"); });
     rows.forEach(function(item){ host.appendChild(staffHistRow(item)); });
   }
@@ -5676,6 +5688,170 @@ function openStaffHistory(kind){
   if($("staffHistSheet")) $("staffHistSheet").classList.add("on");
   if($("staffHistDim")) $("staffHistDim").classList.add("on");
   paintStaffHistory(APP.staffHistKind);
+}
+function unpackCenterPhotos(photos){
+  const walk={};
+  const damage={};
+  const closeups=[];
+  const closeupCap=[];
+  const closeupAudio=[];
+  (photos||[]).forEach(function(p){
+    if(!p || !p.data) return;
+    if(p.kind==="damage"){
+      let view=p.view||"";
+      if(!view && typeof walkViewIndex==="function" && typeof VIEWS!=="undefined"){
+        const i=walkViewIndex(p.title||"");
+        if(i>=0) view=VIEWS[i][0];
+      }
+      view=view||"qfront";
+      if(!Array.isArray(damage[view])) damage[view]=[];
+      damage[view].push({data:p.data, cap:p.cap||"", audio:p.audio||"", audioMime:p.audioMime||""});
+      return;
+    }
+    if(p.kind==="close"){
+      closeups.push(p.data);
+      closeupCap.push(p.cap||"");
+      closeupAudio.push(p.audio?{data:p.audio, mime:p.audioMime||""}:null);
+      return;
+    }
+    let key=p.view||"";
+    if(!key && typeof walkViewIndex==="function" && typeof VIEWS!=="undefined"){
+      const i=walkViewIndex(p.title||"");
+      if(i>=0) key=VIEWS[i][0];
+    }
+    key=key||"qfront";
+    if(!walk[key]) walk[key]=p.data;
+  });
+  return {photos:walk, damage:damage, closeups:closeups, closeupCap:closeupCap, closeupAudio:closeupAudio};
+}
+function expandCenterDocs(docs){
+  const src=docs||{};
+  const out={};
+  const pack={vauto:"vauto_docs", openlane:"openlane_docs", eblock:"eblock_docs"};
+  Object.keys(src).forEach(function(k){
+    const d=src[k];
+    if(!d) return;
+    const have=!!(d.have || d.data || d.preview || d.name || (d.shots && d.shots.length));
+    if(!have) return;
+    const slot={
+      have:true,
+      name:d.name||k,
+      data:d.data||d.preview||"",
+      type:d.type||"",
+      preview:d.preview||d.data||"",
+      shots:d.shots || (d.preview ? [d.preview] : (d.data ? [d.data] : []))
+    };
+    if(d.extract) slot.extract=d.extract;
+    out[k]=slot;
+    if(pack[k]) out[pack[k]]=slot;
+  });
+  return out;
+}
+function applyCenterItemToApp(item, media){
+  item=item||{};
+  media=media||{};
+  if(typeof wipeJob==="function") wipeJob(false);
+  APP.centerId=item.id||"";
+  APP.sendId="";
+  APP.purpose=(item.purpose && item.purpose!=="website") ? item.purpose : "appraise";
+  APP.year=item.year||"";
+  APP.make=item.make||"";
+  APP.model=item.model||"";
+  APP.trim=item.trim||"";
+  APP.color=item.color||"";
+  APP.km=item.km||"";
+  APP.vin=String(item.vin||"").trim().toUpperCase();
+  APP.stock=item.stock||"";
+  APP.heard=item.story||item.heard||"";
+  APP.notes=item.story||item.notes||"";
+  APP.webcopy=item.webcopy||"";
+  APP.dealType=item.dealType||"";
+  APP.leadSource=item.leadSource||"";
+  APP.cdApp=item.cdApp||"";
+  APP.deskTeam=item.deskTeam||"";
+  APP.apptId=item.apptId||"";
+  APP.apptSeller=item.apptSeller||(item.customer&&item.customer.name)||"";
+  APP.inviteName=(item.customer&&item.customer.name)||item.apptSeller||"";
+  APP.inviteEmail=(item.customer&&item.customer.email)||"";
+  APP.invitePhone=(item.customer&&item.customer.phone)||"";
+  APP.inviteUnit=item.interest||item.inviteUnit||"";
+  APP.inviteStock=item.stock||"";
+  APP.requestedBy=item.requestedBy||"";
+  APP.requestedByName=item.requestedByName||"";
+  if(APP.dealType==="Consumer Acquisition" && APP.leadSource && APP.leadSource!=="Canada Drives"){
+    APP.newApplication=true;
+    if(!APP.apptId) APP.apptId="new";
+  }
+  if(APP.leadSource==="Canada Drives" && !APP.apptId){
+    APP.apptId=item.id||"history";
+  }
+  const photos=(media.photos && media.photos.length) ? media.photos : (item.photos||[]);
+  const packed=(!photos.length && item.thumb) ? [{data:item.thumb, title:item.ymmt||"", view:"qfront", kind:"walk"}] : photos;
+  const unpacked=unpackCenterPhotos(packed);
+  APP.photos=unpacked.photos;
+  APP.damage=unpacked.damage;
+  APP.closeups=unpacked.closeups;
+  APP.closeupCap=unpacked.closeupCap;
+  APP.closeupAudio=unpacked.closeupAudio;
+  APP.docs=expandCenterDocs(media.docs||item.docs||{});
+}
+function parkAppraisalToHistory(){
+  if(APP.role==="guest") return;
+  if(typeof isWeb==="function" && isWeb()) return;
+  if(APP.purpose==="website") return;
+  if(!(typeof draftHasWork==="function" && draftHasWork(APP)) && !APP.centerId) return;
+  try{
+    const extra={source:"appraise"};
+    if(APP.centerId) extra.id=APP.centerId;
+    const item=typeof upsertCenterFromApp==="function" ? upsertCenterFromApp(extra) : null;
+    if(!item || !item.id) return;
+    APP.centerId=item.id;
+    if(typeof patchCenter==="function"){
+      patchCenter(item.id, function(x){
+        if(x.stage==="Appraised" || x.archived) return;
+        x.lane="history";
+      });
+    }
+    toast("Saved to History.");
+  }catch(e){}
+}
+function reopenHistoryAppraisal(id){
+  const item=typeof getCenter==="function" ? getCenter(id) : null;
+  if(!item){ toast("Couldn’t open that file."); return; }
+  if(typeof isWebsiteItem==="function" && isWebsiteItem(item)){
+    if(typeof canUseCenter==="function" && canUseCenter()) openCenterDetail(id);
+    return;
+  }
+  if(typeof closeStaffHist==="function") closeStaffHist();
+  if(typeof closeTradeLane==="function") closeTradeLane();
+  APP.centerViewId="";
+  APP.centerLane="";
+  APP.centerHistory=false;
+  if($("centerSheet")) $("centerSheet").classList.remove("on");
+  if($("centerSheetDim")) $("centerSheetDim").classList.remove("on");
+  if($("center")) $("center").classList.remove("center-has-detail");
+  function go(media){
+    applyCenterItemToApp(item, media||{});
+    if(typeof applyRole==="function") applyRole();
+    if(typeof applyMode==="function") applyMode();
+    if(typeof paintDealType==="function") paintDealType();
+    if(typeof paintDeskTeam==="function") paintDeskTeam();
+    if(typeof fillUnit==="function") fillUnit();
+    if($("transcript")) $("transcript").value=APP.heard||APP.notes||"";
+    if(typeof paintLists==="function") paintLists();
+    if(typeof paintDocs==="function") paintDocs();
+    if(typeof paintAppraiseGate==="function") paintAppraiseGate();
+    const hasPhotos=!!(Object.keys(APP.photos||{}).length || (APP.closeups&&APP.closeups.length));
+    if(hasPhotos) show("photos");
+    else show("home");
+    if(typeof scheduleDraftSave==="function") scheduleDraftSave();
+    toast("Opened — keep working, then save or send.");
+  }
+  if(typeof loadCenterMedia==="function"){
+    loadCenterMedia(id).then(go).catch(function(){ go({}); });
+  } else {
+    go({});
+  }
 }
 function closeTradeLane(){
   APP.tradeLane="";
@@ -6479,7 +6655,13 @@ function acreRow(item){
       (meta?'<p class="line">'+esc(meta)+'</p>':'')+
       '<div class="acre-flags">'+flags+'</div></div>';
   }
-  btn.onclick=function(){ openCenterDetail(item.id); };
+  btn.onclick=function(){
+    if(lane==="history" && typeof reopenHistoryAppraisal==="function"){
+      reopenHistoryAppraisal(item.id);
+      return;
+    }
+    openCenterDetail(item.id);
+  };
   return btn;
 }
 function paintCenter(){
