@@ -80,6 +80,7 @@ h2 { font-size:26px; font-weight:800; letter-spacing:-.5px; margin:4px 0 14px; }
 .dmg-strip img { width:72px; height:72px; object-fit:cover; display:block; }
 .dmg-thumb { position:relative; border:0; padding:0; background:#111; border-radius:12px; overflow:hidden; flex:0 0 72px; width:72px; height:72px; cursor:pointer; }
 .dmg-thumb .cap { position:absolute; left:0; right:0; bottom:0; background:rgba(0,0,0,.6); color:#fff; font-size:9px; padding:3px 4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-align:left; }
+.dmg-thumb .voice { position:absolute; top:5px; right:5px; width:18px; height:18px; border-radius:50%; background:rgba(0,0,0,.62); color:#fff; font-size:9px; font-style:normal; display:grid; place-items:center; pointer-events:none; }
 .block { margin:22px 0 8px; font-size:22px; font-weight:800; }
 .unit { color:var(--muted); font-size:16px; margin:6px 0 12px; }
 .sheet { display:none; position:fixed; inset:0; background:rgba(250,249,252,.78); z-index:40; padding:72px 16px 24px; }
@@ -93,6 +94,54 @@ h2 { font-size:26px; font-weight:800; letter-spacing:-.5px; margin:4px 0 14px; }
 .box { width:100%; min-height:160px; max-height:none; border:0; background:#eef0f3; border-radius:16px; padding:14px; font-size:18px; font-family:inherit; resize:vertical; overflow:auto; field-sizing:content; }
 .pair { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:14px; }
 label.k { display:block; color:#6e6e73; font-size:13px; margin:11px 0 5px; }
+.cd-field { margin:12px 0 6px; padding:14px 14px 16px; background:#fff; border:1.5px solid var(--hair); border-radius:18px; }
+.cd-field label.k { font-size:15px; font-weight:800; color:var(--ink); margin:0 0 4px; }
+.cd-field .need { color:#8A3B12; font-size:14px; font-weight:700; margin:0 0 10px; line-height:1.35; }
+.cd-field .f { min-height:52px; font-size:18px; }
+.home-gate{opacity:.42;filter:grayscale(.28);pointer-events:none}
+.home-gate .pill,.home-gate .link,#home .pill:disabled,#home .link:disabled{cursor:not-allowed}
+.type-gate-note{margin:0 0 14px;color:var(--ink);font-size:15px;line-height:1.45;font-weight:700}
+#typeWrap.need-type #btnDealType{border-color:var(--purple);box-shadow:0 0 0 3px rgba(124,92,255,.18)}
+.appt-wrap{margin:0 0 18px;padding:14px 14px 16px;background:#fff;border:1.5px solid var(--hair);border-radius:18px}
+.appt-wrap .lbl{font-size:13px;font-weight:800;color:var(--ink);margin:0 0 6px}
+.appt-tabs,.appt-dates{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 10px}
+.appt-tabs button,.appt-dates button{border:1.5px solid var(--hair);background:#fff;border-radius:999px;padding:8px 12px;font-size:13px;font-weight:800;cursor:pointer}
+.appt-tabs button.on,.appt-dates button.on{background:var(--lavender);border-color:var(--purple);color:var(--purple-deep)}
+.appt-row{display:block;width:100%;text-align:left;border:1.5px solid var(--hair);background:#fff;border-radius:16px;padding:12px 14px;margin:0 0 8px;cursor:pointer}
+.appt-row.on{border-color:var(--purple);background:var(--lavender)}
+.appt-row b{display:block;font-size:16px}
+.appt-row span{display:block;color:var(--muted);font-size:13px;line-height:1.4;margin-top:2px}
+.appt-empty{color:var(--muted);font-size:14px;line-height:1.45;margin:8px 2px 0}
+.lead-box{margin:12px 0 0}
+.lead-box .hint{margin-bottom:10px}
+#workbench{background:
+  radial-gradient(900px 420px at 8% -8%, rgba(0,164,226,.16), transparent 56%),
+  radial-gradient(760px 380px at 108% 0%, rgba(124,92,255,.14), transparent 52%),
+  #F7FBFF}
+.phone:has(#workbench.on){max-width:min(1180px,100%)}
+.wb-hero{
+  margin:4px 0 18px;padding:22px 20px 20px;border-radius:28px;color:#fff;
+  background:linear-gradient(135deg,#00A4E2 0%,#1A61A2 54%,#7C5CFF 100%);
+  box-shadow:0 18px 40px rgba(26,97,162,.22)
+}
+.wb-kicker{margin:0;font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;opacity:.86}
+.wb-hero h2{margin:8px 0 4px;font-size:28px;letter-spacing:-.6px;line-height:1.08}
+.wb-hero p{margin:0;font-size:15px;font-weight:700;opacity:.92}
+.wb-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.wb-chip{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:6px 10px;font-size:12px;font-weight:800}
+.wb-grid{display:grid;grid-template-columns:1fr;gap:12px;margin:0 0 18px}
+.wb-card{border:0;border-radius:24px;padding:20px 18px 18px;text-align:left;cursor:pointer;font:inherit;color:var(--ink);background:#fff;box-shadow:0 10px 28px rgba(17,14,26,.06)}
+.wb-card .tag{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--cyan-deep)}
+.wb-card b{display:block;font-size:20px;margin:6px 0 4px}
+.wb-card span{display:block;color:var(--muted);font-size:14px;font-weight:600;line-height:1.4}
+.wb-card.dmg{background:linear-gradient(180deg,#FFF6EE,#FFE4D1);box-shadow:0 10px 28px rgba(192,86,33,.12)}
+.wb-card.dmg .tag{color:#C05621}
+.wb-card.on{outline:2px solid var(--purple)}
+.wb-extract{margin:0 0 10px;padding:12px 14px;border-radius:16px;background:#fff;border:1.5px solid var(--hair)}
+.wb-extract b{display:block;font-size:14px}
+.wb-extract span{color:var(--muted);font-size:13px;font-weight:600}
+.doc-sq .extract{position:relative;margin-top:6px;font-size:12px;font-weight:700;color:var(--purple-deep);line-height:1.35}
+.doc-sq.on .extract{color:#EFE8FF}
 input.f, textarea.note { width:100%; border:1.5px solid var(--hair); border-radius:16px; padding:13px 14px; font-size:17px; font-family:inherit; }
 textarea.note { min-height:160px; max-height:none; resize:vertical; overflow:auto; field-sizing:content; line-height:1.45; }
 .vin-fail { margin-top:14px; padding-top:12px; border-top:1px solid var(--hair); }
@@ -114,13 +163,13 @@ textarea.note { min-height:160px; max-height:none; resize:vertical; overflow:aut
 .review { background:#fff; border:1.5px solid var(--hair); border-radius:18px; padding:14px; margin:0 0 12px; cursor:pointer; text-align:left; width:100%; }
 .review h4 { margin:0 0 6px; font-size:16px; }
 .review p { margin:0; color:var(--muted); font-size:14px; line-height:1.4; }
-.docs-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:4px 0 24px; }
-.doc-sq { position:relative; aspect-ratio:1; border-radius:20px; overflow:hidden; border:1.5px dashed #D9D3E8; background:linear-gradient(180deg,#FFFFFF 0%, #F3F0FA 100%); cursor:pointer; padding:14px 14px 12px; display:flex; flex-direction:column; justify-content:flex-end; text-align:left; }
+.docs-grid, .center-docs, .center-why-docs { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:4px 0 24px; }
+.doc-sq { position:relative; aspect-ratio:1; min-height:168px; border-radius:22px; overflow:hidden; border:1.5px dashed #D9D3E8; background:linear-gradient(180deg,#FFFFFF 0%, #F3F0FA 100%); cursor:pointer; padding:18px 16px 16px; display:flex; flex-direction:column; justify-content:flex-end; text-align:left; }
 .doc-sq img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
 .doc-sq .veil { position:absolute; inset:0; background:linear-gradient(180deg,rgba(17,14,26,0) 28%, rgba(17,14,26,.82) 100%); }
 .doc-sq .pdfmark { position:absolute; top:14px; right:14px; background:var(--purple); color:#fff; font-size:11px; font-weight:800; border-radius:8px; padding:4px 8px; letter-spacing:.04em; }
-.doc-sq b { position:relative; font-size:15px; font-weight:800; line-height:1.15; margin:0 0 4px; }
-.doc-sq span { position:relative; font-size:12px; color:var(--muted); line-height:1.3; font-weight:600; }
+.doc-sq b { position:relative; font-size:18px; font-weight:800; line-height:1.2; margin:0 0 6px; }
+.doc-sq span { position:relative; font-size:14px; color:var(--muted); line-height:1.35; font-weight:600; }
 button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; font:inherit; color:inherit; text-decoration:none; display:block; }
 .doc-sq.vauto-sq { padding:0; border:0; background:#FF6A00; }
 .doc-sq.vauto-sq img { object-fit:cover; pointer-events:none; }
@@ -155,7 +204,16 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
 .viewer.on { display:flex; flex-direction:column; }
 .viewer .bar { display:flex; align-items:center; justify-content:space-between; padding:calc(12px + env(safe-area-inset-top)) 16px 12px; color:#fff; }
 .viewer .bar h3 { margin:0; font-size:15px; font-weight:700; }
-.viewer iframe, .viewer img { flex:1; width:100%; border:0; background:#111; object-fit:contain; }
+.view-stage { flex:1; min-height:0; position:relative; display:flex; flex-direction:column; }
+.view-stage iframe, .view-stage img, .viewer iframe, .viewer img { flex:1; width:100%; border:0; background:#111; object-fit:contain; }
+.view-cap { flex:0 0 auto; display:flex; align-items:center; gap:10px; background:#111; color:#fff; padding:10px 14px calc(10px + env(safe-area-inset-bottom)); z-index:3; }
+.view-cap.hide, .view-cap-sheet.hide { display:none; }
+.view-cap-line { flex:1; min-width:0; font-size:14px; font-weight:700; line-height:1.3; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.view-play, .view-more { border:0; background:#2a2a33; color:#fff; font:inherit; font-size:13px; font-weight:800; border-radius:999px; padding:8px 12px; cursor:pointer; }
+.view-play { width:40px; height:40px; padding:0; flex:0 0 40px; display:grid; place-items:center; }
+.view-cap-sheet { flex:0 1 auto; max-height:36vh; overflow:auto; background:#16161c; color:#fff; padding:12px 16px calc(16px + env(safe-area-inset-bottom)); z-index:3; }
+.view-cap-sheet p { margin:0 0 10px; font-size:15px; line-height:1.45; }
+.view-cap-sheet audio { width:100%; display:block; }
 .viewer-doc { display:none; flex:1; overflow:auto; background:var(--page); color:var(--ink); padding:8px 18px 48px; -webkit-overflow-scrolling:touch; }
 .viewer-doc.on { display:block; }
 .viewer-doc img.full { width:100%; border-radius:14px; margin:8px 0 6px; background:#111; display:block; }
@@ -229,6 +287,11 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
 #startCenter {
   background:rgba(255,255,255,.94); color:var(--ink);
 }
+#startCenter.locked {
+  background:rgba(250,249,252,.38);
+  color:rgba(36,27,51,.42);
+  box-shadow:none;
+}
 #startAppraise, #startCenter, #startWebsite { top:auto; bottom:auto; transform:none; }
 .start-actions .pill.soon {
   background:rgba(250,249,252,.4);
@@ -298,7 +361,10 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
 .login-hero h1 { margin:0 0 10px; font-size:34px; letter-spacing:-.7px; line-height:1.08; color:#fff; text-shadow:0 2px 28px rgba(0,0,0,.55); }
 .login-hero .lead { margin:0; color:rgba(255,255,255,.88); font-size:16px; line-height:1.45; font-weight:600; text-shadow:0 1px 12px rgba(0,0,0,.45); max-width:22em; }
 .login-card { position:absolute; left:16px; right:16px; bottom:calc(16px + env(safe-area-inset-bottom)); z-index:6; max-height:none; overflow:visible; background:rgba(250,249,252,.94); backdrop-filter:blur(22px); -webkit-backdrop-filter:blur(22px); border-radius:26px; padding:16px 16px 14px; box-shadow:0 18px 50px rgba(0,0,0,.28); }
-.gbtn { width:100%; display:flex; align-items:center; justify-content:center; gap:10px; border:1.5px solid #DADCE0; background:#fff; border-radius:16px; padding:14px 16px; font-size:15px; font-weight:700; cursor:pointer; margin:0; color:#1F1F1F; position:relative; z-index:7; pointer-events:auto; text-decoration:none; min-height:52px; }
+.gbtn { width:100%; display:flex; align-items:center; justify-content:center; gap:10px; border:1.5px solid #DADCE0; background:#fff; border-radius:16px; padding:16px 16px; font-size:17px; font-weight:800; cursor:pointer; margin:0; color:#1F1F1F; position:relative; z-index:7; pointer-events:auto; text-decoration:none; min-height:56px; }
+.gbtn[disabled] { opacity:.7; cursor:wait; }
+.login-staff-note { margin:0 0 12px; color:var(--muted); font-size:14px; font-weight:600; line-height:1.4; }
+.login-fallback { display:block; width:100%; margin:12px 0 0; text-align:center; font-size:14px; }
 .login-card h1, .guest-story h1 { margin:0 0 8px; font-size:26px; letter-spacing:-.55px; line-height:1.15; color:var(--ink); }
 .guest-story h1 { color:var(--ink); }
 .thanks-card { position:absolute; left:20px; right:20px; bottom:calc(36px + env(safe-area-inset-bottom)); z-index:2; color:#fff; }
@@ -316,11 +382,22 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
 .login-err { color:#C0392B; font-size:13px; font-weight:700; margin:10px 0 0; }
 .staff-row { display:flex; gap:8px; margin-top:10px; }
 .staff-row .pill { flex:1; margin:0; padding:12px 8px; font-size:14px; }
-.user-row { display:flex; align-items:center; justify-content:space-between; gap:12px; background:#fff; border:1.5px solid var(--hair); border-radius:16px; padding:12px 14px; margin:0 0 8px; }
+.user-row { display:flex; flex-direction:column; align-items:stretch; gap:10px; background:#fff; border:1.5px solid var(--hair); border-radius:16px; padding:12px 14px; margin:0 0 8px; }
+.user-row .who { display:flex; align-items:center; justify-content:space-between; gap:12px; }
 .user-row b { display:block; font-size:16px; }
 .user-row span { color:var(--muted); font-size:13px; }
 .user-row em { color:var(--purple-deep); font-size:12px; font-weight:800; font-style:normal; }
-.user-row button { border:0; background:var(--fill); border-radius:999px; padding:8px 12px; font-size:13px; font-weight:700; cursor:pointer; }
+.user-row button.remove { border:0; background:var(--fill); border-radius:999px; padding:8px 12px; font-size:13px; font-weight:700; cursor:pointer; }
+.perm-toggles { display:flex; flex-wrap:wrap; gap:6px; }
+.perm-tog { border:1.5px solid var(--hair); background:#fff; border-radius:999px; padding:7px 10px; font-size:12px; font-weight:800; cursor:pointer; color:var(--ink); }
+.perm-tog.on { background:var(--lavender); border-color:var(--purple); color:var(--purple-deep); }
+.perm-tog.off { opacity:.55; }
+.perm-tog[disabled] { cursor:default; }
+.start-dock .pill.locked, .start-more .pill.locked {
+  background:rgba(250,249,252,.38) !important;
+  color:rgba(36,27,51,.42) !important;
+  box-shadow:none;
+}
 .work-email { display:flex; gap:8px; margin-top:10px; align-items:stretch; }
 .work-email .f { margin:0; flex:1; min-width:0; width:auto; }
 .work-email .pill { margin:0; padding:12px 16px; width:auto; }
@@ -427,19 +504,21 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
 .center-gallery {
   display:none; position:fixed; inset:0; z-index:95; background:#0b0b10;
   touch-action:none; user-select:none; -webkit-user-select:none;
+  flex-direction:column;
 }
-.center-gallery.on { display:block; }
+.center-gallery.on { display:flex; }
+.center-gallery .view-stage { flex:1; min-height:0; position:relative; }
 .center-gallery img {
   position:absolute; inset:0; width:100%; height:100%;
   object-fit:contain; background:#0b0b10; pointer-events:none;
 }
 .center-gallery .count {
-  position:absolute; left:16px; bottom:calc(16px + env(safe-area-inset-bottom));
+  position:absolute; left:16px; top:calc(16px + env(safe-area-inset-top));
   z-index:2; color:#fff; font-size:13px; font-weight:800;
   background:rgba(0,0,0,.45); border-radius:999px; padding:6px 12px;
 }
 .center-gallery .dots {
-  position:absolute; left:0; right:0; bottom:calc(18px + env(safe-area-inset-bottom));
+  position:absolute; left:0; right:0; top:calc(52px + env(safe-area-inset-top));
   display:flex; justify-content:center; gap:7px; z-index:2;
 }
 .center-gallery .dots i { width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,.35); }
@@ -461,6 +540,7 @@ body.center-gallery-on { overflow:hidden; }
 }
 .center-hero .nav-hit.prev { left:10px; }
 .center-hero .nav-hit.next { right:10px; }
+.center-hero .nav-hit.play-voice { right:10px; top:auto; bottom:12px; transform:none; font-size:14px; }
 .acre-vals { display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin:0 0 10px; }
 .acre-chip, .mkt-chip {
   background:#fff; border:1.5px solid var(--hair); border-radius:18px; padding:12px 10px 10px; text-align:left;
@@ -469,11 +549,11 @@ body.center-gallery-on { overflow:hidden; }
 .acre-chip b, .mkt-chip b { display:block; font-size:18px; letter-spacing:-.4px; }
 .acre-market { display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; margin:0 0 18px; }
 .mkt-chip b { font-size:14px; }
-.center-docs { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:4px 0 8px; }
+.center-docs, .center-why-docs { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:4px 0 8px; }
 .doc-slot {
-  position:relative; min-height:118px; border-radius:20px; overflow:hidden;
+  position:relative; min-height:168px; border-radius:22px; overflow:hidden;
   border:1.5px dashed #D9D3E8; background:#fff; cursor:pointer;
-  padding:14px; display:flex; flex-direction:column; justify-content:flex-end; text-align:left;
+  padding:18px 16px 16px; display:flex; flex-direction:column; justify-content:flex-end; text-align:left;
   font:inherit; color:inherit; width:100%;
 }
 .doc-slot.on { border-style:solid; border-color:#C4B6FF; background:#F6F3FF; }
@@ -485,8 +565,8 @@ body.center-gallery-on { overflow:hidden; }
   letter-spacing:.06em; border-radius:8px; padding:4px 7px;
 }
 .doc-slot b, .doc-slot span { position:relative; }
-.doc-slot b { font-size:15px; margin:0 0 2px; }
-.doc-slot span { font-size:12px; color:var(--muted); font-weight:600; }
+.doc-slot b { font-size:18px; margin:0 0 6px; line-height:1.2; }
+.doc-slot span { font-size:14px; color:var(--muted); font-weight:600; line-height:1.35; }
 .doc-slot.on b, .doc-slot.on span { color:#fff; }
 .team-rail { display:flex; flex-direction:column; gap:10px; }
 .team-card { background:#fff; border:1.5px solid var(--hair); border-radius:20px; padding:14px; }
@@ -498,6 +578,7 @@ body.center-gallery-on { overflow:hidden; }
 .team-mm label { margin:0; }
 .team-mm .f { padding:10px 8px; font-size:14px; text-align:center; }
 .team-card textarea { min-height:72px; margin-top:10px; }
+.team-card .team-why { width:100%; margin-top:10px; min-height:48px; font-size:15px; }
 .center-detail-empty {
   min-height:calc(100dvh - 80px); display:grid; place-items:center; text-align:center; padding:40px 24px;
 }
@@ -585,7 +666,9 @@ body.center-gallery-on { overflow:hidden; }
   #center h2{ font-size:34px; }
   #center .center-hero{ min-height:280px; border-radius:26px; }
   #center .center-hero img{ height:min(36vh, 340px); }
-  #center .center-docs{ grid-template-columns:repeat(3, 1fr); }
+  #center .center-docs, #center .center-why-docs, #center .docs-grid{ grid-template-columns:1fr 1fr; }
+  #center .doc-slot, #center .doc-sq { min-height:196px; }
+  #center .doc-slot b, #center .doc-sq b { font-size:20px; }
   #center .team-rail{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
   #center .team-card.final{ grid-column:1 / -1; }
   #center .facts{ grid-template-columns:repeat(3, 1fr); }
@@ -659,6 +742,7 @@ body.center-gallery-on { overflow:hidden; }
   .dock .pill { width:auto; min-width:240px; margin:0; }
   .pill { transition:transform .15s ease, box-shadow .15s ease, background .15s ease; }
   .pill:hover { transform:translateY(-1px); box-shadow:0 10px 24px rgba(92,63,224,.16); }
+  .home-gate .pill:hover { transform:none; box-shadow:none; }
   .row, .dmg-card, .doc-sq, .mail, .review, .gbtn, .acre-row, .lane-pill, .doc-slot {
     transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;
   }
@@ -671,7 +755,14 @@ body.center-gallery-on { overflow:hidden; }
   #photoRows .row { margin:0; }
   #damageRows { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
   #damageRows .dmg-card { margin:0; }
-  .docs-grid { grid-template-columns:repeat(4, 1fr); gap:16px; }
+  .docs-grid, .center-docs, .center-why-docs { grid-template-columns:1fr 1fr; gap:18px; }
+  .phone:has(#workbench.on){ max-width:none; }
+  #workbench .pad { max-width:1180px; }
+  .wb-grid { grid-template-columns:1fr 1fr; gap:16px; }
+  .wb-hero h2 { font-size:40px; }
+  .doc-sq, .doc-slot { min-height:200px; }
+  .doc-sq b, .doc-slot b { font-size:20px; }
+  .doc-sq span, .doc-slot span { font-size:15px; }
   .carfax-pages canvas, .carfax-pages img { max-width:860px; }
   .how { padding:18px 22px; }
   .how li { font-size:16px; }
@@ -733,7 +824,7 @@ body.center-gallery-on { overflow:hidden; }
 }
 
 @media (min-width:1320px){
-  .docs-grid { grid-template-columns:repeat(4, 1fr); }
+  .docs-grid, .center-docs, .center-why-docs { grid-template-columns:1fr 1fr; }
   #photoRows, #damageRows { grid-template-columns:repeat(3, 1fr); }
   .login-hero h1 { font-size:64px; }
 }
@@ -754,16 +845,17 @@ body.center-gallery-on { overflow:hidden; }
   </div>
   <div class="login-card">
     <button class="pill cyan" type="button" id="btnGuest">Continue as guest</button>
-    <div class="login-split"><span>Employees</span></div>
+    <div class="login-split" id="staffSplit"><span>Employees</span></div>
+    <p class="login-staff-note" id="staffNote">Tap Google. Use your work account — anyone @myloan.ca is already in.</p>
     <button class="gbtn" type="button" id="btnGoogle">
       <svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.9 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 8 3.1l5.7-5.7C34.2 6.1 29.4 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.2-.1-2.3-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 16 19 12 24 12c3.1 0 5.8 1.2 8 3.1l5.7-5.7C34.2 6.1 29.4 4 24 4 16.3 4 9.6 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 10-2 13.6-5.2l-6.3-5.3C29.2 35.1 26.7 36 24 36c-5.3 0-9.7-3.1-11.3-7.5l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-1.1 3.2-4.1 5.5-7.6 6.5l6.3 5.3C36.9 41.9 44 36 44 24c0-1.2-.1-2.3-.4-3.5z"/></svg>
-      Sign in with Google
+      <span class="gbtn-label">Continue with Google</span>
     </button>
-    <div class="login-split"><span>or email</span></div>
-    <form id="staffForm" action="#" method="post">
-      <input class="f" id="workEmail" type="email" inputmode="email" autocomplete="username" placeholder="Email" />
-      <p class="login-err hide" id="loginErr"></p>
-      <button class="pill purple" type="submit" id="workGo" style="margin-top:10px">Sign in</button>
+    <p class="login-err hide" id="loginErr"></p>
+    <button class="link login-fallback" type="button" id="staffEmailToggle">Google didn’t open? Use work email</button>
+    <form id="staffForm" class="hide" action="#" method="post">
+      <input class="f" id="workEmail" type="email" inputmode="email" autocomplete="username" placeholder="Work email" />
+      <button class="pill purple" type="submit" id="workGo" style="margin-top:10px">Sign in with email</button>
     </form>
   </div>
 </section>
@@ -776,7 +868,7 @@ body.center-gallery-on { overflow:hidden; }
   <div class="start-dock" id="startDock">
     <div class="start-actions" id="startActions">
       <button class="pill purple" type="button" id="startAppraise">Appraise vehicle</button>
-      <button class="pill" type="button" id="startCenter">Appraisal Center</button>
+      <button class="pill" type="button" id="startCenter" aria-disabled="false">Appraisal Center</button>
       <button class="pill cyan" type="button" id="startWebsite">Post vehicle to website</button>
     </div>
     <div class="start-more" id="startMore">
@@ -870,8 +962,8 @@ body.center-gallery-on { overflow:hidden; }
     <button class="round" type="button">•••</button>
   </div>
   <div class="pad" style="padding-bottom:40px">
-    <h2>Who can log in</h2>
-    <p class="quote">Any @myloan.ca address already works. Add anyone else by email — they type it on the login page and go.</p>
+    <h2>Who can do what</h2>
+    <p class="quote" id="usersLead">Shawn turns people on or off. Send trade-in link, Appraise, Website photos, Appraisal Center, and Admin. Anyone @myloan.ca can still log in.</p>
     <label class="k">Name</label>
     <input class="f" id="user-name" placeholder="First name" />
     <label class="k">Email</label>
@@ -916,9 +1008,17 @@ body.center-gallery-on { overflow:hidden; }
     <div class="block">Notes</div>
     <p class="quote" id="centerStory">No story yet.</p>
     <div class="block">Documents</div>
-    <div class="center-docs" id="centerDocs"></div>
+    <div class="docs-grid center-docs" id="centerDocs"></div>
     <div class="block">Appraisal team</div>
+    <div class="center-why-docs" id="centerWhyDocs"></div>
     <div class="team-rail" id="centerTeam"></div>
+    <div id="centerCdWrap" class="cd-field hide">
+      <label class="k" for="centerCdApp">Canada Drives application number</label>
+      <p class="need">Required. This number goes on the PDF we email Shawn and Christina.</p>
+      <input class="f" id="centerCdApp" placeholder="Type the application number" autocomplete="off" />
+    </div>
+    <label class="k">Shawn approval / buy number</label>
+    <input class="f" id="centerApproval" inputmode="decimal" placeholder="Enter the actual buy number" />
     <label class="k">Desk notes</label>
     <textarea class="note" id="centerNotes" placeholder="Anything the team should know"></textarea>
   </div>
@@ -982,10 +1082,12 @@ body.center-gallery-on { overflow:hidden; }
   <div class="pad">
     <div id="typeWrap">
       <button class="pill" type="button" id="btnDealType">Appraisal type</button>
-      <p class="quote" id="typeQuote">Trade-in, locate, general acquisition, or Canada Drives.</p>
-      <div id="cdWrap" class="hide">
-        <label class="k">Canada Drives application number</label>
-        <input class="f" id="home-cd-app" placeholder="Application number" autocomplete="off" />
+      <p class="quote" id="typeQuote">Trade-in, locate, general acquisition, or Consumer Acquisition.</p>
+      <p class="type-gate-note hide" id="typeGateNote">Pick the type first. Story, pictures, documents, and VIN stay locked until you do.</p>
+      <div id="cdWrap" class="cd-field hide">
+        <label class="k" for="home-cd-app">Canada Drives application number</label>
+        <p class="need">Required. This number goes on the PDF we email.</p>
+        <input class="f" id="home-cd-app" placeholder="Type the application number" autocomplete="off" inputmode="text" />
       </div>
     </div>
     <div id="storyBlock">
@@ -1000,12 +1102,94 @@ body.center-gallery-on { overflow:hidden; }
     <button class="pill purple" type="button" id="btnPictures" style="margin-top:16px">Just Pictures</button>
     <div id="homeDocs">
     <button class="pill" type="button" id="btnDocs">Appraisial documents</button>
-    <p class="quote">Carfax, vAuto, OpenLane, eBlock — optional. Photograph the packet if you have it.</p>
+    <p class="quote">Same document pills everywhere. vAuto, OpenLane, and eBlock copy the VIN and open the site. Carfax, MMR, Black Book, appraisal summary, and competitive set read the file you add.</p>
     </div>
     <div id="vinBtns">
     <button class="pill cyan" type="button" id="btnVin">Photo of ownership or VIN</button>
     <p class="quote" id="vinHint">Best: take a picture of the vehicle ownership (registration). You can also photograph the VIN on the dash or the sticker on the driver’s door. We’ll read the number from the photo.</p>
     <p class="vin-chip hide" id="vinChip"></p>
+    </div>
+  </div>
+</section>
+
+<section class="screen" id="workbench">
+  <div class="nav">
+    <button class="round" type="button" id="wbBack">✕</button>
+    <h1>Consumer Acquisition</h1>
+    <button class="round" type="button" id="wbType">Type</button>
+  </div>
+  <div class="pad">
+    <div id="wbPick">
+      <div class="wb-hero">
+        <p class="wb-kicker" id="wbPickKicker">Appointments</p>
+        <h2>Who’s coming in</h2>
+        <p id="wbPickLead">Pick the booked appointment. The workbench opens already filled — we don’t ask again for what Airtable already has.</p>
+      </div>
+      <div id="apptWrap" class="appt-wrap">
+        <div class="appt-tabs" id="apptTabs">
+          <button type="button" data-appt-region="GTA">GTA</button>
+          <button type="button" data-appt-region="Ottawa">Ottawa</button>
+        </div>
+        <div class="appt-dates" id="apptDates">
+          <button type="button" data-appt-range="today">Today</button>
+          <button type="button" data-appt-range="tomorrow">Tomorrow</button>
+          <button type="button" data-appt-range="month">This month</button>
+          <button type="button" data-appt-range="lastMonth">Last month</button>
+          <button type="button" data-appt-range="calendar">Calendar</button>
+        </div>
+        <div id="apptCal" class="hide">
+          <div class="pair">
+            <div>
+              <label class="k" for="apptFrom">From</label>
+              <input class="f" id="apptFrom" type="date" />
+            </div>
+            <div>
+              <label class="k" for="apptTo">To</label>
+              <input class="f" id="apptTo" type="date" />
+            </div>
+          </div>
+        </div>
+        <p class="need hide" id="apptLiveNote"></p>
+        <div id="apptList"></div>
+      </div>
+    </div>
+    <div id="wbJob" class="hide">
+      <div class="wb-hero">
+        <p class="wb-kicker" id="wbKicker">Consumer Acquisition</p>
+        <h2 id="wbYmm">Vehicle</h2>
+        <p id="wbSeller">Seller</p>
+        <div class="wb-chips" id="wbChips"></div>
+      </div>
+      <div class="wb-grid">
+        <button class="wb-card" type="button" id="wbStory">
+          <i class="tag">Verbal only</i>
+          <b>What’s the Story</b>
+          <span>Record the condition. Year, make, VIN, and seller stay as Airtable filled them.</span>
+        </button>
+        <button class="wb-card" type="button" id="wbWalk">
+          <i class="tag">Walk-around</i>
+          <b>Photos in order</b>
+          <span>Same walk, full-screen swipe, and double-tap as everywhere else.</span>
+        </button>
+        <button class="wb-card dmg" type="button" id="wbDmg">
+          <i class="tag">Critical</i>
+          <b>Damage photos</b>
+          <span>Every mark. Speak it, shoot it. The short line tattoos on the picture.</span>
+        </button>
+        <button class="wb-card" type="button" id="wbSendCard">
+          <i class="tag">Airtight Send</i>
+          <b>Send the packet</b>
+          <span>PDF, every photo, who sent it — Incoming plus Shawn and Christina.</span>
+        </button>
+      </div>
+      <div class="block">Documents</div>
+      <p class="quote">Same pills as Trade-in and Center. vAuto, OpenLane, and eBlock copy the VIN and open the site.</p>
+      <div id="wbDocs" class="docs-grid"></div>
+      <div id="wbCdWrap" class="cd-field hide">
+        <label class="k" for="wb-cd-app">Canada Drives application number</label>
+        <p class="need">Required on the PDF we email. Airtable usually already has this.</p>
+        <input class="f" id="wb-cd-app" placeholder="Application number" autocomplete="off" />
+      </div>
     </div>
   </div>
 </section>
@@ -1073,8 +1257,8 @@ body.center-gallery-on { overflow:hidden; }
     <div class="how">
       <ol>
         <li><b>Tap the part of the car that’s damaged</b> using the same angles as the photos above (¾ front, driver side, rear, and so on).</li>
-        <li><b>First tap turns the microphone on.</b> Say what’s wrong, out loud — “rust on the front fender” or “dent in the passenger door.”</li>
-        <li><b>Second tap takes the picture.</b> Your words stick on the photo. Need a close-up of the same spot? Tap that panel again and shoot as many as you want.</li>
+        <li><b>First tap starts recording what you say.</b> Speak the damage — “rust on the front fender” or “dent in the passenger door.” The camera keeps the audio so Shawn can hear it later.</li>
+        <li><b>Second tap takes the picture.</b> A short line of what you said is tattooed on the bottom of that photo. Tap More on the picture to read the rest — it opens under the photo, not over the car. Need a close-up of the same spot? Tap that panel again and shoot as many as you want.</li>
       </ol>
     </div>
     <div id="damageRows"></div>
@@ -1168,10 +1352,21 @@ body.center-gallery-on { overflow:hidden; }
     <h3 id="viewerTitle">File</h3>
     <span style="width:36px"></span>
   </div>
-  <iframe id="viewerPdf" title="PDF" class="hide"></iframe>
-  <img id="viewerImg" alt="">
-  <video id="viewerVid" class="hide" controls playsinline></video>
-  <div class="viewer-doc" id="viewerDoc"></div>
+  <div class="view-stage">
+    <iframe id="viewerPdf" title="PDF" class="hide"></iframe>
+    <img id="viewerImg" alt="">
+    <video id="viewerVid" class="hide" controls playsinline></video>
+    <div class="viewer-doc" id="viewerDoc"></div>
+  </div>
+  <div class="view-cap hide" id="viewerCapBar">
+    <button type="button" class="view-play hide" id="viewerPlay" aria-label="Play spoken description">▶</button>
+    <span class="view-cap-line" id="viewerCapLine"></span>
+    <button type="button" class="view-more hide" id="viewerCapMore">More</button>
+  </div>
+  <div class="view-cap-sheet hide" id="viewerCapSheet">
+    <p id="viewerCapFull"></p>
+    <audio id="viewerAudio" class="hide" controls playsinline></audio>
+  </div>
 </div>
 <div class="center-gallery" id="centerGallery" aria-label="Vehicle photos"></div>
 
@@ -1240,11 +1435,16 @@ body.center-gallery-on { overflow:hidden; }
   <div class="card">
     <button class="x" type="button" data-close="typeSheet">✕</button>
     <h3>Appraisal type</h3>
-    <p class="hint">Pick one. If it’s Canada Drives, add the application number.</p>
+    <p class="hint">Pick one. Consumer Acquisition then needs a lead source — Canada Drives, My Loan, My Auto, or Carla.</p>
     <div id="typeChips" class="to-chips"></div>
-    <div id="cdBox" class="hide">
-      <label class="k">Canada Drives application number</label>
-      <input class="f" id="cd-app" placeholder="Application number" autocomplete="off" />
+    <div id="leadBox" class="lead-box hide">
+      <p class="hint">Lead source — pick one before appointments open.</p>
+      <div id="leadChips" class="to-chips"></div>
+    </div>
+    <div id="cdBox" class="cd-field hide">
+      <label class="k" for="cd-app">Canada Drives application number</label>
+      <p class="need">Required. This number goes on the PDF we email.</p>
+      <input class="f" id="cd-app" placeholder="Type the application number" autocomplete="off" inputmode="text" />
     </div>
     <button class="pill purple" type="button" id="typeSave" style="margin-top:14px">Done</button>
   </div>
@@ -1305,17 +1505,17 @@ const VIEWS = [
   ["tire", "Tire", "tire"],
   ["interior", "Driver interior", "door"]
 ];
-const DOC_TYPES = [
-  ["vauto","vAuto","vAuto appraisal"],
-  ["carfax","Carfax","Vehicle history report"],
-  ["openlane","OpenLane","Auction / run list sheet"],
-  ["eblock","eBlock","eBlock recap or bid sheet"],
-  ["vauto_summary","V-Auto documents","PDF, screenshots, or a recording"],
-  ["vauto_book","eBlock documents","PDF, screenshots, or a recording"],
-  ["vauto_comp","OpenLane documents","PDF, screenshots, or a recording"],
-  ["mmr","MMR documents","PDF, screenshots, or a recording"],
-  ["carfax_pdf","Carfax","Awaiting information"]
+const PACKET_DOCS = [
+  {id:"vauto", label:"vAuto", kind:"launch", brand:"vauto-sq", open:"vauto"},
+  {id:"openlane", label:"OpenLane", kind:"launch", brand:"openlane-sq", open:"openlane"},
+  {id:"eblock", label:"eBlock", kind:"launch", brand:"eblock-sq", open:"eblock"},
+  {id:"carfax", label:"Carfax", kind:"extract", hint:"History report from a PDF, video, or screenshot"},
+  {id:"mmr", label:"MMR", kind:"extract", hint:"Wholesale guide from a PDF, video, or screenshot"},
+  {id:"blackbook", label:"Black Book", kind:"extract", hint:"Book values from a PDF, video, or screenshot"},
+  {id:"summary", label:"Appraisal summary", kind:"extract", hint:"Appraisal brief from a PDF, video, or screenshot"},
+  {id:"compset", label:"Competitive set", kind:"extract", hint:"Comps from a PDF, video, or screenshot"}
 ];
+const DOC_TYPES = PACKET_DOCS.map(function(d){ return [d.id, d.label, d.hint||d.label]; });
 
 window.GOOGLE_CLIENT_ID = window.GOOGLE_CLIENT_ID || "612595319762-mdl9686m3t8pu40qnp9oftpn6osju5c4.apps.googleusercontent.com";
 fetch((function(){
@@ -1330,15 +1530,16 @@ fetch((function(){
 window.APP = {
   purpose:"both",
   year:"", make:"", model:"", trim:"", color:"", km:"", vin:"", stock:"", heard:"", notes:"", webcopy:"",
-  photos:{}, damage:{}, closeups:[], docs:{}, damageCap:{}, closeupCap:[],
+  photos:{}, damage:{}, closeups:[], docs:{}, damageCap:{}, closeupCap:[], closeupAudio:[],
   mode:"photos", viewId:"qfront", stream:null, lock:false, rec:null, listening:false,
-  dmgArmed:false, dmgCaption:"", dmgRec:null, emails:[],
+  dmgArmed:false, dmgCaption:"", dmgRec:null, dmgAudioRec:null, dmgFinal:"", emails:[],
   clips:[], recOn:false, recorder:null, recChunks:[], recTick:null, recStarted:0, recMime:"", zoom:1,
   googleToken: window._gtoken || "", extraUsers:[], requestedBy:"", requestedByName:"",
   inviteUnit:"", inviteStock:"", inviteName:"", inviteEmail:"",
-  dealType:"", cdApp:"", centerId:"", centerFilter:"all", centerPhoto:0,
+  dealType:"", leadSource:"", cdApp:"", centerId:"", sendId:"", centerFilter:"all", centerPhoto:0,
   centerHistory:false, centerLane:"", centerQuery:"", centerRange:"all", centerYear:new Date().getFullYear(),
-  centerShots:[], centerGalleryOn:false
+  centerShots:[], centerGalleryOn:false, lockedFromAirtable:false,
+  apptId:"", apptSeller:"", apptRegion:"GTA", apptRange:"today", apptItems:[]
 };
 
 function $(id){ return document.getElementById(id); }
@@ -1370,26 +1571,153 @@ function isPassGhost(key){ return key==="pass" || key==="qfront_pass" || key==="
 function unitLabel(){ return [APP.year, APP.make, APP.model].filter(Boolean).join(" ") || "Unit"; }
 function why(){
   if(APP.purpose==="website") return "Website";
+  if(isConsumerAcquisition() && APP.leadSource){
+    if(isCanadaDrives() && (APP.cdApp||"").trim()) return "Consumer Acquisition · Canada Drives "+APP.cdApp.trim();
+    return "Consumer Acquisition · "+APP.leadSource;
+  }
   if(APP.dealType==="Canada Drives" && (APP.cdApp||"").trim()) return "Canada Drives "+APP.cdApp.trim();
   return APP.dealType || "Appraisal";
 }
 function isWeb(){ return APP.purpose==="website"; }
-const DEAL_TYPES = ["Trade-in","Locate","General acquisition","Canada Drives"];
+function leadSourceOf(item){
+  if(item) return String(item.leadSource||"").trim();
+  return String(APP.leadSource||"").trim();
+}
+function isConsumerAcquisition(item){
+  const t=item ? item.dealType : APP.dealType;
+  return t==="Consumer Acquisition" || t==="Canada Drives";
+}
+function isCanadaDrives(item){
+  if(leadSourceOf(item)==="Canada Drives") return true;
+  const t=item ? item.dealType : APP.dealType;
+  return t==="Canada Drives";
+}
+function cdAppNumber(item){
+  if(item) return String(item.cdApp||"").trim();
+  const typed=(($("wb-cd-app")&&$("wb-cd-app").value)||($("home-cd-app")&&$("home-cd-app").value)||($("cd-app")&&$("cd-app").value)||APP.cdApp||"").trim();
+  return typed;
+}
+function requireCdApp(item){
+  if(!isCanadaDrives(item)) return true;
+  const num=cdAppNumber(item);
+  if(item){
+    if(!num){ toast("Add the Canada Drives application number first."); return false; }
+    return true;
+  }
+  APP.cdApp=num;
+  if(!num){
+    toast("Add the Canada Drives application number first.");
+    if(typeof openDealType==="function") openDealType();
+    return false;
+  }
+  return true;
+}
+function needsAppraiseType(job, staff){
+  var isStaff=staff===undefined?(APP.role!=="guest"):!!staff;
+  if(!isStaff) return false;
+  var p=job||APP;
+  if(!p || p.purpose==="website") return false;
+  return !String(p.dealType||"").trim();
+}
+function needsLeadSource(job, staff){
+  if(needsAppraiseType(job, staff)) return false;
+  var isStaff=staff===undefined?(APP.role!=="guest"):!!staff;
+  if(!isStaff) return false;
+  var p=job||APP;
+  if(!p || p.purpose==="website") return false;
+  if(!isConsumerAcquisition(p)) return false;
+  return !String(p.leadSource||"").trim();
+}
+function needsAppraiseAppt(job, staff){
+  if(needsAppraiseType(job, staff) || needsLeadSource(job, staff)) return false;
+  var isStaff=staff===undefined?(APP.role!=="guest"):!!staff;
+  if(!isStaff) return false;
+  var p=job||APP;
+  if(!p || p.purpose==="website") return false;
+  if(!isConsumerAcquisition(p)) return false;
+  return !String(p.apptId||"").trim();
+}
+function appraiseLocked(job, staff){
+  return needsAppraiseType(job, staff) || needsLeadSource(job, staff) || needsAppraiseAppt(job, staff);
+}
+function requireAppraiseType(){
+  if(needsAppraiseType()){
+    toast("Pick the appraisal type first — Trade-in, Locate, General acquisition, or Consumer Acquisition.");
+    openDealType();
+    return false;
+  }
+  if(needsLeadSource()){
+    toast("Pick the lead source first — Canada Drives, My Loan, My Auto, or Carla.");
+    openDealType();
+    return false;
+  }
+  if(needsAppraiseAppt()){
+    toast("Pick the booked appointment first.");
+    openAppointments();
+    return false;
+  }
+  return true;
+}
+function paintAppraiseGate(){
+  var lock=appraiseLocked();
+  ["storyBlock","btnType","btnPictures","homeDocs","vinBtns"].forEach(function(id){
+    var el=$(id);
+    if(el) el.classList.toggle("home-gate", lock);
+  });
+  ["btnStory","btnType","btnPictures","btnDocs","btnVin"].forEach(function(id){
+    var el=$(id);
+    if(!el) return;
+    el.disabled=!!lock;
+    el.setAttribute("aria-disabled", lock?"true":"false");
+  });
+  if($("typeGateNote")){
+    var note=$("typeGateNote");
+    if(needsAppraiseType()){
+      note.textContent="Pick the type first. Story, pictures, documents, and VIN stay locked until you do.";
+      note.classList.remove("hide");
+    } else if(needsLeadSource()){
+      note.textContent="Pick the lead source first — Canada Drives, My Loan, My Auto, or Carla.";
+      note.classList.remove("hide");
+    } else if(needsAppraiseAppt()){
+      note.textContent="Pick the booked appointment first. The workbench opens already filled.";
+      note.classList.remove("hide");
+    } else {
+      note.classList.add("hide");
+    }
+  }
+  if($("typeWrap")) $("typeWrap").classList.toggle("need-type", lock);
+  if($("home")) $("home").setAttribute("data-appraise-gate", lock?"1":"0");
+}
+const DEAL_TYPES = ["Trade-in","Locate","General acquisition","Consumer Acquisition"];
+const LEAD_SOURCES = [
+  {id:"Canada Drives", airtable:"Canada Drives", sel:"sel90QtMNs2kN0MbE"},
+  {id:"My Loan", airtable:"My Loan", sel:""},
+  {id:"My Auto", airtable:"My Auto", sel:""},
+  {id:"Carla", airtable:"Car Loans Canada", sel:"sel1yiqhhgbkHpABm"}
+];
+function leadSpec(name){
+  return LEAD_SOURCES.find(function(s){ return s.id===name; }) || {id:name, airtable:name, sel:""};
+}
 function paintDealType(){
   const t=APP.dealType||"";
-  const cd=t==="Canada Drives";
+  const ca=isConsumerAcquisition();
+  const cd=isCanadaDrives();
   const num=(APP.cdApp||"").trim();
+  const src=APP.leadSource||"";
   const btn=$("btnDealType");
   if(btn) btn.textContent = t
-    ? (cd && num ? ("Canada Drives · "+num) : (cd ? "Canada Drives · add application #" : t))
+    ? (ca && src ? ("Consumer Acquisition · "+src) : (ca ? "Consumer Acquisition · pick lead source" : t))
     : "Appraisal type";
   if($("typeQuote")) $("typeQuote").textContent = t
-    ? (cd ? "Canada Drives — enter the application number so we can match the file." : t+".")
-    : "Trade-in, locate, general acquisition, or Canada Drives.";
+    ? (ca ? (src ? ("Consumer Acquisition · "+src+".") : "Consumer Acquisition — pick Canada Drives, My Loan, My Auto, or Carla.") : t+".")
+    : "Trade-in, locate, general acquisition, or Consumer Acquisition.";
   if($("cdWrap")) $("cdWrap").classList.toggle("hide", !cd);
   if($("cdBox")) $("cdBox").classList.toggle("hide", !cd);
+  if($("leadBox")) $("leadBox").classList.toggle("hide", !ca);
+  if($("wbCdWrap")) $("wbCdWrap").classList.toggle("hide", !cd);
   if($("home-cd-app") && $("home-cd-app")!==document.activeElement) $("home-cd-app").value=num;
   if($("cd-app") && $("cd-app")!==document.activeElement) $("cd-app").value=num;
+  if($("wb-cd-app") && $("wb-cd-app")!==document.activeElement) $("wb-cd-app").value=num;
   const host=$("typeChips");
   if(host){
     host.innerHTML="";
@@ -1400,19 +1728,272 @@ function paintDealType(){
       b.innerHTML='<div class="mark">'+(t===name?"✓":"")+'</div><div><b>'+name+'</b></div>';
       b.onclick=function(){
         APP.dealType=name;
+        if(name!=="Consumer Acquisition"){ APP.leadSource=""; APP.apptId=""; APP.apptSeller=""; APP.lockedFromAirtable=false; }
         paintDealType();
-        if(name==="Canada Drives"){
-          const box=$("cd-app")||$("home-cd-app");
-          if(box) setTimeout(function(){ box.focus(); }, 50);
-        }
+        if(name==="Consumer Acquisition" && APP.leadSource) openAppointments();
       };
       host.appendChild(b);
     });
   }
+  const leads=$("leadChips");
+  if(leads){
+    leads.innerHTML="";
+    LEAD_SOURCES.forEach(function(s){
+      const b=document.createElement("button");
+      b.type="button";
+      b.className="mail"+(src===s.id?" on":"");
+      b.innerHTML='<div class="mark">'+(src===s.id?"✓":"")+'</div><div><b>'+s.id+'</b></div>';
+      b.onclick=function(){
+        APP.dealType="Consumer Acquisition";
+        APP.leadSource=s.id;
+        APP.apptItems=[];
+        APP.apptId="";
+        APP.apptSeller="";
+        paintDealType();
+        openAppointments();
+      };
+      leads.appendChild(b);
+    });
+  }
+  paintAppraiseGate();
+  paintAppointments();
+  if(typeof paintWorkbench==="function") paintWorkbench();
 }
 function openDealType(){
   paintDealType();
   if($("typeSheet")) $("typeSheet").classList.add("on");
+}
+function apptRegionOf(v){
+  const s=String(v||"").toUpperCase();
+  if(s.indexOf("GTA")>=0) return "GTA";
+  if(s.indexOf("OTTAWA")>=0) return "Ottawa";
+  return "";
+}
+function apptDayIso(off){
+  const n=new Date();
+  const d=new Date(n.getFullYear(), n.getMonth(), n.getDate()+(off||0));
+  const m=String(d.getMonth()+1).padStart(2,"0");
+  const day=String(d.getDate()).padStart(2,"0");
+  return d.getFullYear()+"-"+m+"-"+day;
+}
+function lastMonthIso(){
+  const n=new Date();
+  const d=new Date(n.getFullYear(), n.getMonth()-1, 12);
+  const m=String(d.getMonth()+1).padStart(2,"0");
+  return d.getFullYear()+"-"+m+"-"+String(d.getDate()).padStart(2,"0");
+}
+function sampleAppointments(){
+  return [
+    {id:"sample-cd-gta-1", source:"Canada Drives", region:"GTA", appNo:"APP-0003247555", ymm:"2024 Mitsubishi RVR SE", year:"2024", make:"Mitsubishi", model:"RVR", trim:"SE", seller:"Thayaparana Thayaparana", vin:"JA4AJVAW3RU600349", date:apptDayIso(0)},
+    {id:"sample-cd-ott-1", source:"Canada Drives", region:"Ottawa", appNo:"APP-0003233604", ymm:"2017 Land Rover Range Rover Evoque HSE", year:"2017", make:"Land Rover", model:"Range Rover Evoque", trim:"HSE", seller:"Anton Tamas", vin:"SALVR2BG1HH237216", date:apptDayIso(0)},
+    {id:"sample-ml-gta-1", source:"My Loan", region:"GTA", appNo:"ML-10422", ymm:"2021 Honda CR-V EX", year:"2021", make:"Honda", model:"CR-V", trim:"EX", seller:"Priya Shah", vin:"2HKRW2H86MH612441", date:apptDayIso(0)},
+    {id:"sample-ma-ott-1", source:"My Auto", region:"Ottawa", appNo:"MA-8831", ymm:"2018 Ford F-150 XLT", year:"2018", make:"Ford", model:"F-150", trim:"XLT", seller:"Chris Benoit", vin:"1FTEW1EP4JFA20331", date:apptDayIso(0)},
+    {id:"sample-carla-gta-0", source:"Carla", region:"GTA", appNo:"CLC-22904", ymm:"2019 Mazda CX-5 GS", year:"2019", make:"Mazda", model:"CX-5", trim:"GS", seller:"Lina Ortega", vin:"JM3KFBCM5K0408821", date:apptDayIso(0)},
+    {id:"sample-carla-gta-1", source:"Carla", region:"GTA", appNo:"CLC-22910", ymm:"2022 Kia Sportage LX", year:"2022", make:"Kia", model:"Sportage", trim:"LX", seller:"Amira Haddad", vin:"KNDPMCAC7N7902144", date:apptDayIso(1)},
+    {id:"sample-cd-gta-2", source:"Canada Drives", region:"GTA", appNo:"APP-0003257111", ymm:"2023 Volkswagen Taos Comfortline", year:"2023", make:"Volkswagen", model:"Taos", trim:"Comfortline", seller:"Shamsher Singh", vin:"3VVWX7B24PM310061", date:apptDayIso(1)},
+    {id:"sample-cd-ott-2", source:"Canada Drives", region:"Ottawa", appNo:"APP-0003263289", ymm:"2019 Hyundai Tucson Essential", year:"2019", make:"Hyundai", model:"Tucson", trim:"Essential", seller:"Daouda Camara", vin:"KM8J2CA47KU042870", date:apptDayIso(1)},
+    {id:"sample-ml-ott-2", source:"My Loan", region:"Ottawa", appNo:"ML-10488", ymm:"2020 Toyota RAV4 LE", year:"2020", make:"Toyota", model:"RAV4", trim:"LE", seller:"Noah Berger", vin:"2T3P1RFV5LC085221", date:lastMonthIso()},
+    {id:"sample-cd-gta-3", source:"Canada Drives", region:"GTA", appNo:"APP-0003271130", ymm:"2020 Mercedes-Benz E-Class E450", year:"2020", make:"Mercedes-Benz", model:"E-Class", trim:"E450", seller:"Donny Wang", vin:"WDDZF6JB9LA720037", date:apptDayIso(-3)}
+  ];
+}
+function apptRangeBounds(kind, fromVal, toVal){
+  const now=new Date();
+  if(kind==="today") return {start:startOfDay(now), end:startOfDay(now)+86400000-1};
+  if(kind==="tomorrow"){
+    const t=new Date(now.getFullYear(), now.getMonth(), now.getDate()+1);
+    return {start:startOfDay(t), end:startOfDay(t)+86400000-1};
+  }
+  if(kind==="month") return {start:new Date(now.getFullYear(), now.getMonth(), 1).getTime(), end:new Date(now.getFullYear(), now.getMonth()+1, 1).getTime()-1};
+  if(kind==="lastMonth"){
+    const start=new Date(now.getFullYear(), now.getMonth()-1, 1).getTime();
+    const end=new Date(now.getFullYear(), now.getMonth(), 1).getTime()-1;
+    return {start:start, end:end};
+  }
+  if(kind==="calendar"){
+    const a=fromVal ? Date.parse(fromVal+"T00:00:00") : 0;
+    const b=toVal ? Date.parse(toVal+"T23:59:59") : 0;
+    if(a || b) return {start:a||0, end:b||Date.now()};
+    return {start:new Date(now.getFullYear(), now.getMonth(), 1).getTime(), end:new Date(now.getFullYear(), now.getMonth()+1, 1).getTime()-1};
+  }
+  return null;
+}
+function apptWhen(row){
+  const raw=String((row && (row.date||row.bookedAt))||"");
+  if(!raw) return 0;
+  const t=Date.parse(raw.length<=10 ? raw+"T12:00:00" : raw);
+  return t||0;
+}
+function normalizeAppt(row){
+  if(!row) return null;
+  const ymm=String(row.ymm||[row.year,row.make,row.model,row.trim].filter(Boolean).join(" ")).replace(/\s+/g," ").trim();
+  const bits=ymm.split(" ");
+  return {
+    id:String(row.id||""),
+    appNo:String(row.appNo||row.cdApp||"").trim(),
+    ymm:ymm,
+    year:String(row.year||bits[0]||""),
+    make:String(row.make||bits[1]||""),
+    model:String(row.model||bits.slice(2,-1).join(" ")||""),
+    trim:String(row.trim||""),
+    seller:String(row.seller||"").trim(),
+    vin:String(row.vin||"").replace(/\s+/g,"").toUpperCase(),
+    date:String(row.date||"").slice(0,10),
+    region:apptRegionOf(row.region||row.location||"GTA")||"GTA",
+    source:(function(s){
+      s=String(s||"").trim();
+      if(/car loans canada/i.test(s)) return "Carla";
+      if(/canada drives/i.test(s)) return "Canada Drives";
+      return s;
+    })(row.source||row.leadSource||"")
+  };
+}
+const APPTS_AIRTABLE={
+  base:"appfy57egeT1utqaI",
+  table:"tbl2QiJ40S6A7IzyR",
+  stage:"selqqamHvfGvK4CmK",
+  source:"sel90QtMNs2kN0MbE",
+  path:"/api/appointments"
+};
+async function loadAppointments(){
+  try{
+    const spec=leadSpec(APP.leadSource||"Canada Drives");
+    const q=spec.airtable ? ("?source="+encodeURIComponent(spec.airtable)) : "";
+    const r=await fetch((typeof MAIL_HOST==="string"?MAIL_HOST:"")+APPTS_AIRTABLE.path+q, {cache:"no-store"});
+    if(r && r.ok){
+      const j=await r.json();
+      if(j && j.ok && j.live && Array.isArray(j.items) && j.items.length){
+        APP.apptLive=true;
+        APP.apptLiveNote="";
+        return j.items.map(normalizeAppt).filter(Boolean);
+      }
+      if(j && j.reason) APP.apptLiveNote=j.reason;
+    }
+  }catch(e){}
+  APP.apptLive=false;
+  if(!APP.apptLiveNote) APP.apptLiveNote="Live Airtable isn’t wired on this page yet. These are sample appointments so you can still pick one. Set AIRTABLE_TOKEN on the mailer host and open /api/appointments.";
+  return sampleAppointments().map(normalizeAppt);
+}
+function filteredAppointments(){
+  const region=APP.apptRegion||"GTA";
+  const source=APP.leadSource||"";
+  const bounds=apptRangeBounds(APP.apptRange||"today", $("apptFrom")&&$("apptFrom").value, $("apptTo")&&$("apptTo").value);
+  return (APP.apptItems||[]).filter(function(row){
+    if(source && row.source && row.source!==source) return false;
+    if((row.region||"GTA")!==region) return false;
+    if(!bounds) return true;
+    const when=apptWhen(row);
+    if(!when) return false;
+    return when>=bounds.start && when<=bounds.end;
+  });
+}
+function paintAppointments(){
+  const wrap=$("apptWrap");
+  if(!wrap) return;
+  const show=APP.role!=="guest" && !isWeb() && isConsumerAcquisition() && !!APP.leadSource;
+  wrap.classList.toggle("hide", !show);
+  if($("wbPickKicker")) $("wbPickKicker").textContent = (APP.leadSource||"Consumer Acquisition")+" · Appointments";
+  if(!show) return;
+  document.querySelectorAll("#apptTabs [data-appt-region]").forEach(function(b){
+    b.classList.toggle("on", b.getAttribute("data-appt-region")===(APP.apptRegion||"GTA"));
+  });
+  document.querySelectorAll("#apptDates [data-appt-range]").forEach(function(b){
+    b.classList.toggle("on", b.getAttribute("data-appt-range")===(APP.apptRange||"today"));
+  });
+  if($("apptCal")) $("apptCal").classList.toggle("hide", (APP.apptRange||"")!=="calendar");
+  const note=$("apptLiveNote");
+  if(note){
+    note.textContent=APP.apptLive ? "" : (APP.apptLiveNote||"");
+    note.classList.toggle("hide", !note.textContent);
+  }
+  const host=$("apptList");
+  if(!host) return;
+  host.innerHTML="";
+  const rows=filteredAppointments();
+  if(!rows.length){
+    host.innerHTML='<p class="appt-empty">No booked '+(APP.leadSource||"Consumer Acquisition")+' appointments in this date range for '+(APP.apptRegion||"GTA")+'.</p>';
+    return;
+  }
+  rows.forEach(function(row){
+    const b=document.createElement("button");
+    b.type="button";
+    b.className="appt-row"+(APP.apptId===row.id?" on":"");
+    const when=row.date ? new Date(row.date+"T12:00:00").toLocaleDateString("en-CA",{month:"short",day:"numeric",year:"numeric"}) : "Date TBA";
+    b.innerHTML="<b>"+escHtml(row.appNo||"Application")+" · "+escHtml(row.ymm||"Vehicle")+"</b><span>"+escHtml(row.seller||"Seller")+" · "+escHtml(row.vin||"VIN TBA")+" · "+escHtml(when)+"</span>";
+    b.onclick=function(){ applyAppointment(row); };
+    host.appendChild(b);
+  });
+}
+function openAppointments(){
+  if($("typeSheet")) $("typeSheet").classList.remove("on");
+  if($("apptWrap")) $("apptWrap").classList.remove("hide");
+  show("workbench");
+  if(!APP.apptItems || !APP.apptItems.length){
+    loadAppointments().then(function(items){
+      APP.apptItems=items;
+      paintAppointments();
+      paintWorkbench();
+    });
+  } else {
+    paintAppointments();
+    paintWorkbench();
+  }
+  paintAppraiseGate();
+}
+function applyAppointment(row){
+  const a=normalizeAppt(row);
+  if(!a) return;
+  APP.dealType="Consumer Acquisition";
+  if(a.source) APP.leadSource=a.source;
+  APP.apptId=a.id;
+  APP.apptSeller=a.seller;
+  APP.lockedFromAirtable=true;
+  if(a.appNo) APP.cdApp=a.appNo;
+  if(a.vin && a.vin!=="TBD") APP.vin=a.vin;
+  if(a.year) APP.year=a.year;
+  if(a.make) APP.make=a.make;
+  if(a.model) APP.model=a.model;
+  if(a.trim) APP.trim=a.trim;
+  if(a.seller){
+    APP.inviteName=a.seller;
+    const parts=a.seller.split(/\s+/);
+    APP.inviteFirst=parts[0]||"";
+    APP.inviteLast=parts.slice(1).join(" ");
+  }
+  if(typeof fillUnit==="function") fillUnit();
+  paintDealType();
+  paintAppointments();
+  paintWorkbench();
+  show("workbench");
+  toast("Workbench is open — "+(a.ymm||"the vehicle")+" is already filled.");
+}
+function paintWorkbench(){
+  const pick=$("wbPick"), job=$("wbJob");
+  const on=isConsumerAcquisition() && APP.role!=="guest" && !isWeb();
+  const ready=on && APP.leadSource && APP.apptId;
+  if(pick) pick.classList.toggle("hide", !on || !!ready);
+  if(job) job.classList.toggle("hide", !ready);
+  if(!on) return;
+  if($("wbPickLead")) $("wbPickLead").textContent="Pick the booked "+(APP.leadSource||"")+" appointment. Year, make, VIN, app #, and seller come with it.";
+  if(!ready) return;
+  const ymm=[APP.year,APP.make,APP.model,APP.trim].filter(Boolean).join(" ") || "Vehicle";
+  if($("wbKicker")) $("wbKicker").textContent="Consumer Acquisition · "+(APP.leadSource||"");
+  if($("wbYmm")) $("wbYmm").textContent=ymm;
+  if($("wbSeller")) $("wbSeller").textContent=(APP.apptSeller||APP.inviteName||"Seller")+(APP.cdApp?" · "+APP.cdApp:"");
+  const chips=$("wbChips");
+  if(chips){
+    const bits=[
+      APP.vin && APP.vin.length>=8 ? "VIN "+APP.vin : "",
+      APP.cdApp ? "App "+APP.cdApp : "",
+      APP.apptRegion||"",
+      (APP.apptItems||[]).filter(function(r){ return r.id===APP.apptId; })[0] && (APP.apptItems||[]).filter(function(r){ return r.id===APP.apptId; })[0].date
+    ].filter(Boolean);
+    chips.innerHTML=bits.map(function(b){ return '<span class="wb-chip">'+escHtml(b)+"</span>"; }).join("");
+  }
+  if($("wbStory")) $("wbStory").classList.toggle("on", !!(APP.heard||APP.notes));
+  if($("wbWalk")) $("wbWalk").classList.toggle("on", Object.keys(APP.photos||{}).length>0);
+  if($("wbDmg")) $("wbDmg").classList.toggle("on", Object.keys(APP.damage||{}).length>0 || (APP.closeups||[]).length>0);
+  if(typeof paintPacketDocs==="function") paintPacketDocs($("wbDocs"));
+  paintAppraiseGate();
 }
 function websiteCopy(){
   if(APP.webcopy && APP.webcopy.trim()) return APP.webcopy.trim();
@@ -1422,13 +2003,18 @@ function paintStoryHelp(){
   const host=$("storyHelp");
   if(!host) return;
   const web=isWeb();
+  const ca=isConsumerAcquisition() && APP.lockedFromAirtable;
   const open = web
     ? "Press What’s the Story. The microphone turns on. This write-up becomes the website listing, so talk like a buyer is listening."
-    : "Press What’s the Story. The microphone turns on. Talk like you’re standing next to the vehicle with a buyer.";
+    : ca
+      ? "Press What’s the Story. The microphone turns on. This is verbal description only — year, make, VIN, and seller stay as Airtable filled them."
+      : "Press What’s the Story. The microphone turns on. Talk like you’re standing next to the vehicle with a buyer.";
   host.innerHTML =
     '<p class="quote">'+open+'</p>'+
-    '<p class="quote">Say the year, make, model, trim or options, colour, and kilometres. Then walk the condition in detail: rust, dents, scratches, paintwork, glass, tires, interior, warning lights, noises, how it drives, accidents, service history, winter tires, extra keys — anything you’d mention in the driveway. Be specific. The more we know, the better.</p>'+
-    '<p class="quote">If you have the ownership (registration), take a photo of it — that’s the easiest VIN. No ownership with you? Just read the 17-character VIN out loud while you tell the story.</p>';
+    '<p class="quote">'+(ca
+      ? "Walk the condition in detail: rust, dents, scratches, paintwork, glass, tires, interior, warning lights, noises, how it drives, accidents, service history, winter tires, extra keys. Be specific. The more we know, the better."
+      : "Say the year, make, model, trim or options, colour, and kilometres. Then walk the condition in detail: rust, dents, scratches, paintwork, glass, tires, interior, warning lights, noises, how it drives, accidents, service history, winter tires, extra keys — anything you’d mention in the driveway. Be specific. The more we know, the better.")+'</p>'+
+    (ca ? "" : '<p class="quote">If you have the ownership (registration), take a photo of it — that’s the easiest VIN. No ownership with you? Just read the 17-character VIN out loud while you tell the story.</p>');
 }
 function applyMode(){
   const web=isWeb();
@@ -1450,6 +2036,56 @@ function dmgShots(id){
   if(Array.isArray(x)) return x;
   return [{data:x, cap:(APP.damageCap && APP.damageCap[id]) || ""}];
 }
+function shotHasVoice(s){ return !!(s && s.audio); }
+function shotCapLong(s){ return String(s && s.cap || "").trim().length>52; }
+function playShotAudio(s){
+  if(!shotHasVoice(s)) return;
+  try{
+    if(APP._voice){ try{ APP._voice.pause(); }catch(e){} }
+    APP._voice=new Audio(s.audio);
+    const p=APP._voice.play();
+    if(p && p.catch) p.catch(function(){ toast("Couldn’t play the voice note."); });
+  }catch(e){ toast("Couldn’t play the voice note."); }
+}
+function shotCapChrome(shot){
+  const cap=String(shot && shot.cap || "").trim();
+  const voice=shotHasVoice(shot);
+  if(!cap && !voice) return "";
+  const short=esc(damageCaptionLine(cap, 52) || (voice?"Voice note":""));
+  const long=shotCapLong(shot);
+  return '<div class="view-cap">'
+    +(voice?'<button type="button" class="view-play" aria-label="Play spoken description">▶</button>':'')
+    +'<span class="view-cap-line">'+short+"</span>"
+    +(long?'<button type="button" class="view-more">More</button>':'')
+    +"</div>"
+    +((long||voice)?'<div class="view-cap-sheet hide"><p>'+esc(cap)+"</p>"+(voice?'<audio controls playsinline src="'+shot.audio+'"></audio>':'')+"</div>":"");
+}
+function bindShotCapChrome(host, shot){
+  if(!host) return;
+  const more=host.querySelector(".view-more");
+  const sheet=host.querySelector(".view-cap-sheet");
+  const play=host.querySelector(".view-play");
+  const audio=host.querySelector("audio");
+  if(more && sheet){
+    more.onclick=function(e){
+      e.stopPropagation();
+      const shown=!sheet.classList.toggle("hide");
+      more.textContent=shown?"Less":"More";
+    };
+  }
+  if(play){
+    play.onclick=function(e){
+      e.stopPropagation();
+      if(audio && audio.src){
+        if(audio.paused) audio.play();
+        else audio.pause();
+      } else playShotAudio(shot);
+    };
+  }
+}
+function openShotViewer(s, title){
+  openViewer("img", s && s.data, title||(s && s.title)||"Photo", s);
+}
 function shotCount(){
   let n=Object.keys(APP.photos).length + APP.closeups.length;
   VIEWS.forEach(function(v){ n+=dmgShots(v[0]).length; });
@@ -1465,6 +2101,19 @@ function syncCenterDesk(){
 }
 function show(id){
   if(id==="centerDetail") id="center";
+  if(appraiseLocked() && (id==="photos"||id==="verify"||id==="submit")){
+    if(needsAppraiseType() || needsLeadSource()){
+      toast(needsAppraiseType()
+        ? "Pick the appraisal type first — Trade-in, Locate, General acquisition, or Consumer Acquisition."
+        : "Pick the lead source first — Canada Drives, My Loan, My Auto, or Carla.");
+      id="home";
+      openDealType();
+    } else {
+      toast("Pick the booked appointment first.");
+      id="workbench";
+      openAppointments();
+    }
+  }
   const el=$(id);
   if(!el){ toast("Can’t open that screen."); return; }
   if(id!=="camera") killMediaNow();
@@ -1487,6 +2136,7 @@ function show(id){
     }
   }
   if(id==="photos"){ paintLists(); paintDocs(); }
+  if(id==="workbench") paintWorkbench();
   if(id==="camera") startPreview("shotCam");
   if(id==="submit") paintSubmit();
   if(id==="users") paintUsers();
@@ -1496,7 +2146,9 @@ function show(id){
 }
 
 function sessionKey(){ return "inspect.session"; }
-const SESSION_MS=24*60*60*1000;
+const SESSION_MS=30*24*60*60*1000;
+const STAFF_DENY="That Google account isn’t on the list. Use your @myloan.ca account, or ask Shawn to add you.";
+const LOGIN_SCOPES="openid email profile";
 function storeGet(k){
   try{ const v=localStorage.getItem(k); if(v) return v; }catch(e){}
   try{ return sessionStorage.getItem(k); }catch(e){}
@@ -1515,23 +2167,120 @@ const OPEN_STAFF = {
   "wes@thetrucktown.com":"Wes",
   "ryan@papered.com":"Ryan"
 };
+const CENTER_STAFF = {
+  "shawn@myloan.ca":"Shawn",
+  "shawn@gmautosales.ca":"Shawn",
+  "ryan@papered.com":"Ryan",
+  "andrew@autocorp.ca":"Andrew",
+  "wes@thetrucktown.com":"Wes",
+  "kyle@myloan.ca":"Kyle",
+  "shane@myloan.ca":"Shane"
+};
+const CENTER_DENY="Appraisal Center is only for Shawn, Ryan, Andrew, Wes, Kyle, and Shane.";
+const PERM_KEYS=[
+  {id:"trade", label:"Send trade-in link", deny:"You don’t have Send trade-in link. Ask Shawn to turn it on."},
+  {id:"appraise", label:"Appraise", deny:"You don’t have Appraise. Ask Shawn to turn it on."},
+  {id:"website", label:"Website photos", deny:"You don’t have Website photos. Ask Shawn to turn it on."},
+  {id:"center", label:"Appraisal Center", deny:"You don’t have Appraisal Center. Ask Shawn to turn it on."},
+  {id:"admin", label:"Admin", deny:"Only Shawn or an admin can open Users."}
+];
 function staffEmail(v){ return String(v||"").trim().toLowerCase(); }
-function usersKey(){ return "inspect.users"; }
-function loadExtraUsers(){
-  try{
-    const arr=JSON.parse(localStorage.getItem(usersKey())||"[]");
-    if(Array.isArray(arr)) return arr.filter(function(u){ return u && u.email; });
-  }catch(e){}
-  try{
-    const arr=JSON.parse(sessionStorage.getItem(usersKey())||"[]");
-    if(Array.isArray(arr)) return arr.filter(function(u){ return u && u.email; });
-  }catch(e){}
-  return Array.isArray(APP.extraUsers) ? APP.extraUsers : [];
+function shawnAlias(email){
+  const e=staffEmail(email);
+  if(e==="shawn@gmautosales.ca") return "shawn@myloan.ca";
+  return e;
 }
+function allPermsOn(){ return {trade:true, appraise:true, website:true, center:true, admin:true}; }
+function defaultPerms(email){
+  const e=shawnAlias(email);
+  if(e==="shawn@myloan.ca") return allPermsOn();
+  if(e==="wes@thetrucktown.com") return allPermsOn();
+  if(e==="ryan@papered.com" || e==="andrew@autocorp.ca" || e==="kyle@myloan.ca" || e==="shane@myloan.ca"){
+    return {trade:false, appraise:true, website:false, center:true, admin:false};
+  }
+  return {trade:false, appraise:false, website:false, center:false, admin:false};
+}
+function usersKey(){ return "inspect.users"; }
+function emptyUsersStore(){ return {people:[], permissions:{}}; }
+function loadUsersStore(){
+  function read(raw){
+    if(!raw) return null;
+    const data=JSON.parse(raw);
+    if(Array.isArray(data)) return {people:data.filter(function(u){ return u && u.email; }), permissions:{}};
+    if(data && typeof data==="object"){
+      const people=Array.isArray(data.people)?data.people:(Array.isArray(data.users)?data.users:[]);
+      return {people:people.filter(function(u){ return u && u.email; }), permissions:(data.permissions && typeof data.permissions==="object")?data.permissions:{}};
+    }
+    return null;
+  }
+  try{ const s=read(localStorage.getItem(usersKey())); if(s) return s; }catch(e){}
+  try{ const s=read(sessionStorage.getItem(usersKey())); if(s) return s; }catch(e){}
+  return {people:Array.isArray(APP.extraUsers)?APP.extraUsers:[], permissions:APP.userPerms||{}};
+}
+function saveUsersStore(store){
+  const next={people:(store && store.people)||[], permissions:(store && store.permissions)||{}};
+  APP.extraUsers=next.people;
+  APP.userPerms=next.permissions;
+  try{ localStorage.setItem(usersKey(), JSON.stringify(next)); }catch(e){}
+  try{ sessionStorage.setItem(usersKey(), JSON.stringify(next)); }catch(e){}
+}
+function loadExtraUsers(){ return loadUsersStore().people; }
 function saveExtraUsers(list){
-  APP.extraUsers=list;
-  try{ localStorage.setItem(usersKey(), JSON.stringify(list)); }catch(e){}
-  try{ sessionStorage.setItem(usersKey(), JSON.stringify(list)); }catch(e){}
+  const store=loadUsersStore();
+  store.people=list;
+  saveUsersStore(store);
+}
+function permsFor(email){
+  const e=shawnAlias(email);
+  const store=loadUsersStore();
+  const saved=store.permissions && store.permissions[e];
+  const base=defaultPerms(e);
+  if(!saved) return base;
+  const out={};
+  PERM_KEYS.forEach(function(k){ out[k.id]=saved[k.id]==null?base[k.id]:!!saved[k.id]; });
+  if(e==="shawn@myloan.ca") out.admin=true;
+  return out;
+}
+function setPerm(email, key, on){
+  const e=shawnAlias(email);
+  if(e==="shawn@myloan.ca" && key==="admin" && !on) return;
+  const store=loadUsersStore();
+  const cur=permsFor(e);
+  cur[key]=!!on;
+  store.permissions[e]=cur;
+  saveUsersStore(store);
+}
+function canPerm(key, email){
+  if(APP.role!=="employee") return false;
+  return !!permsFor(email||APP.userEmail)[key];
+}
+function permDeny(key){
+  const found=PERM_KEYS.find(function(k){ return k.id===key; });
+  return (found && found.deny) || "You don’t have that. Ask Shawn to turn it on.";
+}
+function canUseCenter(){ return canPerm("center"); }
+function denyCenter(){ toast(canPerm("center")?CENTER_DENY:permDeny("center")); }
+function canUseAdmin(){ return canPerm("admin"); }
+function lockDockBtn(id, ok, key){
+  const btn=$(id);
+  if(!btn) return;
+  const locked=APP.role==="employee" && !ok;
+  btn.classList.toggle("locked", locked);
+  btn.setAttribute("aria-disabled", locked?"true":"false");
+  btn._permKey=key;
+}
+function paintDockPerms(){
+  lockDockBtn("startTrade", canPerm("trade"), "trade");
+  lockDockBtn("startAppraise", canPerm("appraise"), "appraise");
+  lockDockBtn("startWebsite", canPerm("website"), "website");
+  lockDockBtn("startCenter", canPerm("center"), "center");
+  lockDockBtn("startUsers", canPerm("admin"), "admin");
+}
+function paintCenterAccess(){ paintDockPerms(); }
+function requirePerm(key){
+  if(canPerm(key)) return true;
+  toast(permDeny(key));
+  return false;
 }
 function extraUser(email){
   const e=staffEmail(email);
@@ -1546,7 +2295,7 @@ function isStaffEmail(email){
 }
 function enterStaff(email, name){
   const e=staffEmail(email);
-  if(!isStaffEmail(e)){ toast("That email isn’t set up for this app."); return; }
+  if(!isStaffEmail(e)){ loginFail(STAFF_DENY); return; }
   const extra=extraUser(e);
   enterSession("employee", {name: name || (extra && extra.name) || OPEN_STAFF[e] || e.split("@")[0], email:e});
 }
@@ -1562,17 +2311,28 @@ function loginFail(msg){
 function enterStaffPassword(ev){
   if(ev){ ev.preventDefault(); ev.stopPropagation(); }
   const e=staffEmail($("workEmail") && $("workEmail").value);
-  if(!e){ loginFail("Enter your email."); return false; }
-  if(!isStaffEmail(e)){ loginFail("That email isn’t set up for this app."); return false; }
+  if(!e){ loginFail("Enter your work email."); return false; }
+  if(!isStaffEmail(e)){ loginFail(STAFF_DENY); return false; }
   if($("loginErr")) $("loginErr").classList.add("hide");
   enterStaff(e);
   return false;
 }
+function namedStaff(){
+  return [
+    ["Shawn","shawn@myloan.ca"],
+    ["Wes","wes@thetrucktown.com"],
+    ["Ryan","ryan@papered.com"],
+    ["Andrew","andrew@autocorp.ca"],
+    ["Kyle","kyle@myloan.ca"],
+    ["Shane","shane@myloan.ca"]
+  ];
+}
 function addUser(){
+  if(!canUseAdmin()){ toast(permDeny("admin")); return; }
   const email=staffEmail($("user-email") && $("user-email").value);
   const name=(($("user-name") && $("user-name").value) || "").trim() || (email?email.split("@")[0]:"");
   if(!email || email.indexOf("@")<1){ toast("Add a valid email."); return; }
-  if(email.endsWith("@myloan.ca") || OPEN_STAFF[email]){ toast("They can already log in."); return; }
+  if(namedStaff().some(function(p){ return p[1]===email || shawnAlias(email)===p[1]; })){ toast("They are already on the team list."); return; }
   const list=loadExtraUsers();
   if(list.some(function(u){ return staffEmail(u.email)===email; })){ toast("Already on the list."); return; }
   list.push({name:name, email:email});
@@ -1580,25 +2340,45 @@ function addUser(){
   if($("user-email")) $("user-email").value="";
   if($("user-name")) $("user-name").value="";
   paintUsers();
-  toast(name+" can log in now.");
+  toast(name+" can log in. Toggles start off until you turn them on.");
 }
 function removeUser(email){
+  if(!canUseAdmin()){ toast(permDeny("admin")); return; }
   saveExtraUsers(loadExtraUsers().filter(function(u){ return staffEmail(u.email)!==staffEmail(email); }));
   paintUsers();
 }
 function paintUsers(){
   const host=$("userList"); if(!host) return;
   host.innerHTML="";
-  function row(name, email, locked){
+  const admin=canUseAdmin();
+  if($("usersLead")) $("usersLead").textContent = admin
+    ? "Turn people on or off. Send trade-in link, Appraise, Website photos, Appraisal Center, and Admin. Anyone @myloan.ca can still log in."
+    : "Only Shawn or an admin can change these. Ask Shawn if you need a button turned on.";
+  function toggles(email){
+    const p=permsFor(email);
+    return PERM_KEYS.map(function(k){
+      return '<button type="button" class="perm-tog '+(p[k.id]?"on":"off")+'" data-perm="'+k.id+'" data-email="'+email+'" '+(admin?"":"disabled")+'>'+k.label+" · "+(p[k.id]?"On":"Off")+"</button>";
+    }).join("");
+  }
+  function row(name, email, removable){
     const b=document.createElement("div");
     b.className="user-row";
-    b.innerHTML='<div><b>'+name+'</b><span>'+email+'</span></div>'+(locked?'<em>In</em>':'<button type="button">Remove</button>');
-    if(!locked) b.querySelector("button").onclick=function(){ removeUser(email); };
+    b.innerHTML='<div class="who"><div><b>'+escHtml(name)+"</b><span>"+escHtml(email)+"</span></div>"+(removable&&admin?'<button type="button" class="remove">Remove</button>':(email==="shawn@myloan.ca"?"<em>Admin</em>":""))+"</div>"+'<div class="perm-toggles">'+toggles(email)+"</div>";
+    if(removable && admin) b.querySelector(".remove").onclick=function(){ removeUser(email); };
+    b.querySelectorAll(".perm-tog").forEach(function(btn){
+      btn.onclick=function(){
+        if(!canUseAdmin()){ toast(permDeny("admin")); return; }
+        const key=btn.getAttribute("data-perm");
+        const on=!btn.classList.contains("on");
+        setPerm(email, key, on);
+        paintUsers();
+        paintDockPerms();
+      };
+    });
     host.appendChild(b);
   }
-  row("Anyone @myloan.ca", "@myloan.ca", true);
-  Object.keys(OPEN_STAFF).forEach(function(e){ row(OPEN_STAFF[e], e, true); });
-  loadExtraUsers().forEach(function(u){ row(u.name||u.email.split("@")[0], staffEmail(u.email), false); });
+  namedStaff().forEach(function(p){ row(p[0], p[1], false); });
+  loadExtraUsers().forEach(function(u){ row(u.name||u.email.split("@")[0], staffEmail(u.email), true); });
 }
 function saveSession(){
   if(APP.role!=="employee" || !APP.userEmail) return;
@@ -1636,7 +2416,6 @@ function paintThanks(){
   if($("thanksSoft")) $("thanksSoft").textContent = "You can close this page. We'll be in touch.";
 }
 function finishGuest(){
-  landInCenter({source:"guest", sent:true, stage:"Waiting"});
   killMediaNow();
   clearDraft();
   clearSnapshot();
@@ -1663,9 +2442,10 @@ function paintLogin(){
     ? "No account. No sign-in. Tap below and we’ll walk you through a few photos."
     : "No account needed. Tell us about the car, take a few photos, and we’ll take it to buyers across Canada and the U.S.";
   if(btn) btn.textContent = first ? ("Hey "+first+", click here") : "Continue as guest";
-  document.querySelectorAll("#login .login-split, #btnGoogle, #staffForm").forEach(function(n){
-    n.classList.toggle("hide", hideEmp);
+  ["staffSplit","staffNote","btnGoogle","staffEmailToggle","staffForm","loginErr"].forEach(function(id){
+    if($(id)) $(id).classList.toggle("hide", hideEmp);
   });
+  if(!hideEmp && $("staffForm") && $("staffEmailToggle")) $("staffForm").classList.add("hide");
 }
 function applyRole(){
   const guest=APP.role==="guest";
@@ -1701,6 +2481,9 @@ function applyRole(){
     if($("verifyVin")) $("verifyVin").classList.remove("hide");
     if($("vinBtns")) $("vinBtns").classList.remove("hide");
   }
+  paintCenterAccess();
+  paintAppraiseGate();
+  if(typeof paintAppointments==="function") paintAppointments();
 }
 function enterSession(role, user){
   APP.role=role;
@@ -1933,6 +2716,14 @@ function inviteMailCopy(first, url){
 }
 const SHAWN_COPY="shawn@myloan.ca";
 const GNM_COPY="shawn@gmautosales.ca";
+const CHRISTINA_COPY="christina@carmoji.ca";
+function isAppraisalSend(){
+  if(APP.role==="guest") return true;
+  return !isWeb();
+}
+function appraisalCc(){
+  return isAppraisalSend() ? [CHRISTINA_COPY] : [];
+}
 function uniqEmails(list){
   const out=[];
   (Array.isArray(list)?list:String(list||"").split(/[,\s]+/)).forEach(function(e){
@@ -1942,10 +2733,11 @@ function uniqEmails(list){
   return out;
 }
 function packetDest(){
+  const cc=appraisalCc();
   if(APP.role==="guest"){
     const sales=staffEmail(APP.requestedBy);
     const to=uniqEmails([sales, GNM_COPY, SHAWN_COPY]);
-    return {to:to, cc:[], bcc:[]};
+    return {to:to, cc:cc, bcc:[]};
   }
   const typed=uniqEmails(($("extraMail") && $("extraMail").value) || "");
   const to=uniqEmails(loadRecipients().concat(typed));
@@ -1954,7 +2746,7 @@ function packetDest(){
   if(to.indexOf(SHAWN_COPY)<0) to.push(SHAWN_COPY);
   const creator=staffEmail(APP.userEmail);
   if(creator && to.indexOf(creator)<0) to.push(creator);
-  return {to:to, cc:[], bcc: to.indexOf(SHAWN_COPY)>=0 ? [] : [SHAWN_COPY]};
+  return {to:to, cc:cc, bcc: to.indexOf(SHAWN_COPY)>=0 ? [] : [SHAWN_COPY]};
 }
 function fallbackMailHref(to, subject, body, extra){
   extra=extra||{};
@@ -2077,15 +2869,27 @@ function mailHdr(v){
   if(/^[\x20-\x7E]*$/.test(s)) return s;
   return "=?UTF-8?B?"+btoa(unescape(encodeURIComponent(s)))+"?=";
 }
+function packetSenderLine(){
+  if(APP.role==="guest"){
+    const name=(APP.inviteName||"").trim() || "Customer";
+    const via=APP.requestedByName||nameForEmail(APP.requestedBy)||"";
+    return via ? (name+" · link from "+via) : (name+" · customer trade-in");
+  }
+  const who=(APP.userName||"Employee").trim();
+  const email=staffEmail(APP.userEmail);
+  return email ? (who+" <"+email+">") : who;
+}
 function packetMailText(){
   const lines=[(unitLabel()||"Vehicle")+" — "+(why()||"Appraisal")];
+  lines.push("Sent by: "+packetSenderLine());
   const bits=[APP.trim, APP.color, APP.km ? Number(String(APP.km).replace(/,/g,"")).toLocaleString("en-CA")+" km" : ""].filter(Boolean);
   if(bits.length) lines.push(bits.join(" · "));
   if(APP.vin) lines.push("VIN "+String(APP.vin).toUpperCase());
-  if(APP.dealType==="Canada Drives" && APP.cdApp) lines.push("Canada Drives # "+APP.cdApp);
+  if(isCanadaDrives() && APP.cdApp) lines.push("Canada Drives # "+APP.cdApp);
   const story=(APP.notes||APP.heard||"").trim();
   if(story) lines.push("", story);
-  lines.push("", "The photo catalog is in this email. The PDF is attached.");
+  const voices=(typeof capturedFiles==="function"?capturedFiles():[]).filter(function(s){ return s && s.audio; }).length;
+  lines.push("", "The photo catalog is in this email. The PDF is attached."+(voices?" "+voices+" spoken damage note"+(voices===1?"":"s")+" attached.":""));
   return lines.join("\n");
 }
 function packetCatalogHtml(shots, srcFor){
@@ -2093,13 +2897,11 @@ function packetCatalogHtml(shots, srcFor){
   const kicker=escHtml((why()||"Appraisal").toUpperCase());
   const km=APP.km ? Number(String(APP.km).replace(/,/g,"")).toLocaleString("en-CA")+" km" : "";
   const guest=APP.role==="guest";
-  const who=guest
-    ? escHtml((APP.inviteName||"").trim() || "Customer trade-in")
-    : escHtml((APP.userName||APP.userEmail||"G&M Auto Sales").trim());
+  const who=escHtml(packetSenderLine());
   const facts=[
     ["Year", APP.year],["Make", APP.make],["Model", APP.model],["Trim", APP.trim],
     ["Colour", APP.color],["Kilometres", km],["VIN", APP.vin],["Stock", APP.stock],
-    ["Type", APP.dealType],["Canada Drives #", APP.dealType==="Canada Drives"?APP.cdApp:""]
+    ["Type", APP.dealType],["Lead", APP.leadSource],["Canada Drives #", isCanadaDrives()?APP.cdApp:""]
   ].filter(function(r){ return r[1]; });
   const list=shots||[];
   function srcAt(i){
@@ -2184,7 +2986,8 @@ function packetCatalogHtml(shots, srcFor){
     });
   }
   h+='<tr><td style="padding:10px 28px 28px">';
-  h+='<p style="margin:0;font-family:Arial,Helvetica,sans-serif;color:#6B6278;font-size:13px;line-height:1.5">High-definition catalog PDF is attached.'+(APP.clips&&APP.clips.length?" Walk-around video is attached.":"")+'</p>';
+  const voices=(list||[]).filter(function(s){ return s && s.audio; }).length;
+  h+='<p style="margin:0;font-family:Arial,Helvetica,sans-serif;color:#6B6278;font-size:13px;line-height:1.5">High-definition catalog PDF is attached.'+(APP.clips&&APP.clips.length?" Walk-around video is attached.":"")+(voices?" Spoken damage notes are attached — play the matching audio to hear what was said.":"")+'</p>';
   h+='<!--PACKET_PDF-->';
   h+='</td></tr>';
   h+='<tr><td style="padding:16px 28px 22px;background:#FAF7F1;border-top:1px solid #EFEAE0">';
@@ -2228,7 +3031,7 @@ async function sendGuestCatalog(to, subject, text){
     const shots=capturedFiles();
     const mailShots=[];
     for(let i=0;i<shots.length;i++){
-      try{ mailShots.push({title:shots[i].title, name:shots[i].name, cap:shots[i].cap||"", data:await withTimeout(compressDataUrl(shots[i].data, 1200, 0.8), 4000, shots[i].data)}); }
+      try{ mailShots.push({title:shots[i].title, name:shots[i].name, cap:shots[i].cap||"", data:await withTimeout(compressDataUrl(shots[i].data, 1200, 0.8), 4000, shots[i].data), audio:shots[i].audio||"", audioMime:shots[i].audioMime||"", audioName:shots[i].audioName||""}); }
       catch(e){ mailShots.push(shots[i]); }
     }
     const html=packetMailHtml(mailShots);
@@ -2237,11 +3040,12 @@ async function sendGuestCatalog(to, subject, text){
       const b64=dataB64(s.data);
       if(b64) parts.push({cid:"photo"+i+"@inspect", b64:b64, name:s.name||("photo-"+(i+1)+".jpg"), mime:"image/jpeg"});
     });
+    pushVoiceParts(parts, shots);
     try{
       const doc=await withTimeout(buildPdf(), 10000, null);
       if(doc) parts.push({disp:"attachment", b64:bufB64(await doc.output("arraybuffer")), name:(folderName()||"vehicle")+".pdf", mime:"application/pdf"});
     }catch(e){}
-    const sent=await sendFromMe(to, subject, text, html, parts, {bcc:[SHAWN_COPY]});
+    const sent=await sendFromMe(to, subject, text, html, parts, {cc:appraisalCc(), bcc:[SHAWN_COPY]});
     return !!(sent && sent.ok);
   }catch(e){
     return false;
@@ -2466,7 +3270,7 @@ function collectDraft(){
       purpose:APP.purpose, year:APP.year, make:APP.make, model:APP.model, trim:APP.trim,
       color:APP.color, km:APP.km, vin:APP.vin, stock:APP.stock, heard:APP.heard, notes:APP.notes,
       webcopy:APP.webcopy, photos:APP.photos, damage:APP.damage, closeups:APP.closeups,
-      damageCap:APP.damageCap, closeupCap:APP.closeupCap, dealType:APP.dealType, cdApp:APP.cdApp,
+      damageCap:APP.damageCap, closeupCap:APP.closeupCap, closeupAudio:APP.closeupAudio, dealType:APP.dealType, leadSource:APP.leadSource, cdApp:APP.cdApp, apptId:APP.apptId, apptSeller:APP.apptSeller, lockedFromAirtable:APP.lockedFromAirtable,
       emails:(typeof loadRecipients==="function"?loadRecipients():APP.emails),
       role:APP.role, userName:APP.userName, userEmail:APP.userEmail,
       inviteFirst:APP.inviteFirst, inviteLast:APP.inviteLast, inviteName:APP.inviteName,
@@ -2497,6 +3301,7 @@ function saveDraftLocal(snap){
       slim.snap.app.clips=[];
       slim.snap.app.damage={};
       slim.snap.app.closeups=[];
+      slim.snap.app.closeupAudio=[];
     }
     storeSet("inspect.draft", JSON.stringify(slim));
   }catch(e){}
@@ -2602,8 +3407,8 @@ function startFresh(){
 }
 function wipeJob(goStart){
   APP.year=APP.make=APP.model=APP.trim=APP.color=APP.km=APP.vin=APP.stock=APP.heard=APP.notes=APP.webcopy="";
-  APP.dealType=""; APP.cdApp=""; APP.centerId="";
-  APP.photos={}; APP.damage={}; APP.closeups=[]; APP.docs={}; APP.damageCap={}; APP.closeupCap=[];
+  APP.dealType=""; APP.leadSource=""; APP.cdApp=""; APP.apptId=""; APP.apptSeller=""; APP.lockedFromAirtable=false; APP.centerId=""; APP.sendId=""; APP._sending=false;
+  APP.photos={}; APP.damage={}; APP.closeups=[]; APP.docs={}; APP.damageCap={}; APP.closeupCap=[]; APP.closeupAudio=[];
   APP.clips=[]; APP.recOn=false; APP.recorder=null; APP.recChunks=[]; APP.zoom=1;
   if(APP.role!=="guest"){
     APP.inviteFirst=APP.inviteLast=APP.inviteName=APP.inviteEmail=APP.invitePhone="";
@@ -2616,7 +3421,7 @@ function wipeJob(goStart){
 }
 
 const CENTER_KEY="inspect.center";
-const CENTER_SAMPLE_VER="acre6";
+const CENTER_SAMPLE_VER="acre7";
 const CENTER_TEAM=[
   ["shabot","Shabot","FINAL"],
   ["rybot","Rybot","Opinion"],
@@ -2624,14 +3429,9 @@ const CENTER_TEAM=[
   ["drebot","Drebot","Opinion"],
   ["tbot","TBot","Opinion"]
 ];
-const CENTER_DOCS=[
-  ["vauto","vAuto","Appraisal / book","PDF"],
-  ["openlane","OpenLane","Auction sheet","Screenshot"],
-  ["eblock","eBlock","Recap or bid","Video"],
-  ["carfax","Carfax","History report","PDF"],
-  ["mmr","MMR","Wholesale guide","Screenshot"],
-  ["blackbook","Black Book","Book value","Screenshot"]
-];
+const CENTER_DOCS=PACKET_DOCS.map(function(d){
+  return [d.id, d.label, d.hint||d.label, d.kind==="launch"?"Open":"Extract"];
+});
 const CENTER_VALS=[
   ["maya","MAYA"],
   ["vauto","vAuto"],
@@ -2724,11 +3524,11 @@ function sampleTeam(n, notes){
   n=Number(n)||0;
   notes=notes||{};
   const t=emptyTeam();
-  t.shabot={min:String(n-900),target:String(n),max:String(n+700),note:notes.shabot||"Final sits here. Clean file, books support it."};
-  t.rybot={min:String(n-1400),target:String(n+200),max:String(n+600),note:notes.rybot||"I'd be a touch over book if the walk stays this clean."};
-  t.webot={min:String(n-1100),target:String(n-200),max:String(n+400),note:notes.webot||"Retail is there. Watch recon on the leading edge."};
-  t.drebot={min:String(n-1600),target:String(n-400),max:String(n+200),note:notes.drebot||"Wholesale is fine. I wouldn't chase it."};
-  t.tbot={min:String(n-800),target:String(n+100),max:String(n+500),note:notes.tbot||"AFC covers it. I'd take it to the block."};
+  t.shabot={min:String(n-900),target:String(n),max:String(n+700),note:notes.shabot||"Final sits here. The walk, Carfax, and books all point to the same number. I'm not stretching it and I'm not leaving money on the table."};
+  t.rybot={min:String(n-1400),target:String(n+200),max:String(n+600),note:notes.rybot||"I'd be a touch over book if the walk stays this clean. The deal on the lot has room — don't buy the new car with the trade."};
+  t.webot={min:String(n-1100),target:String(n-200),max:String(n+400),note:notes.webot||"Retail is there. I'd still walk the leading edges in person and budget a little recon before we advertise it."};
+  t.drebot={min:String(n-1600),target:String(n-400),max:String(n+200),note:notes.drebot||"Wholesale is fine as a trade. I wouldn't chase it if they want retail money."};
+  t.tbot={min:String(n-800),target:String(n+100),max:String(n+500),note:notes.tbot||"AFC covers the number. If they walk, take it to the block — the file is complete enough to run."};
   return t;
 }
 function sampleDocSvg(kind, item){
@@ -2774,14 +3574,29 @@ function sampleDocSvg(kind, item){
     '</svg>';
   return "data:image/svg+xml;charset=utf-8,"+encodeURIComponent(svg);
 }
+function sampleExtract(id, item){
+  const vin=item.vin||"VIN TBA";
+  const ymm=item.ymmt||item.interest||"Vehicle";
+  const v=item.values||{};
+  const packs={
+    carfax:{title:"Carfax history", facts:[["Owners","1"],["Accidents","0 reported"],["Title","Clean"],["VIN",vin]]},
+    mmr:{title:"MMR wholesale", facts:[["MMR",sampleMoney(v.mmr)],["Unit",ymm],["VIN",vin]]},
+    blackbook:{title:"Black Book", facts:[["Book",sampleMoney(v.book)],["Unit",ymm],["VIN",vin]]},
+    summary:{title:"Appraisal summary", facts:[["vAuto",sampleMoney(v.vauto)],["Adjusted",sampleMoney(v.maya)],["VIN",vin]]},
+    compset:{title:"Competitive set", facts:[["Comps","4 nearby"],["Range",sampleMoney(Number(v.maya||18000)-1600)+" – "+sampleMoney(Number(v.maya||18000)+1400)],["VIN",vin]]}
+  };
+  const p=packs[id]||{title:id, facts:[["VIN",vin]]};
+  p.live=false;
+  p.note="Demo extract from the sample file. Live extract uses /api/extract.";
+  return p;
+}
 function sampleDocs(item){
   return {
-    vauto:{have:true,name:"vAuto appraisal book.pdf",type:"pdf",fmt:"PDF",preview:sampleDocSvg("vauto",item)},
-    openlane:{have:true,name:"OpenLane run list.png",type:"image",fmt:"Screenshot",preview:sampleDocSvg("openlane",item)},
-    eblock:{have:true,name:"eBlock recap.mp4",type:"video",fmt:"Video",preview:sampleDocSvg("eblock",item)},
-    carfax:{have:true,name:"Carfax history.pdf",type:"pdf",fmt:"PDF",preview:sampleDocSvg("carfax",item)},
-    mmr:{have:true,name:"MMR wholesale.png",type:"image",fmt:"Screenshot",preview:sampleDocSvg("mmr",item)},
-    blackbook:{have:true,name:"Black Book values.png",type:"image",fmt:"Screenshot",preview:sampleDocSvg("blackbook",item)}
+    carfax:{have:true,name:"Carfax history.pdf",type:"pdf",fmt:"PDF",preview:sampleDocSvg("carfax",item),extract:sampleExtract("carfax",item)},
+    mmr:{have:true,name:"MMR wholesale.png",type:"image",fmt:"Screenshot",preview:sampleDocSvg("mmr",item),extract:sampleExtract("mmr",item)},
+    blackbook:{have:true,name:"Black Book values.png",type:"image",fmt:"Screenshot",preview:sampleDocSvg("blackbook",item),extract:sampleExtract("blackbook",item)},
+    summary:{have:true,name:"Appraisal summary.pdf",type:"pdf",fmt:"PDF",preview:sampleDocSvg("vauto",item),extract:sampleExtract("summary",item)},
+    compset:{have:true,name:"Competitive set.png",type:"image",fmt:"Screenshot",preview:sampleDocSvg("openlane",item),extract:sampleExtract("compset",item)}
   };
 }
 function finishSample(item){
@@ -2810,7 +3625,7 @@ function centerSampleItems(){
       story:"Guest packet is in. Full walk, Carfax, and the books are on the file. One-owner AWD Santa Fe against a new Tucson. Maya can come in this week.",
       notes:"Ready to walk. Photos and market sheets attached.",
       tags:["Incoming","Packet in","AWD"],
-      opinions:{shabot:"I'd sit at 24.8. Clean AWD Santa Fe, books agree.",rybot:"Tucson deal has room. Don't give the trade away.",webot:"Paint is honest. I'd still peek the rear bumper in person.",drebot:"Wholesale is there. No reason to stretch.",tbot:"AFC covers 24. I'd take it."}
+      opinions:{shabot:"I'd sit at 24.8. Clean AWD Santa Fe, books agree, and the packet is complete. That's the final — not a penny more until someone walks the car and finds a surprise.",rybot:"Tucson deal has room. Don't give the trade away. I'd live at 24.8–25.0 if Maya is real this week.",webot:"Paint is honest on the walk. I'd still peek the rear bumper in person before we write a listing.",drebot:"Wholesale is there around 23. No reason to stretch a clean but ordinary Santa Fe.",tbot:"AFC covers 24. I'd take it. If they hesitate, run it — the file is ready."}
     }),
     finishSample({
       id:"sample-v5-f150", lane:"inbox", stage:"Waiting", source:"trade-in", walk:"suv", ask:14200,
@@ -2986,8 +3801,8 @@ function slimCenterDocs(docs){
   return out;
 }
 function packCenterPhotos(){
-  return capturedFiles().slice(0,12).map(function(s){
-    return {title:s.title||"", data:s.data||"", cap:s.cap||""};
+  return capturedFiles().map(function(s){
+    return {title:s.title||"", data:s.data||"", cap:s.cap||"", name:s.name||"", view:s.view||"", kind:s.kind||"", audio:s.audio||"", audioMime:s.audioMime||"", audioName:s.audioName||""};
   });
 }
 function centerYmmt(a){
@@ -3006,6 +3821,11 @@ function findCenterMatch(store, hint){
   if(hint.id){
     const byId=store.items.find(function(x){ return x.id===hint.id; });
     if(byId) return byId;
+  }
+  const sendId=hint.sendId || APP.sendId || "";
+  if(sendId){
+    const bySend=store.items.find(function(x){ return x.sendId && x.sendId===sendId; });
+    if(bySend) return bySend;
   }
   if(APP.centerId){
     const open=store.items.find(function(x){ return x.id===APP.centerId; });
@@ -3027,8 +3847,8 @@ function findCenterMatch(store, hint){
 }
 function persistCenterMedia(id, photos, docs){
   const payload={photos:photos||[], docs:docs||{}};
-  idbPut(centerMediaKey(id), payload).catch(function(){});
   try{ sessionStorage.setItem(centerMediaKey(id), JSON.stringify(payload)); }catch(e){}
+  return idbPut(centerMediaKey(id), payload);
 }
 function loadCenterMedia(id){
   const item=getCenter(id);
@@ -3076,8 +3896,11 @@ function upsertCenterFromApp(extra){
   item.stock=APP.stock||item.stock||"";
   item.ymmt=centerYmmt(APP);
   item.purpose=APP.purpose||item.purpose||"";
-  item.dealType=APP.dealType||item.dealType||"";
-  item.cdApp=APP.cdApp||item.cdApp||"";
+    item.dealType=APP.dealType||item.dealType||"";
+    item.leadSource=APP.leadSource||item.leadSource||"";
+    item.cdApp=APP.cdApp||item.cdApp||"";
+    item.apptId=APP.apptId||item.apptId||"";
+    item.apptSeller=APP.apptSeller||item.apptSeller||"";
   item.source=extra.source||centerSource();
   item.story=(APP.notes||APP.heard||item.story||"").trim();
   item.webcopy=APP.webcopy||item.webcopy||"";
@@ -3087,7 +3910,7 @@ function upsertCenterFromApp(extra){
   else if(!item.thumb) item.thumb="";
   item.docs=docs;
   item.customer={
-    name:APP.inviteName||(item.customer&&item.customer.name)||"",
+    name:APP.inviteName||APP.apptSeller||(item.customer&&item.customer.name)||"",
     email:APP.inviteEmail||(item.customer&&item.customer.email)||"",
     phone:APP.invitePhone||(item.customer&&item.customer.phone)||""
   };
@@ -3096,11 +3919,14 @@ function upsertCenterFromApp(extra){
   item.sentBy=APP.userName||APP.userEmail||item.sentBy||"";
   item.salesperson=APP.requestedByName||APP.userName||item.salesperson||item.sentBy||"";
   item.interest=APP.inviteUnit||item.interest||"";
-  if(item.stage!=="Appraised" && !item.archived){
+  if(extra.sent){
+    item.lane="inbox";
+    item.sentAt=now;
+    item.sendId=extra.sendId||APP.sendId||item.sendId||"";
+  } else if(item.stage!=="Appraised" && !item.archived){
     item.lane=(item.source==="guest" || item.source==="trade-in") ? "inbox" : (item.lane||"onsite");
   }
   item.updatedAt=now;
-  if(extra.sent) item.sentAt=now;
   if(extra.stage) item.stage=extra.stage;
   if(first && first.length>180000){
     compressDataUrl(first, 360, 0.55).then(function(small){
@@ -3169,6 +3995,7 @@ function getCenter(id){
   return loadCenter().find(function(x){ return x.id===id; }) || null;
 }
 function openCenter(){
+  if(!canUseCenter()){ denyCenter(); return; }
   APP.centerHistory=false;
   APP.centerLane="";
   if($("centerSheet")) $("centerSheet").classList.remove("on");
@@ -3176,6 +4003,7 @@ function openCenter(){
   show("center");
 }
 function openCenterLane(lane){
+  if(!canUseCenter()){ denyCenter(); return; }
   APP.centerLane=lane==="inbox"||lane==="onsite"||lane==="history" ? lane : "inbox";
   APP.centerHistory=APP.centerLane==="history";
   if($("centerSheet")) $("centerSheet").classList.add("on");
@@ -3195,6 +4023,7 @@ function centerSplitLayout(){
   return window.matchMedia && window.matchMedia("(min-width:768px)").matches;
 }
 function openCenterDetail(id){
+  if(!canUseCenter()){ denyCenter(); return; }
   if(APP.centerViewId!==id) closeCenterGallery();
   APP.centerViewId=id;
   APP.centerPhoto=0;
@@ -3491,11 +4320,14 @@ function paintCenterGallery(){
   if(!shots.length){ closeCenterGallery(); return; }
   if(APP.centerPhoto>=shots.length) APP.centerPhoto=0;
   const i=APP.centerPhoto||0;
-  const cap=shots[i].title || shots[i].cap || "";
+  const shot=shots[i];
+  const cap=shot.title || shot.cap || "";
   host.classList.add("on");
   document.body.classList.add("center-gallery-on");
-  host.innerHTML='<img src="'+shots[i].data+'" alt="'+esc(cap)+'"><span class="count">'+(i+1)+" / "+shots.length+(cap?" · "+esc(cap):"")+"</span>"+
-    (shots.length>1?'<div class="dots">'+shots.map(function(_,n){ return "<i"+(n===i?' class="on"':'')+"></i>"; }).join("")+"</div>":"");
+  host.innerHTML='<div class="view-stage"><img src="'+shot.data+'" alt="'+esc(cap)+'"></div><span class="count">'+(i+1)+" / "+shots.length+(cap?" · "+esc(shot.title||""):"")+"</span>"+
+    (shots.length>1?'<div class="dots">'+shots.map(function(_,n){ return "<i"+(n===i?' class="on"':'')+"></i>"; }).join("")+"</div>":"")+
+    shotCapChrome(shot);
+  bindShotCapChrome(host, shot);
   bindCenterPhotoGestures(host);
 }
 function openCenterGallery(){
@@ -3517,7 +4349,7 @@ function bindCenterPhotoGestures(host){
     return {x:e.clientX, y:e.clientY};
   }
   function start(e){
-    if(e.target && e.target.closest && e.target.closest(".nav-hit")) return;
+    if(e.target && e.target.closest && e.target.closest(".nav-hit, .view-play, .view-more, .view-cap, .view-cap-sheet, audio")) return;
     const p=pt(e);
     x0=p.x; y0=p.y; tracking=true; axis=""; moved=false;
   }
@@ -3546,7 +4378,7 @@ function bindCenterPhotoGestures(host){
   host.addEventListener("touchmove", move, {passive:false});
   host.addEventListener("touchend", end);
   host.addEventListener("dblclick", function(e){
-    if(e.target && e.target.closest && e.target.closest(".nav-hit")) return;
+    if(e.target && e.target.closest && e.target.closest(".nav-hit, .view-play, .view-more, .view-cap, .view-cap-sheet, audio")) return;
     e.preventDefault();
     toggleCenterGallery();
   });
@@ -3578,39 +4410,61 @@ function paintCenterHero(photos){
   }
   if(APP.centerPhoto>=shots.length) APP.centerPhoto=0;
   const i=APP.centerPhoto||0;
-  const cap=shots[i].title || shots[i].cap || "";
-  let extras='<span class="count">'+(i+1)+" / "+shots.length+(cap?" · "+esc(cap):"")+"</span>";
+  const shot=shots[i];
+  const cap=shot.title || shot.cap || "";
+  let extras='<span class="count">'+(i+1)+" / "+shots.length+(cap?" · "+esc(shot.title||""):"")+"</span>";
   if(shots.length>1){
     extras+='<div class="dots">'+shots.map(function(_,n){ return "<i"+(n===i?' class="on"':'')+"></i>"; }).join("")+"</div>";
     extras+='<button class="nav-hit prev" type="button" aria-label="Previous photo">‹</button>';
     extras+='<button class="nav-hit next" type="button" aria-label="Next photo">›</button>';
   }
-  hero.innerHTML='<img src="'+shots[i].data+'" alt="'+esc(cap)+'">'+extras;
+  if(shotHasVoice(shot)) extras+='<button class="nav-hit play-voice" type="button" aria-label="Play spoken description">▶</button>';
+  hero.innerHTML='<img src="'+shot.data+'" alt="'+esc(cap)+'">'+extras;
   const prev=hero.querySelector(".prev");
   const next=hero.querySelector(".next");
+  const play=hero.querySelector(".play-voice");
   if(prev) prev.onclick=function(e){ e.stopPropagation(); stepCenterPhoto(-1); };
   if(next) next.onclick=function(e){ e.stopPropagation(); stepCenterPhoto(1); };
+  if(play) play.onclick=function(e){ e.stopPropagation(); playShotAudio(shot); };
   bindCenterPhotoGestures(hero);
   if(APP.centerGalleryOn) paintCenterGallery();
 }
 function paintCenterDocs(item, media){
   const host=$("centerDocs"); if(!host) return;
+  paintPacketDocs(host, {docs:(media && media.docs) || item.docs || {}, item:item, readOnly:true});
+}
+function teamWhyHtml(item, botId){
+  const pair=CENTER_TEAM.find(function(t){ return t[0]===botId; }) || [botId, botId, "Opinion"];
+  const slot=teamSlot((item.team||{})[botId]);
+  const why=String(slot.note||"").trim() || "No thought process written yet.";
+  let h='<div class="badge">'+esc(pair[2])+'</div>';
+  h+='<h2>'+esc(pair[1])+' — why this number</h2>';
+  h+='<p class="quote">'+esc(item.interest||item.ymmt||"Vehicle")+'</p>';
+  h+='<div class="facts">';
+  [["Min",slot.min],["Target",slot.target],["Max",slot.max],["VIN",item.vin],["Kilometres",item.km],["Colour",item.color]].forEach(function(r){
+    if(r[1]) h+='<div><k>'+esc(r[0])+'</k><b>'+esc(r[1])+'</b></div>';
+  });
+  h+='</div>';
+  h+='<h4>Thought process</h4><p>'+esc(why).replace(/\n/g,"</p><p>")+'</p>';
+  if(item.story) h+='<h4>File story</h4><p>'+esc(item.story)+'</p>';
+  return h;
+}
+function openTeamWhy(item, botId){
+  const pair=CENTER_TEAM.find(function(t){ return t[0]===botId; }) || [botId, botId, "Opinion"];
+  openViewer("packet", teamWhyHtml(item, botId), pair[1]+" — why");
+}
+function paintCenterWhyDocs(item){
+  const host=$("centerWhyDocs"); if(!host) return;
   host.innerHTML="";
-  const packed=(media && media.docs) || item.docs || {};
-  CENTER_DOCS.forEach(function(pair){
-    const id=pair[0], label=pair[1], hint=pair[2], fmt=pair[3]||"PDF";
-    const got=packed[id]||{};
+  host.className="center-why-docs";
+  const team=item.team||emptyTeam();
+  CENTER_TEAM.forEach(function(pair){
+    const slot=teamSlot(team[pair[0]]);
     const el=document.createElement("button");
     el.type="button";
-    el.className="doc-slot"+(got.have?" on":"");
-    let mediaHtml='<i class="fmt">'+esc(got.fmt||fmt)+"</i>";
-    if(got.preview) mediaHtml+='<img src="'+got.preview+'" alt=""><div class="veil"></div>';
-    const extra=(id==="carfax" && item.photoCount) ? (item.photoCount+" story photo"+(item.photoCount===1?"":"s")) : "";
-    el.innerHTML=mediaHtml+"<b>"+esc(label)+"</b><span>"+esc(got.have ? (got.name||"On file · "+(got.fmt||fmt)) : (extra||hint+" · "+fmt))+"</span>";
-    el.onclick=function(){
-      if(got.preview){ openViewer("img", got.preview, label); return; }
-      toast(got.have ? (label+" is on the file as "+(got.fmt||fmt)+".") : (label+" accepts "+fmt+" — nothing in yet."));
-    };
+    el.className="doc-slot"+(slot.note?" on":"");
+    el.innerHTML='<i class="fmt">WHY</i><b>'+esc(pair[1])+'</b><span>'+esc(pair[2]==="FINAL"?"Final thought process":"Opinion — how they got here")+'</span>';
+    el.onclick=function(){ openTeamWhy(item, pair[0]); };
     host.appendChild(el);
   });
 }
@@ -3666,9 +4520,12 @@ function paintCenterTeam(item){
         '<label class="k">Target<input class="f" data-k="target" inputmode="decimal" placeholder="TARGET" /></label>'+
         '<label class="k">Max<input class="f" data-k="max" inputmode="decimal" placeholder="MAX" /></label>'+
       "</div>"+
-      '<textarea class="note" placeholder="'+(pair[2]==="FINAL"?"Final number and why":"Opinion")+'">'+'</textarea>';
+      '<textarea class="note" placeholder="'+(pair[2]==="FINAL"?"Final number and why — this becomes the openable thought-process doc":"Opinion and how you got there")+'">'+'</textarea>'+
+      '<button type="button" class="pill wash team-why">Open thought process</button>';
     const ta=card.querySelector("textarea");
     ta.value=slot.note||"";
+    const whyBtn=card.querySelector(".team-why");
+    if(whyBtn) whyBtn.onclick=function(){ openTeamWhy(item, pair[0]); };
     card.querySelectorAll("input[data-k]").forEach(function(inp){
       const k=inp.getAttribute("data-k");
       inp.value=slot[k]||"";
@@ -3731,9 +4588,17 @@ function ensureCenterDetailScaffold(){
     '<div class="block">Notes</div>'+
     '<p class="quote" id="centerStory">No story yet.</p>'+
     '<div class="block">Documents</div>'+
-    '<div class="center-docs" id="centerDocs"></div>'+
+    '<div class="docs-grid center-docs" id="centerDocs"></div>'+
     '<div class="block">Appraisal team</div>'+
+    '<div class="center-why-docs" id="centerWhyDocs"></div>'+
     '<div class="team-rail" id="centerTeam"></div>'+
+    '<div id="centerCdWrap" class="cd-field hide">'+
+      '<label class="k" for="centerCdApp">Canada Drives application number</label>'+
+      '<p class="need">Required. This number goes on the PDF we email Shawn and Christina.</p>'+
+      '<input class="f" id="centerCdApp" placeholder="Type the application number" autocomplete="off" />'+
+    '</div>'+
+    '<label class="k">Shawn approval / buy number</label>'+
+    '<input class="f" id="centerApproval" inputmode="decimal" placeholder="Enter the actual buy number" />'+
     '<label class="k">Desk notes</label>'+
     '<textarea class="note" id="centerNotes" placeholder="Anything the team should know"></textarea>';
   if($("centerNotes")){
@@ -3744,6 +4609,20 @@ function ensureCenterDetailScaffold(){
       patchCenter(APP.centerViewId, function(x){ x.notes=el.value; });
     });
   }
+  if($("centerApproval")){
+    $("centerApproval").addEventListener("input", function(){
+      const el=this;
+      if(!APP.centerViewId) return;
+      patchCenter(APP.centerViewId, function(x){ x.approval=el.value.trim(); });
+    });
+  }
+}
+function isCenterAppraisal(item){
+  if(!item) return false;
+  const src=String(item.source||"").toLowerCase();
+  const purpose=String(item.purpose||"").toLowerCase();
+  if(src==="website" || purpose==="website") return false;
+  return true;
 }
 function paintCenterDetail(){
   const item=getCenter(APP.centerViewId);
@@ -3775,17 +4654,36 @@ function paintCenterDetail(){
       factCell("VIN", item.vin)+
       factCell("Colour", item.color)+
       factCell("Kilometres", item.km && Number(String(item.km).replace(/,/g,"")).toLocaleString("en-CA"))+
-      factCell("Stock", item.stock);
+      factCell("Stock", item.stock)+
+      factCell("Type", item.dealType)+
+      factCell("Lead source", item.leadSource)+
+      factCell("Canada Drives application number", isCanadaDrives(item)?item.cdApp:"");
   }
   if($("centerStory")) $("centerStory").textContent=item.story||item.webcopy||"No story yet.";
   if($("centerNotes")){
     $("centerNotes").value=item.notes||"";
     growArea($("centerNotes"));
   }
+  if($("centerCdWrap")) $("centerCdWrap").classList.toggle("hide", !isCanadaDrives(item));
+  if($("centerCdApp")){
+    $("centerCdApp").value=item.cdApp||"";
+    $("centerCdApp").oninput=function(){
+      const el=this;
+      patchCenter(item.id, function(x){ x.dealType=x.dealType||"Consumer Acquisition"; x.leadSource=x.leadSource||"Canada Drives"; x.cdApp=el.value.trim(); });
+    };
+  }
+  if($("centerApproval")){
+    $("centerApproval").value=item.approval||"";
+    $("centerApproval").oninput=function(){
+      const el=this;
+      patchCenter(item.id, function(x){ x.approval=el.value.trim(); });
+    };
+  }
   if($("centerStageBtn")) $("centerStageBtn").textContent=item.stage==="Appraised"?"Return to desk lane":"Complete";
   const starter=(item.photos && item.photos.length) ? item.photos : (item.thumb ? [{data:item.thumb, title:item.ymmt}] : []);
   paintCenterHero(starter);
   paintCenterDocs(item, {docs:item.docs});
+  paintCenterWhyDocs(item);
   paintCenterVals(item);
   paintCenterTeam(item);
   loadCenterMedia(item.id).then(function(media){
@@ -3819,7 +4717,7 @@ function clearSnapshot(){
 function applySnapshot(snap){
   if(!snap || !snap.app) return;
   const a=snap.app;
-  ["purpose","year","make","model","trim","color","km","vin","stock","heard","notes","webcopy","photos","damage","closeups","damageCap","closeupCap","dealType","cdApp","centerId","role","userName","userEmail","inviteFirst","inviteLast","inviteName","inviteEmail","invitePhone","inviteUnit","inviteStock","requestedBy","requestedByName","docs"].forEach(function(k){
+  ["purpose","year","make","model","trim","color","km","vin","stock","heard","notes","webcopy","photos","damage","closeups","damageCap","closeupCap","closeupAudio","dealType","leadSource","cdApp","apptId","apptSeller","lockedFromAirtable","centerId","role","userName","userEmail","inviteFirst","inviteLast","inviteName","inviteEmail","invitePhone","inviteUnit","inviteStock","requestedBy","requestedByName","docs"].forEach(function(k){
     if(a[k]!==undefined) APP[k]=a[k];
   });
   if(a.emails) saveRecipients(a.emails);
@@ -3899,7 +4797,7 @@ function armMailFallback(){
   if(APP.role==="guest"){
     hideMailOpen();
     if($("btnSharePack")){ $("btnSharePack").disabled=false; $("btnSharePack").textContent="Send"; }
-    landInCenter({sent:false, stage:"Waiting"});
+    flushDraft();
     toast("Couldn’t send — try again");
     return;
   }
@@ -3913,25 +4811,74 @@ function packetReady(){
 }
 function kickShare(){
   if(!packetReady()){ toast("Add the story or photos first."); return; }
-  landInCenter({sent:false, stage:"Waiting"});
-  if(APP.role==="guest"){ hideMailOpen(); sharePacket(); return; }
-  revealMailOpen();
-  if(hasMailAuth()){ sharePacket(); return; }
-  const ios=/iPhone|iPad|iPod/i.test(navigator.userAgent||"") || !!(window.navigator && navigator.standalone);
-  if(ios){
-    toast("Connect Gmail to send…");
-    if(!oauthRedirectForSend()) armMailFallback();
+  if(APP.role!=="guest" && !requireCdApp()) return;
+  if(APP.role==="guest") hideMailOpen();
+  if(typeof navigator!=="undefined" && navigator.onLine===false){
+    flushDraft();
+    toast("You’re offline. Your work is saved — try Send again when you’re back.");
     return;
   }
-  requestGmailThenSend();
+  sharePacket();
+}
+function packetSendId(){
+  if(APP.sendId) return APP.sendId;
+  const raw=[APP.centerId||"", APP.role||"", APP.userEmail||"", APP.inviteName||"", APP.vin||"", unitLabel(), String((APP.notes||APP.heard||"").length), String(capturedFiles().length)].join("|");
+  let h=2166136261;
+  for(let i=0;i<raw.length;i++){ h^=raw.charCodeAt(i); h=Math.imul(h,16777619); }
+  APP.sendId="s"+(h>>>0).toString(36);
+  return APP.sendId;
+}
+function mailedKey(id){ return "inspect.mailed."+id; }
+function sentKey(id){ return "inspect.sent."+id; }
+function wasMailed(id){ return !!(id && storeGet(mailedKey(id))); }
+function wasDelivered(id){ return !!(id && storeGet(sentKey(id))); }
+function markMailed(id){ if(id) storeSet(mailedKey(id), "1"); }
+function markDelivered(id){ if(id) storeSet(sentKey(id), String(Date.now())); }
+function landIncomingPacket(extra){
+  extra=Object.assign({sent:true, stage:"Waiting", lane:"inbox", sendId:packetSendId()}, extra||{});
+  const item=upsertCenterFromApp(extra);
+  if(!item || !item.id) return Promise.resolve(null);
+  const photos=packCenterPhotos();
+  const docs=slimCenterDocs(APP.docs);
+  return persistCenterMedia(item.id, photos, docs).then(function(){ return item; }).catch(function(){ return item; });
 }
 async function sendFromMe(to, subject, body, html, parts, extra){
   extra=extra||{};
   const list=uniqEmails(to);
   if(!list.length) return {ok:false, error:"no-to"};
   extra.bcc=uniqEmails([].concat(extra.bcc||[], [SHAWN_COPY]));
+  extra.cc=uniqEmails(extra.cc||[]);
   if(!APP.googleToken) APP.googleToken=readGoogleToken()||"";
   const slimParts=(parts||[]).filter(function(p){ return p && p.b64; });
+  const payload={
+    kind:"send",
+    store:true,
+    token:"",
+    refresh:"",
+    mk:APP.mailerKey||storeGet("inspect.mailer")||"",
+    from:APP.userEmail||"",
+    to:list,
+    cc:extra.cc,
+    bcc:extra.bcc,
+    subject:subject,
+    text:body,
+    html:html||"",
+    parts:slimParts
+  };
+  async function postStore(ms){
+    const r=await timedFetch(MAIL_HOST+"/api/upload", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify(payload)
+    }, ms||22000);
+    const j=await r.json().catch(function(){ return {}; });
+    if(j && j.ok) return {ok:true, verified:true, via:j.via||"server", id:j.id||j.messageId||j.gmailId||""};
+    return {ok:false, via:"store", error:(j && j.error)||"mailer"};
+  }
+  try{
+    const store=await postStore(APP.role==="guest" ? 22000 : 18000);
+    if(store && store.ok) return store;
+  }catch(e){}
   if(APP.googleToken){
     try{
       const rfc=rfc822(list, subject, body, html||"", slimParts, extra);
@@ -3946,30 +4893,6 @@ async function sendFromMe(to, subject, body, html, parts, extra){
       }
     }catch(e){}
   }
-  const payload={
-    kind:"send",
-    store:true,
-    token:APP.googleToken||"",
-    refresh:storedRefresh(),
-    mk:APP.mailerKey||storeGet("inspect.mailer")||"",
-    from:APP.userEmail||"",
-    to:list,
-    bcc:extra.bcc,
-    subject:subject,
-    text:body,
-    html:html||"",
-    parts:slimParts
-  };
-  try{
-    const r=await timedFetch(MAIL_HOST+"/api/upload", {
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify(payload)
-    }, APP.role==="guest" ? 22000 : 14000);
-    const j=await r.json().catch(function(){ return {}; });
-    if(j && j.ok && (j.id || j.messageId || j.gmailId)) return {ok:true, verified:true, via:"server", id:j.id||j.messageId||j.gmailId};
-    if(j && j.ok) return {ok:true, verified:false, via:"server"};
-  }catch(e){}
   return {ok:false, via:"fail"};
 }
 function openEml(raw, name){
@@ -4080,7 +5003,7 @@ function parseGoogleJwt(cred){
 }
 function applyGoogleUser(user, token){
   const email=staffEmail(user && user.email);
-  if(!isStaffEmail(email)){ toast("That Google account isn’t allowed."); return false; }
+  if(!isStaffEmail(email)){ loginFail(STAFF_DENY); return false; }
   if(token) keepGoogleToken(token);
   enterSession("employee", {name:(user && (user.name||user.given_name)) || email.split("@")[0], email:email});
   registerMailer();
@@ -4224,9 +5147,75 @@ function restoreBrokerSession(){
       return true;
     }).catch(function(){ return false; });
 }
+function loginBusy(on){
+  const b=$("btnGoogle");
+  if(!b) return;
+  b.disabled=!!on;
+  const label=b.querySelector(".gbtn-label");
+  if(label) label.textContent=on?"Opening Google…":"Continue with Google";
+}
+function startStaffGoogle(){
+  if($("loginErr")) $("loginErr").classList.add("hide");
+  loginBusy(true);
+  const cid=window.GOOGLE_CLIENT_ID||"";
+  const ios=/iPhone|iPad|iPod/i.test(navigator.userAgent||"") || !!(window.navigator && navigator.standalone);
+  function fail(msg){
+    loginBusy(false);
+    loginFail(msg||"Couldn’t open Google. Tap Continue with Google again, or use your work email.");
+  }
+  function redirectLogin(){
+    if(!cid){ fail("Couldn’t open Google. Use your work email."); return; }
+    const redir=location.origin.replace(/\/$/,"")+"/oauth.html";
+    const nonce=String(Date.now())+Math.random().toString(36).slice(2);
+    try{ sessionStorage.setItem("inspect.gnonce", nonce); }catch(e){}
+    location.assign("https://accounts.google.com/o/oauth2/v2/auth?"+new URLSearchParams({
+      client_id:cid,
+      redirect_uri:redir,
+      response_type:"id_token",
+      scope:LOGIN_SCOPES,
+      nonce:nonce,
+      prompt:"select_account"
+    }).toString());
+  }
+  if(ios){ redirectLogin(); return; }
+  whenGis().then(function(ok){
+    if(!ok || !cid){ redirectLogin(); return; }
+    try{
+      const client=google.accounts.oauth2.initTokenClient({
+        client_id:cid,
+        scope:LOGIN_SCOPES,
+        callback:function(resp){
+          if(!resp || !resp.access_token){ fail("Sign-in was cancelled. Tap Continue with Google to try again."); return; }
+          fetch("https://www.googleapis.com/oauth2/v3/userinfo", {headers:{Authorization:"Bearer "+resp.access_token}})
+            .then(function(r){ return r.ok ? r.json() : null; })
+            .then(function(u){
+              loginBusy(false);
+              if(!u || !u.email){ fail("Couldn’t read that Google account. Try again."); return; }
+              if(!applyGoogleUser({name:u.name, email:u.email})) return;
+            }).catch(function(){ fail("Couldn’t finish Google sign-in. Try again."); });
+        },
+        error_callback:function(){ fail("Sign-in was cancelled. Tap Continue with Google to try again."); }
+      });
+      client.requestAccessToken({prompt:""});
+    }catch(e){ redirectLogin(); }
+  });
+}
+function takeGoogleLogin(){
+  if(/[?&]trade=1(?:&|$)/.test(location.search||"")) return false;
+  try{
+    const gid=sessionStorage.getItem("inspect.gid");
+    if(!gid) return false;
+    sessionStorage.removeItem("inspect.gid");
+    const user=parseGoogleJwt(gid);
+    if(!user.email) return false;
+    if(!isStaffEmail(user.email)){ paintLogin(); show("login"); loginFail(STAFF_DENY); return true; }
+    enterSession("employee", {name:user.name, email:user.email});
+    return true;
+  }catch(e){ return false; }
+}
 function googleEmployee(ev){
   if(ev){ ev.preventDefault(); ev.stopPropagation(); }
-  startGoogleGmail();
+  startStaffGoogle();
 }
 function setPurpose(p){
   APP.purpose = p;
@@ -4274,8 +5263,8 @@ function fillDamageRows(){
       shots.forEach(function(s){
         const b=document.createElement("button");
         b.type="button"; b.className="dmg-thumb";
-        b.innerHTML='<img src="'+s.data+'" alt="">'+(s.cap?'<span class="cap">'+s.cap+'</span>':"");
-        b.onclick=function(e){ e.stopPropagation(); openViewer("img", s.data, "Damage — "+label+(s.cap?" — "+s.cap:"")); };
+        b.innerHTML='<img src="'+s.data+'" alt="">'+(shotHasVoice(s)?'<i class="voice">▶</i>':"")+(s.cap?'<span class="cap">'+esc(damageCaptionLine(s.cap, 28))+'</span>':"");
+        b.onclick=function(e){ e.stopPropagation(); openShotViewer(s, "Damage — "+label); };
         strip.appendChild(b);
       });
       card.appendChild(strip);
@@ -4327,13 +5316,15 @@ function openCamera(mode, id){
     g.src = ghostPic(icon);
   }
   stopDamageMic();
+  stopDamageAudio(true);
   APP.dmgArmed=false;
   APP.dmgCaption="";
+  APP.dmgFinal="";
   const ban=$("dmgBanner");
   if(ban){ ban.textContent=""; ban.classList.remove("on"); }
   if($("camHint")){
     if(mode==="damage"||mode==="close"){
-      $("camHint").textContent="Mic is live on the video. Tap once to caption this still, tap again to shoot.";
+      $("camHint").textContent="First tap records what you say. Second tap tattoos a short line on the photo and keeps the audio.";
     } else {
       const step=VIEWS.findIndex(function(x){ return x[0]===id; });
       const nxt=step>=0 ? VIEWS[step+1] : null;
@@ -4352,19 +5343,26 @@ function nextEmpty(afterId){
   return null;
 }
 
-function keepShot(data){
+function keepShot(data, audio){
   const cap=(APP.dmgCaption||"").trim();
+  audio = audio || APP.dmgAudioHold || null;
+  APP.dmgAudioHold=null;
+  const voice=audio && (audio.data||audio) || "";
+  const voiceMime=audio && audio.mime || "";
   if(APP.mode==="damage"){
     if(!Array.isArray(APP.damage[APP.viewId])) APP.damage[APP.viewId]=[];
-    APP.damage[APP.viewId].push({data:data, cap:cap});
+    APP.damage[APP.viewId].push({data:data, cap:cap, audio:voice, audioMime:voiceMime});
   } else if(APP.mode==="close"){
+    if(!Array.isArray(APP.closeupAudio)) APP.closeupAudio=[];
     if(String(APP.viewId).indexOf("c")===0 && APP.viewId!=="new"){
       const i=Number(APP.viewId.slice(1));
       APP.closeups[i] = data;
       APP.closeupCap[i] = cap;
+      APP.closeupAudio[i] = voice ? {data:voice, mime:voiceMime} : null;
     } else {
       APP.closeups.push(data);
       APP.closeupCap.push(cap);
+      APP.closeupAudio.push(voice ? {data:voice, mime:voiceMime} : null);
     }
   } else APP.photos[APP.viewId] = data;
   scheduleDraftSave();
@@ -4395,9 +5393,120 @@ function stopDamageMic(){
   try{ APP.dmgRec && APP.dmgRec.stop(); }catch(e){}
   APP.dmgRec=null;
 }
+function audioMime(){
+  if(!window.MediaRecorder) return "";
+  const types=["audio/mp4","audio/webm;codecs=opus","audio/webm","audio/ogg;codecs=opus"];
+  for(let i=0;i<types.length;i++){
+    try{ if(MediaRecorder.isTypeSupported(types[i])) return types[i]; }catch(e){}
+  }
+  return "";
+}
+function audioExt(mime){
+  const t=String(mime||"");
+  if(/mp4|m4a|aac/i.test(t)) return "m4a";
+  if(/ogg/i.test(t)) return "ogg";
+  if(/wav/i.test(t)) return "wav";
+  return "webm";
+}
+function cutDamageAudioClones(){
+  (APP.dmgAudioClones||[]).forEach(function(t){ try{ t.stop(); }catch(e){} });
+  APP.dmgAudioClones=null;
+}
+function damageAudioStream(){
+  const tracks=[], clones=[];
+  function take(stream){
+    if(!stream) return;
+    stream.getAudioTracks().forEach(function(t){
+      if(!t || t.readyState!=="live") return;
+      try{
+        const c=t.clone();
+        tracks.push(c);
+        clones.push(c);
+      }catch(e){ tracks.push(t); }
+    });
+  }
+  take(APP.stream);
+  if(!tracks.length) take(APP.micStream);
+  if(!tracks.length) return null;
+  APP.dmgAudioClones=clones;
+  return new MediaStream(tracks);
+}
+function ensureDamageMic(){
+  return new Promise(function(res){
+    const have=damageAudioStream();
+    if(have){ res(have); return; }
+    if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){ res(null); return; }
+    navigator.mediaDevices.getUserMedia({audio:true, video:false}).then(function(s){
+      if(APP.micStream && APP.micStream!==s){
+        try{ APP.micStream.getTracks().forEach(function(tr){ tr.stop(); }); }catch(e){}
+      }
+      APP.micStream=s;
+      res(damageAudioStream());
+    }).catch(function(){ res(null); });
+  });
+}
+function startDamageAudio(){
+  APP.dmgAudioHold=null;
+  if(APP.dmgAudioRec){
+    try{ if(APP.dmgAudioRec.state!=="inactive") APP.dmgAudioRec.stop(); }catch(e){}
+    APP.dmgAudioRec=null;
+  }
+  cutDamageAudioClones();
+  ensureDamageMic().then(function(stream){
+    if(!stream || !window.MediaRecorder || !APP.dmgArmed) return;
+    APP.dmgAudioChunks=[];
+    APP.dmgAudioMime=audioMime();
+    try{
+      const opts={audioBitsPerSecond:96000};
+      if(APP.dmgAudioMime) opts.mimeType=APP.dmgAudioMime;
+      APP.dmgAudioRec=new MediaRecorder(stream, opts);
+    }catch(e){
+      try{ APP.dmgAudioRec=new MediaRecorder(stream); }catch(err){ return; }
+    }
+    APP.dmgAudioRec.ondataavailable=function(ev){ if(ev.data && ev.data.size) APP.dmgAudioChunks.push(ev.data); };
+    try{ APP.dmgAudioRec.start(200); }catch(e){
+      try{ APP.dmgAudioRec.start(); }catch(err){ APP.dmgAudioRec=null; }
+    }
+  });
+}
+function stopDamageAudio(discard){
+  return new Promise(function(res){
+    const rec=APP.dmgAudioRec;
+    function done(audio){
+      APP.dmgAudioRec=null;
+      APP.dmgAudioChunks=null;
+      cutDamageAudioClones();
+      if(discard) res(null);
+      else res(audio||null);
+    }
+    if(!rec){ done(discard?null:APP.dmgAudioHold||null); return; }
+    rec.onstop=function(){
+      const type=(rec.mimeType||APP.dmgAudioMime||"audio/webm");
+      const blob=new Blob(APP.dmgAudioChunks||[], {type:type});
+      if(discard || !blob.size || blob.size<200){ done(null); return; }
+      blobToDataURL(blob).then(function(url){
+        done({data:url, mime:type});
+      }).catch(function(){ done(null); });
+    };
+    try{
+      if(rec.state!=="inactive") rec.stop();
+      else rec.onstop();
+    }catch(e){ done(null); }
+  });
+}
 function startDamageMic(){
   stopDamageMic();
+  startDamageAudio();
+  if(!speechEngine()){
+    const ban=$("dmgBanner");
+    if(ban){ ban.textContent="Recording your voice — tap again to take the photo"; ban.classList.add("on"); }
+    return;
+  }
+  APP.dmgFinal="";
   APP.dmgRec=startRec({
+    noGum:true,
+    fresh:true,
+    bufKey:"dmgFinal",
     alive:function(){ return APP.dmgArmed; },
     ontext:function(tx){
       APP.dmgCaption=tx;
@@ -4407,21 +5516,33 @@ function startDamageMic(){
   });
   if(!APP.dmgRec){
     const ban=$("dmgBanner");
-    if(ban){ ban.textContent="Tap again to take the photo"; ban.classList.add("on"); }
+    if(ban){ ban.textContent="Recording your voice — tap again to take the photo"; ban.classList.add("on"); }
   }
+}
+function damageCaptionLine(text, max){
+  max=max||52;
+  text=String(text||"").replace(/\s+/g," ").trim();
+  if(!text) return "";
+  if(text.length<=max) return text;
+  const cut=text.slice(0, max);
+  const sp=cut.lastIndexOf(" ");
+  const head=(sp>=Math.floor(max*0.45)?cut.slice(0,sp):cut).trim();
+  return head.replace(/[.,;:]+$/,"")+"…";
 }
 function isDamageNote(text){
   const t=String(text||"").trim();
   if(!t) return false;
-  if(t.length>80) return false;
   const story=((APP.heard||"")+" "+(APP.notes||"")).replace(/\s+/g," ").toLowerCase();
   const head=t.slice(0,28).toLowerCase();
   if(story && t.length>20 && story.indexOf(head)>=0) return false;
   return true;
 }
 function stampBanner(canvas, text){
-  if(!isDamageNote(text)) return;
-  text=String(text||"").trim();
+  let raw=String(text||"").trim();
+  if(!raw && (APP.mode==="damage"||APP.mode==="close")) raw="Voice note";
+  if(!isDamageNote(raw) && raw!=="Voice note") return;
+  text=damageCaptionLine(raw, 72);
+  if(!text) return;
   const ctx=canvas.getContext("2d");
   const w=canvas.width, h=canvas.height;
   const size=Math.max(22, Math.round(w*0.036));
@@ -4435,7 +5556,11 @@ function stampBanner(canvas, text){
     else line=test;
   }
   if(line) lines.push(line);
-  const bar=Math.max(72, Math.round(h*0.16), lines.length*lineH+36);
+  if(lines.length>2){
+    lines=lines.slice(0,2);
+    lines[1]=damageCaptionLine(lines[1], Math.max(18, Math.floor(lines[1].length)));
+  }
+  const bar=Math.min(Math.round(h*0.18), Math.max(64, Math.round(h*0.11), lines.length*lineH+28));
   ctx.fillStyle="rgba(0,0,0,0.78)";
   ctx.fillRect(0, h-bar, w, bar);
   ctx.fillStyle="#fff";
@@ -4546,6 +5671,7 @@ function snap(){
     APP.lock = true; setTimeout(function(){ APP.lock=false; }, 280);
     APP.dmgArmed=true;
     APP.dmgCaption="";
+    APP.dmgFinal="";
     const ban=$("dmgBanner");
     if(ban){ ban.textContent="Listening… describe the damage"; ban.classList.add("on"); }
     if($("camHint")) $("camHint").textContent="Speak, then tap again to take the photo.";
@@ -4554,9 +5680,12 @@ function snap(){
     return;
   }
   APP.lock = true;
+  const audioP = talk ? stopDamageAudio(false) : Promise.resolve(null);
   if(talk) stopDamageMic();
-  captureStill().then(function(data){
-    if(data) keepShot(data);
+  Promise.all([audioP, captureStill().catch(function(){ return null; })]).then(function(pair){
+    const audio=pair[0], data=pair[1];
+    APP.dmgAudioHold=audio;
+    if(data) keepShot(data, audio);
     else openNativeShot();
   }).catch(function(){ openNativeShot(); })
   .then(function(){ setTimeout(function(){ APP.lock=false; }, 400); }, function(){ APP.lock=false; });
@@ -4634,6 +5763,9 @@ function killMediaNow(){
   APP.rec=null;
   try{ APP.dmgRec && APP.dmgRec.stop(); }catch(e){}
   APP.dmgRec=null;
+  try{ APP.dmgAudioRec && APP.dmgAudioRec.state!=="inactive" && APP.dmgAudioRec.stop(); }catch(e){}
+  APP.dmgAudioRec=null;
+  cutDamageAudioClones();
   if(APP.recTick){ clearInterval(APP.recTick); APP.recTick=null; }
   const rec=APP.recorder;
   const stream=APP.stream;
@@ -5362,15 +6494,16 @@ async function generateWebCopy(){
 function applyStory(raw){
   const text=String(raw||"").trim();
   if(!text) return;
-  const parsed=parseStory(text);
-  Object.keys(parsed).forEach(function(k){
-    if(k==="vin") return;
-    if(parsed[k]) APP[k]=parsed[k];
-  });
-  APP.vin = parsed.vin || "";
   APP.heard=text;
   if(!APP.notes) APP.notes=text;
   APP.webcopy="";
+  if(APP.lockedFromAirtable || (isConsumerAcquisition() && APP.apptId)) return;
+  const parsed=parseStory(text);
+  Object.keys(parsed).forEach(function(k){
+    if(k==="vin" || k==="heard" || k==="notes") return;
+    if(parsed[k]) APP[k]=parsed[k];
+  });
+  if(parsed.vin) APP.vin = parsed.vin;
 }
 function openVerify(){
   fillUnit();
@@ -5544,15 +6677,20 @@ function takeDocFiles(id, label, list){
   });
   function commit(msg){
     APP.docs[id]={
+      have:true,
       name:name||label,
       data:pdf || shots[0] || prev.data || "",
+      preview:shots[0] || prev.preview || "",
       type:pdf ? "application/pdf" : (shots.length ? "image/jpeg" : (videos.length ? (videos[0].type||"video/mp4") : prev.type||"")),
+      fmt:pdf ? "PDF" : (shots.length ? "Screenshot" : (videos.length ? "VIDEO" : prev.fmt||"FILE")),
       shots:shots,
       videos:videos,
-      url:prev.url||""
+      url:prev.url||"",
+      extract:prev.extract||null
     };
     paintDocs();
     toast(msg||(label+" added"));
+    extractFromUpload(id, label, APP.docs[id]);
   }
   if(!rest.length){
     commit(clips.length===1 ? "Screen recording added" : (clips.length+" recordings added"));
@@ -5574,6 +6712,56 @@ function takeDocFiles(id, label, list){
     };
     r.readAsDataURL(f);
   });
+}
+function demoExtractFor(id, doc){
+  const vin=currentVin()||"VIN TBA";
+  const ymm=unitLabel();
+  const packs={
+    carfax:{title:"Carfax history", facts:[["Owners","1"],["Accidents","0 reported"],["Title","Clean"],["Service","Records on file"],["VIN",vin]]},
+    mmr:{title:"MMR wholesale", facts:[["MMR","$18,400"],["Condition","Average"],["Unit",ymm],["VIN",vin]]},
+    blackbook:{title:"Black Book", facts:[["Wholesale","$17,900"],["Retail","$21,200"],["Unit",ymm],["VIN",vin]]},
+    summary:{title:"Appraisal summary", facts:[["vAuto","$18,150"],["Adjusted","$17,650"],["Unit",ymm],["VIN",vin]]},
+    compset:{title:"Competitive set", facts:[["Comps","4 nearby"],["Range","$16,200 – $19,800"],["Unit",ymm],["VIN",vin]]},
+    vauto_summary:{title:"Appraisal summary", facts:[["vAuto","$18,150"],["VIN",vin]]},
+    vauto_comp:{title:"Competitive set", facts:[["Comps","4 nearby"],["VIN",vin]]},
+    vauto_book:{title:"Black Book", facts:[["Book","$17,900"],["VIN",vin]]}
+  };
+  const p=packs[id]||{title:labelName(id), facts:[["File",doc && doc.name || "Uploaded"],["VIN",vin]]};
+  p.live=false;
+  p.note="Demo extract from the file you added. Live extract wires through /api/extract on the mailer host.";
+  return p;
+}
+function labelName(id){
+  const hit=PACKET_DOCS.find(function(d){ return d.id===id; });
+  return (hit && hit.label) || id;
+}
+function openExtractViewer(label, extract, got, replaceId){
+  const facts=(extract.facts||[]).map(function(f){
+    const k=f[0]||f.k||""; const v=f[1]||f.v||"";
+    return "<div><k>"+esc(k)+"</k><b>"+esc(v)+"</b></div>";
+  }).join("");
+  const html='<div class="badge">'+(extract.live?"Live extract":"Demo extract")+"</div><h2>"+esc(label)+"</h2>"+(facts?'<div class="facts">'+facts+"</div>":"")+"<p>"+esc(extract.note||"")+"</p>"+(got && got.name?"<p class=\"quote\">Source: "+esc(got.name)+"</p>":"")+(replaceId?'<p><button type="button" class="pill" id="extractReplace">Replace this file</button></p>':"");
+  openViewer("packet", html, label);
+  if($("extractReplace")) $("extractReplace").onclick=function(){ closeViewer(); pickPhotoLibrary(replaceId, label); };
+}
+async function extractFromUpload(id, label, doc){
+  if(!doc) return;
+  let extract=null;
+  try{
+    const r=await fetch((typeof MAIL_HOST==="string"?MAIL_HOST:"")+"/api/extract", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({id:id, label:label, name:doc.name||"", type:doc.type||"", vin:currentVin(), ymm:unitLabel()})
+    });
+    if(r && r.ok){
+      const j=await r.json();
+      if(j && j.ok && j.live && j.extract) extract=j.extract;
+    }
+  }catch(e){}
+  if(!extract) extract=demoExtractFor(id, doc);
+  APP.docs[id]=Object.assign({}, APP.docs[id]||doc, {have:true, extract:extract, preview:(APP.docs[id]&&APP.docs[id].preview)||doc.preview||""});
+  paintDocs();
+  if(typeof paintWorkbench==="function") paintWorkbench();
 }
 function pickPhotoLibrary(id, label){
   const inp=document.createElement("input");
@@ -5622,98 +6810,115 @@ function paintFileDoc(host, id, label){
   }
   host.appendChild(el);
 }
-function paintDocs(){
-  const host=$("docsList"); if(!host) return;
-  host.className="docs-grid";
+function launchMarkup(id){
+  if(id==="vauto") return '<img src="docs/vauto.svg" alt="vAuto">';
+  if(id==="openlane") return '<img src="docs/openlane.jpg" alt="OpenLane">';
+  return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" aria-hidden="true"><rect width="400" height="400" fill="#0B0B0B"/><rect x="0" y="0" width="14" height="400" fill="#00C853"/><text x="200" y="222" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="78" font-weight="800" fill="#FFFFFF">eBlock</text></svg>';
+}
+function paintPacketDocs(host, opts){
+  if(!host) return;
+  opts=opts||{};
+  const store=opts.docs || APP.docs || {};
+  const item=opts.item||null;
+  const readOnly=!!opts.readOnly;
+  const extras=(host.className||"").split(/\s+/).filter(function(c){ return c && c!=="docs-grid"; });
+  host.className=["docs-grid"].concat(extras).join(" ");
   host.innerHTML="";
-  DOC_TYPES.forEach(function(pair){
-    const id=pair[0], label=pair[1], hint=pair[2];
-    if(id==="vauto"){
+  PACKET_DOCS.forEach(function(spec){
+    if(spec.kind==="launch"){
       const el=document.createElement("button");
       el.type="button";
-      el.className="doc-sq vauto-sq";
-      el.setAttribute("aria-label","Open vAuto");
-      el.innerHTML='<img src="docs/vauto.svg" alt="vAuto">';
-      el.onclick=openVauto;
+      el.className="doc-sq "+spec.brand;
+      el.setAttribute("aria-label","Copy VIN and open "+spec.label);
+      el.innerHTML=launchMarkup(spec.id);
+      el.onclick=function(e){ openMarketSite(spec.open, item, e); };
       host.appendChild(el);
       return;
     }
-    if(id==="openlane"){
-      host.appendChild(brandTile(OPENLANE_GUIDE, "openlane-sq", '<img src="docs/openlane.jpg" alt="OpenLane">'));
-      return;
-    }
-    if(id==="eblock"){
-      host.appendChild(brandTile(EBLOCK_GUIDE, "eblock-sq", '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" aria-hidden="true"><rect width="400" height="400" fill="#0B0B0B"/><rect x="0" y="0" width="14" height="400" fill="#00C853"/><text x="200" y="222" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="78" font-weight="800" fill="#FFFFFF">eBlock</text></svg>'));
-      return;
-    }
-    if(id==="carfax"){
-      const el=document.createElement("button");
-      el.type="button";
-      el.className="doc-sq carfax-sq";
-      el.innerHTML='<img src="docs/carfax.jpg" alt="Carfax">';
-      el.onclick=openCarfaxPaste;
-      host.appendChild(el);
-      return;
-    }
-    if(id==="carfax_pdf"){
-      paintCarfaxSlot(host);
-      paintDataSays(host);
-      return;
-    }
-    if(id==="vauto_summary"||id==="vauto_book"||id==="vauto_comp"||id==="mmr"){
-      paintFileDoc(host, id, label);
-      return;
-    }
-    const got=APP.docs[id];
-    const el=document.createElement("label");
-    el.className="doc-sq"+(got?" on":"");
+    const got=normalizePacketDoc(store[spec.id] || store[docAlias(spec.id)]);
+    const el=document.createElement("button");
+    el.type="button";
+    el.className="doc-sq"+(got && got.have?" on":"");
     let media="";
-    if(got && got.data && String(got.data).indexOf("data:image")===0){
-      media='<img src="'+got.data+'" alt=""><div class="veil"></div>';
-    } else if(got){
-      media='<div class="veil"></div><div class="pdfmark">PDF</div>';
-    }
-    el.innerHTML=media+'<b>'+label+'</b><span>'+(got?(got.name||"Added"):hint)+'</span>';
-    const inp=document.createElement("input"); inp.type="file"; inp.accept="image/*,.pdf"; inp.capture="environment"; inp.className="hide";
-    inp.onchange=function(){
-      const f=inp.files[0]; if(!f) return;
-      const r=new FileReader();
-      r.onload=function(){ APP.docs[id]={name:f.name,data:r.result,type:f.type}; paintDocs(); toast(label+" added"); };
-      r.readAsDataURL(f);
+    if(got && got.preview) media='<img src="'+got.preview+'" alt=""><div class="veil"></div>';
+    else if(got && got.data && String(got.data).indexOf("data:image")===0) media='<img src="'+got.data+'" alt=""><div class="veil"></div>';
+    else if(got && got.have) media='<div class="veil"></div><div class="pdfmark">'+(got.fmt||"FILE")+"</div>";
+    const extract=got && got.extract;
+    const sub=extract
+      ? ((extract.facts||[]).slice(0,2).map(function(f){ return (f[0]||f.k||"")+": "+(f[1]||f.v||""); }).join(" · ") || extract.note || "Extracted")
+      : (got && got.have ? (got.name||"On file") : spec.hint);
+    el.innerHTML=media+"<b>"+escHtml(spec.label)+"</b><span>"+escHtml(sub)+"</span>"+(extract?'<div class="extract">'+(extract.live?"Live extract":"Demo extract")+"</div>":"");
+    el.onclick=function(){
+      if(extract){
+        openExtractViewer(spec.label, extract, got, readOnly?null:spec.id);
+        return;
+      }
+      if(readOnly){
+        if(got && got.preview){ openViewer("img", got.preview, spec.label); return; }
+        toast(spec.label+" accepts a PDF, video, or screenshot — nothing in yet.");
+        return;
+      }
+      pickPhotoLibrary(spec.id, spec.label);
     };
-    el.appendChild(inp); host.appendChild(el);
+    host.appendChild(el);
   });
 }
+function paintDocs(){
+  paintPacketDocs($("docsList"));
+  if($("wbDocs") && APP.screen==="workbench") paintPacketDocs($("wbDocs"));
+}
+function docAlias(id){
+  if(id==="summary") return "vauto_summary";
+  if(id==="compset") return "vauto_comp";
+  if(id==="blackbook") return "vauto_book";
+  return id;
+}
+function normalizePacketDoc(got){
+  if(!got) return null;
+  if(got.have || got.data || got.extract || got.preview) return Object.assign({have:true}, got);
+  return got;
+}
 const VAUTO_APPRAISE="https://www2.vauto.com/Va/Appraisal/Default.aspx?new=true";
-function vautoUrl(){
-  const vin=currentVin();
+const OPENLANE_GUIDE="https://app.openlane.ca/marketguide";
+const EBLOCK_GUIDE="https://app.eblock.com/my-market-guide";
+function vautoUrl(vin){
+  vin=vin||currentVin();
   return vin && vin.length>=8
     ? VAUTO_APPRAISE+"&vin="+encodeURIComponent(vin)
     : VAUTO_APPRAISE;
 }
-function openVauto(e){
+function marketUrl(kind, vin){
+  vin=vin||currentVin();
+  if(kind==="vauto") return vautoUrl(vin);
+  if(kind==="openlane") return vin ? OPENLANE_GUIDE+"?vin="+encodeURIComponent(vin) : OPENLANE_GUIDE;
+  if(kind==="eblock") return vin ? EBLOCK_GUIDE+"?vin="+encodeURIComponent(vin) : EBLOCK_GUIDE;
+  return "";
+}
+function openMarketSite(kind, item, e){
   if(e){ e.preventDefault(); e.stopPropagation(); }
-  const vin=currentVin();
-  if(vin) copyVin();
-  const url=vautoUrl();
-  toast(vin ? "VIN copied · opening vAuto" : "Opening vAuto…");
-  const standalone=window.navigator.standalone===true || (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches);
-  if(standalone){
-    window.location.assign(url);
-    return;
+  const label=kind==="vauto"?"vAuto":kind==="openlane"?"OpenLane":"eBlock";
+  const vin=String((item && item.vin) || currentVin() || "").trim().toUpperCase();
+  if(vin){
+    APP.vin=APP.vin||vin;
+    copyVin(vin);
   }
+  const url=marketUrl(kind, vin);
+  toast(vin ? ("VIN copied · opening "+label) : ("Opening "+label+"…"));
+  const standalone=window.navigator.standalone===true || (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches);
+  if(standalone){ window.location.assign(url); return; }
   let w=null;
   try{ w=window.open(url, "_blank", "noopener"); }catch(err){}
   if(w) return;
   window.location.assign(url);
 }
-const OPENLANE_GUIDE="https://app.openlane.ca/marketguide";
-const EBLOCK_GUIDE="https://app.eblock.com/my-market-guide";
+function openVauto(e){ openMarketSite("vauto", null, e); }
+function openOpenlane(e){ openMarketSite("openlane", null, e); }
+function openEblock(e){ openMarketSite("eblock", null, e); }
 function currentVin(){
   return String(APP.vin || ($("v-vin") && $("v-vin").value) || ($("f-vin") && $("f-vin").value) || "").trim().toUpperCase();
 }
-function copyVin(){
-  const vin=currentVin();
+function copyVin(forced){
+  const vin=String(forced||currentVin()||"").trim().toUpperCase();
   if(!vin) return "";
   try{
     if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(vin);
@@ -5746,8 +6951,6 @@ function openBrand(url){
   a.remove();
   if(vin) copyVin();
 }
-function openOpenlane(){ openBrand(OPENLANE_GUIDE); }
-function openEblock(){ openBrand(EBLOCK_GUIDE); }
 function openCarfaxPaste(){
   const el=$("carfaxUrl");
   if(el) el.value="";
@@ -6178,7 +7381,9 @@ function capturedFiles(){
   VIEWS.forEach(function(v,i){
     const n=String(i+1).padStart(2,"0");
     dmgShots(v[0]).forEach(function(s,j){
-      const note=isDamageNote(s.cap)?s.cap:"";
+      const note=String(s.cap||"").trim();
+      const mime=s.audioMime||"";
+      const voiceName="damage-"+n+"-"+v[0]+"-"+String(j+1).padStart(2,"0")+"-voice."+audioExt(mime);
       out.push({
         name:"damage-"+n+"-"+v[0]+"-"+String(j+1).padStart(2,"0")+".jpg",
         data:s.data,
@@ -6186,12 +7391,28 @@ function capturedFiles(){
         kind:"damage",
         n:i+1,
         view:v[0],
-        cap:note
+        cap:note,
+        audio:s.audio||"",
+        audioMime:mime,
+        audioName:s.audio?voiceName:""
       });
     });
   });
   APP.closeups.forEach(function(d,i){
-    out.push({name:"close-"+String(i+1).padStart(2,"0")+".jpg", data:d, title:"Close-up "+(i+1), kind:"close", n:i+1, cap:isDamageNote(APP.closeupCap[i])?APP.closeupCap[i]:""});
+    const voice=APP.closeupAudio && APP.closeupAudio[i];
+    const voiceData=voice && (voice.data||voice) || "";
+    const mime=voice && voice.mime || "";
+    out.push({
+      name:"close-"+String(i+1).padStart(2,"0")+".jpg",
+      data:d,
+      title:"Close-up "+(i+1),
+      kind:"close",
+      n:i+1,
+      cap:String(APP.closeupCap[i]||"").trim(),
+      audio:voiceData,
+      audioMime:mime,
+      audioName:voiceData?("close-"+String(i+1).padStart(2,"0")+"-voice."+audioExt(mime)):""
+    });
   });
   return out;
 }
@@ -6273,7 +7494,18 @@ async function buildPdf(){
   const sub=[APP.color, APP.km ? Number(String(APP.km).replace(/,/g,"")).toLocaleString("en-CA")+" km" : "", APP.trim].filter(Boolean).join("  ·  ");
   if(sub){ d.text(sub, 36, y); y+=16; }
   d.text(packetWhen(), 36, y);
-  y+=22;
+  y+=18;
+  if(isCanadaDrives()){
+    d.setFillColor(255,255,255);
+    d.roundedRect(36, y, W-72, 56, 10, 10, "F");
+    setFont(true, 9, MUTED);
+    d.text("CANADA DRIVES APPLICATION NUMBER", 52, y+20);
+    setFont(true, 18, INK);
+    d.text(String(cdAppNumber()||"—"), 52, y+42);
+    y+=70;
+  } else {
+    y+=4;
+  }
   const market=[
     ["Book", ""],
     ["MMR", ""],
@@ -6307,6 +7539,7 @@ async function buildPdf(){
     ["Colour", APP.color],["Kilometres", APP.km ? Number(String(APP.km).replace(/,/g,"")).toLocaleString("en-CA") : ""],
     ["VIN", APP.vin],["Stock", APP.stock]
   ];
+  if(isCanadaDrives()) specs.push(["Canada Drives application number", cdAppNumber()]);
   const colW=(W-72-16)/2;
   specs.forEach(function(row, i){
     const col=i%2, rown=Math.floor(i/2);
@@ -6319,7 +7552,7 @@ async function buildPdf(){
     setFont(true, 13, INK);
     d.text(String(row[1]||"—"), x+12, yy+34);
   });
-  y=y+16+4*52+18;
+  y=y+16+Math.ceil(specs.length/2)*52+18;
   const story=(APP.notes||APP.heard||"").trim();
   if(story){
     setFont(true, 13, INK);
@@ -6373,7 +7606,11 @@ async function buildPdf(){
     }
     if(shot.cap){
       setFont(false, 10, WHITE);
-      d.text(shot.cap, 24, 552);
+      wrap(shot.cap, 24, 552, 700, 13);
+    }
+    if(shot.audio){
+      setFont(false, 9, [160,160,170]);
+      d.text("Spoken note attached — play "+(shot.audioName||"the matching audio")+" to hear it.", 24, 598);
     }
     setFont(false, 8, [90,90,100]);
     d.text(index+" / "+total, 768, 598, {align:"right"});
@@ -6484,7 +7721,8 @@ function packetSummary(){
   const lines=[];
   lines.push(unitLabel()+" — "+why());
   if(APP.dealType) lines.push("Appraisal type: "+APP.dealType);
-  if(APP.dealType==="Canada Drives" && (APP.cdApp||"").trim()) lines.push("Canada Drives application #: "+APP.cdApp.trim());
+  if(APP.leadSource) lines.push("Lead source: "+APP.leadSource);
+  if(isCanadaDrives() && (APP.cdApp||"").trim()) lines.push("Canada Drives application #: "+APP.cdApp.trim());
   [["Year",APP.year],["Make",APP.make],["Model",APP.model],["Trim",APP.trim],["Colour",APP.color],["Kilometres",APP.km],["VIN",APP.vin],["Stock",APP.stock]].forEach(function(r){ if(r[1]) lines.push(r[0]+": "+r[1]); });
   if(APP.heard) lines.push("Story: "+APP.heard);
   if(APP.notes) lines.push("Condition: "+APP.notes);
@@ -6496,6 +7734,8 @@ function packetSummary(){
     });
   });
   if(caps.length) lines.push("Damage: "+caps.join("; "));
+  const voices=capturedFiles().filter(function(s){ return s && s.audio; }).length;
+  if(voices) lines.push("Spoken damage notes: "+voices);
   if(APP.clips && APP.clips.length) lines.push("Walk-around video: "+APP.clips.length+" clip"+(APP.clips.length>1?"s":""));
   let recs=0;
   Object.keys(APP.docs||{}).forEach(function(id){ recs+=((APP.docs[id]&&APP.docs[id].videos)||[]).length; });
@@ -6510,7 +7750,10 @@ async function buildZip(){
   const folder=zip.folder(folderName()||"vehicle");
   const doc=await buildPdf();
   folder.file((folderName()||"vehicle")+"-packet.pdf", doc.output("blob"));
-  capturedFiles().forEach(function(s){ folder.file(s.name, blobFrom(s.data)); });
+  capturedFiles().forEach(function(s){
+    folder.file(s.name, blobFrom(s.data));
+    if(s.audio) folder.file(s.audioName||s.name.replace(/\.jpg$/i,"-voice.webm"), blobFrom(s.audio));
+  });
   (APP.clips||[]).forEach(function(c,i){
     const ext=(c.mime||"").indexOf("webm")>=0?"webm":"mp4";
     folder.file("walk-around-"+String(i+1)+"."+ext, c.blob);
@@ -6534,7 +7777,47 @@ function factCell(k,v){
   return "<div><k>"+k+"</k><b>"+String(v)+"</b></div>";
 }
 function esc(s){ return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
-function openViewer(kind, src, title){
+function bindViewerShot(s){
+  const bar=$("viewerCapBar"), more=$("viewerCapMore"), line=$("viewerCapLine");
+  const sheet=$("viewerCapSheet"), full=$("viewerCapFull"), play=$("viewerPlay"), audio=$("viewerAudio");
+  if(!bar) return;
+  const cap=String(s && s.cap || "").trim();
+  const voice=s && s.audio;
+  if(!cap && !voice){
+    bar.classList.add("hide");
+    if(sheet) sheet.classList.add("hide");
+    if(audio){ try{ audio.pause(); }catch(e){} audio.removeAttribute("src"); audio.classList.add("hide"); }
+    return;
+  }
+  bar.classList.remove("hide");
+  if(line) line.textContent=damageCaptionLine(cap, 52) || (voice?"Voice note":"");
+  if(more){
+    more.classList.toggle("hide", cap.length<=52);
+    more.textContent="More";
+  }
+  if(play) play.classList.toggle("hide", !voice);
+  if(full) full.textContent=cap;
+  if(sheet) sheet.classList.add("hide");
+  if(audio){
+    try{ audio.pause(); }catch(e){}
+    if(voice){ audio.src=voice; audio.classList.remove("hide"); }
+    else { audio.removeAttribute("src"); audio.classList.add("hide"); }
+  }
+}
+function toggleViewerCap(){
+  const sheet=$("viewerCapSheet");
+  const more=$("viewerCapMore");
+  if(!sheet) return;
+  const shown=!sheet.classList.toggle("hide");
+  if(more) more.textContent=shown?"Less":"More";
+}
+function playViewerVoice(){
+  const a=$("viewerAudio");
+  if(!a || !a.src) return;
+  if(a.paused) a.play();
+  else a.pause();
+}
+function openViewer(kind, src, title, meta){
   const v=$("viewer"); if(!v) return;
   $("viewerTitle").textContent = title || "File";
   const pdf=$("viewerPdf"); const img=$("viewerImg"); const doc=$("viewerDoc"); const vid=$("viewerVid");
@@ -6555,6 +7838,7 @@ function openViewer(kind, src, title){
   } else {
     img.style.display="block"; img.src=src;
   }
+  bindViewerShot(meta||null);
   v.classList.add("on");
 }
 function closeViewer(){
@@ -6562,9 +7846,11 @@ function closeViewer(){
   const pdf=$("viewerPdf"); if(pdf) pdf.removeAttribute("src");
   const vid=$("viewerVid"); if(vid){ try{ vid.pause(); }catch(e){} vid.removeAttribute("src"); vid.classList.add("hide"); }
   const doc=$("viewerDoc"); if(doc){ doc.classList.remove("on"); doc.innerHTML=""; }
+  const audio=$("viewerAudio"); if(audio){ try{ audio.pause(); }catch(e){} audio.removeAttribute("src"); }
+  bindViewerShot(null);
 }
 function packetHtml(){
-  const rows=[["Year",APP.year],["Make",APP.make],["Model",APP.model],["Trim",APP.trim],["Colour",APP.color],["Kilometres",APP.km],["VIN",APP.vin],["Stock",APP.stock],["Type",APP.dealType],["Canada Drives #", APP.dealType==="Canada Drives"?APP.cdApp:""]].filter(function(r){ return r[1]; });
+  const rows=[["Year",APP.year],["Make",APP.make],["Model",APP.model],["Trim",APP.trim],["Colour",APP.color],["Kilometres",APP.km],["VIN",APP.vin],["Stock",APP.stock],["Type",APP.dealType],["Lead",APP.leadSource],["Canada Drives #", isCanadaDrives()?APP.cdApp:""]].filter(function(r){ return r[1]; });
   let h='<div class="badge">'+esc(why())+'</div>';
   h+='<h2>'+esc(unitLabel())+'</h2>';
   h+='<p class="quote">'+esc(shotCount()+" photo(s)")+'</p>';
@@ -6579,7 +7865,8 @@ function packetHtml(){
   h+='<div class="block">Photos</div>';
   capturedFiles().forEach(function(s){
     h+='<img class="full" src="'+s.data+'" alt="">';
-    h+='<p class="cap">'+esc(s.title)+'</p>';
+    h+='<p class="cap">'+esc(s.title)+(s.cap?" — "+esc(s.cap):"")+'</p>';
+    if(s.audio) h+='<audio class="full" src="'+s.audio+'" controls playsinline style="width:100%;border-radius:14px;background:#111;margin:0 0 18px"></audio>';
   });
   const keys=Object.keys(APP.docs||{});
   if(keys.length){
@@ -6621,8 +7908,9 @@ async function paintSubmit(){
   capturedFiles().forEach(function(s){
     const b=document.createElement("button"); b.type="button";
     const cap=s.title||"";
-    b.innerHTML='<img src="'+s.data+'" alt=""><span>'+cap.split(" — ")[0]+'</span><em>'+(cap.indexOf(" — ")>=0?cap.split(" — ").slice(1).join(" — "):"Tap to view")+'</em>';
-    b.onclick=function(){ openViewer("img", s.data, s.title); };
+    const sub=s.cap ? damageCaptionLine(s.cap, 42) : (s.audio ? "Voice note — tap to hear" : (cap.indexOf(" — ")>=0?cap.split(" — ").slice(1).join(" — "):"Tap to view"));
+    b.innerHTML='<img src="'+s.data+'" alt=""><span>'+esc(cap.split(" — ")[0])+'</span><em>'+esc(sub)+'</em>';
+    b.onclick=function(){ openShotViewer(s, s.title); };
     grid.appendChild(b);
   });
   if(!capturedFiles().length) grid.innerHTML='<p class="quote">No photos yet.</p>';
@@ -6670,28 +7958,43 @@ function dataB64(dataUrl){
   const i=s.indexOf("base64,");
   return i>=0 ? s.slice(i+7) : "";
 }
+function pushVoiceParts(parts, shots){
+  (shots||[]).forEach(function(s){
+    const b64=dataB64(s && s.audio);
+    if(!b64) return;
+    parts.push({
+      disp:"attachment",
+      b64:b64,
+      name:s.audioName || ((s.name||"voice").replace(/\.jpg$/i,"")+"-voice."+audioExt(s.audioMime)),
+      mime:s.audioMime || "audio/webm"
+    });
+  });
+}
 function packetMailHtml(shots){
   return packetCatalogHtml(shots, function(s,i){ return "cid:photo"+i+"@inspect"; });
 }
 async function sharePacket(){
+  if(APP.role!=="guest" && !requireCdApp()) return;
   const shots=capturedFiles();
   if(!shots.length && !(APP.clips&&APP.clips.length) && !Object.keys(APP.docs||{}).length && !(APP.notes||APP.heard)){ toast("Add the story or photos first."); return; }
-  landInCenter({sent:false, stage:"Waiting"});
   const dest=packetDest();
   const extra={cc:dest.cc, bcc:dest.bcc};
   const to=dest.to;
   const subject=packetMailSubject();
   const body=packetMailText() + (APP.role==="guest" && APP.requestedBy ? "\nRequested by: "+(APP.requestedByName||nameForEmail(APP.requestedBy))+" <"+APP.requestedBy+">" : "");
   const guest=APP.role==="guest";
+  const sendId=packetSendId();
   if(guest) hideMailOpen();
-  const href=guest ? "" : revealMailOpen();
+  const href=guest ? "" : fallbackMailHref(to, subject, packetMailText(), extra);
   const btn=$("btnSharePack");
-  if(btn && btn.disabled){
+  if(APP._sending || (btn && btn.disabled)){
     if(guest) toast("Still sending…");
-    else toast("Still working — tap Open Gmail and send if nothing arrives.");
+    else toast("Still sending…");
     return;
   }
   if(btn){ btn.disabled=true; btn.textContent="Sending…"; }
+  APP._sending=true;
+  flushDraft();
   let finished=false;
   let sentOk=false;
   function revealMail(){
@@ -6706,25 +8009,67 @@ async function sharePacket(){
   }
   function finish(msg, openMail){
     finished=true;
+    APP._sending=false;
     if(btn){ btn.disabled=false; btn.textContent="Send"; }
     if(guest) hideMailOpen();
     else if(openMail) revealMail();
     if(msg) toast(msg);
   }
-  const watch=setTimeout(function(){
-    if(!finished){
+  async function completeIncoming(){
+    let row=await landIncomingPacket({sendId:sendId, sent:true, stage:"Waiting", source:centerSource()});
+    if(!row) row=await landIncomingPacket({sendId:sendId, sent:true, stage:"Waiting", source:centerSource()});
+    return row;
+  }
+  async function succeed(){
+    const row=await completeIncoming();
+    if(!row){
+      markMailed(sendId);
       if(guest) finish("Couldn’t send — try again", false);
-      else finish("Still working — tap Open Gmail and send.", true);
+      else finish("Couldn’t save to Incoming. Tap Send to try again.", false);
+      return false;
     }
-  }, guest ? 22000 : 8000);
+    markDelivered(sendId);
+    markMailed(sendId);
+    clearSnapshot();
+    clearDraft();
+    if(guest){
+      sentOk=true;
+      finish("");
+      try{ finishGuest(); }catch(e){}
+      return true;
+    }
+    sentOk=true;
+    finish("Sent to "+tradeToLine(to)+".");
+    return true;
+  }
+  const watch=setTimeout(function(){
+    if(!finished) toast(guest ? "Still sending…" : "Still working…");
+  }, 28000);
   try{
-    if(!APP.googleToken) APP.googleToken=readGoogleToken()||"";
-    toast(guest ? "Sending…" : "Sending the catalog…");
-    if(!guest) revealMail();
+    if(wasDelivered(sendId)){
+      await succeed();
+      return;
+    }
+    toast(guest ? "Sending…" : "Sending…");
+    if(wasMailed(sendId)){
+      await succeed();
+      return;
+    }
     const mailShots=[];
     for(let i=0;i<shots.length;i++){
-      try{ mailShots.push({title:shots[i].title, name:shots[i].name, cap:shots[i].cap||"", data:await withTimeout(compressDataUrl(shots[i].data, 1100, 0.76), 3500, shots[i].data)}); }
+      try{ mailShots.push({title:shots[i].title, name:shots[i].name, cap:shots[i].cap||"", data:await withTimeout(compressDataUrl(shots[i].data, 1100, 0.76), 3500, shots[i].data), audio:shots[i].audio||"", audioMime:shots[i].audioMime||"", audioName:shots[i].audioName||""}); }
       catch(e){ mailShots.push(shots[i]); }
+    }
+    if(shots.length && mailShots.length!==shots.length){
+      if(guest) finish("Couldn’t send — try again", false);
+      else finish("Couldn’t pack the photos. Tap Send to try again.", false);
+      return;
+    }
+    const missing=mailShots.filter(function(s){ return !dataB64(s.data); }).length;
+    if(shots.length && missing){
+      if(guest) finish("Couldn’t send — try again", false);
+      else finish("Couldn’t pack the photos. Tap Send to try again.", false);
+      return;
     }
     const html=packetMailHtml(mailShots);
     const parts=[];
@@ -6733,49 +8078,33 @@ async function sharePacket(){
       if(!b64) return;
       parts.push({cid:"photo"+i+"@inspect", b64:b64, name:s.name||("photo-"+i+".jpg"), mime:"image/jpeg"});
     });
-    try{
-      const doc=await withTimeout(buildPdf(), 8000, null);
-      if(doc) parts.push({disp:"attachment", b64:bufB64(await doc.output("arraybuffer")), name:(folderName()||"vehicle")+".pdf", mime:"application/pdf"});
-    }catch(e){}
-    const sent=await withTimeout(sendFromMe(to, subject, body, html, parts, extra), guest ? 20000 : 15000, {ok:false});
-    if(sent && sent.ok && sent.verified){
-      finished=true;
-      landInCenter({sent:true, stage:"Waiting"});
-      clearSnapshot();
-      clearDraft();
-      if(guest){
-        sentOk=true;
-        finish("");
-        try{ finishGuest(); }catch(e){}
-        return;
-      }
-      sentOk=true;
-      finish("Sent to "+tradeToLine(to)+".");
+    let doc=null;
+    try{ doc=await withTimeout(buildPdf(), 8000, null); }catch(e){ doc=null; }
+    if(!doc){
+      try{ doc=await withTimeout(buildPdf(), 8000, null); }catch(e){ doc=null; }
+    }
+    if(!doc){
+      if(guest) finish("Couldn’t send — try again", false);
+      else finish("Couldn’t build the PDF. Tap Send to try again.", false);
       return;
     }
-    const slim=parts.filter(function(p){ return p.disp==="attachment"; });
-    const slimSent=slim.length ? await withTimeout(sendFromMe(to, subject, body, "", slim, extra), guest ? 16000 : 8000, {ok:false}) : {ok:false};
-    if(slimSent && slimSent.ok && slimSent.verified){
-      finished=true;
-      landInCenter({sent:true, stage:"Waiting"});
-      if(guest){
-        sentOk=true;
-        finish("");
-        try{ finishGuest(); }catch(e){}
-        return;
-      }
-      sentOk=true;
-      finish("Sent the PDF to "+tradeToLine(to)+".");
+    parts.push({disp:"attachment", b64:bufB64(await doc.output("arraybuffer")), name:(folderName()||"vehicle")+".pdf", mime:"application/pdf"});
+    pushVoiceParts(parts, shots);
+    let sent=await withTimeout(sendFromMe(to, subject, body, html, parts, extra), 20000, {ok:false});
+    if(!(sent && sent.ok)) sent=await withTimeout(sendFromMe(to, subject, body, html, parts, extra), 20000, {ok:false});
+    if(!(sent && sent.ok)){
+      if(guest) finish("Couldn’t send — try again", false);
+      else finish("Couldn’t send from here. Tap Open Gmail and send.", true);
       return;
     }
-    landInCenter({sent:false, stage:"Waiting"});
-    if(guest) finish("Couldn’t send — try again", false);
-    else finish("Couldn’t send from here. Tap Open Gmail and send.", true);
+    markMailed(sendId);
+    await succeed();
   }catch(e){
     if(guest) finish("Couldn’t send — try again", false);
-    else finish("Couldn’t send. Tap the mail button.", true);
+    else finish("Couldn’t send. Tap Send to try again.", true);
   }finally{
     clearTimeout(watch);
+    APP._sending=false;
     if(btn){ btn.disabled=false; btn.textContent="Send"; }
     if(guest) hideMailOpen();
     else if(!sentOk) revealMail();
@@ -6798,7 +8127,24 @@ document.querySelectorAll("[data-close]").forEach(function(b){
     if(id==="vinSheet") stopVinScan();
   });
 });
-$("startAppraise").onclick = function(){ setPurpose("appraise"); paintDealType(); show("home"); };
+$("startAppraise").onclick = function(){
+  if(!requirePerm("appraise")) return;
+  setPurpose("appraise");
+  APP.dealType="";
+  APP.leadSource="";
+  APP.cdApp="";
+  APP.apptId="";
+  APP.apptSeller="";
+  APP.lockedFromAirtable=false;
+  APP.apptItems=[];
+  if($("home-cd-app")) $("home-cd-app").value="";
+  if($("cd-app")) $("cd-app").value="";
+  if($("wb-cd-app")) $("wb-cd-app").value="";
+  scheduleDraftSave();
+  paintDealType();
+  show("home");
+  openDealType();
+};
 if($("startCenter")) $("startCenter").onclick = openCenter;
 if($("centerBack")) $("centerBack").onclick = function(){ APP.centerLane=""; show("start"); };
 if($("centerSheetClose")) $("centerSheetClose").onclick = closeCenterLane;
@@ -6841,19 +8187,128 @@ document.addEventListener("click", function(e){
   if(e.target && e.target.closest && e.target.closest(".center-date")) return;
   menu.classList.remove("on");
 });
-if($("centerStageBtn")) $("centerStageBtn").onclick = function(){
+async function buildApprovalPdf(item, num){
+  if(!window.jspdf) await loadScript("https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js");
+  const {jsPDF}=window.jspdf;
+  const d=new jsPDF({unit:"pt", format:"letter", compress:true});
+  const W=612, H=792;
+  const INK=[17,14,26], MUTED=[107,98,120], CYAN=[0,168,232], PURPLE=[124,92,255];
+  d.setFillColor(250,249,252); d.rect(0,0,W,H,"F");
+  d.setFillColor(CYAN[0], CYAN[1], CYAN[2]); d.rect(0,0,W,6,"F");
+  d.setFillColor(PURPLE[0], PURPLE[1], PURPLE[2]); d.rect(W-6,0,6,H,"F");
+  d.setFont("helvetica","bold"); d.setFontSize(11); d.setTextColor(CYAN[0],CYAN[1],CYAN[2]);
+  d.text("SHAWN APPROVAL", 36, 48);
+  d.setFontSize(26); d.setTextColor(INK[0],INK[1],INK[2]);
+  d.text(String(item.interest||item.ymmt||"Vehicle"), 36, 84);
+  d.setFont("helvetica","normal"); d.setFontSize(12); d.setTextColor(MUTED[0],MUTED[1],MUTED[2]);
+  d.text([item.ymmt, item.vin, item.color, item.km].filter(Boolean).join("  ·  "), 36, 106);
+  d.setFillColor(255,255,255);
+  d.roundedRect(36, 128, W-72, 88, 12, 12, "F");
+  d.setFont("helvetica","bold"); d.setFontSize(10); d.setTextColor(MUTED[0],MUTED[1],MUTED[2]);
+  d.text("APPROVAL / BUY NUMBER", 52, 156);
+  d.setFontSize(28); d.setTextColor(INK[0],INK[1],INK[2]);
+  d.text(String(num||"—"), 52, 192);
+  let y=244;
+  d.setFontSize(13); d.text("Packet context", 36, y); y+=20;
+  d.setFont("helvetica","normal"); d.setFontSize(11); d.setTextColor(INK[0],INK[1],INK[2]);
+  if(isCanadaDrives(item)){
+    d.setFillColor(243,240,250);
+    d.roundedRect(36, y, W-72, 52, 10, 10, "F");
+    d.setFont("helvetica","bold"); d.setFontSize(9); d.setTextColor(MUTED[0],MUTED[1],MUTED[2]);
+    d.text("CANADA DRIVES APPLICATION NUMBER", 52, y+18);
+    d.setFontSize(16); d.setTextColor(INK[0],INK[1],INK[2]);
+    d.text(String(cdAppNumber(item)||"—"), 52, y+40);
+    y+=68;
+  }
+  const lines=[
+    item.dealType ? "Appraisal type: "+item.dealType : "",
+    item.leadSource ? "Lead source: "+item.leadSource : "",
+    isCanadaDrives(item) ? "Canada Drives application number: "+(cdAppNumber(item)||"—") : "",
+    item.customer && item.customer.name ? "Customer: "+item.customer.name : "",
+    item.salesperson ? "Salesperson: "+item.salesperson : "",
+    item.sentBy ? "Sent by: "+item.sentBy : "",
+    item.story ? "Story: "+item.story : "",
+    item.notes ? "Desk notes: "+item.notes : ""
+  ].filter(Boolean);
+  lines.forEach(function(line){
+    const wrap=d.splitTextToSize(line, W-72);
+    wrap.forEach(function(l){ d.text(l, 36, y); y+=15; });
+    y+=6;
+  });
+  const team=item.team||{};
+  CENTER_TEAM.forEach(function(pair){
+    const slot=teamSlot(team[pair[0]]);
+    if(!(slot.target||slot.note)) return;
+    d.setFont("helvetica","bold"); d.setFontSize(12);
+    d.text(pair[1]+" ("+pair[2]+")  "+[slot.min,slot.target,slot.max].filter(Boolean).join(" / "), 36, y);
+    y+=16;
+    if(slot.note){
+      d.setFont("helvetica","normal"); d.setFontSize(10);
+      d.splitTextToSize(slot.note, W-72).forEach(function(l){ d.text(l, 36, y); y+=13; });
+      y+=8;
+    }
+  });
+  d.setFont("helvetica","normal"); d.setFontSize(9); d.setTextColor(MUTED[0],MUTED[1],MUTED[2]);
+  d.text("Emailed to Shawn and Christina · Appraisal Center complete", 36, H-28);
+  return d;
+}
+async function emailApprovalPacket(item, num){
+  const doc=await buildApprovalPdf(item, num);
+  const parts=[{
+    disp:"attachment",
+    b64:bufB64(await doc.output("arraybuffer")),
+    name:((item.ymmt||item.interest||"vehicle")+"-approval.pdf").replace(/[^\w.\-]+/g,"-"),
+    mime:"application/pdf"
+  }];
+  const subject=(item.interest||item.ymmt||"Vehicle")+" — Shawn approval "+num;
+  const text=["Shawn approval / buy number: "+num, isCanadaDrives(item)?"Canada Drives application number: "+(cdAppNumber(item)||""):"", item.interest||item.ymmt||"", item.vin||"", item.story||""].filter(Boolean).join("\n");
+  const extra={cc:[CHRISTINA_COPY], bcc:[SHAWN_COPY]};
+  let sent=await withTimeout(sendFromMe([SHAWN_COPY], subject, text, "", parts, extra), 20000, {ok:false});
+  if(!(sent && sent.ok)) sent=await withTimeout(sendFromMe([SHAWN_COPY], subject, text, "", parts, extra), 20000, {ok:false});
+  return !!(sent && sent.ok);
+}
+async function completeCenterFile(){
   const item=getCenter(APP.centerViewId);
   if(!item) return;
-  const next=item.stage==="Appraised"?"Waiting":"Appraised";
+  if(!canUseCenter()){ denyCenter(); return; }
+  if(item.stage==="Appraised"){
+    patchCenter(item.id, function(x){
+      x.stage="Waiting";
+      x.lane=(x.source==="guest"||x.source==="trade-in")?"inbox":"onsite";
+      x.archived=false;
+    });
+    toast("Back on the desk.");
+    paintCenter();
+    paintCenterDetail();
+    return;
+  }
+  const appraisal=isCenterAppraisal(item);
+  if(appraisal){
+    if($("centerCdApp") && isCanadaDrives(item)){
+      patchCenter(item.id, function(x){ x.cdApp=$("centerCdApp").value.trim(); x.dealType=x.dealType||"Consumer Acquisition"; x.leadSource=x.leadSource||"Canada Drives"; });
+    }
+    if(!requireCdApp(getCenter(item.id)||item)) return;
+    const num=(($("centerApproval")&&$("centerApproval").value)||item.approval||"").trim();
+    if(!num){ toast("Enter Shawn’s approval number first."); return; }
+    patchCenter(item.id, function(x){ x.approval=num; });
+    const btn=$("centerStageBtn");
+    if(btn){ btn.disabled=true; btn.textContent="Sending…"; }
+    let sent=false;
+    try{ sent=await emailApprovalPacket(getCenter(item.id)||item, num); }
+    catch(e){ sent=false; }
+    if(btn){ btn.disabled=false; btn.textContent="Complete"; }
+    if(!sent){ toast("Couldn’t send the approval PDF — try Complete again."); return; }
+  }
   patchCenter(item.id, function(x){
-    x.stage=next;
-    if(next==="Appraised"){ x.lane="history"; }
-    else { x.lane=(x.source==="guest"||x.source==="trade-in")?"inbox":"onsite"; x.archived=false; }
+    x.stage="Appraised";
+    x.lane="history";
+    if(appraisal) x.approvalMailed=true;
   });
-  toast(next==="Appraised"?"Moved to History.":"Back on the desk.");
+  toast(appraisal?"Approval emailed to Shawn and Christina. Moved to History.":"Moved to History.");
   paintCenter();
   paintCenterDetail();
-};
+}
+if($("centerStageBtn")) $("centerStageBtn").onclick = completeCenterFile;
 if($("centerNotes")) $("centerNotes").addEventListener("input", function(){
   const el=this;
   growArea(el);
@@ -6862,10 +8317,12 @@ if($("centerNotes")) $("centerNotes").addEventListener("input", function(){
 });
 if($("btnDealType")) $("btnDealType").onclick = openDealType;
 if($("typeSave")) $("typeSave").onclick = function(){
-  APP.cdApp=(($("cd-app")&&$("cd-app").value)||($("home-cd-app")&&$("home-cd-app").value)||"").trim();
-  if(APP.dealType==="Canada Drives" && !APP.cdApp){ toast("Add the Canada Drives application number."); return; }
+  APP.cdApp=(($("wb-cd-app")&&$("wb-cd-app").value)||($("cd-app")&&$("cd-app").value)||($("home-cd-app")&&$("home-cd-app").value)||"").trim();
+  if(needsAppraiseType()){ toast("Pick the appraisal type first — Trade-in, Locate, General acquisition, or Consumer Acquisition."); return; }
+  if(needsLeadSource()){ toast("Pick the lead source first — Canada Drives, My Loan, My Auto, or Carla."); return; }
   if($("typeSheet")) $("typeSheet").classList.remove("on");
   paintDealType();
+  if(isConsumerAcquisition()) openAppointments();
 };
 function onCdInput(el){
   if(!el) return;
@@ -6876,8 +8333,56 @@ function onCdInput(el){
 }
 onCdInput($("cd-app"));
 onCdInput($("home-cd-app"));
+onCdInput($("wb-cd-app"));
+if($("apptTabs")) $("apptTabs").addEventListener("click", function(e){
+  const b=e.target && e.target.closest && e.target.closest("[data-appt-region]");
+  if(!b) return;
+  APP.apptRegion=b.getAttribute("data-appt-region")||"GTA";
+  paintAppointments();
+});
+if($("apptDates")) $("apptDates").addEventListener("click", function(e){
+  const b=e.target && e.target.closest && e.target.closest("[data-appt-range]");
+  if(!b) return;
+  APP.apptRange=b.getAttribute("data-appt-range")||"today";
+  paintAppointments();
+});
+if($("apptFrom")) $("apptFrom").addEventListener("change", function(){ APP.apptRange="calendar"; paintAppointments(); });
+if($("apptTo")) $("apptTo").addEventListener("change", function(){ APP.apptRange="calendar"; paintAppointments(); });
+if($("wbBack")) $("wbBack").onclick = function(){
+  if(isConsumerAcquisition() && APP.apptId){
+    APP.apptId="";
+    APP.apptSeller="";
+    APP.lockedFromAirtable=false;
+    paintWorkbench();
+    toast("Pick another booked appointment.");
+    return;
+  }
+  show("start");
+};
+if($("wbType")) $("wbType").onclick = openDealType;
+if($("wbStory")) $("wbStory").onclick = function(){ if(!requireAppraiseType()) return; openStoryMic(); };
+if($("wbWalk")) $("wbWalk").onclick = function(){ if(!requireAppraiseType()) return; show("photos"); };
+if($("wbDmg")) $("wbDmg").onclick = function(){
+  if(!requireAppraiseType()) return;
+  show("photos");
+  setTimeout(function(){ const n=$("damageRows"); if(n) n.scrollIntoView({behavior:"smooth", block:"start"}); }, 80);
+  toast("Damage is the important one — shoot every mark.");
+};
+if($("wbSendCard")) $("wbSendCard").onclick = function(){
+  if(!requireAppraiseType()) return;
+  if(!requireCdApp()) return;
+  show("photos");
+  setTimeout(function(){ if($("btnSend")) $("btnSend").click(); }, 40);
+};
 function openStoryMic(){
   killMediaNow();
+  if($("storyTitle")) $("storyTitle").textContent="What's the Story?";
+  const hint=document.querySelector("#storySheet .hint");
+  if(hint){
+    hint.textContent = (isConsumerAcquisition() && APP.lockedFromAirtable)
+      ? "Verbal description only. Year, make, VIN, and seller stay as Airtable filled them. Talk the condition."
+      : "Talk through year, make, model, trim, colour, kilometres, and condition in detail. If you have the ownership, photograph it. If not, read the 17-character VIN out loud. Allow the microphone — tap Speak if it doesn’t start.";
+  }
   $("storySheet").classList.add("on");
   startMic();
 }
@@ -6889,9 +8394,9 @@ if($("guestType")) $("guestType").onclick = function(){
   setPurpose("appraise");
   openVerify();
 };
-$("startWebsite").onclick = function(){ setPurpose("website"); show("home"); };
-if($("startTrade")) $("startTrade").onclick = openInvite;
-function openUsers(){ paintUsers(); show("users"); }
+$("startWebsite").onclick = function(){ if(!requirePerm("website")) return; setPurpose("website"); paintAppraiseGate(); show("home"); };
+if($("startTrade")) $("startTrade").onclick = function(){ if(!requirePerm("trade")) return; openInvite(); };
+function openUsers(){ if(!requirePerm("admin")) return; paintUsers(); show("users"); }
 if($("startUsers")) $("startUsers").onclick = openUsers;
 document.addEventListener("click", function(e){
   const b=e.target && e.target.closest && e.target.closest("#startUsers");
@@ -6913,15 +8418,18 @@ if($("invCopy")) $("invCopy").onclick = function(){
 });
 if($("inv-phone")) $("inv-phone").addEventListener("input", onPhoneInput);
 $("homeX").onclick = function(){ show("start"); };
-$("photosX").onclick = function(){ show("home"); };
+$("photosX").onclick = function(){
+  if(isConsumerAcquisition() && APP.apptId) show("workbench");
+  else show("home");
+};
 $("camX").onclick = $("camDone").onclick = function(){ show("photos"); };
 $("submitX").onclick = function(){ show("photos"); };
 $("doneX").onclick = $("btnAnother").onclick = resetAll;
-$("btnStory").onclick = function(){ openStoryMic(); };
-$("btnPictures").onclick = function(){ show("photos"); };
+$("btnStory").onclick = function(){ if(!requireAppraiseType()) return; openStoryMic(); };
+$("btnPictures").onclick = function(){ if(!requireAppraiseType()) return; show("photos"); };
 $("btnStart").onclick = function(){ openCamera("photos","qfront"); };
-$("btnDocs").onclick = function(){ paintDocs(); show("photos"); $("docsBlock") && $("docsBlock").scrollIntoView({behavior:"smooth", block:"start"}); };
-$("btnVin").onclick = $("verifyVin").onclick = function(){ openVinCam(); };
+$("btnDocs").onclick = function(){ if(!requireAppraiseType()) return; paintDocs(); show("photos"); $("docsBlock") && $("docsBlock").scrollIntoView({behavior:"smooth", block:"start"}); };
+$("btnVin").onclick = $("verifyVin").onclick = function(){ if(!requireAppraiseType()) return; openVinCam(); };
 if($("btnVinShot")) $("btnVinShot").onclick = snapVinStill;
 if($("carfaxGo")) $("carfaxGo").onclick = ingestCarfax;
 if($("carfaxUrl")) $("carfaxUrl").addEventListener("keydown", function(e){ if(e.key==="Enter"){ e.preventDefault(); ingestCarfax(); } });
@@ -6936,6 +8444,8 @@ if($("btnSharePack")) $("btnSharePack").onclick = kickShare;
 if($("extraMailAdd")) $("extraMailAdd").onclick = addExtraRecipient;
 if($("extraMail")) $("extraMail").addEventListener("keydown", function(e){ if(e.key==="Enter"){ e.preventDefault(); addExtraRecipient(); } });
 if($("viewerX")) $("viewerX").onclick = closeViewer;
+if($("viewerCapMore")) $("viewerCapMore").onclick = toggleViewerCap;
+if($("viewerPlay")) $("viewerPlay").onclick = playViewerVoice;
 document.addEventListener("keydown", function(e){
   if(e.key==="Escape" && APP.centerGalleryOn) closeCenterGallery();
 });
@@ -6969,9 +8479,15 @@ $("useStory").onclick = function(){
   const raw=($("transcript") && $("transcript").value || APP.storyFinal || "").trim();
   applyStory(raw);
   $("storySheet").classList.remove("on");
+  if(isConsumerAcquisition() && APP.apptId){
+    paintWorkbench();
+    show("workbench");
+    toast("Story saved — vehicle fields stay as Airtable filled them.");
+    return;
+  }
   openVerify();
 };
-$("btnType").onclick = function(){ openVerify(); };
+$("btnType").onclick = function(){ if(!requireAppraiseType()) return; openVerify(); };
 $("saveUnit").onclick = function(){ readUnit(); $("unitSheet").classList.remove("on"); paintLists(); show("photos"); };
 $("verifyBack").onclick = function(){ show("home"); };
 $("verifyGo").onclick = function(){
@@ -7013,6 +8529,10 @@ if($("staffForm")) $("staffForm").addEventListener("submit", enterStaffPassword)
 if($("workGo")) $("workGo").onclick = enterStaffPassword;
 if($("workEmail")) $("workEmail").addEventListener("keydown", function(e){ if(e.key==="Enter"){ e.preventDefault(); enterStaffPassword(e); } });
 if($("btnGoogle")) $("btnGoogle").addEventListener("click", googleEmployee);
+if($("staffEmailToggle")) $("staffEmailToggle").onclick = function(){
+  if($("staffForm")) $("staffForm").classList.toggle("hide");
+  if($("workEmail") && $("staffForm") && !$("staffForm").classList.contains("hide")) $("workEmail").focus();
+};
 if($("googleGo")) $("googleGo").onclick = googleContinue;
 if($("googleEmail")) $("googleEmail").addEventListener("keydown", function(e){ if(e.key==="Enter"){ e.preventDefault(); googleContinue(); } });
 if($("btnGuest")) $("btnGuest").onclick = function(){
@@ -7034,7 +8554,7 @@ async function resumePendingSend(){
   setTimeout(function(){ sharePacket(); }, 400);
   return true;
 }
-if(/[?&]auth=fail(?:&|$)/.test(location.search||"")) loginFail("Google sign-in was cancelled.");
+if(/[?&]auth=fail(?:&|$)/.test(location.search||"")) loginFail("Sign-in was cancelled. Tap Continue with Google to try again.");
 try{
   const r=sessionStorage.getItem("inspect.grefr");
   if(r) storeSet("inspect.grefr", r);
@@ -7065,6 +8585,7 @@ if(/[?&]trade=1(?:&|$)/.test(location.search||"")){
   applyRole();
   setPurpose("appraise");
   show("start");
+} else if(takeGoogleLogin()){
 } else if(loadSession()){
   applyRole();
   show("start");

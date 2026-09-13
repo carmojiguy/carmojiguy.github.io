@@ -10,6 +10,7 @@
   var q = String(location.search||"").replace(/^\?/,"");
   var p = new URLSearchParams(h || q);
   var token = p.get("access_token") || "";
+  var idToken = p.get("id_token") || "";
   var code = p.get("code") || "";
   var err = p.get("error") || "";
   function go(fail){
@@ -19,8 +20,10 @@
   }
   try{
     if(token) sessionStorage.setItem("inspect.gtoken", token);
+    if(idToken) sessionStorage.setItem("inspect.gid", idToken);
     if(err) sessionStorage.setItem("inspect.gerr", err);
   }catch(e){}
+  if(idToken){ go(false); return; }
   if(code){
     fetch("https://gnm-guest-mailer-shawn-6802.vercel.app/api/upload", {
       method:"POST",

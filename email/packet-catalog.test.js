@@ -31,19 +31,22 @@ const sandbox = {
     vin: "KM8J3CA17RU123456",
     stock: "",
     dealType: "Retail",
+    leadSource: "",
     cdApp: "",
     notes: "One-owner, winter tires included.",
     heard: "",
     inviteName: "Maya Patel",
     clips: []
   },
+  isCanadaDrives: function () { return false; },
   escHtml: function (s) {
     return String(s || "").replace(/[&<>"']/g, function (c) {
       return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c];
     });
   },
   unitLabel: function () { return "2024 Hyundai Tucson"; },
-  why: function () { return "Trade-in"; }
+  why: function () { return "Trade-in"; },
+  packetSenderLine: function () { return "Maya Patel · customer trade-in"; }
 };
 vm.createContext(sandbox);
 vm.runInContext(src + "\nthis.packetCatalogHtml=packetCatalogHtml;", sandbox);
