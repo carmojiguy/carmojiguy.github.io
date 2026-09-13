@@ -31,12 +31,14 @@ const sandbox = {
     vin: "KM8J3CA17RU123456",
     stock: "",
     dealType: "Retail",
+    leadSource: "",
     cdApp: "",
     notes: "One-owner, winter tires included.",
     heard: "",
     inviteName: "Maya Patel",
     clips: []
   },
+  isCanadaDrives: function () { return false; },
   escHtml: function (s) {
     return String(s || "").replace(/[&<>"']/g, function (c) {
       return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c];

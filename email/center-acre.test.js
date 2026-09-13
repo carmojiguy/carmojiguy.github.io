@@ -161,9 +161,9 @@ must(/function requireAppraiseType\(/, "Appraise actions check type first");
 must(/function paintAppraiseGate\(/, "Story, pictures, docs, and VIN gray until type");
 must(/id="typeGateNote"/, "plain-English type-first note on the Appraise form");
 must(/classList\.toggle\("home-gate", lock\)/, "gated Appraise actions are grayed");
-must(/DEAL_TYPES = \["Trade-in","Locate","General acquisition","Canada Drives"\]/, "Appraise types stay Trade-in, Locate, General acquisition, Canada Drives");
+must(/DEAL_TYPES = \["Trade-in","Locate","General acquisition","Consumer Acquisition"\]/, "Appraise types are Trade-in, Locate, General acquisition, Consumer Acquisition");
 must(/p\.purpose==="website"\) return false/, "website photos stay off the Appraise type gate");
-must(/startAppraise"\)\.onclick[\s\S]{0,360}openDealType\(\)/, "Appraise vehicle opens type before other actions");
+must(/startAppraise"\)\.onclick[\s\S]{0,900}openDealType\(\)/, "Appraise vehicle opens type before other actions");
 must(/el\.disabled=!!lock/, "gated Appraise buttons are actually disabled");
 must(/data-appraise-gate/, "Appraise form exposes the type-gate state");
 
@@ -177,12 +177,96 @@ must(/data-appraise-gate/, "Appraise form exposes the type-gate state");
   assert.strictEqual(needsAppraiseType({ purpose: "appraise", dealType: "" }, false), false, "guests are not gated");
   assert.strictEqual(needsAppraiseType({ purpose: "appraise", dealType: "Locate" }, true), false, "Locate is a valid type");
   assert.strictEqual(needsAppraiseType({ purpose: "appraise", dealType: "General acquisition" }, true), false, "General acquisition is a valid type");
-  assert.strictEqual(needsAppraiseType({ purpose: "appraise", dealType: "Canada Drives" }, true), false, "Canada Drives is a valid type");
+  assert.strictEqual(needsAppraiseType({ purpose: "appraise", dealType: "Consumer Acquisition" }, true), false, "Consumer Acquisition is a valid type");
 })();
-must(/\$\("startTrade"\)\.onclick = openInvite;/, "Send trade-in link stays a direct start-dock action");
-must(/startWebsite"\)\.onclick = function\(\)\{ setPurpose\("website"\);/, "Post vehicle to website stays its own path");
-mustNot(/startTrade[\s\S]{0,120}requireAppraiseType/, "trade-in link is not behind the appraisal-type gate");
+must(/requirePerm\("trade"\)/, "Send trade-in link is a permission, not an Appraise type");
+must(/requirePerm\("website"\)/, "Website photos stay on their own start-dock path");
+mustNot(/startTrade[\s\S]{0,160}requireAppraiseType/, "trade-in link is not behind the appraisal-type gate");
 mustNot(/DEAL_TYPES = \[[^\]]*Website/, "Website is not an Appraise type");
+must(/id="apptWrap"/, "appointments picker sits on the Consumer Acquisition workbench");
+must(/id="workbench"/, "Consumer Acquisition has its own workbench");
+must(/LEAD_SOURCES = \[/, "lead sources are Canada Drives, My Loan, My Auto, Carla");
+must(/id:"Carla"/, "Carla is a lead source");
+must(/function paintPacketDocs\(/, "document pills share one painter");
+must(/function openMarketSite\(/, "vAuto, OpenLane, and eBlock copy VIN and open");
+must(/function extractFromUpload\(/, "uploads run the extract pipeline");
+must(/function demoExtractFor\(/, "demo extract fills pills when live extract is not wired");
+must(/\/api\/extract/, "live extract endpoint is documented");
+must(/VIN copied · opening/, "launcher pills copy the VIN");
+must(/openMarketSite\("vauto"/, "vAuto launcher copies VIN and opens Provision");
+must(/openMarketSite\("openlane"/, "OpenLane launcher copies VIN and opens the site");
+must(/openMarketSite\("eblock"/, "eBlock launcher copies VIN and opens the site");
+mustNot(/function openOpenlane\(\)\{ openBrand/, "OpenLane is not the old brand-only opener");
+mustNot(/function openEblock\(\)\{ openBrand/, "eBlock is not the old brand-only opener");
+must(/id="docsList" class="docs-grid"/, "Trade-in photos use the shared 2-across docs grid");
+must(/id="wbDocs" class="docs-grid"/, "CA workbench uses the shared 2-across docs grid");
+must(/id="centerDocs"/, "Center detail uses the shared docs host");
+must(/grid-template-columns:1fr 1fr/, "document pills stay two across");
+must(/lockedFromAirtable/, "Airtable-prefilled fields stay locked from the story");
+must(/Verbal description only|verbal description only/, "CA story is verbal only");
+must(/data-appt-region="GTA"/, "appointments tab GTA");
+must(/data-appt-region="Ottawa"/, "appointments tab Ottawa");
+must(/data-appt-range="today"/, "DATE-RANGE-001 Today");
+must(/data-appt-range="tomorrow"/, "DATE-RANGE-001 Tomorrow");
+must(/data-appt-range="month"/, "DATE-RANGE-001 This month");
+must(/data-appt-range="lastMonth"/, "DATE-RANGE-001 Last month");
+must(/data-appt-range="calendar"/, "DATE-RANGE-001 Calendar");
+must(/function sampleAppointments\(/, "sample appointments demo when Airtable is not live");
+must(/function applyAppointment\(/, "tapping an appointment prefills Appraise");
+must(/function loadAppointments\(/, "live Airtable path is explicit");
+must(/\/api\/appointments/, "wire-live appointments endpoint");
+must(/appfy57egeT1utqaI/, "Command Center base id is documented");
+must(/tbl2QiJ40S6A7IzyR/, "Consumer Acquisitions table id is documented");
+must(/selqqamHvfGvK4CmK/, "Appointment Booked stage id");
+must(/sel90QtMNs2kN0MbE/, "Canada Drives source id");
+must(/function needsAppraiseAppt\(/, "Canada Drives stays gated until an appointment is picked");
+must(/function defaultPerms\(/, "named staff have default permission toggles");
+must(/function canPerm\(/, "dock buttons read permission toggles");
+must(/function setPerm\(/, "admin can flip permission toggles");
+must(/inspect\.users/, "permissions persist on inspect.users");
+must(/Send trade-in link · On|label:"Send trade-in link"/, "Users screen has Send trade-in link toggle");
+must(/label:"Appraise"/, "Users screen has Appraise toggle");
+must(/label:"Website photos"/, "Users screen has Website photos toggle");
+must(/label:"Appraisal Center"/, "Users screen has Appraisal Center toggle");
+must(/label:"Admin"/, "Users screen has Admin toggle");
+must(/inbox:"Incoming"/, "Center lanes stay Incoming / On-site / History");
+
+(function testNeedsAppraiseAppt() {
+  const m = html.match(/function needsAppraiseAppt\(job, staff\)\{[\s\S]*?\n\}/);
+  assert.ok(m, "needsAppraiseAppt source is extractable");
+  const needsAppraiseType = function () { return false; };
+  const needsLeadSource = function (job) {
+    return job && job.dealType === "Consumer Acquisition" && !job.leadSource;
+  };
+  const isConsumerAcquisition = function (item) {
+    const t = item ? item.dealType : "";
+    return t === "Consumer Acquisition" || t === "Canada Drives";
+  };
+  const fn = m[0].replace("function needsAppraiseAppt", "function");
+  const needsAppraiseAppt = eval("(" + fn + ")");
+  assert.strictEqual(needsAppraiseAppt({ purpose: "appraise", dealType: "Consumer Acquisition", leadSource: "Canada Drives", apptId: "" }, true), true, "CA without appointment stays gated");
+  assert.strictEqual(needsAppraiseAppt({ purpose: "appraise", dealType: "Consumer Acquisition", leadSource: "Canada Drives", apptId: "rec1" }, true), false, "picked appointment unlocks");
+  assert.strictEqual(needsAppraiseAppt({ purpose: "appraise", dealType: "Trade-in", apptId: "" }, true), false, "Trade-in does not need an appointment");
+  assert.strictEqual(needsAppraiseAppt({ purpose: "website", dealType: "Consumer Acquisition", leadSource: "Canada Drives", apptId: "" }, true), false, "website path skips appointments");
+})();
+
+(function testDefaultPerms() {
+  const m = html.match(/function defaultPerms\(email\)\{[\s\S]*?\n\}/);
+  assert.ok(m, "defaultPerms source is extractable");
+  const shawnAlias = function (email) {
+    return email === "shawn@gmautosales.ca" ? "shawn@myloan.ca" : email;
+  };
+  const allPermsOn = function () { return { trade: true, appraise: true, website: true, center: true, admin: true }; };
+  const defaultPerms = eval("(" + m[0].replace("function defaultPerms", "function") + ")");
+  assert.strictEqual(defaultPerms("shawn@myloan.ca").admin, true, "Shawn is admin");
+  assert.strictEqual(defaultPerms("wes@thetrucktown.com").trade, true, "Wes has all dock buttons");
+  assert.strictEqual(defaultPerms("ryan@papered.com").center, true, "Ryan keeps Center");
+  assert.strictEqual(defaultPerms("ryan@papered.com").appraise, true, "Ryan keeps Appraise");
+  assert.strictEqual(defaultPerms("someone@myloan.ca").center, false, "others start grayed");
+})();
+
+assert.ok(fs.existsSync(path.join(root, "api/appointments.js")), "appointments live-wire API exists");
+assert.ok(fs.existsSync(path.join(root, "api/extract.js")), "document extract live-wire API exists");
 
 ["404.html", "inspect-vehicle.html"].forEach(function (name) {
   const copy = fs.readFileSync(path.join(root, name), "utf8");
