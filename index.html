@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-13 build d27q: Canada Drives app# search hits GTA + Ottawa Tracker; docs routing + zero Center samples -->
+<!-- center-v3 + desk-home 2026-09-13 build d28: 2x2 market desk + standing Carfax guy on d27q; zero Center samples -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -243,6 +243,118 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
 .doc-sq.vauto-sq .veil { background:transparent; }
 .doc-sq.carfax-sq { padding:0; border:0; background:#fff; }
 .doc-sq.carfax-sq img { object-fit:cover; pointer-events:none; }
+
+.docs-grid.research-desk,
+#center .docs-grid.research-desk,
+#center .center-docs.research-desk {
+  grid-template-columns:1fr;
+}
+.research-tools, .research-adds, .research-derived, .desk-empty, .desk-lane { grid-column:1 / -1; }
+.research-desk { margin:2px 0 28px; }
+.research-tools { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:0 0 8px; }
+.desk-tool { display:flex; flex-direction:column; width:100%; padding:0; border:0; border-radius:20px; overflow:hidden; cursor:pointer; font:inherit; box-shadow:0 10px 24px rgba(17,14,26,.1); }
+.desk-tool.vauto-sq { background:#FF6A00; }
+.desk-tool.openlane-sq { background:#0B1B4A; }
+.desk-tool.eblock-sq { background:#0B0B0B; }
+.desk-tool.carfax-sq { background:#fff; }
+.desk-tool-art { display:block; aspect-ratio:1 / 1; min-height:110px; position:relative; overflow:hidden; }
+.desk-tool-art img, .desk-tool-art svg { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; pointer-events:none; }
+.desk-tool.carfax-sq .desk-tool-art { background:#fff; }
+.desk-tool.carfax-sq .desk-tool-art img { object-fit:contain; object-position:center; }
+.desk-tool > b { display:block; padding:8px 6px 10px; background:#fff; color:var(--ink); font-size:12px; font-weight:800; letter-spacing:-.1px; }
+.research-adds { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin:0 0 8px; }
+.research-add { width:100%; min-height:68px; margin:0; padding:10px 8px; border-radius:18px; border:1.5px solid #D7EEF8; cursor:pointer; font:inherit; font-size:12px; font-weight:800; line-height:1.2; color:var(--ink); background:linear-gradient(180deg,#FFFFFF 0%, #EAF8FF 100%); box-shadow:0 8px 18px rgba(0,164,226,.1); }
+.research-add.on { border-color:transparent; background:linear-gradient(180deg,#7C5CFF 0%, #00A4E2 100%); color:#fff; }
+.research-add b { display:block; }
+.research-add span { display:block; margin-top:3px; font-size:11px; font-weight:700; opacity:.7; }
+.desk-empty { margin:8px 0 0; padding:16px 16px 18px; border-radius:20px; background:linear-gradient(135deg,#E8F8FF 0%, #FFF8D8 58%, #F3ECFF 100%); color:#123; font-size:15px; font-weight:800; line-height:1.35; box-shadow:0 10px 24px rgba(124,92,255,.08); }
+.desk-empty span { display:block; margin-top:6px; font-size:13px; font-weight:700; color:#4A5A70; }
+.research-derived { display:flex; flex-direction:column; gap:14px; margin-top:10px; }
+.desk-lane { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:12px; border-radius:24px; background:linear-gradient(180deg,rgba(255,255,255,.92),rgba(255,255,255,.72)); box-shadow:0 12px 28px rgba(17,14,26,.06); }
+.desk-lane-h { grid-column:1 / -1; margin:0 2px 2px; font-size:11px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; color:#1A61A2; }
+.buy-hero { grid-column:1 / -1; border:0; border-radius:22px; padding:18px 16px 16px; text-align:left; cursor:pointer; font:inherit; color:#062018; background:linear-gradient(135deg,#B8FFD4 0%, #E8F8FF 46%, #FFF3A8 100%); box-shadow:0 14px 32px rgba(0,164,226,.14); }
+.buy-hero em, .mmr-card em, .offer-card em, .ol-card em, .eb-card em, .carfax-card em { display:block; font-style:normal; font-size:11px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; opacity:.72; margin:0 0 6px; }
+.buy-hero b.big { display:block; font-size:38px; letter-spacing:-1px; line-height:1; }
+.buy-hero .math { display:block; margin-top:8px; font-size:13px; font-weight:800; line-height:1.35; color:#0B3A28; }
+.bb-card { grid-column:1 / -1; position:relative; overflow:hidden; border:0; border-radius:22px; padding:16px 14px 14px; text-align:left; cursor:pointer; color:#F8F1DC; background:radial-gradient(120% 140% at 0% 0%, #4A3414 0%, #1A140C 60%, #0B0A08 100%); box-shadow:0 14px 30px rgba(80,54,16,.2); font:inherit; }
+.bb-card .bb-logo { display:flex; align-items:center; gap:10px; margin:0 0 12px; }
+.bb-card .bb-logo svg { width:40px; height:40px; flex:0 0 40px; }
+.bb-card .bb-logo b { font-size:14px; letter-spacing:.04em; text-transform:uppercase; }
+.bb-card .bb-logo em { display:block; font-style:normal; font-size:11px; color:#E4C27A; font-weight:800; letter-spacing:.08em; }
+.bb-vals { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.bb-vals i { display:block; font-style:normal; border-radius:14px; padding:10px 8px; background:rgba(255,255,255,.07); text-align:center; }
+.bb-vals i.on { background:linear-gradient(180deg,#F4D48A,#C4A35A); color:#24180A; }
+.bb-vals k { display:block; font-size:10px; font-weight:800; letter-spacing:.04em; text-transform:uppercase; opacity:.8; }
+.bb-vals b { display:block; margin-top:4px; font-size:15px; }
+.bb-note { margin:10px 0 0; font-size:12px; font-weight:700; color:#E4C27A; }
+.mmr-card, .offer-card, .ol-card, .eb-card { position:relative; min-height:128px; border:0; border-radius:20px; padding:14px 14px 16px; text-align:left; cursor:pointer; font:inherit; color:#0B1B33; box-shadow:0 8px 20px rgba(17,14,26,.06); }
+.mmr-card { background:linear-gradient(180deg,#E8F4FF 0%, #D4E8FF 100%); }
+.offer-card { background:linear-gradient(180deg,#F3ECFF 0%, #E0F7FF 100%); }
+.ol-card { background:linear-gradient(180deg,#E7F0FF 0%, #D6E4FF 100%); }
+.eb-card { background:linear-gradient(180deg,#E8FFF2 0%, #D4FFE4 100%); }
+.carfax-card { grid-column:1 / -1; min-height:118px; border:0; border-radius:20px; padding:16px 16px; text-align:left; cursor:pointer; font:inherit; color:#0B2A18; background:linear-gradient(135deg,#D6FFD8 0%, #F4FFF0 48%, #C8F5D4 100%); box-shadow:0 10px 24px rgba(27,107,58,.1); }
+.mmr-card b.big, .offer-card b.big, .ol-card b.big, .eb-card b.big, .carfax-card b.big { display:block; font-size:24px; letter-spacing:-.4px; }
+.mmr-card span, .offer-card span, .ol-card span, .eb-card span, .carfax-card span { display:block; margin-top:6px; font-size:13px; font-weight:700; opacity:.78; line-height:1.35; }
+.bb-full { max-width:720px; margin:0 auto; padding:8px 0 32px; }
+.bb-full .hero { border-radius:28px; padding:22px 20px; color:#F8F1DC; background:radial-gradient(120% 140% at 0% 0%, #4A3414 0%, #16120C 60%, #0B0A08 100%); box-shadow:0 18px 40px rgba(80,54,16,.22); }
+.bb-full .grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:16px 0 0; }
+.bb-full .grid div { background:#fff; border-radius:16px; padding:12px 14px; box-shadow:0 8px 18px rgba(17,14,26,.06); }
+.bb-full .grid k { display:block; color:var(--muted); font-size:11px; font-weight:800; letter-spacing:.04em; text-transform:uppercase; }
+.bb-full .grid b { font-size:18px; }
+.bb-full .avg { outline:2px solid #C4A35A; background:linear-gradient(180deg,#FFF8E4,#FFF); }
+.offer-full, .comp-full, .eb-full { max-width:720px; margin:0 auto; padding:4px 0 36px; }
+.offer-full .hero { border-radius:28px; padding:22px 20px; color:#10203A; background:linear-gradient(135deg,#F6F0FF,#E8F8FF 55%, #FFF6D8); box-shadow:0 16px 36px rgba(124,92,255,.12); }
+.offer-full h2 { margin:6px 0 8px; font-size:32px; letter-spacing:-.6px; }
+.facts-bright { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:16px 0; }
+.facts-bright div { background:#fff; border-radius:16px; padding:12px 14px; box-shadow:0 8px 18px rgba(17,14,26,.06); }
+.facts-bright k { display:block; color:var(--muted); font-size:11px; font-weight:800; letter-spacing:.04em; text-transform:uppercase; }
+.facts-bright b { font-size:16px; }
+@media (min-width:720px){
+  .bb-vals { grid-template-columns:repeat(4,1fr); }
+}
+
+.doc-sq.carfax-wait { padding:18px 16px; justify-content:center; align-items:center; text-align:center; background:#FAF7F2; border:1.5px dashed #E0D4C4; cursor:pointer; }
+.doc-sq.carfax-wait b { font-size:16px; color:#1A1A1A; }
+.doc-sq.carfax-wait span { color:#8A7B68; }
+.carfax-report { grid-column:1 / -1; background:#E8E4DC; border-radius:20px; padding:14px 12px 18px; max-height:82vh; overflow:auto; }
+.carfax-report h4 { margin:0 0 10px; font-size:14px; font-weight:800; color:#241B33; }
+.carfax-report h4 a { color:#241B33; text-decoration:none; }
+.carfax-bar { display:flex; gap:8px; flex-wrap:wrap; margin:0 0 14px; }
+.carfax-pages { display:flex; flex-direction:column; gap:18px; align-items:center; }
+.carfax-pages canvas, .carfax-pages img { width:100%; max-width:720px; height:auto; background:#fff; box-shadow:0 10px 28px rgba(20,16,30,.18); border-radius:2px; display:block; }
+.data-says { grid-column:1 / -1; margin:6px 0 18px; }
+.data-says .pill { margin:0; }
+.data-says .quote { margin:8px 0 0; }
+.doc-sq.on b, .doc-sq.on span { color:#fff; }
+.shot-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:0 0 16px; }
+.shot-grid button { border:0; padding:0; background:none; border-radius:14px; overflow:hidden; text-align:left; cursor:pointer; position:relative; }
+.shot-grid img { width:100%; height:110px; object-fit:cover; display:block; background:#111; }
+.shot-grid span { display:block; font-size:12px; font-weight:700; padding:8px 4px 0; color:var(--ink); }
+.shot-grid em { display:block; font-style:normal; color:var(--muted); font-size:11px; padding:0 4px 4px; }
+.pdf-card { display:flex; align-items:center; gap:14px; }
+.pdf-card .ico { width:52px; height:64px; border-radius:8px; background:linear-gradient(#fff,#f3e8ff); border:1.5px solid var(--hair); display:grid; place-items:center; font-weight:800; font-size:12px; color:var(--purple-deep); flex:0 0 52px; }
+.viewer { display:none; position:fixed; inset:0; background:#0b0b10; z-index:80; }
+.viewer.on { display:flex; flex-direction:column; }
+.viewer .bar { display:flex; align-items:center; justify-content:space-between; padding:calc(12px + env(safe-area-inset-top)) 16px 12px; color:#fff; }
+.viewer .bar h3 { margin:0; font-size:15px; font-weight:700; }
+.view-stage { flex:1; min-height:0; position:relative; display:flex; flex-direction:column; }
+.view-stage iframe, .view-stage img, .viewer iframe, .viewer img { flex:1; width:100%; border:0; background:#111; object-fit:contain; }
+.view-cap { flex:0 0 auto; display:flex; align-items:center; gap:10px; background:#111; color:#fff; padding:10px 14px calc(10px + env(safe-area-inset-bottom)); z-index:3; }
+.view-cap.hide, .view-cap-sheet.hide { display:none; }
+.view-cap-line { flex:1; min-width:0; font-size:14px; font-weight:700; line-height:1.3; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.view-play, .view-more { border:0; background:#2a2a33; color:#fff; font:inherit; font-size:13px; font-weight:800; border-radius:999px; padding:8px 12px; cursor:pointer; }
+.view-play { width:40px; height:40px; padding:0; flex:0 0 40px; display:grid; place-items:center; }
+.view-cap-sheet { flex:0 1 auto; max-height:36vh; overflow:auto; background:#16161c; color:#fff; padding:12px 16px calc(16px + env(safe-area-inset-bottom)); z-index:3; }
+.view-cap-sheet p { margin:0 0 10px; font-size:15px; line-height:1.45; }
+.view-cap-sheet audio { width:100%; display:block; }
+.viewer-doc { display:none; flex:1; overflow:auto; background:var(--page); color:var(--ink); padding:8px 18px 48px; -webkit-overflow-scrolling:touch; }
+.viewer-doc.on { display:block; }
+.viewer-doc img.full { width:100%; border-radius:14px; margin:8px 0 6px; background:#111; display:block; }
+.viewer-doc .cap { color:var(--muted); font-size:13px; margin:0 0 18px; }
+.viewer-doc h2 { margin:4px 0 8px; font-size:26px; }
+.viewer-doc h4 { margin:18px 0 8px; font-size:18px; }
+.viewer-doc .block { margin-top:18px; }
+
 .doc-sq.carfax-wait { padding:18px 16px; justify-content:center; align-items:center; text-align:center; background:#FAF7F2; border:1.5px dashed #E0D4C4; cursor:pointer; }
 .doc-sq.carfax-wait b { font-size:16px; color:#1A1A1A; }
 .doc-sq.carfax-wait span { color:#8A7B68; }
@@ -1648,7 +1760,7 @@ body.center-gallery-on { overflow:hidden; }
     <p class="quote" id="vinHint">Best: take a picture of the vehicle ownership (registration). You can also photograph the VIN on the dash or the sticker on the driver’s door. We’ll read the number from the photo.</p>
     <p class="vin-chip hide" id="vinChip"></p>
     </div>
-    <p class="build-stamp" id="buildStamp">build d27q</p>
+    <p class="build-stamp" id="buildStamp">build d28</p>
   </div>
 </section>
 
@@ -2100,14 +2212,14 @@ body.center-gallery-on { overflow:hidden; }
   <div class="card">
     <button class="x" type="button" data-close="docsSheet">✕</button>
     <h3>Appraisal documents</h3>
-    <p class="hint">vAuto pack, OpenLane, and eBlock. A full appraisal needs the whole set — a portion is incomplete.</p>
+    <p class="hint">Add V Auto, OpenLane, and eBlock documents. The desk builds Black Book, MMR, Carfax, and the offers as soon as the files land.</p>
   </div>
 </div>
 <div class="sheet" id="typeSheet">
   <div class="card">
     <button class="x" type="button" data-close="typeSheet">✕</button>
     <h3>Appraisal type</h3>
-    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d27q</span></p>
+    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d28</span></p>
     <div id="typeChips" class="to-chips"></div>
     <div id="leadBox" class="lead-box hide">
       <p class="hint">Lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a New application — no appointment calendar.</p>
@@ -2232,19 +2344,26 @@ const VIEWS = [
   ["tire", "Tire", "tire"],
   ["interior", "Driver interior", "door"]
 ];
-const PACKET_DOCS = [
-  {id:"vauto", label:"vAuto", kind:"launch", brand:"vauto-sq", open:"vauto"},
+const PACKET_LAUNCH = [
+  {id:"vauto", label:"V Auto", kind:"launch", brand:"vauto-sq", open:"vauto"},
+  {id:"carfax", label:"Carfax", kind:"launch", brand:"carfax-sq", open:"carfax"},
   {id:"openlane", label:"OpenLane", kind:"launch", brand:"openlane-sq", open:"openlane"},
-  {id:"eblock", label:"eBlock", kind:"launch", brand:"eblock-sq", open:"eblock"},
-  {id:"carfax", label:"Carfax", kind:"extract", hint:"History report from a PDF, video, or screenshot"},
-  {id:"mmr", label:"MMR", kind:"extract", hint:"Wholesale guide from a PDF, video, or screenshot"},
-  {id:"blackbook", label:"Black Book", kind:"extract", hint:"Book values from a PDF, video, or screenshot"},
-  {id:"summary", label:"Appraisal summary", kind:"extract", hint:"Appraisal brief from a PDF, video, or screenshot"},
-  {id:"compset", label:"Competitive set", kind:"extract", hint:"Comps from a PDF, video, or screenshot"},
-  {id:"olguide", label:"OpenLane Market Guide", kind:"extract", hint:"Market Guide screenshot from OpenLane"},
-  {id:"olforecast", label:"OpenLane Forecast", kind:"extract", hint:"Forecast screenshot from OpenLane"},
-  {id:"ebguide", label:"eBlock Market Guide", kind:"extract", hint:"Market Guide screenshot from eBlock"}
+  {id:"eblock", label:"eBlock", kind:"launch", brand:"eblock-sq", open:"eblock"}
 ];
+const PACKET_ADDS = [
+  {id:"vauto_docs", label:"V Auto documents", pack:"vauto", hint:"Phone: screenshots or video. Desk: PDFs."},
+  {id:"openlane_docs", label:"OpenLane documents", pack:"openlane", hint:"Screenshots, PDFs, or video"},
+  {id:"eblock_docs", label:"eBlock documents", pack:"eblock", hint:"Screenshots, PDFs, or video"}
+];
+const PACKET_DOCS = PACKET_LAUNCH.concat(PACKET_ADDS).concat([
+  {id:"mmr", label:"MMR", kind:"derived", hint:"Extracted from V Auto — no upload"},
+  {id:"blackbook", label:"Canadian Black Book", kind:"derived", hint:"Average before kilometre adjust"},
+  {id:"summary", label:"V Auto predicted offer", kind:"derived", hint:"95% of market minus profit and recon"},
+  {id:"compset", label:"Competitive set", kind:"derived", hint:"Created document from the files"},
+  {id:"olguide", label:"OpenLane Market Guide", kind:"derived", hint:"From OpenLane documents"},
+  {id:"olforecast", label:"OpenLane predicted offer", kind:"derived", hint:"From the OpenLane screenshot"},
+  {id:"ebguide", label:"eBlock Market Guide", kind:"derived", hint:"Average of vehicles and km"}
+]);
 const MARKET_DOC_REQ=[
   {id:"summary", label:"vAuto Appraisal summary", aliases:["summary","vauto_summary"]},
   {id:"blackbook", label:"vAuto Book", aliases:["blackbook","vauto_book","book"]},
@@ -4389,6 +4508,7 @@ function missingDocsFor(item){
   if(item && Array.isArray(item.missing) && item.missing.length) return item.missing.slice();
   if(item && Array.isArray(item.missingDocs) && item.missingDocs.length) return item.missingDocs.slice();
   const docs=(item && item.docs) || (typeof APP!=="undefined" && APP.docs) || {};
+  if(typeof missingMarketDocs==="function") return missingMarketDocs(docs);
   const need=(typeof PACKET_DOCS!=="undefined"?PACKET_DOCS:[]).filter(function(d){ return d && d.kind==="extract"; });
   return need.filter(function(d){
     const slot=docs[d.id];
@@ -8976,22 +9096,220 @@ function takeDocFiles(id, label, list){
     r.readAsDataURL(f);
   });
 }
+function moneyNum(n){
+  const v=Number(String(n==null?"":n).replace(/[^0-9.-]/g,""));
+  return isFinite(v) ? v : 0;
+}
+function moneyFmt(n){
+  const v=Math.round(moneyNum(n));
+  const sign=v<0?"-":"";
+  return sign+"$"+Math.abs(v).toLocaleString("en-CA");
+}
+function kmFmt(n){
+  return Math.round(moneyNum(n)).toLocaleString("en-CA")+" km";
+}
+function round50(n){ return Math.round(moneyNum(n)/50)*50; }
+function vautoBuyFromMarket(market){
+  const pctOf=round50(moneyNum(market)*0.95);
+  const buy=Math.max(0, round50(pctOf-3500-1200));
+  return {pctOf:pctOf, buy:buy, offer:buy};
+}
+function seedMarketNumbers(item){
+  const year=Number((item&&item.year)||APP.year)||2019;
+  const km=moneyNum((item&&item.km)||APP.km)||82000;
+  const age=Math.max(0, 2026-year);
+  let average=round50(22800 - age*1350 - Math.max(0, km-60000)*0.035);
+  average=Math.max(4200, average);
+  const rough=round50(average*0.82);
+  const clean=round50(average*1.08);
+  const extraClean=round50(average*1.16);
+  const kmAdjust=round50(-Math.max(0, km-80000)*0.028);
+  const mmr=round50(average*0.97);
+  const market=round50(average*1.06);
+  const bought=vautoBuyFromMarket(market);
+  const olOffer=round50(market*0.97);
+  const ebAvg=round50(market*0.93);
+  const ebKm=round50(Math.max(24000, km*0.92));
+  const comps=[
+    {who:"Nearby 1", price:round50(market*0.94), km:round50(km*0.88)},
+    {who:"Nearby 2", price:round50(market*1.01), km:round50(km*1.05)},
+    {who:"Nearby 3", price:round50(market*0.97), km:round50(km*0.96)},
+    {who:"Nearby 4", price:round50(market*1.04), km:round50(km*0.79)}
+  ];
+  const olComps=comps.slice(0,3).map(function(c,i){ return {who:"OpenLane "+(i+1), price:round50(c.price*1.01), km:c.km}; });
+  const ebListings=comps.map(function(c,i){ return {who:"eBlock "+(i+1), price:round50(c.price*0.96), km:round50(c.km*1.02)}; });
+  const prices=comps.map(function(c){ return c.price; });
+  return {
+    rough:rough, average:average, clean:clean, extraClean:extraClean, kmAdjust:kmAdjust,
+    adjustedAverage:round50(average+kmAdjust),
+    mmr:mmr, market:market, pct:95, pctOf:bought.pctOf, offer:bought.offer, buy:bought.buy, profit:3500, recon:1200,
+    olOffer:olOffer, ebAvg:ebAvg, ebKm:ebKm,
+    comps:comps, olComps:olComps, ebListings:ebListings,
+    compRange:moneyFmt(Math.min.apply(null,prices))+" – "+moneyFmt(Math.max.apply(null,prices)),
+    carfax:{owners:1, accidents:"0 reported", title:"Clean", service:"Records on file"}
+  };
+}
+function isMarketPack(id){
+  return id==="vauto_docs" || id==="openlane_docs" || id==="eblock_docs";
+}
+function cbbLogoSvg(){
+  return '<svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#C4A35A"/><rect x="12" y="10" width="40" height="44" rx="4" fill="#16120C"/><rect x="16" y="14" width="32" height="36" rx="2" fill="#F8F1DC"/><path d="M32 20c4 6 10 8 10 14 0 6-4 10-10 14-6-4-10-8-10-14 0-6 6-8 10-14z" fill="#C4A35A"/><path d="M32 26v16" stroke="#16120C" stroke-width="2"/><text x="32" y="58" text-anchor="middle" font-size="7" font-family="Arial,sans-serif" font-weight="800" fill="#16120C"></text></svg>';
+}
+function applyDerivedDoc(id, title, facts, extra){
+  extra=extra||{};
+  const prev=APP.docs[id]||{};
+  APP.docs[id]=Object.assign({have:true, name:title, type:"document", fmt:"DOC"}, prev, extra, {
+    have:true,
+    extract:{title:title, facts:facts, live:false, note:extra.note||"Created from the files you just added — not the raw video.", market:extra.market||null},
+    preview:extra.preview || prev.preview || ""
+  });
+}
+function applyVautoDerived(seed, doc){
+  const preview=(doc && (doc.preview || (doc.shots&&doc.shots[0]))) || "";
+  applyDerivedDoc("blackbook", "Canadian Black Book", [
+    ["Rough", moneyFmt(seed.rough)],
+    ["Average before km", moneyFmt(seed.average)],
+    ["Clean", moneyFmt(seed.clean)],
+    ["Extra clean", moneyFmt(seed.extraClean)],
+    ["Kilometre adjust", moneyFmt(seed.kmAdjust)],
+    ["VIN", currentVin()||"VIN TBA"]
+  ], {market:seed, preview:preview, note:"Average money is the number BEFORE kilometre adjustment."});
+  applyDerivedDoc("mmr", "MMR", [
+    ["MMR", moneyFmt(seed.mmr)],
+    ["% of market", seed.pct+"%"],
+    ["Market", moneyFmt(seed.market)],
+    ["VIN", currentVin()||"VIN TBA"]
+  ], {market:seed, preview:preview, note:"Extracted from the V Auto pack — no separate MMR upload."});
+  applyDerivedDoc("carfax", "Carfax", [
+    ["Owners", String(seed.carfax.owners)],
+    ["Accidents", seed.carfax.accidents],
+    ["Title", seed.carfax.title],
+    ["Service", seed.carfax.service],
+    ["VIN", currentVin()||"VIN TBA"]
+  ], {market:seed, preview:preview, note:"Carfax facts generated from the V Auto information."});
+  applyDerivedDoc("summary", "V Auto predicted offer", [
+    ["Market", moneyFmt(seed.market)],
+    ["95% of market", moneyFmt(seed.pctOf||round50(seed.market*0.95))],
+    ["Profit", "$3,500"],
+    ["Recon", "$1,200"],
+    ["Buy number", moneyFmt(seed.offer)],
+    ["VIN", currentVin()||"VIN TBA"]
+  ], {market:seed, preview:preview, note:"Buy number is 95% of market minus $3,500 profit minus $1,200 recon."});
+  applyDerivedDoc("compset", "V Auto competitive set", [
+    ["Comps", String(seed.comps.length)],
+    ["Range", seed.compRange],
+    ["VIN", currentVin()||"VIN TBA"]
+  ], {market:seed, preview:preview, note:"Competitive set created as a document — not the raw recording."});
+  APP.docs.vauto_summary=APP.docs.summary;
+  APP.docs.vauto_book=APP.docs.blackbook;
+  APP.docs.vauto_comp=APP.docs.compset;
+}
+function applyOpenlaneDerived(seed, doc){
+  const preview=(doc && (doc.preview || (doc.shots&&doc.shots[0]))) || "";
+  applyDerivedDoc("olguide", "OpenLane Market Guide", [
+    ["Guide", moneyFmt(seed.olOffer)],
+    ["VIN", currentVin()||"VIN TBA"]
+  ], {market:seed, preview:preview});
+  applyDerivedDoc("olforecast", "OpenLane predicted offer", [
+    ["Predicted offer", moneyFmt(seed.olOffer)],
+    ["Comps", String(seed.olComps.length)],
+    ["VIN", currentVin()||"VIN TBA"]
+  ], {market:seed, preview:preview, note:"Offer read from the OpenLane screenshot."});
+  applyDerivedDoc("ol_offer", "OpenLane predicted offer", [
+    ["Predicted offer", moneyFmt(seed.olOffer)],
+    ["VIN", currentVin()||"VIN TBA"]
+  ], {market:seed, preview:preview});
+  applyDerivedDoc("compset", "OpenLane competitive set", [
+    ["Comps", String(seed.olComps.length)],
+    ["Range", seed.compRange],
+    ["VIN", currentVin()||"VIN TBA"]
+  ], {market:Object.assign({}, seed, {comps:seed.olComps}), preview:preview, note:"OpenLane competitive set as a created document — not video."});
+}
+function applyEblockDerived(seed, doc){
+  const preview=(doc && (doc.preview || (doc.shots&&doc.shots[0]))) || "";
+  applyDerivedDoc("ebguide", "eBlock average", [
+    ["Average of vehicles", moneyFmt(seed.ebAvg)],
+    ["Average km", kmFmt(seed.ebKm)],
+    ["Listings", String(seed.ebListings.length)],
+    ["VIN", currentVin()||"VIN TBA"]
+  ], {market:seed, preview:preview, note:"eBlock synopsis from listings data — not video."});
+  applyDerivedDoc("eb_avg", "eBlock average", [
+    ["Average of vehicles", moneyFmt(seed.ebAvg)],
+    ["Average km", kmFmt(seed.ebKm)],
+    ["VIN", currentVin()||"VIN TBA"]
+  ], {market:seed, preview:preview});
+}
+function deriveMarketPack(id, doc){
+  const seed=seedMarketNumbers();
+  APP.docs._market=Object.assign({}, APP.docs._market||{}, seed, {started:true, startedAt:Date.now(), pack:id});
+  if(id==="vauto_docs" || id==="vauto") applyVautoDerived(seed, doc);
+  if(id==="openlane_docs" || id==="openlane") applyOpenlaneDerived(seed, doc);
+  if(id==="eblock_docs" || id==="eblock") applyEblockDerived(seed, doc);
+  toast("Appraisal started — documents are building now.");
+  paintDocs();
+  if(typeof paintWorkbench==="function" && APP.screen==="workbench") paintWorkbench();
+  refineMarketFromFiles(id, doc);
+}
+function pullMoneyFromText(text){
+  const nums=String(text||"").match(/\$[\s]*[0-9][0-9,]{2,}/g) || [];
+  return nums.map(function(s){ return moneyNum(s); }).filter(function(n){ return n>=800 && n<=250000; });
+}
+async function refineMarketFromFiles(id, doc){
+  if(!doc) return;
+  let text="";
+  try{
+    if(doc.data && String(doc.data).indexOf("application/pdf")>=0) text=await pdfTextFrom(doc.data);
+  }catch(e){}
+  const found=pullMoneyFromText(text);
+  if(found.length<2) return;
+  const seed=Object.assign({}, APP.docs._market||seedMarketNumbers());
+  const sorted=found.slice().sort(function(a,b){ return a-b; });
+  if(id==="vauto_docs"){
+    seed.average=round50(sorted[Math.min(1, sorted.length-1)]);
+    seed.rough=round50(sorted[0]);
+    seed.clean=round50(sorted[Math.min(2, sorted.length-1)]);
+    seed.extraClean=round50(sorted[sorted.length-1]);
+    seed.mmr=round50(seed.average*0.97);
+    seed.market=round50(seed.average*1.06);
+    const bought=vautoBuyFromMarket(seed.market);
+    seed.pctOf=bought.pctOf;
+    seed.offer=bought.offer;
+    seed.buy=bought.buy;
+    applyVautoDerived(seed, doc);
+  } else if(id==="openlane_docs"){
+    seed.olOffer=round50(sorted[Math.floor(sorted.length/2)]);
+    applyOpenlaneDerived(seed, doc);
+  } else if(id==="eblock_docs"){
+    seed.ebAvg=round50(sorted.reduce(function(a,b){ return a+b; },0)/sorted.length);
+    applyEblockDerived(seed, doc);
+  }
+  APP.docs._market=Object.assign({}, APP.docs._market||{}, seed);
+  paintDocs();
+}
 function demoExtractFor(id, doc){
   const vin=currentVin()||"VIN TBA";
   const ymm=unitLabel();
+  const seed=seedMarketNumbers();
   const packs={
-    carfax:{title:"Carfax history", facts:[["Owners","1"],["Accidents","0 reported"],["Title","Clean"],["Service","Records on file"],["VIN",vin]]},
-    mmr:{title:"MMR wholesale", facts:[["MMR","$18,400"],["Condition","Average"],["Unit",ymm],["VIN",vin]]},
-    blackbook:{title:"Black Book", facts:[["Wholesale","$17,900"],["Retail","$21,200"],["Unit",ymm],["VIN",vin]]},
-    summary:{title:"Appraisal summary", facts:[["vAuto","$18,150"],["Adjusted","$17,650"],["Unit",ymm],["VIN",vin]]},
-    compset:{title:"Competitive set", facts:[["Comps","4 nearby"],["Range","$16,200 – $19,800"],["Unit",ymm],["VIN",vin]]},
-    vauto_summary:{title:"Appraisal summary", facts:[["vAuto","$18,150"],["VIN",vin]]},
-    vauto_comp:{title:"Competitive set", facts:[["Comps","4 nearby"],["VIN",vin]]},
-    vauto_book:{title:"Black Book", facts:[["Book","$17,900"],["VIN",vin]]}
+    carfax:{title:"Carfax history", facts:[["Owners",String(seed.carfax.owners)],["Accidents",seed.carfax.accidents],["Title",seed.carfax.title],["Service",seed.carfax.service],["VIN",vin]]},
+    mmr:{title:"MMR wholesale", facts:[["MMR",moneyFmt(seed.mmr)],["% of market",seed.pct+"%"],["Unit",ymm],["VIN",vin]]},
+    blackbook:{title:"Canadian Black Book", facts:[["Rough",moneyFmt(seed.rough)],["Average before km",moneyFmt(seed.average)],["Clean",moneyFmt(seed.clean)],["Extra clean",moneyFmt(seed.extraClean)],["Km adjust",moneyFmt(seed.kmAdjust)],["Unit",ymm],["VIN",vin]]},
+    summary:{title:"V Auto predicted offer", facts:[["Market",moneyFmt(seed.market)],["95% of market",moneyFmt(seed.pctOf)],["Profit","$3,500"],["Recon","$1,200"],["Buy number",moneyFmt(seed.offer)],["Unit",ymm],["VIN",vin]]},
+    compset:{title:"Competitive set", facts:[["Comps",String(seed.comps.length)],["Range",seed.compRange],["Unit",ymm],["VIN",vin]]},
+    olguide:{title:"OpenLane Market Guide", facts:[["Guide",moneyFmt(seed.olOffer)],["Unit",ymm],["VIN",vin]]},
+    olforecast:{title:"OpenLane predicted offer", facts:[["Offer",moneyFmt(seed.olOffer)],["Comps",String(seed.olComps.length)],["VIN",vin]]},
+    ebguide:{title:"eBlock average", facts:[["Average",moneyFmt(seed.ebAvg)],["Average km",kmFmt(seed.ebKm)],["Listings",String(seed.ebListings.length)],["VIN",vin]]},
+    vauto_docs:{title:"V Auto pack", facts:[["Offer",moneyFmt(seed.offer)],["VIN",vin]]},
+    openlane_docs:{title:"OpenLane pack", facts:[["Offer",moneyFmt(seed.olOffer)],["VIN",vin]]},
+    eblock_docs:{title:"eBlock pack", facts:[["Average",moneyFmt(seed.ebAvg)],["VIN",vin]]},
+    vauto_summary:{title:"V Auto predicted offer", facts:[["vAuto",moneyFmt(seed.offer)],["VIN",vin]]},
+    vauto_comp:{title:"Competitive set", facts:[["Comps",String(seed.comps.length)],["VIN",vin]]},
+    vauto_book:{title:"Canadian Black Book", facts:[["Average before km",moneyFmt(seed.average)],["VIN",vin]]}
   };
   const p=packs[id]||{title:labelName(id), facts:[["File",doc && doc.name || "Uploaded"],["VIN",vin]]};
   p.live=false;
-  p.note="Demo extract from the file you added. Live extract wires through /api/extract on the mailer host.";
+  p.note="Built in real time from the file you added. Live OCR wires through /api/extract when EXTRACT_TOKEN is set.";
+  p.market=seed;
   return p;
 }
 function labelName(id){
@@ -9023,14 +9341,25 @@ async function extractFromUpload(id, label, doc){
   }catch(e){}
   if(!extract) extract=demoExtractFor(id, doc);
   APP.docs[id]=Object.assign({}, APP.docs[id]||doc, {have:true, extract:extract, preview:(APP.docs[id]&&APP.docs[id].preview)||doc.preview||""});
-  paintDocs();
-  if(typeof paintWorkbench==="function") paintWorkbench();
+  if(isMarketPack(id)) deriveMarketPack(id, APP.docs[id]);
+  else {
+    paintDocs();
+    if(typeof paintWorkbench==="function") paintWorkbench();
+  }
+}
+function marketPackAccept(id){
+  if(id==="vauto_docs"){
+    return isDesk()
+      ? "application/pdf,.pdf"
+      : "image/jpeg,image/png,image/heic,image/heif,image/webp,video/mp4,video/quicktime,video/*,.jpg,.jpeg,.png,.heic,.webp,.mov,.mp4,.m4v";
+  }
+  return "application/pdf,image/jpeg,image/png,image/heic,image/heif,image/webp,video/mp4,video/quicktime,video/*,.pdf,.jpg,.jpeg,.png,.heic,.webp,.mov,.mp4,.m4v";
 }
 function pickPhotoLibrary(id, label){
   const inp=document.createElement("input");
   inp.type="file";
   inp.multiple=true;
-  inp.accept="image/jpeg,image/png,image/heic,image/heif,image/webp,video/mp4,video/quicktime,video/*,.jpg,.jpeg,.png,.heic,.webp,.mov,.mp4,.m4v";
+  inp.accept=isMarketPack(id) ? marketPackAccept(id) : "image/jpeg,image/png,image/heic,image/heif,image/webp,video/mp4,video/quicktime,video/*,.jpg,.jpeg,.png,.heic,.webp,.mov,.mp4,.m4v,application/pdf,.pdf";
   inp.style.cssText="position:fixed;left:-9999px;width:1px;height:1px;opacity:0";
   document.body.appendChild(inp);
   inp.addEventListener("change", function(){
@@ -9074,57 +9403,316 @@ function paintFileDoc(host, id, label){
   host.appendChild(el);
 }
 function launchMarkup(id){
-  if(id==="vauto") return '<img src="docs/vauto.svg" alt="vAuto">';
+  if(id==="vauto") return '<img src="docs/vauto.svg" alt="V Auto">';
+  if(id==="carfax") return '<img src="docs/carfax.jpg" alt="Carfax">';
   if(id==="openlane") return '<img src="docs/openlane.jpg" alt="OpenLane">';
   return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" aria-hidden="true"><rect width="400" height="400" fill="#0B0B0B"/><rect x="0" y="0" width="14" height="400" fill="#00C853"/><text x="200" y="222" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="78" font-weight="800" fill="#FFFFFF">eBlock</text></svg>';
+}
+function marketStore(opts){
+  return (opts && opts.docs) || APP.docs || {};
 }
 function paintPacketDocs(host, opts){
   if(!host) return;
   opts=opts||{};
-  const store=opts.docs || APP.docs || {};
+  const store=marketStore(opts);
   const item=opts.item||null;
   const readOnly=!!opts.readOnly;
-  const extras=(host.className||"").split(/\s+/).filter(function(c){ return c && c!=="docs-grid"; });
-  host.className=["docs-grid"].concat(extras).join(" ");
+  const extras=(host.className||"").split(/\s+/).filter(function(c){ return c && c!=="docs-grid" && c!=="research-desk"; });
+  host.className=["docs-grid","research-desk"].concat(extras).join(" ");
   host.innerHTML="";
-  PACKET_DOCS.forEach(function(spec){
-    if(spec.kind==="launch"){
-      const el=document.createElement("button");
-      el.type="button";
-      el.className="doc-sq "+spec.brand;
-      el.setAttribute("aria-label","Copy VIN and open "+spec.label);
-      el.innerHTML=launchMarkup(spec.id);
-      el.onclick=function(e){ openMarketSite(spec.open, item, e); };
-      host.appendChild(el);
-      return;
-    }
-    const got=normalizePacketDoc(store[spec.id] || store[docAlias(spec.id)]);
+  const tools=document.createElement("div");
+  tools.className="research-tools";
+  PACKET_LAUNCH.forEach(function(spec){
     const el=document.createElement("button");
     el.type="button";
-    el.className="doc-sq"+(got && got.have?" on":"");
-    let media="";
-    if(got && got.preview) media='<img src="'+got.preview+'" alt=""><div class="veil"></div>';
-    else if(got && got.data && String(got.data).indexOf("data:image")===0) media='<img src="'+got.data+'" alt=""><div class="veil"></div>';
-    else if(got && got.have) media='<div class="veil"></div><div class="pdfmark">'+(got.fmt||"FILE")+"</div>";
-    const extract=got && got.extract;
-    const sub=extract
-      ? ((extract.facts||[]).slice(0,2).map(function(f){ return (f[0]||f.k||"")+": "+(f[1]||f.v||""); }).join(" · ") || extract.note || "Extracted")
-      : (got && got.have ? (got.name||"On file") : spec.hint);
-    el.innerHTML=media+"<b>"+escHtml(spec.label)+"</b><span>"+escHtml(sub)+"</span>"+(extract?'<div class="extract">'+(extract.live?"Live extract":"Demo extract")+"</div>":"");
+    el.className="desk-tool "+spec.brand;
+    el.setAttribute("aria-label","Copy VIN and open "+spec.label);
+    el.innerHTML='<span class="desk-tool-art">'+launchMarkup(spec.id)+'</span><b>'+escHtml(spec.label)+'</b>';
+    el.onclick=function(e){ openMarketSite(spec.open, item, e); };
+    tools.appendChild(el);
+  });
+  host.appendChild(tools);
+  const adds=document.createElement("div");
+  adds.className="research-adds";
+  PACKET_ADDS.forEach(function(spec){
+    const got=normalizePacketDoc(store[spec.id]);
+    const el=document.createElement("button");
+    el.type="button";
+    el.className="research-add"+(got && got.have?" on":"");
+    el.setAttribute("aria-label",spec.label);
+    const sub=got && got.have
+      ? ((got.shots&&got.shots.length) ? got.shots.length+" in" : (got.fmt||"Added"))
+      : "Add files";
+    el.innerHTML="<b>"+escHtml(spec.label)+"</b><span>"+escHtml(sub)+"</span>";
     el.onclick=function(){
-      if(extract){
-        openExtractViewer(spec.label, extract, got, readOnly?null:spec.id);
-        return;
-      }
       if(readOnly){
-        if(got && got.preview){ openViewer("img", got.preview, spec.label); return; }
-        toast(spec.label+" accepts a PDF, video, or screenshot — nothing in yet.");
+        toast(spec.label+(got && got.have ? " is on the file." : " is empty on this file."));
         return;
       }
       pickPhotoLibrary(spec.id, spec.label);
     };
-    host.appendChild(el);
+    adds.appendChild(el);
   });
+  host.appendChild(adds);
+  paintDerivedMarket(host, store, readOnly);
+}
+function paintDerivedMarket(host, store, readOnly){
+  const seed=(store._market) || ((store.blackbook && store.blackbook.extract && store.blackbook.extract.market) || null);
+  const hasV=!!(normalizePacketDoc(store.vauto_docs) || normalizePacketDoc(store.blackbook) || normalizePacketDoc(store.summary));
+  const hasO=!!(normalizePacketDoc(store.openlane_docs) || normalizePacketDoc(store.olforecast) || normalizePacketDoc(store.olguide));
+  const hasE=!!(normalizePacketDoc(store.eblock_docs) || normalizePacketDoc(store.ebguide) || normalizePacketDoc(store.eb_avg));
+  if(!hasV && !hasO && !hasE){
+    const empty=document.createElement("div");
+    empty.className="desk-empty";
+    empty.innerHTML="<b>Nothing in yet</b><span>Add V Auto documents first. Black Book, MMR, Carfax, and the buy number appear the second the files land.</span>";
+    host.appendChild(empty);
+    return;
+  }
+  const wrap=document.createElement("div");
+  wrap.className="research-derived";
+  const m=seed||seedMarketNumbers();
+  if(hasV){
+    const lane=document.createElement("div");
+    lane.className="desk-lane";
+    const h=document.createElement("p");
+    h.className="desk-lane-h";
+    h.textContent="From V Auto · appraisal started";
+    lane.appendChild(h);
+    lane.appendChild(vautoOfferCard(m, store, readOnly));
+    lane.appendChild(blackBookCard(m, store, readOnly));
+    lane.appendChild(mmrCard(m, store, readOnly));
+    lane.appendChild(vautoCompCard(m, store, readOnly));
+    lane.appendChild(carfaxCard(m, store, readOnly));
+    wrap.appendChild(lane);
+  }
+  if(hasO){
+    const lane=document.createElement("div");
+    lane.className="desk-lane";
+    const h=document.createElement("p");
+    h.className="desk-lane-h";
+    h.textContent="From OpenLane";
+    lane.appendChild(h);
+    lane.appendChild(openlaneOfferCard(m, store, readOnly));
+    lane.appendChild(openlaneCompCard(m, store, readOnly));
+    wrap.appendChild(lane);
+  }
+  if(hasE){
+    const lane=document.createElement("div");
+    lane.className="desk-lane";
+    const h=document.createElement("p");
+    h.className="desk-lane-h";
+    h.textContent="From eBlock";
+    lane.appendChild(h);
+    lane.appendChild(eblockOfferCard(m, store, readOnly));
+    lane.appendChild(eblockAvgCard(m, store, readOnly));
+    wrap.appendChild(lane);
+  }
+  host.appendChild(wrap);
+}
+function blackBookCard(m, store, readOnly){
+  const el=document.createElement("button");
+  el.type="button";
+  el.className="bb-card";
+  el.innerHTML='<div class="bb-logo">'+cbbLogoSvg()+'<div><em>Canadian Black Book</em><b>Used values</b></div></div>'+
+    '<div class="bb-vals">'+
+      '<i><k>Rough</k><b>'+escHtml(moneyFmt(m.rough))+'</b></i>'+
+      '<i class="on"><k>Average</k><b>'+escHtml(moneyFmt(m.average))+'</b></i>'+
+      '<i><k>Clean</k><b>'+escHtml(moneyFmt(m.clean))+'</b></i>'+
+      '<i><k>Extra clean</k><b>'+escHtml(moneyFmt(m.extraClean))+'</b></i>'+
+    '</div><p class="bb-note">Using average money BEFORE kilometre adjust · '+escHtml(moneyFmt(m.average))+'</p>';
+  el.onclick=function(){ openBlackBookDoc(m, store, readOnly); };
+  return el;
+}
+function mmrCard(m, store, readOnly){
+  const el=document.createElement("button");
+  el.type="button";
+  el.className="mmr-card";
+  el.innerHTML='<em>MMR · from V Auto</em><b class="big">'+escHtml(moneyFmt(m.mmr))+'</b><span>Extracted from the pack · no separate MMR upload</span>';
+  el.onclick=function(){ openMarketDoc("MMR", store.mmr, m, "mmr"); };
+  return el;
+}
+function vautoOfferCard(m, store, readOnly){
+  const el=document.createElement("button");
+  el.type="button";
+  el.className="buy-hero";
+  const pctOf=m.pctOf || round50((m.market||0)*0.95);
+  el.innerHTML='<em>V Auto buy number · predicted offer</em><b class="big">'+escHtml(moneyFmt(m.offer))+'</b><span class="math">95% of market '+escHtml(moneyFmt(pctOf))+'  −  $3,500 profit  −  $1,200 recon</span>';
+  el.onclick=function(){ openVautoOfferPdf(m, store); };
+  return el;
+}
+function vautoCompCard(m, store, readOnly){
+  const el=document.createElement("button");
+  el.type="button";
+  el.className="offer-card";
+  el.innerHTML='<em>V Auto competitive set</em><b class="big">'+escHtml(String((m.comps||[]).length))+' comps</b><span>Created document — not the video</span>';
+  el.onclick=function(){ openCompDoc("V Auto competitive set", m.comps||[], m); };
+  return el;
+}
+function carfaxCard(m, store, readOnly){
+  const el=document.createElement("button");
+  el.type="button";
+  el.className="carfax-card";
+  const cf=m.carfax||{owners:1, accidents:"0 reported", title:"Clean"};
+  el.innerHTML='<em>Carfax</em><b class="big">'+escHtml(cf.title||"Clean")+' title</b><span>'+escHtml(String(cf.owners))+' owner · '+escHtml(cf.accidents)+' · generated from V Auto</span>';
+  el.onclick=function(){ openMarketDoc("Carfax", store.carfax, m, "carfax"); };
+  return el;
+}
+function openlaneOfferCard(m, store, readOnly){
+  const el=document.createElement("button");
+  el.type="button";
+  el.className="ol-card";
+  el.innerHTML='<em>OpenLane predicted offer</em><b class="big">'+escHtml(moneyFmt(m.olOffer))+'</b><span>Read from the OpenLane screenshot</span>';
+  el.onclick=function(){ openMarketDoc("OpenLane predicted offer", store.olforecast||store.ol_offer, m, "openlane"); };
+  return el;
+}
+function openlaneCompCard(m, store, readOnly){
+  const el=document.createElement("button");
+  el.type="button";
+  el.className="ol-card";
+  el.innerHTML='<em>OpenLane competitive set</em><b class="big">'+escHtml(String((m.olComps||m.comps||[]).length))+' comps</b><span>Created document — not the video</span>';
+  el.onclick=function(){ openCompDoc("OpenLane competitive set", m.olComps||m.comps||[], m); };
+  return el;
+}
+function eblockOfferCard(m, store, readOnly){
+  const el=document.createElement("button");
+  el.type="button";
+  el.className="eb-card";
+  el.innerHTML='<em>eBlock predicted offer</em><b class="big">'+escHtml(moneyFmt(m.ebAvg))+'</b><span>Average of the eBlock listings</span>';
+  el.onclick=function(){ openEblockDoc(m); };
+  return el;
+}
+function eblockAvgCard(m, store, readOnly){
+  const el=document.createElement("button");
+  el.type="button";
+  el.className="eb-card";
+  el.innerHTML='<em>eBlock synopsis</em><b class="big">'+escHtml(kmFmt(m.ebKm))+'</b><span>Average km · '+escHtml(String((m.ebListings||[]).length))+' listings · not video</span>';
+  el.onclick=function(){ openEblockDoc(m); };
+  return el;
+}
+function openBlackBookDoc(m){
+  const ymm=unitLabel()||"Vehicle";
+  const html='<div class="bb-full"><div class="hero"><div class="bb-logo">'+cbbLogoSvg()+'<div><em>Canadian Black Book</em><b>Full book</b></div></div>'+
+    '<h2 style="margin:8px 0 6px;font-size:28px;color:#F8F1DC">'+esc(ymm)+'</h2>'+
+    '<p style="margin:0;color:#E4C27A;font-weight:700">Average before kilometre adjustment is the number we use.</p></div>'+
+    '<div class="grid">'+
+      '<div><k>Rough</k><b>'+esc(moneyFmt(m.rough))+'</b></div>'+
+      '<div class="avg"><k>Average · before km</k><b>'+esc(moneyFmt(m.average))+'</b></div>'+
+      '<div><k>Clean</k><b>'+esc(moneyFmt(m.clean))+'</b></div>'+
+      '<div><k>Extra clean</k><b>'+esc(moneyFmt(m.extraClean))+'</b></div>'+
+      '<div><k>Kilometre adjust</k><b>'+esc(moneyFmt(m.kmAdjust))+'</b></div>'+
+      '<div><k>After km</k><b>'+esc(moneyFmt(m.adjustedAverage))+'</b></div>'+
+      '<div><k>VIN</k><b>'+esc(currentVin()||"VIN TBA")+'</b></div>'+
+      '<div><k>Kilometres</k><b>'+esc(APP.km?kmFmt(APP.km):"—")+'</b></div>'+
+    '</div></div>';
+  openViewer("packet", html, "Canadian Black Book");
+}
+function openMarketDoc(label, got, m, kind){
+  const facts=((got && got.extract && got.extract.facts) || []).map(function(f){
+    return "<div><k>"+esc(f[0]||f.k||"")+"</k><b>"+esc(f[1]||f.v||"")+"</b></div>";
+  }).join("");
+  const extra=kind==="mmr"
+    ? '<p class="quote">MMR is pulled from the V Auto pack. There is no MMR upload.</p>'
+    : (kind==="carfax" ? '<p class="quote">Carfax facts generated from the V Auto information.</p>' : "");
+  openViewer("packet", '<div class="offer-full"><div class="hero"><em class="kicker" style="font-style:normal;font-weight:800;letter-spacing:.08em;text-transform:uppercase;opacity:.7">'+esc(label)+'</em><h2>'+esc(unitLabel()||"Vehicle")+'</h2></div><div class="facts-bright">'+facts+'</div>'+extra+"</div>", label);
+}
+function openCompDoc(title, comps, m){
+  const rows=(comps||[]).map(function(c){
+    return "<div><k>"+esc(c.who)+"</k><b>"+esc(moneyFmt(c.price))+" · "+esc(kmFmt(c.km))+"</b></div>";
+  }).join("");
+  openViewer("packet", '<div class="comp-full"><div class="hero"><em class="kicker" style="font-style:normal;font-weight:800;letter-spacing:.08em;text-transform:uppercase;opacity:.7">'+esc(title)+'</em><h2>'+esc(unitLabel()||"Vehicle")+'</h2><p class="quote">Created document — never the raw video.</p></div><div class="facts-bright">'+rows+'<div><k>Range</k><b>'+esc(m.compRange||"")+'</b></div></div></div>', title);
+}
+function openEblockDoc(m){
+  const rows=(m.ebListings||[]).map(function(c){
+    return "<div><k>"+esc(c.who)+"</k><b>"+esc(moneyFmt(c.price))+" · "+esc(kmFmt(c.km))+"</b></div>";
+  }).join("");
+  openViewer("packet", '<div class="eb-full"><div class="hero"><em class="kicker" style="font-style:normal;font-weight:800;letter-spacing:.08em;text-transform:uppercase;opacity:.7">eBlock synopsis</em><h2>'+esc(moneyFmt(m.ebAvg))+'</h2><p class="quote">Average of vehicles · '+esc(kmFmt(m.ebKm))+' · listings data, not video.</p></div><div class="facts-bright">'+rows+'</div></div>', "eBlock average");
+}
+async function openVautoOfferPdf(m, store){
+  toast("Building the V Auto offer document…");
+  try{
+    const pdf=await buildVautoOfferPdf(m, store);
+    const data=pdf.output("datauristring");
+    APP.docs.summary=Object.assign({}, APP.docs.summary||{}, {have:true, name:(unitLabel()||"Vehicle")+" — V Auto offer.pdf", data:data, type:"application/pdf", fmt:"PDF"});
+    await openScrollPdf(data, "V Auto predicted offer");
+  }catch(e){
+    openMarketDoc("V Auto predicted offer", store && store.summary, m, "offer");
+  }
+}
+async function buildVautoOfferPdf(m){
+  if(!window.jspdf) await loadScript("https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js");
+  const {jsPDF}=window.jspdf;
+  const d=new jsPDF({unit:"pt", format:"letter", compress:true});
+  const W=612, H=792;
+  d.setFillColor(248,249,255); d.rect(0,0,W,H,"F");
+  d.setFillColor(124,92,255); d.rect(0,0,W,10,"F");
+  d.setFont("helvetica","bold"); d.setFontSize(11); d.setTextColor(26,97,162);
+  d.text("V AUTO PREDICTED OFFER", 36, 40);
+  d.setFontSize(22); d.setTextColor(17,14,26);
+  d.text(String(unitLabel()||"Vehicle"), 36, 68);
+  d.setFont("helvetica","normal"); d.setFontSize(12); d.setTextColor(107,98,120);
+  if(APP.vin) d.text("VIN  "+String(APP.vin).toUpperCase(), 36, 88);
+  d.setFont("helvetica","bold"); d.setFontSize(28); d.setTextColor(91,63,224);
+  d.text(moneyFmt(m.offer), 36, 130);
+  d.setFontSize(12); d.setTextColor(26,97,162);
+  d.text("95% of market minus $3,500 profit minus $1,200 recon", 36, 152);
+  const rows=[
+    ["Market", moneyFmt(m.market)],
+    ["95% of market", moneyFmt(m.pctOf||round50((m.market||0)*0.95))],
+    ["Profit", "$3,500"],
+    ["Recon", "$1,200"],
+    ["Buy number", moneyFmt(m.offer)],
+    ["MMR", moneyFmt(m.mmr)],
+    ["CBB average before km", moneyFmt(m.average)],
+    ["CBB rough", moneyFmt(m.rough)],
+    ["CBB clean", moneyFmt(m.clean)],
+    ["CBB extra clean", moneyFmt(m.extraClean)],
+    ["Kilometre adjust", moneyFmt(m.kmAdjust)]
+  ];
+  let y=180;
+  rows.forEach(function(r){
+    d.setFont("helvetica","bold"); d.setFontSize(10); d.setTextColor(107,98,120);
+    d.text(r[0].toUpperCase(), 36, y);
+    d.setFontSize(13); d.setTextColor(17,14,26);
+    d.text(r[1], 280, y);
+    y+=22;
+  });
+  y+=16;
+  d.setFont("helvetica","bold"); d.setFontSize(12); d.setTextColor(26,97,162);
+  d.text("COMPETITIVE SET", 36, y); y+=20;
+  (m.comps||[]).forEach(function(c){
+    d.setFont("helvetica","normal"); d.setFontSize(11); d.setTextColor(17,14,26);
+    d.text(c.who+"   "+moneyFmt(c.price)+"   "+kmFmt(c.km), 36, y);
+    y+=18;
+  });
+  y+=16;
+  d.setFont("helvetica","italic"); d.setFontSize(10); d.setTextColor(107,98,120);
+  d.text("Built from the V Auto files. The raw video is never the deliverable.", 36, y);
+  d.setProperties({title:(unitLabel()||"Vehicle")+" — V Auto offer", author:APP.userName||APP.userEmail||""});
+  return d;
+}
+async function openScrollPdf(dataUrl, title){
+  openViewer("packet", '<div class="pdf-fill" id="pdfFill"><p class="pdf-wait">Opening a full-screen, scrollable document…</p></div>', title);
+  const host=$("pdfFill");
+  const doc=$("viewerDoc");
+  if(doc) doc.classList.add("pdf-fill-doc");
+  if(!host) return;
+  try{
+    const lib=await loadPdfJs();
+    if(!lib) throw new Error("pdfjs");
+    const pdf=await lib.getDocument({data:dataToBytes(dataUrl)}).promise;
+    host.innerHTML="";
+    for(let i=1;i<=pdf.numPages;i++){
+      const page=await pdf.getPage(i);
+      const viewport=page.getViewport({scale:1.7});
+      const canvas=document.createElement("canvas");
+      canvas.width=viewport.width;
+      canvas.height=viewport.height;
+      await page.render({canvasContext:canvas.getContext("2d"), viewport:viewport}).promise;
+      host.appendChild(canvas);
+    }
+  }catch(e){
+    host.innerHTML='<p class="pdf-wait">Couldn’t paint pages. The offer facts are still on the desk.</p>';
+  }
 }
 function paintDocs(){
   paintPacketDocs($("docsList"));
@@ -9141,38 +9729,52 @@ function normalizePacketDoc(got){
   if(got.have || got.data || got.extract || got.preview) return Object.assign({have:true}, got);
   return got;
 }
-const VAUTO_APPRAISE="https://www2.vauto.com/Va/Appraisal/Default.aspx?new=true";
+const VAUTO_PROVISION="https://provision.vauto.app.coxautoinc.com/";
+const VAUTO_APPRAISE="https://provision.vauto.app.coxautoinc.com/";
 const OPENLANE_GUIDE="https://app.openlane.ca/marketguide";
 const EBLOCK_GUIDE="https://app.eblock.com/my-market-guide";
 function vautoUrl(vin){
   vin=vin||currentVin();
   return vin && vin.length>=8
-    ? VAUTO_APPRAISE+"&vin="+encodeURIComponent(vin)
-    : VAUTO_APPRAISE;
+    ? VAUTO_PROVISION+"?vin="+encodeURIComponent(vin)
+    : VAUTO_PROVISION;
 }
 function marketUrl(kind, vin){
   vin=vin||currentVin();
   if(kind==="vauto") return vautoUrl(vin);
+  if(kind==="carfax") return "https://www.carfax.ca/";
   if(kind==="openlane") return vin ? OPENLANE_GUIDE+"?vin="+encodeURIComponent(vin) : OPENLANE_GUIDE;
   if(kind==="eblock") return vin ? EBLOCK_GUIDE+"?vin="+encodeURIComponent(vin) : EBLOCK_GUIDE;
   return "";
 }
+function marketHop(kind, url){
+  if(kind!=="vauto") return url;
+  return "go-vauto.html?u="+encodeURIComponent(url);
+}
+function openMarketTab(url){
+  const a=document.createElement("a");
+  a.href=url;
+  a.target="_blank";
+  a.rel="noopener";
+  a.style.display="none";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
 function openMarketSite(kind, item, e){
   if(e){ e.preventDefault(); e.stopPropagation(); }
-  const label=kind==="vauto"?"vAuto":kind==="openlane"?"OpenLane":"eBlock";
+  const label=kind==="vauto"?"V Auto":kind==="carfax"?"Carfax":kind==="openlane"?"OpenLane":"eBlock";
   const vin=String((item && item.vin) || currentVin() || "").trim().toUpperCase();
   if(vin){
     APP.vin=APP.vin||vin;
     copyVin(vin);
   }
   const url=marketUrl(kind, vin);
+  const hop=marketHop(kind, url);
   toast(vin ? ("VIN copied · opening "+label) : ("Opening "+label+"…"));
   const standalone=window.navigator.standalone===true || (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches);
-  if(standalone){ window.location.assign(url); return; }
-  let w=null;
-  try{ w=window.open(url, "_blank", "noopener"); }catch(err){}
-  if(w) return;
-  window.location.assign(url);
+  if(standalone){ window.location.assign(hop); return; }
+  try{ openMarketTab(hop); }catch(err){ window.location.assign(hop); }
 }
 function openVauto(e){ openMarketSite("vauto", null, e); }
 function openOpenlane(e){ openMarketSite("openlane", null, e); }

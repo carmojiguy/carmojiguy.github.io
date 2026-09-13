@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Opening vAuto</title>
+<title>Opening V Auto</title>
 <style>
   html,body{margin:0;min-height:100dvh;display:grid;place-items:center;background:#110E1A;color:#fff;font-family:system-ui,sans-serif}
   p{opacity:.8}
@@ -12,11 +12,11 @@
 (function(){
   var u="";
   try{ u=new URLSearchParams(location.search).get("u")||""; }catch(e){}
-  var ok=/^https:\/\/(www2\.vauto\.com|provision\.vauto\.app\.coxautoinc\.com)\//i.test(u);
-  if(!ok) u="https://www2.vauto.com/Va/Appraisal/Default.aspx?new=true";
+  var ok=/^https:\/\/(provision\.vauto\.app\.coxautoinc\.com|www2\.vauto\.app\.coxautoinc\.com|www2\.vauto\.com)\//i.test(u);
+  if(!ok) u="https://provision.vauto.app.coxautoinc.com/";
   location.replace(u);
 })();
 </script>
 </head>
-<body><p>Opening vAuto…</p></body>
+<body><p>Opening V Auto…</p></body>
 </html>
