@@ -26,7 +26,8 @@ must(/function expandCenterDocs\(/, "expandCenterDocs");
 must(/function applyCenterItemToApp\(/, "applyCenterItemToApp");
 must(/function parkAppraisalToHistory\(/, "parkAppraisalToHistory");
 must(/function reopenHistoryAppraisal\(/, "reopenHistoryAppraisal");
-must(/id="buildStamp">build d30a</, "build stamp is d30a");
+must(/function reactivateHistoryAppraisal\(/, "Reactivate is a separate unarchive action");
+must(/id="buildStamp">build d30b</, "build stamp is d30b");
 must(/History — open a file to keep working/, "History jump says open to keep working");
 must(/Tap a file to keep working/, "History lead says tap to keep working");
 
@@ -44,6 +45,7 @@ assert.ok(row.indexOf("isWebsiteItem") >= 0, "website History stays on its own p
 const acre = sliceFn("acreRow");
 assert.ok(acre.indexOf('lane==="history"') >= 0, "Center History rows reopen");
 assert.ok(acre.indexOf("reopenHistoryAppraisal") >= 0, "Center History calls reopen");
+assert.ok(acre.indexOf("reactivateHistoryAppraisal") >= 0, "Center History rows expose Reactivate");
 assert.ok(acre.indexOf("openCenterDetail") >= 0, "Incoming and On-site still open the desk");
 
 const park = sliceFn("parkAppraisalToHistory");

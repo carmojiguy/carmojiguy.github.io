@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-13 build d30a: On-site Shabot FINAL decision document; flags-complete OR remote.lane=onsite wins On-site after Incoming pull; Open packet PDF and remote photos persist; newest VIN wins; 3-pill docs; Thank-you frozen; sales PDF packet stays; zero Center samples -->
+<!-- center-v3 + desk-home 2026-09-13 build d30b: Shabot FINAL (min/target/max) parks On-site → History; Reactivate returns to the live desk; Incoming cannot un-park Center COMPLETE; d29t flags-complete still keeps in-progress On-site; Thank-you frozen; sales PDF packet stays; zero Center samples -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -118,6 +118,29 @@ h2 { font-size:26px; font-weight:800; letter-spacing:-.5px; margin:4px 0 14px; }
 .pill { width:100%; border:1.5px solid var(--hair); background:#fff; border-radius:16px; padding:15px 16px; font-size:16px; font-weight:700; cursor:pointer; margin:0 0 10px; color:var(--ink); }
 .pill.cyan { background:var(--cyan); color:#fff; border-color:var(--cyan); }
 .pill.purple { background:var(--purple); color:#fff; border-color:var(--purple); }
+.pill.reactivate, .reactivate-btn {
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  width:100%; min-height:58px; margin:0; border:0; border-radius:20px;
+  background:linear-gradient(135deg,#1EE1A8 0%,#00C6F0 48%,#7C5CFF 100%);
+  color:#fff; font:inherit; font-size:18px; font-weight:800; letter-spacing:-.3px;
+  cursor:pointer; box-shadow:0 16px 34px rgba(0,198,240,.28), 0 0 0 3px rgba(30,225,168,.22);
+}
+.pill.reactivate:active, .reactivate-btn:active { transform:scale(.985); }
+.reactivate-card {
+  background:linear-gradient(135deg,#E9FFF6 0%,#E8F8FF 52%,#F4EFFF 100%);
+  border:1.5px solid #8EE9C4; border-radius:24px; padding:16px 16px 14px; margin:0 0 16px;
+  box-shadow:0 12px 28px rgba(30,225,168,.12);
+}
+.reactivate-card b { display:block; font-size:17px; letter-spacing:-.3px; }
+.reactivate-card span { display:block; color:#0F6B3C; font-size:14px; font-weight:700; line-height:1.4; margin:6px 0 12px; }
+.acre-reactivate {
+  display:inline-flex; align-items:center; justify-content:center;
+  min-height:40px; padding:0 14px; margin-top:8px; border:0; border-radius:999px;
+  background:linear-gradient(135deg,#1EE1A8,#00C6F0); color:#fff;
+  font:inherit; font-size:13px; font-weight:800; letter-spacing:.01em;
+  box-shadow:0 8px 18px rgba(0,198,240,.24); cursor:pointer;
+}
+.acre-row.hist-complete { background:linear-gradient(180deg,#FFFFFF 0%, #F3FFF9 100%); }
 .pill.wash { background:var(--fill); border-color:transparent; }
 .dock { position:fixed; left:50%; transform:translateX(-50%); width:min(430px,100%); bottom:0; padding:10px 20px calc(16px + env(safe-area-inset-bottom)); background:linear-gradient(rgba(250,249,252,0), var(--page) 28%); }
 .row { display:flex; align-items:center; gap:12px; width:100%; text-align:left; border:1.5px solid var(--hair); background:#fff; border-radius:18px; padding:10px 12px; margin:0 0 10px; cursor:pointer; }
@@ -1713,6 +1736,11 @@ body.center-gallery-on { overflow:hidden; }
     </div>
     <h2 id="centerDetailTitle">Vehicle</h2>
     <p class="quote" id="centerDetailSub"></p>
+    <div class="reactivate-card hide" id="centerReactivateCard">
+      <b>Appraisal complete — parked in History</b>
+      <span>Shabot FINAL is locked. Reactivate brings this vehicle back On-site so you can edit, add docs or photos, and re-run the panel.</span>
+      <button class="reactivate-btn" type="button" id="centerReactivateBtn">Reactivate</button>
+    </div>
     <div id="centerFinalBox" class="hide"></div>
     <div class="needs-banner hide" id="centerNeedsBanner"></div>
     <div class="acre-tags" id="centerTags"></div>
@@ -1901,7 +1929,7 @@ body.center-gallery-on { overflow:hidden; }
     <p class="quote" id="vinHint">Best: take a picture of the vehicle ownership (registration). You can also photograph the VIN on the dash or the sticker on the driver’s door. We’ll read the number from the photo.</p>
     <p class="vin-chip hide" id="vinChip"></p>
     </div>
-    <p class="build-stamp" id="buildStamp">build d30a</p>
+    <p class="build-stamp" id="buildStamp">build d30b</p>
   </div>
 </section>
 
@@ -2360,7 +2388,7 @@ body.center-gallery-on { overflow:hidden; }
   <div class="card">
     <button class="x" type="button" data-close="typeSheet">✕</button>
     <h3>Appraisal type</h3>
-    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d30a</span></p>
+    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d30b</span></p>
     <div id="typeChips" class="to-chips"></div>
     <div id="leadBox" class="lead-box hide">
       <p class="hint">Lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a New application — no appointment calendar.</p>
@@ -5853,7 +5881,9 @@ function paintCenterFinalBox(item){
   const host=$("centerFinalBox"); if(!host) return;
   const needs=typeof isNeedsDocsItem==="function" && isNeedsDocsItem(item);
   const fin=resolveAppraisalFinal(item);
-  const show=!needs && isOnsiteDeskItem(item) && !!fin;
+  const hist=typeof centerLaneOf==="function" && centerLaneOf(item)==="history";
+  const complete=typeof isCenterComplete==="function" && isCenterComplete(item);
+  const show=!needs && !!fin && (isOnsiteDeskItem(item) || hist || complete);
   host.classList.toggle("hide", !show);
   if(!show){
     host.innerHTML="";
@@ -5903,6 +5933,83 @@ function seedCenterSamples(){
     store.items=next;
     saveCenterStore(store);
   }
+}
+function shabotFinalLocked(fin){
+  if(!fin) return false;
+  return !!(String(fin.min||"").trim() && String(fin.target||"").trim() && String(fin.max||"").trim());
+}
+function hasShabotFinal(item){
+  if(!item) return false;
+  if(item.source==="website" || item.purpose==="website") return false;
+  if(item.needsRelock) return false;
+  const fin=typeof resolveAppraisalFinal==="function" ? resolveAppraisalFinal(item) : null;
+  return shabotFinalLocked(fin);
+}
+function isCenterComplete(item){
+  if(!item) return false;
+  if(item.source==="website" || item.purpose==="website") return false;
+  if(item.needsRelock) return false;
+  if(item.centerComplete) return true;
+  return hasShabotFinal(item);
+}
+function parkCompletedAppraisal(item){
+  if(!item || item.needsRelock) return item;
+  if(item.source==="website" || item.purpose==="website") return item;
+  if(!(item.centerComplete || hasShabotFinal(item))) return item;
+  item.centerComplete=true;
+  item.completed=true;
+  item.completedAt=item.completedAt||Date.now();
+  item.lane="history";
+  item.stage="Appraised";
+  item.archived=true;
+  item.docsIncomplete=false;
+  item.missingDocs=[];
+  item.onsiteDone=true;
+  return item;
+}
+function sweepCompletedAppraisals(store){
+  store=store||(typeof centerStore==="function" ? centerStore() : null);
+  if(!store || !Array.isArray(store.items)) return false;
+  let changed=false;
+  store.items.forEach(function(item){
+    if(!item || (typeof isCenterSample==="function" && isCenterSample(item))) return;
+    if(item.needsRelock) return;
+    if(!isCenterComplete(item) && !hasShabotFinal(item)) return;
+    const before=item.lane+"|"+item.stage+"|"+!!item.centerComplete+"|"+!!item.archived;
+    parkCompletedAppraisal(item);
+    if(before!==item.lane+"|"+item.stage+"|"+!!item.centerComplete+"|"+!!item.archived) changed=true;
+  });
+  if(changed && typeof saveCenterStore==="function") saveCenterStore(store);
+  return changed;
+}
+function unlockShabotFinal(item){
+  if(!item) return item;
+  item.centerComplete=false;
+  item.completed=false;
+  item.onsiteDone=false;
+  item.needsRelock=true;
+  item.reactivated=true;
+  item.reactivatedAt=Date.now();
+  item.team=item.team||(typeof emptyTeam==="function"?emptyTeam():{});
+  item.team.shabot=typeof teamSlot==="function"?teamSlot(item.team.shabot):{min:"",target:"",max:"",note:""};
+  item.team.shabot.min="";
+  item.team.shabot.target="";
+  item.team.shabot.max="";
+  if(item.appraisalFinal && typeof item.appraisalFinal==="object"){
+    item.appraisalFinal.min="";
+    item.appraisalFinal.target="";
+    item.appraisalFinal.max="";
+  }
+  item.finalMin="";
+  item.finalTarget="";
+  item.finalMax="";
+  if(item.final && typeof item.final==="object"){
+    item.final.min=""; item.final.target=""; item.final.max="";
+  }
+  if(item.scoreboard && typeof item.scoreboard==="object"){
+    item.scoreboard.min=""; item.scoreboard.target=""; item.scoreboard.max="";
+  }
+  return item;
 }
 function isTradeLinkItem(item){ return !!(item && (item.source==="trade-in" || item.linkSent)); }
 function isWebsiteItem(item){ return !!(item && item.source==="website"); }
@@ -5977,11 +6084,21 @@ function staffHistRow(item, extra){
   const when=typeof centerWhen==="function"?centerWhen(item):0;
   const status=staffStatusLabel(item);
   const thumb=item.thumb ? '<img src="'+item.thumb+'" alt="">' : esc((item.ymmt||item.interest||"?").slice(0,3).toUpperCase());
+  const complete=(typeof isCenterComplete==="function" && isCenterComplete(item)) || !!item.centerComplete;
   const flags='<em class="stage-tag '+(status==="Completed"?"done":status==="Waiting on customer"?"waitcust":"sent")+'">'+esc(status==="Waiting on customer"?"Waiting":status)+'</em>'+(item.sample?'<i class="sample-badge">Sample</i>':'');
-  btn.innerHTML='<div class="acre-thumb">'+thumb+'</div><div class="acre-meta"><p class="name">'+esc(item.ymmt||item.interest||"Vehicle")+'</p><p class="sentby">'+esc((item.customer&&item.customer.name)||item.salesperson||"Staff")+(when?" · "+esc(timeAgo(when)):"")+'</p><div class="acre-flags">'+flags+'</div>'+(extra.remind?'<button class="remind-btn" type="button">Send reminder</button>':"")+'</div>';
+  btn.className="acre-row"+(complete?" hist-complete":"");
+  btn.innerHTML='<div class="acre-thumb">'+thumb+'</div><div class="acre-meta"><p class="name">'+esc(item.ymmt||item.interest||"Vehicle")+'</p><p class="sentby">'+esc((item.customer&&item.customer.name)||item.salesperson||"Staff")+(when?" · "+esc(timeAgo(when)):"")+'</p><div class="acre-flags">'+flags+'</div>'+(complete?'<button class="acre-reactivate" type="button">Reactivate</button>':'')+(extra.remind?'<button class="remind-btn" type="button">Send reminder</button>':"")+'</div>';
   if(extra.remind){
     const r=btn.querySelector(".remind-btn");
     r.onclick=function(e){ e.preventDefault(); e.stopPropagation(); sendTradeReminder(item); };
+  }
+  if(complete){
+    const react=btn.querySelector(".acre-reactivate");
+    if(react) react.onclick=function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      if(typeof reactivateHistoryAppraisal==="function") reactivateHistoryAppraisal(item.id);
+    };
   }
   btn.onclick=function(){
     closeStaffHist();
@@ -6221,6 +6338,27 @@ function reopenHistoryAppraisal(id){
     go({});
   }
 }
+function reactivateHistoryAppraisal(id){
+  const item=typeof getCenter==="function" ? getCenter(id) : null;
+  if(!item){ toast("Couldn’t reactivate that file."); return; }
+  if(typeof isWebsiteItem==="function" && isWebsiteItem(item)){
+    if(typeof canUseCenter==="function" && canUseCenter()) openCenterDetail(id);
+    return;
+  }
+  if(typeof patchCenter==="function"){
+    patchCenter(id, function(x){
+      if(typeof unlockShabotFinal==="function") unlockShabotFinal(x);
+      x.archived=false;
+      x.stage="Waiting";
+      x.lane="onsite";
+      x.docsIncomplete=false;
+    });
+  }
+  APP.centerLane="onsite";
+  APP.centerHistory=false;
+  if(typeof reopenHistoryAppraisal==="function") reopenHistoryAppraisal(id);
+  toast("Back On-site — full re-appraise is open.");
+}
 function closeTradeLane(){
   APP.tradeLane="";
   if($("tradeSheet")) $("tradeSheet").classList.remove("on");
@@ -6368,6 +6506,7 @@ function sharedRemoteBeats(remote, local){
 }
 function reviveSharedCenterItem(item){
   if(!item) return item;
+  if((typeof isCenterComplete==="function" && isCenterComplete(item)) || (typeof hasShabotFinal==="function" && hasShabotFinal(item))) return item;
   const archiveMs=typeof CENTER_ARCHIVE_MS==="number"?CENTER_ARCHIVE_MS:90*24*60*60*1000;
   const localWhen=sharedItemStamp(item);
   const stale=!!(localWhen && (Date.now()-localWhen)>archiveMs);
@@ -6473,7 +6612,10 @@ function slimSharedCenterItem(item){
   const docs=slimSharedDocs(item.docs);
   const routed=laneFromMarketDocs(docs, item.lane);
   const app={role:item.source==="guest"?"guest":"employee", purpose:item.purpose||item.source||""};
-  const lane=routed.lane==="onsite"?"onsite":landingLaneForSend(app, docs, false);
+  let lane=routed.lane==="onsite"?"onsite":landingLaneForSend(app, docs, false);
+  if((typeof isCenterComplete==="function" && isCenterComplete(item)) || (typeof hasShabotFinal==="function" && hasShabotFinal(item))){
+    lane="history";
+  }
   const MAX_THUMB=120000;
   const src=Array.isArray(item.photos)?item.photos:[];
   const photos=[];
@@ -6517,7 +6659,8 @@ function slimSharedCenterItem(item){
     sentAt:item.sentAt||Date.now(),
     updatedAt:item.updatedAt||Date.now(),
     docs:docs,
-    inviteUnit:item.inviteUnit||APP.inviteUnit||item.interest||""
+    inviteUnit:item.inviteUnit||APP.inviteUnit||item.interest||"",
+    centerComplete:!!(item.centerComplete || (typeof hasShabotFinal==="function" && hasShabotFinal(item)))
   };
 }
 function shareIncomingBestEffort(item){
@@ -6588,6 +6731,28 @@ function applySharedIncoming(item, remote){
   } else {
     item.updatedAt=Date.now();
   }
+  const keepComplete=(typeof isCenterComplete==="function" && isCenterComplete(item))
+    || (typeof hasShabotFinal==="function" && hasShabotFinal(item))
+    || !!item.centerComplete;
+  if(keepComplete){
+    if(typeof parkCompletedAppraisal==="function") parkCompletedAppraisal(item);
+    else {
+      item.centerComplete=true;
+      item.completed=true;
+      item.lane="history";
+      item.stage="Appraised";
+      item.archived=true;
+      item.docsIncomplete=false;
+      item.missingDocs=[];
+    }
+    if(item.photos && item.photos.length && typeof persistCenterMedia==="function"){
+      try{
+        const saved=persistCenterMedia(item.id, item.photos, item.docs||{});
+        if(saved && typeof saved.catch==="function") saved.catch(function(){});
+      }catch(e){}
+    }
+    return item;
+  }
   reviveSharedCenterItem(item);
   if(item.stage!=="Appraised") item.stage=remote.stage||item.stage||"Waiting";
   if((item.archived || item.stage==="Appraised") && ((item.photos&&item.photos.length) || sharedDocsHaveCount(item.docs)>0 || sharedDocsHaveCount(remote.docs)>0)){
@@ -6618,6 +6783,11 @@ function mergeIncomingShared(list){
       if(!remote || typeof remote!=="object" || isCenterSample(remote)) return;
       const name=remote.customer && remote.customer.name || "";
       let item=findCenterMatch(store, {shared:true, sendId:remote.sendId||"", vin:remote.vin||"", customerName:name});
+      if(item && ((typeof isCenterComplete==="function" && isCenterComplete(item)) || (typeof hasShabotFinal==="function" && hasShabotFinal(item)) || item.centerComplete)){
+        if(typeof parkCompletedAppraisal==="function") parkCompletedAppraisal(item);
+        changed=true;
+        return;
+      }
       if(item && !sharedRemoteBeats(remote, item)){
         if(sharedDocsHaveCount(item.docs)>0){
           const wasStuck=!!(item.archived || item.stage==="Appraised");
@@ -6766,8 +6936,13 @@ function upsertCenterFromApp(extra){
     }
     item.sentAt=now;
     item.sendId=extra.sendId||APP.sendId||item.sendId||"";
+  } else if((typeof isCenterComplete==="function" && isCenterComplete(item)) || (typeof hasShabotFinal==="function" && hasShabotFinal(item))){
+    if(typeof parkCompletedAppraisal==="function") parkCompletedAppraisal(item);
   } else if(item.stage!=="Appraised" && !item.archived){
     item.lane=(item.source==="guest" || item.source==="trade-in") ? "inbox" : (item.lane||"onsite");
+  }
+  if((typeof isCenterComplete==="function" && isCenterComplete(item)) || (typeof hasShabotFinal==="function" && hasShabotFinal(item))){
+    if(typeof parkCompletedAppraisal==="function") parkCompletedAppraisal(item);
   }
   item.updatedAt=now;
   if(extra.stage) item.stage=extra.stage;
@@ -7062,7 +7237,7 @@ function centerKmLine(item){
   return n.toLocaleString("en-CA")+" km";
 }
 function centerStatus(item){
-  if(item.stage==="Appraised") return "Done";
+  if((typeof isCenterComplete==="function" && isCenterComplete(item)) || item.stage==="Appraised") return "Done";
   if(item.sentAt) return "Sent";
   return "Waiting";
 }
@@ -7074,6 +7249,7 @@ function isCenterAged(item){
 }
 function isNeedsDocsItem(item){
   if(!item) return false;
+  if((typeof isCenterComplete==="function" && isCenterComplete(item)) || (typeof hasShabotFinal==="function" && hasShabotFinal(item))) return false;
   if(isCenterArchived(item)) return false;
   if(item.lane==="onsite" || marketDocsComplete(item.docs)) return false;
   if(item.docsIncomplete || item.lane==="needsdocs") return true;
@@ -7082,6 +7258,7 @@ function isNeedsDocsItem(item){
 }
 function centerLaneOf(item){
   if(!item) return "onsite";
+  if((typeof isCenterComplete==="function" && isCenterComplete(item)) || (typeof hasShabotFinal==="function" && hasShabotFinal(item))) return "history";
   if(isCenterArchived(item)) return "history";
   if(isNeedsDocsItem(item)) return "needsdocs";
   if(isLandedCenterPacket(item) && marketDocsComplete(item.docs) && (item.lane==="inbox" || item.lane==="needsdocs" || !item.lane)) return "onsite";
@@ -7094,6 +7271,7 @@ function purgeDocsLaneDrift(){
   let changed=false;
   store.items.forEach(function(item){
     if(!item || isCenterSample(item) || isCenterArchived(item)) return;
+    if((typeof isCenterComplete==="function" && isCenterComplete(item)) || (typeof hasShabotFinal==="function" && hasShabotFinal(item))) return;
     if(!isLandedCenterPacket(item)) return;
     const routed=laneFromMarketDocs(item.docs, item.lane);
     if(item.lane!==routed.lane || item.docsIncomplete!==routed.docsIncomplete){
@@ -7112,6 +7290,7 @@ function centerLaneLabel(lane){
 function centerLaneCounts(){
   seedCenterSamples();
   archiveOldCenter();
+  if(typeof sweepCompletedAppraisals==="function") sweepCompletedAppraisals();
   purgeDocsLaneDrift();
   const n={inbox:0, onsite:0, history:0, needsdocs:0};
   loadCenter().forEach(function(item){ if(!isCenterSample(item)) n[centerLaneOf(item)]++; });
@@ -7145,7 +7324,8 @@ function acreRow(item){
   const thumb=item.thumb
     ? '<img src="'+item.thumb+'" alt="">'
     : esc((item.interest||item.make||item.ymmt||"?").slice(0,3).toUpperCase());
-  const fin=(lane==="onsite" && !isNeedsDocsItem(item)) ? resolveAppraisalFinal(item) : null;
+  const complete=(typeof isCenterComplete==="function" && isCenterComplete(item)) || !!item.centerComplete;
+  const fin=((lane==="onsite" || lane==="history" || complete) && !isNeedsDocsItem(item)) ? resolveAppraisalFinal(item) : null;
   const flags=
     (item.sample?'<i class="sample-badge">Sample</i>':'')+
     '<em class="stage-tag '+(status==="Done"?"done":(isNeedsDocsItem(item)?"docs":"wait"))+'">'+esc(isNeedsDocsItem(item)?"Needs docs":(lane==="inbox" && !item.photoCount ? "Incomplete" : status))+'</em>'+
@@ -7154,7 +7334,7 @@ function acreRow(item){
     (fin && fin.target ? '<i class="final-chip">TARGET '+esc(moneyShort(fin.target))+'</i>':'');
   const btn=document.createElement("button");
   btn.type="button";
-  btn.className="acre-row"+(lane==="inbox"?" inbox":"")+(APP.centerViewId===item.id?" on":"");
+  btn.className="acre-row"+(lane==="inbox"?" inbox":"")+(complete?" hist-complete":"")+(APP.centerViewId===item.id?" on":"");
   if(lane==="inbox"){
     const phone=(item.customer && item.customer.phone) || "";
     const cust=(item.customer && item.customer.name) || "Customer";
@@ -7172,7 +7352,17 @@ function acreRow(item){
       '<div class="acre-thumb">'+thumb+'</div>'+
       '<div class="acre-meta"><p class="name">'+esc(item.ymmt||"Vehicle")+'</p>'+
       (meta?'<p class="line">'+esc(meta)+'</p>':'')+
-      '<div class="acre-flags">'+flags+'</div></div>';
+      '<div class="acre-flags">'+flags+'</div>'+
+      (complete?'<button class="acre-reactivate" type="button">Reactivate</button>':'')+
+      '</div>';
+  }
+  if(complete){
+    const r=btn.querySelector(".acre-reactivate");
+    if(r) r.onclick=function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      if(typeof reactivateHistoryAppraisal==="function") reactivateHistoryAppraisal(item.id);
+    };
   }
   btn.onclick=function(){
     if(lane==="history" && typeof reopenHistoryAppraisal==="function"){
@@ -7448,6 +7638,10 @@ function attachDocToCenter(itemId, id, doc){
     const routed=laneFromMarketDocs(Object.assign({}, docs, APP.docs));
     patchCenter(itemId, function(x){
       x.docs=docs;
+      if((typeof isCenterComplete==="function" && isCenterComplete(x)) || (typeof hasShabotFinal==="function" && hasShabotFinal(x))){
+        if(typeof parkCompletedAppraisal==="function") parkCompletedAppraisal(x);
+        return;
+      }
       x.missingDocs=routed.missingDocs;
       x.docsIncomplete=routed.docsIncomplete;
       x.lane=routed.lane;
@@ -7589,10 +7783,25 @@ function paintCenterTeam(item){
           x.team=x.team||emptyTeam();
           x.team[pair[0]]=teamSlot(x.team[pair[0]]);
           x.team[pair[0]][k]=inp.value.trim();
-          if(pair[0]==="shabot") syncAppraisalFinalFromTeam(x);
+          if(pair[0]==="shabot"){
+            syncAppraisalFinalFromTeam(x);
+            const fin=typeof resolveAppraisalFinal==="function"?resolveAppraisalFinal(x):null;
+            if(typeof shabotFinalLocked==="function" && shabotFinalLocked(fin)){
+              x.needsRelock=false;
+              if(typeof parkCompletedAppraisal==="function") parkCompletedAppraisal(x);
+            }
+          }
           if(keepRat) x.finalRationale=keepRat;
         });
-        if(pair[0]==="shabot") paintCenterFinalBox(getCenter(item.id)||item);
+        if(pair[0]==="shabot"){
+          const live=getCenter(item.id)||item;
+          paintCenterFinalBox(live);
+          if(typeof isCenterComplete==="function" && isCenterComplete(live)){
+            toast("FINAL locked — moved to History.");
+            paintCenter();
+            paintCenterDetail();
+          }
+        }
       });
     });
     ta.addEventListener("input", function(){
@@ -7645,6 +7854,11 @@ function ensureCenterDetailScaffold(){
     '</div>'+
     '<h2 id="centerDetailTitle">Vehicle</h2>'+
     '<p class="quote" id="centerDetailSub"></p>'+
+    '<div class="reactivate-card hide" id="centerReactivateCard">'+
+      '<b>Appraisal complete — parked in History</b>'+
+      '<span>Shabot FINAL is locked. Reactivate brings this vehicle back On-site so you can edit, add docs or photos, and re-run the panel.</span>'+
+      '<button class="reactivate-btn" type="button" id="centerReactivateBtn">Reactivate</button>'+
+    '</div>'+
     '<div id="centerFinalBox" class="hide"></div>'+
     '<div class="needs-banner hide" id="centerNeedsBanner"></div>'+
     '<div class="acre-tags" id="centerTags"></div>'+
@@ -7735,6 +7949,9 @@ function paintCenterDetail(){
   if(item.customer && item.customer.name) bits.unshift(item.customer.name);
   if(item.sentAt) bits.push(timeAgo(item.sentAt));
   if($("centerDetailSub")) $("centerDetailSub").textContent=bits.filter(Boolean).join("  ·  ");
+  const completeNow=(typeof isCenterComplete==="function" && isCenterComplete(item)) || !!item.centerComplete;
+  if($("centerReactivateCard")) $("centerReactivateCard").classList.toggle("hide", !completeNow);
+  if($("centerReactivateBtn")) $("centerReactivateBtn").onclick=function(){ reactivateHistoryAppraisal(item.id); };
   paintCenterTags(item);
   paintCenterPacketPdf(item);
   if($("centerFacts")){
@@ -7789,7 +8006,8 @@ function paintCenterDetail(){
       $("centerStageBtn").disabled=!!missNow.length;
     } else {
       $("centerStageBtn").disabled=false;
-      $("centerStageBtn").textContent=item.stage==="Appraised"?"Return to desk lane":"Complete";
+      $("centerStageBtn").textContent=(completeNow || item.stage==="Appraised")?"Reactivate":"Complete";
+      $("centerStageBtn").classList.toggle("reactivate", !!(completeNow || item.stage==="Appraised"));
     }
   }
   ["centerValStrip","centerMarket","centerWhyDocs","centerTeam","centerTeamHead","centerFinalBox"].forEach(function(id){
@@ -12317,22 +12535,8 @@ async function completeCenterFile(){
     promoteNeedsDocs(item);
     return;
   }
-  if(item.stage==="Appraised"){
-    patchCenter(item.id, function(x){
-      x.stage="Waiting";
-      x.archived=false;
-      if(isLandedCenterPacket(x) && x.source!=="website" && x.purpose!=="website"){
-        const routed=laneFromMarketDocs(x.docs, x.lane);
-        x.lane=routed.lane;
-        x.docsIncomplete=routed.docsIncomplete;
-        x.missingDocs=routed.missingDocs;
-      } else {
-        x.lane=(x.source==="guest"||x.source==="trade-in")?"inbox":"onsite";
-      }
-    });
-    toast("Back on the desk.");
-    paintCenter();
-    paintCenterDetail();
+  if((typeof isCenterComplete==="function" && isCenterComplete(item)) || item.stage==="Appraised"){
+    if(typeof reactivateHistoryAppraisal==="function") reactivateHistoryAppraisal(item.id);
     return;
   }
   const appraisal=isCenterAppraisal(item);
@@ -12356,7 +12560,12 @@ async function completeCenterFile(){
     x.stage="Appraised";
     x.lane="history";
     x.docsIncomplete=false;
+    x.centerComplete=true;
+    x.completed=true;
+    x.archived=true;
+    x.onsiteDone=true;
     if(appraisal) x.approvalMailed=true;
+    if(typeof parkCompletedAppraisal==="function") parkCompletedAppraisal(x);
   });
   stopAppraisalNags(item.id, "");
   toast(appraisal?"Approval emailed to Shawn and Christina. Moved to History.":"Moved to History.");

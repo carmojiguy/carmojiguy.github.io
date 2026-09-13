@@ -647,7 +647,7 @@ function slimSharedDocs(docs) {
 })();
 
 assert.ok(/scheduleIncomingPull\(\)/.test(html), "Center boot/paint schedules the Incoming pull");
-assert.ok(/build d30a/.test(html), "build stamp bumped to d30a");
+assert.ok(/build d30b/.test(html), "build stamp bumped to d30b");
 assert.ok(/item\.pdfUrl=remote\.pdfUrl\|\|item\.pdfUrl/.test(html), "applySharedIncoming copies remote.pdfUrl");
 assert.ok(/item\.pdfName=remote\.pdfName\|\|item\.pdfName/.test(html), "applySharedIncoming copies remote.pdfName");
 assert.ok(/id="centerPacketPdf"/.test(html), "detail sheet has Open packet PDF control");
