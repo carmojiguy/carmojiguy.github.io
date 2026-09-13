@@ -2758,22 +2758,28 @@ function requestGmailThenSend(){
   }
   if(!oauthRedirectForSend()) armMailFallback();
 }
-function armMailFallback(){
-  const dest=packetDest();
-  const extra={cc:dest.cc, bcc:dest.bcc};
-  const subject=APP.role==="guest"
+function packetMailSubject(){
+  return APP.role==="guest"
     ? (unitLabel()+" — trade-in"+(APP.inviteName?" from "+APP.inviteName:""))
     : (unitLabel()+" — "+why());
-  const body=packetMailText();
-  const href=fallbackMailHref(dest.to, subject, body, extra);
-  if($("mailOpen")){
-    $("mailOpen").href=href;
-    $("mailOpen").textContent="Open Gmail and send";
-    $("mailOpen").classList.remove("hide");
+}
+function revealMailOpen(){
+  const dest=packetDest();
+  const extra={cc:dest.cc, bcc:dest.bcc};
+  const href=fallbackMailHref(dest.to, packetMailSubject(), packetMailText(), extra);
+  const a=$("mailOpen");
+  if(a){
+    a.href=href;
+    a.textContent="Open Gmail and send";
+    a.classList.remove("hide");
   }
+  return href;
+}
+function armMailFallback(){
+  revealMailOpen();
   if($("btnSharePack")){ $("btnSharePack").disabled=false; $("btnSharePack").textContent="Send"; }
   landInCenter({sent:false, stage:"Waiting"});
-  toast("Saved in Appraisal Center. Gmail didn’t connect. Use the mail button.");
+  toast("Couldn’t send from here. Tap Open Gmail and send.");
 }
 function packetReady(){
   return !!(capturedFiles().length || (APP.clips&&APP.clips.length) || Object.keys(APP.docs||{}).length || (APP.notes||APP.heard));
@@ -2781,6 +2787,7 @@ function packetReady(){
 function kickShare(){
   if(!packetReady()){ toast("Add the story or photos first."); return; }
   landInCenter({sent:false, stage:"Waiting"});
+  revealMailOpen();
   if(APP.role==="guest"){ sharePacket(); return; }
   if(hasMailAuth()){ sharePacket(); return; }
   const ios=/iPhone|iPad|iPod/i.test(navigator.userAgent||"") || !!(window.navigator && navigator.standalone);
@@ -5511,43 +5518,32 @@ async function sharePacket(){
   const shots=capturedFiles();
   if(!shots.length && !(APP.clips&&APP.clips.length) && !Object.keys(APP.docs||{}).length && !(APP.notes||APP.heard)){ toast("Add the story or photos first."); return; }
   landInCenter({sent:false, stage:"Waiting"});
-  const btn=$("btnSharePack");
-  if(btn && btn.disabled) return;
   const dest=packetDest();
   const extra={cc:dest.cc, bcc:dest.bcc};
   const to=dest.to;
-  const subject=APP.role==="guest"
-    ? (unitLabel()+" — trade-in"+(APP.inviteName?" from "+APP.inviteName:""))
-    : (unitLabel()+" — "+why());
+  const subject=packetMailSubject();
   const body=packetMailText() + (APP.role==="guest" && APP.requestedBy ? "\nRequested by: "+(APP.requestedByName||nameForEmail(APP.requestedBy))+" <"+APP.requestedBy+">" : "");
-  const href=fallbackMailHref(to, subject, body, extra);
-  if($("mailOpen")){
-    $("mailOpen").href=href;
-    $("mailOpen").textContent = APP.role==="employee" ? "Open Gmail and send" : "Open Mail and send";
-    $("mailOpen").classList.remove("hide");
+  const href=revealMailOpen();
+  const btn=$("btnSharePack");
+  if(btn && btn.disabled){
+    toast("Still working — tap Open Gmail and send if nothing arrives.");
+    return;
   }
   if(btn){ btn.disabled=true; btn.textContent="Sending…"; }
   let finished=false;
-  function showMail(){
-    if($("mailOpen")){
-      $("mailOpen").href=href;
-      $("mailOpen").textContent = APP.role==="employee" ? "Open Gmail and send" : "Open Mail and send";
-      $("mailOpen").classList.remove("hide");
-    }
-  }
   function finish(msg, openMail){
     if(btn){ btn.disabled=false; btn.textContent="Send"; }
-    if(openMail) showMail();
+    if(openMail) revealMailOpen();
     if(msg) toast(msg);
     finished=true;
   }
   const watch=setTimeout(function(){
-    if(!finished) finish("Still working — use the mail button if nothing arrives.", true);
+    if(!finished) finish("Still working — tap Open Gmail and send.", true);
   }, 8000);
   try{
     if(!APP.googleToken) APP.googleToken=readGoogleToken()||"";
     toast("Sending the catalog…");
-    showMail();
+    revealMailOpen();
     const mailShots=[];
     for(let i=0;i<shots.length;i++){
       try{ mailShots.push({title:shots[i].title, name:shots[i].name, cap:shots[i].cap||"", data:await withTimeout(compressDataUrl(shots[i].data, 1100, 0.76), 3500, shots[i].data)}); }
@@ -5587,15 +5583,15 @@ async function sharePacket(){
       return;
     }
     landInCenter({sent:false, stage:"Waiting"});
-    finish("Couldn’t send from here. Tap the mail button.", true);
+    finish("Couldn’t send from here. Tap Open Gmail and send.", true);
   }catch(e){
     clearTimeout(watch);
-    showMail();
-    finish("Couldn’t send. Tap the mail button.", true);
+    revealMailOpen();
+    finish("Couldn’t send. Tap Open Gmail and send.", true);
   }finally{
     clearTimeout(watch);
     if(btn){ btn.disabled=false; btn.textContent="Send"; }
-    if(!finished) showMail();
+    if(!finished) revealMailOpen();
     releaseHardware();
   }
 }
