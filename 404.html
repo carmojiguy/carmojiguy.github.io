@@ -472,6 +472,139 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
 .center-detail-empty b { display:block; font-size:28px; letter-spacing:-.6px; margin:0 0 8px; }
 .center-detail-empty p { color:var(--muted); font-size:16px; font-weight:600; margin:0; }
 
+/* Tablet: purpose-built desk + list rail (iPad portrait/landscape, ~768–1199) */
+@media (min-width:768px){
+  .phone:has(#center.on){ max-width:none; background:var(--page); }
+  html:has(#center.on), body:has(#center.on){ background:#120F1C; }
+  #center.screen{
+    min-height:100dvh;
+    padding-bottom:0;
+  }
+  #center.screen:has(#centerSheet.on){
+    display:grid;
+    grid-template-columns:minmax(0,1fr) min(368px, 40vw);
+    grid-template-rows:auto auto minmax(0,1fr) auto;
+    height:100dvh;
+    overflow:hidden;
+  }
+  #center.screen:has(#centerSheet.on) > .nav,
+  #center.screen:has(#centerSheet.on) #centerLanes{
+    grid-column:1 / -1;
+    max-width:none;
+    width:100%;
+    margin:0;
+  }
+  #center.screen:has(#centerSheet.on) > .nav{ padding:16px 22px 8px; }
+  #center.screen:has(#centerSheet.on) #centerDetailBody{
+    grid-column:1;
+    grid-row:3;
+    overflow:auto;
+    -webkit-overflow-scrolling:touch;
+    padding:0 22px 12px;
+    min-height:0;
+    max-width:none;
+  }
+  #center.screen:has(#centerSheet.on) #centerDock{
+    grid-column:1;
+    grid-row:4;
+    position:relative;
+    left:auto; right:auto; bottom:auto;
+    transform:none;
+    width:auto;
+    max-width:none;
+    padding:8px 22px 18px;
+    background:linear-gradient(rgba(250,249,252,0), var(--page) 42%);
+    display:flex;
+    justify-content:flex-end;
+  }
+  #center.screen:has(#centerSheet.on) #centerDock .pill{
+    width:auto;
+    min-width:220px;
+    margin:0;
+  }
+  #center.screen:has(#centerSheet.on) .center-sheet-dim{ display:none !important; }
+  #center.screen:has(#centerSheet.on) .center-sheet{
+    display:flex;
+    flex-direction:column;
+    position:relative;
+    grid-column:2;
+    grid-row:3 / 5;
+    inset:auto;
+    top:auto; left:auto; right:auto; bottom:auto;
+    width:auto;
+    height:auto;
+    max-height:none;
+    min-height:0;
+    margin:0 16px 16px 8px;
+    border-radius:24px;
+    box-shadow:0 16px 40px rgba(17,14,26,.12);
+    overflow:hidden;
+    padding-bottom:0;
+  }
+  #center.screen:has(#centerSheet.on) .center-sheet .pad{
+    overflow:auto;
+    flex:1;
+    min-height:0;
+    padding-bottom:20px;
+  }
+  .center-lanes{ padding:6px 22px 14px; gap:10px; }
+  .lane-pill{ min-height:68px; padding:12px 14px; border-radius:18px; }
+  .lane-pill b{ font-size:16px; }
+  #center h2{ font-size:34px; }
+  #center .center-hero{ min-height:280px; border-radius:26px; }
+  #center .center-hero img{ height:min(36vh, 340px); }
+  #center .center-docs{ grid-template-columns:repeat(3, 1fr); }
+  #center .team-rail{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  #center .team-card.final{ grid-column:1 / -1; }
+  #center .facts{ grid-template-columns:repeat(3, 1fr); }
+  #center .acre-vals, #center .acre-market{ gap:10px; }
+  .acre-thumb{ width:100px; height:78px; flex-basis:100px; }
+  .center-detail-empty{ min-height:calc(100dvh - 180px); }
+  .guest-story{
+    left:50%; right:auto; top:50%; transform:translate(-50%, -50%);
+    width:min(520px, 72vw); max-width:520px; bottom:auto;
+  }
+  .resume-card{
+    left:50%; right:auto; top:50%; bottom:auto; transform:translate(-50%, -50%);
+    width:min(460px, 72vw); max-width:460px;
+    padding:26px 22px 18px;
+  }
+}
+@media (min-width:768px) and (max-height:820px){
+  .lane-pill{ min-height:54px; padding:10px 12px; }
+  #center .center-hero img{ height:min(30vh, 260px); }
+  #center.screen:has(#centerSheet.on) > .nav{ padding:10px 18px 6px; }
+}
+
+/* Desktop: wide desk + rail with room to breathe */
+@media (min-width:1200px){
+  #center.screen:has(#centerSheet.on){
+    grid-template-columns:minmax(0,1fr) min(440px, 30vw);
+    max-width:1440px;
+    margin:0 auto;
+  }
+  #center > .nav,
+  #centerLanes{
+    max-width:1440px;
+    width:100%;
+    margin-left:auto;
+    margin-right:auto;
+  }
+  #center > .nav{ padding:22px 40px 10px; }
+  #centerLanes{ padding:8px 40px 16px; gap:12px; }
+  #center.screen:has(#centerSheet.on) #centerDetailBody{ padding:0 40px 16px; }
+  #center.screen:has(#centerSheet.on) #centerDock{ padding:10px 40px 22px; }
+  #center.screen:has(#centerSheet.on) .center-sheet{ margin:0 28px 24px 12px; border-radius:28px; }
+  .lane-pill{ min-height:72px; padding:14px 16px; }
+  .lane-pill b{ font-size:17px; }
+  #center h2{ font-size:40px; }
+  #center .center-hero{ border-radius:28px; min-height:320px; }
+  #center .center-hero img{ height:min(42vh, 440px); }
+  #center .acre-chip{ padding:16px 14px; }
+  #center .acre-chip b{ font-size:22px; }
+  #center .facts{ grid-template-columns:repeat(4, 1fr); }
+}
+
 @media (min-width:980px){
   html, body { background:#120F1C; }
   .phone { max-width:none; min-height:100dvh; background:var(--page); }
@@ -559,28 +692,8 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
   .start-actions .pill { font-size:16px; min-height:50px; }
   .start-more .pill { font-size:14px; min-height:46px; }
 
-  .center-lanes { max-width:1180px; width:100%; margin:0 auto; padding:8px 40px 16px; gap:12px; }
-  .lane-pill { min-height:72px; padding:14px 16px; border-radius:18px; }
-  .lane-pill b { font-size:17px; }
   .lane-pill:hover { transform:translateY(-1px); box-shadow:0 12px 28px rgba(17,14,26,.14); }
   .acre-row:hover { transform:translateY(-1px); box-shadow:0 14px 32px rgba(17,14,26,.1); }
-  #center.screen { padding-bottom:40px; }
-  #center h2 { font-size:40px; }
-  #center .center-hero { border-radius:28px; }
-  #center .center-hero img { height:min(42vh, 420px); }
-  #center .acre-vals { gap:12px; }
-  #center .acre-chip { padding:16px 14px; }
-  #center .acre-chip b { font-size:22px; }
-  #center .acre-market { gap:12px; }
-  #center .center-docs { grid-template-columns:repeat(5, 1fr); }
-  #center .team-rail { display:grid; grid-template-columns:repeat(2, 1fr); gap:12px; }
-  #center .team-card.final { grid-column:1 / -1; }
-  .center-sheet-dim { background:rgba(17,14,26,.28); }
-  .center-sheet {
-    top:32px; bottom:32px; left:auto; right:28px;
-    width:min(440px, 38vw); border-radius:28px;
-    box-shadow:0 24px 60px rgba(17,14,26,.22);
-  }
 }
 
 @media (min-width:1320px){
@@ -649,11 +762,11 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
     <button class="link" type="button" id="guestType">Type instead</button>
   </div>
   <div class="resume-card hide" id="resumeCard">
-    <p class="login-kicker">Unfinished</p>
+    <p class="login-kicker">Saved trade-in</p>
     <h2>Pick up where you left off?</h2>
-    <p class="quote" id="resumeLead">We saved the vehicle you were working on.</p>
-    <button class="pill purple" type="button" id="resumeContinue">Continue this vehicle</button>
-    <button class="pill wash" type="button" id="resumeFresh">Start new</button>
+    <p class="quote" id="resumeLead">We still have your story, photos, and anything you already typed.</p>
+    <button class="pill purple" type="button" id="resumeContinue">Continue</button>
+    <button class="pill wash" type="button" id="resumeFresh">Start over</button>
   </div>
 </section>
 
@@ -2266,21 +2379,46 @@ function idbDel(key){
     tx.onerror=function(){ resolve(false); };
   });
 }
+function tradeLinkId(){
+  try{
+    const u=new URL(location.href);
+    if(u.searchParams.get("trade")==="1"){
+      return ["trade", u.searchParams.get("from")||"", u.searchParams.get("name")||"", u.searchParams.get("unit")||"", u.searchParams.get("stock")||""].join("|").toLowerCase();
+    }
+  }catch(e){}
+  return "";
+}
 function draftOwner(){
+  const trade=tradeLinkId();
+  if(trade) return trade;
   if(APP.role==="guest") return "guest:"+(APP.inviteName||APP.requestedBy||"anon").toLowerCase();
   return "staff:"+(staffEmail(APP.userEmail)||"local");
 }
 function draftKey(){ return "draft:"+draftOwner(); }
+function draftLookupKeys(){
+  const keys=[draftKey()];
+  if(APP.role==="guest" || tradeLinkId()){
+    const name=String(APP.inviteName||"").trim().toLowerCase();
+    if(name) keys.push("draft:guest:"+name);
+    if(APP.requestedBy) keys.push("draft:guest:"+String(APP.requestedBy).toLowerCase());
+    keys.push("draft:guest:anon");
+    keys.push("draft:guest:guest");
+  }
+  return keys.filter(function(k,i,arr){ return k && arr.indexOf(k)===i; });
+}
 function draftHasWork(a){
   if(!a) return false;
-  if(a.year || a.make || a.model || a.vin || a.heard || a.notes || a.km || a.stock || a.trim || a.color) return true;
+  if(a.year || a.make || a.model || a.vin || a.heard || a.notes || a.km || a.trim || a.color) return true;
   if(a.photos && Object.keys(a.photos).length) return true;
   if(a.damage && Object.keys(a.damage).length) return true;
   if(a.closeups && a.closeups.length) return true;
   if(a.docs && Object.keys(a.docs).length) return true;
   if(a.clips && a.clips.length) return true;
-  if(a.inviteName || a.inviteFirst || a.inviteEmail || a.invitePhone) return true;
+  if(a.screen && ["home","verify","photos","submit"].indexOf(a.screen)>=0 && (a.heard||a.notes||a.vin)) return true;
   return false;
+}
+function liveJobProgress(){
+  return draftHasWork(APP);
 }
 function collectDraft(){
   return {
@@ -2308,15 +2446,46 @@ function scheduleDraftSave(){
   clearTimeout(APP._draftTimer);
   APP._draftTimer=setTimeout(flushDraft, 700);
 }
+function saveDraftLocal(snap){
+  const packed={key:draftKey(), snap:snap};
+  try{ storeSet("inspect.draft", JSON.stringify(packed)); return; }catch(e){}
+  try{
+    const slim=JSON.parse(JSON.stringify(packed));
+    if(slim.snap && slim.snap.app){
+      slim.snap.app.photos={};
+      slim.snap.app.docs={};
+      slim.snap.app.clips=[];
+      slim.snap.app.damage={};
+      slim.snap.app.closeups=[];
+    }
+    storeSet("inspect.draft", JSON.stringify(slim));
+  }catch(e){}
+}
+function readDraftLocal(){
+  try{
+    const raw=storeGet("inspect.draft");
+    if(!raw) return null;
+    const parsed=JSON.parse(raw);
+    const snap=parsed && parsed.snap ? parsed.snap : parsed;
+    if(!snap || !draftHasWork(snap.app)) return null;
+    const key=parsed && parsed.key;
+    if(key && draftLookupKeys().indexOf(key)<0 && draftKey()!==key){
+      if(tradeLinkId() && String(key).indexOf("trade|")===0 && key!==draftKey()) return null;
+    }
+    return snap;
+  }catch(e){ return null; }
+}
 function flushDraft(){
   if(APP._resumeOpen) return;
   if(!draftHasWork(APP)) return;
   const snap=collectDraft();
   idbPut(draftKey(), snap).catch(function(){});
+  saveDraftLocal(snap);
 }
 function clearDraft(){
   clearTimeout(APP._draftTimer);
-  idbDel(draftKey());
+  draftLookupKeys().forEach(function(k){ idbDel(k); });
+  storeDel("inspect.draft");
 }
 function timeAgo(ts){
   const s=Math.max(0, Math.floor((Date.now()-Number(ts||0))/1000));
@@ -2350,14 +2519,21 @@ function paintResume(snap){
   APP._resumeOpen=true;
   APP._resumeSnap=snap;
 }
+function loadDraftSnap(){
+  return Promise.all(draftLookupKeys().map(function(k){ return idbGet(k); })).then(function(found){
+    const hit=found.find(function(s){ return s && draftHasWork(s.app); });
+    if(hit) return hit;
+    return readDraftLocal();
+  });
+}
 function offerResume(){
   if(APP._resumeOpen) return;
-  if(draftHasWork(APP)) return;
+  if(liveJobProgress()) return;
   if(!$("start") || !$("start").classList.contains("on")) return;
-  idbGet(draftKey()).then(function(snap){
+  loadDraftSnap().then(function(snap){
     if(!snap || !draftHasWork(snap.app)) return;
     if(snap.at && Date.now()-snap.at > 21*24*60*60*1000){ clearDraft(); return; }
-    if($("start") && $("start").classList.contains("on")) paintResume(snap);
+    if($("start") && $("start").classList.contains("on") && !liveJobProgress()) paintResume(snap);
   });
 }
 function continueDraft(){
@@ -2368,11 +2544,12 @@ function continueDraft(){
   if($("transcript") && (APP.heard||APP.notes)) $("transcript").value=APP.heard||APP.notes||"";
   applyRole();
   paintDealType();
+  if(typeof fillUnit==="function") fillUnit();
   const screen=snap.screen||"home";
   if(screen==="invite"){ openInvite(); return; }
-  if(screen==="verify"){ show("verify"); return; }
-  if(screen==="photos"){ show("photos"); return; }
-  if(screen==="submit"){ show("submit"); return; }
+  if(screen==="verify"){ openVerify(); return; }
+  if(screen==="photos"){ paintLists(); paintDocs(); show("photos"); return; }
+  if(screen==="submit"){ paintSubmit(); show("submit"); return; }
   show("home");
 }
 function startFresh(){
@@ -2398,7 +2575,7 @@ function wipeJob(goStart){
 }
 
 const CENTER_KEY="inspect.center";
-const CENTER_SAMPLE_VER="acre4";
+const CENTER_SAMPLE_VER="acre5";
 const CENTER_TEAM=[
   ["shabot","Shabot","FINAL"],
   ["rybot","Rybot","Opinion"],
@@ -2411,7 +2588,8 @@ const CENTER_DOCS=[
   ["openlane","OpenLane","Auction sheet","Screenshot"],
   ["eblock","eBlock","Recap or bid","Video"],
   ["carfax","Carfax","History report","PDF"],
-  ["mmr","MMR","Wholesale guide","Screenshot"]
+  ["mmr","MMR","Wholesale guide","Screenshot"],
+  ["blackbook","Black Book","Book value","Screenshot"]
 ];
 const CENTER_VALS=[
   ["maya","MAYA"],
@@ -2419,7 +2597,7 @@ const CENTER_VALS=[
   ["predicted","Predicted"]
 ];
 const CENTER_MARKET=[
-  ["book","Book"],
+  ["book","Black Book"],
   ["mmr","MMR"],
   ["pct","% market"],
   ["afc","AFC"]
@@ -2466,180 +2644,252 @@ function saveCenterStore(store){
   try{ sessionStorage.setItem(CENTER_KEY, JSON.stringify(store)); }catch(e){}
 }
 function daysAgo(n){ return Date.now() - Math.round(Number(n||0)*86400000); }
-function centerSampleItems(){
-  const t=emptyTeam();
-  t.shabot={min:"37800",target:"37000",max:"38400",note:"Clean GR. One-owner. I'd sit at 37."};
-  t.rybot={min:"36500",target:"37200",max:"38000",note:""};
-  t.webot={min:"",target:"",max:"",note:"Need a closer look at the front bumper."};
-  t.drebot={min:"36000",target:"36800",max:"37500",note:""};
-  t.tbot={min:"",target:"",max:"",note:""};
-  const truck=emptyTeam();
-  truck.shabot={min:"88000",target:"90000",max:"92500",note:"Crew cab. Super Duty money."};
-  const pic=function(){
-    const urls=Array.prototype.slice.call(arguments);
-    return urls.map(function(u,i){ return {title:["3/4 front","Front","Side"][i]||("Photo "+(i+1)), data:u, cap:""}; });
+function xmlEsc(s){
+  return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+function sampleMoney(n){
+  return "$"+Number(n||0).toLocaleString("en-CA");
+}
+function sampleWalk(kind){
+  const titles=["3/4 front","Front","Side","Rear 3/4","Interior","Odometer","VIN plate","Engine"];
+  const u=function(id){ return "https://images.unsplash.com/"+id+"?auto=format&fit=crop&w=1600&h=1000&q=80"; };
+  const shared=[u("photo-1485291571150-772bcfc10da5"),u("photo-1449965408869-eaa3f722e40d"),u("photo-1489824904134-891ab64532f1"),u("photo-1542362567-b07e54358753")];
+  const pool={
+    suv:[u("photo-1519641471654-76ce0107ad1b"),u("photo-1619767886558-efdc259cde1a"),u("photo-1568605117036-5fe5e7bab0b7"),u("photo-1549317661-bd32c8ce0db2")].concat(shared),
+    truck:[u("photo-1533473359331-0135ef1b58bf"),u("photo-1563720223185-11003d516935"),u("photo-1559416523-140ddc3d238c"),u("photo-1593941707882-a5bba14938c7")].concat(shared),
+    sedan:[u("photo-1606664515524-ed2f786a0bd6"),u("photo-1555215695-3004980ad54e"),u("photo-1618843479313-40f8afb4b4d8"),u("photo-1549317661-bd32c8ce0db2")].concat(shared),
+    sport:[u("photo-1621007947382-bb3c3994e3fb"),u("photo-1552519507-da3b142c6e3d"),u("photo-1494976388531-d1058494cdd8"),u("photo-1503376780353-7e6692767b70")].concat(shared),
+    jeep:[u("photo-1590362891991-f776e747a588"),u("photo-1502877338535-766e1452684d"),u("photo-1493238792000-8113da705763"),u("photo-1609521263047-f8f205293f24")].concat(shared)
   };
+  return (pool[kind]||pool.suv).map(function(src,i){ return {title:titles[i]||("Walk "+(i+1)), data:src, cap:""}; });
+}
+function sampleVals(n){
+  n=Number(n)||0;
+  return {
+    maya:String(n),
+    vauto:String(n-800),
+    predicted:String(n+500),
+    book:String(n+1400),
+    mmr:String(n-1700),
+    pct:"98%",
+    afc:String(Math.round(n*0.86)),
+    rangeMin:String(n-1600),
+    rangeMax:String(n+900)
+  };
+}
+function sampleTeam(n, notes){
+  n=Number(n)||0;
+  notes=notes||{};
+  const t=emptyTeam();
+  t.shabot={min:String(n-900),target:String(n),max:String(n+700),note:notes.shabot||"Final sits here. Clean file, books support it."};
+  t.rybot={min:String(n-1400),target:String(n+200),max:String(n+600),note:notes.rybot||"I'd be a touch over book if the walk stays this clean."};
+  t.webot={min:String(n-1100),target:String(n-200),max:String(n+400),note:notes.webot||"Retail is there. Watch recon on the leading edge."};
+  t.drebot={min:String(n-1600),target:String(n-400),max:String(n+200),note:notes.drebot||"Wholesale is fine. I wouldn't chase it."};
+  t.tbot={min:String(n-800),target:String(n+100),max:String(n+500),note:notes.tbot||"AFC covers it. I'd take it to the block."};
+  return t;
+}
+function sampleDocSvg(kind, item){
+  const ymmt=xmlEsc(item.ymmt||item.interest||"Vehicle");
+  const vin=xmlEsc(item.vin||"—");
+  const km=xmlEsc(item.km?Number(String(item.km).replace(/,/g,"")).toLocaleString("en-CA")+" km":"—");
+  const color=xmlEsc(item.color||"—");
+  const v=item.values||{};
+  const heads={
+    vauto:["#FF6A00","#1A1630","vAuto","Appraisal book"],
+    openlane:["#0B5CAB","#0A1B33","OpenLane","Auction sheet"],
+    eblock:["#12C46A","#0B0B0B","eBlock","Live recap"],
+    carfax:["#1B6B3A","#F4F7F5","Carfax","Vehicle history"],
+    mmr:["#1E4E8C","#0E1C33","MMR","Wholesale guide"],
+    blackbook:["#C4A35A","#16120C","Black Book","Used values"]
+  };
+  const h=heads[kind]||heads.vauto;
+  const light=kind==="carfax";
+  const ink=light?"#1A1630":"#fff";
+  const sub=light?"#4A4458":"rgba(255,255,255,.72)";
+  const chip=light?"#E7F3EA":"rgba(255,255,255,.12)";
+  const chips=[
+    ["MAYA",sampleMoney(v.maya)],
+    ["vAuto",sampleMoney(v.vauto)],
+    [kind==="mmr"?"MMR":"Black Book",sampleMoney(kind==="mmr"?v.mmr:v.book)]
+  ];
+  let extra="";
+  if(kind==="carfax") extra='<text x="28" y="372" fill="#1B6B3A" font-family="Arial,Helvetica,sans-serif" font-size="14" font-weight="700">No accidents  ·  1 owner  ·  Service records on file</text>';
+  if(kind==="eblock") extra='<circle cx="578" cy="48" r="18" fill="#12C46A"/><polygon points="572,38 590,48 572,58" fill="#0B0B0B"/>';
+  if(kind==="openlane") extra='<text x="28" y="372" fill="rgba(255,255,255,.7)" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="700">Run 14  ·  Lane B  ·  Condition 3.2  ·  GREEN light</text>';
+  const svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400">'+
+    '<rect width="640" height="400" fill="'+h[1]+'"/>'+
+    '<rect width="640" height="78" fill="'+h[0]+'"/>'+
+    '<text x="28" y="34" fill="#fff" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="700">'+h[2]+'</text>'+
+    '<text x="28" y="62" fill="#fff" font-family="Arial,Helvetica,sans-serif" font-size="24" font-weight="800">'+h[3]+'</text>'+
+    '<text x="28" y="118" fill="'+ink+'" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="800">'+ymmt+'</text>'+
+    '<text x="28" y="146" fill="'+sub+'" font-family="Arial,Helvetica,sans-serif" font-size="14">VIN '+vin+'   ·   '+km+'   ·   '+color+'</text>'+
+    chips.map(function(c,i){
+      const x=28+i*200;
+      return '<rect x="'+x+'" y="178" width="184" height="96" rx="16" fill="'+chip+'"/><text x="'+(x+16)+'" y="208" fill="'+sub+'" font-family="Arial,Helvetica,sans-serif" font-size="12" font-weight="700">'+c[0]+'</text><text x="'+(x+16)+'" y="248" fill="'+ink+'" font-family="Arial,Helvetica,sans-serif" font-size="26" font-weight="800">'+c[1]+'</text>';
+    }).join("")+
+    extra+
+    '</svg>';
+  return "data:image/svg+xml;charset=utf-8,"+encodeURIComponent(svg);
+}
+function sampleDocs(item){
+  return {
+    vauto:{have:true,name:"vAuto appraisal book.pdf",type:"pdf",fmt:"PDF",preview:sampleDocSvg("vauto",item)},
+    openlane:{have:true,name:"OpenLane run list.png",type:"image",fmt:"Screenshot",preview:sampleDocSvg("openlane",item)},
+    eblock:{have:true,name:"eBlock recap.mp4",type:"video",fmt:"Video",preview:sampleDocSvg("eblock",item)},
+    carfax:{have:true,name:"Carfax history.pdf",type:"pdf",fmt:"PDF",preview:sampleDocSvg("carfax",item)},
+    mmr:{have:true,name:"MMR wholesale.png",type:"image",fmt:"Screenshot",preview:sampleDocSvg("mmr",item)},
+    blackbook:{have:true,name:"Black Book values.png",type:"image",fmt:"Screenshot",preview:sampleDocSvg("blackbook",item)}
+  };
+}
+function finishSample(item){
+  const photos=sampleWalk(item.walk||"suv");
+  item.sample=true;
+  item.sampleVer=CENTER_SAMPLE_VER;
+  item.photos=photos;
+  item.photoCount=photos.length;
+  item.thumb=photos[0].data;
+  item.values=sampleVals(item.ask);
+  item.team=sampleTeam(item.ask, item.opinions);
+  item.docs=sampleDocs(item);
+  delete item.walk;
+  delete item.ask;
+  delete item.opinions;
+  return item;
+}
+function centerSampleItems(){
   return [
-    {
-      id:"sample-v4-tucson", sample:true, sampleVer:CENTER_SAMPLE_VER, lane:"inbox", stage:"Waiting", source:"guest",
+    finishSample({
+      id:"sample-v5-tucson", lane:"inbox", stage:"Waiting", source:"guest", walk:"suv", ask:24800,
       interest:"2025 Hyundai Tucson Preferred", ymmt:"2022 Hyundai Santa Fe Preferred",
       year:"2022", make:"Hyundai", model:"Santa Fe", trim:"Preferred", color:"Portofino Gray", km:"64000", vin:"5NMS3DAJ7NH452632",
       createdAt:daysAgo(0.3), updatedAt:daysAgo(0.3), sentAt:daysAgo(0.3),
       salesperson:"Jay Cyr", customer:{name:"Maya Patel", email:"maya.patel@example.com", phone:"(613) 555-0142"},
-      story:"Guest link is out. Photos not back yet. One-owner AWD Santa Fe against a new Tucson.",
-      notes:"Incomplete — waiting on walk photos.", photoCount:0, thumb:"", photos:[],
-      docs:{vauto:{have:false,name:"",type:"",fmt:"PDF"},openlane:{have:false,name:"",type:"",fmt:"Screenshot"},eblock:{have:false,name:"",type:"",fmt:"Video"},carfax:{have:false,name:"",type:"",fmt:"PDF"},mmr:{have:false,name:"",type:"",fmt:"Screenshot"}},
-      values:emptyVals(), team:emptyTeam(), tags:["Incoming","Incomplete"]
-    },
-    {
-      id:"sample-v4-f150", sample:true, sampleVer:CENTER_SAMPLE_VER, lane:"inbox", stage:"Waiting", source:"trade-in",
+      story:"Guest packet is in. Full walk, Carfax, and the books are on the file. One-owner AWD Santa Fe against a new Tucson. Maya can come in this week.",
+      notes:"Ready to walk. Photos and market sheets attached.",
+      tags:["Incoming","Packet in","AWD"],
+      opinions:{shabot:"I'd sit at 24.8. Clean AWD Santa Fe, books agree.",rybot:"Tucson deal has room. Don't give the trade away.",webot:"Paint is honest. I'd still peek the rear bumper in person.",drebot:"Wholesale is there. No reason to stretch.",tbot:"AFC covers 24. I'd take it."}
+    }),
+    finishSample({
+      id:"sample-v5-f150", lane:"inbox", stage:"Waiting", source:"trade-in", walk:"suv", ask:14200,
       interest:"2025 Ford F-150 Lariat", ymmt:"2018 Honda CR-V EX",
       year:"2018", make:"Honda", model:"CR-V", trim:"EX", color:"White", km:"118000", vin:"2HKRW2H86JH123456",
       createdAt:daysAgo(0.8), updatedAt:daysAgo(0.8), sentAt:daysAgo(0.8),
-      salesperson:"Wes", customer:{name:"Chris Nguyen", email:"", phone:"(613) 555-0198"},
-      story:"Trade-in link sent. Customer is dealing on the Lariat. CR-V is the trade — not back yet.",
-      notes:"", photoCount:0, thumb:"", photos:[],
-      docs:{vauto:{have:false,name:"",type:"",fmt:"PDF"},openlane:{have:false,name:"",type:"",fmt:"Screenshot"},eblock:{have:false,name:"",type:"",fmt:"Video"},carfax:{have:false,name:"",type:"",fmt:"PDF"},mmr:{have:false,name:"",type:"",fmt:"Screenshot"}},
-      values:emptyVals(), team:emptyTeam(), tags:["Incoming","Link sent"]
-    },
-    {
-      id:"sample-v4-elantra", sample:true, sampleVer:CENTER_SAMPLE_VER, lane:"inbox", stage:"Waiting", source:"guest",
+      salesperson:"Wes", customer:{name:"Chris Nguyen", email:"chris.nguyen@example.com", phone:"(613) 555-0198"},
+      story:"Trade-in packet landed. Full walk and market sheets attached. Customer is dealing on the Lariat — CR-V is the trade.",
+      notes:"Chris is waiting on a number before he comes back tonight.",
+      tags:["Incoming","Link back","Clean Carfax"],
+      opinions:{shabot:"14.2 is the number. Miles are real but the file is complete.",rybot:"I'd hold 14. Don't buy the Lariat deal with the CR-V.",webot:"Tires look tired in the walk. Budget recon.",drebot:"Wholesale 13-ish. Fine as a trade.",tbot:"AFC is comfortable. Take it to the block if they walk."}
+    }),
+    finishSample({
+      id:"sample-v5-elantra", lane:"inbox", stage:"Waiting", source:"guest", walk:"sedan", ask:6800,
       interest:"2024 Honda Civic Sport", ymmt:"2016 Hyundai Elantra",
-      year:"2016", make:"Hyundai", model:"Elantra", trim:"", color:"Silver", km:"142000", vin:"5NPD74LF6GH334455",
+      year:"2016", make:"Hyundai", model:"Elantra", trim:"GL", color:"Silver", km:"142000", vin:"5NPD74LF6GH334455",
       createdAt:daysAgo(1.2), updatedAt:daysAgo(1.2), sentAt:daysAgo(1.2),
-      salesperson:"Isabella Coffey", customer:{name:"Aisha Khan", email:"", phone:"(343) 555-0177"},
-      story:"Packet came back thin. Story only — still missing photos. Shopping the red Civic on the lot.",
-      notes:"Incomplete packet.", photoCount:0, thumb:"", photos:[],
-      docs:{vauto:{have:false,name:"",type:"",fmt:"PDF"},openlane:{have:false,name:"",type:"",fmt:"Screenshot"},eblock:{have:false,name:"",type:"",fmt:"Video"},carfax:{have:false,name:"",type:"",fmt:"PDF"},mmr:{have:false,name:"",type:"",fmt:"Screenshot"}},
-      values:emptyVals(), team:emptyTeam(), tags:["Incoming","Not fully back"]
-    },
-    {
-      id:"sample-v4-sierra", sample:true, sampleVer:CENTER_SAMPLE_VER, lane:"inbox", stage:"Waiting", source:"trade-in",
+      salesperson:"Isabella Coffey", customer:{name:"Aisha Khan", email:"aisha.khan@example.com", phone:"(343) 555-0177"},
+      story:"Packet came back complete this morning. Story, walk, and books are all here. She's shopping the red Civic on the lot.",
+      notes:"High miles, honest car. Number is ready.",
+      tags:["Incoming","Packet in","High km"],
+      opinions:{shabot:"6.8 and we're done. Don't fall in love with it.",rybot:"Civic deal can carry a light trade.",webot:"Front bumper has parking rash. Cheap recon.",drebot:"Wholesale is thin. Keep it tight.",tbot:"AFC still works at 6.8."}
+    }),
+    finishSample({
+      id:"sample-v5-sierra", lane:"inbox", stage:"Waiting", source:"trade-in", walk:"truck", ask:22100,
       interest:"2025 GMC Sierra AT4", ymmt:"2019 Chevrolet Silverado LT",
       year:"2019", make:"Chevrolet", model:"Silverado", trim:"LT", color:"Black", km:"134000", vin:"1GCUYDED5KZ308812",
       createdAt:daysAgo(0.15), updatedAt:daysAgo(0.15), sentAt:daysAgo(0.15),
-      salesperson:"Kyle", customer:{name:"Tom Bradley", email:"", phone:"(613) 555-0110"},
-      story:"Sent this morning. Customer wants the AT4. Silverado is the trade — photos promised tonight.",
-      notes:"", photoCount:0, thumb:"", photos:[],
-      docs:{vauto:{have:false,name:"",type:"",fmt:"PDF"},openlane:{have:false,name:"",type:"",fmt:"Screenshot"},eblock:{have:false,name:"",type:"",fmt:"Video"},carfax:{have:false,name:"",type:"",fmt:"PDF"},mmr:{have:false,name:"",type:"",fmt:"Screenshot"}},
-      values:emptyVals(), team:emptyTeam(), tags:["Incoming","Sent"]
-    },
-    {
-      id:"sample-v4-corolla", sample:true, sampleVer:CENTER_SAMPLE_VER, lane:"onsite", stage:"Waiting", source:"appraise",
+      salesperson:"Kyle", customer:{name:"Tom Bradley", email:"tom.bradley@example.com", phone:"(613) 555-0110"},
+      story:"Sent this morning and already back. Customer wants the AT4. Silverado walk, Carfax, and auction sheets are on the desk.",
+      notes:"Tom said he can be here at 4 if the number works.",
+      tags:["Incoming","Sent","Crew cab"],
+      opinions:{shabot:"22.1. Work-truck miles, complete file.",rybot:"AT4 deal has gross. Don't over-allow.",webot:"Box wear is honest. Frame looks clean in the stills.",drebot:"I'd rather be at 21.5 than 23.",tbot:"Block will take this all day."}
+    }),
+    finishSample({
+      id:"sample-v5-corolla", lane:"onsite", stage:"Waiting", source:"appraise", walk:"sport", ask:37000,
       interest:"", ymmt:"2023 Toyota GR Corolla Core", year:"2023", make:"Toyota", model:"GR Corolla", trim:"Core",
-      color:"White", km:"10500", vin:"JTNABAAE8PA003162", stock:"",
+      color:"White", km:"10500", vin:"JTNABAAE8PA003162", stock:"A-1184",
       createdAt:daysAgo(0.2), updatedAt:daysAgo(0.2), sentAt:daysAgo(0.2),
-      salesperson:"Isabella Coffey", customer:{name:"Isabella Coffey", email:"", phone:""},
+      salesperson:"Isabella Coffey", customer:{name:"Isabella Coffey", email:"isabella.coffey@myloan.ca", phone:"(613) 555-0108"},
       story:"Selling as a trade. Already a GR86 deposit down and needs something they can release. Expecting closer to $37.8k. Clean, one-owner, no-accident 2023 GR Corolla Core at 10,500 km — the lowest-mileage unit in a while.",
-      notes:"On-site. Customer waiting on a number.",
-      photoCount:3, thumb:"https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?auto=format&fit=crop&w=1400&q=80",
-      photos:pic(
-        "https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?auto=format&fit=crop&w=1400&q=80",
-        "https://images.unsplash.com/photo-1619682817481-e6778ced1c3d?auto=format&fit=crop&w=1400&q=80",
-        "https://images.unsplash.com/photo-1627454820916-d0c5292c9e56?auto=format&fit=crop&w=1400&q=80"
-      ),
-      docs:{vauto:{have:true,name:"vAuto book",type:"pdf",fmt:"PDF"},openlane:{have:true,name:"OpenLane shot",type:"image",fmt:"Screenshot"},eblock:{have:false,name:"",type:"",fmt:"Video"},carfax:{have:true,name:"Carfax clean",type:"pdf",fmt:"PDF"},mmr:{have:true,name:"MMR",type:"image",fmt:"Screenshot"}},
-      values:{maya:"37800",vauto:"37000",predicted:"38400",book:"39000",mmr:"35100",pct:"",afc:"",rangeMin:"35800",rangeMax:""},
-      team:t, tags:["On-site","Clean","One owner","Japan"]
-    },
-    {
-      id:"sample-v4-f250", sample:true, sampleVer:CENTER_SAMPLE_VER, lane:"onsite", stage:"Waiting", source:"appraise",
+      notes:"On-site. Customer waiting on a number. Walk and books are complete.",
+      tags:["On-site","Clean","One owner","Japan"],
+      opinions:{shabot:"Clean GR. One-owner. I'd sit at 37.",rybot:"I'd be a touch over book if the walk stays this clean.",webot:"Need a closer look at the front bumper in the sun.",drebot:"Wholesale is fine. I wouldn't chase it past 38.",tbot:"AFC loves this one. Take it."}
+    }),
+    finishSample({
+      id:"sample-v5-f250", lane:"onsite", stage:"Waiting", source:"appraise", walk:"truck", ask:90000,
       interest:"", ymmt:"2025 Ford F-250 XLT Super Duty Crew Cab", year:"2025", make:"Ford", model:"F-250", trim:"XLT Super Duty",
-      color:"Oxford White", km:"75200", vin:"1FT8W2BT5SED42817",
+      color:"Oxford White", km:"75200", vin:"1FT8W2BT5SED42817", stock:"T-2209",
       createdAt:daysAgo(1.1), updatedAt:daysAgo(1.1), sentAt:daysAgo(1.1),
-      salesperson:"Wes", customer:{name:"Wes", email:"", phone:""},
-      story:"On the lot. Truck works every day. Light box wear, no frame stories.",
-      notes:"Need MMR screenshot and a walk video.",
-      photoCount:2, thumb:"https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=1400&q=80",
-      photos:pic(
-        "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=1400&q=80",
-        "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?auto=format&fit=crop&w=1400&q=80"
-      ),
-      docs:{vauto:{have:false,name:"",type:"",fmt:"PDF"},openlane:{have:false,name:"",type:"",fmt:"Screenshot"},eblock:{have:true,name:"Walk video",type:"video",fmt:"Video"},carfax:{have:false,name:"",type:"",fmt:"PDF"},mmr:{have:false,name:"",type:"",fmt:"Screenshot"}},
-      values:{maya:"90000",vauto:"88000",predicted:"92500",book:"95800",mmr:"87200",pct:"102%",afc:"",rangeMin:"86000",rangeMax:"93000"},
-      team:truck, tags:["On-site","Crew cab"]
-    },
-    {
-      id:"sample-v4-civic", sample:true, sampleVer:CENTER_SAMPLE_VER, lane:"onsite", stage:"Waiting", source:"website",
+      salesperson:"Wes", customer:{name:"Wes", email:"wes@myloan.ca", phone:"(613) 555-0133"},
+      story:"On the lot. Truck works every day. Light box wear, no frame stories. Full walk, eBlock recap, and the books are attached.",
+      notes:"Customer is in the showroom. Number is ready.",
+      tags:["On-site","Crew cab","Super Duty"],
+      opinions:{shabot:"Crew cab. Super Duty money. 90 is the seat.",rybot:"I'd go 91 if the frame stays this clean.",webot:"Box wear is light. I'd still walk the rear links.",drebot:"Wholesale 87. Don't get cute.",tbot:"AFC and the block both work at 90."}
+    }),
+    finishSample({
+      id:"sample-v5-civic", lane:"onsite", stage:"Waiting", source:"website", walk:"sedan", ask:28900,
       interest:"", ymmt:"2024 Honda Civic Sport", year:"2024", make:"Honda", model:"Civic", trim:"Sport",
       color:"Rallye Red", km:"18000", vin:"2HGFE2F54RH543210", stock:"W-4412",
       createdAt:daysAgo(2.4), updatedAt:daysAgo(2.4), sentAt:daysAgo(2.4),
-      salesperson:"Lord", customer:{name:"", email:"", phone:""},
-      story:"Website unit on the lot. Bright red Sport. Clean Carfax, two keys, winter tires in the box.",
-      notes:"Post after we lock the number.",
-      photoCount:1, thumb:"https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?auto=format&fit=crop&w=1400&q=80",
-      photos:pic("https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?auto=format&fit=crop&w=1400&q=80"),
-      docs:{vauto:{have:true,name:"vAuto",type:"pdf",fmt:"PDF"},openlane:{have:false,name:"",type:"",fmt:"Screenshot"},eblock:{have:false,name:"",type:"",fmt:"Video"},carfax:{have:true,name:"Carfax",type:"pdf",fmt:"PDF"},mmr:{have:false,name:"",type:"",fmt:"Screenshot"}},
-      values:{maya:"28900",vauto:"27600",predicted:"29200",book:"30100",mmr:"26800",pct:"96%",afc:"25400"},
-      team:emptyTeam(), tags:["On-site","In stock"]
-    },
-    {
-      id:"sample-v4-ram", sample:true, sampleVer:CENTER_SAMPLE_VER, lane:"history", stage:"Appraised", source:"appraise",
-      ymmt:"2021 RAM 1500 Rebel", year:"2021", make:"RAM", model:"1500", trim:"Rebel",
-      color:"Granite Crystal", km:"61200", vin:"1C6SRFLT4MN654321",
+      salesperson:"Lord", customer:{name:"Alex Ruiz", email:"alex.ruiz@example.com", phone:"(613) 555-0174"},
+      story:"Website unit on the lot. Bright red Sport. Clean Carfax, two keys, winter tires in the box. Walk and market packets are complete.",
+      notes:"Post after we lock the number. Alex asked for a same-day write-up.",
+      tags:["On-site","In stock","Two keys"],
+      opinions:{shabot:"28.9. In-stock Civic with the right miles.",rybot:"Retail is easy. Don't cheap it.",webot:"Red will photograph. Check the driver's bolster.",drebot:"Wholesale 27. Comfortable.",tbot:"Website unit — price it to move."}
+    }),
+    finishSample({
+      id:"sample-v5-ram", lane:"history", stage:"Appraised", source:"appraise", walk:"truck", ask:48200,
+      interest:"", ymmt:"2021 RAM 1500 Rebel", year:"2021", make:"RAM", model:"1500", trim:"Rebel",
+      color:"Granite Crystal", km:"61200", vin:"1C6SRFLT4MN654321", stock:"H-0901",
       createdAt:daysAgo(0.05), updatedAt:daysAgo(0.05), sentAt:daysAgo(0.05),
-      salesperson:"Kyle", customer:{name:"Kyle", email:"", phone:""},
-      story:"Rebel with the right miles. Done this morning — customer took $48,200.",
+      salesperson:"Kyle", customer:{name:"Kyle", email:"kyle@myloan.ca", phone:"(613) 555-0120"},
+      story:"Rebel with the right miles. Done this morning — customer took $48,200. Full packet stayed on the file.",
       notes:"Paid. Paperwork with Jay.",
-      photoCount:1, thumb:"https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=1400&q=80",
-      photos:pic("https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=1400&q=80"),
-      docs:{vauto:{have:true,name:"vAuto",type:"pdf",fmt:"PDF"},openlane:{have:true,name:"OpenLane",type:"image",fmt:"Screenshot"},eblock:{have:false,name:"",type:"",fmt:"Video"},carfax:{have:true,name:"Carfax",type:"pdf",fmt:"PDF"},mmr:{have:true,name:"MMR",type:"image",fmt:"Screenshot"}},
-      values:{maya:"48200",vauto:"47000",predicted:"49100",book:"50500",mmr:"45800",pct:"99%",afc:""},
-      team:emptyTeam(), tags:["Appraised","Today"]
-    },
-    {
-      id:"sample-v4-cx5", sample:true, sampleVer:CENTER_SAMPLE_VER, lane:"history", stage:"Appraised", source:"guest",
+      tags:["Appraised","Today"],
+      opinions:{shabot:"48.2 paid. That was the number.",rybot:"Rebel money. We were right.",webot:"Lift and tires were honest. No surprises.",drebot:"I'd have been 47.5. Fine.",tbot:"Block would have taken it too."}
+    }),
+    finishSample({
+      id:"sample-v5-cx5", lane:"history", stage:"Appraised", source:"guest", walk:"suv", ask:24400,
       interest:"2022 Mazda CX-50", ymmt:"2020 Mazda CX-5 GT", year:"2020", make:"Mazda", model:"CX-5", trim:"GT",
       color:"Soul Red", km:"88000", vin:"JM3KFBDM5L0147890",
       createdAt:daysAgo(1.3), updatedAt:daysAgo(1.3), sentAt:daysAgo(1.3),
-      salesperson:"Jay Cyr", customer:{name:"Priya Shah", email:"", phone:"(613) 555-0166"},
-      story:"Guest packet yesterday. GT with brown interior. We landed at $24,400.",
-      notes:"", photoCount:1, thumb:"https://images.unsplash.com/photo-1619767886558-efdc259cde1a?auto=format&fit=crop&w=1400&q=80",
-      photos:pic("https://images.unsplash.com/photo-1619767886558-efdc259cde1a?auto=format&fit=crop&w=1400&q=80"),
-      docs:{vauto:{have:true,name:"vAuto",type:"pdf",fmt:"PDF"},openlane:{have:false,name:"",type:"",fmt:"Screenshot"},eblock:{have:false,name:"",type:"",fmt:"Video"},carfax:{have:true,name:"Carfax",type:"pdf",fmt:"PDF"},mmr:{have:false,name:"",type:"",fmt:"Screenshot"}},
-      values:{maya:"24400",vauto:"23800",predicted:"25100",book:"26200",mmr:"22900",pct:"94%",afc:""},
-      team:emptyTeam(), tags:["Yesterday"]
-    },
-    {
-      id:"sample-v4-x3", sample:true, sampleVer:CENTER_SAMPLE_VER, lane:"history", stage:"Appraised", source:"appraise",
-      ymmt:"2018 BMW X3 xDrive30i", year:"2018", make:"BMW", model:"X3", trim:"xDrive30i",
-      color:"Alpine White", km:"112000", vin:"5UXTR9C50J0D33455",
+      salesperson:"Jay Cyr", customer:{name:"Priya Shah", email:"priya.shah@example.com", phone:"(613) 555-0166"},
+      story:"Guest packet yesterday. GT with brown interior. We landed at $24,400. Walk, Carfax, and books are still on the file.",
+      notes:"Deal written. Priya is on the CX-50.",
+      tags:["Yesterday","Appraised"],
+      opinions:{shabot:"24.4 landed. Brown GT, honest miles.",rybot:"CX-50 deal made the trade easy.",webot:"Soul Red still pops. Soft on the rear hatch.",drebot:"Wholesale 23. We were close.",tbot:"Good guest file. Keep this pattern."}
+    }),
+    finishSample({
+      id:"sample-v5-x3", lane:"history", stage:"Appraised", source:"appraise", walk:"suv", ask:22800,
+      interest:"", ymmt:"2018 BMW X3 xDrive30i", year:"2018", make:"BMW", model:"X3", trim:"xDrive30i",
+      color:"Alpine White", km:"112000", vin:"5UXTR9C50J0D33455", stock:"H-3310",
       createdAt:daysAgo(12), updatedAt:daysAgo(12), sentAt:daysAgo(12),
-      salesperson:"Lord", customer:{name:"Lord", email:"", phone:""},
-      story:"This month. Service history in the dashbox. We were light because of the miles.",
-      notes:"", photoCount:1, thumb:"https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=1400&q=80",
-      photos:pic("https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=1400&q=80"),
-      docs:{vauto:{have:true,name:"vAuto",type:"pdf",fmt:"PDF"},openlane:{have:false,name:"",type:"",fmt:"Screenshot"},eblock:{have:false,name:"",type:"",fmt:"Video"},carfax:{have:true,name:"Carfax",type:"pdf",fmt:"PDF"},mmr:{have:true,name:"MMR",type:"image",fmt:"Screenshot"}},
-      values:{maya:"22800",vauto:"21900",predicted:"23400",book:"24600",mmr:"21100",pct:"91%",afc:""},
-      team:emptyTeam(), tags:["This month"]
-    },
-    {
-      id:"sample-v4-silverado", sample:true, sampleVer:CENTER_SAMPLE_VER, lane:"history", stage:"Appraised", source:"trade-in",
+      salesperson:"Lord", customer:{name:"Lord", email:"lord.grande@myloan.ca", phone:"(613) 555-0190"},
+      story:"This month. Service history in the dashbox. We were light because of the miles. Complete walk and books stayed with the file.",
+      notes:"Appraised and released. Service booklet scanned into Carfax slot notes.",
+      tags:["This month","Appraised"],
+      opinions:{shabot:"22.8 because of the miles. Service history helped.",rybot:"I wouldn't have gone 24.",webot:"Control-arm noise in the story. Budget it.",drebot:"Wholesale 21. We were right to stay light.",tbot:"Euro miles. AFC still cleared."}
+    }),
+    finishSample({
+      id:"sample-v5-silverado", lane:"history", stage:"Appraised", source:"trade-in", walk:"truck", ask:26500,
       interest:"2024 Chevrolet Silverado ZR2", ymmt:"2019 Chevrolet Silverado LT",
       year:"2019", make:"Chevrolet", model:"Silverado", trim:"LT", color:"Black", km:"134000", vin:"1GCUYDED5KZ399001",
       createdAt:daysAgo(40), updatedAt:daysAgo(40), sentAt:daysAgo(40),
-      salesperson:"Josh", customer:{name:"Dana Cole", email:"", phone:"(613) 555-0188"},
-      story:"Last month trade. Work truck miles. We passed at their number and they kept it.",
-      notes:"", photoCount:1, thumb:"https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&w=1400&q=80",
-      photos:pic("https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&w=1400&q=80"),
-      docs:{vauto:{have:true,name:"vAuto",type:"pdf",fmt:"PDF"},openlane:{have:false,name:"",type:"",fmt:"Screenshot"},eblock:{have:false,name:"",type:"",fmt:"Video"},carfax:{have:false,name:"",type:"",fmt:"PDF"},mmr:{have:true,name:"MMR",type:"image",fmt:"Screenshot"}},
-      values:{maya:"26500",vauto:"25800",predicted:"27100",book:"28400",mmr:"24900",pct:"",afc:""},
-      team:emptyTeam(), tags:["Last month"]
-    },
-    {
-      id:"sample-v4-wrangler", sample:true, sampleVer:CENTER_SAMPLE_VER, lane:"history", stage:"Appraised", archived:true, source:"appraise",
-      ymmt:"2017 Jeep Wrangler Sahara", year:"2017", make:"Jeep", model:"Wrangler", trim:"Sahara",
-      color:"Firecracker Red", km:"98000", vin:"1C4BJWEG5HL640112",
+      salesperson:"Josh", customer:{name:"Dana Cole", email:"dana.cole@example.com", phone:"(613) 555-0188"},
+      story:"Last month trade. Work truck miles. We passed at their number and they kept it. Packet is complete so you can still walk the file.",
+      notes:"They kept it. ZR2 deal died. File stays for the month view.",
+      tags:["Last month","Passed"],
+      opinions:{shabot:"26.5 was our walk-away. They wanted 29.",rybot:"Right pass. Don't buy someone else's truck.",webot:"Frame was clean. Miles were the story.",drebot:"Wholesale 25. No deal at 29.",tbot:"Good pass. Next."}
+    }),
+    finishSample({
+      id:"sample-v5-wrangler", lane:"history", stage:"Appraised", archived:true, source:"appraise", walk:"jeep", ask:31200,
+      interest:"", ymmt:"2017 Jeep Wrangler Sahara", year:"2017", make:"Jeep", model:"Wrangler", trim:"Sahara",
+      color:"Firecracker Red", km:"98000", vin:"1C4BJWEG5HL640112", stock:"H-0412",
       createdAt:daysAgo(120), updatedAt:daysAgo(120), sentAt:daysAgo(120),
-      salesperson:"Steve", customer:{name:"Steve", email:"", phone:""},
-      story:"Older file kept so you can see the 90-day archive. Soft top, aftermarket radio.",
-      notes:"Archived automatically after 90 days.",
-      photoCount:1, thumb:"https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=1400&q=80",
-      photos:pic("https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=1400&q=80"),
-      docs:{vauto:{have:false,name:"",type:"",fmt:"PDF"},openlane:{have:false,name:"",type:"",fmt:"Screenshot"},eblock:{have:false,name:"",type:"",fmt:"Video"},carfax:{have:true,name:"Carfax",type:"pdf",fmt:"PDF"},mmr:{have:false,name:"",type:"",fmt:"Screenshot"}},
-      values:{maya:"31200",vauto:"29800",predicted:"32000",book:"33400",mmr:"28900",pct:"",afc:""},
-      team:emptyTeam(), tags:["90-day archive"]
-    }
+      salesperson:"Steve", customer:{name:"Steve", email:"steve@myloan.ca", phone:"(613) 555-0155"},
+      story:"Older file kept so you can see the 90-day archive. Soft top, aftermarket radio. Walk and market packets stayed with it.",
+      notes:"Archived automatically after 90 days. Soft top, aftermarket radio.",
+      tags:["90-day archive"],
+      opinions:{shabot:"31.2 on a clean Sahara. Soft top kept it honest.",rybot:"Jeep money. Radio doesn't scare me.",webot:"Look at the door hinges in the walk. Fine.",drebot:"Wholesale 29. We were fine.",tbot:"Archive example. File is still complete."}
+    })
   ];
 }
 function seedCenterSamples(){
@@ -2654,6 +2904,7 @@ function seedCenterSamples(){
   centerSampleItems().forEach(function(s){
     if(have[s.id]) return;
     store.items.push(s);
+    persistCenterMedia(s.id, s.photos, s.docs);
     added++;
   });
   if(stale || added){
@@ -2675,7 +2926,8 @@ function slimCenterDocs(docs){
     openlane:["openlane","vauto_comp"],
     eblock:["eblock","vauto_book"],
     carfax:["carfax","carfax_pdf","data_says"],
-    mmr:["mmr"]
+    mmr:["mmr"],
+    blackbook:["blackbook","book"]
   };
   Object.keys(map).forEach(function(slot){
     const hit=map[slot].map(function(k){ return src[k]; }).find(Boolean);
@@ -2896,12 +3148,16 @@ function closeCenterLane(){
   if($("centerDateMenu")) $("centerDateMenu").classList.remove("on");
   paintCenter();
 }
+function centerSplitLayout(){
+  return window.matchMedia && window.matchMedia("(min-width:768px)").matches;
+}
 function openCenterDetail(id){
   APP.centerViewId=id;
   APP.centerPhoto=0;
-  closeCenterLane();
+  if(!centerSplitLayout()) closeCenterLane();
   show("center");
   paintCenterDetail();
+  if(centerSplitLayout() && APP.centerLane) paintCenter();
 }
 function centerWhen(item){
   return Number(item.sentAt||item.updatedAt||item.createdAt||0);
