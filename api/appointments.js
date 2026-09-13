@@ -2,8 +2,9 @@
  * Live appointments pull for Appraise → Canada Drives.
  *
  * Static GitHub Pages cannot hold an Airtable token. This Vercel function
- * is the wire-live path. Until AIRTABLE_TOKEN is set on the mailer host,
- * the app falls back to sample appointments so the picker still demos.
+ * is the wire-live path. The Pages UI shows a clear empty/error when the
+ * mailer has not deployed /api/appointments yet. Sample rows stay behind
+ * APPTS_DEMO (off by default). FixerBot deploys this route on the mailer.
  *
  * Paste into Vercel → Project → Settings → Environment Variables
  * (Production + Preview), then Redeploy:

@@ -104,14 +104,34 @@ label.k { display:block; color:#6e6e73; font-size:13px; margin:11px 0 5px; }
 #typeWrap.need-type #btnDealType{border-color:var(--purple);box-shadow:0 0 0 3px rgba(124,92,255,.18)}
 .appt-wrap{margin:0 0 18px;padding:14px 14px 16px;background:#fff;border:1.5px solid var(--hair);border-radius:18px}
 .appt-wrap .lbl{font-size:13px;font-weight:800;color:var(--ink);margin:0 0 6px}
-.appt-tabs,.appt-dates{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 10px}
-.appt-tabs button,.appt-dates button{border:1.5px solid var(--hair);background:#fff;border-radius:999px;padding:8px 12px;font-size:13px;font-weight:800;cursor:pointer}
-.appt-tabs button.on,.appt-dates button.on{background:var(--lavender);border-color:var(--purple);color:var(--purple-deep)}
+.appt-wrap .need{color:#8A3B12;font-size:14px;font-weight:700;margin:0 0 10px;line-height:1.35}
+.appt-toolbar{display:flex;flex-wrap:nowrap;align-items:center;gap:8px;margin:0 0 10px}
+.appt-toolbar > [data-appt-region],.appt-date-btn{
+  flex:0 0 auto;border:1.5px solid var(--hair);background:#fff;border-radius:999px;
+  padding:8px 12px;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap
+}
+.appt-toolbar > [data-appt-region].on,.appt-date-btn[aria-expanded="true"]{
+  background:var(--lavender);border-color:var(--purple);color:var(--purple-deep)
+}
+.appt-date-dd{position:relative;flex:0 0 auto;margin-left:auto}
+.appt-date-btn{display:inline-flex;align-items:center;gap:6px;max-width:100%}
+.appt-date-btn i{font-style:normal;font-size:11px;line-height:1}
+.appt-date-menu{
+  position:absolute;right:0;top:calc(100% + 6px);z-index:20;min-width:180px;
+  background:#fff;border:1.5px solid var(--hair);border-radius:16px;
+  box-shadow:0 12px 28px rgba(17,14,26,.12);padding:6px
+}
+.appt-date-menu button{
+  display:block;width:100%;text-align:left;border:0;background:transparent;
+  border-radius:12px;padding:10px 12px;font-size:14px;font-weight:800;cursor:pointer
+}
+.appt-date-menu button.on{background:var(--lavender);color:var(--purple-deep)}
 .appt-row{display:block;width:100%;text-align:left;border:1.5px solid var(--hair);background:#fff;border-radius:16px;padding:12px 14px;margin:0 0 8px;cursor:pointer}
 .appt-row.on{border-color:var(--purple);background:var(--lavender)}
 .appt-row b{display:block;font-size:16px}
 .appt-row span{display:block;color:var(--muted);font-size:13px;line-height:1.4;margin-top:2px}
 .appt-empty{color:var(--muted);font-size:14px;line-height:1.45;margin:8px 2px 0}
+.appt-empty.err{color:#8A3B12;font-weight:700}
 .lead-box{margin:12px 0 0}
 .lead-box .hint{margin-bottom:10px}
 #workbench{background:
@@ -758,6 +778,8 @@ body.center-gallery-on { overflow:hidden; }
   .docs-grid, .center-docs, .center-why-docs { grid-template-columns:1fr 1fr; gap:18px; }
   .phone:has(#workbench.on){ max-width:none; }
   #workbench .pad { max-width:1180px; }
+  .appt-toolbar{ gap:10px; }
+  .appt-toolbar > [data-appt-region], .appt-date-btn{ padding:9px 16px; font-size:14px; }
   .wb-grid { grid-template-columns:1fr 1fr; gap:16px; }
   .wb-hero h2 { font-size:40px; }
   .doc-sq, .doc-slot { min-height:200px; }
@@ -1126,16 +1148,21 @@ body.center-gallery-on { overflow:hidden; }
         <p id="wbPickLead">Pick the booked appointment. The workbench opens already filled — we don’t ask again for what Airtable already has.</p>
       </div>
       <div id="apptWrap" class="appt-wrap">
-        <div class="appt-tabs" id="apptTabs">
+        <div class="appt-toolbar" id="apptToolbar">
           <button type="button" data-appt-region="GTA">GTA</button>
           <button type="button" data-appt-region="Ottawa">Ottawa</button>
-        </div>
-        <div class="appt-dates" id="apptDates">
-          <button type="button" data-appt-range="today">Today</button>
-          <button type="button" data-appt-range="tomorrow">Tomorrow</button>
-          <button type="button" data-appt-range="month">This month</button>
-          <button type="button" data-appt-range="lastMonth">Last month</button>
-          <button type="button" data-appt-range="calendar">Calendar</button>
+          <div class="appt-date-dd" id="apptDateDd">
+            <button type="button" class="appt-date-btn" id="apptDateBtn" aria-haspopup="listbox" aria-expanded="false">
+              <span id="apptDateLbl">Today</span><i aria-hidden="true">▾</i>
+            </button>
+            <div class="appt-date-menu hide" id="apptDateMenu" role="listbox">
+              <button type="button" data-appt-range="today" role="option">Today</button>
+              <button type="button" data-appt-range="tomorrow" role="option">Tomorrow</button>
+              <button type="button" data-appt-range="month" role="option">This month</button>
+              <button type="button" data-appt-range="lastMonth" role="option">Last month</button>
+              <button type="button" data-appt-range="calendar" role="option">Calendar</button>
+            </div>
+          </div>
         </div>
         <div id="apptCal" class="hide">
           <div class="pair">
@@ -1539,7 +1566,8 @@ window.APP = {
   dealType:"", leadSource:"", cdApp:"", centerId:"", sendId:"", centerFilter:"all", centerPhoto:0,
   centerHistory:false, centerLane:"", centerQuery:"", centerRange:"all", centerYear:new Date().getFullYear(),
   centerShots:[], centerGalleryOn:false, lockedFromAirtable:false,
-  apptId:"", apptSeller:"", apptRegion:"GTA", apptRange:"today", apptItems:[]
+  apptId:"", apptSeller:"", apptRegion:"GTA", apptRange:"today", apptItems:[],
+  apptLive:false, apptLiveNote:"", apptError:"", apptLoading:false, apptMenu:false
 };
 
 function $(id){ return document.getElementById(id); }
@@ -1782,6 +1810,26 @@ function lastMonthIso(){
   const m=String(d.getMonth()+1).padStart(2,"0");
   return d.getFullYear()+"-"+m+"-"+String(d.getDate()).padStart(2,"0");
 }
+const APPTS_DEMO=false;
+function apptsDemoOn(){
+  if(APPTS_DEMO) return true;
+  try{ return /(?:^|[?&])apptsDemo=1(?:&|$)/.test(location.search||""); }catch(e){ return false; }
+}
+function apptRangeLabel(kind){
+  return ({today:"Today", tomorrow:"Tomorrow", month:"This month", lastMonth:"Last month", calendar:"Calendar"})[kind] || "Today";
+}
+function closeApptDateMenu(){
+  APP.apptMenu=false;
+  const menu=$("apptDateMenu"), btn=$("apptDateBtn");
+  if(menu) menu.classList.add("hide");
+  if(btn) btn.setAttribute("aria-expanded","false");
+}
+function toggleApptDateMenu(){
+  APP.apptMenu=!APP.apptMenu;
+  const menu=$("apptDateMenu"), btn=$("apptDateBtn");
+  if(menu) menu.classList.toggle("hide", !APP.apptMenu);
+  if(btn) btn.setAttribute("aria-expanded", APP.apptMenu?"true":"false");
+}
 function sampleAppointments(){
   return [
     {id:"sample-cd-gta-1", source:"Canada Drives", region:"GTA", appNo:"APP-0003247555", ymm:"2024 Mitsubishi RVR SE", year:"2024", make:"Mitsubishi", model:"RVR", trim:"SE", seller:"Thayaparana Thayaparana", vin:"JA4AJVAW3RU600349", date:apptDayIso(0)},
@@ -1855,23 +1903,42 @@ const APPTS_AIRTABLE={
   path:"/api/appointments"
 };
 async function loadAppointments(){
+  APP.apptLoading=true;
+  APP.apptError="";
+  APP.apptLive=false;
+  APP.apptLiveNote="";
+  paintAppointments();
   try{
     const spec=leadSpec(APP.leadSource||"Canada Drives");
     const q=spec.airtable ? ("?source="+encodeURIComponent(spec.airtable)) : "";
     const r=await fetch((typeof MAIL_HOST==="string"?MAIL_HOST:"")+APPTS_AIRTABLE.path+q, {cache:"no-store"});
     if(r && r.ok){
       const j=await r.json();
-      if(j && j.ok && j.live && Array.isArray(j.items) && j.items.length){
+      if(j && j.ok && j.live && Array.isArray(j.items)){
         APP.apptLive=true;
         APP.apptLiveNote="";
+        APP.apptError="";
+        APP.apptLoading=false;
         return j.items.map(normalizeAppt).filter(Boolean);
       }
-      if(j && j.reason) APP.apptLiveNote=j.reason;
+      APP.apptError=(j && (j.reason||j.error)) || "The mailer did not return live appointments.";
+    } else {
+      const code=r?r.status:0;
+      APP.apptError=code===404
+        ? "Appointments API isn’t on the mailer yet (404). Deploy /api/appointments on the mailer host."
+        : "Couldn’t load appointments"+(code?" ("+code+")":"")+".";
     }
-  }catch(e){}
+  }catch(e){
+    APP.apptError="Couldn’t reach the appointments API. Check the mailer host.";
+  }
   APP.apptLive=false;
-  if(!APP.apptLiveNote) APP.apptLiveNote="Live Airtable isn’t wired on this page yet. These are sample appointments so you can still pick one. Set AIRTABLE_TOKEN on the mailer host and open /api/appointments.";
-  return sampleAppointments().map(normalizeAppt);
+  APP.apptLoading=false;
+  if(apptsDemoOn()){
+    APP.apptLiveNote="Demo appointments — live API is off.";
+    APP.apptError="";
+    return sampleAppointments().map(normalizeAppt);
+  }
+  return [];
 }
 function filteredAppointments(){
   const region=APP.apptRegion||"GTA";
@@ -1893,21 +1960,37 @@ function paintAppointments(){
   wrap.classList.toggle("hide", !show);
   if($("wbPickKicker")) $("wbPickKicker").textContent = (APP.leadSource||"Consumer Acquisition")+" · Appointments";
   if(!show) return;
-  document.querySelectorAll("#apptTabs [data-appt-region]").forEach(function(b){
+  document.querySelectorAll("#apptToolbar [data-appt-region]").forEach(function(b){
     b.classList.toggle("on", b.getAttribute("data-appt-region")===(APP.apptRegion||"GTA"));
   });
-  document.querySelectorAll("#apptDates [data-appt-range]").forEach(function(b){
+  if($("apptDateLbl")) $("apptDateLbl").textContent=apptRangeLabel(APP.apptRange||"today");
+  document.querySelectorAll("#apptDateMenu [data-appt-range]").forEach(function(b){
     b.classList.toggle("on", b.getAttribute("data-appt-range")===(APP.apptRange||"today"));
   });
+  const menu=$("apptDateMenu"), btn=$("apptDateBtn");
+  if(menu) menu.classList.toggle("hide", !APP.apptMenu);
+  if(btn) btn.setAttribute("aria-expanded", APP.apptMenu?"true":"false");
   if($("apptCal")) $("apptCal").classList.toggle("hide", (APP.apptRange||"")!=="calendar");
   const note=$("apptLiveNote");
+  const demo=apptsDemoOn() && !APP.apptLive;
   if(note){
-    note.textContent=APP.apptLive ? "" : (APP.apptLiveNote||"");
+    note.textContent=APP.apptLive ? "" : (demo ? (APP.apptLiveNote||"") : (APP.apptError||""));
     note.classList.toggle("hide", !note.textContent);
   }
   const host=$("apptList");
   if(!host) return;
   host.innerHTML="";
+  if(APP.apptLoading){
+    host.innerHTML='<p class="appt-empty">Loading booked appointments…</p>';
+    return;
+  }
+  if(!APP.apptLive && !demo){
+    const msg=APP.apptError||"Live appointments aren’t available.";
+    host.innerHTML='<p class="appt-empty err">'+escHtml(msg)+'</p><button type="button" class="link" id="apptRetry">Try again</button>';
+    const retry=$("apptRetry");
+    if(retry) retry.onclick=function(){ APP.apptItems=[]; openAppointments(); };
+    return;
+  }
   const rows=filteredAppointments();
   if(!rows.length){
     host.innerHTML='<p class="appt-empty">No booked '+(APP.leadSource||"Consumer Acquisition")+' appointments in this date range for '+(APP.apptRegion||"GTA")+'.</p>';
@@ -8334,17 +8417,29 @@ function onCdInput(el){
 onCdInput($("cd-app"));
 onCdInput($("home-cd-app"));
 onCdInput($("wb-cd-app"));
-if($("apptTabs")) $("apptTabs").addEventListener("click", function(e){
-  const b=e.target && e.target.closest && e.target.closest("[data-appt-region]");
-  if(!b) return;
-  APP.apptRegion=b.getAttribute("data-appt-region")||"GTA";
-  paintAppointments();
+if($("apptToolbar")) $("apptToolbar").addEventListener("click", function(e){
+  const region=e.target && e.target.closest && e.target.closest("[data-appt-region]");
+  if(region){
+    APP.apptRegion=region.getAttribute("data-appt-region")||"GTA";
+    closeApptDateMenu();
+    paintAppointments();
+    return;
+  }
+  if(e.target && e.target.closest && e.target.closest("#apptDateBtn")){
+    toggleApptDateMenu();
+  }
 });
-if($("apptDates")) $("apptDates").addEventListener("click", function(e){
+if($("apptDateMenu")) $("apptDateMenu").addEventListener("click", function(e){
   const b=e.target && e.target.closest && e.target.closest("[data-appt-range]");
   if(!b) return;
   APP.apptRange=b.getAttribute("data-appt-range")||"today";
+  closeApptDateMenu();
   paintAppointments();
+});
+document.addEventListener("click", function(e){
+  if(!APP.apptMenu) return;
+  if(e.target && e.target.closest && e.target.closest("#apptDateDd")) return;
+  closeApptDateMenu();
 });
 if($("apptFrom")) $("apptFrom").addEventListener("change", function(){ APP.apptRange="calendar"; paintAppointments(); });
 if($("apptTo")) $("apptTo").addEventListener("change", function(){ APP.apptRange="calendar"; paintAppointments(); });
