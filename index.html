@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- send-v24 2026-09-12: same start pills on phone as desktop -->
+<!-- send-v25 2026-09-12: purple Appraise and cyan Website on start pills -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -199,9 +199,9 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
 .start-actions .pill {
   pointer-events:auto; position:absolute; left:50%; transform:translateX(-50%);
   width:min(360px, calc(100% - 48px)); margin:0; padding:16px 22px; font-size:17px;
-  background:rgba(250,249,252,.92); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
-  border-color:transparent;
 }
+.start-actions .pill.purple { background:var(--purple); color:#fff; border-color:var(--purple); }
+.start-actions .pill.cyan { background:var(--cyan); color:#fff; border-color:var(--cyan); }
 #startAppraise { top:22%; }
 #startCenter { top:50%; transform:translate(-50%, -50%); }
 #startWebsite { bottom:24%; }
