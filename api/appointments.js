@@ -11,17 +11,16 @@
  *                    Command Center base appfy57egeT1utqaI
  *                    table Consumer Acquisitions tbl2QiJ40S6A7IzyR
  *
- * Optional query: source=Canada Drives|Car Loans Canada|My Loan|My Auto
+ * Optional query: source=Canada Drives (only). Other CA sources use New application.
  *                 region=GTA|Ottawa  range=today|tomorrow|month|lastMonth
  *                 from=YYYY-MM-DD  to=YYYY-MM-DD
  *
  * Filters (fixed):
  *   Stage = Appointment Booked (selqqamHvfGvK4CmK)
  *        OR On-Site Visit (selaCJ91ZmmGKF7i1)
- *   Consumer Acquisition Source = the requested lead source
+ *   Consumer Acquisition Source = Canada Drives
  *   Each item.stage is "booked" or "on-site"
- *   My Loan / My Auto have no Airtable choice yet — returns live:false
- *   Carla maps to Airtable "Car Loans Canada" (sel1yiqhhgbkHpABm)
+ *   My Loan / My Auto / Carla / Car Loans Canada have no appointment calendar.
  */
 const ALLOW = [
   "https://carmojiguy.github.io",
@@ -125,9 +124,13 @@ function airtableSourceName(raw) {
   return s;
 }
 
+function usesAppointmentsSource(raw) {
+  return airtableSourceName(raw) === "Canada Drives";
+}
+
 function formula(sourceName) {
   const src = airtableSourceName(sourceName);
-  if (src === "My Loan" || src === "My Auto") {
+  if (!usesAppointmentsSource(src)) {
     return "";
   }
   return "AND(OR({Stage}='Appointment Booked',{Stage}='On-Site Visit'),{Consumer Acquisition Source}='" + src.replace(/'/g, "\\'") + "')";
@@ -137,8 +140,8 @@ async function airtablePage(offset, sourceName) {
   const token = process.env.AIRTABLE_TOKEN || "";
   if (!token) return { live: false, records: [], reason: "AIRTABLE_TOKEN is not set on the mailer host." };
   const src = airtableSourceName(sourceName);
-  if (src === "My Loan" || src === "My Auto") {
-    return { live: false, records: [], reason: "Airtable does not have a " + src + " source choice yet." };
+  if (!usesAppointmentsSource(src)) {
+    return { live: true, records: [], appointments: false, reason: "Appointments are Canada Drives only. Use New application." };
   }
   const q = new URLSearchParams();
   q.set("filterByFormula", formula(src));
@@ -181,6 +184,9 @@ async function handle(req, res) {
   try {
     const url = req.url ? new URL(req.url, "https://gnm-guest-mailer-shawn-6802.vercel.app") : null;
     const sourceName = (url && url.searchParams.get("source")) || "Canada Drives";
+    if (!usesAppointmentsSource(sourceName)) {
+      return json(res, 200, { ok: true, live: true, items: [], appointments: false, reason: "Appointments are Canada Drives only. Use New application." }, origin);
+    }
     const pulled = await allRecords(sourceName);
     if (!pulled.live) {
       return json(res, 200, { ok: true, live: false, items: [], reason: pulled.reason, wire: "Set AIRTABLE_TOKEN on the Vercel mailer, redeploy, then GET /api/appointments." }, origin);
@@ -200,5 +206,6 @@ module.exports = handle;
 module.exports.default = handle;
 module.exports.mapStage = mapStage;
 module.exports.formula = formula;
+module.exports.usesAppointmentsSource = usesAppointmentsSource;
 module.exports.STAGE_BOOKED = STAGE_BOOKED;
 module.exports.STAGE_ONSITE = STAGE_ONSITE;
