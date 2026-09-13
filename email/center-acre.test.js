@@ -222,6 +222,8 @@ must(/addEventListener\("popstate"/, "device Back closes Center layers");
 must(/center-has-detail/, "mobile detail is a sheet over the desk");
 must(/center-close-x/, "close control is the bright X");
 must(/rgba\(239,232,255/, "Center dim is a bright wash, not a dark trap");
+must(/center-dim-hint/, "backdrop has a bright Close hint");
+must(/id="centerSheetDim"[^>]*aria-label="Close"/, "dim is an explicit close control");
 must(/el\.classList\.toggle\("hide", hide\)/, "What's the Story / Type it in / documents / VIN hide until the file is created");
 must(/data-new-app/, "home exposes pending New application state");
 must(/function openNewApplicationDesk\(\)\{[\s\S]{0,500}show\("home"\)/, "picking My Loan opens the create form on home");
