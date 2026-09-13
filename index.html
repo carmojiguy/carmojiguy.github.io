@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-13 build d27d: docs routing + zero Center samples on d27x close-X -->
+<!-- center-v3 + desk-home 2026-09-13 build d27q: Canada Drives app# search hits GTA + Ottawa Tracker; docs routing + zero Center samples -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -1648,7 +1648,7 @@ body.center-gallery-on { overflow:hidden; }
     <p class="quote" id="vinHint">Best: take a picture of the vehicle ownership (registration). You can also photograph the VIN on the dash or the sticker on the driver’s door. We’ll read the number from the photo.</p>
     <p class="vin-chip hide" id="vinChip"></p>
     </div>
-    <p class="build-stamp" id="buildStamp">build d27d</p>
+    <p class="build-stamp" id="buildStamp">build d27q</p>
   </div>
 </section>
 
@@ -2107,7 +2107,7 @@ body.center-gallery-on { overflow:hidden; }
   <div class="card">
     <button class="x" type="button" data-close="typeSheet">✕</button>
     <h3>Appraisal type</h3>
-    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d27d</span></p>
+    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d27q</span></p>
     <div id="typeChips" class="to-chips"></div>
     <div id="leadBox" class="lead-box hide">
       <p class="hint">Lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a New application — no appointment calendar.</p>
@@ -2723,7 +2723,8 @@ const APPTS_AIRTABLE={
   source:"sel90QtMNs2kN0MbE",
   path:"/api/appointments"
 };
-// Human schedule sheets (MyCar.ca). Open in a new tab — not dual-pulled into /api/appointments.
+// Human schedule sheets (MyCar.ca). Open in a new tab — not dual-pulled into the booked list.
+// App # search sends ?q= against the full GTA + Ottawa Tracker sheets. Empty search stays Airtable Booked/On-site.
 const TRACKER_GTA_URL="https://docs.google.com/spreadsheets/d/1DXKFHK_k1cC_upbxzBIVTLbMKpOIv0u5MB2NbKq5XhM/edit?usp=sharing";
 const TRACKER_OTTAWA_URL="https://docs.google.com/spreadsheets/d/1QRmPSMX_-nksYs4ucJxZUfTQcvrMlfbnylJgTL0ckNU/edit?usp=sharing";
 function bindTrackerLinks(){
@@ -2747,7 +2748,9 @@ async function loadAppointments(){
   }
   try{
     const spec=leadSpec(APP.leadSource||"Canada Drives");
-    const q=spec.airtable ? ("?source="+encodeURIComponent(spec.airtable)) : "";
+    const typed=String(($("apptSearch") && $("apptSearch").value) || APP.apptSearch || "").trim();
+    let q=spec.airtable ? ("?source="+encodeURIComponent(spec.airtable)) : "";
+    if(typed) q += (q ? "&" : "?") + "q=" + encodeURIComponent(typed);
     const r=await fetch((typeof MAIL_HOST==="string"?MAIL_HOST:"")+APPTS_AIRTABLE.path+q, {cache:"no-store"});
     if(r && r.ok){
       const j=await r.json();
@@ -2767,6 +2770,22 @@ async function loadAppointments(){
   APP.apptLive=false;
   if(!APP.apptLiveNote) APP.apptLiveNote="Couldn’t load live appointments. Set AIRTABLE_TOKEN on the mailer host and open /api/appointments.";
   return [];
+}
+var _apptLoadSeq=0,_apptLoadTimer=0;
+function applyLoadedAppointments(seq, items){
+  if(seq!==_apptLoadSeq) return;
+  APP.apptItems=items;
+  paintAppointments();
+  if(typeof paintWorkbench==="function") paintWorkbench();
+}
+function queueLoadAppointments(immediate){
+  if(_apptLoadTimer){ clearTimeout(_apptLoadTimer); _apptLoadTimer=0; }
+  const run=function(){
+    const seq=++_apptLoadSeq;
+    loadAppointments().then(function(items){ applyLoadedAppointments(seq, items); });
+  };
+  if(immediate){ run(); return; }
+  _apptLoadTimer=setTimeout(function(){ _apptLoadTimer=0; run(); }, 280);
 }
 function apptDateBtnLabel(){
   return ({today:"Today", tomorrow:"Tomorrow", month:"This month", lastMonth:"Last month", calendar:"Calendar"})[APP.apptRange||"today"] || "Today";
@@ -2938,7 +2957,7 @@ function paintAppointments(){
   if(!rows.length){
     const q=String(($("apptSearch") && $("apptSearch").value) || APP.apptSearch || "").trim();
     if(q){
-      host.innerHTML='<div class="appt-empty-cta"><b>No live match for '+escHtml(q)+'</b><p>Nothing booked or on-site with that application number. Start a new application and do the full appraisal.</p><button type="button" class="appt-new" id="apptEmptyNew">New application</button></div>';
+      host.innerHTML='<div class="appt-empty-cta"><b>No live match for '+escHtml(q)+'</b><p>Not on the GTA or Ottawa Tracker, and nothing booked or on-site with that application number. Start a new application and do the full appraisal.</p><button type="button" class="appt-new" id="apptEmptyNew">New application</button></div>';
     } else {
       host.innerHTML='<p class="appt-empty">No booked Canada Drives appointments in this date range for '+(APP.apptRegion||"GTA")+'.</p><div class="appt-empty-cta"><b>Need a new one?</b><p>Start a New application — add the customer and vehicle, then continue into Appraise.</p><button type="button" class="appt-new" id="apptEmptyNew">New application</button></div>';
     }
@@ -2963,12 +2982,12 @@ function openAppointments(){
   if($("typeSheet")) $("typeSheet").classList.remove("on");
   if($("apptWrap")) $("apptWrap").classList.remove("hide");
   show("workbench");
-  if(!APP.apptItems || !APP.apptItems.length){
-    loadAppointments().then(function(items){
-      APP.apptItems=items;
-      paintAppointments();
-      paintWorkbench();
-    });
+  const q=String(($("apptSearch") && $("apptSearch").value) || APP.apptSearch || "").trim();
+  if(q){
+    paintAppointments();
+    queueLoadAppointments();
+  } else if(!APP.apptItems || !APP.apptItems.length){
+    queueLoadAppointments(true);
   } else {
     paintAppointments();
     paintWorkbench();
@@ -3016,7 +3035,7 @@ function paintWorkbench(){
     : ((APP.leadSource||"Consumer Acquisition")+" · New application");
   if($("wbPickTitle")) $("wbPickTitle").textContent = usesCaAppointments() ? "Who’s coming in" : "New application";
   if($("wbPickLead")) $("wbPickLead").textContent = usesCaAppointments()
-    ? "Pick the booked Canada Drives appointment, search an app #, or start a New application. Year, make, VIN, app #, and seller come with a live row."
+    ? "Pick a booked appointment, search any GTA or Ottawa Tracker app #, or start a New application. Year, make, VIN, app #, and seller come with a live row."
     : (APP.leadSource||"This source")+" has no appointment calendar. Create a New application — customer, vehicle, VIN — then continue into Appraise.";
   if(!ready) return;
   const ymm=[APP.year,APP.make,APP.model,APP.trim].filter(Boolean).join(" ") || (APP.newApplication || APP.apptId==="new" ? "New application" : "Vehicle");
@@ -10623,7 +10642,9 @@ function onCdInput(el){
   if(!el) return;
   el.addEventListener("input", function(){
     APP.cdApp=el.value.trim();
+    APP.apptSearch=APP.cdApp;
     paintDealType();
+    if(usesCaAppointments()) openAppointments();
   });
 }
 onCdInput($("cd-app"));
@@ -10632,6 +10653,7 @@ onCdInput($("wb-cd-app"));
 if($("apptSearch")) $("apptSearch").addEventListener("input", function(){
   APP.apptSearch=this.value;
   paintAppointments();
+  queueLoadAppointments();
 });
 if($("apptNewApp")) $("apptNewApp").onclick = startNewApplication;
 if($("newAppCta")) $("newAppCta").onclick = startNewApplication;

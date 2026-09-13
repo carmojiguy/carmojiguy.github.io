@@ -201,8 +201,8 @@ must(/id="typeGateNote"/, "plain-English type-first note on the Appraise form");
 must(/classList\.toggle\("home-gate", !!\(lock && !pending\)\)/, "gated Appraise actions are grayed unless the create form is showing");
 must(/id="home"[\s\S]*id="newAppWrap"[\s\S]*id="storyBlock"/, "New application form sits on the HOME Appraise desk");
 mustNot(/id="workbench"[\s\S]*id="newAppWrap"/, "create form is not workbench-only after My Loan");
-must(/id="buildStamp">build d27d</, "home footer has a visible build stamp");
-must(/id="typeSheet"[\s\S]*build d27d/, "type sheet hint includes the build stamp");
+must(/id="buildStamp">build d27q</, "home footer has a visible build stamp");
+must(/id="typeSheet"[\s\S]*build d27q/, "type sheet hint includes the build stamp");
 must(/zero Center samples/, "build comment says zero samples");
 must(/function shareIncomingBestEffort\(/, "completed Send posts slim Incoming to the mailer store");
 must(/MAIL_HOST\+"\/api\/incoming"/, "Incoming share hits MAIL_HOST /api/incoming");
@@ -325,7 +325,16 @@ must(/upsertCenterFromApp\(\{source:"appraise"\}\)/, "completed New application 
   assert.ok(!/j\.items\.length/.test(m[0]), "empty live does not require items.length");
   assert.ok(!/sampleAppointments\s*\(/.test(m[0]), "loadAppointments does not call sampleAppointments");
   assert.ok(/return \[\]/.test(m[0]), "failed or not-live fetch returns an empty list");
+  assert.ok(/const typed=String\(\(\$\("apptSearch"\)/.test(m[0]), "loadAppointments reads the typed app #");
+  assert.ok(/if\(typed\) q \+= \(q \? "&" : "\?"\) \+ "q=" \+ encodeURIComponent\(typed\)/.test(m[0]), "typed app # is sent as q=");
+  assert.ok(/if\(typed\)/.test(m[0]), "empty search omits q=");
 })();
+must(/full GTA \+ Ottawa Tracker sheets/, "app # search is tracker sheets, not Airtable-only");
+must(/Not on the GTA or Ottawa Tracker/, "empty match copy names the tracker sheets");
+must(/function queueLoadAppointments\(/, "app # search reloads appointments instead of only filtering");
+must(/APP\.apptSearch=APP\.cdApp/, "home/wb/cd-app fields set the appointment search");
+must(/if\(usesCaAppointments\(\)\) openAppointments\(\)/, "CD app fields open CA appointments");
+must(/APP\.apptSearch=this\.value;[\s\S]{0,80}queueLoadAppointments\(\)/, "apptSearch input refetches with q=");
 (function testUndatedAppointmentsStayOnToday() {
   function startOfDay(d) {
     const x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
@@ -399,6 +408,47 @@ must(/upsertCenterFromApp\(\{source:"appraise"\}\)/, "completed New application 
   APP.apptSearch = "APP-0000";
   assert.deepStrictEqual(filteredAppointments(), [], "unknown app # is empty");
 })();
+const pending = [];
+pending.push((function testLoadAppointmentsSendsQ() {
+  const m = html.match(/async function loadAppointments\(\)\{[\s\S]*?\n\}/);
+  assert.ok(m, "loadAppointments source is extractable for q=");
+  const urls = [];
+  const APP = { leadSource: "Canada Drives", apptSearch: "APP-0003200683", apptLive: false, apptLiveNote: "" };
+  function usesCaAppointments() { return true; }
+  function leadSpec() { return { id: "Canada Drives", airtable: "Canada Drives", sel: "" }; }
+  function $(id) { return id === "apptSearch" ? { value: APP.apptSearch } : null; }
+  function normalizeAppt(row) { return row; }
+  const MAIL_HOST = "https://mailer.example";
+  const APPTS_AIRTABLE = { path: "/api/appointments" };
+  const highlander = {
+    id: "ott-APP0003200683",
+    appNo: "APP-0003200683",
+    ymm: "2021 Toyota Highlander XLE",
+    seller: "Anthony Princewill",
+    date: "2026-02-28",
+    region: "Ottawa",
+    via: "ottawa-tracker"
+  };
+  async function fetch(url) {
+    urls.push(url);
+    return { ok: true, json: async function () { return { ok: true, live: true, items: [highlander] }; } };
+  }
+  const loadAppointments = eval("(" + m[0] + ")");
+  return loadAppointments().then(function (items) {
+    assert.strictEqual(urls[0], "https://mailer.example/api/appointments?source=Canada%20Drives&q=APP-0003200683", "search hits mailer q=");
+    assert.strictEqual(items[0].ymm, "2021 Toyota Highlander XLE", "Ottawa Tracker Highlander is returned");
+    APP.apptSearch = "APP-0006447774";
+    urls.length = 0;
+    return loadAppointments();
+  }).then(function () {
+    assert.strictEqual(urls[0], "https://mailer.example/api/appointments?source=Canada%20Drives&q=APP-0006447774", "GTA Tracker app # also hits mailer q=");
+    APP.apptSearch = "";
+    urls.length = 0;
+    return loadAppointments();
+  }).then(function () {
+    assert.strictEqual(urls[0], "https://mailer.example/api/appointments?source=Canada%20Drives", "empty search stays on the slim booked list");
+  });
+})());
 must(/function defaultPerms\(/, "named staff have default permission toggles");
 must(/function canPerm\(/, "dock buttons read permission toggles");
 must(/function setPerm\(/, "admin can flip permission toggles");
@@ -566,6 +616,21 @@ assert.ok(fs.existsSync(path.join(root, "api/incoming.js")), "shared Incoming ma
   assert.strictEqual(normalizeAppt({ id: "2", stage: "booked" }).stage, "booked");
   assert.strictEqual(normalizeAppt({ id: "3" }).stage, "booked");
   assert.strictEqual(apptStageOf("On-Site Visit"), "on-site");
+  const tracker = normalizeAppt({
+    id: "ott-APP0003200683",
+    appNo: "APP-0003200683",
+    ymm: "2021 Toyota Highlander XLE",
+    seller: "Anthony Princewill",
+    date: "2026-02-28",
+    region: "Ottawa",
+    source: "Canada Drives",
+    stage: "booked",
+    via: "ottawa-tracker"
+  });
+  assert.strictEqual(tracker.seller, "Anthony Princewill", "tracker seller stays on the card");
+  assert.strictEqual(tracker.ymm, "2021 Toyota Highlander XLE", "tracker ymm stays on the card");
+  assert.strictEqual(tracker.date, "2026-02-28", "tracker date stays on the card");
+  assert.strictEqual(tracker.region, "Ottawa", "tracker Ottawa stays on the card");
 })();
 
 must(/id="centerNeedsBtn"/, "Needs docs lane pill");
@@ -723,4 +788,9 @@ assert.ok(manifest.icons.every(function (i) { return /ac-v3-/.test(i.src) && /v=
   assert.ok(fs.existsSync(path.join(root, name)), name + " exists");
 });
 
-console.log("center-acre: ok");
+Promise.all(pending).then(function () {
+  console.log("center-acre: ok");
+}).catch(function (err) {
+  console.error(err);
+  process.exit(1);
+});
