@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- send-v25 2026-09-12: purple Appraise and cyan Website on start pills -->
+<!-- send-v26 2026-09-13: packet Send always reveals mail fallback on fail/timeout -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -4872,17 +4872,21 @@ async function sharePacket(){
   }
   if(btn){ btn.disabled=true; btn.textContent="Sending…"; }
   let finished=false;
-  function finish(msg, openMail){
-    if(btn){ btn.disabled=false; btn.textContent="Send"; }
-    if(openMail){
+  let sentOk=false;
+  function revealMail(){
+    try{
       if($("mailOpen")){
         $("mailOpen").href=href;
         $("mailOpen").textContent = APP.role==="employee" ? "Open Gmail and send" : "Open Mail and send";
         $("mailOpen").classList.remove("hide");
       }
-    }
+    }catch(e){}
+  }
+  function finish(msg, openMail){
+    finished=true;
+    if(btn){ btn.disabled=false; btn.textContent="Send"; }
+    if(openMail) revealMail();
     if(msg) toast(msg);
-    if(openMail===false && msg) finished=true;
   }
   const watch=setTimeout(function(){
     if(!finished) finish("Still working — use the mail button if nothing arrives.", true);
@@ -4907,12 +4911,18 @@ async function sharePacket(){
       if(doc) parts.push({disp:"attachment", b64:bufB64(await doc.output("arraybuffer")), name:(folderName()||"vehicle")+".pdf", mime:"application/pdf"});
     }catch(e){}
     const sent=await withTimeout(sendFromMe(to, subject, body, html, parts, extra), 15000, {ok:false});
-    clearTimeout(watch);
     if(sent && sent.ok){
       finished=true;
       clearSnapshot();
       clearDraft();
-      if(APP.role==="guest"){ finish(""); finishGuest(); return; }
+      if(APP.role==="guest"){
+        finish("");
+        try{ finishGuest(); }catch(e){}
+        if(APP.screen==="thanks") sentOk=true;
+        else finish("Couldn’t send from here. Tap the mail button.", true);
+        return;
+      }
+      sentOk=true;
       finish("Sent to "+tradeToLine(to)+".");
       return;
     }
@@ -4920,17 +4930,25 @@ async function sharePacket(){
     const slimSent=slim.length ? await withTimeout(sendFromMe(to, subject, body, "", slim, extra), 8000, {ok:false}) : {ok:false};
     if(slimSent && slimSent.ok){
       finished=true;
-      if(APP.role==="guest"){ finish(""); finishGuest(); return; }
+      if(APP.role==="guest"){
+        finish("");
+        try{ finishGuest(); }catch(e){}
+        if(APP.screen==="thanks") sentOk=true;
+        else finish("Couldn’t send from here. Tap the mail button.", true);
+        return;
+      }
+      sentOk=true;
       finish("Sent the PDF to "+tradeToLine(to)+".");
       return;
     }
     finish("Couldn’t send from here. Tap the mail button.", true);
   }catch(e){
-    clearTimeout(watch);
     finish("Couldn’t send. Tap the mail button.", true);
   }finally{
     clearTimeout(watch);
     if(btn){ btn.disabled=false; btn.textContent="Send"; }
+    if(!sentOk) revealMail();
+    else if($("mailOpen") && APP.screen!=="thanks") $("mailOpen").classList.add("hide");
     releaseHardware();
   }
 }
