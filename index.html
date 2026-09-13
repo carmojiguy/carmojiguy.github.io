@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- send-v20 2026-09-12: remember unfinished jobs, ask continue or start new -->
+<!-- send-v21 2026-09-12: Appraisal Center coming-soon pill on start -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -201,7 +201,27 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
   width:min(300px, calc(100% - 48px)); margin:0; padding:15px 20px;
 }
 #startAppraise { top: calc(env(safe-area-inset-top, 0px) + 1.5in); }
+#startCenter { top:50%; transform:translate(-50%, -50%); }
 #startWebsite { bottom: calc(env(safe-area-inset-bottom, 0px) + 1.5in); }
+.start-actions .pill.soon {
+  background:rgba(250,249,252,.38);
+  color:rgba(36,27,51,.42);
+  border-color:transparent;
+  pointer-events:none;
+  cursor:default;
+  overflow:hidden;
+}
+.start-actions .pill.soon .soon-name { position:relative; z-index:1; }
+.start-actions .pill.soon .soon-stamp {
+  position:absolute; inset:0;
+  display:grid; place-items:center;
+  font-size:10px; font-weight:800; letter-spacing:.28em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.78);
+  text-shadow:0 1px 10px rgba(0,0,0,.4);
+  transform:rotate(-9deg);
+  pointer-events:none;
+}
 .start-more {
   position:absolute; left:50%; transform:translateX(-50%);
   bottom: calc(12px + env(safe-area-inset-bottom, 0px));
@@ -352,7 +372,9 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
     background:rgba(250,249,252,.92); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
   }
   #startAppraise { top:22%; }
+  #startCenter { top:50%; transform:translate(-50%, -50%); }
   #startWebsite { bottom:24%; }
+  .start-actions .pill.soon { background:rgba(250,249,252,.32); }
   .start-more { width:min(360px, 32vw); bottom:28px; }
   .thanks-card { left:10%; right:auto; bottom:auto; top:50%; transform:translateY(-50%); max-width:560px; }
   .thanks-card h1 { font-size:56px; }
@@ -414,6 +436,10 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
   <button class="who" type="button" id="whoChip">Guest</button>
   <div class="start-actions" id="startActions">
     <button class="pill purple" type="button" id="startAppraise">Appraise vehicle</button>
+    <button class="pill soon" type="button" id="startCenter" disabled>
+      <span class="soon-name">Appraisal Center</span>
+      <span class="soon-stamp">Coming soon</span>
+    </button>
     <button class="pill cyan" type="button" id="startWebsite">Post vehicle to website</button>
   </div>
   <div class="start-more" id="startMore">
