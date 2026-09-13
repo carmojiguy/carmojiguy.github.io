@@ -73,7 +73,7 @@ must(/sample-v5-corolla/, "on-site sample GR Corolla");
 must(/sample-v5-wrangler/, "history archive sample Wrangler");
 must(/lane:"inbox"/, "samples tagged inbox");
 must(/lane:"onsite"/, "samples tagged on-site");
-must(/CENTER_SAMPLE_VER="acre7"/, "sample version acre7");
+must(/CENTER_SAMPLE_VER="acre8"/, "sample version acre8");
 must(/function finishSample\(/, "samples are finished packets");
 must(/function sampleDocs\(/, "sample market docs");
 must(/blackbook/, "Black Book doc slot");
@@ -520,6 +520,69 @@ assert.ok(fs.existsSync(path.join(root, "api/extract.js")), "document extract li
   assert.strictEqual(normalizeAppt({ id: "2", stage: "booked" }).stage, "booked");
   assert.strictEqual(normalizeAppt({ id: "3" }).stage, "booked");
   assert.strictEqual(apptStageOf("On-Site Visit"), "on-site");
+})();
+
+must(/id="centerNeedsBtn"/, "Needs docs lane pill");
+must(/<b>Needs docs<\/b>/, "Needs docs lane label");
+must(/id="docsGate"/, "incomplete docs modal is a custom popup");
+must(/Documents incomplete/, "modal title copy");
+must(/Send to my team leader to complete/, "primary modal action");
+must(/I’ll complete the docs first/, "secondary modal action");
+must(/function needsMarketDocsGate\(/, "staff appraisal Send is gated");
+must(/function landingLaneForSend\(/, "Send landing lane is explicit");
+must(/function openDocsIncompleteModal\(/, "Send opens the docs modal, not alert");
+must(/function sendToTeamLeader\(/, "leader path is a named send");
+must(/function promoteNeedsDocs\(/, "leader can promote a complete file");
+must(/function notifyAppraisal\(/, "client posts durable nags to the mailer");
+must(/\/api\/notify-appraisal/, "Pages hits the mailer notify endpoint");
+must(/lane:"needsdocs"/, "incomplete Send is tagged needsdocs");
+must(/sample-v8-docs/, "Needs docs sample file");
+must(/function resolveTeamLeaders\(/, "Users roster supplies team leaders");
+must(/id="ud-role"/, "Users screen has a Team Leader role");
+must(/Team Leader/, "Users screen has a Team Leader toggle");
+must(/Cell \(optional SMS\)/, "Users cell is optional — email nags do not need it");
+must(/A cell is optional later for SMS/, "Users lead does not require a cell to ship nags");
+mustNot(/window\.alert\(|\balert\(/, "docs gate never uses a native alert");
+
+(function testMarketDocsGate() {
+  const haveM = html.match(/function packetDocHave\(docs, spec\)\{[\s\S]*?\n\}/);
+  const missM = html.match(/function missingMarketDocs\(docs\)\{[\s\S]*?\n\}/);
+  const doneM = html.match(/function marketDocsComplete\(docs\)\{[\s\S]*?\n\}/);
+  const gateM = html.match(/function needsMarketDocsGate\(app\)\{[\s\S]*?\n\}/);
+  const landM = html.match(/function landingLaneForSend\(app, docs, leaderSend\)\{[\s\S]*?\n\}/);
+  assert.ok(haveM && missM && doneM && gateM && landM, "market-docs helpers extractable");
+  const MARKET_DOC_REQ = [
+    {id:"summary", label:"vAuto Appraisal summary", aliases:["summary","vauto_summary"]},
+    {id:"blackbook", label:"vAuto Book", aliases:["blackbook","vauto_book","book"]},
+    {id:"compset", label:"vAuto Competitive set", aliases:["compset","vauto_comp"]},
+    {id:"carfax", label:"vAuto Carfax", aliases:["carfax","carfax_pdf"]},
+    {id:"mmr", label:"vAuto MMR", aliases:["mmr"]},
+    {id:"olguide", label:"OpenLane Market Guide", aliases:["olguide","openlane_guide","openlane"]},
+    {id:"olforecast", label:"OpenLane Forecast", aliases:["olforecast","openlane_forecast"]},
+    {id:"ebguide", label:"eBlock Market Guide", aliases:["ebguide","eblock_guide","eblock"]}
+  ];
+  const helpers = eval("(function(MARKET_DOC_REQ){\n" +
+    haveM[0] + "\n" + missM[0] + "\n" + doneM[0] + "\n" + gateM[0] + "\n" + landM[0] + "\n" +
+    "return {packetDocHave:packetDocHave, missingMarketDocs:missingMarketDocs, needsMarketDocsGate:needsMarketDocsGate, landingLaneForSend:landingLaneForSend};\n})(" + JSON.stringify(MARKET_DOC_REQ) + ")");
+  const packetDocHave = helpers.packetDocHave;
+  const missingMarketDocs = helpers.missingMarketDocs;
+  const needsMarketDocsGate = helpers.needsMarketDocsGate;
+  const landingLaneForSend = helpers.landingLaneForSend;
+  assert.strictEqual(needsMarketDocsGate({ role:"guest", purpose:"appraise" }), false, "guest Send skips the gate");
+  assert.strictEqual(needsMarketDocsGate({ role:"employee", purpose:"website" }), false, "website Send skips the gate");
+  assert.strictEqual(needsMarketDocsGate({ role:"employee", purpose:"appraise" }), true, "staff appraisal Send is gated");
+  const none = missingMarketDocs({});
+  assert.ok(none.length >= 8, "empty packet is incomplete");
+  const partial = missingMarketDocs({ summary:{have:true}, carfax:{have:true} });
+  assert.ok(partial.length >= 1 && partial.length < none.length, "a portion present is incomplete");
+  const full = {};
+  MARKET_DOC_REQ.forEach(function (s) { full[s.id] = { have:true }; });
+  assert.deepStrictEqual(missingMarketDocs(full), [], "full vAuto + OpenLane + eBlock pack is complete");
+  assert.strictEqual(landingLaneForSend({ role:"guest" }, {}, false), "inbox", "guest still lands Incoming");
+  assert.strictEqual(landingLaneForSend({ role:"employee", purpose:"website" }, {}, false), "inbox", "website still lands Incoming");
+  assert.strictEqual(landingLaneForSend({ role:"employee", purpose:"appraise" }, { summary:{have:true} }, false), "needsdocs", "partial staff packet never enters the AI lane");
+  assert.strictEqual(landingLaneForSend({ role:"employee", purpose:"appraise" }, full, false), "inbox", "complete staff packet uses the existing Center path");
+  assert.ok(packetDocHave({ vauto_summary:{have:true} }, MARKET_DOC_REQ[0]), "vAuto summary alias counts");
 })();
 
 ["404.html", "inspect-vehicle.html"].forEach(function (name) {
