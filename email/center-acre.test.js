@@ -329,6 +329,8 @@ must(/upsertCenterFromApp\(\{source:"appraise"\}\)/, "completed New application 
   assert.ok(/if\(typed\) q \+= \(q \? "&" : "\?"\) \+ "q=" \+ encodeURIComponent\(typed\)/.test(m[0]), "typed app # is sent as q=");
   assert.ok(/if\(typed\)/.test(m[0]), "empty search omits q=");
 })();
+must(/full GTA \+ Ottawa Tracker sheets/, "app # search is tracker sheets, not Airtable-only");
+must(/Not on the GTA or Ottawa Tracker/, "empty match copy names the tracker sheets");
 must(/function queueLoadAppointments\(/, "app # search reloads appointments instead of only filtering");
 must(/APP\.apptSearch=APP\.cdApp/, "home/wb/cd-app fields set the appointment search");
 must(/if\(usesCaAppointments\(\)\) openAppointments\(\)/, "CD app fields open CA appointments");
@@ -434,12 +436,17 @@ pending.push((function testLoadAppointmentsSendsQ() {
   const loadAppointments = eval("(" + m[0] + ")");
   return loadAppointments().then(function (items) {
     assert.strictEqual(urls[0], "https://mailer.example/api/appointments?source=Canada%20Drives&q=APP-0003200683", "search hits mailer q=");
-    assert.strictEqual(items[0].ymm, "2021 Toyota Highlander XLE", "tracker Highlander is returned");
+    assert.strictEqual(items[0].ymm, "2021 Toyota Highlander XLE", "Ottawa Tracker Highlander is returned");
+    APP.apptSearch = "APP-0006447774";
+    urls.length = 0;
+    return loadAppointments();
+  }).then(function () {
+    assert.strictEqual(urls[0], "https://mailer.example/api/appointments?source=Canada%20Drives&q=APP-0006447774", "GTA Tracker app # also hits mailer q=");
     APP.apptSearch = "";
     urls.length = 0;
-    return loadAppointments().then(function () {
-      assert.strictEqual(urls[0], "https://mailer.example/api/appointments?source=Canada%20Drives", "empty search stays on the slim booked list");
-    });
+    return loadAppointments();
+  }).then(function () {
+    assert.strictEqual(urls[0], "https://mailer.example/api/appointments?source=Canada%20Drives", "empty search stays on the slim booked list");
   });
 })());
 must(/function defaultPerms\(/, "named staff have default permission toggles");

@@ -2724,7 +2724,7 @@ const APPTS_AIRTABLE={
   path:"/api/appointments"
 };
 // Human schedule sheets (MyCar.ca). Open in a new tab — not dual-pulled into the booked list.
-// App # search sends ?q= so the mailer can return an Ottawa Tracker match.
+// App # search sends ?q= against the full GTA + Ottawa Tracker sheets. Empty search stays Airtable Booked/On-site.
 const TRACKER_GTA_URL="https://docs.google.com/spreadsheets/d/1DXKFHK_k1cC_upbxzBIVTLbMKpOIv0u5MB2NbKq5XhM/edit?usp=sharing";
 const TRACKER_OTTAWA_URL="https://docs.google.com/spreadsheets/d/1QRmPSMX_-nksYs4ucJxZUfTQcvrMlfbnylJgTL0ckNU/edit?usp=sharing";
 function bindTrackerLinks(){
@@ -2957,7 +2957,7 @@ function paintAppointments(){
   if(!rows.length){
     const q=String(($("apptSearch") && $("apptSearch").value) || APP.apptSearch || "").trim();
     if(q){
-      host.innerHTML='<div class="appt-empty-cta"><b>No live match for '+escHtml(q)+'</b><p>Nothing booked or on-site with that application number. Start a new application and do the full appraisal.</p><button type="button" class="appt-new" id="apptEmptyNew">New application</button></div>';
+      host.innerHTML='<div class="appt-empty-cta"><b>No live match for '+escHtml(q)+'</b><p>Not on the GTA or Ottawa Tracker, and nothing booked or on-site with that application number. Start a new application and do the full appraisal.</p><button type="button" class="appt-new" id="apptEmptyNew">New application</button></div>';
     } else {
       host.innerHTML='<p class="appt-empty">No booked Canada Drives appointments in this date range for '+(APP.apptRegion||"GTA")+'.</p><div class="appt-empty-cta"><b>Need a new one?</b><p>Start a New application — add the customer and vehicle, then continue into Appraise.</p><button type="button" class="appt-new" id="apptEmptyNew">New application</button></div>';
     }
@@ -3035,7 +3035,7 @@ function paintWorkbench(){
     : ((APP.leadSource||"Consumer Acquisition")+" · New application");
   if($("wbPickTitle")) $("wbPickTitle").textContent = usesCaAppointments() ? "Who’s coming in" : "New application";
   if($("wbPickLead")) $("wbPickLead").textContent = usesCaAppointments()
-    ? "Pick the booked Canada Drives appointment, search an app #, or start a New application. Year, make, VIN, app #, and seller come with a live row."
+    ? "Pick a booked appointment, search any GTA or Ottawa Tracker app #, or start a New application. Year, make, VIN, app #, and seller come with a live row."
     : (APP.leadSource||"This source")+" has no appointment calendar. Create a New application — customer, vehicle, VIN — then continue into Appraise.";
   if(!ready) return;
   const ymm=[APP.year,APP.make,APP.model,APP.trim].filter(Boolean).join(" ") || (APP.newApplication || APP.apptId==="new" ? "New application" : "Vehicle");
