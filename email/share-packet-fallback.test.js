@@ -4,6 +4,7 @@
 const fs = require("fs");
 const path = require("path");
 const assert = require("assert");
+const vm = require("vm");
 
 const htmlPath = path.join(__dirname, "..", "index.html");
 const html = fs.readFileSync(htmlPath, "utf8");
@@ -39,7 +40,10 @@ must(/landIncomingPacket/, "success lands Incoming before Thank you");
 must(/if\(doc\)\{/, "PDF attach is best-effort after a successful mail path");
 mustNot(/if\(!doc\)\{\s*finish\("Couldn’t send — try again"/, "PDF fail does not abort Send");
 mustNot(/if\(!row\)\{\s*markMailed\(sendId\);\s*finish\("Couldn’t send — try again"/, "Center land null does not abort Thank you");
-must(/if\(sentOk \|\| wasMailed\(sendId\)\)/, "mail/store ok still Thank you if a later step throws");
+must(/sendPacketMail\(/, "sharePacket uses the stripped-payload ladder");
+must(/nagCdAppAfterSend\(\)/, "missing CD app # nags after Thank you");
+mustNot(/requireCdApp/, "sharePacket does not block Send on CD app #");
+must(/!offline \|\| wasMailed\(sendId\) \|\| wasDelivered\(sendId\)/, "online mail fail still Thank you");
 mustNot(/Open Gmail and send/, "sharePacket never unhides Open Gmail");
 mustNot(/Tap Open Gmail/, "staff fail is not Gmail homework");
 mustNot(/requestGmailThenSend\(/, "sharePacket never starts GIS Send OAuth");
@@ -66,6 +70,7 @@ assert.ok(/function kickShare\(\)\{/.test(html), "kickShare exists");
 assert.ok(/hideMailOpen\(\);/.test(kick), "kickShare hides #mailOpen before Send");
 assert.ok(/hideInvMailBtn\(\);/.test(kick), "kickShare hides #invMailBtn before Send");
 assert.ok(/sharePacket\(\);/.test(kick), "kickShare sends without a Gmail wall");
+assert.ok(!/requireCdApp/.test(kick), "kickShare does not block Send on CD app #");
 assert.ok(!/openDocsIncompleteModal\(/.test(kick), "kickShare does not open docsGate");
 assert.ok(!/needsMarketDocsGate\(/.test(kick), "kickShare does not block on incomplete docs");
 assert.ok(!/requestGmailThenSend\(/.test(kick), "kickShare does not call requestGmailThenSend");
@@ -73,6 +78,7 @@ assert.ok(!/oauthRedirectForSend\(/.test(kick), "kickShare does not call oauthRe
 assert.ok(!/revealMailOpen\(/.test(kick), "kickShare does not reveal Open Gmail");
 assert.ok(/store:\s*true/.test(html), "sendFromMe asks the store sender when token/mk are empty");
 assert.ok(/token:""/.test(sendSrc), "sendFromMe posts an empty client token");
+assert.ok(/stripMailVideoParts\(parts\)/.test(sendSrc), "sendFromMe never posts screen-recording video");
 assert.ok(!/gmail\.googleapis\.com/.test(sendSrc), "sendFromMe does not use the Gmail API as a Send path");
 assert.ok(!/Open Mail and send/.test(html), "Open Mail and send copy is gone from the SPA");
 assert.ok(!/\/api\/send/.test(html), "Send posts /api/upload, never /api/send");
@@ -276,4 +282,84 @@ for (const copy of copies) {
   assert.ok(/function hideInvMailBtn\(\)\{/.test(copy), "HTML copies hide #invMailBtn");
 }
 
-console.log("share-packet-fallback: ok");
+(function testMailStripHelpers() {
+  const from = html.indexOf("function isMailVideoPart(");
+  const to = html.indexOf("async function sendFromMe(", from);
+  assert.ok(from > 0 && to > from, "mail strip helpers found");
+  const sandbox = {};
+  vm.createContext(sandbox);
+  vm.runInContext(html.slice(from, to) + "\nthis.isMailVideoPart=isMailVideoPart;this.stripMailVideoParts=stripMailVideoParts;this.stripMailPdfParts=stripMailPdfParts;this.mailPhotoParts=mailPhotoParts;this.packetMailAttempts=packetMailAttempts;", sandbox);
+  const parts = [
+    { cid: "photo0@inspect", b64: "aaa", name: "front.jpg", mime: "image/jpeg" },
+    { disp: "attachment", b64: "pdf", name: "vehicle.pdf", mime: "application/pdf" },
+    { disp: "attachment", b64: "vid", name: "00_1.mp4", mime: "video/mp4" },
+    { disp: "attachment", b64: "voice", name: "dmg-voice.webm", mime: "audio/webm" }
+  ];
+  assert.equal(sandbox.isMailVideoPart(parts[2]), true, "mp4 screen recording is a video part");
+  assert.equal(sandbox.isMailVideoPart(parts[3]), false, "spoken audio webm is not stripped as video");
+  const noVid = sandbox.stripMailVideoParts(parts);
+  assert.deepStrictEqual(noVid.map(function (p) { return p.name; }), ["front.jpg", "vehicle.pdf", "dmg-voice.webm"], "video base64 never stays in the mailer payload");
+  const ladder = sandbox.packetMailAttempts(parts);
+  assert.equal(ladder.length, 4, "ladder is full → no PDF → photos only → HTML+text");
+  assert.ok(!ladder[0].some(function (p) { return p.mime.indexOf("video/") === 0; }), "full attempt still drops video");
+  assert.ok(ladder[0].some(function (p) { return p.mime === "application/pdf"; }), "full attempt keeps PDF");
+  assert.ok(!ladder[1].some(function (p) { return p.mime === "application/pdf"; }), "second attempt drops PDF");
+  assert.ok(ladder[1].some(function (p) { return p.mime === "audio/webm"; }), "second attempt keeps voice");
+  assert.deepStrictEqual(ladder[2].map(function (p) { return p.name; }), ["front.jpg"], "third attempt is photos only");
+  assert.equal(ladder[3] && ladder[3].length, 0, "fourth attempt is HTML+text only");
+})();
+
+(function testNagCdAppAfterSend() {
+  const from = html.indexOf("function nagCdAppAfterSend(){");
+  const to = html.indexOf("\nfunction isLocateSoon(", from);
+  assert.ok(from > 0 && to > from, "nagCdAppAfterSend found");
+  const toasts = [];
+  const sandbox = {
+    APP: { role: "employee" },
+    isCanadaDrives: function () { return true; },
+    cdAppNumber: function () { return ""; },
+    toast: function (m) { toasts.push(m); }
+  };
+  vm.createContext(sandbox);
+  vm.runInContext(html.slice(from, to) + "\nthis.nagCdAppAfterSend=nagCdAppAfterSend;", sandbox);
+  sandbox.nagCdAppAfterSend();
+  assert.ok(toasts.some(function (t) { return /Canada Drives application number when you can/.test(t); }), "staff nag after Send");
+  toasts.length = 0;
+  sandbox.APP.role = "guest";
+  sandbox.nagCdAppAfterSend();
+  assert.deepStrictEqual(toasts, [], "guests are not nagged");
+})();
+
+(async function testSendPacketMailLadder() {
+  const from = html.indexOf("function isMailVideoPart(");
+  const to = html.indexOf("async function sendFromMe(", from);
+  const calls = [];
+  const sandbox = {
+    withTimeout: async function (p) { return p; },
+    sendFromMe: async function (to, subject, body, html, parts) {
+      calls.push(parts);
+      const hasPdf = (parts || []).some(function (p) { return p && p.mime === "application/pdf"; });
+      const hasVoice = (parts || []).some(function (p) { return p && p.mime === "audio/webm"; });
+      if (hasPdf || hasVoice) return { ok: false };
+      if ((parts || []).some(function (p) { return p && p.cid; })) return { ok: true };
+      return { ok: false };
+    }
+  };
+  vm.createContext(sandbox);
+  vm.runInContext(html.slice(from, to) + "\nthis.sendPacketMail=sendPacketMail;", sandbox);
+  const sent = await sandbox.sendPacketMail("shawn@myloan.ca", "s", "t", "<p>h</p>", [
+    { cid: "photo0@inspect", b64: "aaa", name: "front.jpg", mime: "image/jpeg" },
+    { disp: "attachment", b64: "pdf", name: "vehicle.pdf", mime: "application/pdf" },
+    { disp: "attachment", b64: "vid", name: "00_1.mp4", mime: "video/mp4" },
+    { disp: "attachment", b64: "voice", name: "dmg-voice.webm", mime: "audio/webm" }
+  ], {});
+  assert.equal(sent.ok, true, "first ok (photos only) is Thank you");
+  assert.equal(calls.length, 3, "retries no-PDF then photos-only after full fails");
+  assert.ok(!calls[0].some(function (p) { return p && p.mime === "video/mp4"; }), "ladder never posts raw video");
+  assert.ok(calls[2].every(function (p) { return p.cid || /image\//.test(p.mime); }), "third try is photos only");
+})().then(function () {
+  console.log("share-packet-fallback: ok");
+}).catch(function (err) {
+  console.error(err);
+  process.exit(1);
+});
