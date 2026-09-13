@@ -663,6 +663,15 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
   cursor:pointer;
 }
 .center-sheet-dim.on { display:block; }
+.center-dim-hint {
+  position:absolute; left:50%; top:max(10px, env(safe-area-inset-top));
+  transform:translateX(-50%);
+  border:0; border-radius:999px;
+  background:#fff; color:var(--purple-deep);
+  box-shadow:0 8px 22px rgba(124,92,255,.16);
+  font:800 12px/1 Manrope,system-ui,sans-serif; letter-spacing:.06em; text-transform:uppercase;
+  padding:10px 14px; pointer-events:none;
+}
 .center-sheet {
   display:none; position:fixed; left:0; right:0; bottom:0; top:10vh; z-index:28;
   background:var(--page); overflow:auto; -webkit-overflow-scrolling:touch;
@@ -871,7 +880,7 @@ body.center-gallery-on { overflow:hidden; }
 @media (max-width:767px){
   #center.center-has-detail #centerDetailBody{
     position:fixed; left:0; right:0; bottom:0;
-    top:max(8vh, env(safe-area-inset-top));
+    top:max(14vh, calc(52px + env(safe-area-inset-top)));
     z-index:28; width:auto; max-width:none;
     background:var(--page); overflow:auto; -webkit-overflow-scrolling:touch;
     border-radius:28px 28px 0 0;
@@ -1492,7 +1501,7 @@ body.center-gallery-on { overflow:hidden; }
   <div class="dock" id="centerDock">
     <button class="pill purple" type="button" id="centerStageBtn">Complete</button>
   </div>
-  <div class="center-sheet-dim" id="centerSheetDim"></div>
+  <div class="center-sheet-dim" id="centerSheetDim" role="button" aria-label="Close" tabindex="-1"><span class="center-dim-hint">Close</span></div>
   <div class="center-sheet" id="centerSheet">
     <div class="nav">
       <button class="round center-close-x" type="button" id="centerSheetClose" aria-label="Close list">✕</button>
