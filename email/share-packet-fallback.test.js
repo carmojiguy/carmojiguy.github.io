@@ -150,4 +150,72 @@ for (const copy of copies) {
   assert.equal(copy.slice(a, b), src, "HTML copies must keep the same sharePacket");
 }
 
+const invStart = html.indexOf("async function sendTradeInvite(){");
+const invEnd = html.indexOf("\nfunction logOut()", invStart);
+assert.ok(invStart > 0 && invEnd > invStart, "sendTradeInvite not found");
+const invSrc = html.slice(invStart, invEnd);
+
+assert.ok(/function hideInvMailBtn\(\)\{/.test(html), "hideInvMailBtn exists");
+assert.ok(/hideInvMailBtn\(\)/.test(invSrc), "trade-in Send always hides #invMailBtn");
+assert.ok(/sendFromMe\(/.test(invSrc), "trade-in Send uses the silent store mailer");
+assert.ok(/upsertCenterInvite\(\)/.test(invSrc), "Incoming invite row still lands");
+assert.ok(/Thank you\./.test(invSrc), "success is Thank you, not Open Gmail");
+assert.ok(/Couldn’t send — try again/.test(invSrc), "fail is retry, not Gmail homework");
+assert.ok(!/hasMailAuth\(/.test(invSrc), "trade-in Send does not require a Google token");
+assert.ok(!/openGmail\(/.test(invSrc), "trade-in Send never calls openGmail");
+assert.ok(!/gmailCompose\(/.test(invSrc), "trade-in Send never builds a Gmail compose href");
+assert.ok(!/accounts\.google\.com/.test(invSrc), "trade-in Send never navigates to Google accounts");
+assert.ok(!/mailBtn\.classList\.remove\("hide"\)/.test(invSrc), "trade-in Send never unhides #invMailBtn");
+assert.ok(!/Email sent to /.test(invSrc), "success copy is not Email sent to + Open Gmail");
+assert.ok(!/appraisalCc\(/.test(invSrc), "Christina CC stays appraisal-only");
+
+function runInviteContract(opts) {
+  const mail = new FakeEl("invMailBtn", "pill purple hide");
+  mail.href = "https://mail.google.com/mail/?view=cm";
+  mail.textContent = "Open Gmail as you";
+  const btn = new FakeEl("inviteSend");
+  btn.textContent = "Sending…";
+  btn.disabled = true;
+  const confirm = new FakeEl("invConfirm");
+  confirm.textContent = "Sending…";
+  const toasts = [];
+  function hideInvMailBtn() {
+    mail.classList.add("hide");
+    mail.href = "";
+  }
+  function toast(msg) { toasts.push(msg); }
+  hideInvMailBtn();
+  if (opts.sent && opts.sent.ok) {
+    confirm.textContent = "Thank you.";
+  } else {
+    toast("Couldn’t send — try again");
+  }
+  btn.disabled = false;
+  btn.textContent = "Send from shawn@myloan.ca";
+  hideInvMailBtn();
+  return { mail, btn, confirm, toasts };
+}
+
+const inviteOk = runInviteContract({ sent: { ok: true, verified: true } });
+assert.ok(inviteOk.mail.classList.contains("hide"), "success must NEVER unhide #invMailBtn");
+assert.equal(inviteOk.mail.href, "", "success never points #invMailBtn at Gmail");
+assert.equal(inviteOk.confirm.textContent, "Thank you.");
+assert.deepEqual(inviteOk.toasts, [], "success is Thank you, not a Gmail toast");
+assert.equal(inviteOk.btn.disabled, false);
+
+const inviteFail = runInviteContract({ sent: { ok: false } });
+assert.ok(inviteFail.mail.classList.contains("hide"), "fail must NEVER unhide #invMailBtn");
+assert.equal(inviteFail.mail.href, "", "fail never reveals a Gmail compose href");
+assert.ok(inviteFail.toasts.some(t => t === "Couldn’t send — try again"), "fail is retry toast only");
+assert.ok(!inviteFail.toasts.some(t => /Gmail|Open Gmail|Google/i.test(t)), "fail is not Gmail homework");
+assert.equal(inviteFail.btn.disabled, false);
+assert.equal(inviteFail.btn.textContent, "Send from shawn@myloan.ca");
+
+for (const copy of copies) {
+  const a = copy.indexOf("async function sendTradeInvite(){");
+  const b = copy.indexOf("\nfunction logOut()", a);
+  assert.equal(copy.slice(a, b), invSrc, "HTML copies must keep the same sendTradeInvite");
+  assert.ok(/function hideInvMailBtn\(\)\{/.test(copy), "HTML copies hide #invMailBtn");
+}
+
 console.log("share-packet-fallback: ok");

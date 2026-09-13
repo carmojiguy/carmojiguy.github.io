@@ -998,7 +998,7 @@ body.center-gallery-on { overflow:hidden; }
         <h4>Copy link</h4>
         <p id="invUrl" style="word-break:break-all"></p>
       </button>
-      <a class="pill purple hide" id="invMailBtn" target="_blank" rel="noopener" style="text-align:center;text-decoration:none;margin-top:10px">Open Gmail as you</a>
+      <a class="pill purple hide" id="invMailBtn" target="_blank" rel="noopener" style="text-align:center;text-decoration:none;margin-top:10px">Open Gmail as you</a><!-- never unhide on trade-in Send; silent mailer only -->
       <a class="pill hide" id="invSmsBtn" style="text-align:center;text-decoration:none;margin-top:10px">Open Text with the link</a>
     </div>
   </div>
@@ -5240,6 +5240,12 @@ function hideMailOpen(){
   const a=$("mailOpen");
   if(a) a.classList.add("hide");
 }
+function hideInvMailBtn(){
+  const a=$("invMailBtn");
+  if(!a) return;
+  a.classList.add("hide");
+  a.removeAttribute("href");
+}
 function revealMailOpen(){
   if(APP.role==="guest"){ hideMailOpen(); return ""; }
   const dest=packetDest();
@@ -5371,32 +5377,18 @@ async function sendTradeInvite(){
   const subject=copy.subject, msg=copy.text, html=copy.html;
   const from=APP.userEmail||"";
   const sms=phone ? inviteSmsShort(first, url) : "";
-  const shortMail="Hi "+first+",\n\nIt's "+(APP.userName||nameForEmail(from)||"our team")+". Tap this private link to get a value on your vehicle. About five minutes, no account.\n\n"+url+"\n\nI'll take it from there.\n";
   const smsLink=phone ? smsHref(phone, sms) : "";
-  const gmailLink=email ? gmailCompose(email, subject, shortMail, {bcc:[SHAWN_COPY]}) : "";
   const btn=$("inviteSend");
   if(btn && btn.disabled) return;
   if(btn){ btn.disabled=true; btn.textContent="Sending…"; }
+  hideInvMailBtn();
   try{ if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url); }catch(e){}
-  let status="Link is ready — copy it below.";
-  if(phone && email) status="Text is opening for "+formatPhoneMask(phone)+". Email is going out too.";
-  else if(phone) status="Text is opening for "+formatPhoneMask(phone)+". Tap Send in Messages.";
-  else status="Email is going out to "+email+".";
   try{
-    if($("invConfirm")) $("invConfirm").textContent=status;
+    if($("invConfirm")) $("invConfirm").textContent="Sending…";
     const box=$("invSent");
     if(box) box.classList.remove("hide");
     if($("invUrl")) $("invUrl").textContent=url;
-    const mailBtn=$("invMailBtn");
-    if(mailBtn){
-      if(email){
-        mailBtn.classList.remove("hide");
-        mailBtn.href=gmailLink;
-        mailBtn.target="_blank";
-        mailBtn.rel="noopener";
-        mailBtn.textContent="Open Gmail";
-      } else mailBtn.classList.add("hide");
-    }
+    hideInvMailBtn();
     const smsBtn=$("invSmsBtn");
     if(smsBtn){
       if(phone){ smsBtn.classList.remove("hide"); smsBtn.href=smsLink; smsBtn.textContent="Send the text"; }
@@ -5404,26 +5396,33 @@ async function sendTradeInvite(){
     }
   }catch(e){}
   if(phone) fireSms(phone, sms);
-  if(email && !hasMailAuth()){
-    try{ openGmail(email, subject, shortMail, {bcc:[SHAWN_COPY]}); }catch(e){}
-  }
-  toast(status);
   try{ upsertCenterInvite(); }catch(e){}
-  if(btn){ btn.disabled=false; btn.textContent=from ? ("Send from "+from) : "Send link"; }
-  (async function(){
+  function restoreSend(){
+    hideInvMailBtn();
+    if(btn){ btn.disabled=false; btn.textContent=from ? ("Send from "+from) : "Send link"; }
+  }
+  if(!email){
+    if($("invConfirm")) $("invConfirm").textContent="Thank you.";
+    restoreSend();
+    return;
+  }
+  try{
     try{ await withTimeout(registerMailer(), 5000, ""); }catch(e){}
-    if(email && hasMailAuth()){
-      try{
-        let packed={html:html, parts:[]};
-        try{ packed=await withTimeout(embedShots(html), 4000, {html:html, parts:[]}); }catch(e){}
-        const sent=await withTimeout(sendFromMe(email, subject, msg, packed.html, packed.parts, {bcc:[SHAWN_COPY]}), 12000, {ok:false});
-        if(sent && sent.ok){
-          toast("Email sent to "+email+".");
-          if($("invConfirm")) $("invConfirm").textContent="Email sent to "+email+"."+(phone?" Text opened for "+formatPhoneMask(phone)+".":"");
-        }
-      }catch(e){}
+    let packed={html:html, parts:[]};
+    try{ packed=await withTimeout(embedShots(html), 4000, {html:html, parts:[]}); }catch(e){}
+    let sent=await withTimeout(sendFromMe(email, subject, msg, packed.html, packed.parts, {bcc:[SHAWN_COPY]}), 12000, {ok:false});
+    if(!(sent && sent.ok)) sent=await withTimeout(sendFromMe(email, subject, msg, packed.html, packed.parts, {bcc:[SHAWN_COPY]}), 12000, {ok:false});
+    hideInvMailBtn();
+    if(sent && sent.ok){
+      if($("invConfirm")) $("invConfirm").textContent="Thank you.";
+    } else {
+      toast("Couldn’t send — try again");
     }
-  })();
+  }catch(e){
+    hideInvMailBtn();
+    toast("Couldn’t send — try again");
+  }
+  restoreSend();
 }
 function logOut(){
   releaseHardware();
