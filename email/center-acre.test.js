@@ -26,7 +26,14 @@ must(/class="start-dock"/, "start dock wrapper present");
 must(/#start:has\(#startDock:not\(\.hide\)\) \.start-bg/, "staff start photo ends above the thumb dock");
 must(/z-index:24/, "start thumb dock sits above the hero");
 must(/rel="apple-touch-icon"/, "apple-touch-icon linked");
+must(/ac-v3-apple-180\.png\?v=20260913c/, "apple-touch-icon uses cache-busted brand mark");
+must(/ac-v3-192\.png\?v=20260913c/, "192 icon uses cache-busted brand mark");
+must(/rel="apple-touch-icon-precomposed"/, "iOS precomposed touch icon linked");
 must(/rel="manifest"/, "web app manifest linked");
+must(/manifest\.webmanifest\?v=20260913c/, "manifest is cache-busted");
+mustNot(/>Just Pictures</, "Just Pictures shortcut removed from Appraise home");
+must(/function isLocateSoon\(/, "Locate Coming soon stays after icon rebase");
+must(/Coming soon/, "Locate is marked Coming soon");
 must(/apple-mobile-web-app-title" content="Appraisal Center"/, "iOS home-screen name");
 must(/<title>Appraisal Center<\/title>/, "document title");
 must(/id="centerInboxBtn"/, "Incoming pop-out button id stays inbox");
@@ -445,15 +452,26 @@ assert.ok(fs.existsSync(path.join(root, "api/extract.js")), "document extract li
 const manifest = JSON.parse(fs.readFileSync(path.join(root, "manifest.webmanifest"), "utf8"));
 assert.equal(manifest.name, "Appraisal Center", "manifest name");
 assert.ok(manifest.icons.some(function (i) { return i.purpose === "maskable" && i.sizes === "512x512"; }), "maskable 512 icon");
+assert.ok(manifest.icons.every(function (i) { return /ac-v3-/.test(i.src) && /v=20260913c/.test(i.src); }), "manifest icons are the v3 brand set");
 [
   "favicon.ico",
   "apple-touch-icon.png",
+  "apple-touch-icon-precomposed.png",
+  "apple-touch-icon-180x180.png",
   "icons/apple-touch-icon.png",
   "icons/icon-192.png",
   "icons/icon-512.png",
   "icons/icon-maskable-192.png",
   "icons/icon-maskable-512.png",
-  "icons/favicon-32.png"
+  "icons/favicon-32.png",
+  "icons/ac-v3-192.png",
+  "icons/ac-v3-512.png",
+  "icons/ac-v3-apple-180.png",
+  "icons/ac-v3-favicon-16.png",
+  "icons/ac-v3-favicon-32.png",
+  "icons/ac-v3-maskable-192.png",
+  "icons/ac-v3-maskable-512.png",
+  "icons/ac-v3-1024.png"
 ].forEach(function (name) {
   assert.ok(fs.existsSync(path.join(root, name)), name + " exists");
 });
