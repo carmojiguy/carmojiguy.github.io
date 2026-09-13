@@ -156,6 +156,18 @@ must(/id="cdWrap"/, "home shows the CD number field");
 must(/id="centerCdWrap"/, "Center Complete shows the CD number field");
 must(/classList\.toggle\("hide", !cd\)/, "CD field hides unless type is Canada Drives");
 must(/Required\. This number goes on the PDF we email/, "plain-English required label");
+must(/function needsAppraiseType\(/, "Appraise form waits for a type");
+must(/function requireAppraiseType\(/, "Appraise actions check type first");
+must(/function paintAppraiseGate\(/, "Story, pictures, docs, and VIN gray until type");
+must(/id="typeGateNote"/, "plain-English type-first note on the Appraise form");
+must(/classList\.toggle\("home-gate", lock\)/, "gated Appraise actions are grayed");
+must(/DEAL_TYPES = \["Trade-in","Locate","General acquisition","Canada Drives"\]/, "Appraise types stay Trade-in, Locate, General acquisition, Canada Drives");
+must(/p\.purpose==="website"\) return false/, "website photos stay off the Appraise type gate");
+must(/startAppraise"\)\.onclick[\s\S]{0,280}needsAppraiseType\(\)\) openDealType/, "Appraise vehicle opens type before other actions");
+must(/\$\("startTrade"\)\.onclick = openInvite;/, "Send trade-in link stays a direct start-dock action");
+must(/startWebsite"\)\.onclick = function\(\)\{ setPurpose\("website"\);/, "Post vehicle to website stays its own path");
+mustNot(/startTrade[\s\S]{0,120}requireAppraiseType/, "trade-in link is not behind the appraisal-type gate");
+mustNot(/DEAL_TYPES = \[[^\]]*Website/, "Website is not an Appraise type");
 
 ["404.html", "inspect-vehicle.html"].forEach(function (name) {
   const copy = fs.readFileSync(path.join(root, name), "utf8");
