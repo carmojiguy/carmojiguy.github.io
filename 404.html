@@ -1342,7 +1342,7 @@ body.center-gallery-on { overflow:hidden; }
   </div>
   <div class="dock">
     <button class="pill purple" type="button" id="btnSharePack">Send</button>
-    <a class="pill cyan hide" id="mailOpen" href="#" target="_blank" rel="noopener">Open Gmail and send</a><!-- staff-only; guests never unhide -->
+    <a class="pill cyan hide" id="mailOpen" href="#" target="_blank" rel="noopener">Open Gmail and send</a><!-- never unhide on Send; silent mailer only -->
     <button class="pill wash" type="button" id="btnAnother">Inspect another</button>
   </div>
 </section>
@@ -2468,7 +2468,7 @@ function applyRole(){
   if($("btnPictures")) $("btnPictures").classList.remove("hide");
   if($("btnSend")) $("btnSend").textContent = guest ? "Review my trade" : "Send";
   if(guest) paintGuestStory();
-  if(guest) hideMailOpen();
+  hideMailOpen();
   if($("startX")) $("startX").classList.toggle("hide", guest);
   if($("typeWrap")) $("typeWrap").classList.toggle("hide", guest || isWeb());
   const web=isWeb();
@@ -4794,17 +4794,10 @@ function revealMailOpen(){
   return href;
 }
 function armMailFallback(){
-  if(APP.role==="guest"){
-    hideMailOpen();
-    if($("btnSharePack")){ $("btnSharePack").disabled=false; $("btnSharePack").textContent="Send"; }
-    flushDraft();
-    toast("Couldn’t send — try again");
-    return;
-  }
-  revealMailOpen();
+  hideMailOpen();
   if($("btnSharePack")){ $("btnSharePack").disabled=false; $("btnSharePack").textContent="Send"; }
-  landInCenter({sent:false, stage:"Waiting"});
-  toast("Couldn’t send from here. Tap Open Gmail and send.");
+  flushDraft();
+  toast("Couldn’t send — try again");
 }
 function packetReady(){
   return !!(capturedFiles().length || (APP.clips&&APP.clips.length) || Object.keys(APP.docs||{}).length || (APP.notes||APP.heard));
@@ -4812,7 +4805,7 @@ function packetReady(){
 function kickShare(){
   if(!packetReady()){ toast("Add the story or photos first."); return; }
   if(APP.role!=="guest" && !requireCdApp()) return;
-  if(APP.role==="guest") hideMailOpen();
+  hideMailOpen();
   if(typeof navigator!=="undefined" && navigator.onLine===false){
     flushDraft();
     toast("You’re offline. Your work is saved — try Send again when you’re back.");
@@ -4876,23 +4869,9 @@ async function sendFromMe(to, subject, body, html, parts, extra){
     return {ok:false, via:"store", error:(j && j.error)||"mailer"};
   }
   try{
-    const store=await postStore(APP.role==="guest" ? 22000 : 18000);
+    const store=await postStore(22000);
     if(store && store.ok) return store;
   }catch(e){}
-  if(APP.googleToken){
-    try{
-      const rfc=rfc822(list, subject, body, html||"", slimParts, extra);
-      const r=await timedFetch("https://gmail.googleapis.com/upload/gmail/v1/users/me/messages/send?uploadType=media", {
-        method:"POST",
-        headers:{Authorization:"Bearer "+APP.googleToken, "Content-Type":"message/rfc822"},
-        body:rfc
-      }, 20000);
-      if(r && r.ok){
-        const j=await r.json().catch(function(){ return {}; });
-        if(j && j.id) return {ok:true, verified:true, via:"gmail", id:j.id};
-      }
-    }catch(e){}
-  }
   return {ok:false, via:"fail"};
 }
 function openEml(raw, name){
@@ -7935,7 +7914,7 @@ async function paintSubmit(){
   const note=$("guestSendNote");
   const packBtn=$("btnSharePack");
   if(packBtn) packBtn.textContent="Send";
-  if(guest) hideMailOpen();
+  hideMailOpen();
   if(guest){
     const to=tradeRecipients();
     if(note){
@@ -7984,12 +7963,10 @@ async function sharePacket(){
   const body=packetMailText() + (APP.role==="guest" && APP.requestedBy ? "\nRequested by: "+(APP.requestedByName||nameForEmail(APP.requestedBy))+" <"+APP.requestedBy+">" : "");
   const guest=APP.role==="guest";
   const sendId=packetSendId();
-  if(guest) hideMailOpen();
-  const href=guest ? "" : fallbackMailHref(to, subject, packetMailText(), extra);
+  hideMailOpen();
   const btn=$("btnSharePack");
   if(APP._sending || (btn && btn.disabled)){
-    if(guest) toast("Still sending…");
-    else toast("Still sending…");
+    toast("Still sending…");
     return;
   }
   if(btn){ btn.disabled=true; btn.textContent="Sending…"; }
@@ -7998,21 +7975,13 @@ async function sharePacket(){
   let finished=false;
   let sentOk=false;
   function revealMail(){
-    if(guest){ hideMailOpen(); return; }
-    try{
-      if($("mailOpen")){
-        $("mailOpen").href=href;
-        $("mailOpen").textContent="Open Gmail and send";
-        $("mailOpen").classList.remove("hide");
-      }
-    }catch(e){}
+    hideMailOpen();
   }
   function finish(msg, openMail){
     finished=true;
     APP._sending=false;
     if(btn){ btn.disabled=false; btn.textContent="Send"; }
-    if(guest) hideMailOpen();
-    else if(openMail) revealMail();
+    hideMailOpen();
     if(msg) toast(msg);
   }
   async function completeIncoming(){
@@ -8024,33 +7993,27 @@ async function sharePacket(){
     const row=await completeIncoming();
     if(!row){
       markMailed(sendId);
-      if(guest) finish("Couldn’t send — try again", false);
-      else finish("Couldn’t save to Incoming. Tap Send to try again.", false);
+      finish("Couldn’t send — try again", false);
       return false;
     }
     markDelivered(sendId);
     markMailed(sendId);
     clearSnapshot();
     clearDraft();
-    if(guest){
-      sentOk=true;
-      finish("");
-      try{ finishGuest(); }catch(e){}
-      return true;
-    }
     sentOk=true;
-    finish("Sent to "+tradeToLine(to)+".");
+    finish("");
+    try{ finishGuest(); }catch(e){}
     return true;
   }
   const watch=setTimeout(function(){
-    if(!finished) toast(guest ? "Still sending…" : "Still working…");
+    if(!finished) toast("Still sending…");
   }, 28000);
   try{
     if(wasDelivered(sendId)){
       await succeed();
       return;
     }
-    toast(guest ? "Sending…" : "Sending…");
+    toast("Sending…");
     if(wasMailed(sendId)){
       await succeed();
       return;
@@ -8061,14 +8024,12 @@ async function sharePacket(){
       catch(e){ mailShots.push(shots[i]); }
     }
     if(shots.length && mailShots.length!==shots.length){
-      if(guest) finish("Couldn’t send — try again", false);
-      else finish("Couldn’t pack the photos. Tap Send to try again.", false);
+      finish("Couldn’t send — try again", false);
       return;
     }
     const missing=mailShots.filter(function(s){ return !dataB64(s.data); }).length;
     if(shots.length && missing){
-      if(guest) finish("Couldn’t send — try again", false);
-      else finish("Couldn’t pack the photos. Tap Send to try again.", false);
+      finish("Couldn’t send — try again", false);
       return;
     }
     const html=packetMailHtml(mailShots);
@@ -8084,8 +8045,7 @@ async function sharePacket(){
       try{ doc=await withTimeout(buildPdf(), 8000, null); }catch(e){ doc=null; }
     }
     if(!doc){
-      if(guest) finish("Couldn’t send — try again", false);
-      else finish("Couldn’t build the PDF. Tap Send to try again.", false);
+      finish("Couldn’t send — try again", false);
       return;
     }
     parts.push({disp:"attachment", b64:bufB64(await doc.output("arraybuffer")), name:(folderName()||"vehicle")+".pdf", mime:"application/pdf"});
@@ -8093,22 +8053,18 @@ async function sharePacket(){
     let sent=await withTimeout(sendFromMe(to, subject, body, html, parts, extra), 20000, {ok:false});
     if(!(sent && sent.ok)) sent=await withTimeout(sendFromMe(to, subject, body, html, parts, extra), 20000, {ok:false});
     if(!(sent && sent.ok)){
-      if(guest) finish("Couldn’t send — try again", false);
-      else finish("Couldn’t send from here. Tap Open Gmail and send.", true);
+      finish("Couldn’t send — try again", false);
       return;
     }
     markMailed(sendId);
     await succeed();
   }catch(e){
-    if(guest) finish("Couldn’t send — try again", false);
-    else finish("Couldn’t send. Tap Send to try again.", true);
+    finish("Couldn’t send — try again", false);
   }finally{
     clearTimeout(watch);
     APP._sending=false;
     if(btn){ btn.disabled=false; btn.textContent="Send"; }
-    if(guest) hideMailOpen();
-    else if(!sentOk) revealMail();
-    else if($("mailOpen") && APP.screen!=="thanks") $("mailOpen").classList.add("hide");
+    hideMailOpen();
     releaseHardware();
   }
 }
