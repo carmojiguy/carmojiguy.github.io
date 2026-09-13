@@ -217,7 +217,7 @@ must(/data-appt-range="tomorrow"/, "DATE-RANGE-001 Tomorrow");
 must(/data-appt-range="month"/, "DATE-RANGE-001 This month");
 must(/data-appt-range="lastMonth"/, "DATE-RANGE-001 Last month");
 must(/data-appt-range="calendar"/, "DATE-RANGE-001 Calendar");
-must(/function sampleAppointments\(/, "sampleAppointments may stay defined but unused");
+mustNot(/function sampleAppointments\(/, "no sample appointment cars");
 must(/function applyAppointment\(/, "tapping an appointment prefills Appraise");
 must(/function loadAppointments\(/, "live Airtable path is explicit");
 must(/path:"\/api\/appointments"/, "APPTS_AIRTABLE.path stays /api/appointments");
@@ -225,6 +225,8 @@ must(/\/api\/appointments/, "wire-live appointments endpoint");
 must(/appfy57egeT1utqaI/, "Command Center base id is documented");
 must(/tbl2QiJ40S6A7IzyR/, "Consumer Acquisitions table id is documented");
 must(/selqqamHvfGvK4CmK/, "Appointment Booked stage id");
+must(/selaCJ91ZmmGKF7i1/, "On-Site Visit stage id");
+must(/function apptStageOf\(/, "API stage field maps booked vs on-site");
 must(/sel90QtMNs2kN0MbE/, "Canada Drives source id");
 must(/function needsAppraiseAppt\(/, "Canada Drives stays gated until an appointment is picked");
 (function testLoadAppointmentsLiveEmpty() {
@@ -322,6 +324,33 @@ must(/inbox:"Incoming"/, "Center lanes stay Incoming / On-site / History");
 
 assert.ok(fs.existsSync(path.join(root, "api/appointments.js")), "appointments live-wire API exists");
 assert.ok(fs.existsSync(path.join(root, "api/extract.js")), "document extract live-wire API exists");
+(function testApptApiStages() {
+  const api = require(path.join(root, "api/appointments.js"));
+  assert.strictEqual(api.mapStage({ id: "selqqamHvfGvK4CmK", name: "Appointment Booked" }), "booked");
+  assert.strictEqual(api.mapStage({ id: "selaCJ91ZmmGKF7i1", name: "On-Site Visit" }), "on-site");
+  assert.strictEqual(api.mapStage("On-Site Visit"), "on-site");
+  const f = api.formula("Canada Drives");
+  assert.ok(f.indexOf("Appointment Booked") >= 0 && f.indexOf("On-Site Visit") >= 0, "formula includes both live stages");
+  const src = fs.readFileSync(path.join(root, "api/appointments.js"), "utf8");
+  assert.ok(!/sample appointments/i.test(src), "API never mentions sample appointments");
+})();
+(function testNormalizeApptStage() {
+  const stageM = html.match(/function apptStageOf\(v\)\{[\s\S]*?\n\}/);
+  const normM = html.match(/function normalizeAppt\(row\)\{[\s\S]*?\n\}/);
+  assert.ok(stageM && normM, "stage + normalize helpers extractable");
+  function apptRegionOf(v) {
+    const s = String(v || "").toUpperCase();
+    if (s.indexOf("GTA") >= 0) return "GTA";
+    if (s.indexOf("OTTAWA") >= 0) return "Ottawa";
+    return "";
+  }
+  const apptStageOf = eval("(" + stageM[0].replace(/^function apptStageOf/, "function") + ")");
+  const normalizeAppt = eval("(" + normM[0].replace(/^function normalizeAppt/, "function") + ")");
+  assert.strictEqual(normalizeAppt({ id: "1", stage: "on-site" }).stage, "on-site");
+  assert.strictEqual(normalizeAppt({ id: "2", stage: "booked" }).stage, "booked");
+  assert.strictEqual(normalizeAppt({ id: "3" }).stage, "booked");
+  assert.strictEqual(apptStageOf("On-Site Visit"), "on-site");
+})();
 
 ["404.html", "inspect-vehicle.html"].forEach(function (name) {
   const copy = fs.readFileSync(path.join(root, name), "utf8");
