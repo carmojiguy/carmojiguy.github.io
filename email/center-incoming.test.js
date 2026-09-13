@@ -58,7 +58,7 @@ assert.strictEqual(MARKET_DOC_REQ.length, 3, "MARKET_DOC_REQ is the 3-pill desk"
 const haveM = html.match(/function packetDocHave\(docs, spec\)\{[\s\S]*?\n\}/);
 const missM = html.match(/function missingMarketDocs\(docs\)\{[\s\S]*?\n\}/);
 const doneM = html.match(/function marketDocsComplete\(docs\)\{[\s\S]*?\n\}/);
-const laneDocM = html.match(/function laneFromMarketDocs\(docs\)\{[\s\S]*?\n\}/);
+const laneDocM = html.match(/function laneFromMarketDocs\(docs(?:, prefer)?\)\{[\s\S]*?\n\}/);
 const landedM = html.match(/function isLandedCenterPacket\(item\)\{[\s\S]*?\n\}/);
 const needsM = html.match(/function isNeedsDocsItem\(item\)\{[\s\S]*?\n\}/);
 const laneOfM = html.match(/function centerLaneOf\(item\)\{[\s\S]*?\n\}/);
@@ -120,8 +120,9 @@ function slimSharedDocs(docs) {
   const src = docs || {};
   const out = {};
   Object.keys(src).forEach(function (k) {
-    const d = src[k] || {};
-    out[k] = { have: !!d.have, name: d.name || "", type: d.type || "" };
+    const d = src[k];
+    const have = d === true || d === 1 || d === "true" || !!(d && (d.have || d.data || d.extract || d.preview || (d.shots && d.shots.length)));
+    out[k] = { have: have, name: (d && d.name) || "", type: (d && d.type) || "" };
   });
   return out;
 }
@@ -563,18 +564,90 @@ function slimSharedDocs(docs) {
   );
   const purgeDocsLaneDrift = eval("(" + purgeSrc + ")");
   assert.equal(centerLaneOf(store.items[0]), "needsdocs", "leftover Blazer paints in Needs docs");
-  assert.equal(centerLaneOf(store.items[1]), "needsdocs", "leftover RAV4 does not stay On-site");
+  assert.equal(centerLaneOf(store.items[1]), "onsite", "leftover RAV4 with lane=onsite stays On-site");
   assert.equal(centerLaneOf(store.items[2]), "inbox", "waiting trade-in invite stays Incoming");
   assert.equal(purgeDocsLaneDrift(), true);
   assert.equal(store.items[0].lane, "needsdocs");
   assert.equal(store.items[0].docsIncomplete, true);
-  assert.equal(store.items[1].lane, "needsdocs");
-  assert.equal(store.items[1].docsIncomplete, true);
+  assert.equal(store.items[1].lane, "onsite", "purge does not downgrade remote/local onsite");
+  assert.equal(store.items[1].docsIncomplete, false);
   assert.equal(store.items[2].lane, "inbox", "invite stub lane is not purged");
 })();
 
+(function testRemoteOnsiteOrPillFlagsWin() {
+  const emptyOnsite = applySharedIncoming({
+    id: "cmu0avif7rslu",
+    lane: "inbox",
+    source: "guest",
+    docs: {}
+  }, {
+    id: "cmu0avif7rslu",
+    sendId: "s1ex074",
+    vin: "2T3B1RFVXRC466025",
+    ymmt: "2024 TOYOTA RAV4",
+    source: "guest",
+    lane: "onsite",
+    docs: {},
+    customer: { name: "Chris Cyr" },
+    photoCount: 13
+  });
+  assert.equal(emptyOnsite.lane, "onsite", "remote.lane=onsite wins even when slim docs are empty");
+  assert.equal(emptyOnsite.docsIncomplete, false);
+  assert.deepStrictEqual(emptyOnsite.missingDocs, []);
+  assert.equal(centerLaneOf(emptyOnsite), "onsite");
+  assert.equal(isNeedsDocsItem(emptyOnsite), false, "On-site row does not paint NEEDS DOCS");
+
+  const flagOnly = applySharedIncoming({ id: "pills-flag", lane: "inbox", docs: {} }, {
+    sendId: "s1ex074",
+    vin: "2T3B1RFVXRC466025",
+    lane: "inbox",
+    docs: { vauto: { have: true }, openlane: { have: true }, eblock: { have: true }, carfax: { have: true } },
+    customer: { name: "Chris Cyr" }
+  });
+  assert.equal(flagOnly.lane, "onsite", "have:true flags without blobs are complete");
+  assert.equal(flagOnly.docs.vauto.have, true);
+  assert.equal(flagOnly.docs.vauto.data, undefined, "flags stay meta only");
+  assert.equal(centerLaneOf(flagOnly), "onsite");
+
+  const boolFlags = applySharedIncoming({ id: "pills-bool", lane: "inbox", docs: {} }, {
+    sendId: "s-bool",
+    vin: "2T3B1RFVXRC466025",
+    lane: "inbox",
+    docs: { vauto: true, openlane: true, eblock: true, carfax: true },
+    customer: { name: "Chris Cyr" }
+  });
+  assert.equal(boolFlags.lane, "onsite", "boolean pill flags count as have");
+  assert.equal(boolFlags.docs.vauto.have, true);
+  assert.equal(centerLaneOf(boolFlags), "onsite");
+})();
+
+(function testLiveRav4IncomingPullLandsOnsite() {
+  const store = { seq: 1000, items: [] };
+  function centerStore() { return store; }
+  function saveCenterStore() {}
+  const mergeIncomingShared = eval("(" + mergeSrc + ")");
+  mergeIncomingShared([{
+    id: "cmu0avif7rslu",
+    sendId: "s1ex074",
+    vin: "2T3B1RFVXRC466025",
+    ymmt: "2024 TOYOTA RAV4",
+    source: "guest",
+    lane: "onsite",
+    photoCount: 13,
+    docs: { vauto: { have: true }, openlane: { have: true }, eblock: { have: true }, carfax: { have: true } },
+    customer: { name: "Chris Cyr" }
+  }]);
+  assert.equal(store.items.length, 1);
+  const row = store.items[0];
+  assert.equal(row.vin, "2T3B1RFVXRC466025");
+  assert.equal(row.lane, "onsite", "live Incoming GET RAV4 paints On-site after pull");
+  assert.equal(row.docsIncomplete, false);
+  assert.equal(centerLaneOf(row), "onsite");
+  assert.equal(isNeedsDocsItem(row), false);
+})();
+
 assert.ok(/scheduleIncomingPull\(\)/.test(html), "Center boot/paint schedules the Incoming pull");
-assert.ok(/build d29s/.test(html), "build stamp bumped to d29s");
+assert.ok(/build d29t/.test(html), "build stamp bumped to d29t");
 assert.ok(/item\.pdfUrl=remote\.pdfUrl\|\|item\.pdfUrl/.test(html), "applySharedIncoming copies remote.pdfUrl");
 assert.ok(/item\.pdfName=remote\.pdfName\|\|item\.pdfName/.test(html), "applySharedIncoming copies remote.pdfName");
 assert.ok(/id="centerPacketPdf"/.test(html), "detail sheet has Open packet PDF control");
