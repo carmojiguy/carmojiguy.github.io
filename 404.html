@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-13: Center home is the vehicle desk; Inbox/On-site/History pop-outs -->
+<!-- center-v3 + desk-home 2026-09-13: Center home is the vehicle desk; Incoming/On-site/History pop-outs -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -743,7 +743,7 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
   </div>
   <div class="center-lanes" id="centerLanes">
     <button class="lane-pill inbox" type="button" id="centerInboxBtn">
-      <b>Inbox</b>
+      <b>Incoming</b>
       <span id="centerInboxCount">0</span>
     </button>
     <button class="lane-pill onsite" type="button" id="centerOnsiteBtn">
@@ -780,14 +780,14 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
   <div class="center-sheet" id="centerSheet">
     <div class="nav">
       <button class="round" type="button" id="centerSheetClose">✕</button>
-      <h1 id="centerTitleNav">Inbox</h1>
+      <h1 id="centerTitleNav">Incoming</h1>
       <span></span>
     </div>
     <div class="pad" style="padding-bottom:40px">
       <div id="centerHistoryBar" class="hide">
         <div class="center-archive-banner" id="centerArchiveBanner">
           <b>90-day archive</b>
-          <span>Older files stay here. They leave Inbox and On-site automatically after 90 days.</span>
+          <span>Older files stay here. They leave Incoming and On-site automatically after 90 days.</span>
         </div>
         <input class="f center-search" id="centerSearch" type="search" placeholder="Search name, phone, VIN, or vehicle" />
         <div class="center-date">
@@ -2489,7 +2489,7 @@ function centerSampleItems(){
       story:"Guest link is out. Photos not back yet. One-owner AWD Santa Fe against a new Tucson.",
       notes:"Incomplete — waiting on walk photos.", photoCount:0, thumb:"", photos:[],
       docs:{vauto:{have:false,name:"",type:"",fmt:"PDF"},openlane:{have:false,name:"",type:"",fmt:"Screenshot"},eblock:{have:false,name:"",type:"",fmt:"Video"},carfax:{have:false,name:"",type:"",fmt:"PDF"},mmr:{have:false,name:"",type:"",fmt:"Screenshot"}},
-      values:emptyVals(), team:emptyTeam(), tags:["Inbox","Incomplete"]
+      values:emptyVals(), team:emptyTeam(), tags:["Incoming","Incomplete"]
     },
     {
       id:"sample-v4-f150", sample:true, sampleVer:CENTER_SAMPLE_VER, lane:"inbox", stage:"Waiting", source:"trade-in",
@@ -2500,7 +2500,7 @@ function centerSampleItems(){
       story:"Trade-in link sent. Customer is dealing on the Lariat. CR-V is the trade — not back yet.",
       notes:"", photoCount:0, thumb:"", photos:[],
       docs:{vauto:{have:false,name:"",type:"",fmt:"PDF"},openlane:{have:false,name:"",type:"",fmt:"Screenshot"},eblock:{have:false,name:"",type:"",fmt:"Video"},carfax:{have:false,name:"",type:"",fmt:"PDF"},mmr:{have:false,name:"",type:"",fmt:"Screenshot"}},
-      values:emptyVals(), team:emptyTeam(), tags:["Inbox","Link sent"]
+      values:emptyVals(), team:emptyTeam(), tags:["Incoming","Link sent"]
     },
     {
       id:"sample-v4-elantra", sample:true, sampleVer:CENTER_SAMPLE_VER, lane:"inbox", stage:"Waiting", source:"guest",
@@ -2511,7 +2511,7 @@ function centerSampleItems(){
       story:"Packet came back thin. Story only — still missing photos. Shopping the red Civic on the lot.",
       notes:"Incomplete packet.", photoCount:0, thumb:"", photos:[],
       docs:{vauto:{have:false,name:"",type:"",fmt:"PDF"},openlane:{have:false,name:"",type:"",fmt:"Screenshot"},eblock:{have:false,name:"",type:"",fmt:"Video"},carfax:{have:false,name:"",type:"",fmt:"PDF"},mmr:{have:false,name:"",type:"",fmt:"Screenshot"}},
-      values:emptyVals(), team:emptyTeam(), tags:["Inbox","Not fully back"]
+      values:emptyVals(), team:emptyTeam(), tags:["Incoming","Not fully back"]
     },
     {
       id:"sample-v4-sierra", sample:true, sampleVer:CENTER_SAMPLE_VER, lane:"inbox", stage:"Waiting", source:"trade-in",
@@ -2522,7 +2522,7 @@ function centerSampleItems(){
       story:"Sent this morning. Customer wants the AT4. Silverado is the trade — photos promised tonight.",
       notes:"", photoCount:0, thumb:"", photos:[],
       docs:{vauto:{have:false,name:"",type:"",fmt:"PDF"},openlane:{have:false,name:"",type:"",fmt:"Screenshot"},eblock:{have:false,name:"",type:"",fmt:"Video"},carfax:{have:false,name:"",type:"",fmt:"PDF"},mmr:{have:false,name:"",type:"",fmt:"Screenshot"}},
-      values:emptyVals(), team:emptyTeam(), tags:["Inbox","Sent"]
+      values:emptyVals(), team:emptyTeam(), tags:["Incoming","Sent"]
     },
     {
       id:"sample-v4-corolla", sample:true, sampleVer:CENTER_SAMPLE_VER, lane:"onsite", stage:"Waiting", source:"appraise",
@@ -3005,7 +3005,7 @@ function centerLaneOf(item){
   return "onsite";
 }
 function centerLaneLabel(lane){
-  return ({inbox:"Inbox", onsite:"On-site", history:"History"})[lane] || "Inbox";
+  return ({inbox:"Incoming", onsite:"On-site", history:"History"})[lane] || "Incoming";
 }
 function centerLaneCounts(){
   seedCenterSamples();
@@ -3104,7 +3104,7 @@ function paintCenter(){
         ? "<p>Nothing in this range.</p>"
         : "<p>Nothing in History yet.</p>";
     } else if(lane==="inbox"){
-      empty.innerHTML="<p>Inbox is clear.</p>";
+      empty.innerHTML="<p>Incoming is clear.</p>";
     } else {
       empty.innerHTML="<p>Nothing on site.</p>";
     }
@@ -3260,7 +3260,7 @@ function paintCenterTeam(item){
 }
 function paintCenterTags(item){
   const host=$("centerTags"); if(!host) return;
-  const tags=[].concat(item.tags||[]);
+  const tags=[].concat(item.tags||[]).map(function(t){ return t==="Inbox" ? "Incoming" : t; });
   if(item.sample) tags.unshift("Sample");
   if(item.interest) tags.unshift("Interest "+item.interest);
   if(item.color) tags.push(item.color);
@@ -3277,7 +3277,7 @@ function paintCenterTags(item){
 function paintCenterDetailEmpty(){
   const body=$("centerDetailBody");
   if(!body) return;
-  body.innerHTML='<div class="center-detail-empty"><b>One car at a time</b><p>This desk is the workbench. Open <b>Inbox</b>, <b>On-site</b>, or <b>History</b> — tap a vehicle, and it lands here.</p></div>';
+  body.innerHTML='<div class="center-detail-empty"><b>One car at a time</b><p>This desk is the workbench. Open <b>Incoming</b>, <b>On-site</b>, or <b>History</b> — tap a vehicle, and it lands here.</p></div>';
   if($("centerStageBtn")) $("centerStageBtn").classList.add("hide");
   if($("centerDock")) $("centerDock").classList.add("hide");
 }
