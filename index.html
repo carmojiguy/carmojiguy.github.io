@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- send-v26 2026-09-13: packet Send always reveals mail fallback on fail/timeout -->
+<!-- center-v1 + send-v26 2026-09-13: Appraisal Center + packet Send fallback -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -305,6 +305,54 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
 .work-email .pill { margin:0; padding:12px 16px; width:auto; }
 .login-sub { text-align:center; color:var(--muted); font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; margin:4px 0 12px; }
 .who { position:absolute; top: calc(12px + env(safe-area-inset-top)); right:16px; z-index:2; background:rgba(0,0,0,.45); color:#fff; border:0; border-radius:999px; padding:8px 12px; font-size:12px; font-weight:700; }
+.center-top { margin:0 0 20px; }
+.center-top .pill {
+  margin:0; padding:16px 18px; font-size:17px;
+  background:var(--lavender); border-color:#D4C8F5; color:var(--purple-deep);
+}
+.center-search { margin:0 0 12px; min-height:52px; }
+.center-date { position:relative; margin:0 0 22px; }
+.center-date .pill { margin:0; padding:16px 18px; font-size:17px; }
+.date-menu { display:none; position:absolute; left:0; right:0; top:calc(100% + 8px); z-index:12; background:#fff; border-radius:18px; box-shadow:0 18px 50px rgba(17,14,26,.16); padding:8px; }
+.date-menu.on { display:block; }
+.date-menu > button { width:100%; margin:0; border:0; background:transparent; border-radius:14px; padding:16px 14px; font-size:17px; font-weight:700; text-align:left; cursor:pointer; min-height:52px; }
+.date-menu > button:hover, .date-menu > button.on { background:var(--lavender); color:var(--purple-deep); }
+.date-cal { display:none; padding:10px 8px 12px; }
+.date-cal.on { display:block; }
+.date-year { display:flex; align-items:center; gap:10px; margin:0 0 12px; }
+.date-year b { flex:1; text-align:center; font-size:20px; }
+.date-year button { width:52px; height:52px; margin:0; padding:0; border:1.5px solid var(--hair); background:var(--fill); border-radius:16px; font-size:22px; font-weight:800; cursor:pointer; }
+.date-cal .pair { margin-top:8px; }
+.date-cal .f { min-height:52px; }
+.center-empty { padding:48px 8px 12px; text-align:center; }
+.center-empty p { color:var(--muted); font-size:17px; line-height:1.45; margin:0 0 14px; font-weight:600; }
+.center-card { background:#fff; border:1.5px solid var(--hair); border-radius:22px; padding:22px 18px; margin:0 0 16px; }
+.center-card .name { margin:0 0 10px; font-size:22px; font-weight:800; letter-spacing:-.4px; line-height:1.2; }
+.center-card .line { color:var(--muted); font-size:15px; line-height:1.45; margin:0; font-weight:600; }
+.center-card .foot { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:20px; }
+.stage-tag { display:inline-block; border-radius:999px; padding:8px 12px; font-size:13px; font-weight:800; }
+.stage-tag.wait { background:#FFF3D6; color:#8A5A00; }
+.stage-tag.done { background:#D8F5E5; color:#0F6B3C; }
+.center-card .open { width:auto; min-width:132px; margin:0; padding:14px 22px; font-size:16px; }
+#centerDetail .block { margin:28px 0 10px; }
+#centerDetail .quote { margin:0 0 8px; }
+.center-hero { position:relative; margin:0 0 16px; border-radius:18px; overflow:hidden; background:#111; min-height:180px; }
+.center-hero img { width:100%; height:220px; object-fit:cover; display:block; background:#111; }
+.center-hero .ph { min-height:180px; display:grid; place-items:center; color:#c7c7cc; font-size:14px; font-weight:700; padding:24px; text-align:center; }
+.center-hero .dots { position:absolute; left:0; right:0; bottom:10px; display:flex; justify-content:center; gap:6px; }
+.center-hero .dots i { width:7px; height:7px; border-radius:50%; background:rgba(255,255,255,.35); }
+.center-hero .dots i.on { background:#fff; }
+.center-hero .nav-hit { position:absolute; top:0; bottom:0; width:30%; border:0; background:transparent; cursor:pointer; }
+.center-hero .nav-hit.prev { left:0; }
+.center-hero .nav-hit.next { right:0; }
+.team-card { background:#fff; border:1.5px solid var(--hair); border-radius:18px; padding:14px; margin:0 0 10px; }
+.team-card.final { border-color:#C4B6FF; background:#F6F3FF; }
+.team-card k { display:block; color:var(--muted); font-size:11px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; margin:0 0 4px; }
+.team-card k:empty { display:none; }
+.team-card b { display:block; font-size:16px; margin:0 0 8px; }
+.team-card textarea { min-height:88px; }
+.val-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:0 0 8px; }
+.val-grid .k { margin-top:0; }
 
 @media (min-width:980px){
   html, body { background:#120F1C; }
@@ -328,7 +376,7 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
   .dock .pill { width:auto; min-width:240px; margin:0; }
   .pill { transition:transform .15s ease, box-shadow .15s ease, background .15s ease; }
   .pill:hover { transform:translateY(-1px); box-shadow:0 10px 24px rgba(92,63,224,.16); }
-  .row, .dmg-card, .doc-sq, .mail, .review, .gbtn {
+  .row, .dmg-card, .doc-sq, .mail, .review, .gbtn, .center-card {
     transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;
   }
   .row:hover, .dmg-card:hover, .mail:hover, .review:hover {
@@ -427,10 +475,7 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
   <button class="who" type="button" id="whoChip">Guest</button>
   <div class="start-actions" id="startActions">
     <button class="pill purple" type="button" id="startAppraise">Appraise vehicle</button>
-    <button class="pill soon" type="button" id="startCenter" disabled>
-      <span class="soon-name">Appraisal Center</span>
-      <span class="soon-stamp">Coming soon</span>
-    </button>
+    <button class="pill" type="button" id="startCenter">Appraisal Center</button>
     <button class="pill cyan" type="button" id="startWebsite">Post vehicle to website</button>
   </div>
   <div class="start-more" id="startMore">
@@ -534,6 +579,78 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
     </div>
     <div class="block">People</div>
     <div id="userList"></div>
+  </div>
+</section>
+
+<section class="screen" id="center">
+  <div class="nav">
+    <button class="round" type="button" id="centerBack">✕</button>
+    <h1 id="centerTitleNav">Appraisal Center</h1>
+    <button class="round" type="button">•••</button>
+  </div>
+  <div class="pad" style="padding-bottom:40px">
+    <div class="center-top">
+      <button class="pill" type="button" id="centerHistoryBtn">History</button>
+    </div>
+    <div id="centerHistoryBar" class="hide">
+      <input class="f center-search" id="centerSearch" type="search" placeholder="Search name, VIN, or vehicle" />
+      <div class="center-date">
+        <button class="pill" type="button" id="centerDateBtn">Date</button>
+        <div class="date-menu" id="centerDateMenu">
+          <button type="button" data-range="today">Today</button>
+          <button type="button" data-range="yesterday">Yesterday</button>
+          <button type="button" data-range="month">This month</button>
+          <button type="button" data-range="lastMonth">Last month</button>
+          <button type="button" data-range="calendar">Calendar</button>
+          <div class="date-cal" id="centerCal">
+            <div class="date-year">
+              <button type="button" id="centerYearPrev" aria-label="Earlier year">‹</button>
+              <b id="centerYearLbl">2026</b>
+              <button type="button" id="centerYearNext" aria-label="Later year">›</button>
+            </div>
+            <div class="pair">
+              <div>
+                <label class="k">From</label>
+                <input class="f" id="centerFrom" type="date" />
+              </div>
+              <div>
+                <label class="k">To</label>
+                <input class="f" id="centerTo" type="date" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="centerList"></div>
+  </div>
+</section>
+
+<section class="screen" id="centerDetail">
+  <div class="nav">
+    <button class="round" type="button" id="centerDetailBack">✕</button>
+    <h1 id="centerDetailHead">Appraisal</h1>
+    <button class="round" type="button">•••</button>
+  </div>
+  <div class="pad" style="padding-bottom:120px">
+    <div class="badge" id="centerDetailBadge">Waiting</div>
+    <h2 id="centerDetailTitle">Vehicle</h2>
+    <p class="quote" id="centerDetailSub"></p>
+    <div class="center-hero" id="centerHero"></div>
+    <div class="facts" id="centerFacts"></div>
+    <div class="block">Story</div>
+    <p class="quote" id="centerStory">No story yet.</p>
+    <div class="block">Documents</div>
+    <div class="docs-grid" id="centerDocs"></div>
+    <div class="block">Values</div>
+    <div class="val-grid" id="centerVals"></div>
+    <div class="block">Team</div>
+    <div id="centerTeam"></div>
+    <label class="k">Notes</label>
+    <textarea class="note" id="centerNotes" placeholder="Anything the team should know"></textarea>
+  </div>
+  <div class="dock">
+    <button class="pill purple" type="button" id="centerStageBtn">Done</button>
   </div>
 </section>
 
@@ -899,7 +1016,8 @@ window.APP = {
   clips:[], recOn:false, recorder:null, recChunks:[], recTick:null, recStarted:0, recMime:"", zoom:1,
   googleToken: window._gtoken || "", extraUsers:[], requestedBy:"", requestedByName:"",
   inviteUnit:"", inviteStock:"", inviteName:"", inviteEmail:"",
-  dealType:"", cdApp:""
+  dealType:"", cdApp:"", centerId:"", centerFilter:"all", centerPhoto:0,
+  centerHistory:false, centerQuery:"", centerRange:"all", centerYear:new Date().getFullYear()
 };
 
 function $(id){ return document.getElementById(id); }
@@ -1042,6 +1160,8 @@ function show(id){
   if(id==="camera") startPreview("shotCam");
   if(id==="submit") paintSubmit();
   if(id==="users") paintUsers();
+  if(id==="center") paintCenter();
+  if(id==="centerDetail") paintCenterDetail();
   if(id!=="login" && id!=="thanks" && id!=="start") scheduleDraftSave();
 }
 
@@ -1186,6 +1306,7 @@ function paintThanks(){
   if($("thanksSoft")) $("thanksSoft").textContent = "You can close this page. We'll be in touch.";
 }
 function finishGuest(){
+  landInCenter({source:"guest", sent:true, stage:"Waiting"});
   killMediaNow();
   clearDraft();
   clearSnapshot();
@@ -1941,6 +2062,7 @@ function collectDraft(){
       inviteEmail:APP.inviteEmail, invitePhone:APP.invitePhone, inviteUnit:APP.inviteUnit,
       inviteStock:APP.inviteStock, requestedBy:APP.requestedBy, requestedByName:APP.requestedByName,
       docs:APP.docs||{},
+      centerId:APP.centerId||"",
       clips:(APP.clips||[]).map(function(c){ return {blob:c.blob, dur:c.dur, mime:c.mime}; })
     },
     screen: (APP.screen && ["home","verify","photos","submit","invite"].indexOf(APP.screen)>=0) ? APP.screen : (APP.inviteFirst?"invite":"home"),
@@ -2029,7 +2151,7 @@ function startFresh(){
 }
 function wipeJob(goStart){
   APP.year=APP.make=APP.model=APP.trim=APP.color=APP.km=APP.vin=APP.stock=APP.heard=APP.notes=APP.webcopy="";
-  APP.dealType=""; APP.cdApp="";
+  APP.dealType=""; APP.cdApp=""; APP.centerId="";
   APP.photos={}; APP.damage={}; APP.closeups=[]; APP.docs={}; APP.damageCap={}; APP.closeupCap=[];
   APP.clips=[]; APP.recOn=false; APP.recorder=null; APP.recChunks=[]; APP.zoom=1;
   if(APP.role!=="guest"){
@@ -2041,6 +2163,528 @@ function wipeJob(goStart){
   document.querySelectorAll(".sheet").forEach(function(n){ n.classList.remove("on"); });
   if(goStart!==false) show("start");
 }
+
+const CENTER_KEY="inspect.center";
+const CENTER_TEAM=[
+  ["shabot","Shabot","FINAL"],
+  ["rybot","Rybot","Opinion"],
+  ["webot","Webot","Opinion"],
+  ["drebot","Drebot","Opinion"],
+  ["tbot","TBot","Opinion"]
+];
+const CENTER_DOCS=[
+  ["vauto","vAuto","Appraisal / book"],
+  ["openlane","OpenLane","Auction sheet"],
+  ["eblock","eBlock","Recap or bid"],
+  ["carfax","Carfax","History + story photos"]
+];
+const CENTER_VALS=[
+  ["wholesale","Wholesale"],
+  ["retail","Retail"],
+  ["acv","ACV"],
+  ["target","Target"]
+];
+function emptyTeam(){
+  const o={};
+  CENTER_TEAM.forEach(function(t){ o[t[0]]=""; });
+  return o;
+}
+function emptyVals(){
+  const o={};
+  CENTER_VALS.forEach(function(t){ o[t[0]]=""; });
+  return o;
+}
+function centerStore(){
+  try{
+    const raw=JSON.parse(localStorage.getItem(CENTER_KEY)||"{}");
+    if(raw && Array.isArray(raw.items)) return {seq:Number(raw.seq)||1000, items:raw.items};
+  }catch(e){}
+  try{
+    const raw=JSON.parse(sessionStorage.getItem(CENTER_KEY)||"{}");
+    if(raw && Array.isArray(raw.items)) return {seq:Number(raw.seq)||1000, items:raw.items};
+  }catch(e){}
+  return {seq:1000, items:[]};
+}
+function saveCenterStore(store){
+  try{ localStorage.setItem(CENTER_KEY, JSON.stringify(store)); }catch(e){}
+  try{ sessionStorage.setItem(CENTER_KEY, JSON.stringify(store)); }catch(e){}
+}
+function loadCenter(){ return centerStore().items; }
+function nextAppNo(store){
+  store.seq=(Number(store.seq)||1000)+1;
+  return "A-"+store.seq;
+}
+function centerMediaKey(id){ return "center:"+id; }
+function slimCenterDocs(docs){
+  const src=docs||{};
+  const out={};
+  const map={
+    vauto:["vauto","vauto_summary"],
+    openlane:["openlane","vauto_comp"],
+    eblock:["eblock","vauto_book"],
+    carfax:["carfax","carfax_pdf","data_says"]
+  };
+  Object.keys(map).forEach(function(slot){
+    const hit=map[slot].map(function(k){ return src[k]; }).find(Boolean);
+    if(!hit){ out[slot]={have:false, name:"", preview:"", type:""}; return; }
+    const preview=(hit.shots && hit.shots[0]) || (hit.data && String(hit.data).indexOf("data:image")===0 ? hit.data : "");
+    out[slot]={
+      have:true,
+      name:hit.name||slot,
+      preview:preview||"",
+      type:hit.type||""
+    };
+  });
+  return out;
+}
+function packCenterPhotos(){
+  return capturedFiles().slice(0,12).map(function(s){
+    return {title:s.title||"", data:s.data||"", cap:s.cap||""};
+  });
+}
+function centerYmmt(a){
+  return [a.year, a.make, a.model, a.trim].filter(Boolean).join(" ") || a.inviteUnit || a.ymmt || "Vehicle";
+}
+function centerSource(){
+  if(APP.role==="guest") return "guest";
+  if(isWeb()) return "website";
+  return "appraise";
+}
+function centerSourceLabel(src){
+  return ({guest:"Guest story", website:"Website", appraise:"Appraise", "trade-in":"Trade-in link"})[src] || "Sent";
+}
+function findCenterMatch(store, hint){
+  hint=hint||{};
+  if(hint.id){
+    const byId=store.items.find(function(x){ return x.id===hint.id; });
+    if(byId) return byId;
+  }
+  if(APP.centerId){
+    const open=store.items.find(function(x){ return x.id===APP.centerId; });
+    if(open) return open;
+  }
+  const vin=String(hint.vin || APP.vin || "").trim().toUpperCase();
+  if(vin.length===17){
+    const byVin=store.items.find(function(x){ return String(x.vin||"").toUpperCase()===vin; });
+    if(byVin) return byVin;
+  }
+  const name=String(hint.customerName || APP.inviteName || "").trim().toLowerCase();
+  if(name){
+    const byName=store.items.find(function(x){
+      return x.source==="trade-in" && x.stage==="Waiting" && String((x.customer&&x.customer.name)||"").trim().toLowerCase()===name;
+    });
+    if(byName) return byName;
+  }
+  return null;
+}
+function persistCenterMedia(id, photos, docs){
+  const payload={photos:photos||[], docs:docs||{}};
+  idbPut(centerMediaKey(id), payload).catch(function(){});
+  try{ sessionStorage.setItem(centerMediaKey(id), JSON.stringify(payload)); }catch(e){}
+}
+function loadCenterMedia(id){
+  return idbGet(centerMediaKey(id)).then(function(v){
+    if(v && (v.photos || v.docs)) return v;
+    try{
+      const raw=sessionStorage.getItem(centerMediaKey(id));
+      if(raw) return JSON.parse(raw);
+    }catch(e){}
+    return {photos:[], docs:{}};
+  });
+}
+function upsertCenterFromApp(extra){
+  extra=extra||{};
+  const store=centerStore();
+  const now=Date.now();
+  const photos=packCenterPhotos();
+  const docs=slimCenterDocs(APP.docs);
+  const vin=String(APP.vin||"").trim().toUpperCase();
+  let item=findCenterMatch(store, extra);
+  if(!item){
+    item={
+      id:"c"+now.toString(36)+Math.random().toString(36).slice(2,6),
+      appNo:nextAppNo(store),
+      stage:"Waiting",
+      team:emptyTeam(),
+      values:emptyVals(),
+      notes:"",
+      createdAt:now,
+      customer:{name:"", email:"", phone:""}
+    };
+    store.items.unshift(item);
+  }
+  item.vin=vin || item.vin || "";
+  item.year=APP.year||item.year||"";
+  item.make=APP.make||item.make||"";
+  item.model=APP.model||item.model||"";
+  item.trim=APP.trim||item.trim||"";
+  item.color=APP.color||item.color||"";
+  item.km=APP.km||item.km||"";
+  item.stock=APP.stock||item.stock||"";
+  item.ymmt=centerYmmt(APP);
+  item.purpose=APP.purpose||item.purpose||"";
+  item.dealType=APP.dealType||item.dealType||"";
+  item.cdApp=APP.cdApp||item.cdApp||"";
+  item.source=extra.source||centerSource();
+  item.story=(APP.notes||APP.heard||item.story||"").trim();
+  item.webcopy=APP.webcopy||item.webcopy||"";
+  item.photoCount=photos.length;
+  const first=photos[0] && photos[0].data ? photos[0].data : "";
+  if(first && first.length<=180000) item.thumb=first;
+  else if(!item.thumb) item.thumb="";
+  item.docs=docs;
+  item.customer={
+    name:APP.inviteName||(item.customer&&item.customer.name)||"",
+    email:APP.inviteEmail||(item.customer&&item.customer.email)||"",
+    phone:APP.invitePhone||(item.customer&&item.customer.phone)||""
+  };
+  item.requestedBy=APP.requestedBy||item.requestedBy||"";
+  item.requestedByName=APP.requestedByName||item.requestedByName||"";
+  item.sentBy=APP.userName||APP.userEmail||item.sentBy||"";
+  item.updatedAt=now;
+  if(extra.sent) item.sentAt=now;
+  if(extra.stage) item.stage=extra.stage;
+  if(first && first.length>180000){
+    compressDataUrl(first, 360, 0.55).then(function(small){
+      const latest=centerStore();
+      const hit=latest.items.find(function(x){ return x.id===item.id; });
+      if(hit){ hit.thumb=small; saveCenterStore(latest); }
+    }).catch(function(){});
+  }
+  persistCenterMedia(item.id, photos, docs);
+  item.docs=Object.keys(docs).reduce(function(acc,k){
+    acc[k]={have:!!docs[k].have, name:docs[k].name||"", type:docs[k].type||""};
+    return acc;
+  }, {});
+  APP.centerId=item.id;
+  saveCenterStore(store);
+  return item;
+}
+function upsertCenterInvite(){
+  const store=centerStore();
+  const now=Date.now();
+  const name=(APP.inviteName||"").trim();
+  let item=findCenterMatch(store, {customerName:name});
+  if(!item){
+    item={
+      id:"c"+now.toString(36)+Math.random().toString(36).slice(2,6),
+      appNo:nextAppNo(store),
+      stage:"Waiting",
+      team:emptyTeam(),
+      values:emptyVals(),
+      notes:"",
+      createdAt:now,
+      customer:{name:"", email:"", phone:""}
+    };
+    store.items.unshift(item);
+  }
+  item.source="trade-in";
+  item.ymmt=APP.inviteUnit || item.ymmt || "Trade-in";
+  item.stock=APP.inviteStock||item.stock||"";
+  item.inviteUnit=APP.inviteUnit||"";
+  item.customer={
+    name:name,
+    email:APP.inviteEmail||"",
+    phone:APP.invitePhone||""
+  };
+  item.sentBy=APP.userName||APP.userEmail||"";
+  item.sentAt=now;
+  item.updatedAt=now;
+  item.story=item.story||("Trade-in link sent to "+(name||"customer")+".");
+  APP.centerId=item.id;
+  saveCenterStore(store);
+  return item;
+}
+function patchCenter(id, fn){
+  const store=centerStore();
+  const item=store.items.find(function(x){ return x.id===id; });
+  if(!item) return null;
+  fn(item);
+  item.updatedAt=Date.now();
+  saveCenterStore(store);
+  return item;
+}
+function getCenter(id){
+  return loadCenter().find(function(x){ return x.id===id; }) || null;
+}
+function openCenter(){
+  APP.centerViewId="";
+  APP.centerHistory=false;
+  show("center");
+}
+function openCenterDetail(id){
+  APP.centerViewId=id;
+  APP.centerPhoto=0;
+  show("centerDetail");
+}
+function centerWhen(item){
+  return Number(item.sentAt||item.updatedAt||item.createdAt||0);
+}
+const CENTER_ARCHIVE_MS=90*24*60*60*1000;
+function archiveOldCenter(){
+  const store=centerStore();
+  let changed=false;
+  store.items.forEach(function(item){
+    const when=centerWhen(item);
+    if(when && (Date.now()-when)>CENTER_ARCHIVE_MS && !item.archived){
+      item.archived=true;
+      changed=true;
+    }
+  });
+  if(changed) saveCenterStore(store);
+}
+function isCenterArchived(item){
+  if(!item) return false;
+  if(item.archived || item.stage==="Appraised") return true;
+  const when=centerWhen(item);
+  return !!(when && (Date.now()-when)>CENTER_ARCHIVE_MS);
+}
+function startOfDay(d){
+  const x=new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  return x.getTime();
+}
+function rangeBounds(kind, fromVal, toVal){
+  const now=new Date();
+  if(kind==="today") return {start:startOfDay(now), end:startOfDay(now)+86400000-1};
+  if(kind==="yesterday"){
+    const y=new Date(now.getFullYear(), now.getMonth(), now.getDate()-1);
+    return {start:startOfDay(y), end:startOfDay(y)+86400000-1};
+  }
+  if(kind==="month") return {start:new Date(now.getFullYear(), now.getMonth(), 1).getTime(), end:Date.now()};
+  if(kind==="lastMonth"){
+    const start=new Date(now.getFullYear(), now.getMonth()-1, 1).getTime();
+    const end=new Date(now.getFullYear(), now.getMonth(), 1).getTime()-1;
+    return {start:start, end:end};
+  }
+  if(kind==="calendar"){
+    const a=fromVal ? Date.parse(fromVal+"T00:00:00") : 0;
+    const b=toVal ? Date.parse(toVal+"T23:59:59") : 0;
+    if(a || b) return {start:a||0, end:b||Date.now()};
+    const y=Number(APP.centerYear)||now.getFullYear();
+    return {start:new Date(y,0,1).getTime(), end:new Date(y,11,31,23,59,59).getTime()};
+  }
+  return null;
+}
+function dateBtnLabel(){
+  const kind=APP.centerRange||"all";
+  if(kind==="calendar"){
+    const from=$("centerFrom") && $("centerFrom").value;
+    const to=$("centerTo") && $("centerTo").value;
+    if(from || to) return "Calendar";
+    return String(APP.centerYear||new Date().getFullYear());
+  }
+  return ({today:"Today", yesterday:"Yesterday", month:"This month", lastMonth:"Last month", all:"Date"})[kind] || "Date";
+}
+function inDateRange(item){
+  const bounds=rangeBounds(APP.centerRange, $("centerFrom") && $("centerFrom").value, $("centerTo") && $("centerTo").value);
+  if(!bounds) return true;
+  const when=centerWhen(item);
+  if(!when) return false;
+  return when>=bounds.start && when<=bounds.end;
+}
+function matchesCenterSearch(item, q){
+  if(!q) return true;
+  const vin=String(item.vin||"");
+  const blob=[item.ymmt, item.appNo, vin, vin.slice(-8), item.customer && item.customer.name, item.story].join(" ").toLowerCase();
+  return blob.indexOf(q)>=0;
+}
+function centerVinLine(item){
+  const vin=String(item.vin||"").toUpperCase();
+  if(vin.length>=8) return "VIN "+vin.slice(-8);
+  if(vin) return "VIN "+vin;
+  return "";
+}
+function centerKmLine(item){
+  if(!item.km) return "";
+  const n=Number(String(item.km).replace(/,/g,""));
+  if(!n) return String(item.km);
+  return n.toLocaleString("en-CA")+" km";
+}
+function centerStatus(item){
+  if(item.stage==="Appraised") return "Done";
+  if(item.sentAt) return "Sent";
+  return "Waiting";
+}
+function paintCenter(){
+  const host=$("centerList");
+  if(!host) return;
+  const hist=!!APP.centerHistory;
+  archiveOldCenter();
+  if($("centerTitleNav")) $("centerTitleNav").textContent=hist ? "History" : "Appraisal Center";
+  if($("centerHistoryBtn")) $("centerHistoryBtn").textContent=hist ? "Back to Center" : "History";
+  if($("centerHistoryBar")) $("centerHistoryBar").classList.toggle("hide", !hist);
+  if($("centerDateBtn")) $("centerDateBtn").textContent=dateBtnLabel();
+  if($("centerYearLbl")) $("centerYearLbl").textContent=String(APP.centerYear||new Date().getFullYear());
+  if($("centerCal")) $("centerCal").classList.toggle("on", hist && APP.centerRange==="calendar");
+  document.querySelectorAll("#centerDateMenu > button[data-range]").forEach(function(b){
+    b.classList.toggle("on", b.getAttribute("data-range")===(APP.centerRange||""));
+  });
+  const q=String(APP.centerQuery||"").trim().toLowerCase();
+  const all=loadCenter();
+  const list=all.filter(function(item){
+    const archived=isCenterArchived(item);
+    if(hist && !archived) return false;
+    if(!hist && archived) return false;
+    if(hist && !matchesCenterSearch(item, q)) return false;
+    if(hist && !inDateRange(item)) return false;
+    return true;
+  });
+  host.innerHTML="";
+  if(!list.length){
+    const empty=document.createElement("div");
+    empty.className="center-empty";
+    if(hist){
+      empty.innerHTML=(q || (APP.centerRange && APP.centerRange!=="all"))
+        ? "<p>Nothing in this range.</p>"
+        : "<p>Nothing in History yet.</p>";
+    } else {
+      empty.innerHTML='<p>Nothing sent yet.</p><button class="link" type="button">Appraise a vehicle</button>';
+      empty.querySelector("button").onclick=function(){ setPurpose("appraise"); paintDealType(); show("home"); };
+    }
+    host.appendChild(empty);
+    return;
+  }
+  list.forEach(function(item){
+    const card=document.createElement("div");
+    card.className="center-card";
+    const when=centerWhen(item);
+    const sent=when ? timeAgo(when) : "";
+    const meta=[centerVinLine(item), centerKmLine(item), sent].filter(Boolean).join("  ·  ");
+    const status=centerStatus(item);
+    card.innerHTML=
+      '<p class="name">'+esc(item.ymmt||"Vehicle")+'</p>'+
+      (meta?'<p class="line">'+esc(meta)+'</p>':'')+
+      '<div class="foot"><em class="stage-tag '+(status==="Done"?"done":"wait")+'">'+esc(status)+'</em><button class="pill purple open" type="button">Open</button></div>';
+    card.querySelector(".open").onclick=function(){ openCenterDetail(item.id); };
+    host.appendChild(card);
+  });
+}
+function paintCenterHero(photos){
+  const hero=$("centerHero"); if(!hero) return;
+  const shots=(photos||[]).filter(function(p){ return p && p.data; });
+  if(!shots.length){
+    const item=getCenter(APP.centerViewId);
+    if(item && item.thumb){
+      hero.innerHTML='<img src="'+item.thumb+'" alt="">';
+      return;
+    }
+    hero.innerHTML='<div class="ph">No photos yet</div>';
+    return;
+  }
+  if(APP.centerPhoto>=shots.length) APP.centerPhoto=0;
+  const i=APP.centerPhoto||0;
+  const cap=shots[i].title || shots[i].cap || "";
+  let dots="";
+  if(shots.length>1){
+    dots='<div class="dots">'+shots.map(function(_,n){ return "<i"+(n===i?' class="on"':'')+"></i>"; }).join("")+"</div>";
+    dots+='<button class="nav-hit prev" type="button" aria-label="Previous photo"></button>';
+    dots+='<button class="nav-hit next" type="button" aria-label="Next photo"></button>';
+  }
+  hero.innerHTML='<img src="'+shots[i].data+'" alt="'+esc(cap)+'">'+dots;
+  const prev=hero.querySelector(".prev");
+  const next=hero.querySelector(".next");
+  if(prev) prev.onclick=function(){ APP.centerPhoto=(i-1+shots.length)%shots.length; paintCenterHero(shots); };
+  if(next) next.onclick=function(){ APP.centerPhoto=(i+1)%shots.length; paintCenterHero(shots); };
+}
+function paintCenterDocs(item, media){
+  const host=$("centerDocs"); if(!host) return;
+  host.innerHTML="";
+  const packed=(media && media.docs) || item.docs || {};
+  CENTER_DOCS.forEach(function(pair){
+    const id=pair[0], label=pair[1], hint=pair[2];
+    const got=packed[id]||{};
+    const el=document.createElement("button");
+    el.type="button";
+    el.className="doc-sq"+(got.have?" on":"");
+    let mediaHtml="";
+    if(got.preview) mediaHtml='<img src="'+got.preview+'" alt=""><div class="veil"></div>';
+    else if(got.have) mediaHtml='<div class="veil"></div><div class="pdfmark">IN</div>';
+    const extra=(id==="carfax" && item.photoCount) ? (item.photoCount+" story photo"+(item.photoCount===1?"":"s")) : "";
+    el.innerHTML=mediaHtml+"<b>"+esc(label)+"</b><span>"+esc(got.have ? (got.name||"On file") : (extra||hint))+"</span>";
+    el.onclick=function(){
+      if(got.preview){ openViewer("img", got.preview, label); return; }
+      toast(got.have ? (label+" is on the file.") : (label+" is not in yet."));
+    };
+    host.appendChild(el);
+  });
+}
+function paintCenterVals(item){
+  const host=$("centerVals"); if(!host) return;
+  host.innerHTML="";
+  const vals=item.values||emptyVals();
+  CENTER_VALS.forEach(function(pair){
+    const wrap=document.createElement("div");
+    wrap.innerHTML='<label class="k">'+esc(pair[1])+'</label><input class="f" inputmode="decimal" placeholder="—" />';
+    const inp=wrap.querySelector("input");
+    inp.value=vals[pair[0]]||"";
+    inp.addEventListener("input", function(){
+      patchCenter(item.id, function(x){
+        x.values=x.values||emptyVals();
+        x.values[pair[0]]=inp.value.trim();
+      });
+    });
+    host.appendChild(wrap);
+  });
+}
+function paintCenterTeam(item){
+  const host=$("centerTeam"); if(!host) return;
+  host.innerHTML="";
+  const team=item.team||emptyTeam();
+  CENTER_TEAM.forEach(function(pair){
+    const card=document.createElement("div");
+    card.className="team-card"+(pair[2]==="FINAL"?" final":"");
+    card.innerHTML='<k>'+esc(pair[2]==="FINAL"?"Final":"")+'</k><b>'+esc(pair[1])+'</b><textarea class="note" placeholder="'+(pair[2]==="FINAL"?"Final number":"Note")+'">'+'</textarea>';
+    const ta=card.querySelector("textarea");
+    ta.value=team[pair[0]]||"";
+    ta.addEventListener("input", function(){
+      growArea(ta);
+      patchCenter(item.id, function(x){
+        x.team=x.team||emptyTeam();
+        x.team[pair[0]]=ta.value;
+      });
+    });
+    host.appendChild(card);
+    growArea(ta);
+  });
+}
+function paintCenterDetail(){
+  const item=getCenter(APP.centerViewId);
+  if(!item){ show("center"); return; }
+  if($("centerDetailHead")) $("centerDetailHead").textContent="File";
+  if($("centerDetailBadge")) $("centerDetailBadge").textContent=centerStatus(item);
+  if($("centerDetailTitle")) $("centerDetailTitle").textContent=item.ymmt||"Vehicle";
+  const bits=[centerVinLine(item), centerKmLine(item)];
+  if(item.customer && item.customer.name) bits.unshift(item.customer.name);
+  if(item.sentAt) bits.push(timeAgo(item.sentAt));
+  if($("centerDetailSub")) $("centerDetailSub").textContent=bits.filter(Boolean).join("  ·  ");
+  if($("centerFacts")){
+    $("centerFacts").innerHTML=
+      factCell("VIN", item.vin)+
+      factCell("Colour", item.color)+
+      factCell("Kilometres", item.km && Number(String(item.km).replace(/,/g,"")).toLocaleString("en-CA"))+
+      factCell("Stock", item.stock);
+  }
+  if($("centerStory")) $("centerStory").textContent=item.story||item.webcopy||"No story yet.";
+  if($("centerNotes")){
+    $("centerNotes").value=item.notes||"";
+    growArea($("centerNotes"));
+  }
+  if($("centerStageBtn")) $("centerStageBtn").textContent=item.stage==="Appraised"?"Waiting":"Done";
+  paintCenterHero(item.thumb ? [{data:item.thumb, title:item.ymmt}] : []);
+  paintCenterDocs(item, {docs:item.docs});
+  paintCenterVals(item);
+  paintCenterTeam(item);
+  loadCenterMedia(item.id).then(function(media){
+    if(APP.centerViewId!==item.id) return;
+    paintCenterHero((media.photos||[]).length ? media.photos : (item.thumb?[{data:item.thumb, title:item.ymmt}]:[]));
+    paintCenterDocs(item, media);
+  });
+}
+function landInCenter(extra){
+  try{ return upsertCenterFromApp(extra||{}); }
+  catch(e){ return null; }
+}
+
 function saveSnapshot(){
   const snap=collectDraft();
   try{ sessionStorage.setItem("inspect.pendingSend","1"); }catch(e){}
@@ -2060,7 +2704,7 @@ function clearSnapshot(){
 function applySnapshot(snap){
   if(!snap || !snap.app) return;
   const a=snap.app;
-  ["purpose","year","make","model","trim","color","km","vin","stock","heard","notes","webcopy","photos","damage","closeups","damageCap","closeupCap","dealType","cdApp","role","userName","userEmail","inviteFirst","inviteLast","inviteName","inviteEmail","invitePhone","inviteUnit","inviteStock","requestedBy","requestedByName","docs"].forEach(function(k){
+  ["purpose","year","make","model","trim","color","km","vin","stock","heard","notes","webcopy","photos","damage","closeups","damageCap","closeupCap","dealType","cdApp","centerId","role","userName","userEmail","inviteFirst","inviteLast","inviteName","inviteEmail","invitePhone","inviteUnit","inviteStock","requestedBy","requestedByName","docs"].forEach(function(k){
     if(a[k]!==undefined) APP[k]=a[k];
   });
   if(a.emails) saveRecipients(a.emails);
@@ -2114,23 +2758,36 @@ function requestGmailThenSend(){
   }
   if(!oauthRedirectForSend()) armMailFallback();
 }
-function armMailFallback(){
-  const dest=packetDest();
-  const extra={cc:dest.cc, bcc:dest.bcc};
-  const subject=APP.role==="guest"
+function packetMailSubject(){
+  return APP.role==="guest"
     ? (unitLabel()+" — trade-in"+(APP.inviteName?" from "+APP.inviteName:""))
     : (unitLabel()+" — "+why());
-  const body=packetMailText();
-  const href=fallbackMailHref(dest.to, subject, body, extra);
-  if($("mailOpen")){
-    $("mailOpen").href=href;
-    $("mailOpen").textContent="Open Gmail and send";
-    $("mailOpen").classList.remove("hide");
+}
+function revealMailOpen(){
+  const dest=packetDest();
+  const extra={cc:dest.cc, bcc:dest.bcc};
+  const href=fallbackMailHref(dest.to, packetMailSubject(), packetMailText(), extra);
+  const a=$("mailOpen");
+  if(a){
+    a.href=href;
+    a.textContent="Open Gmail and send";
+    a.classList.remove("hide");
   }
+  return href;
+}
+function armMailFallback(){
+  revealMailOpen();
   if($("btnSharePack")){ $("btnSharePack").disabled=false; $("btnSharePack").textContent="Send"; }
-  toast("Gmail didn’t connect. Use the mail button.");
+  landInCenter({sent:false, stage:"Waiting"});
+  toast("Couldn’t send from here. Tap Open Gmail and send.");
+}
+function packetReady(){
+  return !!(capturedFiles().length || (APP.clips&&APP.clips.length) || Object.keys(APP.docs||{}).length || (APP.notes||APP.heard));
 }
 function kickShare(){
+  if(!packetReady()){ toast("Add the story or photos first."); return; }
+  landInCenter({sent:false, stage:"Waiting"});
+  revealMailOpen();
   if(APP.role==="guest"){ sharePacket(); return; }
   if(hasMailAuth()){ sharePacket(); return; }
   const ios=/iPhone|iPad|iPod/i.test(navigator.userAgent||"") || !!(window.navigator && navigator.standalone);
@@ -2156,7 +2813,10 @@ async function sendFromMe(to, subject, body, html, parts, extra){
         headers:{Authorization:"Bearer "+APP.googleToken, "Content-Type":"message/rfc822"},
         body:rfc
       }, 20000);
-      if(r && r.ok) return {ok:true, via:"gmail"};
+      if(r && r.ok){
+        const j=await r.json().catch(function(){ return {}; });
+        if(j && j.id) return {ok:true, verified:true, via:"gmail", id:j.id};
+      }
     }catch(e){}
   }
   const payload={
@@ -2179,7 +2839,8 @@ async function sendFromMe(to, subject, body, html, parts, extra){
       body:JSON.stringify(payload)
     }, 14000);
     const j=await r.json().catch(function(){ return {}; });
-    if(j && j.ok) return {ok:true, via:"server"};
+    if(j && j.ok && (j.id || j.messageId || j.gmailId)) return {ok:true, verified:true, via:"server", id:j.id||j.messageId||j.gmailId};
+    if(j && j.ok) return {ok:true, verified:false, via:"server"};
   }catch(e){}
   return {ok:false, via:"fail"};
 }
@@ -2257,6 +2918,7 @@ async function sendTradeInvite(){
     try{ openGmail(email, subject, shortMail, {bcc:[SHAWN_COPY]}); }catch(e){}
   }
   toast(status);
+  try{ upsertCenterInvite(); }catch(e){}
   if(btn){ btn.disabled=false; btn.textContent=from ? ("Send from "+from) : "Send link"; }
   (async function(){
     try{ await withTimeout(registerMailer(), 5000, ""); }catch(e){}
@@ -4855,20 +5517,17 @@ function packetMailHtml(shots){
 async function sharePacket(){
   const shots=capturedFiles();
   if(!shots.length && !(APP.clips&&APP.clips.length) && !Object.keys(APP.docs||{}).length && !(APP.notes||APP.heard)){ toast("Add the story or photos first."); return; }
-  const btn=$("btnSharePack");
-  if(btn && btn.disabled) return;
+  landInCenter({sent:false, stage:"Waiting"});
   const dest=packetDest();
   const extra={cc:dest.cc, bcc:dest.bcc};
   const to=dest.to;
-  const subject=APP.role==="guest"
-    ? (unitLabel()+" — trade-in"+(APP.inviteName?" from "+APP.inviteName:""))
-    : (unitLabel()+" — "+why());
+  const subject=packetMailSubject();
   const body=packetMailText() + (APP.role==="guest" && APP.requestedBy ? "\nRequested by: "+(APP.requestedByName||nameForEmail(APP.requestedBy))+" <"+APP.requestedBy+">" : "");
-  const href=fallbackMailHref(to, subject, body, extra);
-  if($("mailOpen")){
-    $("mailOpen").href=href;
-    $("mailOpen").textContent = APP.role==="employee" ? "Open Gmail and send" : "Open Mail and send";
-    $("mailOpen").classList.add("hide");
+  const href=revealMailOpen();
+  const btn=$("btnSharePack");
+  if(btn && btn.disabled){
+    toast("Still working — tap Open Gmail and send if nothing arrives.");
+    return;
   }
   if(btn){ btn.disabled=true; btn.textContent="Sending…"; }
   let finished=false;
@@ -4889,11 +5548,12 @@ async function sharePacket(){
     if(msg) toast(msg);
   }
   const watch=setTimeout(function(){
-    if(!finished) finish("Still working — use the mail button if nothing arrives.", true);
-  }, 18000);
+    if(!finished) finish("Still working — tap Open Gmail and send.", true);
+  }, 8000);
   try{
     if(!APP.googleToken) APP.googleToken=readGoogleToken()||"";
     toast("Sending the catalog…");
+    revealMail();
     const mailShots=[];
     for(let i=0;i<shots.length;i++){
       try{ mailShots.push({title:shots[i].title, name:shots[i].name, cap:shots[i].cap||"", data:await withTimeout(compressDataUrl(shots[i].data, 1100, 0.76), 3500, shots[i].data)}); }
@@ -4911,8 +5571,9 @@ async function sharePacket(){
       if(doc) parts.push({disp:"attachment", b64:bufB64(await doc.output("arraybuffer")), name:(folderName()||"vehicle")+".pdf", mime:"application/pdf"});
     }catch(e){}
     const sent=await withTimeout(sendFromMe(to, subject, body, html, parts, extra), 15000, {ok:false});
-    if(sent && sent.ok){
+    if(sent && sent.ok && sent.verified){
       finished=true;
+      landInCenter({sent:true, stage:"Waiting"});
       clearSnapshot();
       clearDraft();
       if(APP.role==="guest"){
@@ -4928,8 +5589,9 @@ async function sharePacket(){
     }
     const slim=parts.filter(function(p){ return p.disp==="attachment"; });
     const slimSent=slim.length ? await withTimeout(sendFromMe(to, subject, body, "", slim, extra), 8000, {ok:false}) : {ok:false};
-    if(slimSent && slimSent.ok){
+    if(slimSent && slimSent.ok && slimSent.verified){
       finished=true;
+      landInCenter({sent:true, stage:"Waiting"});
       if(APP.role==="guest"){
         finish("");
         try{ finishGuest(); }catch(e){}
@@ -4941,7 +5603,8 @@ async function sharePacket(){
       finish("Sent the PDF to "+tradeToLine(to)+".");
       return;
     }
-    finish("Couldn’t send from here. Tap the mail button.", true);
+    landInCenter({sent:false, stage:"Waiting"});
+    finish("Couldn’t send from here. Tap Open Gmail and send.", true);
   }catch(e){
     finish("Couldn’t send. Tap the mail button.", true);
   }finally{
@@ -4968,6 +5631,60 @@ document.querySelectorAll("[data-close]").forEach(function(b){
   });
 });
 $("startAppraise").onclick = function(){ setPurpose("appraise"); paintDealType(); show("home"); };
+if($("startCenter")) $("startCenter").onclick = openCenter;
+if($("centerBack")) $("centerBack").onclick = function(){ show("start"); };
+if($("centerDetailBack")) $("centerDetailBack").onclick = function(){ show("center"); };
+if($("centerHistoryBtn")) $("centerHistoryBtn").onclick = function(){
+  APP.centerHistory=!APP.centerHistory;
+  if($("centerDateMenu")) $("centerDateMenu").classList.remove("on");
+  paintCenter();
+};
+if($("centerSearch")) $("centerSearch").addEventListener("input", function(){
+  APP.centerQuery=this.value||"";
+  paintCenter();
+});
+if($("centerDateBtn")) $("centerDateBtn").onclick = function(){
+  if($("centerDateMenu")) $("centerDateMenu").classList.toggle("on");
+};
+if($("centerDateMenu")) $("centerDateMenu").addEventListener("click", function(e){
+  const b=e.target && e.target.closest && e.target.closest("[data-range]");
+  if(!b) return;
+  const kind=b.getAttribute("data-range");
+  APP.centerRange=kind;
+  if(kind!=="calendar") $("centerDateMenu").classList.remove("on");
+  paintCenter();
+});
+function shiftCenterYear(delta){
+  APP.centerYear=(Number(APP.centerYear)||new Date().getFullYear())+delta;
+  APP.centerRange="calendar";
+  if($("centerFrom")) $("centerFrom").value="";
+  if($("centerTo")) $("centerTo").value="";
+  paintCenter();
+}
+if($("centerYearPrev")) $("centerYearPrev").onclick=function(e){ e.stopPropagation(); shiftCenterYear(-1); };
+if($("centerYearNext")) $("centerYearNext").onclick=function(e){ e.stopPropagation(); shiftCenterYear(1); };
+if($("centerFrom")) $("centerFrom").addEventListener("change", function(){ APP.centerRange="calendar"; paintCenter(); });
+if($("centerTo")) $("centerTo").addEventListener("change", function(){ APP.centerRange="calendar"; paintCenter(); });
+document.addEventListener("click", function(e){
+  const menu=$("centerDateMenu");
+  if(!menu || !menu.classList.contains("on")) return;
+  if(e.target && e.target.closest && e.target.closest(".center-date")) return;
+  menu.classList.remove("on");
+});
+if($("centerStageBtn")) $("centerStageBtn").onclick = function(){
+  const item=getCenter(APP.centerViewId);
+  if(!item) return;
+  const next=item.stage==="Appraised"?"Waiting":"Appraised";
+  patchCenter(item.id, function(x){ x.stage=next; });
+  paintCenterDetail();
+  toast(next==="Appraised"?"Moved to History.":"Back to Waiting.");
+};
+if($("centerNotes")) $("centerNotes").addEventListener("input", function(){
+  const el=this;
+  growArea(el);
+  if(!APP.centerViewId) return;
+  patchCenter(APP.centerViewId, function(x){ x.notes=el.value; });
+});
 if($("btnDealType")) $("btnDealType").onclick = openDealType;
 if($("typeSave")) $("typeSave").onclick = function(){
   APP.cdApp=(($("cd-app")&&$("cd-app").value)||($("home-cd-app")&&$("home-cd-app").value)||"").trim();
