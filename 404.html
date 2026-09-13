@@ -3788,7 +3788,7 @@ function isIncompleteLeaderLane(item){
   if(item.incomplete===true || item.docsIncomplete===true || item.incompleteDocs===true || item.sentIncomplete===true) return true;
   if(item.leaderLane===true || item.teamLeaderLane===true) return true;
   if(status==="incomplete") return true;
-  if(lane==="leader" || lane==="leaders" || lane==="team-leader" || lane==="completion") return true;
+  if(lane==="leader" || lane==="leaders" || lane==="team-leader" || lane==="completion" || lane==="needsdocs") return true;
   return false;
 }
 function isOnsiteAttention(item){
@@ -3869,7 +3869,7 @@ function applyRemindExtra(item, extra){
   if(!item || !extra) return item;
   REMIND_PASSTHROUGH.forEach(function(k){ if(extra[k]!=null) item[k]=extra[k]; });
   const lane=String(extra.lane||"").toLowerCase();
-  if(lane==="leader" || lane==="leaders" || lane==="team-leader" || lane==="completion") item.lane=extra.lane;
+  if(lane==="leader" || lane==="leaders" || lane==="team-leader" || lane==="completion" || lane==="needsdocs") item.lane=extra.lane;
   return item;
 }
 /* ===== /15-min reminders ===== */
