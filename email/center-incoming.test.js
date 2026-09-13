@@ -410,6 +410,64 @@ function slimSharedDocs(docs) {
   assert.equal(persistedMedia[0].photos.length, 2);
 })();
 
+(function testApplySharedIncomingCopiesPacketPdf() {
+  persistedMedia.length = 0;
+  const item = applySharedIncoming({
+    id: "cmu0avif7rslu",
+    lane: "inbox",
+    archived: true,
+    stage: "Appraised",
+    sentAt: 1757792340000,
+    docs: {},
+    photos: [{ title: "keep", data: "data:image/jpeg;base64,OLD", name: "old.jpg", url: "", cap: "" }]
+  }, {
+    id: "cmu0avif7rslu",
+    sendId: "s1ex074",
+    vin: "2T3B1RFVXRC466025",
+    sentAt: 1789339609336,
+    updatedAt: 1789339999999,
+    photoCount: 13,
+    photos: [{ title: "3/4 front", data: "data:image/jpeg;base64,AAA", name: "qfront.jpg", url: "", cap: "" }],
+    pdfUrl: "https://7codzfkcbtucfujs.public.blob.vercel-storage.com/incoming/s1ex074-sales-final.pdf",
+    pdfName: "s1ex074-sales-final.pdf",
+    docs: { vauto: { have: true }, openlane: { have: true }, eblock: { have: true } },
+    customer: { name: "Chris Cyr" }
+  });
+  assert.equal(item.pdfUrl, "https://7codzfkcbtucfujs.public.blob.vercel-storage.com/incoming/s1ex074-sales-final.pdf");
+  assert.equal(item.pdfName, "s1ex074-sales-final.pdf");
+  assert.equal(item.photos.length, 1, "pdf copy does not drop remote.photos");
+  assert.equal(item.archived, false, "pdf land still unarchives");
+  assert.ok(persistedMedia.length >= 1, "pdf land still persistCenterMedia");
+  const keep = applySharedIncoming({
+    id: "keep-pdf",
+    pdfUrl: "https://example.com/kept.pdf",
+    pdfName: "kept.pdf",
+    docs: { vauto: { have: true }, openlane: { have: true }, eblock: { have: true } }
+  }, {
+    sendId: "s-keep",
+    vin: "2T3B1RFVXRC466025",
+    docs: { vauto: { have: true }, openlane: { have: true }, eblock: { have: true } },
+    customer: { name: "Chris Cyr" }
+  });
+  assert.equal(keep.pdfUrl, "https://example.com/kept.pdf", "empty remote pdfUrl does not wipe a local packet");
+  assert.equal(keep.pdfName, "kept.pdf");
+})();
+
+(function testPacketPdfHrefIsHttpOnly() {
+  const hrefSrc = html.match(/function packetPdfHref\(url\)\{[\s\S]*?\n\}/)[0].replace(
+    "function packetPdfHref",
+    "function"
+  );
+  const packetPdfHref = eval("(" + hrefSrc + ")");
+  assert.equal(
+    packetPdfHref("https://7codzfkcbtucfujs.public.blob.vercel-storage.com/incoming/s1ex074-sales-final.pdf"),
+    "https://7codzfkcbtucfujs.public.blob.vercel-storage.com/incoming/s1ex074-sales-final.pdf"
+  );
+  assert.equal(packetPdfHref("http://example.com/x.pdf"), "http://example.com/x.pdf");
+  assert.equal(packetPdfHref("javascript:alert(1)"), "", "rejects non-http packet URLs");
+  assert.equal(packetPdfHref(""), "");
+})();
+
 (function testSlimSharedIncludesCompactPhotos() {
   const huge = "data:image/jpeg;base64," + new Array(120010).join("x");
   const many = [];
@@ -516,7 +574,13 @@ function slimSharedDocs(docs) {
 })();
 
 assert.ok(/scheduleIncomingPull\(\)/.test(html), "Center boot/paint schedules the Incoming pull");
-assert.ok(/build d29r/.test(html), "build stamp bumped to d29r");
+assert.ok(/build d29s/.test(html), "build stamp bumped to d29s");
+assert.ok(/item\.pdfUrl=remote\.pdfUrl\|\|item\.pdfUrl/.test(html), "applySharedIncoming copies remote.pdfUrl");
+assert.ok(/item\.pdfName=remote\.pdfName\|\|item\.pdfName/.test(html), "applySharedIncoming copies remote.pdfName");
+assert.ok(/id="centerPacketPdf"/.test(html), "detail sheet has Open packet PDF control");
+assert.ok(/Open packet PDF/.test(html), "Open packet PDF label is on the sheet");
+assert.ok(/function paintCenterPacketPdf\(/.test(html), "detail paint wires the packet PDF control");
+assert.ok(/packetPdfHref\(item&&item\.pdfUrl\)/.test(html), "Open packet PDF uses item.pdfUrl");
 assert.ok(/item\.photos=remote\.photos\.map/.test(html), "applySharedIncoming assigns remote.photos");
 assert.ok(/photos:photos/.test(html), "slimSharedCenterItem includes photos");
 assert.ok(/persistCenterMedia\(item\.id, item\.photos, item\.docs\|\|\{\}\)/.test(html), "shared land persists Center media");
