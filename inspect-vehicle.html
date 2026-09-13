@@ -2639,9 +2639,15 @@ function armMailFallback(){
     $("mailOpen").classList.remove("hide");
   }
   if($("btnSharePack")){ $("btnSharePack").disabled=false; $("btnSharePack").textContent="Send"; }
-  toast("Gmail didn’t connect. Use the mail button.");
+  landInCenter({sent:false, stage:"Waiting"});
+  toast("Saved in Appraisal Center. Gmail didn’t connect. Use the mail button.");
+}
+function packetReady(){
+  return !!(capturedFiles().length || (APP.clips&&APP.clips.length) || Object.keys(APP.docs||{}).length || (APP.notes||APP.heard));
 }
 function kickShare(){
+  if(!packetReady()){ toast("Add the story or photos first."); return; }
+  landInCenter({sent:false, stage:"Waiting"});
   if(APP.role==="guest"){ sharePacket(); return; }
   if(hasMailAuth()){ sharePacket(); return; }
   const ios=/iPhone|iPad|iPod/i.test(navigator.userAgent||"") || !!(window.navigator && navigator.standalone);
