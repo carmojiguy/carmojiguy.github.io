@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-13 build d28: 2x2 market desk + standing Carfax guy on d27q; zero Center samples -->
+<!-- center-v3 + desk-home 2026-09-13 build d28x: appraisal exit chrome on d28 market desk; zero Center samples -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -43,6 +43,38 @@ body { font-family:Manrope,system-ui,sans-serif; color:var(--ink); }
 .screen.start { padding:0 !important; min-height:100svh; height:100svh; overflow:hidden; }
 .nav { display:grid; grid-template-columns:36px 1fr auto; align-items:center; padding:12px 16px 8px; gap:10px; }
 .nav h1 { margin:0; text-align:center; font-size:15px; font-weight:800; }
+.exit-chrome {
+  display:none; position:fixed; top:0; left:0; right:0; z-index:110;
+  grid-template-columns:56px minmax(92px,1fr) minmax(92px,1fr);
+  gap:8px; align-items:center;
+  padding:calc(10px + env(safe-area-inset-top)) 12px 12px;
+  background:linear-gradient(180deg,#FAF9FC 0%, rgba(250,249,252,.96) 58%, rgba(250,249,252,0));
+  pointer-events:none;
+}
+.exit-chrome.on { display:grid; }
+.exit-chrome button { pointer-events:auto; -webkit-tap-highlight-color:transparent; }
+.exit-x {
+  width:56px; height:56px; min-width:56px; border-radius:50%;
+  border:1.5px solid #D4C8F5; background:#fff; color:var(--purple-deep);
+  box-shadow:0 10px 24px rgba(124,92,255,.22);
+  font-size:26px; font-weight:800; line-height:1; cursor:pointer;
+}
+.exit-back, .exit-home {
+  min-height:56px; border:0; border-radius:18px; cursor:pointer;
+  font:inherit; font-size:17px; font-weight:800;
+}
+.exit-back { background:#fff; color:var(--purple-deep); border:1.5px solid #D4C8F5; box-shadow:0 8px 22px rgba(124,92,255,.14); }
+.exit-home { background:linear-gradient(135deg,#7C5CFF,#00A4E2); color:#fff; box-shadow:0 10px 24px rgba(0,164,226,.28); }
+body.exit-on .screen:not(.start):not(.cam) { padding-top:calc(72px + env(safe-area-inset-top)); }
+body.exit-on .screen:not(.start):not(.cam) > .nav { padding-top:4px; }
+body.exit-on .screen > .nav > .round:first-of-type { visibility:hidden; pointer-events:none; }
+body.exit-on .screen.cam > .nav { padding-top:calc(72px + env(safe-area-inset-top)); }
+body.exit-on .center-sheet { top:max(10vh, calc(72px + env(safe-area-inset-top))); }
+@media (max-width:767px){
+  body.exit-on #center.center-has-detail #centerDetailBody{
+    top:calc(72px + env(safe-area-inset-top));
+  }
+}
 .nav-hist {
   height:36px; padding:0 14px; border:0; border-radius:999px;
   background:linear-gradient(135deg,#7C5CFF,#00A4E2); color:#fff;
@@ -106,14 +138,21 @@ h2 { font-size:26px; font-weight:800; letter-spacing:-.5px; margin:4px 0 14px; }
 .dmg-thumb .voice { position:absolute; top:5px; right:5px; width:18px; height:18px; border-radius:50%; background:rgba(0,0,0,.62); color:#fff; font-size:9px; font-style:normal; display:grid; place-items:center; pointer-events:none; }
 .block { margin:22px 0 8px; font-size:22px; font-weight:800; }
 .unit { color:var(--muted); font-size:16px; margin:6px 0 12px; }
-.sheet { display:none; position:fixed; inset:0; background:rgba(250,249,252,.78); z-index:40; padding:72px 16px 24px; }
+.sheet { display:none; position:fixed; inset:0; background:rgba(250,249,252,.78); z-index:40; padding:calc(84px + env(safe-area-inset-top)) 16px 24px; cursor:pointer; }
 .sheet.on { display:block; }
+.sheet .card { cursor:default; }
 .card.live h3::before { content:""; display:inline-block; width:8px; height:8px; border-radius:50%; background:#E23B3B; margin-right:8px; vertical-align:middle; box-shadow:0 0 0 0 rgba(226,59,59,.6); animation:livepulse 1.2s infinite; }
 @keyframes livepulse { 0%{box-shadow:0 0 0 0 rgba(226,59,59,.55)} 70%{box-shadow:0 0 0 10px rgba(226,59,59,0)} 100%{box-shadow:0 0 0 0 rgba(226,59,59,0)} }
 .card { background:#fff; border-radius:22px; box-shadow:0 18px 50px rgba(92,63,224,.14); padding:18px 16px; position:relative; }
 .card h3 { margin:0; font-size:22px; font-weight:800; }
 .card .hint { color:var(--muted); font-size:15px; margin:6px 0 12px; }
-.card .x { position:absolute; right:12px; top:12px; width:28px; height:28px; border:0; border-radius:50%; background:var(--fill); cursor:pointer; }
+.card .x {
+  position:absolute; right:10px; top:10px; z-index:2;
+  width:48px; height:48px; border:1.5px solid #D4C8F5; border-radius:50%;
+  background:#fff; color:var(--purple-deep); cursor:pointer;
+  box-shadow:0 8px 22px rgba(124,92,255,.16);
+  font-size:22px; font-weight:800; line-height:1;
+}
 .box { width:100%; min-height:160px; max-height:none; border:0; background:#eef0f3; border-radius:16px; padding:14px; font-size:18px; font-family:inherit; resize:vertical; overflow:auto; field-sizing:content; }
 .pair { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:14px; }
 label.k { display:block; color:#6e6e73; font-size:13px; margin:11px 0 5px; }
@@ -1180,7 +1219,13 @@ body.center-gallery-on { overflow:hidden; }
   .how { padding:18px 22px; }
   .how li { font-size:16px; }
 
-  .sheet { display:none; align-items:center; justify-content:center; padding:48px 24px; background:rgba(18,15,28,.46); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); }
+  .exit-chrome {
+    left:0; right:0; max-width:none;
+    padding:calc(12px + env(safe-area-inset-top)) 40px 14px;
+    grid-template-columns:56px 180px 180px;
+    justify-content:start;
+  }
+  .sheet { display:none; align-items:center; justify-content:center; padding:calc(88px + env(safe-area-inset-top)) 24px 48px; background:rgba(18,15,28,.46); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); }
   .sheet.on { display:flex; }
   .sheet .card { width:min(560px, 100%); padding:28px 26px; border-radius:28px; }
   #userSheet .card, #userAddSheet .card { width:min(640px, 100%); }
@@ -1361,6 +1406,11 @@ body.center-gallery-on { overflow:hidden; }
 <body>
 <div class="phone">
 <div class="accent"></div>
+<div class="exit-chrome" id="exitChrome">
+  <button class="exit-x" type="button" id="exitClose" aria-label="Close">✕</button>
+  <button class="exit-back" type="button" id="exitBack">Back</button>
+  <button class="exit-home" type="button" id="exitHome">Home</button>
+</div>
 
 <section class="screen on start" id="login">
   <div class="start-bg"><img id="loginBg" src="https://carmojiguy.github.io/start-bgs/01.jpg?v=10" alt=""></div>
@@ -1760,7 +1810,7 @@ body.center-gallery-on { overflow:hidden; }
     <p class="quote" id="vinHint">Best: take a picture of the vehicle ownership (registration). You can also photograph the VIN on the dash or the sticker on the driver’s door. We’ll read the number from the photo.</p>
     <p class="vin-chip hide" id="vinChip"></p>
     </div>
-    <p class="build-stamp" id="buildStamp">build d28</p>
+    <p class="build-stamp" id="buildStamp">build d28x</p>
   </div>
 </section>
 
@@ -2219,7 +2269,7 @@ body.center-gallery-on { overflow:hidden; }
   <div class="card">
     <button class="x" type="button" data-close="typeSheet">✕</button>
     <h3>Appraisal type</h3>
-    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d28</span></p>
+    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d28x</span></p>
     <div id="typeChips" class="to-chips"></div>
     <div id="leadBox" class="lead-box hide">
       <p class="hint">Lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a New application — no appointment calendar.</p>
@@ -3343,6 +3393,135 @@ function show(id){
   if(id==="center"){ paintCenter(); paintCenterDetail(); }
   else if(typeof closeCenterGallery==="function") closeCenterGallery();
   if(id!=="login" && id!=="thanks" && id!=="start") scheduleDraftSave();
+  if(typeof syncExitChrome==="function") syncExitChrome();
+}
+
+function wantsAppBack(){
+  if(APP.screen==="login" || APP.screen==="thanks") return false;
+  if(APP.screen==="start"){
+    return !!(document.querySelector(".sheet.on") || ( $("viewer") && $("viewer").classList.contains("on") ) || APP.centerGalleryOn || ($("docsGate") && $("docsGate").classList.contains("on")) || ($("staffHistSheet") && $("staffHistSheet").classList.contains("on")));
+  }
+  return !!APP.screen;
+}
+function armAppBack(){
+  if(!wantsAppBack() || APP._backArmed || APP._navFromPop) return;
+  try{
+    history.pushState({exit:1, pg:APP.screen||""}, "");
+    APP._backArmed=true;
+  }catch(e){}
+}
+function syncExitChrome(){
+  const bar=$("exitChrome");
+  const hide=!APP.screen || APP.screen==="start" || APP.screen==="login" || APP.screen==="thanks";
+  if(bar) bar.classList.toggle("on", !hide);
+  document.body.classList.toggle("exit-on", !hide);
+  if(!hide) armAppBack();
+  else APP._backArmed=false;
+}
+function closeNamedSheet(id){
+  if(!id || !$(id)) return;
+  $(id).classList.remove("on");
+  try{ stopMic(); }catch(e){}
+  if(id==="vinSheet"){ try{ stopVinScan(); }catch(e){} }
+  if(id==="typeSheet" && typeof needsNewApplication==="function" && needsNewApplication()) openNewApplicationDesk();
+  if(typeof syncExitChrome==="function") syncExitChrome();
+}
+function closeAllOverlays(){
+  document.querySelectorAll(".sheet.on").forEach(function(s){ s.classList.remove("on"); });
+  try{ stopMic(); }catch(e){}
+  try{ stopVinScan(); }catch(e){}
+  if(typeof closeViewer==="function") closeViewer();
+  if(typeof closeCenterGallery==="function") closeCenterGallery();
+  if(typeof closeStaffHist==="function") closeStaffHist();
+  if(typeof closeTradeLane==="function") closeTradeLane();
+  if(typeof closeDocsGate==="function") closeDocsGate();
+  if($("centerDateMenu")) $("centerDateMenu").classList.remove("on");
+  if($("apptDateMenu")) $("apptDateMenu").classList.remove("on");
+}
+function dismissOpenLayer(){
+  if(APP.centerGalleryOn){ closeCenterGallery(); return true; }
+  if($("viewer") && $("viewer").classList.contains("on")){ closeViewer(); return true; }
+  if($("docsGate") && $("docsGate").classList.contains("on")){ closeDocsGate(); return true; }
+  const sheets=document.querySelectorAll(".sheet.on");
+  if(sheets.length){ closeNamedSheet(sheets[sheets.length-1].id); return true; }
+  if($("staffHistSheet") && $("staffHistSheet").classList.contains("on")){ closeStaffHist(); return true; }
+  if($("tradeSheet") && $("tradeSheet").classList.contains("on")){ closeTradeLane(); return true; }
+  if(APP.screen==="center" && APP.centerViewId){ closeCenterDetail(); return true; }
+  if(APP.screen==="center" && APP.centerLane){ closeCenterLane(); return true; }
+  return false;
+}
+function pageHome(){
+  APP._centerFromPop=true;
+  try{
+    closeAllOverlays();
+    APP.centerLane="";
+    APP.centerViewId="";
+    APP.centerHistory=false;
+    APP.centerPhoto=0;
+    if($("center")) $("center").classList.remove("center-has-detail");
+    if($("centerSheet")) $("centerSheet").classList.remove("on");
+    if($("centerSheetDim")) $("centerSheetDim").classList.remove("on");
+    show("start");
+  }finally{
+    APP._centerFromPop=false;
+  }
+}
+function pageBack(){
+  if(dismissOpenLayer()){ syncExitChrome(); return; }
+  const id=APP.screen||"";
+  if(id==="camera"){ show("photos"); return; }
+  if(id==="submit"){ show("photos"); return; }
+  if(id==="webStudio"){ show(isWeb()?"webdesk":"photos"); return; }
+  if(id==="photos"){
+    if(typeof isConsumerAcquisition==="function" && isConsumerAcquisition() && (APP.apptId || APP.newApplication)) show("workbench");
+    else if(typeof isWeb==="function" && isWeb()) show("webdesk");
+    else show("home");
+    return;
+  }
+  if(id==="verify"){
+    if(typeof isConsumerAcquisition==="function" && isConsumerAcquisition() && (APP.apptId || APP.newApplication)) show("workbench");
+    else show("home");
+    return;
+  }
+  if(id==="workbench"){
+    if(typeof isConsumerAcquisition==="function" && isConsumerAcquisition() && APP.newAppOpen && typeof usesCaAppointments==="function" && usesCaAppointments()){
+      APP.newAppOpen=false;
+      paintAppointments();
+      paintWorkbench();
+      syncExitChrome();
+      return;
+    }
+    if(typeof isConsumerAcquisition==="function" && isConsumerAcquisition() && (APP.apptId || APP.newApplication)){
+      APP.apptId="";
+      APP.apptSeller="";
+      APP.lockedFromAirtable=false;
+      APP.newApplication=false;
+      if(typeof usesCaAppointments==="function" && usesCaAppointments()){
+        APP.newAppOpen=false;
+        paintAppointments();
+        paintWorkbench();
+        syncExitChrome();
+        return;
+      }
+      show("home");
+      return;
+    }
+    show("start");
+    return;
+  }
+  if(id==="center"){ exitCenterChrome(); return; }
+  if(id==="home" || id==="invite" || id==="users" || id==="webdesk"){ show("start"); return; }
+  if(id==="start" || id==="login" || id==="thanks") return;
+  show("start");
+}
+function pageClose(){
+  if(dismissOpenLayer()){ syncExitChrome(); return; }
+  if(APP.screen==="center"){ exitCenterChrome(); return; }
+  if(["home","workbench","verify","photos","camera","submit","webStudio"].indexOf(APP.screen)>=0){
+    pageHome();
+    return;
+  }
+  pageBack();
 }
 
 function sessionKey(){ return "inspect.session"; }
@@ -10990,13 +11169,17 @@ function resetAll(){
 
 document.querySelectorAll("[data-close]").forEach(function(b){
   b.addEventListener("click", function(){
-    const id=b.getAttribute("data-close");
-    $(id).classList.remove("on");
-    stopMic();
-    if(id==="vinSheet") stopVinScan();
-    if(id==="typeSheet" && needsNewApplication()) openNewApplicationDesk();
+    closeNamedSheet(b.getAttribute("data-close"));
   });
 });
+document.querySelectorAll(".sheet").forEach(function(sheet){
+  sheet.addEventListener("click", function(e){
+    if(e.target===sheet) closeNamedSheet(sheet.id);
+  });
+});
+if($("exitClose")) $("exitClose").onclick = function(e){ if(e){ e.preventDefault(); e.stopPropagation(); } pageClose(); };
+if($("exitBack")) $("exitBack").onclick = function(e){ if(e){ e.preventDefault(); e.stopPropagation(); } pageBack(); };
+if($("exitHome")) $("exitHome").onclick = function(e){ if(e){ e.preventDefault(); e.stopPropagation(); } pageHome(); };
 $("startAppraise").onclick = function(){
   if(!requirePerm("appraise")) return;
   setPurpose("appraise");
@@ -11029,15 +11212,19 @@ if($("centerSheetClose")) $("centerSheetClose").onclick = function(){ closeCente
 if($("centerSheetDim")) $("centerSheetDim").onclick = closeCenterOverlay;
 bindCenterDetailClose();
 window.addEventListener("popstate", function(){
-  if(APP._centerClosed){ APP._centerClosed=false; return; }
+  if(APP._centerClosed || APP._navClosed){ APP._centerClosed=false; APP._navClosed=false; return; }
   APP._centerFromPop=true;
+  APP._navFromPop=true;
   try{
-    if(APP.centerGalleryOn){ closeCenterGallery(); return; }
-    if(APP.screen==="center" && APP.centerViewId){ closeCenterDetail(true); return; }
-    if(APP.screen==="center" && APP.centerLane){ closeCenterLane(true); return; }
-    if(APP.screen==="center" && centerHistState().ac!=="desk") show("start");
+    if(wantsAppBack()) pageBack();
   }finally{
     APP._centerFromPop=false;
+    APP._navFromPop=false;
+  }
+  if(wantsAppBack()){
+    try{ history.pushState({exit:1, pg:APP.screen||""}, ""); APP._backArmed=true; }catch(e){}
+  } else {
+    APP._backArmed=false;
   }
 });
 if(window.matchMedia){
@@ -11284,35 +11471,7 @@ document.addEventListener("click", function(e){
   if(e.target && e.target.closest && e.target.closest("#apptDates")) return;
   menu.classList.remove("on");
 });
-if($("wbBack")) $("wbBack").onclick = function(){
-  if(isConsumerAcquisition() && APP.newAppOpen && usesCaAppointments()){
-    APP.newAppOpen=false;
-    paintAppointments();
-    paintWorkbench();
-    return;
-  }
-  if(needsNewApplication() && !usesCaAppointments()){
-    openNewApplicationDesk();
-    return;
-  }
-  if(isConsumerAcquisition() && (APP.apptId || APP.newApplication)){
-    APP.apptId="";
-    APP.apptSeller="";
-    APP.lockedFromAirtable=false;
-    APP.newApplication=false;
-    if(usesCaAppointments()){
-      APP.newAppOpen=false;
-      paintAppointments();
-      paintWorkbench();
-      toast("Pick another booked appointment or start a New application.");
-      return;
-    }
-    APP.newAppOpen=true;
-    paintWorkbench();
-    return;
-  }
-  show("start");
-};
+if($("wbBack")) $("wbBack").onclick = pageClose;
 if($("wbType")) $("wbType").onclick = openDealType;
 if($("wbStory")) $("wbStory").onclick = function(){ if(!requireAppraiseType()) return; openStoryMic(); };
 if($("wbWalk")) $("wbWalk").onclick = function(){ if(!requireAppraiseType()) return; show("photos"); };
@@ -11355,7 +11514,7 @@ document.addEventListener("click", function(e){
   const b=e.target && e.target.closest && e.target.closest("#startUsers");
   if(b){ e.preventDefault(); openUsers(); }
 });
-if($("usersBack")) $("usersBack").onclick = function(){ show("start"); };
+if($("usersBack")) $("usersBack").onclick = pageClose;
 if($("userAdd")) $("userAdd").onclick = addUser;
 if($("user-email")) $("user-email").addEventListener("keydown", function(e){ if(e.key==="Enter") addUser(); });
 if($("usersAddOpen")) $("usersAddOpen").onclick = function(){
@@ -11371,7 +11530,7 @@ document.addEventListener("click", function(e){
   if(e.target && e.target.closest && e.target.closest("#deskTeamBox")) return;
   menu.classList.remove("on");
 });
-if($("inviteBack")) $("inviteBack").onclick = function(){ show("start"); };
+if($("inviteBack")) $("inviteBack").onclick = pageClose;
 if($("inviteSend")) $("inviteSend").onclick = sendTradeInvite;
 if($("inviteHistBtn")) $("inviteHistBtn").onclick = function(){ openStaffHistory("trade"); };
 if($("tradeSentBtn")) $("tradeSentBtn").onclick = function(){ openTradeLane("sent"); };
@@ -11390,7 +11549,7 @@ if($("homeHistBtn")) $("homeHistBtn").onclick = function(){ openStaffHistory("ap
 if($("homeHistJump")) $("homeHistJump").onclick = function(){ openStaffHistory("appraise"); };
 if($("photosHistBtn")) $("photosHistBtn").onclick = function(){ if(isWeb() && window.WebStudio) WebStudio.open("history"); else openStaffHistory("website"); };
 if($("wbHistBtn")) $("wbHistBtn").onclick = function(){ openStaffHistory("ca"); };
-if($("webdeskBack")) $("webdeskBack").onclick = function(){ show("start"); };
+if($("webdeskBack")) $("webdeskBack").onclick = pageClose;
 if($("webdeskHistBtn") || $("webHistLaneBtn")) {
   const openWebHist=function(){ if(window.WebStudio){ WebStudio.open("history"); return; } openStaffHistory("website"); };
   if($("webdeskHistBtn")) $("webdeskHistBtn").onclick = openWebHist;
@@ -11410,13 +11569,11 @@ if($("invCopy")) $("invCopy").onclick = function(){
   if($(id)) $(id).addEventListener("input", invitePreview);
 });
 if($("inv-phone")) $("inv-phone").addEventListener("input", onPhoneInput);
-$("homeX").onclick = function(){ show("start"); };
-$("photosX").onclick = function(){
-  if(isConsumerAcquisition() && (APP.apptId || APP.newApplication)) show("workbench");
-  else show("home");
-};
-$("camX").onclick = $("camDone").onclick = function(){ show("photos"); };
-$("submitX").onclick = function(){ show("photos"); };
+$("homeX").onclick = pageClose;
+$("photosX").onclick = pageClose;
+$("camX").onclick = pageClose;
+$("camDone").onclick = function(){ show("photos"); };
+$("submitX").onclick = pageClose;
 $("doneX").onclick = $("btnAnother").onclick = resetAll;
 $("btnStory").onclick = function(){ if(!requireAppraiseType()) return; openStoryMic(); };
 $("btnStart").onclick = function(){ openCamera("photos","qfront"); };
@@ -11469,7 +11626,8 @@ if($("viewerX")) $("viewerX").onclick = closeViewer;
 if($("viewerCapMore")) $("viewerCapMore").onclick = toggleViewerCap;
 if($("viewerPlay")) $("viewerPlay").onclick = playViewerVoice;
 document.addEventListener("keydown", function(e){
-  if(e.key==="Escape" && APP.centerGalleryOn) closeCenterGallery();
+  if(e.key!=="Escape") return;
+  if(wantsAppBack()) pageBack();
 });
 if($("storyCard")) $("storyCard").onclick = function(){
   openViewer("packet", "<h2>Story / condition</h2><p>"+esc(APP.notes||APP.heard||"No story yet.")+"</p>", "Story / condition");
@@ -11517,10 +11675,7 @@ $("useStory").onclick = function(){
 };
 $("btnType").onclick = function(){ if(!requireAppraiseType()) return; openVerify(); };
 $("saveUnit").onclick = function(){ readUnit(); $("unitSheet").classList.remove("on"); paintLists(); show("photos"); };
-$("verifyBack").onclick = function(){
-  if(isConsumerAcquisition() && (APP.apptId || APP.newApplication)) show("workbench");
-  else show("home");
-};
+$("verifyBack").onclick = pageClose;
 $("verifyGo").onclick = function(){
   stopVinSpeak();
   readVerify();
