@@ -10,7 +10,12 @@ const api = fs.readFileSync(path.join(__dirname, "..", "api", "upload.js"), "utf
 
 assert.ok(/store:\s*true/.test(html), "client asks the API for the store sender");
 assert.ok(/kind:"send"/.test(html), "client still posts kind:send");
-assert.ok(/MAIL_HOST="https:\/\/trade-in-shawn-6802\.vercel\.app"/.test(html), "staff + guest still hit the live mailer host");
+const MAIL_HOST = "https://gnm-guest-mailer-shawn-6802.vercel.app";
+assert.ok(html.indexOf('MAIL_HOST="'+MAIL_HOST+'"') >= 0, "staff + guest hit the live store mailer");
+assert.ok(!/trade-in-shawn-/.test(html), "old sandbox mailer host is gone from the SPA");
+const oauth = fs.readFileSync(path.join(__dirname, "..", "oauth.html"), "utf8");
+assert.ok(oauth.indexOf(MAIL_HOST+"/api/upload") >= 0, "oauth.html code-exchange hits the live store mailer");
+assert.ok(!/trade-in-shawn-/.test(oauth), "oauth.html no longer hits the old sandbox");
 
 assert.ok(/GOOGLE_REFRESH_TOKEN/.test(api), "store path uses GOOGLE_REFRESH_TOKEN");
 assert.ok(/GOOGLE_CLIENT_ID/.test(api), "documents GOOGLE_CLIENT_ID");

@@ -1,9 +1,8 @@
 /**
  * Store + staff mailer for Packet Send.
  *
- * Drop this file onto the existing Vercel project
- *   trade-in-shawn-6802  (https://trade-in-shawn-6802.vercel.app/api/upload)
- * or connect this repo and point MAIL_HOST at that deployment.
+ * Live host:
+ *   https://gnm-guest-mailer-shawn-6802.vercel.app/api/upload
  *
  * Guest Send posts {kind:"send"} with empty token/mk. The store sender
  * must still mail the packet — that is why these env vars exist.
@@ -29,7 +28,7 @@
  */
 const ALLOW = [
   "https://carmojiguy.github.io",
-  "https://trade-in-shawn-6802.vercel.app"
+  "https://gnm-guest-mailer-shawn-6802.vercel.app"
 ];
 
 function cors(origin) {

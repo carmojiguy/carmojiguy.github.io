@@ -22,7 +22,7 @@
     if(err) sessionStorage.setItem("inspect.gerr", err);
   }catch(e){}
   if(code){
-    fetch("https://trade-in-shawn-6802.vercel.app/api/upload", {
+    fetch("https://gnm-guest-mailer-shawn-6802.vercel.app/api/upload", {
       method:"POST",
       headers:{"Content-Type":"application/json"},
       body: JSON.stringify({kind:"oauth", code:code, redirect_uri: location.origin.replace(/\/$/,"")+"/oauth.html"})
