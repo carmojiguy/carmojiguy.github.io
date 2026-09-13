@@ -64,33 +64,21 @@ must(/TBot/, "team rail includes TBot");
 must(/placeholder="MIN"/, "team MIN slot");
 must(/placeholder="TARGET"/, "team TARGET slot");
 must(/placeholder="MAX"/, "team MAX slot");
-must(/sample-v5-tucson/, "Incoming sample Tucson interest");
-must(/Maya Patel/, "Incoming sample customer name");
-must(/\(613\) 555-0142/, "Incoming sample customer phone");
-must(/Jay Cyr/, "Incoming sample salesperson");
-must(/2025 Hyundai Tucson Preferred/, "Incoming sample interest vehicle");
-must(/sample-v5-corolla/, "on-site sample GR Corolla");
-must(/sample-v5-wrangler/, "history archive sample Wrangler");
-must(/lane:"inbox"/, "samples tagged inbox");
-must(/lane:"onsite"/, "samples tagged on-site");
-must(/CENTER_SAMPLE_VER="acre8"/, "sample version acre8");
-must(/function finishSample\(/, "samples are finished packets");
-must(/function finishTradeWait\(/, "waiting trade links stay incomplete");
-must(/function sampleDocs\(/, "sample market docs");
+must(/function isCenterSample\(/, "Center can tell a coded sample from a real file");
+must(/function seedCenterSamples\(/, "Center boot still calls the sample sweeper");
+must(/return !isCenterSample\(x\)/, "sweeper drops leftover sample tiles");
+mustNot(/function finishSample\(/, "no finished sample packets");
+mustNot(/function centerSampleItems\(/, "no Center sample catalog");
+mustNot(/function finishTradeWait\(/, "no waiting-on-customer sample trades");
+mustNot(/CENTER_SAMPLE_VER/, "sample version stamp is gone");
+mustNot(/sample-v5-/, "v5 sample ids are gone");
+mustNot(/sample-v8-/, "v8 sample ids are gone");
+mustNot(/Maya Patel/, "Incoming sample customer is gone");
+mustNot(/2024 Honda Civic Sport/, "Honda smoke sample is gone");
+must(/lane:"inbox"/, "shared Incoming still lands inbox");
+must(/lane\|\|"onsite"/, "On-site remains a Center lane");
 must(/blackbook/, "Black Book doc slot");
-must(/photoCount=photos\.length/, "samples get a full walk");
-must(/function sampleAngleSvg\(/, "sample photos are labeled to the unit and angle");
-must(/function sampleWalk\(itemOrKind\)/, "sample walks take the vehicle, not a generic pool");
-must(/2018 Ford F-150 XLT SuperCrew/, "F-150 sample is an F-150");
-must(/1FTEW1EP4JFA20331/, "F-150 sample keeps a Ford VIN");
-mustNot(/sample-v5-f150[\s\S]{0,400}Honda CR-V/, "F-150 sample is not a CR-V");
-must(/sample-v8-wait-camry/, "waiting trade link sample Camry");
-must(/sample-v8-wait-tundra/, "waiting trade link sample Tundra");
-must(/sample-v8-pilot/, "fifth on-site Pilot");
-must(/sample-v8-mazda3/, "fifth on-site Mazda3");
-must(/sample-v8-web-accord/, "website active Accord");
-must(/sample-v8-webh-impreza/, "website history Impreza");
-must(/sample-v8-ca-f150/, "CA history F-150 stays an F-150");
+must(/photoCount=photos\.length/, "real Send still counts the walk");
 must(/id="inviteHistBtn"/, "trade-in link has History");
 must(/id="tradeWaitBtn"/, "trade-in waiting pop-out");
 must(/id="usersHistBtn"/, "Users has History");
@@ -108,7 +96,7 @@ must(/Waiting on customer/, "waiting-on-customer label");
 must(/Reminder sent to/, "reminder never fails the Send toast");
 must(/openWebdesk/, "start Website opens the photo desk");
 must(/function orderCenterPhotos\(/, "Center photos follow walk-around order");
-must(/VIEWS\.map\(function\(v,i\)/, "sample walks use the same VIEWS order");
+must(/function walkViewIndex\(/, "walk order uses the same VIEWS keys");
 must(/"Walk-around "\+\(step\+1\)\+" of "/, "guest camera nudges walk-around order");
 must(/id="walkOrderNote"/, "guest photo list explains walk order");
 must(/id="centerGallery"/, "full-screen Center gallery");
@@ -212,8 +200,9 @@ must(/id="typeGateNote"/, "plain-English type-first note on the Appraise form");
 must(/classList\.toggle\("home-gate", !!\(lock && !pending\)\)/, "gated Appraise actions are grayed unless the create form is showing");
 must(/id="home"[\s\S]*id="newAppWrap"[\s\S]*id="storyBlock"/, "New application form sits on the HOME Appraise desk");
 mustNot(/id="workbench"[\s\S]*id="newAppWrap"/, "create form is not workbench-only after My Loan");
-must(/id="buildStamp">build d27x</, "home footer has a visible build stamp");
-must(/id="typeSheet"[\s\S]*build d27x/, "type sheet hint includes the build stamp");
+must(/id="buildStamp">build d27z</, "home footer has a visible build stamp");
+must(/id="typeSheet"[\s\S]*build d27z/, "type sheet hint includes the build stamp");
+must(/zero Center samples/, "build comment says zero samples");
 must(/function shareIncomingBestEffort\(/, "completed Send posts slim Incoming to the mailer store");
 must(/MAIL_HOST\+"\/api\/incoming"/, "Incoming share hits MAIL_HOST /api/incoming");
 must(/kind:"land"/, "Incoming share posts kind:land");
@@ -600,8 +589,8 @@ must(/function sendToTeamLeader\(/, "leader path is a named send");
 must(/function promoteNeedsDocs\(/, "leader can promote a complete file");
 must(/function notifyAppraisal\(/, "client posts durable nags to the mailer");
 must(/\/api\/notify-appraisal/, "Pages hits the mailer notify endpoint");
-must(/lane:"needsdocs"/, "incomplete Send is tagged needsdocs");
-must(/sample-v8-docs/, "Needs docs sample file");
+must(/item\.lane="needsdocs"/, "incomplete Send is tagged needsdocs");
+mustNot(/sample-v8-docs/, "Needs docs sample file is gone");
 must(/function resolveTeamLeaders\(/, "Users roster supplies team leaders");
 must(/id="ud-role"/, "Users screen has a Team Leader role");
 must(/Team Leader/, "Users screen has a Team Leader toggle");
@@ -656,6 +645,46 @@ must(/id="wsHistoryList"/, "History packages list");
 must(/Damage stays\. Dirt goes\./, "damage-preserving retouch copy");
 must(/web-studio\.js/, "studio engine is a separate file");
 must(/id="webHistJump"/, "photos screen History jump");
+
+(function testSeedPurgesSamplesKeepsRealIncoming() {
+  const sampleM = html.match(/function isCenterSample\(item\)\{[\s\S]*?\n\}/);
+  const seedM = html.match(/function seedCenterSamples\(\)\{[\s\S]*?\n\}/);
+  assert.ok(sampleM && seedM, "sample sweeper extractable");
+  let store = {
+    seq: 1000,
+    items: [
+      { id: "sample-v5-civic", sample: true, lane: "onsite", ymmt: "2024 Honda Civic Sport" },
+      { id: "sample-v8-wait-camry", sampleVer: "acre8", source: "trade-in", linkSent: true, ymmt: "2017 Toyota Camry SE" },
+      {
+        id: "guest-christine-blazer-20260913",
+        source: "guest",
+        lane: "inbox",
+        vin: "3GNKBHRS0LS577461",
+        ymmt: "2020 Chevrolet Blazer LT",
+        customer: { name: "Christine Cyr" }
+      },
+      {
+        id: "guest-chris-rav4-20260913",
+        source: "guest",
+        lane: "inbox",
+        vin: "2T3B1RFVXRC466025",
+        ymmt: "2024 Toyota RAV4",
+        customer: { name: "Chris Cyr" }
+      }
+    ]
+  };
+  function centerStore() { return store; }
+  function saveCenterStore(next) { store = next; }
+  const isCenterSample = eval("(" + sampleM[0].replace("function isCenterSample", "function") + ")");
+  const seedCenterSamples = eval("(" + seedM[0].replace("function seedCenterSamples", "function") + ")");
+  seedCenterSamples();
+  assert.deepStrictEqual(store.items.map(function (x) { return x.id; }), [
+    "guest-christine-blazer-20260913",
+    "guest-chris-rav4-20260913"
+  ], "real Incoming files stay; coded samples leave");
+  assert.strictEqual(isCenterSample({ id: "guest-christine-blazer-20260913" }), false, "real Blazer is not a sample");
+  assert.strictEqual(isCenterSample({ id: "sample-v5-civic" }), true, "Honda smoke id is a sample");
+})();
 
 ["404.html", "inspect-vehicle.html"].forEach(function (name) {
   const copy = fs.readFileSync(path.join(root, name), "utf8");

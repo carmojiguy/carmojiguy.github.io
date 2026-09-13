@@ -52,6 +52,12 @@ const matchSrc = html.match(/function findCenterMatch\(store, hint\)\{[\s\S]*?\n
   "function"
 );
 
+function isCenterSample(item) {
+  if (!item) return false;
+  if (item.sample || item.sampleVer) return true;
+  const id = String(item.id || "");
+  return /^sample[-_]/i.test(id);
+}
 const APP = { sendId: "", centerId: "open-other", vin: "", inviteName: "" };
 const findCenterMatch = eval("(" + matchSrc + ")");
 const applySharedIncoming = eval("(" + applySrc + ")");
@@ -143,6 +149,43 @@ function slimSharedDocs(docs) {
   assert.equal(store.items.length, 1);
   assert.equal(store.items[0].source, "guest");
   assert.equal(store.items[0].vin, "2HKRW2H86JH123456");
+})();
+
+(function testSkipCodedSamplesKeepRealGuests() {
+  const store = { seq: 1000, items: [] };
+  function centerStore() { return store; }
+  function saveCenterStore() {}
+  const mergeIncomingShared = eval("(" + mergeSrc + ")");
+  mergeIncomingShared([
+    { id: "sample-v5-civic", sample: true, vin: "2HGFE2F54RH543210", ymmt: "2024 Honda Civic Sport", customer: { name: "Alex Ruiz" } },
+    { id: "sample-v8-wait-camry", sampleVer: "acre8", vin: "4T1B11HK5HU234901", ymmt: "2017 Toyota Camry SE", customer: { name: "Elena Rossi" } },
+    {
+      id: "guest-christine-blazer-20260913",
+      sendId: "s-blazer",
+      vin: "3GNKBHRS0LS577461",
+      ymmt: "2020 Chevrolet Blazer LT",
+      source: "guest",
+      customer: { name: "Christine Cyr" },
+      photoCount: 6,
+      story: "Packet in."
+    },
+    {
+      id: "guest-chris-rav4-20260913",
+      sendId: "s-rav4",
+      vin: "2T3B1RFVXRC466025",
+      ymmt: "2024 Toyota RAV4",
+      source: "guest",
+      customer: { name: "Chris Cyr" },
+      photoCount: 8,
+      story: "Packet in."
+    }
+  ]);
+  const ids = store.items.map(function (x) { return x.id; });
+  assert.ok(ids.indexOf("sample-v5-civic") < 0, "Honda smoke does not land");
+  assert.ok(ids.indexOf("sample-v8-wait-camry") < 0, "waiting sample does not land");
+  assert.ok(ids.indexOf("guest-christine-blazer-20260913") >= 0, "Christine Blazer lands");
+  assert.ok(ids.indexOf("guest-chris-rav4-20260913") >= 0, "Chris RAV4 lands");
+  assert.equal(store.items.length, 2);
 })();
 
 assert.ok(/scheduleIncomingPull\(\)/.test(html), "Center boot/paint schedules the Incoming pull");
