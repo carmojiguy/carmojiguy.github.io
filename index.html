@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-13 build d30a: On-site Shabot FINAL decision document; flags-complete OR remote.lane=onsite wins On-site after Incoming pull; Open packet PDF and remote photos persist; newest VIN wins; 3-pill docs; Thank-you frozen; sales PDF packet stays; zero Center samples -->
+<!-- center-v3 + desk-home 2026-09-13 build d30c: Incoming FINAL seed paints the Shabot box; applySharedIncoming copies appraisalFinal; slimSharedCenterItem keeps FINAL on re-land; Thank-you frozen; sales PDF packet stays; zero Center samples -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -1901,7 +1901,7 @@ body.center-gallery-on { overflow:hidden; }
     <p class="quote" id="vinHint">Best: take a picture of the vehicle ownership (registration). You can also photograph the VIN on the dash or the sticker on the driver’s door. We’ll read the number from the photo.</p>
     <p class="vin-chip hide" id="vinChip"></p>
     </div>
-    <p class="build-stamp" id="buildStamp">build d30a</p>
+    <p class="build-stamp" id="buildStamp">build d30c</p>
   </div>
 </section>
 
@@ -2360,7 +2360,7 @@ body.center-gallery-on { overflow:hidden; }
   <div class="card">
     <button class="x" type="button" data-close="typeSheet">✕</button>
     <h3>Appraisal type</h3>
-    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d30a</span></p>
+    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d30c</span></p>
     <div id="typeChips" class="to-chips"></div>
     <div id="leadBox" class="lead-box hide">
       <p class="hint">Lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a New application — no appointment calendar.</p>
@@ -6483,7 +6483,9 @@ function slimSharedCenterItem(item){
     if(data.length>MAX_THUMB) data="";
     photos.push({title:p.title||"", data:data, name:p.name||"", url:p.url||"", cap:p.cap||""});
   }
-  return {
+  const fin=typeof resolveAppraisalFinal==="function"?resolveAppraisalFinal(item):null;
+  const af=item.appraisalFinal&&typeof item.appraisalFinal==="object"?item.appraisalFinal:{};
+  const slim={
     id:item.id||"",
     sendId:item.sendId||APP.sendId||"",
     vin:item.vin||"",
@@ -6517,8 +6519,24 @@ function slimSharedCenterItem(item){
     sentAt:item.sentAt||Date.now(),
     updatedAt:item.updatedAt||Date.now(),
     docs:docs,
-    inviteUnit:item.inviteUnit||APP.inviteUnit||item.interest||""
+    inviteUnit:item.inviteUnit||APP.inviteUnit||item.interest||"",
+    appraisalFinal:{
+      min:af.min||(fin&&fin.min)||"",
+      target:af.target||(fin&&fin.target)||"",
+      max:af.max||(fin&&fin.max)||"",
+      path:af.path||(fin&&fin.path)||"",
+      at:Number(af.at||(fin&&fin.at))||0,
+      authors:Array.isArray(af.authors)?af.authors.slice():(fin&&Array.isArray(fin.authors)?fin.authors.slice():[])
+    },
+    finalRationale:item.finalRationale&&typeof item.finalRationale==="object"?item.finalRationale:null,
+    finalMin:item.finalMin||(fin&&fin.min)||"",
+    finalTarget:item.finalTarget||(fin&&fin.target)||"",
+    finalMax:item.finalMax||(fin&&fin.max)||""
   };
+  if(item.team && item.team.shabot){
+    slim.team={shabot:teamSlot(item.team.shabot)};
+  }
+  return slim;
 }
 function shareIncomingBestEffort(item){
   try{
@@ -6531,6 +6549,41 @@ function shareIncomingBestEffort(item){
     }, 8000);
     if(req && typeof req.catch==="function") req.catch(function(){});
   }catch(e){}
+}
+function seedSharedIncomingFinal(item, remote){
+  if(!item || !remote) return item;
+  const seed=typeof resolveAppraisalFinal==="function"?resolveAppraisalFinal(remote):null;
+  const rat=remote.finalRationale;
+  const ratSlot=rat && rat.shabot;
+  const fromRat=(!seed && ratSlot && hasAppraisalFinalNumbers(ratSlot.min, ratSlot.target, ratSlot.max))
+    ? {min:ratSlot.min||"", target:ratSlot.target||"", max:ratSlot.max||"", path:ratSlot.path||"", at:Number(rat.timestamp)||0, authors:Array.isArray(rat.authors)?rat.authors.slice():[]}
+    : seed;
+  if(fromRat){
+    const prev=item.appraisalFinal||emptyAppraisalFinal();
+    item.appraisalFinal={
+      min:fromRat.min||"",
+      target:fromRat.target||"",
+      max:fromRat.max||"",
+      path:fromRat.path||prev.path||"",
+      at:fromRat.at||prev.at||Date.now(),
+      authors:Array.isArray(fromRat.authors)&&fromRat.authors.length?fromRat.authors.slice():(Array.isArray(prev.authors)?prev.authors.slice():[])
+    };
+    item.finalMin=fromRat.min||"";
+    item.finalTarget=fromRat.target||"";
+    item.finalMax=fromRat.max||"";
+    if(!item.team) item.team=typeof emptyTeam==="function"?emptyTeam():{};
+    const keep=teamSlot((item.team||{}).shabot);
+    if(remote.team && remote.team.shabot){
+      const slot=teamSlot(remote.team.shabot);
+      item.team.shabot={min:slot.min||keep.min||"", target:slot.target||keep.target||"", max:slot.max||keep.max||"", note:slot.note||keep.note||""};
+    } else if(hasAppraisalFinalNumbers(fromRat.min, fromRat.target, fromRat.max)){
+      item.team.shabot={min:fromRat.min||keep.min||"", target:fromRat.target||keep.target||"", max:fromRat.max||keep.max||"", note:keep.note||""};
+    }
+  }
+  if(typeof hasStoredFinalRationale==="function" && hasStoredFinalRationale(remote)){
+    item.finalRationale=remote.finalRationale;
+  }
+  return item;
 }
 function applySharedIncoming(item, remote){
   const cust=remote.customer||{};
@@ -6598,6 +6651,7 @@ function applySharedIncoming(item, remote){
   item.lane=routed.lane;
   item.docsIncomplete=routed.docsIncomplete;
   item.missingDocs=routed.missingDocs;
+  seedSharedIncomingFinal(item, remote);
   if(item.photos && item.photos.length && typeof persistCenterMedia==="function"){
     try{
       const saved=persistCenterMedia(item.id, item.photos, item.docs||{});
