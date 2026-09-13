@@ -69,5 +69,5 @@ must(/function finishGuest\(\)\{\s*finishThanks\(\);/, "finishGuest stays Thank-
 must(/function restoreSend\(\)/, "restoreSend stays");
 mustNot(/function pageHome\(\)\{[\s\S]{0,400}restoreSend/, "Home does not call restoreSend");
 
-must(/id="buildStamp">build d29r</, "build stamp");
+must(/id="buildStamp">build d29s</, "build stamp");
 console.log("exit-chrome tests ok");
