@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v1 + send-v26 2026-09-13: Appraisal Center + packet Send fallback -->
+<!-- center-v2 + acre-desk 2026-09-13: pop-out Waiting/History, acre detail, desktop desk -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -193,18 +193,29 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
 .start-bg { position:absolute; inset:0; background:#0b0b10 url("https://carmojiguy.github.io/start-bgs/01.jpg?v=10") center 46%/cover no-repeat; overflow:hidden; }
 .start-bg img { width:100%; height:100%; object-fit:cover; object-position:center 46%; display:block; }
 .start-bg, .start-veil { pointer-events:none; }
-.start-veil { position:absolute; inset:0; background:linear-gradient(180deg,rgba(8,6,16,.55) 0%,rgba(8,6,16,.08) 28%,rgba(8,6,16,.04) 52%,rgba(8,6,16,.62) 100%); }
-.start-actions, .guest-story, .login-card, .login-hero, .who, .start-x, .start-more { pointer-events:auto; }
-.start-actions { position:absolute; inset:0; z-index:2; pointer-events:none; }
+.start-veil { position:absolute; inset:0; background:linear-gradient(180deg,rgba(8,6,16,.40) 0%,rgba(8,6,16,.06) 16%,rgba(8,6,16,0) 34%,rgba(8,6,16,0) 56%,rgba(8,6,16,.28) 76%,rgba(8,6,16,.78) 100%); }
+.start-actions, .guest-story, .login-card, .login-hero, .who, .start-x, .start-more, .start-dock { pointer-events:auto; }
+.start-dock {
+  position:absolute; left:16px; right:16px; z-index:3;
+  bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+  display:flex; flex-direction:column; gap:8px;
+  padding:10px;
+  border-radius:22px;
+  background:rgba(10,8,18,.28);
+  backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
+  box-shadow:0 16px 40px rgba(0,0,0,.28);
+}
+.start-actions { position:static; inset:auto; z-index:2; pointer-events:auto; display:flex; flex-direction:column; gap:8px; }
 .start-actions .pill {
-  pointer-events:auto; position:absolute; left:50%; transform:translateX(-50%);
-  width:min(360px, calc(100% - 48px)); margin:0; padding:16px 22px; font-size:17px;
+  pointer-events:auto; position:static; left:auto; transform:none;
+  width:100%; margin:0; padding:13px 16px; font-size:15px; min-height:48px; border-radius:14px; border-width:0;
 }
 .start-actions .pill.purple { background:var(--purple); color:#fff; border-color:var(--purple); }
 .start-actions .pill.cyan { background:var(--cyan); color:#fff; border-color:var(--cyan); }
-#startAppraise { top:22%; }
-#startCenter { top:50%; transform:translate(-50%, -50%); }
-#startWebsite { bottom:24%; }
+#startCenter {
+  background:rgba(255,255,255,.94); color:var(--ink);
+}
+#startAppraise, #startCenter, #startWebsite { top:auto; bottom:auto; transform:none; }
 .start-actions .pill.soon {
   background:rgba(250,249,252,.4);
   color:rgba(36,27,51,.42);
@@ -222,15 +233,13 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
   pointer-events:none;
 }
 .start-more {
-  position:absolute; left:50%; transform:translateX(-50%);
-  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
-  width:min(360px, calc(100% - 48px));
-  display:flex; gap:8px; z-index:3;
+  position:static; left:auto; transform:none; bottom:auto; width:100%;
+  display:grid; grid-template-columns:1fr 1fr; gap:8px; z-index:3;
 }
 .start-more .pill {
-  flex:1; margin:0; padding:12px 10px; font-size:14px;
-  background:rgba(250,249,252,.9); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
-  border-color:transparent;
+  flex:1; margin:0; padding:11px 10px; font-size:13px; min-height:44px; border-radius:14px;
+  background:rgba(250,249,252,.16); color:#fff; border:1px solid rgba(255,255,255,.18);
+  backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
 }
 .guest-story {
   position:absolute; left:16px; right:16px;
@@ -261,6 +270,7 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
 .resume-card .pill { margin:0 0 8px; }
 #start.has-resume .start-actions,
 #start.has-resume .start-more,
+#start.has-resume .start-dock,
 #start.has-resume .guest-story { visibility:hidden; pointer-events:none; }
 .guest-steps { display:flex; gap:6px; margin:4px 0 0; }
 .guest-steps span { flex:1; text-align:center; background:var(--fill); color:var(--purple-deep); border-radius:999px; padding:7px 4px; font-size:11px; font-weight:800; letter-spacing:.02em; }
@@ -305,13 +315,37 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
 .work-email .pill { margin:0; padding:12px 16px; width:auto; }
 .login-sub { text-align:center; color:var(--muted); font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; margin:4px 0 12px; }
 .who { position:absolute; top: calc(12px + env(safe-area-inset-top)); right:16px; z-index:2; background:rgba(0,0,0,.45); color:#fff; border:0; border-radius:999px; padding:8px 12px; font-size:12px; font-weight:700; }
-.center-top { margin:0 0 20px; }
-.center-top .pill {
-  margin:0; padding:16px 18px; font-size:17px;
-  background:var(--lavender); border-color:#D4C8F5; color:var(--purple-deep);
+.center-home-pad { padding-top:8px; padding-bottom:48px; }
+.center-home-pad h2 { font-size:32px; letter-spacing:-.8px; margin:4px 0 10px; }
+.center-pops { display:flex; flex-direction:column; gap:14px; margin:28px 0 22px; }
+.center-pop {
+  width:100%; border:0; cursor:pointer; text-align:left;
+  border-radius:28px; padding:22px 22px 20px; min-height:108px;
+  display:grid; grid-template-columns:1fr auto; grid-template-rows:auto auto; gap:4px 12px;
+  box-shadow:0 18px 40px rgba(92,63,224,.12);
+  color:#fff;
 }
+.center-pop em { grid-column:1; font-style:normal; font-size:12px; font-weight:800; letter-spacing:.14em; text-transform:uppercase; opacity:.78; }
+.center-pop b { grid-column:1; font-size:28px; letter-spacing:-.6px; }
+.center-pop span {
+  grid-row:1 / span 2; grid-column:2; align-self:center;
+  min-width:52px; height:52px; padding:0 14px; border-radius:18px;
+  background:rgba(255,255,255,.2); color:#fff;
+  display:grid; place-items:center; font-size:20px; font-weight:800;
+}
+.center-pop.wait { background:linear-gradient(135deg,#00A8E8 0%,#5B3FE0 100%); }
+.center-pop.hist { background:linear-gradient(135deg,#7C5CFF 0%,#3D2A8A 100%); }
+.center-whisper { color:var(--muted); font-size:14px; font-weight:600; line-height:1.45; margin:0; }
+.center-whisper b { color:var(--purple-deep); font-weight:800; }
+.center-sheet {
+  display:none; position:fixed; inset:0; z-index:28;
+  background:var(--page); overflow:auto; -webkit-overflow-scrolling:touch;
+  padding-bottom:calc(28px + env(safe-area-inset-bottom));
+}
+.center-sheet.on { display:block; }
+.center-sheet .nav { padding-top:calc(12px + env(safe-area-inset-top)); }
 .center-search { margin:0 0 12px; min-height:52px; }
-.center-date { position:relative; margin:0 0 22px; }
+.center-date { position:relative; margin:0 0 18px; }
 .center-date .pill { margin:0; padding:16px 18px; font-size:17px; }
 .date-menu { display:none; position:absolute; left:0; right:0; top:calc(100% + 8px); z-index:12; background:#fff; border-radius:18px; box-shadow:0 18px 50px rgba(17,14,26,.16); padding:8px; }
 .date-menu.on { display:block; }
@@ -324,35 +358,110 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
 .date-year button { width:52px; height:52px; margin:0; padding:0; border:1.5px solid var(--hair); background:var(--fill); border-radius:16px; font-size:22px; font-weight:800; cursor:pointer; }
 .date-cal .pair { margin-top:8px; }
 .date-cal .f { min-height:52px; }
+.center-archive-banner {
+  display:flex; flex-direction:column; gap:4px;
+  background:linear-gradient(135deg,#F6F3FF,#E8F7FF);
+  border:1.5px solid #D4C8F5; border-radius:20px;
+  padding:16px 16px 14px; margin:0 0 14px;
+}
+.center-archive-banner b { font-size:15px; }
+.center-archive-banner span { color:var(--muted); font-size:13px; font-weight:600; line-height:1.4; }
 .center-empty { padding:48px 8px 12px; text-align:center; }
 .center-empty p { color:var(--muted); font-size:17px; line-height:1.45; margin:0 0 14px; font-weight:600; }
-.center-card { background:#fff; border:1.5px solid var(--hair); border-radius:22px; padding:22px 18px; margin:0 0 16px; }
-.center-card .name { margin:0 0 10px; font-size:22px; font-weight:800; letter-spacing:-.4px; line-height:1.2; }
-.center-card .line { color:var(--muted); font-size:15px; line-height:1.45; margin:0; font-weight:600; }
-.center-card .foot { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:20px; }
-.stage-tag { display:inline-block; border-radius:999px; padding:8px 12px; font-size:13px; font-weight:800; }
+.center-group { margin:8px 0 18px; color:var(--purple-deep); font-size:12px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
+.acre-row {
+  display:flex; align-items:center; gap:14px; width:100%;
+  text-align:left; border:0; background:#fff; cursor:pointer;
+  border-radius:22px; padding:12px; margin:0 0 12px;
+  box-shadow:0 10px 28px rgba(17,14,26,.06);
+  min-height:92px;
+}
+.acre-row.on { box-shadow:0 0 0 2px var(--purple), 0 10px 28px rgba(92,63,224,.12); }
+.acre-thumb {
+  width:86px; height:68px; border-radius:16px; overflow:hidden;
+  background:linear-gradient(180deg,#EFE8FF,#D8EEFF); flex:0 0 86px;
+  display:grid; place-items:center; color:var(--purple-deep); font-size:13px; font-weight:800;
+}
+.acre-thumb img { width:100%; height:100%; object-fit:cover; display:block; }
+.acre-meta { min-width:0; flex:1; }
+.acre-meta .name { margin:0 0 4px; font-size:16px; font-weight:800; letter-spacing:-.3px; line-height:1.2; }
+.acre-meta .line { color:var(--muted); font-size:13px; line-height:1.35; margin:0 0 8px; font-weight:600; }
+.acre-flags { display:flex; flex-wrap:wrap; gap:6px; }
+.sample-badge, .stage-tag, .arch-tag {
+  display:inline-block; border-radius:999px; padding:5px 10px; font-size:11px; font-weight:800; letter-spacing:.02em;
+}
+.sample-badge { background:#E8F7FF; color:#0077A8; }
 .stage-tag.wait { background:#FFF3D6; color:#8A5A00; }
 .stage-tag.done { background:#D8F5E5; color:#0F6B3C; }
-.center-card .open { width:auto; min-width:132px; margin:0; padding:14px 22px; font-size:16px; }
+.arch-tag { background:#F3F0FA; color:var(--purple-deep); }
 #centerDetail .block { margin:28px 0 10px; }
 #centerDetail .quote { margin:0 0 8px; }
-.center-hero { position:relative; margin:0 0 16px; border-radius:18px; overflow:hidden; background:#111; min-height:180px; }
-.center-hero img { width:100%; height:220px; object-fit:cover; display:block; background:#111; }
-.center-hero .ph { min-height:180px; display:grid; place-items:center; color:#c7c7cc; font-size:14px; font-weight:700; padding:24px; text-align:center; }
-.center-hero .dots { position:absolute; left:0; right:0; bottom:10px; display:flex; justify-content:center; gap:6px; }
+#centerDetail h2 { font-size:30px; letter-spacing:-.7px; margin:6px 0 8px; }
+.acre-tags { display:flex; flex-wrap:wrap; gap:8px; margin:0 0 16px; }
+.acre-tags i {
+  font-style:normal; background:#fff; border:1.5px solid var(--hair);
+  border-radius:999px; padding:8px 12px; font-size:13px; font-weight:700;
+}
+.center-hero { position:relative; margin:0 0 18px; border-radius:24px; overflow:hidden; background:#111; min-height:220px; }
+.center-hero img { width:100%; height:240px; object-fit:cover; display:block; background:#111; }
+.center-hero .ph { min-height:220px; display:grid; place-items:center; color:#c7c7cc; font-size:15px; font-weight:700; padding:28px; text-align:center; }
+.center-hero .dots { position:absolute; left:0; right:0; bottom:14px; display:flex; justify-content:center; gap:6px; }
 .center-hero .dots i { width:7px; height:7px; border-radius:50%; background:rgba(255,255,255,.35); }
 .center-hero .dots i.on { background:#fff; }
-.center-hero .nav-hit { position:absolute; top:0; bottom:0; width:30%; border:0; background:transparent; cursor:pointer; }
-.center-hero .nav-hit.prev { left:0; }
-.center-hero .nav-hit.next { right:0; }
-.team-card { background:#fff; border:1.5px solid var(--hair); border-radius:18px; padding:14px; margin:0 0 10px; }
+.center-hero .count {
+  position:absolute; left:14px; bottom:12px; color:#fff; font-size:12px; font-weight:800;
+  background:rgba(0,0,0,.45); border-radius:999px; padding:5px 10px;
+}
+.center-hero .nav-hit {
+  position:absolute; top:50%; transform:translateY(-50%);
+  width:44px; height:44px; border:0; border-radius:50%;
+  background:rgba(255,255,255,.92); color:var(--ink); font-size:22px; font-weight:800; cursor:pointer;
+  box-shadow:0 8px 20px rgba(0,0,0,.18);
+}
+.center-hero .nav-hit.prev { left:10px; }
+.center-hero .nav-hit.next { right:10px; }
+.acre-vals { display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin:0 0 10px; }
+.acre-chip, .mkt-chip {
+  background:#fff; border:1.5px solid var(--hair); border-radius:18px; padding:12px 10px 10px; text-align:left;
+}
+.acre-chip k, .mkt-chip k { display:block; color:var(--muted); font-size:10px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; margin:0 0 4px; }
+.acre-chip b, .mkt-chip b { display:block; font-size:18px; letter-spacing:-.4px; }
+.acre-market { display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; margin:0 0 18px; }
+.mkt-chip b { font-size:14px; }
+.center-docs { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:4px 0 8px; }
+.doc-slot {
+  position:relative; min-height:118px; border-radius:20px; overflow:hidden;
+  border:1.5px dashed #D9D3E8; background:#fff; cursor:pointer;
+  padding:14px; display:flex; flex-direction:column; justify-content:flex-end; text-align:left;
+  font:inherit; color:inherit; width:100%;
+}
+.doc-slot.on { border-style:solid; border-color:#C4B6FF; background:#F6F3FF; }
+.doc-slot img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+.doc-slot .veil { position:absolute; inset:0; background:linear-gradient(180deg,rgba(17,14,26,0) 30%, rgba(17,14,26,.78) 100%); }
+.doc-slot .fmt {
+  position:absolute; top:12px; right:12px; z-index:1;
+  background:#1A1630; color:#fff; font-size:10px; font-weight:800;
+  letter-spacing:.06em; border-radius:8px; padding:4px 7px;
+}
+.doc-slot b, .doc-slot span { position:relative; }
+.doc-slot b { font-size:15px; margin:0 0 2px; }
+.doc-slot span { font-size:12px; color:var(--muted); font-weight:600; }
+.doc-slot.on b, .doc-slot.on span { color:#fff; }
+.team-rail { display:flex; flex-direction:column; gap:10px; }
+.team-card { background:#fff; border:1.5px solid var(--hair); border-radius:20px; padding:14px; }
 .team-card.final { border-color:#C4B6FF; background:#F6F3FF; }
-.team-card k { display:block; color:var(--muted); font-size:11px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; margin:0 0 4px; }
-.team-card k:empty { display:none; }
-.team-card b { display:block; font-size:16px; margin:0 0 8px; }
-.team-card textarea { min-height:88px; }
-.val-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:0 0 8px; }
-.val-grid .k { margin-top:0; }
+.team-card .who { display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin:0 0 10px; }
+.team-card .who b { font-size:17px; }
+.team-card .who k { color:var(--muted); font-size:11px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+.team-mm { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
+.team-mm label { margin:0; }
+.team-mm .f { padding:10px 8px; font-size:14px; text-align:center; }
+.team-card textarea { min-height:72px; margin-top:10px; }
+.center-detail-empty {
+  min-height:calc(100dvh - 80px); display:grid; place-items:center; text-align:center; padding:40px 24px;
+}
+.center-detail-empty b { display:block; font-size:28px; letter-spacing:-.6px; margin:0 0 8px; }
+.center-detail-empty p { color:var(--muted); font-size:16px; font-weight:600; margin:0; }
 
 @media (min-width:980px){
   html, body { background:#120F1C; }
@@ -376,7 +485,7 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
   .dock .pill { width:auto; min-width:240px; margin:0; }
   .pill { transition:transform .15s ease, box-shadow .15s ease, background .15s ease; }
   .pill:hover { transform:translateY(-1px); box-shadow:0 10px 24px rgba(92,63,224,.16); }
-  .row, .dmg-card, .doc-sq, .mail, .review, .gbtn, .center-card {
+  .row, .dmg-card, .doc-sq, .mail, .review, .gbtn, .acre-row, .center-pop, .doc-slot {
     transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;
   }
   .row:hover, .dmg-card:hover, .mail:hover, .review:hover {
@@ -430,6 +539,67 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
   .facts { grid-template-columns:repeat(4, 1fr); }
   #verify .pad { max-width:760px; }
   .pair { grid-template-columns:1fr 1fr; gap:14px; }
+
+  .start-dock {
+    left:50%; right:auto; transform:translateX(-50%);
+    width:min(420px, calc(100% - 48px));
+    bottom: calc(28px + env(safe-area-inset-bottom, 0px));
+    padding:12px;
+    border-radius:24px;
+  }
+  .start-actions .pill { font-size:16px; min-height:50px; }
+  .start-more .pill { font-size:14px; min-height:46px; }
+
+  .center-home-pad { max-width:760px; margin:0 auto; padding-top:36px; }
+  .center-home-pad h2 { font-size:44px; }
+  .center-pops { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-top:36px; }
+  .center-pop { min-height:148px; padding:28px 26px; }
+  .center-pop b { font-size:34px; }
+  .center-pop:hover { transform:translateY(-2px); box-shadow:0 22px 48px rgba(92,63,224,.2); }
+  .acre-row:hover { transform:translateY(-1px); box-shadow:0 14px 32px rgba(17,14,26,.1); }
+
+  .phone.center-desk {
+    display:grid;
+    grid-template-columns:minmax(340px, 400px) 1fr;
+    grid-template-rows:auto 1fr;
+    max-width:none;
+    min-height:100dvh;
+    background:var(--page);
+  }
+  .phone.center-desk > .accent { grid-column:1 / -1; }
+  .phone.center-desk #center.screen,
+  .phone.center-desk #centerDetail.screen {
+    display:block !important;
+    min-height:calc(100dvh - 4px);
+    max-height:calc(100dvh - 4px);
+    overflow:auto;
+    padding-bottom:24px;
+  }
+  .phone.center-desk #center.screen {
+    border-right:1px solid var(--hair);
+    background:#F7F5FC;
+  }
+  .phone.center-desk #center .center-home { display:none; }
+  .phone.center-desk #center .center-sheet {
+    display:block;
+    position:relative; inset:auto; z-index:1;
+    background:transparent; padding-bottom:32px;
+  }
+  .phone.center-desk #centerDetail .pad { max-width:none; padding:0 36px 40px; }
+  .phone.center-desk #centerDetail h2 { font-size:40px; }
+  .phone.center-desk .center-hero { border-radius:28px; }
+  .phone.center-desk .center-hero img { height:min(42vh, 420px); }
+  .phone.center-desk .acre-vals { grid-template-columns:repeat(3, 1fr); gap:12px; }
+  .phone.center-desk .acre-chip { padding:16px 14px; }
+  .phone.center-desk .acre-chip b { font-size:22px; }
+  .phone.center-desk .acre-market { grid-template-columns:repeat(4, 1fr); gap:12px; }
+  .phone.center-desk .center-docs { grid-template-columns:repeat(5, 1fr); }
+  .phone.center-desk .team-rail { display:grid; grid-template-columns:repeat(2, 1fr); gap:12px; }
+  .phone.center-desk .team-card.final { grid-column:1 / -1; }
+  .phone.center-desk .dock {
+    position:sticky; left:auto; transform:none; width:auto;
+    justify-content:flex-end; background:transparent; padding:12px 36px 24px;
+  }
 }
 
 @media (min-width:1320px){
@@ -473,14 +643,16 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
   <div class="start-veil"></div>
   <button class="round start-x" type="button" id="startX">✕</button>
   <button class="who" type="button" id="whoChip">Guest</button>
-  <div class="start-actions" id="startActions">
-    <button class="pill purple" type="button" id="startAppraise">Appraise vehicle</button>
-    <button class="pill" type="button" id="startCenter">Appraisal Center</button>
-    <button class="pill cyan" type="button" id="startWebsite">Post vehicle to website</button>
-  </div>
-  <div class="start-more" id="startMore">
-    <button class="pill" type="button" id="startTrade">Send trade-in link</button>
-    <button class="pill" type="button" id="startUsers">Users</button>
+  <div class="start-dock" id="startDock">
+    <div class="start-actions" id="startActions">
+      <button class="pill purple" type="button" id="startAppraise">Appraise vehicle</button>
+      <button class="pill" type="button" id="startCenter">Appraisal Center</button>
+      <button class="pill cyan" type="button" id="startWebsite">Post vehicle to website</button>
+    </div>
+    <div class="start-more" id="startMore">
+      <button class="pill" type="button" id="startTrade">Send trade-in link</button>
+      <button class="pill" type="button" id="startUsers">Users</button>
+    </div>
   </div>
   <div class="guest-story hide" id="guestStory">
     <p class="login-kicker" id="guestKicker">Your trade-in</p>
@@ -583,74 +755,103 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
 </section>
 
 <section class="screen" id="center">
-  <div class="nav">
-    <button class="round" type="button" id="centerBack">✕</button>
-    <h1 id="centerTitleNav">Appraisal Center</h1>
-    <button class="round" type="button">•••</button>
-  </div>
-  <div class="pad" style="padding-bottom:40px">
-    <div class="center-top">
-      <button class="pill" type="button" id="centerHistoryBtn">History</button>
+  <div class="center-home" id="centerHome">
+    <div class="nav">
+      <button class="round" type="button" id="centerBack">✕</button>
+      <h1>Appraisal Center</h1>
+      <span></span>
     </div>
-    <div id="centerHistoryBar" class="hide">
-      <input class="f center-search" id="centerSearch" type="search" placeholder="Search name, VIN, or vehicle" />
-      <div class="center-date">
-        <button class="pill" type="button" id="centerDateBtn">Date</button>
-        <div class="date-menu" id="centerDateMenu">
-          <button type="button" data-range="today">Today</button>
-          <button type="button" data-range="yesterday">Yesterday</button>
-          <button type="button" data-range="month">This month</button>
-          <button type="button" data-range="lastMonth">Last month</button>
-          <button type="button" data-range="calendar">Calendar</button>
-          <div class="date-cal" id="centerCal">
-            <div class="date-year">
-              <button type="button" id="centerYearPrev" aria-label="Earlier year">‹</button>
-              <b id="centerYearLbl">2026</b>
-              <button type="button" id="centerYearNext" aria-label="Later year">›</button>
-            </div>
-            <div class="pair">
-              <div>
-                <label class="k">From</label>
-                <input class="f" id="centerFrom" type="date" />
+    <div class="pad center-home-pad">
+      <p class="login-kicker">Desk</p>
+      <h2>Open a lane</h2>
+      <p class="quote">Waiting is live work. History is everything already done — including the 90-day archive. Two big buttons. That’s the whole chrome.</p>
+      <div class="center-pops">
+        <button class="center-pop wait" type="button" id="centerWaitingBtn">
+          <em>Live</em>
+          <b>Waiting</b>
+          <span id="centerWaitCount">0</span>
+        </button>
+        <button class="center-pop hist" type="button" id="centerHistoryBtn">
+          <em>Past</em>
+          <b>History</b>
+          <span id="centerHistCount">0</span>
+        </button>
+      </div>
+      <p class="center-whisper">Files older than <b>90 days</b> archive themselves into History.</p>
+    </div>
+  </div>
+  <div class="center-sheet" id="centerSheet">
+    <div class="nav">
+      <button class="round" type="button" id="centerSheetClose">✕</button>
+      <h1 id="centerTitleNav">Waiting</h1>
+      <span></span>
+    </div>
+    <div class="pad" style="padding-bottom:40px">
+      <div id="centerHistoryBar" class="hide">
+        <div class="center-archive-banner" id="centerArchiveBanner">
+          <b>90-day archive</b>
+          <span>Older files stay here. They leave Waiting automatically after 90 days.</span>
+        </div>
+        <input class="f center-search" id="centerSearch" type="search" placeholder="Search name, VIN, or vehicle" />
+        <div class="center-date">
+          <button class="pill" type="button" id="centerDateBtn">Date</button>
+          <div class="date-menu" id="centerDateMenu">
+            <button type="button" data-range="today">Today</button>
+            <button type="button" data-range="yesterday">Yesterday</button>
+            <button type="button" data-range="month">This month</button>
+            <button type="button" data-range="lastMonth">Last month</button>
+            <button type="button" data-range="calendar">Calendar</button>
+            <div class="date-cal" id="centerCal">
+              <div class="date-year">
+                <button type="button" id="centerYearPrev" aria-label="Earlier year">‹</button>
+                <b id="centerYearLbl">2026</b>
+                <button type="button" id="centerYearNext" aria-label="Later year">›</button>
               </div>
-              <div>
-                <label class="k">To</label>
-                <input class="f" id="centerTo" type="date" />
+              <div class="pair">
+                <div>
+                  <label class="k">From</label>
+                  <input class="f" id="centerFrom" type="date" />
+                </div>
+                <div>
+                  <label class="k">To</label>
+                  <input class="f" id="centerTo" type="date" />
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+      <div id="centerList"></div>
     </div>
-    <div id="centerList"></div>
   </div>
 </section>
 
 <section class="screen" id="centerDetail">
   <div class="nav">
-    <button class="round" type="button" id="centerDetailBack">✕</button>
-    <h1 id="centerDetailHead">Appraisal</h1>
+    <button class="round" type="button" id="centerDetailBack">‹</button>
+    <h1 id="centerDetailHead">File</h1>
     <button class="round" type="button">•••</button>
   </div>
-  <div class="pad" style="padding-bottom:120px">
+  <div class="pad" id="centerDetailBody" style="padding-bottom:120px">
     <div class="badge" id="centerDetailBadge">Waiting</div>
     <h2 id="centerDetailTitle">Vehicle</h2>
     <p class="quote" id="centerDetailSub"></p>
+    <div class="acre-tags" id="centerTags"></div>
     <div class="center-hero" id="centerHero"></div>
+    <div class="acre-vals" id="centerValStrip"></div>
+    <div class="acre-market" id="centerMarket"></div>
     <div class="facts" id="centerFacts"></div>
-    <div class="block">Story</div>
+    <div class="block">Notes</div>
     <p class="quote" id="centerStory">No story yet.</p>
     <div class="block">Documents</div>
-    <div class="docs-grid" id="centerDocs"></div>
-    <div class="block">Values</div>
-    <div class="val-grid" id="centerVals"></div>
-    <div class="block">Team</div>
-    <div id="centerTeam"></div>
-    <label class="k">Notes</label>
+    <div class="center-docs" id="centerDocs"></div>
+    <div class="block">Appraisal team</div>
+    <div class="team-rail" id="centerTeam"></div>
+    <label class="k">Desk notes</label>
     <textarea class="note" id="centerNotes" placeholder="Anything the team should know"></textarea>
   </div>
   <div class="dock">
-    <button class="pill purple" type="button" id="centerStageBtn">Done</button>
+    <button class="pill purple" type="button" id="centerStageBtn">Complete</button>
   </div>
 </section>
 
@@ -1017,7 +1218,7 @@ window.APP = {
   googleToken: window._gtoken || "", extraUsers:[], requestedBy:"", requestedByName:"",
   inviteUnit:"", inviteStock:"", inviteName:"", inviteEmail:"",
   dealType:"", cdApp:"", centerId:"", centerFilter:"all", centerPhoto:0,
-  centerHistory:false, centerQuery:"", centerRange:"all", centerYear:new Date().getFullYear()
+  centerHistory:false, centerLane:"", centerQuery:"", centerRange:"all", centerYear:new Date().getFullYear()
 };
 
 function $(id){ return document.getElementById(id); }
@@ -1135,14 +1336,39 @@ function shotCount(){
   return n;
 }
 
+function isDesk(){
+  try{ return window.matchMedia("(min-width:980px)").matches; }catch(e){ return false; }
+}
+function syncCenterDesk(){
+  const phone=document.querySelector(".phone");
+  if(!phone) return;
+  const onCenter=APP.screen==="center" || APP.screen==="centerDetail";
+  const split=isDesk() && onCenter && !!APP.centerLane;
+  phone.classList.toggle("center-desk", split);
+  if(split){
+    if($("center")) $("center").classList.add("on");
+    if($("centerDetail")) $("centerDetail").classList.add("on");
+  } else if(!onCenter){
+    phone.classList.remove("center-desk");
+  }
+}
 function show(id){
   const el=$(id);
   if(!el){ toast("Can’t open that screen."); return; }
   if(id!=="camera") killMediaNow();
-  document.querySelectorAll(".screen").forEach(n=>n.classList.remove("on"));
+  const split=isDesk() && (id==="center" || id==="centerDetail") && !!APP.centerLane;
+  document.querySelectorAll(".screen").forEach(function(n){
+    if(split && (n.id==="center" || n.id==="centerDetail")) return;
+    n.classList.remove("on");
+  });
   el.classList.add("on");
+  if(split){
+    if($("center")) $("center").classList.add("on");
+    if($("centerDetail")) $("centerDetail").classList.add("on");
+  }
   window.scrollTo(0,0);
   APP.screen=id;
+  syncCenterDesk();
   if(id!=="home" && id!=="camera") stopVinScan();
   if(id==="start" || id==="login" || id==="thanks"){
     var img = $(id==="login" ? "loginBg" : id==="thanks" ? "thanksBg" : "startBg");
@@ -1343,6 +1569,7 @@ function applyRole(){
   if(who) who.textContent = guest ? (APP.inviteName || APP.userName || "Guest") : (APP.userName || APP.userEmail || "Employee");
   if($("startActions")) $("startActions").classList.toggle("hide", guest);
   if($("startMore")) $("startMore").classList.toggle("hide", guest);
+  if($("startDock")) $("startDock").classList.toggle("hide", guest);
   if($("guestStory")) $("guestStory").classList.toggle("hide", !guest);
   ["vinScanWrap","homeDocs"].forEach(function(id){
     if($(id)) $(id).classList.toggle("hide", guest);
@@ -2165,6 +2392,7 @@ function wipeJob(goStart){
 }
 
 const CENTER_KEY="inspect.center";
+const CENTER_SAMPLE_VER="acre3";
 const CENTER_TEAM=[
   ["shabot","Shabot","FINAL"],
   ["rybot","Rybot","Opinion"],
@@ -2173,26 +2401,48 @@ const CENTER_TEAM=[
   ["tbot","TBot","Opinion"]
 ];
 const CENTER_DOCS=[
-  ["vauto","vAuto","Appraisal / book"],
-  ["openlane","OpenLane","Auction sheet"],
-  ["eblock","eBlock","Recap or bid"],
-  ["carfax","Carfax","History + story photos"]
+  ["vauto","vAuto","Appraisal / book","PDF"],
+  ["openlane","OpenLane","Auction sheet","Screenshot"],
+  ["eblock","eBlock","Recap or bid","Video"],
+  ["carfax","Carfax","History report","PDF"],
+  ["mmr","MMR","Wholesale guide","Screenshot"]
 ];
 const CENTER_VALS=[
-  ["wholesale","Wholesale"],
-  ["retail","Retail"],
-  ["acv","ACV"],
-  ["target","Target"]
+  ["maya","MAYA"],
+  ["vauto","vAuto"],
+  ["predicted","Predicted"]
+];
+const CENTER_MARKET=[
+  ["book","Book"],
+  ["mmr","MMR"],
+  ["pct","% market"],
+  ["afc","AFC"]
 ];
 function emptyTeam(){
   const o={};
-  CENTER_TEAM.forEach(function(t){ o[t[0]]=""; });
+  CENTER_TEAM.forEach(function(t){ o[t[0]]={min:"",target:"",max:"",note:""}; });
   return o;
 }
 function emptyVals(){
   const o={};
   CENTER_VALS.forEach(function(t){ o[t[0]]=""; });
+  CENTER_MARKET.forEach(function(t){ o[t[0]]=""; });
+  o.rangeMin=""; o.rangeMax="";
   return o;
+}
+function teamSlot(raw){
+  if(!raw) return {min:"",target:"",max:"",note:""};
+  if(typeof raw==="string") return {min:"",target:"",max:"",note:raw};
+  return {min:raw.min||"", target:raw.target||"", max:raw.max||"", note:raw.note||""};
+}
+function moneyShort(v){
+  const s=String(v||"").trim();
+  if(!s) return "—";
+  if(/[%x]/i.test(s)) return s;
+  const n=Number(String(s).replace(/[^0-9.]/g,""));
+  if(!n) return s;
+  if(n>=1000) return "$"+(n/1000).toFixed(n>=10000?0:1).replace(/\.0$/,"")+"k";
+  return "$"+n.toLocaleString("en-CA");
 }
 function centerStore(){
   try{
@@ -2209,6 +2459,165 @@ function saveCenterStore(store){
   try{ localStorage.setItem(CENTER_KEY, JSON.stringify(store)); }catch(e){}
   try{ sessionStorage.setItem(CENTER_KEY, JSON.stringify(store)); }catch(e){}
 }
+function daysAgo(n){ return Date.now() - Math.round(Number(n||0)*86400000); }
+function centerSampleItems(){
+  const t=emptyTeam();
+  t.shabot={min:"37800",target:"37000",max:"38400",note:"Clean GR. One-owner. I'd sit at 37."};
+  t.rybot={min:"36500",target:"37200",max:"38000",note:""};
+  t.webot={min:"",target:"",max:"",note:"Need a closer look at the front bumper."};
+  t.drebot={min:"36000",target:"36800",max:"37500",note:""};
+  t.tbot={min:"",target:"",max:"",note:""};
+  const truck=emptyTeam();
+  truck.shabot={min:"88000",target:"90000",max:"92500",note:"Crew cab. Super Duty money."};
+  const pic=function(){
+    const urls=Array.prototype.slice.call(arguments);
+    return urls.map(function(u,i){ return {title:["3/4 front","Front","Side"][i]||("Photo "+(i+1)), data:u, cap:""}; });
+  };
+  return [
+    {
+      id:"sample-v3-corolla", sample:true, sampleVer:CENTER_SAMPLE_VER, stage:"Waiting", source:"appraise",
+      ymmt:"2023 Toyota GR Corolla Core", year:"2023", make:"Toyota", model:"GR Corolla", trim:"Core",
+      color:"White", km:"10500", vin:"JTNABAAE8PA003162", stock:"",
+      createdAt:daysAgo(0.2), updatedAt:daysAgo(0.2), sentAt:daysAgo(0.2),
+      story:"Selling as a trade. Already a GR86 deposit down and needs something they can release. Expecting closer to $37.8k. Clean, one-owner, no-accident 2023 GR Corolla Core at 10,500 km — the lowest-mileage unit in a while.",
+      notes:"On-site. Customer waiting on a number.",
+      photoCount:3, thumb:"https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?auto=format&fit=crop&w=1400&q=80",
+      photos:pic(
+        "https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?auto=format&fit=crop&w=1400&q=80",
+        "https://images.unsplash.com/photo-1619682817481-e6778ced1c3d?auto=format&fit=crop&w=1400&q=80",
+        "https://images.unsplash.com/photo-1627454820916-d0c5292c9e56?auto=format&fit=crop&w=1400&q=80"
+      ),
+      docs:{vauto:{have:true,name:"vAuto book",type:"pdf",fmt:"PDF"},openlane:{have:true,name:"OpenLane shot",type:"image",fmt:"Screenshot"},eblock:{have:false,name:"",type:"",fmt:"Video"},carfax:{have:true,name:"Carfax clean",type:"pdf",fmt:"PDF"},mmr:{have:true,name:"MMR",type:"image",fmt:"Screenshot"}},
+      values:{maya:"37800",vauto:"37000",predicted:"38400",book:"39000",mmr:"35100",pct:"",afc:"",rangeMin:"35800",rangeMax:""},
+      team:t, customer:{name:"Isabella Coffey",email:"",phone:""}, tags:["On-site","Clean","One owner","Japan"]
+    },
+    {
+      id:"sample-v3-f250", sample:true, sampleVer:CENTER_SAMPLE_VER, stage:"Waiting", source:"trade-in",
+      ymmt:"2025 Ford F-250 XLT Super Duty Crew Cab", year:"2025", make:"Ford", model:"F-250", trim:"XLT Super Duty",
+      color:"Oxford White", km:"75200", vin:"1FT8W2BT5SED42817", stock:"",
+      createdAt:daysAgo(1.1), updatedAt:daysAgo(1.1), sentAt:daysAgo(1.1),
+      story:"Customer trade against a new Super Duty. Truck works every day. Light box wear, no frame stories.",
+      notes:"Need MMR screenshot and a walk video.",
+      photoCount:2, thumb:"https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=1400&q=80",
+      photos:pic(
+        "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=1400&q=80",
+        "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?auto=format&fit=crop&w=1400&q=80"
+      ),
+      docs:{vauto:{have:false,name:"",type:"",fmt:"PDF"},openlane:{have:false,name:"",type:"",fmt:"Screenshot"},eblock:{have:true,name:"Walk video",type:"video",fmt:"Video"},carfax:{have:false,name:"",type:"",fmt:"PDF"},mmr:{have:false,name:"",type:"",fmt:"Screenshot"}},
+      values:{maya:"90000",vauto:"88000",predicted:"92500",book:"95800",mmr:"87200",pct:"102%",afc:"",rangeMin:"86000",rangeMax:"93000"},
+      team:truck, customer:{name:"Wes",email:"",phone:""}, tags:["Trade-in","Crew cab"]
+    },
+    {
+      id:"sample-v3-santafe", sample:true, sampleVer:CENTER_SAMPLE_VER, stage:"Waiting", source:"guest",
+      ymmt:"2022 Hyundai Santa Fe Preferred", year:"2022", make:"Hyundai", model:"Santa Fe", trim:"Preferred",
+      color:"Portofino Gray", km:"64000", vin:"5NMS3DAJ7NH452632", stock:"",
+      createdAt:daysAgo(0.6), updatedAt:daysAgo(0.6), sentAt:daysAgo(0.6),
+      story:"Guest link just landed. Photos coming. Customer said it is a one-owner AWD.",
+      notes:"",
+      photoCount:0, thumb:"", photos:[],
+      docs:{vauto:{have:false,name:"",type:"",fmt:"PDF"},openlane:{have:false,name:"",type:"",fmt:"Screenshot"},eblock:{have:false,name:"",type:"",fmt:"Video"},carfax:{have:false,name:"",type:"",fmt:"PDF"},mmr:{have:false,name:"",type:"",fmt:"Screenshot"}},
+      values:{maya:"",vauto:"",predicted:"",book:"",mmr:"",pct:"",afc:""},
+      team:emptyTeam(), customer:{name:"Maya",email:"",phone:""}, tags:["Guest link","No photos"]
+    },
+    {
+      id:"sample-v3-civic", sample:true, sampleVer:CENTER_SAMPLE_VER, stage:"Waiting", source:"website",
+      ymmt:"2024 Honda Civic Sport", year:"2024", make:"Honda", model:"Civic", trim:"Sport",
+      color:"Rallye Red", km:"18000", vin:"2HGFE2F54RH543210", stock:"W-4412",
+      createdAt:daysAgo(2.4), updatedAt:daysAgo(2.4), sentAt:daysAgo(2.4),
+      story:"Website unit. Bright red Sport. Clean Carfax, two keys, winter tires in the box.",
+      notes:"Post after we lock the number.",
+      photoCount:1, thumb:"https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?auto=format&fit=crop&w=1400&q=80",
+      photos:pic("https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?auto=format&fit=crop&w=1400&q=80"),
+      docs:{vauto:{have:true,name:"vAuto",type:"pdf",fmt:"PDF"},openlane:{have:false,name:"",type:"",fmt:"Screenshot"},eblock:{have:false,name:"",type:"",fmt:"Video"},carfax:{have:true,name:"Carfax",type:"pdf",fmt:"PDF"},mmr:{have:false,name:"",type:"",fmt:"Screenshot"}},
+      values:{maya:"28900",vauto:"27600",predicted:"29200",book:"30100",mmr:"26800",pct:"96%",afc:"25400"},
+      team:emptyTeam(), customer:{name:"",email:"",phone:""}, tags:["Website","In stock"]
+    },
+    {
+      id:"sample-v3-ram", sample:true, sampleVer:CENTER_SAMPLE_VER, stage:"Appraised", source:"appraise",
+      ymmt:"2021 RAM 1500 Rebel", year:"2021", make:"RAM", model:"1500", trim:"Rebel",
+      color:"Granite Crystal", km:"61200", vin:"1C6SRFLT4MN654321", stock:"",
+      createdAt:daysAgo(0.05), updatedAt:daysAgo(0.05), sentAt:daysAgo(0.05),
+      story:"Rebel with the right miles. Done this morning — customer took $48,200.",
+      notes:"Paid. Paperwork with Jay.",
+      photoCount:1, thumb:"https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=1400&q=80",
+      photos:pic("https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=1400&q=80"),
+      docs:{vauto:{have:true,name:"vAuto",type:"pdf",fmt:"PDF"},openlane:{have:true,name:"OpenLane",type:"image",fmt:"Screenshot"},eblock:{have:false,name:"",type:"",fmt:"Video"},carfax:{have:true,name:"Carfax",type:"pdf",fmt:"PDF"},mmr:{have:true,name:"MMR",type:"image",fmt:"Screenshot"}},
+      values:{maya:"48200",vauto:"47000",predicted:"49100",book:"50500",mmr:"45800",pct:"99%",afc:""},
+      team:emptyTeam(), customer:{name:"Kyle",email:"",phone:""}, tags:["Appraised","Today"]
+    },
+    {
+      id:"sample-v3-cx5", sample:true, sampleVer:CENTER_SAMPLE_VER, stage:"Appraised", source:"guest",
+      ymmt:"2020 Mazda CX-5 GT", year:"2020", make:"Mazda", model:"CX-5", trim:"GT",
+      color:"Soul Red", km:"88000", vin:"JM3KFBDM5L0147890", stock:"",
+      createdAt:daysAgo(1.3), updatedAt:daysAgo(1.3), sentAt:daysAgo(1.3),
+      story:"Guest packet yesterday. GT with brown interior. We landed at $24,400.",
+      notes:"",
+      photoCount:1, thumb:"https://images.unsplash.com/photo-1619767886558-efdc259cde1a?auto=format&fit=crop&w=1400&q=80",
+      photos:pic("https://images.unsplash.com/photo-1619767886558-efdc259cde1a?auto=format&fit=crop&w=1400&q=80"),
+      docs:{vauto:{have:true,name:"vAuto",type:"pdf",fmt:"PDF"},openlane:{have:false,name:"",type:"",fmt:"Screenshot"},eblock:{have:false,name:"",type:"",fmt:"Video"},carfax:{have:true,name:"Carfax",type:"pdf",fmt:"PDF"},mmr:{have:false,name:"",type:"",fmt:"Screenshot"}},
+      values:{maya:"24400",vauto:"23800",predicted:"25100",book:"26200",mmr:"22900",pct:"94%",afc:""},
+      team:emptyTeam(), customer:{name:"Priya",email:"",phone:""}, tags:["Yesterday"]
+    },
+    {
+      id:"sample-v3-x3", sample:true, sampleVer:CENTER_SAMPLE_VER, stage:"Appraised", source:"appraise",
+      ymmt:"2018 BMW X3 xDrive30i", year:"2018", make:"BMW", model:"X3", trim:"xDrive30i",
+      color:"Alpine White", km:"112000", vin:"5UXTR9C50J0D33455", stock:"",
+      createdAt:daysAgo(12), updatedAt:daysAgo(12), sentAt:daysAgo(12),
+      story:"This month. Service history in the dashbox. We were light because of the miles.",
+      notes:"",
+      photoCount:1, thumb:"https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=1400&q=80",
+      photos:pic("https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=1400&q=80"),
+      docs:{vauto:{have:true,name:"vAuto",type:"pdf",fmt:"PDF"},openlane:{have:false,name:"",type:"",fmt:"Screenshot"},eblock:{have:false,name:"",type:"",fmt:"Video"},carfax:{have:true,name:"Carfax",type:"pdf",fmt:"PDF"},mmr:{have:true,name:"MMR",type:"image",fmt:"Screenshot"}},
+      values:{maya:"22800",vauto:"21900",predicted:"23400",book:"24600",mmr:"21100",pct:"91%",afc:""},
+      team:emptyTeam(), customer:{name:"Lord",email:"",phone:""}, tags:["This month"]
+    },
+    {
+      id:"sample-v3-silverado", sample:true, sampleVer:CENTER_SAMPLE_VER, stage:"Appraised", source:"trade-in",
+      ymmt:"2019 Chevrolet Silverado LT", year:"2019", make:"Chevrolet", model:"Silverado", trim:"LT",
+      color:"Black", km:"134000", vin:"1GCUYDED5KZ308812", stock:"",
+      createdAt:daysAgo(40), updatedAt:daysAgo(40), sentAt:daysAgo(40),
+      story:"Last month trade. Work truck miles. We passed at their number and they kept it.",
+      notes:"",
+      photoCount:1, thumb:"https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&w=1400&q=80",
+      photos:pic("https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&w=1400&q=80"),
+      docs:{vauto:{have:true,name:"vAuto",type:"pdf",fmt:"PDF"},openlane:{have:false,name:"",type:"",fmt:"Screenshot"},eblock:{have:false,name:"",type:"",fmt:"Video"},carfax:{have:false,name:"",type:"",fmt:"PDF"},mmr:{have:true,name:"MMR",type:"image",fmt:"Screenshot"}},
+      values:{maya:"26500",vauto:"25800",predicted:"27100",book:"28400",mmr:"24900",pct:"",afc:""},
+      team:emptyTeam(), customer:{name:"Josh",email:"",phone:""}, tags:["Last month"]
+    },
+    {
+      id:"sample-v3-wrangler", sample:true, sampleVer:CENTER_SAMPLE_VER, stage:"Appraised", archived:true, source:"appraise",
+      ymmt:"2017 Jeep Wrangler Sahara", year:"2017", make:"Jeep", model:"Wrangler", trim:"Sahara",
+      color:"Firecracker Red", km:"98000", vin:"1C4BJWEG5HL640112", stock:"",
+      createdAt:daysAgo(120), updatedAt:daysAgo(120), sentAt:daysAgo(120),
+      story:"Older file kept so you can see the 90-day archive. Soft top, aftermarket radio.",
+      notes:"Archived automatically after 90 days.",
+      photoCount:1, thumb:"https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=1400&q=80",
+      photos:pic("https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=1400&q=80"),
+      docs:{vauto:{have:false,name:"",type:"",fmt:"PDF"},openlane:{have:false,name:"",type:"",fmt:"Screenshot"},eblock:{have:false,name:"",type:"",fmt:"Video"},carfax:{have:true,name:"Carfax",type:"pdf",fmt:"PDF"},mmr:{have:false,name:"",type:"",fmt:"Screenshot"}},
+      values:{maya:"31200",vauto:"29800",predicted:"32000",book:"33400",mmr:"28900",pct:"",afc:""},
+      team:emptyTeam(), customer:{name:"Steve",email:"",phone:""}, tags:["90-day archive"]
+    }
+  ];
+}
+function seedCenterSamples(){
+  const store=centerStore();
+  const stale=store.items.some(function(x){ return x && x.sample && x.sampleVer!==CENTER_SAMPLE_VER; });
+  if(stale){
+    store.items=store.items.filter(function(x){ return !(x && x.sample && x.sampleVer!==CENTER_SAMPLE_VER); });
+  }
+  const have={};
+  store.items.forEach(function(x){ if(x && x.id) have[x.id]=true; });
+  let added=0;
+  centerSampleItems().forEach(function(s){
+    if(have[s.id]) return;
+    store.items.push(s);
+    added++;
+  });
+  if(stale || added){
+    store.items.sort(function(a,b){ return centerWhen(b)-centerWhen(a); });
+    saveCenterStore(store);
+  }
+}
 function loadCenter(){ return centerStore().items; }
 function nextAppNo(store){
   store.seq=(Number(store.seq)||1000)+1;
@@ -2222,7 +2631,8 @@ function slimCenterDocs(docs){
     vauto:["vauto","vauto_summary"],
     openlane:["openlane","vauto_comp"],
     eblock:["eblock","vauto_book"],
-    carfax:["carfax","carfax_pdf","data_says"]
+    carfax:["carfax","carfax_pdf","data_says"],
+    mmr:["mmr"]
   };
   Object.keys(map).forEach(function(slot){
     const hit=map[slot].map(function(k){ return src[k]; }).find(Boolean);
@@ -2283,14 +2693,19 @@ function persistCenterMedia(id, photos, docs){
   try{ sessionStorage.setItem(centerMediaKey(id), JSON.stringify(payload)); }catch(e){}
 }
 function loadCenterMedia(id){
+  const item=getCenter(id);
+  const fallback={photos:(item && item.photos) || [], docs:(item && item.docs) || {}};
   return idbGet(centerMediaKey(id)).then(function(v){
-    if(v && (v.photos || v.docs)) return v;
+    if(v && ((v.photos && v.photos.length) || (v.docs && Object.keys(v.docs).length))) return v;
     try{
       const raw=sessionStorage.getItem(centerMediaKey(id));
-      if(raw) return JSON.parse(raw);
+      if(raw){
+        const parsed=JSON.parse(raw);
+        if(parsed && ((parsed.photos && parsed.photos.length) || parsed.docs)) return parsed;
+      }
     }catch(e){}
-    return {photos:[], docs:{}};
-  });
+    return fallback;
+  }).catch(function(){ return fallback; });
 }
 function upsertCenterFromApp(extra){
   extra=extra||{};
@@ -2410,12 +2825,41 @@ function getCenter(id){
 function openCenter(){
   APP.centerViewId="";
   APP.centerHistory=false;
+  APP.centerLane="";
+  if($("centerSheet")) $("centerSheet").classList.remove("on");
+  show("center");
+}
+function openCenterLane(lane){
+  APP.centerLane=lane==="history" ? "history" : "waiting";
+  APP.centerHistory=APP.centerLane==="history";
+  if($("centerSheet")) $("centerSheet").classList.add("on");
+  if(!isDesk()) APP.centerViewId="";
+  show("center");
+  paintCenter();
+  if(isDesk()){
+    if(APP.centerViewId && getCenter(APP.centerViewId)) paintCenterDetail();
+    else paintCenterDetailEmpty();
+  }
+}
+function closeCenterLane(){
+  APP.centerLane="";
+  APP.centerHistory=false;
+  APP.centerViewId="";
+  if($("centerSheet")) $("centerSheet").classList.remove("on");
+  if($("centerDateMenu")) $("centerDateMenu").classList.remove("on");
   show("center");
 }
 function openCenterDetail(id){
   APP.centerViewId=id;
   APP.centerPhoto=0;
+  if(!APP.centerLane){
+    const item=getCenter(id);
+    APP.centerLane=item && isCenterArchived(item) ? "history" : "waiting";
+    APP.centerHistory=APP.centerLane==="history";
+    if($("centerSheet")) $("centerSheet").classList.add("on");
+  }
   show("centerDetail");
+  paintCenter();
 }
 function centerWhen(item){
   return Number(item.sentAt||item.updatedAt||item.createdAt||0);
@@ -2505,13 +2949,62 @@ function centerStatus(item){
   if(item.sentAt) return "Sent";
   return "Waiting";
 }
+function isCenterAged(item){
+  if(!item) return false;
+  if(item.archived) return true;
+  const when=centerWhen(item);
+  return !!(when && (Date.now()-when)>CENTER_ARCHIVE_MS);
+}
+function centerLaneCounts(){
+  seedCenterSamples();
+  archiveOldCenter();
+  const all=loadCenter();
+  let wait=0, hist=0;
+  all.forEach(function(item){
+    if(isCenterArchived(item)) hist++;
+    else wait++;
+  });
+  return {wait:wait, hist:hist};
+}
+function paintCenterPops(){
+  const n=centerLaneCounts();
+  if($("centerWaitCount")) $("centerWaitCount").textContent=String(n.wait);
+  if($("centerHistCount")) $("centerHistCount").textContent=String(n.hist);
+}
+function acreRow(item){
+  const when=centerWhen(item);
+  const sent=when ? timeAgo(when) : "";
+  const meta=[centerVinLine(item), centerKmLine(item), sent].filter(Boolean).join("  ·  ");
+  const status=centerStatus(item);
+  const aged=isCenterAged(item);
+  const thumb=item.thumb
+    ? '<img src="'+item.thumb+'" alt="">'
+    : esc((item.make||item.ymmt||"?").slice(0,3).toUpperCase());
+  const flags=
+    (item.sample?'<i class="sample-badge">Sample</i>':'')+
+    '<em class="stage-tag '+(status==="Done"?"done":"wait")+'">'+esc(status)+'</em>'+
+    (aged?'<i class="arch-tag">90-day archive</i>':'');
+  const btn=document.createElement("button");
+  btn.type="button";
+  btn.className="acre-row"+(APP.centerViewId===item.id?" on":"");
+  btn.innerHTML=
+    '<div class="acre-thumb">'+thumb+'</div>'+
+    '<div class="acre-meta"><p class="name">'+esc(item.ymmt||"Vehicle")+'</p>'+
+    (meta?'<p class="line">'+esc(meta)+'</p>':'')+
+    '<div class="acre-flags">'+flags+'</div></div>';
+  btn.onclick=function(){ openCenterDetail(item.id); };
+  return btn;
+}
 function paintCenter(){
   const host=$("centerList");
   if(!host) return;
-  const hist=!!APP.centerHistory;
+  seedCenterSamples();
+  const hist=!!APP.centerHistory || APP.centerLane==="history";
+  APP.centerHistory=hist;
   archiveOldCenter();
-  if($("centerTitleNav")) $("centerTitleNav").textContent=hist ? "History" : "Appraisal Center";
-  if($("centerHistoryBtn")) $("centerHistoryBtn").textContent=hist ? "Back to Center" : "History";
+  paintCenterPops();
+  if($("centerSheet")) $("centerSheet").classList.toggle("on", !!APP.centerLane);
+  if($("centerTitleNav")) $("centerTitleNav").textContent=hist ? "History" : "Waiting";
   if($("centerHistoryBar")) $("centerHistoryBar").classList.toggle("hide", !hist);
   if($("centerDateBtn")) $("centerDateBtn").textContent=dateBtnLabel();
   if($("centerYearLbl")) $("centerYearLbl").textContent=String(APP.centerYear||new Date().getFullYear());
@@ -2538,26 +3031,34 @@ function paintCenter(){
         ? "<p>Nothing in this range.</p>"
         : "<p>Nothing in History yet.</p>";
     } else {
-      empty.innerHTML='<p>Nothing sent yet.</p><button class="link" type="button">Appraise a vehicle</button>';
+      empty.innerHTML='<p>Nothing waiting.</p><button class="link" type="button">Appraise a vehicle</button>';
       empty.querySelector("button").onclick=function(){ setPurpose("appraise"); paintDealType(); show("home"); };
     }
     host.appendChild(empty);
+    syncCenterDesk();
     return;
   }
-  list.forEach(function(item){
-    const card=document.createElement("div");
-    card.className="center-card";
-    const when=centerWhen(item);
-    const sent=when ? timeAgo(when) : "";
-    const meta=[centerVinLine(item), centerKmLine(item), sent].filter(Boolean).join("  ·  ");
-    const status=centerStatus(item);
-    card.innerHTML=
-      '<p class="name">'+esc(item.ymmt||"Vehicle")+'</p>'+
-      (meta?'<p class="line">'+esc(meta)+'</p>':'')+
-      '<div class="foot"><em class="stage-tag '+(status==="Done"?"done":"wait")+'">'+esc(status)+'</em><button class="pill purple open" type="button">Open</button></div>';
-    card.querySelector(".open").onclick=function(){ openCenterDetail(item.id); };
-    host.appendChild(card);
-  });
+  if(hist){
+    const fresh=list.filter(function(item){ return !isCenterAged(item); });
+    const aged=list.filter(function(item){ return isCenterAged(item); });
+    if(fresh.length){
+      const h=document.createElement("div");
+      h.className="center-group";
+      h.textContent="This window";
+      host.appendChild(h);
+      fresh.forEach(function(item){ host.appendChild(acreRow(item)); });
+    }
+    if(aged.length){
+      const h=document.createElement("div");
+      h.className="center-group";
+      h.textContent="90-day archive";
+      host.appendChild(h);
+      aged.forEach(function(item){ host.appendChild(acreRow(item)); });
+    }
+  } else {
+    list.forEach(function(item){ host.appendChild(acreRow(item)); });
+  }
+  syncCenterDesk();
 }
 function paintCenterHero(photos){
   const hero=$("centerHero"); if(!hero) return;
@@ -2568,19 +3069,19 @@ function paintCenterHero(photos){
       hero.innerHTML='<img src="'+item.thumb+'" alt="">';
       return;
     }
-    hero.innerHTML='<div class="ph">No photos yet</div>';
+    hero.innerHTML='<div class="ph">Photos will land here — walk, video stills, or a customer packet.</div>';
     return;
   }
   if(APP.centerPhoto>=shots.length) APP.centerPhoto=0;
   const i=APP.centerPhoto||0;
   const cap=shots[i].title || shots[i].cap || "";
-  let dots="";
+  let extras='<span class="count">'+(i+1)+" / "+shots.length+"</span>";
   if(shots.length>1){
-    dots='<div class="dots">'+shots.map(function(_,n){ return "<i"+(n===i?' class="on"':'')+"></i>"; }).join("")+"</div>";
-    dots+='<button class="nav-hit prev" type="button" aria-label="Previous photo"></button>';
-    dots+='<button class="nav-hit next" type="button" aria-label="Next photo"></button>';
+    extras+='<div class="dots">'+shots.map(function(_,n){ return "<i"+(n===i?' class="on"':'')+"></i>"; }).join("")+"</div>";
+    extras+='<button class="nav-hit prev" type="button" aria-label="Previous photo">‹</button>';
+    extras+='<button class="nav-hit next" type="button" aria-label="Next photo">›</button>';
   }
-  hero.innerHTML='<img src="'+shots[i].data+'" alt="'+esc(cap)+'">'+dots;
+  hero.innerHTML='<img src="'+shots[i].data+'" alt="'+esc(cap)+'">'+extras;
   const prev=hero.querySelector(".prev");
   const next=hero.querySelector(".next");
   if(prev) prev.onclick=function(){ APP.centerPhoto=(i-1+shots.length)%shots.length; paintCenterHero(shots); };
@@ -2591,72 +3092,169 @@ function paintCenterDocs(item, media){
   host.innerHTML="";
   const packed=(media && media.docs) || item.docs || {};
   CENTER_DOCS.forEach(function(pair){
-    const id=pair[0], label=pair[1], hint=pair[2];
+    const id=pair[0], label=pair[1], hint=pair[2], fmt=pair[3]||"PDF";
     const got=packed[id]||{};
     const el=document.createElement("button");
     el.type="button";
-    el.className="doc-sq"+(got.have?" on":"");
-    let mediaHtml="";
-    if(got.preview) mediaHtml='<img src="'+got.preview+'" alt=""><div class="veil"></div>';
-    else if(got.have) mediaHtml='<div class="veil"></div><div class="pdfmark">IN</div>';
+    el.className="doc-slot"+(got.have?" on":"");
+    let mediaHtml='<i class="fmt">'+esc(got.fmt||fmt)+"</i>";
+    if(got.preview) mediaHtml+='<img src="'+got.preview+'" alt=""><div class="veil"></div>';
     const extra=(id==="carfax" && item.photoCount) ? (item.photoCount+" story photo"+(item.photoCount===1?"":"s")) : "";
-    el.innerHTML=mediaHtml+"<b>"+esc(label)+"</b><span>"+esc(got.have ? (got.name||"On file") : (extra||hint))+"</span>";
+    el.innerHTML=mediaHtml+"<b>"+esc(label)+"</b><span>"+esc(got.have ? (got.name||"On file · "+(got.fmt||fmt)) : (extra||hint+" · "+fmt))+"</span>";
     el.onclick=function(){
       if(got.preview){ openViewer("img", got.preview, label); return; }
-      toast(got.have ? (label+" is on the file.") : (label+" is not in yet."));
+      toast(got.have ? (label+" is on the file as "+(got.fmt||fmt)+".") : (label+" accepts "+fmt+" — nothing in yet."));
     };
     host.appendChild(el);
   });
 }
-function paintCenterVals(item){
-  const host=$("centerVals"); if(!host) return;
-  host.innerHTML="";
-  const vals=item.values||emptyVals();
-  CENTER_VALS.forEach(function(pair){
-    const wrap=document.createElement("div");
-    wrap.innerHTML='<label class="k">'+esc(pair[1])+'</label><input class="f" inputmode="decimal" placeholder="—" />';
-    const inp=wrap.querySelector("input");
-    inp.value=vals[pair[0]]||"";
-    inp.addEventListener("input", function(){
-      patchCenter(item.id, function(x){
-        x.values=x.values||emptyVals();
-        x.values[pair[0]]=inp.value.trim();
-      });
+function bindValInput(item, key, inp){
+  inp.addEventListener("input", function(){
+    patchCenter(item.id, function(x){
+      x.values=x.values||emptyVals();
+      x.values[key]=inp.value.trim();
     });
-    host.appendChild(wrap);
   });
+}
+function paintCenterVals(item){
+  const strip=$("centerValStrip");
+  const market=$("centerMarket");
+  const vals=item.values||emptyVals();
+  if(strip){
+    strip.innerHTML="";
+    CENTER_VALS.forEach(function(pair){
+      const chip=document.createElement("label");
+      chip.className="acre-chip";
+      chip.innerHTML="<k>"+esc(pair[1])+"</k><input class=\"f\" inputmode=\"decimal\" placeholder=\"—\" />";
+      const inp=chip.querySelector("input");
+      inp.value=vals[pair[0]]||"";
+      bindValInput(item, pair[0], inp);
+      strip.appendChild(chip);
+    });
+  }
+  if(market){
+    market.innerHTML="";
+    CENTER_MARKET.forEach(function(pair){
+      const chip=document.createElement("label");
+      chip.className="mkt-chip";
+      chip.innerHTML="<k>"+esc(pair[1])+"</k><input class=\"f\" inputmode=\"decimal\" placeholder=\"—\" />";
+      const inp=chip.querySelector("input");
+      inp.value=vals[pair[0]]||"";
+      bindValInput(item, pair[0], inp);
+      market.appendChild(chip);
+    });
+  }
 }
 function paintCenterTeam(item){
   const host=$("centerTeam"); if(!host) return;
   host.innerHTML="";
   const team=item.team||emptyTeam();
   CENTER_TEAM.forEach(function(pair){
+    const slot=teamSlot(team[pair[0]]);
     const card=document.createElement("div");
     card.className="team-card"+(pair[2]==="FINAL"?" final":"");
-    card.innerHTML='<k>'+esc(pair[2]==="FINAL"?"Final":"")+'</k><b>'+esc(pair[1])+'</b><textarea class="note" placeholder="'+(pair[2]==="FINAL"?"Final number":"Note")+'">'+'</textarea>';
+    card.innerHTML=
+      '<div class="who"><b>'+esc(pair[1])+'</b><k>'+esc(pair[2])+'</k></div>'+
+      '<div class="team-mm">'+
+        '<label class="k">Min<input class="f" data-k="min" inputmode="decimal" placeholder="MIN" /></label>'+
+        '<label class="k">Target<input class="f" data-k="target" inputmode="decimal" placeholder="TARGET" /></label>'+
+        '<label class="k">Max<input class="f" data-k="max" inputmode="decimal" placeholder="MAX" /></label>'+
+      "</div>"+
+      '<textarea class="note" placeholder="'+(pair[2]==="FINAL"?"Final number and why":"Opinion")+'">'+'</textarea>';
     const ta=card.querySelector("textarea");
-    ta.value=team[pair[0]]||"";
+    ta.value=slot.note||"";
+    card.querySelectorAll("input[data-k]").forEach(function(inp){
+      const k=inp.getAttribute("data-k");
+      inp.value=slot[k]||"";
+      inp.addEventListener("input", function(){
+        patchCenter(item.id, function(x){
+          x.team=x.team||emptyTeam();
+          x.team[pair[0]]=teamSlot(x.team[pair[0]]);
+          x.team[pair[0]][k]=inp.value.trim();
+        });
+      });
+    });
     ta.addEventListener("input", function(){
       growArea(ta);
       patchCenter(item.id, function(x){
         x.team=x.team||emptyTeam();
-        x.team[pair[0]]=ta.value;
+        x.team[pair[0]]=teamSlot(x.team[pair[0]]);
+        x.team[pair[0]].note=ta.value;
       });
     });
     host.appendChild(card);
     growArea(ta);
   });
 }
+function paintCenterTags(item){
+  const host=$("centerTags"); if(!host) return;
+  const tags=[].concat(item.tags||[]);
+  if(item.sample) tags.unshift("Sample");
+  if(item.color) tags.push(item.color);
+  if(item.km) tags.push(centerKmLine(item));
+  if(isCenterAged(item)) tags.push("90-day archive");
+  const seen={};
+  host.innerHTML=tags.filter(function(t){
+    const k=String(t||"").toLowerCase();
+    if(!k || seen[k]) return false;
+    seen[k]=true;
+    return true;
+  }).map(function(t){ return "<i>"+esc(t)+"</i>"; }).join("");
+}
+function paintCenterDetailEmpty(){
+  const body=$("centerDetailBody");
+  if(!body) return;
+  body.innerHTML='<div class="center-detail-empty"><b>Pick a vehicle</b><p>Waiting and History stay on the left. The file opens here — carousel, values, docs, team.</p></div>';
+  if($("centerDetailHead")) $("centerDetailHead").textContent="Desk";
+  if($("centerStageBtn")) $("centerStageBtn").classList.add("hide");
+}
+function ensureCenterDetailScaffold(){
+  const body=$("centerDetailBody");
+  if(!body) return;
+  if($("centerDetailTitle") && $("centerHero") && $("centerTeam")) return;
+  body.innerHTML=
+    '<div class="badge" id="centerDetailBadge">Waiting</div>'+
+    '<h2 id="centerDetailTitle">Vehicle</h2>'+
+    '<p class="quote" id="centerDetailSub"></p>'+
+    '<div class="acre-tags" id="centerTags"></div>'+
+    '<div class="center-hero" id="centerHero"></div>'+
+    '<div class="acre-vals" id="centerValStrip"></div>'+
+    '<div class="acre-market" id="centerMarket"></div>'+
+    '<div class="facts" id="centerFacts"></div>'+
+    '<div class="block">Notes</div>'+
+    '<p class="quote" id="centerStory">No story yet.</p>'+
+    '<div class="block">Documents</div>'+
+    '<div class="center-docs" id="centerDocs"></div>'+
+    '<div class="block">Appraisal team</div>'+
+    '<div class="team-rail" id="centerTeam"></div>'+
+    '<label class="k">Desk notes</label>'+
+    '<textarea class="note" id="centerNotes" placeholder="Anything the team should know"></textarea>';
+  if($("centerNotes")){
+    $("centerNotes").addEventListener("input", function(){
+      const el=this;
+      growArea(el);
+      if(!APP.centerViewId) return;
+      patchCenter(APP.centerViewId, function(x){ x.notes=el.value; });
+    });
+  }
+}
 function paintCenterDetail(){
   const item=getCenter(APP.centerViewId);
-  if(!item){ show("center"); return; }
-  if($("centerDetailHead")) $("centerDetailHead").textContent="File";
+  if(!item){
+    if(isDesk() && APP.centerLane){ paintCenterDetailEmpty(); return; }
+    show("center");
+    return;
+  }
+  ensureCenterDetailScaffold();
+  if($("centerStageBtn")) $("centerStageBtn").classList.remove("hide");
+  if($("centerDetailHead")) $("centerDetailHead").textContent=item.sample ? "Sample file" : "File";
   if($("centerDetailBadge")) $("centerDetailBadge").textContent=centerStatus(item);
   if($("centerDetailTitle")) $("centerDetailTitle").textContent=item.ymmt||"Vehicle";
   const bits=[centerVinLine(item), centerKmLine(item)];
   if(item.customer && item.customer.name) bits.unshift(item.customer.name);
   if(item.sentAt) bits.push(timeAgo(item.sentAt));
   if($("centerDetailSub")) $("centerDetailSub").textContent=bits.filter(Boolean).join("  ·  ");
+  paintCenterTags(item);
   if($("centerFacts")){
     $("centerFacts").innerHTML=
       factCell("VIN", item.vin)+
@@ -2669,16 +3267,18 @@ function paintCenterDetail(){
     $("centerNotes").value=item.notes||"";
     growArea($("centerNotes"));
   }
-  if($("centerStageBtn")) $("centerStageBtn").textContent=item.stage==="Appraised"?"Waiting":"Done";
-  paintCenterHero(item.thumb ? [{data:item.thumb, title:item.ymmt}] : []);
+  if($("centerStageBtn")) $("centerStageBtn").textContent=item.stage==="Appraised"?"Back to Waiting":"Complete";
+  const starter=(item.photos && item.photos.length) ? item.photos : (item.thumb ? [{data:item.thumb, title:item.ymmt}] : []);
+  paintCenterHero(starter);
   paintCenterDocs(item, {docs:item.docs});
   paintCenterVals(item);
   paintCenterTeam(item);
   loadCenterMedia(item.id).then(function(media){
     if(APP.centerViewId!==item.id) return;
-    paintCenterHero((media.photos||[]).length ? media.photos : (item.thumb?[{data:item.thumb, title:item.ymmt}]:[]));
+    paintCenterHero((media.photos||[]).length ? media.photos : starter);
     paintCenterDocs(item, media);
   });
+  syncCenterDesk();
 }
 function landInCenter(extra){
   try{ return upsertCenterFromApp(extra||{}); }
@@ -5087,7 +5687,7 @@ async function buildPdf(){
   const {jsPDF}=window.jspdf;
   const d=new jsPDF({unit:"pt", format:"letter", compress:true});
   const W=612, H=792;
-  const INK=[17,14,26], MUTED=[107,98,120], CYAN=[0,168,232], WHITE=[255,255,255];
+  const INK=[17,14,26], MUTED=[107,98,120], CYAN=[0,168,232], WHITE=[255,255,255], PURPLE=[124,92,255], PAGE=[250,249,252];
   const shots=capturedFiles();
   const walk=shots.filter(function(s){ return s.kind==="walk"; });
   const dmg=shots.filter(function(s){ return s.kind==="damage"; });
@@ -5114,25 +5714,45 @@ async function buildPdf(){
     d.rect(0,0,W,H,"F");
   }
 
-  darkPage();
+  d.setFillColor(PAGE[0], PAGE[1], PAGE[2]);
+  d.rect(0,0,W,H,"F");
   d.setFillColor(CYAN[0], CYAN[1], CYAN[2]);
   d.rect(0,0,W,6,"F");
+  d.setFillColor(PURPLE[0], PURPLE[1], PURPLE[2]);
+  d.rect(W-6,0,6,H,"F");
   if(hero){
-    const hh=Math.round(W*9/16);
-    try{ d.addImage(hero, "JPEG", 0, 36, W, hh, undefined, "NONE"); }catch(e){}
+    const hh=Math.round((W-48)*9/16);
+    try{ d.addImage(hero, "JPEG", 24, 28, W-48, hh, undefined, "NONE"); }catch(e){}
   }
-  let y=hero ? 36+Math.round(W*9/16)+28 : 80;
+  let y=hero ? 28+Math.round((W-48)*9/16)+26 : 72;
   setFont(true, 11, CYAN);
   d.text((why()||"APPRAISAL").toUpperCase(), 36, y);
-  y+=28;
-  setFont(true, 28, WHITE);
+  y+=26;
+  setFont(true, 28, INK);
   y=wrap(unitLabel()||"Vehicle", 36, y, W-72, 32);
-  y+=8;
-  setFont(false, 12, [180,176,190]);
+  y+=6;
+  setFont(false, 12, MUTED);
   const sub=[APP.color, APP.km ? Number(String(APP.km).replace(/,/g,"")).toLocaleString("en-CA")+" km" : "", APP.trim].filter(Boolean).join("  ·  ");
-  if(sub){ d.text(sub, 36, y); y+=18; }
+  if(sub){ d.text(sub, 36, y); y+=16; }
   d.text(packetWhen(), 36, y);
-  setFont(false, 9, [90,90,100]);
+  y+=22;
+  const market=[
+    ["Book", ""],
+    ["MMR", ""],
+    ["% market", ""],
+    ["AFC", ""]
+  ];
+  const chipW=(W-72-18)/4;
+  market.forEach(function(row, i){
+    const x=36+i*(chipW+6);
+    d.setFillColor(255,255,255);
+    d.roundedRect(x, y, chipW, 44, 8, 8, "F");
+    setFont(true, 8, MUTED);
+    d.text(row[0].toUpperCase(), x+10, y+16);
+    setFont(true, 13, INK);
+    d.text(row[1]||"—", x+10, y+34);
+  });
+  setFont(false, 9, MUTED);
   d.text("Walk-around  ·  "+walk.length+" photos"+(dmg.length?"  ·  "+dmg.length+" damage":""), 36, H-28);
 
   d.addPage();
@@ -5632,12 +6252,22 @@ document.querySelectorAll("[data-close]").forEach(function(b){
 });
 $("startAppraise").onclick = function(){ setPurpose("appraise"); paintDealType(); show("home"); };
 if($("startCenter")) $("startCenter").onclick = openCenter;
-if($("centerBack")) $("centerBack").onclick = function(){ show("start"); };
-if($("centerDetailBack")) $("centerDetailBack").onclick = function(){ show("center"); };
-if($("centerHistoryBtn")) $("centerHistoryBtn").onclick = function(){
-  APP.centerHistory=!APP.centerHistory;
-  if($("centerDateMenu")) $("centerDateMenu").classList.remove("on");
+if($("centerBack")) $("centerBack").onclick = function(){ APP.centerLane=""; show("start"); };
+if($("centerSheetClose")) $("centerSheetClose").onclick = closeCenterLane;
+if($("centerWaitingBtn")) $("centerWaitingBtn").onclick = function(){ openCenterLane("waiting"); };
+if($("centerDetailBack")) $("centerDetailBack").onclick = function(){
+  if(isDesk() && APP.centerLane){
+    APP.centerViewId="";
+    paintCenter();
+    paintCenterDetailEmpty();
+    return;
+  }
+  show("center");
   paintCenter();
+};
+if($("centerHistoryBtn")) $("centerHistoryBtn").onclick = function(){
+  if($("centerDateMenu")) $("centerDateMenu").classList.remove("on");
+  openCenterLane("history");
 };
 if($("centerSearch")) $("centerSearch").addEventListener("input", function(){
   APP.centerQuery=this.value||"";
@@ -5678,6 +6308,10 @@ if($("centerStageBtn")) $("centerStageBtn").onclick = function(){
   patchCenter(item.id, function(x){ x.stage=next; });
   paintCenterDetail();
   toast(next==="Appraised"?"Moved to History.":"Back to Waiting.");
+  APP.centerLane=next==="Appraised"?"history":"waiting";
+  APP.centerHistory=APP.centerLane==="history";
+  if($("centerSheet")) $("centerSheet").classList.add("on");
+  paintCenter();
 };
 if($("centerNotes")) $("centerNotes").addEventListener("input", function(){
   const el=this;
@@ -5908,7 +6542,15 @@ growTextareas();
 
 (function(){
   const mq=window.matchMedia("(min-width:980px)");
-  function sync(){ document.documentElement.classList.toggle("desk", mq.matches); }
+  function sync(){
+    document.documentElement.classList.toggle("desk", mq.matches);
+    syncCenterDesk();
+    if((APP.screen==="center" || APP.screen==="centerDetail") && APP.centerLane){
+      paintCenter();
+      if(APP.centerViewId) paintCenterDetail();
+      else if(mq.matches) paintCenterDetailEmpty();
+    }
+  }
   sync();
   if(mq.addEventListener) mq.addEventListener("change", sync);
   else if(mq.addListener) mq.addListener(sync);
