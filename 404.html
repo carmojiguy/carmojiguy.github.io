@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-13 build d29q: Center two-home land; newest VIN wins; 3-pill docs; sales PDF packet stays; zero Center samples -->
+<!-- center-v3 + desk-home 2026-09-13 build d29r: Center Incoming keeps all remote photos; newest VIN wins; 3-pill docs; sales PDF packet stays; zero Center samples -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -1810,7 +1810,7 @@ body.center-gallery-on { overflow:hidden; }
     <p class="quote" id="vinHint">Best: take a picture of the vehicle ownership (registration). You can also photograph the VIN on the dash or the sticker on the driver’s door. We’ll read the number from the photo.</p>
     <p class="vin-chip hide" id="vinChip"></p>
     </div>
-    <p class="build-stamp" id="buildStamp">build d29q</p>
+    <p class="build-stamp" id="buildStamp">build d29r</p>
   </div>
 </section>
 
@@ -2269,7 +2269,7 @@ body.center-gallery-on { overflow:hidden; }
   <div class="card">
     <button class="x" type="button" data-close="typeSheet">✕</button>
     <h3>Appraisal type</h3>
-    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d29q</span></p>
+    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d29r</span></p>
     <div id="typeChips" class="to-chips"></div>
     <div id="leadBox" class="lead-box hide">
       <p class="hint">Lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a New application — no appointment calendar.</p>
@@ -6071,6 +6071,15 @@ function slimSharedCenterItem(item){
   const routed=laneFromMarketDocs(docs);
   const app={role:item.source==="guest"?"guest":"employee", purpose:item.purpose||item.source||""};
   const lane=landingLaneForSend(app, docs, false);
+  const MAX_THUMB=120000;
+  const src=Array.isArray(item.photos)?item.photos:[];
+  const photos=[];
+  for(let i=0;i<src.length && photos.length<16;i++){
+    const p=src[i]||{};
+    let data=typeof p.data==="string"?p.data:"";
+    if(data.length>MAX_THUMB) data="";
+    photos.push({title:p.title||"", data:data, name:p.name||"", url:p.url||"", cap:p.cap||""});
+  }
   return {
     id:item.id||"",
     sendId:item.sendId||APP.sendId||"",
@@ -6093,8 +6102,9 @@ function slimSharedCenterItem(item){
     missingDocs:routed.missingDocs,
     story:item.story||"",
     webcopy:item.webcopy||"",
-    photoCount:Number(item.photoCount||0),
+    photoCount:Number(item.photoCount||photos.length||0),
     thumb:item.thumb||"",
+    photos:photos,
     customer:{name:cust.name||"", email:cust.email||"", phone:cust.phone||""},
     requestedBy:item.requestedBy||"",
     requestedByName:item.requestedByName||"",
@@ -6141,7 +6151,15 @@ function applySharedIncoming(item, remote){
   item.leadSource=remote.leadSource||item.leadSource||"";
   item.story=remote.story||item.story||"";
   item.webcopy=remote.webcopy||item.webcopy||"";
-  item.photoCount=Number(remote.photoCount!=null?remote.photoCount:item.photoCount||0);
+  if(Array.isArray(remote.photos) && remote.photos.length){
+    item.photos=remote.photos.map(function(p){
+      p=p||{};
+      return {title:p.title||"", data:p.data||"", name:p.name||"", url:p.url||"", cap:p.cap||""};
+    });
+    item.photoCount=Number(remote.photoCount!=null?remote.photoCount:item.photos.length);
+  } else {
+    item.photoCount=Number(remote.photoCount!=null?remote.photoCount:item.photoCount||0);
+  }
   if(remote.thumb) item.thumb=remote.thumb;
   item.customer={
     name:cust.name||prev.name||"",
@@ -6167,10 +6185,20 @@ function applySharedIncoming(item, remote){
   }
   reviveSharedCenterItem(item);
   if(item.stage!=="Appraised") item.stage=remote.stage||item.stage||"Waiting";
+  if((item.archived || item.stage==="Appraised") && ((item.photos&&item.photos.length) || sharedDocsHaveCount(item.docs)>0 || sharedDocsHaveCount(remote.docs)>0)){
+    item.archived=false;
+    item.stage="Waiting";
+  }
   const routed=laneFromMarketDocs(item.docs);
   item.lane=routed.lane;
   item.docsIncomplete=routed.docsIncomplete;
   item.missingDocs=routed.missingDocs;
+  if(item.photos && item.photos.length && typeof persistCenterMedia==="function"){
+    try{
+      const saved=persistCenterMedia(item.id, item.photos, item.docs||{});
+      if(saved && typeof saved.catch==="function") saved.catch(function(){});
+    }catch(e){}
+  }
   return item;
 }
 let incomingPullAt=0;
@@ -6213,6 +6241,12 @@ function mergeIncomingShared(list){
         store.items.unshift(item);
       }
       applySharedIncoming(item, remote);
+      if(item.photos && item.photos.length && typeof persistCenterMedia==="function"){
+        try{
+          const saved=persistCenterMedia(item.id, item.photos, item.docs||{});
+          if(saved && typeof saved.catch==="function") saved.catch(function(){});
+        }catch(e){}
+      }
       changed=true;
     });
     if(collapseCenterVinDupes(store)) changed=true;

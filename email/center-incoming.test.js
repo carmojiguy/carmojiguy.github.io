@@ -94,6 +94,11 @@ const reviveSharedCenterItem = eval("(" + takeFn("reviveSharedCenterItem", "coll
 const collapseSharedRemotes = eval("(" + takeFn("collapseSharedRemotes", "collapseCenterVinDupes") + ")");
 const collapseCenterVinDupes = eval("(" + takeFn("collapseCenterVinDupes", "findCenterMatch") + ")");
 const APP = { sendId: "", centerId: "open-other", vin: "", inviteName: "" };
+const persistedMedia = [];
+function persistCenterMedia(id, photos, docs) {
+  persistedMedia.push({ id: id, photos: photos, docs: docs });
+  return { catch: function () { return this; } };
+}
 const findCenterMatch = eval("(" + matchSrc + ")");
 const applySharedIncoming = eval("(" + applySrc + ")");
 const landSendM = html.match(/function landingLaneForSend\(app, docs, leaderSend\)\{[\s\S]*?\n\}/);
@@ -354,6 +359,8 @@ function slimSharedDocs(docs) {
 (function testSlimSharedSendsTwoHomeLane() {
   const empty = slimSharedCenterItem({ source: "guest", docs: {}, stage: "Waiting" });
   assert.equal(empty.lane, "needsdocs", "submitted empty packet is Needs docs, not inbox");
+  assert.ok(Array.isArray(empty.photos), "slim always includes photos[]");
+  assert.equal(empty.photos.length, 0);
   const full = slimSharedCenterItem({
     source: "appraise",
     purpose: "appraise",
@@ -362,6 +369,100 @@ function slimSharedDocs(docs) {
   assert.equal(full.lane, "onsite", "3-pill slim lands On-site");
   const web = slimSharedCenterItem({ source: "website", purpose: "website", docs: {} });
   assert.equal(web.lane, "inbox", "website still lands Incoming");
+})();
+
+(function testApplySharedIncomingKeepsRemotePhotos() {
+  persistedMedia.length = 0;
+  const remotePhotos = [
+    { title: "3/4 front", data: "data:image/jpeg;base64,AAA", name: "qfront.jpg", url: "", cap: "front" },
+    { title: "Driver", data: "data:image/jpeg;base64,BBB", name: "driver.jpg", url: "", cap: "" }
+  ];
+  const item = applySharedIncoming({
+    id: "cmu0avif7rslu",
+    lane: "inbox",
+    archived: true,
+    stage: "Appraised",
+    sentAt: 1757792340000,
+    docs: {}
+  }, {
+    id: "cmu0avif7rslu",
+    sendId: "s1ex074",
+    vin: "2T3B1RFVXRC466025",
+    sentAt: 1789339609336,
+    updatedAt: 1789339999999,
+    photoCount: 13,
+    thumb: "data:image/jpeg;base64,THUMB",
+    photos: remotePhotos,
+    docs: { vauto: { have: true }, openlane: { have: true }, eblock: { have: true } },
+    customer: { name: "Chris Cyr" }
+  });
+  assert.equal(item.photos.length, 2, "remote photos land on the Center item");
+  assert.equal(item.photos[0].title, "3/4 front");
+  assert.equal(item.photos[0].data, "data:image/jpeg;base64,AAA");
+  assert.equal(item.photos[1].name, "driver.jpg");
+  assert.equal(item.photoCount, 13, "photoCount prefers remote.photoCount");
+  assert.equal(item.thumb, "data:image/jpeg;base64,THUMB");
+  assert.equal(item.archived, false, "fresh photo land unarchives");
+  assert.equal(item.stage, "Waiting", "fresh photo land clears Appraised");
+  assert.equal(item.lane, "onsite");
+  assert.ok(persistedMedia.length >= 1, "apply persists Center media");
+  assert.equal(persistedMedia[0].id, "cmu0avif7rslu");
+  assert.equal(persistedMedia[0].photos.length, 2);
+})();
+
+(function testSlimSharedIncludesCompactPhotos() {
+  const huge = "data:image/jpeg;base64," + new Array(120010).join("x");
+  const many = [];
+  for (let i = 0; i < 20; i++) {
+    many.push({ title: "shot " + i, data: "data:image/jpeg;base64,ok" + i, name: "p" + i + ".jpg", url: "", cap: "" });
+  }
+  many[0].data = huge;
+  const slim = slimSharedCenterItem({
+    source: "guest",
+    photoCount: 20,
+    thumb: "data:image/jpeg;base64,THUMB",
+    photos: many,
+    docs: {}
+  });
+  assert.ok(Array.isArray(slim.photos), "slim includes photos");
+  assert.equal(slim.photos.length, 16, "slim caps at 16 photos");
+  assert.equal(slim.photos[0].data, "", "data over 120000 is skipped");
+  assert.equal(slim.photos[1].data, "data:image/jpeg;base64,ok1");
+  assert.equal(slim.photos[1].title, "shot 1");
+  assert.equal(slim.photos[1].name, "p1.jpg");
+  assert.equal(slim.thumb, "data:image/jpeg;base64,THUMB");
+  assert.equal(slim.photoCount, 20);
+  slim.photos.forEach(function (p) {
+    assert.ok(Object.keys(p).join(",") === "title,data,name,url,cap", "compact photo fields only");
+    assert.ok(String(p.data || "").length <= 120000, "each data string stays under MAX_THUMB");
+  });
+})();
+
+(function testMergePersistsRemotePhotos() {
+  persistedMedia.length = 0;
+  const store = { seq: 1000, items: [] };
+  function centerStore() { return store; }
+  function saveCenterStore() {}
+  const mergeIncomingShared = eval("(" + mergeSrc + ")");
+  mergeIncomingShared([{
+    id: "cmu0avif7rslu",
+    sendId: "s1ex074",
+    vin: "2T3B1RFVXRC466025",
+    ymmt: "2024 TOYOTA RAV4",
+    source: "guest",
+    photoCount: 13,
+    thumb: "data:image/jpeg;base64,THUMB",
+    photos: [
+      { title: "3/4 front", data: "data:image/jpeg;base64,AAA", name: "qfront.jpg", url: "", cap: "" },
+      { title: "Rear", data: "data:image/jpeg;base64,CCC", name: "rear.jpg", url: "", cap: "" }
+    ],
+    docs: { vauto: { have: true }, openlane: { have: true }, eblock: { have: true } },
+    customer: { name: "Chris Cyr" }
+  }]);
+  assert.equal(store.items.length, 1);
+  assert.equal(store.items[0].photos.length, 2, "merge copies remote photos");
+  assert.ok(persistedMedia.length >= 1, "merge persistCenterMedia after apply");
+  assert.equal(persistedMedia[persistedMedia.length - 1].photos.length, 2);
 })();
 
 (function testLeftoverLocalInboxPurged() {
@@ -415,6 +516,10 @@ function slimSharedDocs(docs) {
 })();
 
 assert.ok(/scheduleIncomingPull\(\)/.test(html), "Center boot/paint schedules the Incoming pull");
+assert.ok(/build d29r/.test(html), "build stamp bumped to d29r");
+assert.ok(/item\.photos=remote\.photos\.map/.test(html), "applySharedIncoming assigns remote.photos");
+assert.ok(/photos:photos/.test(html), "slimSharedCenterItem includes photos");
+assert.ok(/persistCenterMedia\(item\.id, item\.photos, item\.docs\|\|\{\}\)/.test(html), "shared land persists Center media");
 
 ["404.html", "inspect-vehicle.html"].forEach(function (name) {
   const copy = fs.readFileSync(path.join(root, name), "utf8");
