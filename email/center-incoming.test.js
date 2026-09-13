@@ -43,14 +43,44 @@ const mergeSrc = sliceFn("mergeIncomingShared", "scheduleIncomingPull").replace(
   "function mergeIncomingShared",
   "function"
 );
-const applySrc = html.match(/function applySharedIncoming\(item, remote\)\{[\s\S]*?\n\}/)[0].replace(
-  "function applySharedIncoming",
-  "function"
-);
+const applySrc = (function () {
+  const start = html.indexOf("function applySharedIncoming(");
+  const end = html.indexOf("\nlet incomingPullAt=", start);
+  assert.ok(start > 0 && end > start, "applySharedIncoming found");
+  return html.slice(start, end).replace("function applySharedIncoming", "function");
+})();
 const matchSrc = html.match(/function findCenterMatch\(store, hint\)\{[\s\S]*?\n\}/)[0].replace(
   "function findCenterMatch",
   "function"
 );
+const MARKET_DOC_REQ = [
+  {id:"summary", label:"vAuto Appraisal summary", aliases:["summary","vauto_summary"]},
+  {id:"blackbook", label:"vAuto Book", aliases:["blackbook","vauto_book","book"]},
+  {id:"compset", label:"vAuto Competitive set", aliases:["compset","vauto_comp"]},
+  {id:"carfax", label:"vAuto Carfax", aliases:["carfax","carfax_pdf"]},
+  {id:"mmr", label:"vAuto MMR", aliases:["mmr"]},
+  {id:"olguide", label:"OpenLane Market Guide", aliases:["olguide","openlane_guide","openlane"]},
+  {id:"olforecast", label:"OpenLane Forecast", aliases:["olforecast","openlane_forecast"]},
+  {id:"ebguide", label:"eBlock Market Guide", aliases:["ebguide","eblock_guide","eblock"]}
+];
+const haveM = html.match(/function packetDocHave\(docs, spec\)\{[\s\S]*?\n\}/);
+const missM = html.match(/function missingMarketDocs\(docs\)\{[\s\S]*?\n\}/);
+const doneM = html.match(/function marketDocsComplete\(docs\)\{[\s\S]*?\n\}/);
+const laneDocM = html.match(/function laneFromMarketDocs\(docs\)\{[\s\S]*?\n\}/);
+const landedM = html.match(/function isLandedCenterPacket\(item\)\{[\s\S]*?\n\}/);
+const needsM = html.match(/function isNeedsDocsItem\(item\)\{[\s\S]*?\n\}/);
+const laneOfM = html.match(/function centerLaneOf\(item\)\{[\s\S]*?\n\}/);
+assert.ok(haveM && missM && doneM && laneDocM && landedM && needsM && laneOfM, "docs-lane helpers extractable");
+const packetDocHave = eval("(" + haveM[0].replace("function packetDocHave", "function") + ")");
+const missingMarketDocs = eval("(" + missM[0].replace("function missingMarketDocs", "function") + ")");
+const marketDocsComplete = eval("(" + doneM[0].replace("function marketDocsComplete", "function") + ")");
+const laneFromMarketDocs = eval("(" + laneDocM[0].replace("function laneFromMarketDocs", "function") + ")");
+const isLandedCenterPacket = eval("(" + landedM[0].replace("function isLandedCenterPacket", "function") + ")");
+function isCenterArchived(item) {
+  return !!(item && (item.archived || item.stage === "Appraised"));
+}
+const isNeedsDocsItem = eval("(" + needsM[0].replace("function isNeedsDocsItem", "function") + ")");
+const centerLaneOf = eval("(" + laneOfM[0].replace("function centerLaneOf", "function") + ")");
 
 function isCenterSample(item) {
   if (!item) return false;
@@ -119,7 +149,9 @@ function slimSharedDocs(docs) {
   const row = store.items[0];
   assert.equal(row.id, "invite-1");
   assert.equal(row.source, "guest");
-  assert.equal(row.lane, "inbox");
+  assert.equal(row.lane, "needsdocs", "partial remote docs do not trust lane inbox");
+  assert.equal(row.docsIncomplete, true);
+  assert.ok(row.missingDocs && row.missingDocs.length >= 1, "missingDocs filled from remote");
   assert.equal(row.stage, "Waiting");
   assert.equal(row.linkSent, false);
   assert.equal(row.vin, "5NMS3DAJ7NH452632");
@@ -149,6 +181,8 @@ function slimSharedDocs(docs) {
   assert.equal(store.items.length, 1);
   assert.equal(store.items[0].source, "guest");
   assert.equal(store.items[0].vin, "2HKRW2H86JH123456");
+  assert.equal(store.items[0].lane, "needsdocs", "empty remote docs land Needs docs");
+  assert.equal(store.items[0].docsIncomplete, true);
 })();
 
 (function testSkipCodedSamplesKeepRealGuests() {
@@ -186,6 +220,100 @@ function slimSharedDocs(docs) {
   assert.ok(ids.indexOf("guest-christine-blazer-20260913") >= 0, "Christine Blazer lands");
   assert.ok(ids.indexOf("guest-chris-rav4-20260913") >= 0, "Chris RAV4 lands");
   assert.equal(store.items.length, 2);
+  store.items.forEach(function (row) {
+    assert.equal(row.lane, "needsdocs", row.ymmt + " empty docs → Needs docs");
+    assert.equal(row.docsIncomplete, true);
+    assert.ok(row.missingDocs && row.missingDocs.length >= 8, row.ymmt + " missingDocs lists the market set");
+    assert.equal(centerLaneOf(row), "needsdocs");
+  });
+})();
+
+(function testDoNotTrustRemoteInbox() {
+  const item = applySharedIncoming({
+    id: "guest-christine-blazer-20260913",
+    lane: "inbox",
+    source: "guest",
+    docs: {}
+  }, {
+    sendId: "gmail-1a09c81f52172f4c",
+    vin: "3GNKBHRS0LS577461",
+    ymmt: "2020 Chevrolet Blazer LT",
+    source: "guest",
+    lane: "inbox",
+    docs: {},
+    customer: { name: "Christine Cyr" },
+    photoCount: 12
+  });
+  assert.equal(item.lane, "needsdocs", "remote lane inbox is ignored when docs are empty");
+  assert.equal(item.docsIncomplete, true);
+  assert.ok(item.missingDocs.indexOf("vAuto Appraisal summary") >= 0);
+  assert.ok(item.missingDocs.indexOf("OpenLane Market Guide") >= 0);
+  assert.ok(item.missingDocs.indexOf("eBlock Market Guide") >= 0);
+})();
+
+(function testCompleteDocsMoveOnsite() {
+  const full = {};
+  MARKET_DOC_REQ.forEach(function (s) { full[s.id] = { have: true }; });
+  const item = applySharedIncoming({ id: "done-1", lane: "inbox" }, {
+    sendId: "s-full",
+    vin: "1HGCM82633A004352",
+    docs: full,
+    customer: { name: "Done Guest" }
+  });
+  assert.equal(item.lane, "onsite", "complete market docs leave Incoming for On-site");
+  assert.equal(item.docsIncomplete, false);
+  assert.deepStrictEqual(item.missingDocs, []);
+  assert.equal(centerLaneOf(item), "onsite");
+})();
+
+(function testLeftoverLocalInboxPurged() {
+  const store = {
+    seq: 1000,
+    items: [{
+      id: "guest-christine-blazer-20260913",
+      source: "guest",
+      lane: "inbox",
+      vin: "3GNKBHRS0LS577461",
+      ymmt: "2020 Chevrolet Blazer LT",
+      photoCount: 12,
+      docs: {},
+      customer: { name: "Christine Cyr" }
+    }, {
+      id: "guest-chris-rav4-20260913",
+      source: "guest",
+      lane: "onsite",
+      vin: "2T3B1RFVXRC466025",
+      ymmt: "2024 Toyota RAV4",
+      photoCount: 8,
+      sendId: "gmail-1a09c912c9542f04",
+      docs: {},
+      customer: { name: "Chris Cyr" }
+    }, {
+      id: "invite-wait",
+      source: "trade-in",
+      lane: "inbox",
+      linkSent: true,
+      photoCount: 0,
+      ymmt: "Trade incoming",
+      customer: { name: "Waiting Guest" }
+    }]
+  };
+  function centerStore() { return store; }
+  function saveCenterStore() {}
+  const purgeSrc = sliceFn("purgeDocsLaneDrift", "centerLaneLabel").replace(
+    "function purgeDocsLaneDrift",
+    "function"
+  );
+  const purgeDocsLaneDrift = eval("(" + purgeSrc + ")");
+  assert.equal(centerLaneOf(store.items[0]), "needsdocs", "leftover Blazer paints in Needs docs");
+  assert.equal(centerLaneOf(store.items[1]), "needsdocs", "leftover RAV4 does not stay On-site");
+  assert.equal(centerLaneOf(store.items[2]), "inbox", "waiting trade-in invite stays Incoming");
+  assert.equal(purgeDocsLaneDrift(), true);
+  assert.equal(store.items[0].lane, "needsdocs");
+  assert.equal(store.items[0].docsIncomplete, true);
+  assert.equal(store.items[1].lane, "needsdocs");
+  assert.equal(store.items[1].docsIncomplete, true);
+  assert.equal(store.items[2].lane, "inbox", "invite stub lane is not purged");
 })();
 
 assert.ok(/scheduleIncomingPull\(\)/.test(html), "Center boot/paint schedules the Incoming pull");
