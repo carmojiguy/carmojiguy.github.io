@@ -249,9 +249,15 @@ must(/function needsAppraiseAppt\(/, "Canada Drives stays gated until an appoint
 must(/function usesCaAppointments\(/, "appointments UI is Canada Drives only");
 must(/src && src!=="Canada Drives"\) return false/, "My Loan / My Auto / Carla skip the appointment gate");
 must(/function needsNewApplication\(/, "non–Canada Drives CA sources start a New application");
+must(/function newAppDeskRedirect\(/, "home/start/photos cannot skip the New application form");
 must(/function completeNewApplication\(/, "New application creates the file and continues into Appraise");
 must(/function openNewApplicationDesk\(/, "non-CD sources open the New application desk");
 must(/function openCaSource\(/, "lead source routes CD to appointments and everyone else to New application");
+must(/else openNewApplicationDesk\(\);/, "picking My Loan / My Auto / Carla opens the New application form immediately");
+must(/if\(newAppDeskRedirect\(id\)\)/, "show() bounces home/start/photos to the New application form");
+must(/if\(id==="typeSheet" && needsNewApplication\(\)\) openNewApplicationDesk\(\)/, "closing the type sheet with a pending New application opens the form");
+must(/\$\("na-first"\)\.focus\(\)/, "New application focuses first name when the form opens");
+must(/if\(\$\("newAppCta"\)\) \$\("newAppCta"\)\.classList\.add\("hide"\)/, "My Loan form is not behind a second New application tap");
 must(/id="newAppForm"/, "New application is a real create form");
 must(/id="newAppGo"/, "New application has a complete-and-continue button");
 must(/Create application and continue/, "New application continue CTA is explicit");
@@ -428,6 +434,35 @@ must(/inbox:"Incoming"/, "Center lanes stay Incoming / On-site / History");
   assert.strictEqual(needsNewApplication({ purpose: "appraise", dealType: "Consumer Acquisition", leadSource: "My Loan", newApplication: true }, true), false, "completed New application unlocks Appraise");
   assert.strictEqual(needsNewApplication({ purpose: "appraise", dealType: "Consumer Acquisition", leadSource: "Canada Drives" }, true), false, "Canada Drives uses appointments, not the New application gate");
   assert.strictEqual(needsNewApplication({ purpose: "appraise", dealType: "Trade-in" }, true), false, "Trade-in does not need New application");
+})();
+(function testNewAppDeskRedirect() {
+  const needsM = html.match(/function needsNewApplication\(job, staff\)\{[\s\S]*?\n\}/);
+  const redirM = html.match(/function newAppDeskRedirect\(id, job, staff\)\{[\s\S]*?\n\}/);
+  assert.ok(needsM && redirM, "newAppDeskRedirect source is extractable");
+  const needsAppraiseType = function () { return false; };
+  const needsLeadSource = function (job) {
+    return job && job.dealType === "Consumer Acquisition" && !job.leadSource;
+  };
+  const isConsumerAcquisition = function (item) {
+    const t = item ? item.dealType : "";
+    return t === "Consumer Acquisition" || t === "Canada Drives";
+  };
+  const needsNewApplication = eval("(" + needsM[0].replace("function needsNewApplication", "function") + ")");
+  const newAppDeskRedirect = eval("(" + redirM[0].replace("function newAppDeskRedirect", "function") + ")");
+  ["My Loan", "My Auto", "Carla"].forEach(function (src) {
+    const job = { purpose: "appraise", dealType: "Consumer Acquisition", leadSource: src };
+    assert.strictEqual(newAppDeskRedirect("home", job, true), "workbench", src + " cannot reach home Appraise desk before New application");
+    assert.strictEqual(newAppDeskRedirect("start", job, true), "workbench", src + " cannot reach start before New application");
+    assert.strictEqual(newAppDeskRedirect("photos", job, true), "workbench", src + " cannot reach photos before New application");
+    assert.strictEqual(newAppDeskRedirect("verify", job, true), "workbench", src + " cannot reach verify before New application");
+    assert.strictEqual(newAppDeskRedirect("submit", job, true), "workbench", src + " cannot reach submit before New application");
+    assert.strictEqual(newAppDeskRedirect("workbench", job, true), "", src + " stays on the New application form");
+    assert.strictEqual(needsNewApplication(job, true), true, src + " still needs the Create application form");
+  });
+  assert.strictEqual(newAppDeskRedirect("home", { purpose: "appraise", dealType: "Consumer Acquisition", leadSource: "My Loan", newApplication: true }, true), "", "completed New application can open the Appraise desk");
+  assert.strictEqual(newAppDeskRedirect("photos", { purpose: "appraise", dealType: "Consumer Acquisition", leadSource: "My Auto", newApplication: true }, true), "", "completed New application can reach photos");
+  assert.strictEqual(newAppDeskRedirect("home", { purpose: "appraise", dealType: "Consumer Acquisition", leadSource: "Canada Drives" }, true), "", "Canada Drives is not bounced to New application");
+  assert.strictEqual(newAppDeskRedirect("photos", { purpose: "appraise", dealType: "Trade-in" }, true), "", "Trade-in is not bounced to New application");
 })();
 
 (function testDefaultPerms() {

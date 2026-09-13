@@ -1272,11 +1272,11 @@ body.center-gallery-on { overflow:hidden; }
         <div id="apptList"></div>
       </div>
       <div id="newAppWrap" class="newapp-wrap hide">
-        <button class="newapp-cta" type="button" id="newAppCta">
+        <button class="newapp-cta hide" type="button" id="newAppCta">
           <b>New application</b>
           <span>Create the file, add the customer and VIN, then continue into Appraise.</span>
         </button>
-        <p class="newapp-empty" id="newAppEmpty">This source has no appointment calendar. Tap New application, fill customer and vehicle, then continue into Appraise — photos and documents are next.</p>
+        <p class="newapp-empty hide" id="newAppEmpty">This source has no appointment calendar. Add the customer and vehicle, then create the application — photos and documents are next.</p>
         <form id="newAppForm" class="newapp-form hide" action="#" method="post">
           <h3>Create application</h3>
           <p class="hint" id="newAppHint">Customer and vehicle go on the file. Then you continue into full Appraise.</p>
@@ -1871,6 +1871,12 @@ function needsNewApplication(job, staff){
   if(p.newApplication) return false;
   return true;
 }
+function newAppDeskRedirect(id, job, staff){
+  if(!needsNewApplication(job, staff)) return "";
+  id=String(id||"");
+  if(id==="home"||id==="start"||id==="photos"||id==="verify"||id==="submit") return "workbench";
+  return "";
+}
 function appraiseLocked(job, staff){
   return needsAppraiseType(job, staff) || needsLeadSource(job, staff) || needsAppraiseAppt(job, staff) || needsNewApplication(job, staff);
 }
@@ -2218,8 +2224,8 @@ function paintNewApplication(){
   const show=on && (!cd || APP.newAppOpen);
   wrap.classList.toggle("hide", !show);
   if($("newAppForm")) $("newAppForm").classList.toggle("hide", !show);
-  if($("newAppEmpty")) $("newAppEmpty").classList.toggle("hide", !show || cd);
-  if($("newAppCta")) $("newAppCta").classList.toggle("hide", !show || cd);
+  if($("newAppEmpty")) $("newAppEmpty").classList.add("hide");
+  if($("newAppCta")) $("newAppCta").classList.add("hide");
   if($("newAppHint")){
     $("newAppHint").textContent=cd
       ? "No live match? Create the Canada Drives file here, then continue into Appraise."
@@ -2245,6 +2251,7 @@ function openNewApplicationDesk(){
   paintAppointments();
   paintWorkbench();
   paintAppraiseGate();
+  if($("na-first")) $("na-first").focus();
 }
 function startNewApplication(){
   const q=String(($("apptSearch") && $("apptSearch").value) || APP.apptSearch || "").trim();
@@ -2549,6 +2556,11 @@ function syncCenterDesk(){
 }
 function show(id){
   if(id==="centerDetail") id="center";
+  if(newAppDeskRedirect(id)){
+    toast("Start a New application first — customer, vehicle, then continue into Appraise.");
+    openNewApplicationDesk();
+    return;
+  }
   if(appraiseLocked() && (id==="photos"||id==="verify"||id==="submit")){
     if(needsAppraiseType() || needsLeadSource()){
       toast(needsAppraiseType()
@@ -2556,10 +2568,6 @@ function show(id){
         : "Pick the lead source first — Canada Drives, My Loan, My Auto, or Carla.");
       id="home";
       openDealType();
-    } else if(needsNewApplication()){
-      toast("Start a New application first — customer, vehicle, then continue into Appraise.");
-      id="workbench";
-      openNewApplicationDesk();
     } else {
       toast("Pick the booked appointment first.");
       id="workbench";
@@ -8896,6 +8904,7 @@ document.querySelectorAll("[data-close]").forEach(function(b){
     $(id).classList.remove("on");
     stopMic();
     if(id==="vinSheet") stopVinScan();
+    if(id==="typeSheet" && needsNewApplication()) openNewApplicationDesk();
   });
 });
 $("startAppraise").onclick = function(){
@@ -9149,6 +9158,10 @@ if($("wbBack")) $("wbBack").onclick = function(){
     APP.newAppOpen=false;
     paintAppointments();
     paintWorkbench();
+    return;
+  }
+  if(needsNewApplication() && !usesCaAppointments()){
+    openNewApplicationDesk();
     return;
   }
   if(isConsumerAcquisition() && (APP.apptId || APP.newApplication)){
