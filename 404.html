@@ -142,7 +142,7 @@ label.k { display:block; color:#6e6e73; font-size:13px; margin:11px 0 5px; }
 .wb-extract span{color:var(--muted);font-size:13px;font-weight:600}
 .doc-sq .extract{position:relative;margin-top:6px;font-size:12px;font-weight:700;color:var(--purple-deep);line-height:1.35}
 .doc-sq.on .extract{color:#EFE8FF}
-input.f, textarea.note { width:100%; border:1.5px solid var(--hair); border-radius:16px; padding:13px 14px; font-size:17px; font-family:inherit; }
+input.f, textarea.note, select.f { width:100%; border:1.5px solid var(--hair); border-radius:16px; padding:13px 14px; font-size:17px; font-family:inherit; background:#fff; }
 textarea.note { min-height:160px; max-height:none; resize:vertical; overflow:auto; field-sizing:content; line-height:1.45; }
 .vin-fail { margin-top:14px; padding-top:12px; border-top:1px solid var(--hair); }
 .vin-fail p { color:var(--muted); font-size:15px; line-height:1.4; margin:0 0 12px; }
@@ -393,6 +393,46 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
 .perm-tog.on { background:var(--lavender); border-color:var(--purple); color:var(--purple-deep); }
 .perm-tog.off { opacity:.55; }
 .perm-tog[disabled] { cursor:default; }
+#users { background:linear-gradient(180deg,#FFF8E8 0%,#F3FBFF 28%,#FAF9FC 100%); }
+#users .users-hero { margin:4px 0 18px; }
+#users .users-kicker { font-size:11px; font-weight:800; letter-spacing:.16em; text-transform:uppercase; color:#E08A00; margin:0 0 6px; }
+#users h2 { margin:0 0 8px; }
+.users-filters { display:flex; gap:8px; overflow-x:auto; -webkit-overflow-scrolling:touch; padding:2px 0 14px; }
+.users-chip { flex:0 0 auto; border:0; border-radius:999px; padding:9px 14px; font-size:13px; font-weight:800; cursor:pointer; background:#fff; color:var(--ink); box-shadow:0 8px 20px rgba(17,14,26,.06); }
+.users-chip.on { background:linear-gradient(135deg,#7C5CFF,#00A4E2); color:#fff; }
+.users-grid { display:flex; flex-direction:column; gap:10px; }
+.person-card { width:100%; border:0; background:#fff; border-radius:22px; padding:14px; text-align:left; cursor:pointer; box-shadow:0 12px 28px rgba(17,14,26,.06); display:flex; gap:12px; align-items:flex-start; font:inherit; color:inherit; }
+.person-card:hover { transform:translateY(-1px); box-shadow:0 16px 32px rgba(17,14,26,.1); }
+.person-ava { width:52px; height:52px; border-radius:18px; flex:0 0 52px; display:grid; place-items:center; color:#fff; font-size:16px; font-weight:800; letter-spacing:-.02em; }
+.person-meta { min-width:0; flex:1; }
+.person-meta b { display:block; font-size:17px; letter-spacing:-.3px; }
+.person-meta .em { color:var(--muted); font-size:13px; font-weight:600; margin:2px 0 8px; word-break:break-all; }
+.person-pills { display:flex; flex-wrap:wrap; gap:6px; }
+.tchip, .achip, .lchip, .locked-chip { display:inline-block; border-radius:999px; padding:5px 10px; font-size:11px; font-weight:800; }
+.tchip { background:#E8F7FF; color:#0077A8; }
+.tchip.un { background:#F3F0FA; color:var(--purple-deep); }
+.lchip { background:#FFF3D6; color:#8A5A00; }
+.achip { background:var(--lavender); color:var(--purple-deep); }
+.locked-chip { background:#D8F5E5; color:#0F6B3C; }
+.users-add { margin-top:18px; background:rgba(255,255,255,.82); border-radius:24px; padding:16px; box-shadow:0 12px 28px rgba(17,14,26,.05); }
+.role-tog { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:8px 0 14px; }
+.role-tog button { border:1.5px solid var(--hair); background:#fff; border-radius:16px; padding:12px 10px; font-size:14px; font-weight:800; cursor:pointer; }
+.role-tog button.on { background:#111; color:#fff; border-color:#111; }
+.team-picks { display:flex; flex-wrap:wrap; gap:8px; }
+.team-pick-btn { border:1.5px solid var(--hair); background:#fff; border-radius:999px; padding:8px 12px; font-size:13px; font-weight:800; cursor:pointer; }
+.team-pick-btn.on { background:linear-gradient(135deg,#7C5CFF,#00A4E2); color:#fff; border-color:transparent; }
+.team-pick-btn[disabled] { opacity:.45; cursor:default; }
+.always-row { display:flex; flex-wrap:wrap; gap:8px; margin:0 0 14px; }
+.ca-lock { background:#FFF6E8; border-radius:16px; padding:12px 14px; font-size:13px; font-weight:700; color:#8A5A00; margin:8px 0 12px; }
+.desk-team { position:relative; margin:0 0 8px; }
+.desk-team .team-pick { margin:0; }
+.desk-team.empty .team-pick { border-color:#F5B942; box-shadow:0 0 0 3px rgba(245,185,66,.22); }
+.desk-team-menu { display:none; position:absolute; left:0; right:0; top:calc(100% + 8px); z-index:16; background:#fff; border-radius:18px; box-shadow:0 18px 50px rgba(17,14,26,.16); padding:8px; }
+.desk-team-menu.on { display:block; }
+.desk-team-menu button { width:100%; margin:0; border:0; background:transparent; border-radius:14px; padding:14px; font-size:16px; font-weight:700; text-align:left; cursor:pointer; }
+.desk-team-menu button:hover, .desk-team-menu button.on { background:var(--lavender); color:var(--purple-deep); }
+.acre-team { display:inline-block; background:#E8F7FF; color:#0077A8; border-radius:999px; padding:5px 10px; font-size:11px; font-weight:800; }
+#userSheet .card, #userAddSheet .card { max-height:min(88vh, 820px); overflow:auto; }
 .start-dock .pill.locked, .start-more .pill.locked {
   background:rgba(250,249,252,.38) !important;
   color:rgba(36,27,51,.42) !important;
@@ -770,6 +810,10 @@ body.center-gallery-on { overflow:hidden; }
   .sheet { display:none; align-items:center; justify-content:center; padding:48px 24px; background:rgba(18,15,28,.46); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); }
   .sheet.on { display:flex; }
   .sheet .card { width:min(560px, 100%); padding:28px 26px; border-radius:28px; }
+  #userSheet .card, #userAddSheet .card { width:min(640px, 100%); }
+  #users .users-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  #users .users-add { grid-column:1 / -1; }
+  #users .users-filters { flex-wrap:wrap; overflow:visible; }
 
   .login-hero {
     left:8%; right:auto; top:50%; transform:translateY(-52%);
@@ -959,20 +1003,26 @@ body.center-gallery-on { overflow:hidden; }
   <div class="nav">
     <button class="round" type="button" id="usersBack">✕</button>
     <h1>Users</h1>
-    <button class="round" type="button">•••</button>
+    <button class="round" type="button" id="usersAddOpen">+</button>
   </div>
   <div class="pad" style="padding-bottom:40px">
-    <h2>Who can do what</h2>
-    <p class="quote" id="usersLead">Shawn turns people on or off. Send trade-in link, Appraise, Website photos, Appraisal Center, and Admin. Anyone @myloan.ca can still log in.</p>
-    <label class="k">Name</label>
-    <input class="f" id="user-name" placeholder="First name" />
-    <label class="k">Email</label>
-    <div class="work-email">
-      <input class="f" id="user-email" type="email" inputmode="email" placeholder="name@company.com" />
-      <button class="pill purple" type="button" id="userAdd">Add</button>
+    <div class="users-hero">
+      <p class="users-kicker">The people</p>
+      <h2>Everyone on the desk</h2>
+      <p class="quote" id="usersLead">Each person has a team and section toggles. Google login for @myloan.ca is unchanged. Trade links and website photos stay on for everyone.</p>
     </div>
-    <div class="block">People</div>
-    <div id="userList"></div>
+    <div class="users-filters" id="userFilters"></div>
+    <div class="users-grid" id="userList"></div>
+    <div class="users-add" id="usersAddBox">
+      <div class="block" style="margin-top:0">Add someone</div>
+      <label class="k">Name</label>
+      <input class="f" id="user-name" placeholder="First and last name" />
+      <label class="k">Email</label>
+      <input class="f" id="user-email" type="email" inputmode="email" placeholder="name@myloan.ca" />
+      <label class="k">Team</label>
+      <select class="f" id="user-team"></select>
+      <button class="pill purple" type="button" id="userAdd" style="margin-top:12px">Add to the roster</button>
+    </div>
   </div>
 </section>
 
@@ -1039,6 +1089,7 @@ body.center-gallery-on { overflow:hidden; }
           <span>Older files stay here. They leave Incoming and On-site automatically after 90 days.</span>
         </div>
         <input class="f center-search" id="centerSearch" type="search" placeholder="Search name, phone, VIN, or vehicle" />
+        <div class="users-filters" id="centerTeamFilter"></div>
         <div class="center-date">
           <button class="pill" type="button" id="centerDateBtn">Date</button>
           <div class="date-menu" id="centerDateMenu">
@@ -1080,6 +1131,14 @@ body.center-gallery-on { overflow:hidden; }
   </div>
   <div id="vinScanWrap"></div>
   <div class="pad">
+    <div id="teamWrap">
+      <div class="desk-team" id="deskTeamBox">
+        <button class="pill team-pick" type="button" id="btnDeskTeam">Team</button>
+        <div class="desk-team-menu" id="deskTeamMenu"></div>
+      </div>
+      <p class="quote" id="teamQuote">Which team is this appraisal for?</p>
+      <p class="type-gate-note hide" id="teamGateNote">Pick a team so Incoming, On-site, and History can sort this file.</p>
+    </div>
     <div id="typeWrap">
       <button class="pill" type="button" id="btnDealType">Appraisal type</button>
       <p class="quote" id="typeQuote">Trade-in, locate, general acquisition, or Consumer Acquisition.</p>
@@ -1449,6 +1508,37 @@ body.center-gallery-on { overflow:hidden; }
     <button class="pill purple" type="button" id="typeSave" style="margin-top:14px">Done</button>
   </div>
 </div>
+<div class="sheet" id="userSheet">
+  <div class="card">
+    <button class="x" type="button" data-close="userSheet">✕</button>
+    <p class="users-kicker" id="userSheetKicker">Person</p>
+    <h3 id="userSheetTitle">Person</h3>
+    <p class="hint" id="userSheetHint">Team membership and section toggles. Trade links and website photos stay on.</p>
+    <label class="k">Name</label>
+    <input class="f" id="ud-name" placeholder="Name" />
+    <label class="k">Email</label>
+    <input class="f" id="ud-email" type="email" inputmode="email" placeholder="name@myloan.ca" />
+    <label class="k">Role</label>
+    <div class="role-tog" id="ud-role">
+      <button type="button" data-leader="0">Salesperson</button>
+      <button type="button" data-leader="1">Team Leader</button>
+    </div>
+    <label class="k">Always on</label>
+    <div class="always-row">
+      <i class="locked-chip">Send trade-in link · On</i>
+      <i class="locked-chip">Website photos · On</i>
+    </div>
+    <label class="k">Sections</label>
+    <div class="perm-toggles" id="ud-perms"></div>
+    <p class="ca-lock hide" id="ud-caLock">Only Shawn can grant Consumer Acquisition.</p>
+    <label class="k">Teams</label>
+    <p class="hint" id="ud-teamHint">Tap every team this person belongs to. Unassigned if none.</p>
+    <div class="team-picks" id="ud-teams"></div>
+    <label class="k">Notes</label>
+    <textarea class="note" id="ud-notes" rows="3" placeholder="Optional — desk notes about this person"></textarea>
+    <button class="pill purple" type="button" id="userSave" style="margin-top:14px">Save</button>
+  </div>
+</div>
 <div class="sheet" id="unitSheet">
   <div class="card">
     <button class="x" type="button" data-close="unitSheet">✕</button>
@@ -1538,7 +1628,7 @@ window.APP = {
   inviteUnit:"", inviteStock:"", inviteName:"", inviteEmail:"",
   dealType:"", leadSource:"", cdApp:"", centerId:"", sendId:"", centerFilter:"all", centerPhoto:0,
   centerHistory:false, centerLane:"", centerQuery:"", centerRange:"all", centerYear:new Date().getFullYear(),
-  centerShots:[], centerGalleryOn:false, lockedFromAirtable:false,
+  centerShots:[], centerGalleryOn:false, lockedFromAirtable:false, deskTeam:"", userFilter:"all", userEdit:"",
   apptId:"", apptSeller:"", apptRegion:"GTA", apptRange:"today", apptItems:[]
 };
 
@@ -1722,11 +1812,16 @@ function paintDealType(){
   if(host){
     host.innerHTML="";
     DEAL_TYPES.forEach(function(name){
+      if(name==="Consumer Acquisition" && APP.role==="employee" && !canPerm("ca")) return;
       const b=document.createElement("button");
       b.type="button";
       b.className="mail"+(t===name?" on":"");
       b.innerHTML='<div class="mark">'+(t===name?"✓":"")+'</div><div><b>'+name+'</b></div>';
       b.onclick=function(){
+        if(name==="Consumer Acquisition" && APP.role==="employee" && !canPerm("ca")){
+          toast("You don’t have Consumer Acquisition. Only Shawn can turn that on.");
+          return;
+        }
         APP.dealType=name;
         if(name!=="Consumer Acquisition"){ APP.leadSource=""; APP.apptId=""; APP.apptSeller=""; APP.lockedFromAirtable=false; }
         paintDealType();
@@ -1757,7 +1852,40 @@ function paintDealType(){
   }
   paintAppraiseGate();
   paintAppointments();
+  paintDeskTeam();
   if(typeof paintWorkbench==="function") paintWorkbench();
+}
+function paintDeskTeam(){
+  const t=APP.deskTeam||"";
+  const btn=$("btnDeskTeam");
+  if(btn) btn.textContent=t||"Team";
+  if($("teamQuote")) $("teamQuote").textContent=t
+    ? (t+".")
+    : "Which team is this appraisal for?";
+  if($("teamGateNote")) $("teamGateNote").classList.toggle("hide", !!t || APP.role==="guest");
+  if($("deskTeamBox")) $("deskTeamBox").classList.toggle("empty", !t && APP.role!=="guest");
+  const menu=$("deskTeamMenu");
+  if(menu){
+    menu.innerHTML="";
+    DESK_TEAMS.forEach(function(name){
+      const b=document.createElement("button");
+      b.type="button";
+      b.className=t===name?"on":"";
+      b.textContent=name;
+      b.onclick=function(){
+        APP.deskTeam=name;
+        menu.classList.remove("on");
+        paintDeskTeam();
+      };
+      menu.appendChild(b);
+    });
+  }
+}
+function openDeskTeam(){
+  if(APP.role==="guest") return;
+  paintDeskTeam();
+  const menu=$("deskTeamMenu");
+  if(menu) menu.classList.toggle("on");
 }
 function openDealType(){
   paintDealType();
@@ -2177,20 +2305,51 @@ const CENTER_STAFF = {
   "shane@myloan.ca":"Shane"
 };
 const CENTER_DENY="Appraisal Center is only for Shawn, Ryan, Andrew, Wes, Kyle, and Shane.";
+const DESK_TEAMS=["Team Flash","Team Retail","Team Evo","Team ABC","Team Saskatchewan","Team Fire","Team House","Team Consumer Acquisition"];
+const ALWAYS_ON_PERMS=["trade","website"];
 const PERM_KEYS=[
-  {id:"trade", label:"Send trade-in link", deny:"You don’t have Send trade-in link. Ask Shawn to turn it on."},
-  {id:"appraise", label:"Appraise", deny:"You don’t have Appraise. Ask Shawn to turn it on."},
-  {id:"website", label:"Website photos", deny:"You don’t have Website photos. Ask Shawn to turn it on."},
+  {id:"trade", label:"Send trade-in link", deny:"You don’t have Send trade-in link. Ask Shawn to turn it on.", always:true},
+  {id:"website", label:"Website photos", deny:"You don’t have Website photos. Ask Shawn to turn it on.", always:true},
   {id:"center", label:"Appraisal Center", deny:"You don’t have Appraisal Center. Ask Shawn to turn it on."},
-  {id:"admin", label:"Admin", deny:"Only Shawn or an admin can open Users."}
+  {id:"appraise", label:"Appraise", deny:"You don’t have Appraise. Ask Shawn to turn it on.", ui:"Appraisals"},
+  {id:"pictures", label:"Pictures", deny:"You don’t have Pictures. Ask Shawn or a team leader to turn it on."},
+  {id:"admin", label:"Admin", deny:"Only Shawn or an admin can open Users."},
+  {id:"ca", label:"Consumer Acquisition", deny:"You don’t have Consumer Acquisition. Only Shawn can turn that on."}
 ];
+const SEED_STAFF=[
+  "adam@myloan.ca","alex.rubeii@myloan.ca","andrew@myloan.ca","cliff@myloan.ca","david.m@myloan.ca",
+  "ernest@myloan.ca","eugene@myloan.ca","hugh@myloan.ca","isabella.coffey@myloan.ca","jason.sarac@myloan.ca",
+  "jay.cyr@myloan.ca","jay.jokisch@myloan.ca","joseph.mctag@myloan.ca","kyle@myloan.ca","lord.grande@myloan.ca",
+  "nathan.aborameh@myloan.ca","nathan.rutter@myloan.ca","nick.bowley@myloan.ca","osato.om@myloan.ca",
+  "phil.frederic@myloan.ca","puncham.girdhar@myloan.ca","sharan.harrison@myloan.ca","shayne.upper@myloan.ca",
+  "tony.wiebe@myloan.ca","tushar.gupta@myloan.ca","shawn@myloan.ca","elias.abdi@myloan.ca"
+];
+const SEED_LEADERS={
+  "kyle@myloan.ca":["Team Retail"],
+  "lord.grande@myloan.ca":["Team Retail","Team House"],
+  "tushar.gupta@myloan.ca":["Team Evo"],
+  "ernest@myloan.ca":["Team Flash"],
+  "elias.abdi@myloan.ca":["Team Flash"],
+  "david.m@myloan.ca":["Team Fire"],
+  "tony.wiebe@myloan.ca":["Team Saskatchewan"]
+};
+const SEED_NAMES={
+  "david.m@myloan.ca":"David Madrid",
+  "elias.abdi@myloan.ca":"Elias Abdi",
+  "shawn@myloan.ca":"Shawn",
+  "kyle@myloan.ca":"Kyle",
+  "lord.grande@myloan.ca":"Lord Grande",
+  "tushar.gupta@myloan.ca":"Tushar Gupta",
+  "ernest@myloan.ca":"Ernest",
+  "tony.wiebe@myloan.ca":"Tony Wiebe"
+};
 function staffEmail(v){ return String(v||"").trim().toLowerCase(); }
 function shawnAlias(email){
   const e=staffEmail(email);
   if(e==="shawn@gmautosales.ca") return "shawn@myloan.ca";
   return e;
 }
-function allPermsOn(){ return {trade:true, appraise:true, website:true, center:true, admin:true}; }
+function allPermsOn(){ return {trade:true, appraise:true, website:true, center:true, admin:true, pictures:true, ca:true}; }
 function defaultPerms(email){
   const e=shawnAlias(email);
   if(e==="shawn@myloan.ca") return allPermsOn();
@@ -2235,18 +2394,25 @@ function permsFor(email){
   const store=loadUsersStore();
   const saved=store.permissions && store.permissions[e];
   const base=defaultPerms(e);
-  if(!saved) return base;
   const out={};
-  PERM_KEYS.forEach(function(k){ out[k.id]=saved[k.id]==null?base[k.id]:!!saved[k.id]; });
-  if(e==="shawn@myloan.ca") out.admin=true;
+  PERM_KEYS.forEach(function(k){
+    const fromSaved=saved && saved[k.id];
+    out[k.id]=fromSaved==null?!!base[k.id]:!!fromSaved;
+  });
+  ALWAYS_ON_PERMS.forEach(function(k){ out[k]=true; });
+  if(e==="shawn@myloan.ca"){ out.admin=true; out.ca=true; }
   return out;
 }
 function setPerm(email, key, on){
   const e=shawnAlias(email);
+  if(ALWAYS_ON_PERMS.indexOf(key)>=0) return;
   if(e==="shawn@myloan.ca" && key==="admin" && !on) return;
+  if(key==="ca" && !isShawnActor()) return;
+  if(!canEditPerson(e)) return;
   const store=loadUsersStore();
   const cur=permsFor(e);
   cur[key]=!!on;
+  ALWAYS_ON_PERMS.forEach(function(k){ cur[k]=true; });
   store.permissions[e]=cur;
   saveUsersStore(store);
 }
@@ -2270,11 +2436,11 @@ function lockDockBtn(id, ok, key){
   btn._permKey=key;
 }
 function paintDockPerms(){
-  lockDockBtn("startTrade", canPerm("trade"), "trade");
+  lockDockBtn("startTrade", APP.role==="employee", "trade");
   lockDockBtn("startAppraise", canPerm("appraise"), "appraise");
-  lockDockBtn("startWebsite", canPerm("website"), "website");
+  lockDockBtn("startWebsite", APP.role==="employee", "website");
   lockDockBtn("startCenter", canPerm("center"), "center");
-  lockDockBtn("startUsers", canPerm("admin"), "admin");
+  lockDockBtn("startUsers", canOpenUsers(), "admin");
 }
 function paintCenterAccess(){ paintDockPerms(); }
 function requirePerm(key){
@@ -2327,58 +2493,318 @@ function namedStaff(){
     ["Shane","shane@myloan.ca"]
   ];
 }
+function titleFromEmail(email){
+  const e=staffEmail(email);
+  if(SEED_NAMES[e]) return SEED_NAMES[e];
+  if(OPEN_STAFF[e]) return OPEN_STAFF[e];
+  const hit=namedStaff().find(function(p){ return p[1]===e; });
+  if(hit) return hit[0];
+  const local=e.split("@")[0]||"";
+  return local.split(/[._-]+/).filter(Boolean).map(function(p){
+    return p.charAt(0).toUpperCase()+p.slice(1).toLowerCase();
+  }).join(" ") || e;
+}
+function isShawnActor(){ return shawnAlias(APP.userEmail)==="shawn@myloan.ca"; }
+function normalizeTeams(v){
+  if(Array.isArray(v)) return v.filter(function(t){ return DESK_TEAMS.indexOf(t)>=0; });
+  if(typeof v==="string" && DESK_TEAMS.indexOf(v)>=0) return [v];
+  return [];
+}
+function rosterPerson(email){
+  const e=shawnAlias(email);
+  return loadRoster().find(function(u){ return shawnAlias(u.email)===e; }) || null;
+}
+function personTeams(email){
+  const p=rosterPerson(email);
+  return normalizeTeams(p && p.teams);
+}
+function isTeamLeader(email){
+  const e=shawnAlias(email||APP.userEmail);
+  if(e==="shawn@myloan.ca") return true;
+  const p=rosterPerson(e);
+  return !!(p && p.leader);
+}
+function canOpenUsers(){
+  return APP.role==="employee" && (canPerm("admin") || isTeamLeader());
+}
+function actorLeaderTeams(){
+  if(isShawnActor() || canUseAdmin()) return DESK_TEAMS.slice();
+  return personTeams(APP.userEmail);
+}
+function canEditPerson(email){
+  if(APP.role!=="employee") return false;
+  if(isShawnActor() || canUseAdmin()) return true;
+  if(!isTeamLeader()) return false;
+  const mine=actorLeaderTeams();
+  const theirs=personTeams(email);
+  if(!theirs.length) return true;
+  return theirs.some(function(t){ return mine.indexOf(t)>=0; });
+}
+function canAssignTeam(team){
+  if(isShawnActor() || canUseAdmin()) return true;
+  return actorLeaderTeams().indexOf(team)>=0;
+}
+function emptyPerson(email, name){
+  const e=staffEmail(email);
+  const leaders=SEED_LEADERS[e]||SEED_LEADERS[shawnAlias(e)]||[];
+  return {
+    name:name||titleFromEmail(e),
+    email:e,
+    teams:leaders.slice(),
+    leader:!!leaders.length || shawnAlias(e)==="shawn@myloan.ca",
+    notes:"",
+    emailEditable:e==="elias.abdi@myloan.ca"
+  };
+}
+function loadRoster(){
+  ensureRoster();
+  return loadUsersStore().people;
+}
+function ensureRoster(){
+  const store=loadUsersStore();
+  const by={};
+  (store.people||[]).forEach(function(u){
+    if(!u || !u.email) return;
+    const e=staffEmail(u.email);
+    by[e]=Object.assign({name:"", email:e, teams:[], leader:false, notes:""}, u, {
+      email:e,
+      teams:normalizeTeams(u.teams!=null?u.teams:u.team),
+      leader:!!u.leader,
+      notes:u.notes||""
+    });
+  });
+  function put(email, name){
+    const e=staffEmail(email);
+    if(!e) return;
+    if(!by[e]) by[e]=emptyPerson(e, name);
+    else if(!by[e].name) by[e].name=name||titleFromEmail(e);
+  }
+  SEED_STAFF.forEach(function(e){ put(e, SEED_NAMES[e]||titleFromEmail(e)); });
+  namedStaff().forEach(function(p){ put(p[1], p[0]); });
+  Object.keys(OPEN_STAFF).forEach(function(e){ put(e, OPEN_STAFF[e]); });
+  if(by["shawn@myloan.ca"]) by["shawn@myloan.ca"].leader=true;
+  if(by["elias.abdi@myloan.ca"]) by["elias.abdi@myloan.ca"].emailEditable=true;
+  store.people=Object.keys(by).map(function(k){ return by[k]; }).sort(function(a,b){
+    return String(a.name||a.email).localeCompare(String(b.name||b.email));
+  });
+  saveUsersStore(store);
+}
+function savePerson(next){
+  const store=loadUsersStore();
+  const e=staffEmail(next.email);
+  let found=false;
+  store.people=(store.people||[]).map(function(u){
+    if(staffEmail(u.email)!==e) return u;
+    found=true;
+    return next;
+  });
+  if(!found) store.people.push(next);
+  saveUsersStore(store);
+}
 function addUser(){
-  if(!canUseAdmin()){ toast(permDeny("admin")); return; }
+  if(!canOpenUsers()){ toast(permDeny("admin")); return; }
   const email=staffEmail($("user-email") && $("user-email").value);
-  const name=(($("user-name") && $("user-name").value) || "").trim() || (email?email.split("@")[0]:"");
+  const name=(($("user-name") && $("user-name").value) || "").trim() || titleFromEmail(email);
+  const team=(($("user-team") && $("user-team").value) || "").trim();
   if(!email || email.indexOf("@")<1){ toast("Add a valid email."); return; }
-  if(namedStaff().some(function(p){ return p[1]===email || shawnAlias(email)===p[1]; })){ toast("They are already on the team list."); return; }
-  const list=loadExtraUsers();
-  if(list.some(function(u){ return staffEmail(u.email)===email; })){ toast("Already on the list."); return; }
-  list.push({name:name, email:email});
-  saveExtraUsers(list);
+  if(rosterPerson(email)){ toast("Already on the list."); return; }
+  if(team && !canAssignTeam(team)){ toast("You can only add people to your team."); return; }
+  if(!isShawnActor() && !canUseAdmin() && !team){ toast("Pick one of your teams."); return; }
+  const person=emptyPerson(email, name);
+  person.teams=team?[team]:[];
+  person.leader=false;
+  savePerson(person);
   if($("user-email")) $("user-email").value="";
   if($("user-name")) $("user-name").value="";
   paintUsers();
-  toast(name+" can log in. Toggles start off until you turn them on.");
+  toast(name+" is on the roster.");
 }
-function removeUser(email){
-  if(!canUseAdmin()){ toast(permDeny("admin")); return; }
-  saveExtraUsers(loadExtraUsers().filter(function(u){ return staffEmail(u.email)!==staffEmail(email); }));
-  paintUsers();
+function paintUserTeamSelect(){
+  const sel=$("user-team"); if(!sel) return;
+  const mine=(!isShawnActor() && !canUseAdmin()) ? actorLeaderTeams() : DESK_TEAMS;
+  sel.innerHTML=mine.map(function(t){ return "<option value=\""+escHtml(t)+"\">"+escHtml(t)+"</option>"; }).join("");
+  if(isShawnActor() || canUseAdmin()){
+    sel.innerHTML="<option value=\"\">Unassigned</option>"+sel.innerHTML;
+  }
+}
+function teamChipClass(team){
+  return !team || team==="Unassigned" ? "tchip un" : "tchip";
 }
 function paintUsers(){
+  ensureRoster();
   const host=$("userList"); if(!host) return;
-  host.innerHTML="";
-  const admin=canUseAdmin();
-  if($("usersLead")) $("usersLead").textContent = admin
-    ? "Turn people on or off. Send trade-in link, Appraise, Website photos, Appraisal Center, and Admin. Anyone @myloan.ca can still log in."
-    : "Only Shawn or an admin can change these. Ask Shawn if you need a button turned on.";
-  function toggles(email){
-    const p=permsFor(email);
-    return PERM_KEYS.map(function(k){
-      return '<button type="button" class="perm-tog '+(p[k.id]?"on":"off")+'" data-perm="'+k.id+'" data-email="'+email+'" '+(admin?"":"disabled")+'>'+k.label+" · "+(p[k.id]?"On":"Off")+"</button>";
-    }).join("");
+  const admin=canOpenUsers();
+  const filter=APP.userFilter||"all";
+  if($("usersLead")) $("usersLead").textContent = canUseAdmin() || isShawnActor()
+    ? "Tap a person to set teams and section toggles. Trade links and website photos stay on. Only you can grant Consumer Acquisition."
+    : isTeamLeader()
+      ? "You can add people to your team and toggle their sections — except Consumer Acquisition."
+      : "Ask Shawn or a team leader if you need a button turned on.";
+  if($("usersAddBox")) $("usersAddBox").classList.toggle("hide", !admin);
+  if($("usersAddOpen")) $("usersAddOpen").classList.toggle("hide", !admin);
+  paintUserTeamSelect();
+  const filters=$("userFilters");
+  if(filters){
+    const keys=["all"].concat(DESK_TEAMS, ["Unassigned"]);
+    filters.innerHTML="";
+    keys.forEach(function(key){
+      const b=document.createElement("button");
+      b.type="button";
+      b.className="users-chip"+(filter===key?" on":"");
+      b.textContent=key==="all"?"All":key.replace(/^Team /,"");
+      b.onclick=function(){ APP.userFilter=key; paintUsers(); };
+      filters.appendChild(b);
+    });
   }
-  function row(name, email, removable){
-    const b=document.createElement("div");
-    b.className="user-row";
-    b.innerHTML='<div class="who"><div><b>'+escHtml(name)+"</b><span>"+escHtml(email)+"</span></div>"+(removable&&admin?'<button type="button" class="remove">Remove</button>':(email==="shawn@myloan.ca"?"<em>Admin</em>":""))+"</div>"+'<div class="perm-toggles">'+toggles(email)+"</div>";
-    if(removable && admin) b.querySelector(".remove").onclick=function(){ removeUser(email); };
-    b.querySelectorAll(".perm-tog").forEach(function(btn){
+  const list=loadRoster().filter(function(u){
+    const teams=normalizeTeams(u.teams);
+    if(filter==="all") return true;
+    if(filter==="Unassigned") return !teams.length;
+    return teams.indexOf(filter)>=0;
+  });
+  host.innerHTML="";
+  if(!list.length){
+    const empty=document.createElement("p");
+    empty.className="quote";
+    empty.textContent="Nobody on that team yet.";
+    host.appendChild(empty);
+    return;
+  }
+  list.forEach(function(u){
+    const email=staffEmail(u.email);
+    const teams=normalizeTeams(u.teams);
+    const hues=["#7C5CFF","#00A4E2","#E08A00","#12B886","#E23B7C","#4B35C8","#F76707","#1098AD"];
+    const hue=hues[(email.charCodeAt(0)+email.length)%hues.length];
+    const initials=(u.name||email).split(/\s+/).slice(0,2).map(function(p){ return p.charAt(0).toUpperCase(); }).join("")||"?";
+    const b=document.createElement("button");
+    b.type="button";
+    b.className="person-card";
+    b.innerHTML=
+      '<div class="person-ava" style="background:'+hue+'">'+escHtml(initials)+"</div>"+
+      '<div class="person-meta"><b>'+escHtml(u.name||titleFromEmail(email))+"</b>"+
+      '<div class="em">'+escHtml(email||"Add an email")+"</div>"+
+      '<div class="person-pills">'+
+        (u.leader?'<i class="lchip">Team Leader</i>':'<i class="achip">Salesperson</i>')+
+        (teams.length?teams.map(function(t){ return '<i class="tchip">'+escHtml(t)+"</i>"; }).join(""):'<i class="tchip un">Unassigned</i>')+
+      "</div></div>";
+    b.onclick=function(){ openUserDetail(email); };
+    host.appendChild(b);
+  });
+}
+function openUserDetail(email){
+  ensureRoster();
+  const person=rosterPerson(email) || emptyPerson(email);
+  APP.userEdit=staffEmail(person.email);
+  const can=canEditPerson(APP.userEdit);
+  const shawn=isShawnActor();
+  if($("userSheetTitle")) $("userSheetTitle").textContent=person.name||titleFromEmail(person.email);
+  if($("userSheetKicker")) $("userSheetKicker").textContent=person.leader?"Team Leader":"Salesperson";
+  if($("ud-name")){ $("ud-name").value=person.name||""; $("ud-name").disabled=!can; }
+  if($("ud-email")){
+    $("ud-email").value=person.email||"";
+    $("ud-email").disabled=!(can && (person.emailEditable || !person.email));
+  }
+  if($("ud-notes")){ $("ud-notes").value=person.notes||""; $("ud-notes").disabled=!can; }
+  document.querySelectorAll("#ud-role button").forEach(function(btn){
+    const lead=btn.getAttribute("data-leader")==="1";
+    btn.classList.toggle("on", !!person.leader===lead);
+    btn.disabled=!can;
+    btn.onclick=function(){
+      if(!can) return;
+      document.querySelectorAll("#ud-role button").forEach(function(x){ x.classList.remove("on"); });
+      btn.classList.add("on");
+    };
+  });
+  const host=$("ud-perms");
+  if(host){
+    host.innerHTML="";
+    PERM_KEYS.filter(function(k){ return ALWAYS_ON_PERMS.indexOf(k.id)<0; }).forEach(function(k){
+      const p=permsFor(person.email);
+      const on=!!p[k.id];
+      const caLock=k.id==="ca" && !shawn;
+      const btn=document.createElement("button");
+      btn.type="button";
+      btn.className="perm-tog "+(on?"on":"off");
+      btn.setAttribute("data-perm", k.id);
+      btn.disabled=!can || caLock;
+      btn.textContent=(k.ui||k.label)+" · "+(on?"On":"Off");
       btn.onclick=function(){
-        if(!canUseAdmin()){ toast(permDeny("admin")); return; }
-        const key=btn.getAttribute("data-perm");
-        const on=!btn.classList.contains("on");
-        setPerm(email, key, on);
+        if(!can || caLock){
+          if(caLock) toast("Only Shawn can grant Consumer Acquisition.");
+          return;
+        }
+        const next=!btn.classList.contains("on");
+        setPerm(person.email, k.id, next);
+        openUserDetail(APP.userEdit);
         paintUsers();
         paintDockPerms();
       };
+      host.appendChild(btn);
     });
-    host.appendChild(b);
   }
-  namedStaff().forEach(function(p){ row(p[0], p[1], false); });
-  loadExtraUsers().forEach(function(u){ row(u.name||u.email.split("@")[0], staffEmail(u.email), true); });
+  if($("ud-caLock")) $("ud-caLock").classList.toggle("hide", shawn);
+  const teams=normalizeTeams(person.teams);
+  const box=$("ud-teams");
+  if(box){
+    box.innerHTML="";
+    DESK_TEAMS.forEach(function(t){
+      const ok=can && canAssignTeam(t);
+      const b=document.createElement("button");
+      b.type="button";
+      b.className="team-pick-btn"+(teams.indexOf(t)>=0?" on":"");
+      b.textContent=t;
+      b.disabled=!ok && !(teams.indexOf(t)>=0 && can);
+      if(teams.indexOf(t)>=0 && !canAssignTeam(t)) b.disabled=true;
+      b.onclick=function(){
+        if(!canAssignTeam(t)) return;
+        b.classList.toggle("on");
+      };
+      box.appendChild(b);
+    });
+  }
+  if($("userSave")) $("userSave").classList.toggle("hide", !can);
+  if($("userSheet")) $("userSheet").classList.add("on");
+}
+function saveUserDetail(){
+  const email=APP.userEdit;
+  if(!email || !canEditPerson(email)){ toast(permDeny("admin")); return; }
+  const cur=rosterPerson(email) || emptyPerson(email);
+  const name=(($("ud-name") && $("ud-name").value) || "").trim() || cur.name;
+  let nextEmail=email;
+  if($("ud-email") && !$("ud-email").disabled){
+    const typed=staffEmail($("ud-email").value);
+    if(typed && typed.indexOf("@")>=1) nextEmail=typed;
+  }
+  const leader=!!document.querySelector("#ud-role button.on[data-leader='1']");
+  const keep=normalizeTeams(cur.teams).filter(function(t){ return !canAssignTeam(t); });
+  const picked=[];
+  document.querySelectorAll("#ud-teams .team-pick-btn.on").forEach(function(b){
+    const t=b.textContent;
+    if(canAssignTeam(t)) picked.push(t);
+  });
+  const teams=keep.concat(picked.filter(function(t){ return keep.indexOf(t)<0; }));
+  const notes=(($("ud-notes") && $("ud-notes").value) || "").trim();
+  if(nextEmail!==email){
+    const store=loadUsersStore();
+    store.people=(store.people||[]).filter(function(u){ return staffEmail(u.email)!==email; });
+    if(store.permissions && store.permissions[email]){
+      store.permissions[nextEmail]=store.permissions[email];
+      delete store.permissions[email];
+    }
+    saveUsersStore(store);
+  }
+  savePerson({
+    name:name,
+    email:nextEmail,
+    teams:teams,
+    leader:leader,
+    notes:notes,
+    emailEditable:cur.emailEditable && nextEmail==="elias.abdi@myloan.ca"
+  });
+  if($("userSheet")) $("userSheet").classList.remove("on");
+  paintUsers();
+  paintDockPerms();
+  toast("Saved "+name+".");
 }
 function saveSession(){
   if(APP.role!=="employee" || !APP.userEmail) return;
@@ -2471,6 +2897,7 @@ function applyRole(){
   if(guest) hideMailOpen();
   if($("startX")) $("startX").classList.toggle("hide", guest);
   if($("typeWrap")) $("typeWrap").classList.toggle("hide", guest || isWeb());
+  if($("teamWrap")) $("teamWrap").classList.toggle("hide", guest);
   const web=isWeb();
   if(web){
     ["vinScanWrap","vinBtns","homeDocs","docsBlock"].forEach(function(id){
@@ -2489,6 +2916,13 @@ function enterSession(role, user){
   APP.role=role;
   APP.userName=(user && (user.name||user.userName)) || (role==="guest"?"Guest":"Employee");
   APP.userEmail=(user && user.email) || "";
+  if(role==="employee"){
+    ensureRoster();
+    const me=rosterPerson(APP.userEmail);
+    if(me && me.name && (!user || !user.name)) APP.userName=me.name;
+    const teams=personTeams(APP.userEmail);
+    if(!APP.deskTeam && teams.length===1) APP.deskTeam=teams[0];
+  }
   saveSession();
   applyRole();
   show("start");
@@ -3270,7 +3704,7 @@ function collectDraft(){
       purpose:APP.purpose, year:APP.year, make:APP.make, model:APP.model, trim:APP.trim,
       color:APP.color, km:APP.km, vin:APP.vin, stock:APP.stock, heard:APP.heard, notes:APP.notes,
       webcopy:APP.webcopy, photos:APP.photos, damage:APP.damage, closeups:APP.closeups,
-      damageCap:APP.damageCap, closeupCap:APP.closeupCap, closeupAudio:APP.closeupAudio, dealType:APP.dealType, leadSource:APP.leadSource, cdApp:APP.cdApp, apptId:APP.apptId, apptSeller:APP.apptSeller, lockedFromAirtable:APP.lockedFromAirtable,
+      damageCap:APP.damageCap, closeupCap:APP.closeupCap, closeupAudio:APP.closeupAudio, dealType:APP.dealType, leadSource:APP.leadSource, cdApp:APP.cdApp, apptId:APP.apptId, apptSeller:APP.apptSeller, lockedFromAirtable:APP.lockedFromAirtable, deskTeam:APP.deskTeam,
       emails:(typeof loadRecipients==="function"?loadRecipients():APP.emails),
       role:APP.role, userName:APP.userName, userEmail:APP.userEmail,
       inviteFirst:APP.inviteFirst, inviteLast:APP.inviteLast, inviteName:APP.inviteName,
@@ -3407,7 +3841,7 @@ function startFresh(){
 }
 function wipeJob(goStart){
   APP.year=APP.make=APP.model=APP.trim=APP.color=APP.km=APP.vin=APP.stock=APP.heard=APP.notes=APP.webcopy="";
-  APP.dealType=""; APP.leadSource=""; APP.cdApp=""; APP.apptId=""; APP.apptSeller=""; APP.lockedFromAirtable=false; APP.centerId=""; APP.sendId=""; APP._sending=false;
+  APP.dealType=""; APP.leadSource=""; APP.cdApp=""; APP.apptId=""; APP.apptSeller=""; APP.lockedFromAirtable=false; APP.centerId=""; APP.sendId=""; APP._sending=false; APP.deskTeam="";
   APP.photos={}; APP.damage={}; APP.closeups=[]; APP.docs={}; APP.damageCap={}; APP.closeupCap=[]; APP.closeupAudio=[];
   APP.clips=[]; APP.recOn=false; APP.recorder=null; APP.recChunks=[]; APP.zoom=1;
   if(APP.role!=="guest"){
@@ -3899,6 +4333,7 @@ function upsertCenterFromApp(extra){
     item.dealType=APP.dealType||item.dealType||"";
     item.leadSource=APP.leadSource||item.leadSource||"";
     item.cdApp=APP.cdApp||item.cdApp||"";
+    item.deskTeam=APP.deskTeam||item.deskTeam||"";
     item.apptId=APP.apptId||item.apptId||"";
     item.apptSeller=APP.apptSeller||item.apptSeller||"";
   item.source=extra.source||centerSource();
@@ -3974,6 +4409,7 @@ function upsertCenterInvite(){
     phone:APP.invitePhone||""
   };
   item.salesperson=APP.userName||item.salesperson||"";
+  item.deskTeam=APP.deskTeam||item.deskTeam||"";
   item.sentBy=APP.userName||APP.userEmail||"";
   item.sentAt=now;
   item.updatedAt=now;
@@ -4100,7 +4536,7 @@ function inDateRange(item){
 function matchesCenterSearch(item, q){
   if(!q) return true;
   const vin=String(item.vin||"");
-  const blob=[item.ymmt, item.interest, item.appNo, vin, vin.slice(-8), item.salesperson, item.customer && item.customer.name, item.customer && item.customer.phone, item.story].join(" ").toLowerCase();
+  const blob=[item.ymmt, item.interest, item.appNo, vin, vin.slice(-8), item.salesperson, item.deskTeam, item.customer && item.customer.name, item.customer && item.customer.phone, item.story].join(" ").toLowerCase();
   return blob.indexOf(q)>=0;
 }
 function centerVinLine(item){
@@ -4168,6 +4604,7 @@ function acreRow(item){
   const flags=
     (item.sample?'<i class="sample-badge">Sample</i>':'')+
     '<em class="stage-tag '+(status==="Done"?"done":"wait")+'">'+esc(lane==="inbox" && !item.photoCount ? "Incomplete" : status)+'</em>'+
+    (item.deskTeam?'<i class="acre-team">'+esc(item.deskTeam)+'</i>':'')+
     (aged?'<i class="arch-tag">90-day archive</i>':'');
   const btn=document.createElement("button");
   btn.type="button";
@@ -4216,9 +4653,24 @@ function paintCenter(){
     b.classList.toggle("on", b.getAttribute("data-range")===(APP.centerRange||""));
   });
   const q=String(APP.centerQuery||"").trim().toLowerCase();
+  const teamFilter=APP.centerFilter||"all";
+  const teamHost=$("centerTeamFilter");
+  if(teamHost){
+    const keys=["all"].concat(DESK_TEAMS);
+    teamHost.innerHTML="";
+    keys.forEach(function(key){
+      const b=document.createElement("button");
+      b.type="button";
+      b.className="users-chip"+(teamFilter===key?" on":"");
+      b.textContent=key==="all"?"All teams":key.replace(/^Team /,"");
+      b.onclick=function(){ APP.centerFilter=key; paintCenter(); };
+      teamHost.appendChild(b);
+    });
+  }
   const all=loadCenter();
   const list=all.filter(function(item){
     if(centerLaneOf(item)!==lane) return false;
+    if(teamFilter!=="all" && item.deskTeam!==teamFilter) return false;
     if(lane==="history" && !matchesCenterSearch(item, q)) return false;
     if(lane==="history" && !inDateRange(item)) return false;
     if(lane!=="history" && q && !matchesCenterSearch(item, q)) return false;
@@ -4553,6 +5005,7 @@ function paintCenterTags(item){
   const host=$("centerTags"); if(!host) return;
   const tags=[].concat(item.tags||[]).map(function(t){ return t==="Inbox" ? "Incoming" : t; });
   if(item.sample) tags.unshift("Sample");
+  if(item.deskTeam) tags.unshift(item.deskTeam);
   if(item.interest) tags.unshift("Interest "+item.interest);
   if(item.color) tags.push(item.color);
   if(item.km) tags.push(centerKmLine(item));
@@ -4648,6 +5101,7 @@ function paintCenterDetail(){
     $("centerFacts").innerHTML=
       factCell("Interest", item.interest)+
       factCell("Trade", item.interest && item.ymmt && item.ymmt!==item.interest ? item.ymmt : "")+
+      factCell("Team", item.deskTeam)+
       factCell("Salesperson", item.salesperson)+
       factCell("Customer", item.customer && item.customer.name)+
       factCell("Phone", item.customer && item.customer.phone)+
@@ -4717,7 +5171,7 @@ function clearSnapshot(){
 function applySnapshot(snap){
   if(!snap || !snap.app) return;
   const a=snap.app;
-  ["purpose","year","make","model","trim","color","km","vin","stock","heard","notes","webcopy","photos","damage","closeups","damageCap","closeupCap","closeupAudio","dealType","leadSource","cdApp","apptId","apptSeller","lockedFromAirtable","centerId","role","userName","userEmail","inviteFirst","inviteLast","inviteName","inviteEmail","invitePhone","inviteUnit","inviteStock","requestedBy","requestedByName","docs"].forEach(function(k){
+  ["purpose","year","make","model","trim","color","km","vin","stock","heard","notes","webcopy","photos","damage","closeups","damageCap","closeupCap","closeupAudio","dealType","leadSource","cdApp","apptId","apptSeller","lockedFromAirtable","deskTeam","centerId","role","userName","userEmail","inviteFirst","inviteLast","inviteName","inviteEmail","invitePhone","inviteUnit","inviteStock","requestedBy","requestedByName","docs"].forEach(function(k){
     if(a[k]!==undefined) APP[k]=a[k];
   });
   if(a.emails) saveRecipients(a.emails);
@@ -7648,12 +8102,14 @@ const TEAM = [
 function recKey(){ return isWeb() ? "inspect.emails.web" : "inspect.emails.appraise"; }
 function nameForEmail(email){
   const e=staffEmail(email);
+  const roster=rosterPerson(e);
+  if(roster && roster.name) return roster.name;
   const hit=TEAM.find(function(p){ return p[1]===e; });
   if(hit) return hit[0];
   if(OPEN_STAFF[e]) return OPEN_STAFF[e];
   const extra=extraUser(e);
   if(extra && extra.name) return extra.name;
-  if(e) return e.split("@")[0];
+  if(e) return titleFromEmail(e);
   return "";
 }
 function tradeRecipients(){
@@ -8140,8 +8596,13 @@ $("startAppraise").onclick = function(){
   if($("home-cd-app")) $("home-cd-app").value="";
   if($("cd-app")) $("cd-app").value="";
   if($("wb-cd-app")) $("wb-cd-app").value="";
+  if(!APP.deskTeam){
+    const teams=personTeams(APP.userEmail);
+    if(teams.length===1) APP.deskTeam=teams[0];
+  }
   scheduleDraftSave();
   paintDealType();
+  paintDeskTeam();
   show("home");
   openDealType();
 };
@@ -8396,7 +8857,7 @@ if($("guestType")) $("guestType").onclick = function(){
 };
 $("startWebsite").onclick = function(){ if(!requirePerm("website")) return; setPurpose("website"); paintAppraiseGate(); show("home"); };
 if($("startTrade")) $("startTrade").onclick = function(){ if(!requirePerm("trade")) return; openInvite(); };
-function openUsers(){ if(!requirePerm("admin")) return; paintUsers(); show("users"); }
+function openUsers(){ if(!canOpenUsers()){ toast(isTeamLeader()?permDeny("admin"):"Ask Shawn or a team leader to open Users."); return; } paintUsers(); show("users"); }
 if($("startUsers")) $("startUsers").onclick = openUsers;
 document.addEventListener("click", function(e){
   const b=e.target && e.target.closest && e.target.closest("#startUsers");
@@ -8405,6 +8866,19 @@ document.addEventListener("click", function(e){
 if($("usersBack")) $("usersBack").onclick = function(){ show("start"); };
 if($("userAdd")) $("userAdd").onclick = addUser;
 if($("user-email")) $("user-email").addEventListener("keydown", function(e){ if(e.key==="Enter") addUser(); });
+if($("usersAddOpen")) $("usersAddOpen").onclick = function(){
+  const box=$("usersAddBox");
+  if(box){ box.classList.remove("hide"); box.scrollIntoView({behavior:"smooth", block:"start"}); }
+  if($("user-name")) $("user-name").focus();
+};
+if($("userSave")) $("userSave").onclick = saveUserDetail;
+if($("btnDeskTeam")) $("btnDeskTeam").onclick = openDeskTeam;
+document.addEventListener("click", function(e){
+  const menu=$("deskTeamMenu");
+  if(!menu || !menu.classList.contains("on")) return;
+  if(e.target && e.target.closest && e.target.closest("#deskTeamBox")) return;
+  menu.classList.remove("on");
+});
 if($("inviteBack")) $("inviteBack").onclick = function(){ show("start"); };
 if($("inviteSend")) $("inviteSend").onclick = sendTradeInvite;
 if($("invCopy")) $("invCopy").onclick = function(){
@@ -8426,7 +8900,11 @@ $("camX").onclick = $("camDone").onclick = function(){ show("photos"); };
 $("submitX").onclick = function(){ show("photos"); };
 $("doneX").onclick = $("btnAnother").onclick = resetAll;
 $("btnStory").onclick = function(){ if(!requireAppraiseType()) return; openStoryMic(); };
-$("btnPictures").onclick = function(){ if(!requireAppraiseType()) return; show("photos"); };
+$("btnPictures").onclick = function(){
+  if(APP.role==="employee" && !canPerm("pictures")){ toast(permDeny("pictures")); return; }
+  if(!requireAppraiseType()) return;
+  show("photos");
+};
 $("btnStart").onclick = function(){ openCamera("photos","qfront"); };
 $("btnDocs").onclick = function(){ if(!requireAppraiseType()) return; paintDocs(); show("photos"); $("docsBlock") && $("docsBlock").scrollIntoView({behavior:"smooth", block:"start"}); };
 $("btnVin").onclick = $("verifyVin").onclick = function(){ if(!requireAppraiseType()) return; openVinCam(); };
