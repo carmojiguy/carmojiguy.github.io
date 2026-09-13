@@ -89,7 +89,11 @@ function buildRfc822(body, from) {
   let head = "From: " + fromHdr + "\r\nTo: " + to.join(", ") + "\r\n";
   if (cc.length) head += "Cc: " + cc.join(", ") + "\r\n";
   if (bcc.length) head += "Bcc: " + bcc.join(", ") + "\r\n";
-  head += "Subject: " + subject + "\r\nMIME-Version: 1.0\r\n";
+  head += "Subject: " + subject + "\r\n";
+  if (body.importance === "high" || body.priority === "high") {
+    head += "Importance: high\r\nX-Priority: 1\r\nX-MSMail-Priority: High\r\nPriority: urgent\r\n";
+  }
+  head += "MIME-Version: 1.0\r\n";
   const inline = parts.filter(function (p) { return p && p.disp !== "attachment" && p.b64; });
   const attach = parts.filter(function (p) { return p && p.disp === "attachment" && p.b64; });
   if (!html && !parts.length) return head + "Content-Type: text/plain; charset=UTF-8\r\n\r\n" + text;
@@ -353,6 +357,7 @@ module.exports = async function handler(req, res) {
 module.exports.route = route;
 module.exports.resolveSender = resolveSender;
 module.exports.buildRfc822 = buildRfc822;
+module.exports.gmailSend = gmailSend;
 
 module.exports.GET = async function GET(request) {
   const origin = request.headers.get("origin") || "";

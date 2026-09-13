@@ -63,6 +63,15 @@ async function route(body) {
   assert.ok(rfc.indexOf("2024 Tucson") >= 0);
   assert.ok(rfc.indexOf("Cc: christina@carmoji.ca") >= 0);
 
+  const hot = upload.buildRfc822({
+    to: "shawn@myloan.ca",
+    subject: "Needs docs",
+    text: "now",
+    importance: "high"
+  }, "store@gmautosales.ca");
+  assert.ok(hot.indexOf("Importance: high") >= 0, "high-importance header");
+  assert.ok(hot.indexOf("X-Priority: 1") >= 0, "Outlook/Gmail red-bang priority");
+
   console.log("store-sender: ok");
 })().catch(function (err) {
   console.error(err);
