@@ -1,5 +1,5 @@
 /**
- * SMS provider interface for appraisal nags.
+ * SMS provider for invite/trade-in link Send and appraisal nags.
  *
  * Env (Vercel → Project → Settings → Environment Variables):
  *   TWILIO_ACCOUNT_SID    Twilio account SID
@@ -42,7 +42,7 @@ async function sendSms(to, body, deps) {
   const text = String(body || "").trim();
   if (!phone || !text) return { ok: false, skipped: "no-phone" };
   if (!twilioConfigured(env)) {
-    log.log("[notify-appraisal] SMS skipped — TWILIO_ACCOUNT_SID / TWILIO_AUTH_TOKEN / TWILIO_FROM not set. Email still sent.");
+    log.log("[sms] skipped — TWILIO_ACCOUNT_SID / TWILIO_AUTH_TOKEN / TWILIO_FROM not set.");
     return { ok: false, skipped: "twilio" };
   }
   const sid = env.TWILIO_ACCOUNT_SID;
@@ -60,7 +60,7 @@ async function sendSms(to, body, deps) {
   });
   const j = await r.json().catch(function () { return {}; });
   if (!r.ok) {
-    log.log("[notify-appraisal] SMS failed", r.status, j && (j.message || j.code) || "");
+    log.log("[sms] failed", r.status, j && (j.message || j.code) || "");
     return { ok: false, error: (j && j.message) || "twilio", status: r.status };
   }
   return { ok: true, sid: j.sid || "", to: phone };
