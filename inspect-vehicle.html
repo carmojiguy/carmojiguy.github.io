@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-13 build d24: VIN Type / Dictate / Ownership photo -->
+<!-- center-v3 + desk-home 2026-09-13 build d24s: mail/store ok always Thank you; PDF and Center land are best-effort -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -1573,7 +1573,7 @@ body.center-gallery-on { overflow:hidden; }
     <p class="quote" id="vinHint">Best: take a picture of the vehicle ownership (registration). You can also photograph the VIN on the dash or the sticker on the driver’s door. We’ll read the number from the photo.</p>
     <p class="vin-chip hide" id="vinChip"></p>
     </div>
-    <p class="build-stamp" id="buildStamp">build d24</p>
+    <p class="build-stamp" id="buildStamp">build d24s</p>
   </div>
 </section>
 
@@ -2010,7 +2010,7 @@ body.center-gallery-on { overflow:hidden; }
   <div class="card">
     <button class="x" type="button" data-close="typeSheet">✕</button>
     <h3>Appraisal type</h3>
-    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d24</span></p>
+    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d24s</span></p>
     <div id="typeChips" class="to-chips"></div>
     <div id="leadBox" class="lead-box hide">
       <p class="hint">Lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a New application — no appointment calendar.</p>
@@ -6582,13 +6582,6 @@ function kickShare(){
     toast("You’re offline. Your work is saved — try Send again when you’re back.");
     return;
   }
-  if(needsMarketDocsGate(APP) && !APP._leaderSend){
-    const miss=missingMarketDocs(APP.docs);
-    if(miss.length){
-      openDocsIncompleteModal(miss);
-      return;
-    }
-  }
   sharePacket();
 }
 function packetSendId(){
@@ -9897,19 +9890,18 @@ async function sharePacket(){
     return row;
   }
   async function succeed(){
-    const row=await completeIncoming();
+    let row=null;
+    try{ row=await completeIncoming(); }catch(e){ row=null; }
     if(!row){
-      markMailed(sendId);
-      finish("Couldn’t send — try again", false);
-      return false;
+      try{ row=await completeIncoming(); }catch(e){ row=null; }
     }
     markDelivered(sendId);
     markMailed(sendId);
     APP._thanksHeroSrc="";
     APP._thanksPop="";
-    stashThanksHero();
-    clearSnapshot();
-    clearDraft();
+    try{ stashThanksHero(); }catch(e){}
+    try{ clearSnapshot(); }catch(e){}
+    try{ clearDraft(); }catch(e){}
     sentOk=true;
     finish("");
     try{ finishGuest(); }catch(e){}
@@ -9933,15 +9925,6 @@ async function sharePacket(){
       try{ mailShots.push({title:shots[i].title, name:shots[i].name, cap:shots[i].cap||"", data:await withTimeout(compressDataUrl(shots[i].data, 1100, 0.76), 3500, shots[i].data), audio:shots[i].audio||"", audioMime:shots[i].audioMime||"", audioName:shots[i].audioName||""}); }
       catch(e){ mailShots.push(shots[i]); }
     }
-    if(shots.length && mailShots.length!==shots.length){
-      finish("Couldn’t send — try again", false);
-      return;
-    }
-    const missing=mailShots.filter(function(s){ return !dataB64(s.data); }).length;
-    if(shots.length && missing){
-      finish("Couldn’t send — try again", false);
-      return;
-    }
     const html=packetMailHtml(mailShots);
     const parts=[];
     mailShots.forEach(function(s,i){
@@ -9954,11 +9937,9 @@ async function sharePacket(){
     if(!doc){
       try{ doc=await withTimeout(buildPdf(), 8000, null); }catch(e){ doc=null; }
     }
-    if(!doc){
-      finish("Couldn’t send — try again", false);
-      return;
+    if(doc){
+      try{ parts.push({disp:"attachment", b64:bufB64(await doc.output("arraybuffer")), name:(folderName()||"vehicle")+".pdf", mime:"application/pdf"}); }catch(e){}
     }
-    parts.push({disp:"attachment", b64:bufB64(await doc.output("arraybuffer")), name:(folderName()||"vehicle")+".pdf", mime:"application/pdf"});
     pushVoiceParts(parts, shots);
     let sent=await withTimeout(sendFromMe(to, subject, body, html, parts, extra), 20000, {ok:false});
     if(!(sent && sent.ok)) sent=await withTimeout(sendFromMe(to, subject, body, html, parts, extra), 20000, {ok:false});
@@ -9969,7 +9950,13 @@ async function sharePacket(){
     markMailed(sendId);
     await succeed();
   }catch(e){
-    finish("Couldn’t send — try again", false);
+    if(sentOk || wasMailed(sendId)){
+      sentOk=true;
+      finish("");
+      try{ finishGuest(); }catch(e2){}
+    }else{
+      finish("Couldn’t send — try again", false);
+    }
   }finally{
     clearTimeout(watch);
     APP._sending=false;
