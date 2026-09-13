@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-13 build d27z: zero Center samples on d27x close-X -->
+<!-- center-v3 + desk-home 2026-09-13 build d27d: docs routing + zero Center samples on d27x close-X -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -1648,7 +1648,7 @@ body.center-gallery-on { overflow:hidden; }
     <p class="quote" id="vinHint">Best: take a picture of the vehicle ownership (registration). You can also photograph the VIN on the dash or the sticker on the driver’s door. We’ll read the number from the photo.</p>
     <p class="vin-chip hide" id="vinChip"></p>
     </div>
-    <p class="build-stamp" id="buildStamp">build d27z</p>
+    <p class="build-stamp" id="buildStamp">build d27d</p>
   </div>
 </section>
 
@@ -2107,7 +2107,7 @@ body.center-gallery-on { overflow:hidden; }
   <div class="card">
     <button class="x" type="button" data-close="typeSheet">✕</button>
     <h3>Appraisal type</h3>
-    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d27z</span></p>
+    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d27d</span></p>
     <div id="typeChips" class="to-chips"></div>
     <div id="leadBox" class="lead-box hide">
       <p class="hint">Lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a New application — no appointment calendar.</p>
@@ -2278,9 +2278,21 @@ function needsMarketDocsGate(app){
   return true;
 }
 function landingLaneForSend(app, docs, leaderSend){
-  if(!needsMarketDocsGate(app)) return "inbox";
-  if(marketDocsComplete(docs)) return "inbox";
+  if(app && app.purpose==="website" && !leaderSend) return "inbox";
+  if(leaderSend) return "needsdocs";
+  if(marketDocsComplete(docs)) return "onsite";
   return "needsdocs";
+}
+function laneFromMarketDocs(docs){
+  const miss=missingMarketDocs(docs);
+  if(!miss.length) return {lane:"onsite", docsIncomplete:false, missingDocs:[]};
+  return {lane:"needsdocs", docsIncomplete:true, missingDocs:miss};
+}
+function isLandedCenterPacket(item){
+  if(!item) return false;
+  if(item.source==="website" || item.purpose==="website") return false;
+  if(item.source==="trade-in" && !(item.sendId || item.sentAt || Number(item.photoCount||0))) return false;
+  return !!(item.sendId || item.sentAt || item.sent || (item.source==="guest" && (item.vin || Number(item.photoCount||0))));
 }
 
 window.GOOGLE_CLIENT_ID = window.GOOGLE_CLIENT_ID || "612595319762-mdl9686m3t8pu40qnp9oftpn6osju5c4.apps.googleusercontent.com";
@@ -5536,7 +5548,6 @@ function applySharedIncoming(item, remote){
   const cust=remote.customer||{};
   const prev=item.customer||{};
   item.source="guest";
-  item.lane="inbox";
   item.stage="Waiting";
   item.linkSent=false;
   item.sendId=remote.sendId||item.sendId||"";
@@ -5570,6 +5581,11 @@ function applySharedIncoming(item, remote){
   item.sentAt=remote.sentAt||item.sentAt||Date.now();
   item.updatedAt=remote.updatedAt||Date.now();
   if(remote.docs) item.docs=slimSharedDocs(remote.docs);
+  if(!item.docs) item.docs={};
+  const routed=laneFromMarketDocs(item.docs);
+  item.lane=routed.lane;
+  item.docsIncomplete=routed.docsIncomplete;
+  item.missingDocs=routed.missingDocs;
   return item;
 }
 let incomingPullAt=0;
@@ -5601,6 +5617,7 @@ function mergeIncomingShared(list){
       changed=true;
     });
     if(changed) saveCenterStore(store);
+    if(typeof purgeDocsLaneDrift==="function") purgeDocsLaneDrift();
     return changed;
   }
   if(items) return applyAll(items);
@@ -5697,13 +5714,13 @@ function upsertCenterFromApp(extra){
   if(extra.sent){
     const miss=Array.isArray(extra.missingDocs)?extra.missingDocs:missingMarketDocs(APP.docs);
     const want=extra.lane || landingLaneForSend(APP, APP.docs, extra.docsIncomplete);
-    const incomplete=want==="needsdocs" || extra.docsIncomplete || (needsMarketDocsGate(APP) && miss.length);
+    const incomplete=want==="needsdocs" || extra.docsIncomplete || (!!miss.length && APP.purpose!=="website");
     if(incomplete){
       item.lane="needsdocs";
       item.docsIncomplete=true;
       item.missingDocs=miss;
     } else {
-      item.lane="inbox";
+      item.lane=want==="inbox"?"inbox":"onsite";
       item.docsIncomplete=false;
       item.missingDocs=[];
     }
@@ -6018,15 +6035,35 @@ function isCenterAged(item){
 function isNeedsDocsItem(item){
   if(!item) return false;
   if(isCenterArchived(item)) return false;
-  return !!(item.docsIncomplete || item.lane==="needsdocs");
+  if(item.docsIncomplete || item.lane==="needsdocs") return true;
+  if(!isLandedCenterPacket(item)) return false;
+  return missingMarketDocs(item.docs).length>0;
 }
 function centerLaneOf(item){
   if(!item) return "onsite";
   if(isCenterArchived(item)) return "history";
-  if(item.docsIncomplete || item.lane==="needsdocs") return "needsdocs";
+  if(isNeedsDocsItem(item)) return "needsdocs";
+  if(isLandedCenterPacket(item) && marketDocsComplete(item.docs) && (item.lane==="inbox" || item.lane==="needsdocs" || !item.lane)) return "onsite";
   if(item.lane==="inbox" || item.lane==="onsite" || item.lane==="history") return item.lane;
   if(item.source==="guest" || item.source==="trade-in") return "inbox";
   return "onsite";
+}
+function purgeDocsLaneDrift(){
+  const store=centerStore();
+  let changed=false;
+  store.items.forEach(function(item){
+    if(!item || isCenterSample(item) || isCenterArchived(item)) return;
+    if(!isLandedCenterPacket(item)) return;
+    const routed=laneFromMarketDocs(item.docs);
+    if(item.lane!==routed.lane || item.docsIncomplete!==routed.docsIncomplete){
+      item.lane=routed.lane;
+      item.docsIncomplete=routed.docsIncomplete;
+      item.missingDocs=routed.missingDocs;
+      changed=true;
+    }
+  });
+  if(changed) saveCenterStore(store);
+  return changed;
 }
 function centerLaneLabel(lane){
   return ({inbox:"Incoming", onsite:"On-site", history:"History", needsdocs:"Needs docs"})[lane] || "Incoming";
@@ -6034,6 +6071,7 @@ function centerLaneLabel(lane){
 function centerLaneCounts(){
   seedCenterSamples();
   archiveOldCenter();
+  purgeDocsLaneDrift();
   const n={inbox:0, onsite:0, history:0, needsdocs:0};
   loadCenter().forEach(function(item){ if(!isCenterSample(item)) n[centerLaneOf(item)]++; });
   return n;
@@ -6358,11 +6396,12 @@ function attachDocToCenter(itemId, id, doc){
     const docs=Object.assign({}, (media && media.docs) || {}, slimCenterDocs(Object.assign({}, (media && media.docs) || {}, APP.docs)));
     const photos=(media && media.photos) || [];
     persistCenterMedia(itemId, photos, docs);
-    const miss=missingMarketDocs(Object.assign({}, docs, APP.docs));
+    const routed=laneFromMarketDocs(Object.assign({}, docs, APP.docs));
     patchCenter(itemId, function(x){
       x.docs=docs;
-      x.missingDocs=miss;
-      if(x.docsIncomplete && !miss.length) x.missingDocs=[];
+      x.missingDocs=routed.missingDocs;
+      x.docsIncomplete=routed.docsIncomplete;
+      x.lane=routed.lane;
     });
     if(APP.centerViewId===itemId) paintCenterDetail();
   }).catch(function(){});
@@ -6378,13 +6417,13 @@ function promoteNeedsDocs(item){
   patchCenter(item.id, function(x){
     x.docsIncomplete=false;
     x.missingDocs=[];
-    x.lane="inbox";
+    x.lane="onsite";
     x.stage="Waiting";
     x.promotedAt=Date.now();
   });
   stopAppraisalNags(item.id, "incomplete-leader");
-  toast("On the Appraisal Center desk.");
-  APP.centerLane="inbox";
+  toast("On-site — docs complete.");
+  APP.centerLane="onsite";
   paintCenter();
   paintCenterDetail();
 }
@@ -6911,7 +6950,7 @@ function landIncomingPacket(extra){
   const lane=extra.lane || landingLaneForSend(APP, APP.docs, extra.docsIncomplete||APP._leaderSend);
   extra=Object.assign({sent:true, stage:"Waiting", lane:lane, sendId:packetSendId(), missingDocs:miss, docsIncomplete:lane==="needsdocs"}, extra);
   if(lane==="needsdocs"){ extra.docsIncomplete=true; extra.missingDocs=miss; }
-  if(lane!=="needsdocs" && needsMarketDocsGate(APP) && miss.length){
+  if(lane!=="needsdocs" && miss.length && !(APP && APP.purpose==="website")){
     extra.lane="needsdocs";
     extra.docsIncomplete=true;
     extra.missingDocs=miss;
@@ -10521,8 +10560,15 @@ async function completeCenterFile(){
   if(item.stage==="Appraised"){
     patchCenter(item.id, function(x){
       x.stage="Waiting";
-      x.lane=(x.source==="guest"||x.source==="trade-in")?"inbox":"onsite";
       x.archived=false;
+      if(isLandedCenterPacket(x) && x.source!=="website" && x.purpose!=="website"){
+        const routed=laneFromMarketDocs(x.docs);
+        x.lane=routed.lane;
+        x.docsIncomplete=routed.docsIncomplete;
+        x.missingDocs=routed.missingDocs;
+      } else {
+        x.lane=(x.source==="guest"||x.source==="trade-in")?"inbox":"onsite";
+      }
     });
     toast("Back on the desk.");
     paintCenter();
