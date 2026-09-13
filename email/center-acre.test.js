@@ -212,8 +212,17 @@ must(/id="typeGateNote"/, "plain-English type-first note on the Appraise form");
 must(/classList\.toggle\("home-gate", !!\(lock && !pending\)\)/, "gated Appraise actions are grayed unless the create form is showing");
 must(/id="home"[\s\S]*id="newAppWrap"[\s\S]*id="storyBlock"/, "New application form sits on the HOME Appraise desk");
 mustNot(/id="workbench"[\s\S]*id="newAppWrap"/, "create form is not workbench-only after My Loan");
-must(/id="buildStamp">build d25s</, "home footer has a visible build stamp");
-must(/id="typeSheet"[\s\S]*build d25s/, "type sheet hint includes the build stamp");
+must(/id="buildStamp">build d26s</, "home footer has a visible build stamp");
+must(/id="typeSheet"[\s\S]*build d26s/, "type sheet hint includes the build stamp");
+must(/function shareIncomingBestEffort\(/, "completed Send posts slim Incoming to the mailer store");
+must(/MAIL_HOST\+"\/api\/incoming"/, "Incoming share hits MAIL_HOST /api/incoming");
+must(/kind:"land"/, "Incoming share posts kind:land");
+must(/function mergeIncomingShared\(/, "Center merges shared Incoming");
+must(/function scheduleIncomingPull\(/, "Center boot pulls shared Incoming");
+must(/try\{ scheduleIncomingPull\(\); \}catch\(e\)\{\}/, "Incoming pull is best-effort on Center boot");
+must(/hint\.shared/, "shared Incoming match does not use the open APP.centerId");
+must(/item\.linkSent=false/, "shared Incoming leaves the invite stub");
+must(/item\.source="guest"/, "shared Incoming becomes a guest appraisal");
 must(/el\.classList\.toggle\("hide", hide\)/, "What's the Story / Type it in / documents / VIN hide until the file is created");
 must(/data-new-app/, "home exposes pending New application state");
 must(/function openNewApplicationDesk\(\)\{[\s\S]{0,500}show\("home"\)/, "picking My Loan opens the create form on home");
@@ -526,6 +535,7 @@ must(/inbox:"Incoming"/, "Center lanes stay Incoming / On-site / History");
 
 assert.ok(fs.existsSync(path.join(root, "api/appointments.js")), "appointments live-wire API exists");
 assert.ok(fs.existsSync(path.join(root, "api/extract.js")), "document extract live-wire API exists");
+assert.ok(fs.existsSync(path.join(root, "api/incoming.js")), "shared Incoming mailer endpoint exists");
 (function testApptApiStages() {
   const api = require(path.join(root, "api/appointments.js"));
   assert.strictEqual(api.mapStage({ id: "selqqamHvfGvK4CmK", name: "Appointment Booked" }), "booked");

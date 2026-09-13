@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-13 build d25s: strip-mail retry + no video attach; Thank you unless offline -->
+<!-- center-v3 + desk-home 2026-09-13 build d26s: Center Incoming reads MAIL_HOST /api/incoming -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -1612,7 +1612,7 @@ body.center-gallery-on { overflow:hidden; }
     <p class="quote" id="vinHint">Best: take a picture of the vehicle ownership (registration). You can also photograph the VIN on the dash or the sticker on the driver’s door. We’ll read the number from the photo.</p>
     <p class="vin-chip hide" id="vinChip"></p>
     </div>
-    <p class="build-stamp" id="buildStamp">build d25s</p>
+    <p class="build-stamp" id="buildStamp">build d26s</p>
   </div>
 </section>
 
@@ -2071,7 +2071,7 @@ body.center-gallery-on { overflow:hidden; }
   <div class="card">
     <button class="x" type="button" data-close="typeSheet">✕</button>
     <h3>Appraisal type</h3>
-    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d25s</span></p>
+    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d26s</span></p>
     <div id="typeChips" class="to-chips"></div>
     <div id="leadBox" class="lead-box hide">
       <p class="hint">Lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a New application — no appointment calendar.</p>
@@ -5989,28 +5989,29 @@ function centerSourceLabel(src){
 }
 function findCenterMatch(store, hint){
   hint=hint||{};
-  if(hint.id){
+  const shared=!!hint.shared;
+  if(!shared && hint.id){
     const byId=store.items.find(function(x){ return x.id===hint.id; });
     if(byId) return byId;
   }
-  const sendId=hint.sendId || APP.sendId || "";
+  const sendId=hint.sendId || (shared?"":APP.sendId) || "";
   if(sendId){
-    const bySend=store.items.find(function(x){ return x.sendId && x.sendId===sendId; });
+    const bySend=store.items.find(function(x){ return x && !x.sample && x.sendId && x.sendId===sendId; });
     if(bySend) return bySend;
   }
-  if(APP.centerId){
+  if(!shared && APP.centerId){
     const open=store.items.find(function(x){ return x.id===APP.centerId; });
     if(open) return open;
   }
-  const vin=String(hint.vin || APP.vin || "").trim().toUpperCase();
+  const vin=String(hint.vin || (shared?"":APP.vin) || "").trim().toUpperCase();
   if(vin.length===17){
-    const byVin=store.items.find(function(x){ return String(x.vin||"").toUpperCase()===vin; });
+    const byVin=store.items.find(function(x){ return x && !x.sample && String(x.vin||"").toUpperCase()===vin; });
     if(byVin) return byVin;
   }
-  const name=String(hint.customerName || APP.inviteName || "").trim().toLowerCase();
+  const name=String(hint.customerName || (shared?"":APP.inviteName) || "").trim().toLowerCase();
   if(name){
     const byName=store.items.find(function(x){
-      return x.source==="trade-in" && x.stage==="Waiting" && String((x.customer&&x.customer.name)||"").trim().toLowerCase()===name;
+      return x && !x.sample && x.source==="trade-in" && x.stage==="Waiting" && String((x.customer&&x.customer.name)||"").trim().toLowerCase()===name;
     });
     if(byName) return byName;
   }
@@ -6020,6 +6021,155 @@ function persistCenterMedia(id, photos, docs){
   const payload={photos:photos||[], docs:docs||{}};
   try{ sessionStorage.setItem(centerMediaKey(id), JSON.stringify(payload)); }catch(e){}
   return idbPut(centerMediaKey(id), payload);
+}
+function slimSharedDocs(docs){
+  const src=docs||{};
+  const out={};
+  Object.keys(src).forEach(function(k){
+    const d=src[k]||{};
+    out[k]={have:!!d.have, name:d.name||"", type:d.type||""};
+  });
+  return out;
+}
+function slimSharedCenterItem(item){
+  item=item||{};
+  const cust=item.customer||{};
+  return {
+    id:item.id||"",
+    sendId:item.sendId||APP.sendId||"",
+    vin:item.vin||"",
+    year:item.year||"",
+    make:item.make||"",
+    model:item.model||"",
+    trim:item.trim||"",
+    color:item.color||"",
+    km:item.km||"",
+    stock:item.stock||"",
+    ymmt:item.ymmt||"",
+    purpose:item.purpose||"",
+    dealType:item.dealType||"",
+    leadSource:item.leadSource||"",
+    source:item.source||"guest",
+    lane:"inbox",
+    stage:"Waiting",
+    story:item.story||"",
+    webcopy:item.webcopy||"",
+    photoCount:Number(item.photoCount||0),
+    thumb:item.thumb||"",
+    customer:{name:cust.name||"", email:cust.email||"", phone:cust.phone||""},
+    requestedBy:item.requestedBy||"",
+    requestedByName:item.requestedByName||"",
+    sentBy:item.sentBy||"",
+    salesperson:item.salesperson||"",
+    interest:item.interest||"",
+    sentAt:item.sentAt||Date.now(),
+    updatedAt:item.updatedAt||Date.now(),
+    docs:slimSharedDocs(item.docs),
+    inviteUnit:item.inviteUnit||APP.inviteUnit||item.interest||""
+  };
+}
+function shareIncomingBestEffort(item){
+  try{
+    if(!item || !item.id) return;
+    const payload={kind:"land", item:slimSharedCenterItem(item)};
+    const req=timedFetch(MAIL_HOST+"/api/incoming", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify(payload)
+    }, 8000);
+    if(req && typeof req.catch==="function") req.catch(function(){});
+  }catch(e){}
+}
+function applySharedIncoming(item, remote){
+  const cust=remote.customer||{};
+  const prev=item.customer||{};
+  item.source="guest";
+  item.lane="inbox";
+  item.stage="Waiting";
+  item.linkSent=false;
+  item.sendId=remote.sendId||item.sendId||"";
+  item.vin=remote.vin||item.vin||"";
+  item.year=remote.year||item.year||"";
+  item.make=remote.make||item.make||"";
+  item.model=remote.model||item.model||"";
+  item.trim=remote.trim||item.trim||"";
+  item.color=remote.color||item.color||"";
+  item.km=remote.km||item.km||"";
+  item.stock=remote.stock||item.stock||"";
+  item.ymmt=remote.ymmt||item.ymmt||"";
+  item.purpose=remote.purpose||item.purpose||"";
+  item.dealType=remote.dealType||item.dealType||"";
+  item.leadSource=remote.leadSource||item.leadSource||"";
+  item.story=remote.story||item.story||"";
+  item.webcopy=remote.webcopy||item.webcopy||"";
+  item.photoCount=Number(remote.photoCount!=null?remote.photoCount:item.photoCount||0);
+  if(remote.thumb) item.thumb=remote.thumb;
+  item.customer={
+    name:cust.name||prev.name||"",
+    email:cust.email||prev.email||"",
+    phone:cust.phone||prev.phone||""
+  };
+  item.requestedBy=remote.requestedBy||item.requestedBy||"";
+  item.requestedByName=remote.requestedByName||item.requestedByName||"";
+  item.sentBy=remote.sentBy||item.sentBy||"";
+  item.salesperson=remote.salesperson||item.salesperson||"";
+  item.interest=remote.interest||item.interest||"";
+  item.inviteUnit=remote.inviteUnit||item.inviteUnit||item.interest||"";
+  item.sentAt=remote.sentAt||item.sentAt||Date.now();
+  item.updatedAt=remote.updatedAt||Date.now();
+  if(remote.docs) item.docs=slimSharedDocs(remote.docs);
+  return item;
+}
+let incomingPullAt=0;
+let incomingPulling=false;
+function mergeIncomingShared(list){
+  const items=Array.isArray(list)?list:null;
+  function applyAll(rows){
+    if(!rows || !rows.length) return false;
+    const store=centerStore();
+    let changed=false;
+    rows.forEach(function(remote){
+      if(!remote || typeof remote!=="object" || remote.sample) return;
+      const name=remote.customer && remote.customer.name || "";
+      let item=findCenterMatch(store, {shared:true, sendId:remote.sendId||"", vin:remote.vin||"", customerName:name});
+      if(!item){
+        item={
+          id:remote.id||("c"+Date.now().toString(36)+Math.random().toString(36).slice(2,6)),
+          appNo:nextAppNo(store),
+          stage:"Waiting",
+          team:emptyTeam(),
+          values:emptyVals(),
+          notes:"",
+          createdAt:remote.sentAt||Date.now(),
+          customer:{name:"", email:"", phone:""}
+        };
+        store.items.unshift(item);
+      }
+      applySharedIncoming(item, remote);
+      changed=true;
+    });
+    if(changed) saveCenterStore(store);
+    return changed;
+  }
+  if(items) return applyAll(items);
+  return fetch(MAIL_HOST+"/api/incoming", {cache:"no-store"}).then(function(r){
+    return r.json();
+  }).then(function(j){
+    if(!j || !j.ok || !Array.isArray(j.items)) return false;
+    const changed=applyAll(j.items);
+    if(changed && APP.screen==="center"){
+      paintCenter();
+      paintCenterDetail();
+    }
+    return changed;
+  }).catch(function(){ return false; });
+}
+function scheduleIncomingPull(){
+  if(incomingPulling) return;
+  if(Date.now()-incomingPullAt<6000) return;
+  incomingPullAt=Date.now();
+  incomingPulling=true;
+  Promise.resolve(mergeIncomingShared()).then(function(){ incomingPulling=false; }, function(){ incomingPulling=false; });
 }
 function loadCenterMedia(id){
   const item=getCenter(id);
@@ -6189,6 +6339,7 @@ function openCenter(){
   APP.centerLane="";
   if($("centerSheet")) $("centerSheet").classList.remove("on");
   if($("centerSheetDim")) $("centerSheetDim").classList.remove("on");
+  try{ scheduleIncomingPull(); }catch(e){}
   show("center");
 }
 function openCenterLane(lane){
@@ -6399,6 +6550,7 @@ function acreRow(item){
 function paintCenter(){
   const host=$("centerList");
   if(!host) return;
+  try{ scheduleIncomingPull(); }catch(e){}
   seedCenterSamples();
   const lane=APP.centerLane||"";
   APP.centerHistory=lane==="history";
@@ -7209,6 +7361,7 @@ function landIncomingPacket(extra){
   if(!item || !item.id) return Promise.resolve(null);
   const photos=packCenterPhotos();
   const docs=slimCenterDocs(APP.docs);
+  try{ shareIncomingBestEffort(item); }catch(e){}
   return persistCenterMedia(item.id, photos, docs).then(function(){ return item; }).catch(function(){ return item; });
 }
 function isMailVideoPart(p){
