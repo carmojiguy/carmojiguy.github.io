@@ -54,6 +54,9 @@ assert.equal(incoming.isPacketSend({
   text: "2022 Tucson — Trade-in\n\nThe photo catalog is in this email. The PDF is attached."
 }), true);
 assert.equal(incoming.isPacketSend({
+  text: "2024 Toyota RAV4 — Trade-in\n\nThe sales-grade appraisal PDF is attached. Damage is one picture-and-sound clip."
+}), true);
+assert.equal(incoming.isPacketSend({
   text: "This is a private link to get a real value on your vehicle"
 }), false);
 
