@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-13 build d24: VIN Type / Dictate / Ownership photo -->
+<!-- center-v3 + desk-home 2026-09-13 build d24: VIN Type / Dictate / Ownership photo + retail file description -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -2187,6 +2187,7 @@ fetch((function(){
 window.APP = {
   purpose:"both",
   year:"", make:"", model:"", trim:"", color:"", km:"", vin:"", stock:"", heard:"", notes:"", webcopy:"",
+  vinDecode:null,
   photos:{}, damage:{}, closeups:[], docs:{}, damageCap:{}, closeupCap:[], closeupAudio:[],
   mode:"photos", viewId:"qfront", stream:null, lock:false, rec:null, listening:false,
   dmgArmed:false, dmgCaption:"", dmgRec:null, dmgAudioRec:null, dmgFinal:"", emails:[],
@@ -4819,7 +4820,7 @@ function collectDraft(){
     app:{
       purpose:APP.purpose, year:APP.year, make:APP.make, model:APP.model, trim:APP.trim,
       color:APP.color, km:APP.km, vin:APP.vin, stock:APP.stock, heard:APP.heard, notes:APP.notes,
-      webcopy:APP.webcopy, photos:APP.photos, damage:APP.damage, closeups:APP.closeups,
+      webcopy:APP.webcopy, vinDecode:APP.vinDecode||null, photos:APP.photos, damage:APP.damage, closeups:APP.closeups,
       damageCap:APP.damageCap, closeupCap:APP.closeupCap, closeupAudio:APP.closeupAudio, dealType:APP.dealType, leadSource:APP.leadSource, cdApp:APP.cdApp, apptId:APP.apptId, apptSeller:APP.apptSeller, lockedFromAirtable:APP.lockedFromAirtable, newApplication:!!APP.newApplication, newAppOpen:!!APP.newAppOpen, deskTeam:APP.deskTeam,
       emails:(typeof loadRecipients==="function"?loadRecipients():APP.emails),
       role:APP.role, userName:APP.userName, userEmail:APP.userEmail,
@@ -4957,6 +4958,7 @@ function startFresh(){
 }
 function wipeJob(goStart){
   APP.year=APP.make=APP.model=APP.trim=APP.color=APP.km=APP.vin=APP.stock=APP.heard=APP.notes=APP.webcopy="";
+  APP.vinDecode=null;
   APP.dealType=""; APP.leadSource=""; APP.cdApp=""; APP.apptId=""; APP.apptSeller=""; APP.lockedFromAirtable=false; APP.newApplication=false; APP.newAppOpen=false; APP.apptSearch=""; APP.centerId=""; APP.sendId=""; APP._sending=false; APP.deskTeam="";
   APP.photos={}; APP.damage={}; APP.closeups=[]; APP.docs={}; APP.damageCap={}; APP.closeupCap=[]; APP.closeupAudio=[];
   APP.clips=[]; APP.recOn=false; APP.recorder=null; APP.recChunks=[]; APP.zoom=1;
@@ -6415,7 +6417,7 @@ function clearSnapshot(){
 function applySnapshot(snap){
   if(!snap || !snap.app) return;
   const a=snap.app;
-  ["purpose","year","make","model","trim","color","km","vin","stock","heard","notes","webcopy","photos","damage","closeups","damageCap","closeupCap","closeupAudio","dealType","leadSource","cdApp","apptId","apptSeller","lockedFromAirtable","newApplication","newAppOpen","deskTeam","centerId","role","userName","userEmail","inviteFirst","inviteLast","inviteName","inviteEmail","invitePhone","inviteUnit","inviteStock","requestedBy","requestedByName","docs"].forEach(function(k){
+  ["purpose","year","make","model","trim","color","km","vin","stock","heard","notes","webcopy","vinDecode","photos","damage","closeups","damageCap","closeupCap","closeupAudio","dealType","leadSource","cdApp","apptId","apptSeller","lockedFromAirtable","newApplication","newAppOpen","deskTeam","centerId","role","userName","userEmail","inviteFirst","inviteLast","inviteName","inviteEmail","invitePhone","inviteUnit","inviteStock","requestedBy","requestedByName","docs"].forEach(function(k){
     if(a[k]!==undefined) APP[k]=a[k];
   });
   if(a.emails) saveRecipients(a.emails);
@@ -8007,6 +8009,7 @@ async function acceptVin(vin){
   APP.vinStep=2;
   APP.vin=vin;
   if(look.row){
+    applyVinDecode(look.row);
     if(look.row.ModelYear && look.row.ModelYear!=="0") APP.year=String(look.row.ModelYear);
     if(look.row.Make) APP.make=look.row.Make;
     if(look.row.Model) APP.model=look.row.Model;
@@ -8164,6 +8167,7 @@ function startVinScan(){ openVinCam(); }
 async function decodeVin(vin){
   const look=await lookupVin(vin);
   if(!look.row) return;
+  applyVinDecode(look.row);
   if(look.row.ModelYear && look.row.ModelYear!=="0") APP.year=String(look.row.ModelYear);
   if(look.row.Make) APP.make=look.row.Make;
   if(look.row.Model) APP.model=look.row.Model;
@@ -8261,30 +8265,139 @@ function parseStory(raw){
   }
   return o;
 }
-function writeRetailListing(){
-  const title=[APP.year,APP.make,APP.model,APP.trim].filter(Boolean).join(" ");
-  const km=APP.km ? Number(String(APP.km).replace(/,/g,"")).toLocaleString("en-CA")+" km" : "";
-  const color=APP.color||"";
-  const bits=[];
-  if(title) bits.push((color?color+" ":"")+title+(km?" with "+km:"")+" — photographed and ready for retail.");
-  else if(km) bits.push(km+" on the odometer — photographed and ready for retail.");
-  else bits.push("Photographed and ready for a retail listing.");
-  const note=(APP.notes||APP.heard||"").replace(/\s+/g," ").trim();
-  if(note){
-    let clean=note;
-    if(title){
-      const safe=title.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
-      clean=clean.replace(new RegExp(safe,"ig"),"").trim();
+function vinDecodeUseful(v){
+  if(v==null) return "";
+  const s=String(v).trim();
+  if(!s || s==="0" || /^not applicable$/i.test(s) || /^n\/?a$/i.test(s) || s==="—" || s==="-") return "";
+  return s;
+}
+function applyVinDecode(row){
+  if(!row) return;
+  const litres=vinDecodeUseful(row.DisplacementL);
+  const cyl=vinDecodeUseful(row.EngineCylinders);
+  const em=vinDecodeUseful(row.EngineModel);
+  const d={
+    year:vinDecodeUseful(row.ModelYear),
+    make:vinDecodeUseful(row.Make),
+    model:vinDecodeUseful(row.Model),
+    trim:vinDecodeUseful(row.Trim),
+    series:vinDecodeUseful(row.Series),
+    body:vinDecodeUseful(row.BodyClass),
+    doors:vinDecodeUseful(row.Doors),
+    cab:vinDecodeUseful(row.CabType),
+    bed:vinDecodeUseful(row.BedType)||vinDecodeUseful(row.BedLengthIN),
+    drive:vinDecodeUseful(row.DriveType),
+    fuel:vinDecodeUseful(row.FuelTypePrimary),
+    trans:vinDecodeUseful(row.TransmissionStyle),
+    vehicle:vinDecodeUseful(row.VehicleType),
+    gvwr:vinDecodeUseful(row.GVWR),
+    plant:[vinDecodeUseful(row.PlantCity),vinDecodeUseful(row.PlantState),vinDecodeUseful(row.PlantCountry)].filter(Boolean).join(", "),
+    engine:[litres?litres+"L":"", cyl?cyl+"-cyl":"", em].filter(Boolean).join(" ")
+  };
+  APP.vinDecode=d;
+  if(d.year && !APP.year) APP.year=d.year;
+  if(d.make && !APP.make) APP.make=d.make;
+  if(d.model && !APP.model) APP.model=d.model;
+  if((d.trim||d.series) && !APP.trim) APP.trim=d.trim||d.series;
+}
+function retailKmLabel(km){
+  const n=Number(String(km||"").replace(/[^\d]/g,""));
+  if(!n) return "";
+  return n.toLocaleString("en-CA")+" km";
+}
+function retailTitle(){
+  const d=APP.vinDecode||{};
+  return [APP.year||d.year, APP.make||d.make, APP.model||d.model, APP.trim||d.trim||d.series].filter(Boolean).join(" ");
+}
+function retailDamageLines(){
+  const out=[];
+  const damage=APP.damage||{};
+  Object.keys(damage).forEach(function(id){
+    const raw=damage[id];
+    const shots=Array.isArray(raw)?raw:[{data:raw, cap:(APP.damageCap&&APP.damageCap[id])||""}];
+    shots.forEach(function(s){
+      if(s && s.cap) out.push(String(s.cap).replace(/\s+/g," ").trim());
+    });
+  });
+  (APP.closeupCap||[]).forEach(function(c){ if(c) out.push(String(c).replace(/\s+/g," ").trim()); });
+  return out.filter(Boolean);
+}
+function retailPhotoLine(){
+  const photos=APP.photos||{};
+  const views=typeof VIEWS!=="undefined"?VIEWS:[];
+  const names=[];
+  views.forEach(function(v){ if(photos[v[0]]) names.push(v[1]); });
+  if(!names.length) Object.keys(photos).forEach(function(k){ if(photos[k]) names.push(k); });
+  if(!names.length) return "";
+  return "Walk-around photos on the file: "+names.join(", ")+".";
+}
+function retailDocLine(){
+  const docs=APP.docs||{};
+  const specs=typeof PACKET_DOCS!=="undefined"?PACKET_DOCS:Object.keys(docs).map(function(id){ return {id:id, label:id, kind:"extract"}; });
+  const names=[];
+  const live=[];
+  specs.forEach(function(spec){
+    const row=docs[spec.id];
+    if(!row) return;
+    const has=row.have || row.extract || row.preview || (row.shots&&row.shots.length) || row.data;
+    if(!has) return;
+    names.push(spec.label);
+    const ex=row.extract;
+    if(ex && ex.live && Array.isArray(ex.facts)){
+      ex.facts.forEach(function(f){
+        const k=String(f[0]||f.k||"").trim();
+        const v=String(f[1]||f.v||"").trim();
+        if(!k || !v || /^vin$/i.test(k)) return;
+        live.push(spec.label+" "+k+" "+v);
+      });
     }
-    clean=clean.replace(/^i['’]?m looking at (an? )?|^this is (an? )?/i,"").trim();
-    if(clean && clean.length>8) bits.push(clean.replace(/\.$/,"")+".");
-  }
-  const facts=[];
-  if(APP.stock) facts.push("Stock #"+APP.stock);
-  if(APP.vin) facts.push("VIN "+APP.vin);
-  if(facts.length) bits.push(facts.join(" · ")+".");
-  bits.push("Come see it in person.");
-  return bits.join(" ");
+  });
+  if(!names.length) return "";
+  return "Market paperwork on the file: "+names.join(", ")+"."+(live.length?" "+live.slice(0,8).join(" · ")+".":"");
+}
+function retailCleanStory(note, title){
+  let clean=String(note||"").replace(/\s+/g," ").trim();
+  if(!clean) return "";
+  if(title) clean=clean.replace(new RegExp(title.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"),"ig"),"").trim();
+  clean=clean.replace(/^i['’]?m looking at (an? )?|^this is (an? )?/i,"").trim();
+  return clean;
+}
+function writeRetailListing(){
+  const d=APP.vinDecode||{};
+  const title=retailTitle();
+  const km=retailKmLabel(APP.km);
+  const color=APP.color||"";
+  const paras=[];
+  if(title) paras.push("Meet the "+title+(color?" in "+color:"")+(km?" — "+km+" on the clock":"")+".");
+  else if(km) paras.push(km+" on the odometer.");
+  else paras.push("This unit is on the appraisal desk and ready to be shown.");
+  const build=[];
+  if(d.body) build.push(d.body);
+  if(d.doors) build.push(d.doors+"-door");
+  if(d.cab) build.push(d.cab);
+  if(d.bed) build.push(d.bed);
+  if(d.drive) build.push(d.drive);
+  if(d.engine) build.push(d.engine);
+  if(d.fuel) build.push(d.fuel);
+  if(d.trans) build.push(d.trans);
+  if(d.series && d.series!==(APP.trim||"")) build.push(d.series);
+  if(build.length) paras.push("VIN decode: "+build.join(" · ")+".");
+  const story=retailCleanStory(APP.notes||APP.heard, title);
+  if(story && story.length>8) paras.push(story.replace(/\.$/,"")+".");
+  const dmg=retailDamageLines();
+  if(dmg.length) paras.push("Condition from the walk: "+dmg.slice(0,8).join(" "));
+  const walk=retailPhotoLine();
+  if(walk) paras.push(walk);
+  const closeN=(APP.closeups||[]).length;
+  if(closeN) paras.push(closeN===1?"One close-up of a mark on the file.":closeN+" close-ups of the marks on the file.");
+  const paper=retailDocLine();
+  if(paper) paras.push(paper);
+  const id=[];
+  if(APP.vin) id.push("VIN "+String(APP.vin).toUpperCase());
+  if(APP.stock) id.push("Stock #"+APP.stock);
+  if(id.length) paras.push(id.join(" · ")+".");
+  paras.push("Come see it in person and confirm the details that matter to you. Written from this appraisal file — no extra claims.");
+  return paras.join("\n\n");
 }
 function writeListing(){ return writeRetailListing(); }
 
@@ -8322,26 +8435,19 @@ async function generateWebCopy(){
   readVerify();
   const box=$("v-webcopy");
   const btn=$("btnWebAi");
-  const fallback=writeListing();
-  if(box && !(box.value||"").trim()) box.value="Writing description…";
+  if(box) box.value="Writing description…";
   if(btn){ btn.disabled=true; btn.textContent="Writing…"; }
-  const facts={
-    year:APP.year, make:APP.make, model:APP.model, trim:APP.trim,
-    color:APP.color, km:APP.km, vin:APP.vin, stock:APP.stock,
-    notes:APP.notes||APP.heard||""
-  };
-  let text="";
-  try{
-    const ctrl=typeof AbortSignal!=="undefined" && AbortSignal.timeout ? AbortSignal.timeout(8000) : undefined;
-    const r=await fetch("/api/describe",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(facts),signal:ctrl});
-    const j=await r.json();
-    if(j && j.ok && j.text) text=String(j.text).trim();
-  }catch(e){}
-  if(!text) text=fallback;
+  if(APP.vin && !APP.vinDecode){
+    try{
+      const look=await lookupVin(APP.vin);
+      if(look && look.row) applyVinDecode(look.row);
+    }catch(e){}
+  }
+  const text=writeRetailListing();
   APP.webcopy=text;
   if(box){ box.value=text; growArea(box); }
   if(btn){ btn.disabled=false; btn.textContent="Write retail description"; }
-  toast(text && text!==fallback ? "Retail description ready — edit if you want." : "Retail description filled in from the story.");
+  toast("Retail description ready — edit if you want.");
 }
 function applyStory(raw){
   const text=String(raw||"").trim();

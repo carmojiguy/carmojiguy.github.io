@@ -178,6 +178,10 @@ must(/id="home"[\s\S]*id="newAppWrap"[\s\S]*id="storyBlock"/, "New application f
 mustNot(/id="workbench"[\s\S]*id="newAppWrap"/, "create form is not workbench-only after My Loan");
 must(/id="buildStamp">build d24</, "home footer has a visible build stamp");
 must(/id="typeSheet"[\s\S]*build d24/, "type sheet hint includes the build stamp");
+must(/function writeRetailListing\(/, "retail description writer is local");
+must(/function applyVinDecode\(/, "VIN decode feeds the retail description");
+mustNot(/async function generateWebCopy\(\)\{[\s\S]*?\/api\/describe/, "retail description does not call /api/describe");
+mustNot(/Speak the VIN/, "no Speak the VIN leftovers");
 must(/el\.classList\.toggle\("hide", hide\)/, "What's the Story / Type it in / documents / VIN hide until the file is created");
 must(/data-new-app/, "home exposes pending New application state");
 must(/function openNewApplicationDesk\(\)\{[\s\S]{0,500}show\("home"\)/, "picking My Loan opens the create form on home");
