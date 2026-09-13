@@ -66,6 +66,8 @@ must(/function kickShare\(/, "kickShare stays");
 must(/function sharePacket\(/, "sharePacket stays");
 must(/function sendFromMe\(/, "sendFromMe stays");
 must(/function finishGuest\(\)\{\s*finishThanks\(\);/, "finishGuest stays Thank-you-only");
+must(/function restoreSend\(\)/, "restoreSend stays");
+mustNot(/function pageHome\(\)\{[\s\S]{0,400}restoreSend/, "Home does not call restoreSend");
 
 must(/id="buildStamp">build d28x</, "build stamp");
 console.log("exit-chrome tests ok");
