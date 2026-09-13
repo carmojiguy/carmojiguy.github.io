@@ -84,6 +84,29 @@ assert.ok(!/TWILIO_AUTH_TOKEN\s*=\s*['"]/.test(html), "Twilio secrets stay off t
   assert.strictEqual(mail.body.ok, false);
   assert.strictEqual(mail.body.error, "mailer");
   assert.strictEqual(mail.status, 401);
+
+  const smsFrom = html.indexOf("async function sendInviteSms(");
+  const smsTo = html.indexOf("\nfunction fireSms(", smsFrom);
+  assert.ok(smsFrom > 0 && smsTo > smsFrom, "sendInviteSms found");
+  const posts = [];
+  const smsBox = {
+    MAIL_HOST: "https://gnm-guest-mailer-shawn-6802.vercel.app",
+    timedFetch: async function (url, opts) {
+      posts.push({ url: url, body: JSON.parse(opts.body) });
+      return { json: async function () { return { ok: true, via: "twilio", sid: "SM9" }; } };
+    },
+    sendTextTo: async function () { throw new Error("gateway must not run when Twilio ok"); }
+  };
+  vm.createContext(smsBox);
+  vm.runInContext(html.slice(smsFrom, smsTo) + "\nthis.sendInviteSms=sendInviteSms;", smsBox);
+  const smsOut = await smsBox.sendInviteSms("6135550162", "Hi Jane\nhttps://carmojiguy.github.io/?trade=1");
+  assert.strictEqual(smsOut.ok, true);
+  assert.strictEqual(smsOut.via, "twilio");
+  assert.strictEqual(posts.length, 1);
+  assert.strictEqual(posts[0].url, "https://gnm-guest-mailer-shawn-6802.vercel.app/api/upload");
+  assert.strictEqual(posts[0].body.kind, "sms");
+  assert.strictEqual(posts[0].body.to, "6135550162");
+  assert.ok(/trade=1/.test(posts[0].body.text), "SMS body carries the appraisal link");
 })().then(function () {
   const paintFrom = html.indexOf("function customerFirst(){");
   const paintTo = html.indexOf("function finishGuest()", paintFrom);
