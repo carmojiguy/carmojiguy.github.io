@@ -1929,7 +1929,7 @@ async function loadAppointments(){
         : "Couldn’t load appointments"+(code?" ("+code+")":"")+".";
     }
   }catch(e){
-    APP.apptError="Couldn’t reach the appointments API. Check the mailer host.";
+    APP.apptError="Couldn’t reach MAIL_HOST /api/appointments. The mailer must deploy that route.";
   }
   APP.apptLive=false;
   APP.apptLoading=false;
@@ -1974,7 +1974,7 @@ function paintAppointments(){
   const note=$("apptLiveNote");
   const demo=apptsDemoOn() && !APP.apptLive;
   if(note){
-    note.textContent=APP.apptLive ? "" : (demo ? (APP.apptLiveNote||"") : (APP.apptError||""));
+    note.textContent=demo ? (APP.apptLiveNote||"") : "";
     note.classList.toggle("hide", !note.textContent);
   }
   const host=$("apptList");
@@ -1985,7 +1985,7 @@ function paintAppointments(){
     return;
   }
   if(!APP.apptLive && !demo){
-    const msg=APP.apptError||"Live appointments aren’t available.";
+    const msg=APP.apptError||"Live appointments aren’t available. The mailer must deploy /api/appointments.";
     host.innerHTML='<p class="appt-empty err">'+escHtml(msg)+'</p><button type="button" class="link" id="apptRetry">Try again</button>';
     const retry=$("apptRetry");
     if(retry) retry.onclick=function(){ APP.apptItems=[]; openAppointments(); };

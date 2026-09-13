@@ -224,6 +224,7 @@ must(/function applyAppointment\(/, "tapping an appointment prefills Appraise");
 must(/function loadAppointments\(/, "live Airtable path is explicit");
 must(/\/api\/appointments/, "wire-live appointments endpoint");
 must(/Appointments API isn’t on the mailer yet/, "404 empty/error copy");
+must(/The mailer must deploy that route/, "network fail copy names the mailer route");
 mustNot(/These are sample appointments so you can still pick one/, "live path does not fall back to fake vehicles");
 must(/appfy57egeT1utqaI/, "Command Center base id is documented");
 must(/tbl2QiJ40S6A7IzyR/, "Consumer Acquisitions table id is documented");
