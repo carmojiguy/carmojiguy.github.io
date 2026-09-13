@@ -19,13 +19,24 @@ function mustNot(re, msg) {
   assert.ok(!re.test(src), msg);
 }
 
-must(/let sentOk=false/, "tracks whether silent send actually succeeded");
-must(/function revealMail\(\)\{/, "has revealMail helper");
-must(/finished=true;/, "finish() always marks finished");
-must(/if\(!sentOk\) revealMail\(\);/, "finally reveals #mailOpen when send did not succeed");
-must(/if\(APP\.screen==="thanks"\) sentOk=true;/, "guest success counts only after thanks screen");
-mustNot(/openMail===false && msg/, "old finished-flag condition that never fired on fallback is gone");
-mustNot(/clearTimeout\(watch\);\s*if\(sent && sent\.ok\)/, "do not cancel the hang watch before slim retry / finish");
+must(/const guest=APP\.role==="guest"/, "sharePacket branches on guest");
+must(/function revealMail\(\)\{/, "staff still has revealMail");
+must(/if\(guest\)\{ hideMailOpen\(\); return; \}/, "revealMail is a no-op for guests");
+must(/if\(guest\) hideMailOpen\(\);/, "guest start never unhides mail");
+must(/Couldn’t send — try again/, "guest failure is retry, not mail homework");
+must(/if\(guest\) finish\("Couldn’t send — try again", false\)/, "guest fail does not open mail");
+must(/sentOk=true;\s*finish\(""\);\s*try\{ finishGuest\(\); \}/, "guest success is Thank you only");
+must(/if\(guest\) hideMailOpen\(\);/, "finally keeps guest mail hidden");
+mustNot(/Open Mail and send/, "guest never sees Open Mail and send");
+must(/if\(guest\) finish\("Couldn’t send — try again", false\);\s*else finish\("Still working — tap Open Gmail and send\.", true\)/, "guest watch is retry; staff hang still offers Gmail");
+must(/if\(!sentOk\) revealMail\(\);|else if\(!sentOk\) revealMail\(\);/, "staff fail still reveals mail");
+
+assert.ok(/function hideMailOpen\(\)\{/.test(html), "hideMailOpen exists");
+assert.ok(/if\(APP\.role==="guest"\)\{ hideMailOpen\(\); return ""; \}/.test(html), "revealMailOpen never shows mail to guests");
+assert.ok(/if\(APP\.role==="guest"\)\{ hideMailOpen\(\); sharePacket\(\); return; \}/.test(html), "kickShare does not reveal mail before guest Send");
+assert.ok(/if\(guest\) hideMailOpen\(\);/.test(html), "paintSubmit / applyRole hide guest mail");
+assert.ok(/store:\s*true/.test(html), "sendFromMe asks the store sender when token/mk are empty");
+assert.ok(!/Open Mail and send/.test(html), "Open Mail and send copy is gone from the SPA");
 
 class FakeEl {
   constructor(id, className) {
@@ -50,10 +61,13 @@ function runFinishContract(opts) {
   btn.disabled = true;
   const href = "mailto:shawn@gmautosales.ca?subject=test";
   const APP = { role: opts.role || "guest", screen: opts.screen || "submit" };
+  const guest = APP.role === "guest";
   const toasts = [];
+  function hideMailOpen() { mail.classList.add("hide"); }
   function revealMail() {
+    if (guest) { hideMailOpen(); return; }
     mail.href = href;
-    mail.textContent = APP.role === "employee" ? "Open Gmail and send" : "Open Mail and send";
+    mail.textContent = "Open Gmail and send";
     mail.classList.remove("hide");
   }
   let finished = false;
@@ -62,27 +76,29 @@ function runFinishContract(opts) {
     finished = true;
     btn.disabled = false;
     btn.textContent = "Send";
-    if (openMail) revealMail();
+    if (guest) hideMailOpen();
+    else if (openMail) revealMail();
     if (msg) toasts.push(msg);
   }
   function simulate(result) {
-    if (result && result.ok) {
+    if (result && result.ok && result.verified) {
       finished = true;
-      if (APP.role === "guest") {
+      if (guest) {
+        sentOk = true;
         finish("");
         if (opts.guestLandsOnThanks) APP.screen = "thanks";
-        if (APP.screen === "thanks") sentOk = true;
-        else finish("Couldn’t send from here. Tap the mail button.", true);
       } else {
         sentOk = true;
         finish("Sent to the team.");
       }
     } else {
-      finish("Couldn’t send from here. Tap the mail button.", true);
+      if (guest) finish("Couldn’t send — try again", false);
+      else finish("Couldn’t send from here. Tap Open Gmail and send.", true);
     }
     btn.disabled = false;
     btn.textContent = "Send";
-    if (!sentOk) revealMail();
+    if (guest) hideMailOpen();
+    else if (!sentOk) revealMail();
     else if (APP.screen !== "thanks") mail.classList.add("hide");
   }
   simulate(opts.sent);
@@ -92,26 +108,24 @@ function runFinishContract(opts) {
 const failedGuest = runFinishContract({ role: "guest", sent: { ok: false } });
 assert.equal(failedGuest.finished, true);
 assert.equal(failedGuest.sentOk, false);
-assert.ok(!failedGuest.mail.classList.contains("hide"), "failed guest send must unhide #mailOpen");
-assert.equal(failedGuest.mail.textContent, "Open Mail and send");
-assert.ok(failedGuest.mail.href.startsWith("mailto:"));
+assert.ok(failedGuest.mail.classList.contains("hide"), "failed guest send must NEVER unhide #mailOpen");
+assert.notEqual(failedGuest.mail.textContent, "Open Mail and send");
 assert.equal(failedGuest.btn.textContent, "Send");
 assert.equal(failedGuest.btn.disabled, false);
-assert.ok(failedGuest.toasts.some(t => /mail button/i.test(t)));
+assert.ok(failedGuest.toasts.some(t => /try again/i.test(t)), "guest fail is retry");
+assert.ok(!failedGuest.toasts.some(t => /Gmail|Mail and send|mail button/i.test(t)), "guest fail is not mail homework");
 
 const timedOut = runFinishContract({ role: "employee", sent: { ok: false } });
 assert.ok(!timedOut.mail.classList.contains("hide"), "timeout/fail must unhide #mailOpen for staff");
 assert.equal(timedOut.mail.textContent, "Open Gmail and send");
 
-const guestSilent = runFinishContract({ role: "guest", sent: { ok: true }, guestLandsOnThanks: false });
-assert.equal(guestSilent.sentOk, false);
-assert.ok(!guestSilent.mail.classList.contains("hide"), "guest success that does not reach thanks is not a silent no-op");
+const guestSilent = runFinishContract({ role: "guest", sent: { ok: true, verified: true }, guestLandsOnThanks: true });
+assert.equal(guestSilent.sentOk, true);
+assert.equal(guestSilent.APP.screen, "thanks");
+assert.ok(guestSilent.mail.classList.contains("hide"), "guest success never shows mail");
+assert.deepEqual(guestSilent.toasts, []);
 
-const guestThanks = runFinishContract({ role: "guest", sent: { ok: true }, guestLandsOnThanks: true });
-assert.equal(guestThanks.sentOk, true);
-assert.equal(guestThanks.APP.screen, "thanks");
-
-const staffOk = runFinishContract({ role: "employee", sent: { ok: true } });
+const staffOk = runFinishContract({ role: "employee", sent: { ok: true, verified: true } });
 assert.equal(staffOk.sentOk, true);
 assert.ok(staffOk.mail.classList.contains("hide"), "successful staff send keeps fallback hidden");
 assert.ok(staffOk.toasts.some(t => /Sent to/.test(t)));

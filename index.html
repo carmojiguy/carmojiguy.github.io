@@ -1008,7 +1008,7 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
   </div>
   <div class="dock">
     <button class="pill purple" type="button" id="btnSharePack">Send</button>
-    <a class="pill cyan hide" id="mailOpen" href="#" target="_blank" rel="noopener">Open Gmail and send</a>
+    <a class="pill cyan hide" id="mailOpen" href="#" target="_blank" rel="noopener">Open Gmail and send</a><!-- staff-only; guests never unhide -->
     <button class="pill wash" type="button" id="btnAnother">Inspect another</button>
   </div>
 </section>
@@ -1535,6 +1535,7 @@ function applyRole(){
   if($("btnPictures")) $("btnPictures").classList.remove("hide");
   if($("btnSend")) $("btnSend").textContent = guest ? "Review my trade" : "Send";
   if(guest) paintGuestStory();
+  if(guest) hideMailOpen();
   if($("startX")) $("startX").classList.toggle("hide", guest);
   if($("typeWrap")) $("typeWrap").classList.toggle("hide", guest || isWeb());
   const web=isWeb();
@@ -1938,55 +1939,109 @@ function packetCatalogHtml(shots, srcFor){
   const title=escHtml(unitLabel()||"Vehicle");
   const kicker=escHtml((why()||"Appraisal").toUpperCase());
   const km=APP.km ? Number(String(APP.km).replace(/,/g,"")).toLocaleString("en-CA")+" km" : "";
+  const guest=APP.role==="guest";
+  const who=guest
+    ? escHtml((APP.inviteName||"").trim() || "Customer trade-in")
+    : escHtml((APP.userName||APP.userEmail||"G&M Auto Sales").trim());
   const facts=[
     ["Year", APP.year],["Make", APP.make],["Model", APP.model],["Trim", APP.trim],
     ["Colour", APP.color],["Kilometres", km],["VIN", APP.vin],["Stock", APP.stock],
     ["Type", APP.dealType],["Canada Drives #", APP.dealType==="Canada Drives"?APP.cdApp:""]
   ].filter(function(r){ return r[1]; });
-  let h='<div style="font-family:Arial,Helvetica,sans-serif;color:#110E1A;max-width:640px;margin:0 auto;background:#FAF9FC">';
-  h+='<div style="background:#110E1A;color:#fff;padding:24px 24px 22px;border-radius:16px 16px 0 0">';
-  h+='<p style="margin:0 0 8px;color:#00A8E8;font-size:11px;font-weight:800;letter-spacing:.14em">'+kicker+'</p>';
-  h+='<h1 style="margin:0;font-size:26px;line-height:1.2;letter-spacing:-.4px">'+title+'</h1>';
+  const list=shots||[];
+  function srcAt(i){
+    const s=list[i];
+    if(!s) return "";
+    return srcFor ? srcFor(s,i) : "";
+  }
+  const hero=srcAt(0);
   const sub=[APP.trim, APP.color, km].filter(Boolean).join("  ·  ");
-  if(sub) h+='<p style="margin:10px 0 0;color:#C9C4D6;font-size:15px">'+escHtml(sub)+'</p>';
-  h+='</div>';
-  h+='<div style="border:1px solid #E6E1EE;border-top:0;padding:8px 22px 22px;border-radius:0 0 16px 16px;background:#fff">';
+  const story=(APP.notes||APP.heard||"").trim();
+  let h='<!DOCTYPE html><html><body style="margin:0;padding:0;background:#F3F0EA">';
+  h+='<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F3F0EA;margin:0;padding:0"><tr><td align="center" style="padding:28px 12px">';
+  h+='<table role="presentation" width="640" cellpadding="0" cellspacing="0" style="width:100%;max-width:640px;background:#FFFFFF;border-radius:18px;overflow:hidden;border:1px solid #E7E1D4">';
+  h+='<tr><td style="background:#FFFFFF;padding:22px 28px 18px;border-bottom:1px solid #EFEAE0">';
+  h+='<p style="margin:0 0 6px;font-family:Georgia,\'Times New Roman\',serif;font-size:12px;letter-spacing:.16em;color:#8A7A4A;font-weight:400">G&amp;M AUTO SALES</p>';
+  h+='<p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:800;letter-spacing:.14em;color:#1F6B8A">'+kicker+'</p>';
+  h+='</td></tr>';
+  if(hero){
+    h+='<tr><td style="padding:0;background:#11110F">';
+    h+='<img src="'+hero+'" width="640" alt="'+title+'" style="display:block;width:100%;max-width:640px;height:auto;border:0"/>';
+    h+='</td></tr>';
+  }
+  h+='<tr><td style="padding:26px 28px 8px">';
+  h+='<p style="margin:0 0 6px;font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#6B6278">'+who+'</p>';
+  h+='<h1 style="margin:0;font-family:Georgia,\'Times New Roman\',serif;font-size:32px;line-height:1.15;letter-spacing:-.4px;color:#16130C;font-weight:700">'+title+'</h1>';
+  if(sub) h+='<p style="margin:10px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:16px;color:#5C5346">'+escHtml(sub)+'</p>';
+  h+='</td></tr>';
   if(facts.length){
-    h+='<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:12px 0 8px">';
+    h+='<tr><td style="padding:18px 28px 6px">';
+    h+='<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#FAF7F1;border-radius:14px">';
     for(let i=0;i<facts.length;i+=2){
       h+='<tr>';
       for(let j=0;j<2;j++){
         const row=facts[i+j];
-        h+='<td width="50%" valign="top" style="padding:10px 12px 10px 0">';
+        h+='<td width="50%" valign="top" style="padding:14px 16px">';
         if(row){
-          h+='<div style="font-size:10px;font-weight:800;letter-spacing:.08em;color:#6B6278;text-transform:uppercase">'+escHtml(row[0])+'</div>';
-          h+='<div style="font-size:16px;font-weight:800;color:#110E1A;margin-top:3px">'+escHtml(row[1])+'</div>';
+          h+='<div style="font-family:Arial,Helvetica,sans-serif;font-size:10px;font-weight:800;letter-spacing:.1em;color:#8A7A4A;text-transform:uppercase">'+escHtml(row[0])+'</div>';
+          h+='<div style="font-family:Georgia,\'Times New Roman\',serif;font-size:18px;color:#16130C;margin-top:4px">'+escHtml(row[1])+'</div>';
         }
         h+='</td>';
       }
       h+='</tr>';
     }
-    h+='</table>';
+    h+='</table></td></tr>';
   }
-  const story=(APP.notes||APP.heard||"").trim();
   if(story){
-    h+='<div style="background:#F3F0FA;border-radius:14px;padding:14px 16px;margin:8px 0 18px">';
-    h+='<div style="font-size:10px;font-weight:800;letter-spacing:.1em;color:#6B4C9A;text-transform:uppercase;margin-bottom:6px">Story / condition</div>';
-    h+='<p style="margin:0;font-size:15px;line-height:1.55;color:#241B33">'+escHtml(story)+'</p></div>';
+    h+='<tr><td style="padding:16px 28px 8px">';
+    h+='<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F7F3FF;border-radius:14px"><tr><td style="padding:16px 18px">';
+    h+='<div style="font-family:Arial,Helvetica,sans-serif;font-size:10px;font-weight:800;letter-spacing:.12em;color:#6B4C9A;text-transform:uppercase;margin-bottom:8px">Story / condition</div>';
+    h+='<p style="margin:0;font-family:Georgia,\'Times New Roman\',serif;font-size:16px;line-height:1.55;color:#241B33">'+escHtml(story)+'</p>';
+    h+='</td></tr></table></td></tr>';
   }
-  (shots||[]).forEach(function(s,i){
-    const src=srcFor ? srcFor(s,i) : "";
-    if(!src) return;
-    h+='<p style="margin:20px 0 8px;font-weight:800;font-size:12px;letter-spacing:.08em;color:#6B6278">'+(escHtml((s.title||("Photo "+(i+1))).toUpperCase()))+(s.cap?' — '+escHtml(s.cap):'')+'</p>';
-    h+='<img src="'+src+'" width="640" alt="" style="display:block;width:100%;max-width:640px;border-radius:14px;background:#111"/>';
-  });
-  h+='<p style="margin:22px 0 0;color:#6B6278;font-size:13px;line-height:1.45">High-definition catalog PDF is attached.'+(APP.clips&&APP.clips.length?" Walk-around video is attached.":"")+'</p>';
-  h+='</div></div>';
+  const rest=list.slice(hero?1:0);
+  if(rest.length){
+    h+='<tr><td style="padding:20px 28px 8px">';
+    h+='<p style="margin:0 0 12px;font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:800;letter-spacing:.12em;color:#8A7A4A;text-transform:uppercase">Photo catalog</p>';
+    h+='<table role="presentation" width="100%" cellpadding="0" cellspacing="0">';
+    for(let i=0;i<rest.length;i+=2){
+      h+='<tr>';
+      for(let j=0;j<2;j++){
+        const idx=i+j+(hero?1:0);
+        const s=list[idx];
+        const src=srcAt(idx);
+        h+='<td width="50%" valign="top" style="padding:0 8px 16px '+(j? "8px":"0")+'">';
+        if(s && src){
+          h+='<img src="'+src+'" width="284" alt="" style="display:block;width:100%;max-width:284px;height:auto;border-radius:12px;background:#111;border:0"/>';
+          h+='<p style="margin:8px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:800;letter-spacing:.06em;color:#6B6278">'+(escHtml((s.title||("Photo "+(idx+1))).toUpperCase()))+(s.cap?' — '+escHtml(s.cap):'')+'</p>';
+        }
+        h+='</td>';
+      }
+      h+='</tr>';
+    }
+    h+='</table></td></tr>';
+  } else if(!hero){
+    (list).forEach(function(s,i){
+      const src=srcAt(i);
+      if(!src) return;
+      h+='<tr><td style="padding:8px 28px">';
+      h+='<p style="margin:0 0 8px;font-family:Arial,Helvetica,sans-serif;font-weight:800;font-size:12px;letter-spacing:.08em;color:#6B6278">'+(escHtml((s.title||("Photo "+(i+1))).toUpperCase()))+(s.cap?' — '+escHtml(s.cap):'')+'</p>';
+      h+='<img src="'+src+'" width="584" alt="" style="display:block;width:100%;max-width:584px;border-radius:14px;background:#111;border:0"/>';
+      h+='</td></tr>';
+    });
+  }
+  h+='<tr><td style="padding:10px 28px 28px">';
+  h+='<p style="margin:0;font-family:Arial,Helvetica,sans-serif;color:#6B6278;font-size:13px;line-height:1.5">High-definition catalog PDF is attached.'+(APP.clips&&APP.clips.length?" Walk-around video is attached.":"")+'</p>';
+  h+='<!--PACKET_PDF-->';
+  h+='</td></tr>';
+  h+='<tr><td style="padding:16px 28px 22px;background:#FAF7F1;border-top:1px solid #EFEAE0">';
+  h+='<p style="margin:0;font-family:Georgia,\'Times New Roman\',serif;font-size:13px;color:#5C5346">Ottawa · G&amp;M Auto Sales · Confidential appraisal packet</p>';
+  h+='</td></tr></table></td></tr></table></body></html>';
   return h;
 }
 function packetMailHtmlHosted(shots, pdfUrl){
   let h=packetCatalogHtml(shots, function(s){ return s && s.url ? escHtml(s.url) : ""; });
-  if(pdfUrl) h=h.replace("</div></div>", '<p style="margin:16px 0 0;font-size:14px"><a href="'+escHtml(pdfUrl)+'" style="color:#008FCC;font-weight:800">Download the catalog PDF</a></p></div></div>');
+  if(pdfUrl) h=h.replace("<!--PACKET_PDF-->", '<p style="margin:14px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:14px"><a href="'+escHtml(pdfUrl)+'" style="color:#1F6B8A;font-weight:800">Download the catalog PDF</a></p>');
   return h;
 }
 async function loadMailerToken(){
@@ -3389,7 +3444,12 @@ function packetMailSubject(){
     ? (unitLabel()+" — trade-in"+(APP.inviteName?" from "+APP.inviteName:""))
     : (unitLabel()+" — "+why());
 }
+function hideMailOpen(){
+  const a=$("mailOpen");
+  if(a) a.classList.add("hide");
+}
 function revealMailOpen(){
+  if(APP.role==="guest"){ hideMailOpen(); return ""; }
   const dest=packetDest();
   const extra={cc:dest.cc, bcc:dest.bcc};
   const href=fallbackMailHref(dest.to, packetMailSubject(), packetMailText(), extra);
@@ -3402,6 +3462,13 @@ function revealMailOpen(){
   return href;
 }
 function armMailFallback(){
+  if(APP.role==="guest"){
+    hideMailOpen();
+    if($("btnSharePack")){ $("btnSharePack").disabled=false; $("btnSharePack").textContent="Send"; }
+    landInCenter({sent:false, stage:"Waiting"});
+    toast("Couldn’t send — try again");
+    return;
+  }
   revealMailOpen();
   if($("btnSharePack")){ $("btnSharePack").disabled=false; $("btnSharePack").textContent="Send"; }
   landInCenter({sent:false, stage:"Waiting"});
@@ -3413,8 +3480,8 @@ function packetReady(){
 function kickShare(){
   if(!packetReady()){ toast("Add the story or photos first."); return; }
   landInCenter({sent:false, stage:"Waiting"});
+  if(APP.role==="guest"){ hideMailOpen(); sharePacket(); return; }
   revealMailOpen();
-  if(APP.role==="guest"){ sharePacket(); return; }
   if(hasMailAuth()){ sharePacket(); return; }
   const ios=/iPhone|iPad|iPod/i.test(navigator.userAgent||"") || !!(window.navigator && navigator.standalone);
   if(ios){
@@ -3447,6 +3514,7 @@ async function sendFromMe(to, subject, body, html, parts, extra){
   }
   const payload={
     kind:"send",
+    store:true,
     token:APP.googleToken||"",
     refresh:storedRefresh(),
     mk:APP.mailerKey||storeGet("inspect.mailer")||"",
@@ -3463,7 +3531,7 @@ async function sendFromMe(to, subject, body, html, parts, extra){
       method:"POST",
       headers:{"Content-Type":"application/json"},
       body:JSON.stringify(payload)
-    }, 14000);
+    }, APP.role==="guest" ? 22000 : 14000);
     const j=await r.json().catch(function(){ return {}; });
     if(j && j.ok && (j.id || j.messageId || j.gmailId)) return {ok:true, verified:true, via:"server", id:j.id||j.messageId||j.gmailId};
     if(j && j.ok) return {ok:true, verified:false, via:"server"};
@@ -6135,6 +6203,7 @@ async function paintSubmit(){
   const note=$("guestSendNote");
   const packBtn=$("btnSharePack");
   if(packBtn) packBtn.textContent="Send";
+  if(guest) hideMailOpen();
   if(guest){
     const to=tradeRecipients();
     if(note){
@@ -6169,20 +6238,24 @@ async function sharePacket(){
   const to=dest.to;
   const subject=packetMailSubject();
   const body=packetMailText() + (APP.role==="guest" && APP.requestedBy ? "\nRequested by: "+(APP.requestedByName||nameForEmail(APP.requestedBy))+" <"+APP.requestedBy+">" : "");
-  const href=revealMailOpen();
+  const guest=APP.role==="guest";
+  if(guest) hideMailOpen();
+  const href=guest ? "" : revealMailOpen();
   const btn=$("btnSharePack");
   if(btn && btn.disabled){
-    toast("Still working — tap Open Gmail and send if nothing arrives.");
+    if(guest) toast("Still sending…");
+    else toast("Still working — tap Open Gmail and send if nothing arrives.");
     return;
   }
   if(btn){ btn.disabled=true; btn.textContent="Sending…"; }
   let finished=false;
   let sentOk=false;
   function revealMail(){
+    if(guest){ hideMailOpen(); return; }
     try{
       if($("mailOpen")){
         $("mailOpen").href=href;
-        $("mailOpen").textContent = APP.role==="employee" ? "Open Gmail and send" : "Open Mail and send";
+        $("mailOpen").textContent="Open Gmail and send";
         $("mailOpen").classList.remove("hide");
       }
     }catch(e){}
@@ -6190,16 +6263,20 @@ async function sharePacket(){
   function finish(msg, openMail){
     finished=true;
     if(btn){ btn.disabled=false; btn.textContent="Send"; }
-    if(openMail) revealMail();
+    if(guest) hideMailOpen();
+    else if(openMail) revealMail();
     if(msg) toast(msg);
   }
   const watch=setTimeout(function(){
-    if(!finished) finish("Still working — tap Open Gmail and send.", true);
-  }, 8000);
+    if(!finished){
+      if(guest) finish("Couldn’t send — try again", false);
+      else finish("Still working — tap Open Gmail and send.", true);
+    }
+  }, guest ? 22000 : 8000);
   try{
     if(!APP.googleToken) APP.googleToken=readGoogleToken()||"";
-    toast("Sending the catalog…");
-    revealMail();
+    toast(guest ? "Sending…" : "Sending the catalog…");
+    if(!guest) revealMail();
     const mailShots=[];
     for(let i=0;i<shots.length;i++){
       try{ mailShots.push({title:shots[i].title, name:shots[i].name, cap:shots[i].cap||"", data:await withTimeout(compressDataUrl(shots[i].data, 1100, 0.76), 3500, shots[i].data)}); }
@@ -6216,17 +6293,16 @@ async function sharePacket(){
       const doc=await withTimeout(buildPdf(), 8000, null);
       if(doc) parts.push({disp:"attachment", b64:bufB64(await doc.output("arraybuffer")), name:(folderName()||"vehicle")+".pdf", mime:"application/pdf"});
     }catch(e){}
-    const sent=await withTimeout(sendFromMe(to, subject, body, html, parts, extra), 15000, {ok:false});
+    const sent=await withTimeout(sendFromMe(to, subject, body, html, parts, extra), guest ? 20000 : 15000, {ok:false});
     if(sent && sent.ok && sent.verified){
       finished=true;
       landInCenter({sent:true, stage:"Waiting"});
       clearSnapshot();
       clearDraft();
-      if(APP.role==="guest"){
+      if(guest){
+        sentOk=true;
         finish("");
         try{ finishGuest(); }catch(e){}
-        if(APP.screen==="thanks") sentOk=true;
-        else finish("Couldn’t send from here. Tap the mail button.", true);
         return;
       }
       sentOk=true;
@@ -6234,15 +6310,14 @@ async function sharePacket(){
       return;
     }
     const slim=parts.filter(function(p){ return p.disp==="attachment"; });
-    const slimSent=slim.length ? await withTimeout(sendFromMe(to, subject, body, "", slim, extra), 8000, {ok:false}) : {ok:false};
+    const slimSent=slim.length ? await withTimeout(sendFromMe(to, subject, body, "", slim, extra), guest ? 16000 : 8000, {ok:false}) : {ok:false};
     if(slimSent && slimSent.ok && slimSent.verified){
       finished=true;
       landInCenter({sent:true, stage:"Waiting"});
-      if(APP.role==="guest"){
+      if(guest){
+        sentOk=true;
         finish("");
         try{ finishGuest(); }catch(e){}
-        if(APP.screen==="thanks") sentOk=true;
-        else finish("Couldn’t send from here. Tap the mail button.", true);
         return;
       }
       sentOk=true;
@@ -6250,13 +6325,16 @@ async function sharePacket(){
       return;
     }
     landInCenter({sent:false, stage:"Waiting"});
-    finish("Couldn’t send from here. Tap Open Gmail and send.", true);
+    if(guest) finish("Couldn’t send — try again", false);
+    else finish("Couldn’t send from here. Tap Open Gmail and send.", true);
   }catch(e){
-    finish("Couldn’t send. Tap the mail button.", true);
+    if(guest) finish("Couldn’t send — try again", false);
+    else finish("Couldn’t send. Tap the mail button.", true);
   }finally{
     clearTimeout(watch);
     if(btn){ btn.disabled=false; btn.textContent="Send"; }
-    if(!sentOk) revealMail();
+    if(guest) hideMailOpen();
+    else if(!sentOk) revealMail();
     else if($("mailOpen") && APP.screen!=="thanks") $("mailOpen").classList.add("hide");
     releaseHardware();
   }

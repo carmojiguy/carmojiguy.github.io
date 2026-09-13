@@ -11,6 +11,9 @@ const html = fs.readFileSync(path.join(root, "index.html"), "utf8");
 function must(re, msg) {
   assert.ok(re.test(html), msg);
 }
+function mustNot(re, msg) {
+  assert.ok(!re.test(html), msg);
+}
 
 must(/id="startDock"/, "staff start has a bottom dock");
 must(/id="startAppraise"/, "keeps Appraise vehicle");
@@ -48,9 +51,12 @@ must(/sample-v4-wrangler/, "history archive sample Wrangler");
 must(/lane:"inbox"/, "samples tagged inbox");
 must(/lane:"onsite"/, "samples tagged on-site");
 must(/CENTER_SAMPLE_VER/, "sample versioning");
-must(/function revealMail\(\)\{/, "sharePacket still has revealMail");
+must(/function revealMail\(\)\{/, "staff sharePacket still has revealMail");
 must(/let sentOk=false/, "sharePacket still tracks sentOk");
-must(/if\(!sentOk\) revealMail\(\);/, "failed send still reveals mail");
+must(/else if\(!sentOk\) revealMail\(\);/, "failed staff send still reveals mail");
+must(/function hideMailOpen\(\)\{/, "guest path can hide #mailOpen");
+must(/Couldn’t send — try again/, "guest fail is retry");
+mustNot(/Open Mail and send/, "guests never see Open Mail and send");
 must(/PAGE=\[250,249,252\]/, "sales-grade bright PDF cover");
 must(/item\.interest=APP\.inviteUnit/, "trade-in persist interest vehicle");
 must(/item\.salesperson=/, "persist salesperson on center files");
