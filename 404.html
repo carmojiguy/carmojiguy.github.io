@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-13: Center home is the vehicle desk; Incoming/On-site/History pop-outs -->
+<!-- center-v3 + desk-home 2026-09-13 build d23: My Loan create form lives on the HOME Appraise desk -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -153,6 +153,8 @@ label.k { display:block; color:#6e6e73; font-size:13px; margin:11px 0 5px; }
 .newapp-form h3{margin:0 0 4px;font-size:20px}
 .newapp-form .hint{margin:0 0 12px;color:var(--muted);font-size:14px;font-weight:600;line-height:1.4}
 .newapp-go{margin-top:16px}
+.build-stamp{margin:18px 0 0;font-size:10px;letter-spacing:.04em;color:var(--muted);opacity:.72;font-weight:800}
+#typeSheet .build-stamp{display:inline;margin:0 0 0 8px;opacity:.8}
 .lead-box{margin:12px 0 0}
 .lead-box .hint{margin-bottom:10px}
 #workbench{background:
@@ -1194,6 +1196,60 @@ body.center-gallery-on { overflow:hidden; }
         <input class="f" id="home-cd-app" placeholder="Type the application number" autocomplete="off" inputmode="text" />
       </div>
     </div>
+    <div id="newAppWrap" class="newapp-wrap hide">
+      <button class="newapp-cta hide" type="button" id="newAppCta">
+        <b>New application</b>
+        <span>Create the file, add the customer and VIN, then continue into Appraise.</span>
+      </button>
+      <p class="newapp-empty hide" id="newAppEmpty">This source has no appointment calendar. Add the customer and vehicle, then create the application — photos and documents are next.</p>
+      <form id="newAppForm" class="newapp-form hide" action="#" method="post">
+        <h3>Create application</h3>
+        <p class="hint" id="newAppHint">Customer and vehicle go on the file. Then you continue into full Appraise.</p>
+        <div class="pair">
+          <div>
+            <label class="k" for="na-first">First name</label>
+            <input class="f" id="na-first" autocomplete="given-name" />
+          </div>
+          <div>
+            <label class="k" for="na-last">Last name</label>
+            <input class="f" id="na-last" autocomplete="family-name" />
+          </div>
+        </div>
+        <label class="k" for="na-phone">Cell</label>
+        <input class="f" id="na-phone" type="tel" inputmode="tel" autocomplete="tel" />
+        <label class="k" for="na-email">Email</label>
+        <input class="f" id="na-email" type="email" inputmode="email" autocomplete="email" />
+        <div class="pair">
+          <div>
+            <label class="k" for="na-year">Year</label>
+            <input class="f" id="na-year" inputmode="numeric" />
+          </div>
+          <div>
+            <label class="k" for="na-make">Make</label>
+            <input class="f" id="na-make" />
+          </div>
+        </div>
+        <label class="k" for="na-model">Model</label>
+        <input class="f" id="na-model" />
+        <label class="k" for="na-trim">Trim</label>
+        <input class="f" id="na-trim" />
+        <label class="k" for="na-vin">VIN</label>
+        <input class="f" id="na-vin" maxlength="17" inputmode="text" autocapitalize="characters" autocomplete="off" spellcheck="false" style="text-transform:uppercase" />
+        <div class="pair">
+          <div>
+            <label class="k" for="na-color">Colour</label>
+            <input class="f" id="na-color" />
+          </div>
+          <div>
+            <label class="k" for="na-km">Kilometres</label>
+            <input class="f" id="na-km" inputmode="numeric" />
+          </div>
+        </div>
+        <label class="k" for="na-app">Application #</label>
+        <input class="f" id="na-app" placeholder="Optional — or the number you searched" autocomplete="off" />
+        <button class="pill purple newapp-go" type="submit" id="newAppGo">Create application and continue</button>
+      </form>
+    </div>
     <div id="storyBlock">
     <button class="pill cyan" type="button" id="btnStory">What's the Story?</button>
     <div id="storyHelp">
@@ -1212,6 +1268,7 @@ body.center-gallery-on { overflow:hidden; }
     <p class="quote" id="vinHint">Best: take a picture of the vehicle ownership (registration). You can also photograph the VIN on the dash or the sticker on the driver’s door. We’ll read the number from the photo.</p>
     <p class="vin-chip hide" id="vinChip"></p>
     </div>
+    <p class="build-stamp" id="buildStamp">build d23</p>
   </div>
 </section>
 
@@ -1270,60 +1327,6 @@ body.center-gallery-on { overflow:hidden; }
         </div>
         <p class="need hide" id="apptLiveNote"></p>
         <div id="apptList"></div>
-      </div>
-      <div id="newAppWrap" class="newapp-wrap hide">
-        <button class="newapp-cta hide" type="button" id="newAppCta">
-          <b>New application</b>
-          <span>Create the file, add the customer and VIN, then continue into Appraise.</span>
-        </button>
-        <p class="newapp-empty hide" id="newAppEmpty">This source has no appointment calendar. Add the customer and vehicle, then create the application — photos and documents are next.</p>
-        <form id="newAppForm" class="newapp-form hide" action="#" method="post">
-          <h3>Create application</h3>
-          <p class="hint" id="newAppHint">Customer and vehicle go on the file. Then you continue into full Appraise.</p>
-          <div class="pair">
-            <div>
-              <label class="k" for="na-first">First name</label>
-              <input class="f" id="na-first" autocomplete="given-name" />
-            </div>
-            <div>
-              <label class="k" for="na-last">Last name</label>
-              <input class="f" id="na-last" autocomplete="family-name" />
-            </div>
-          </div>
-          <label class="k" for="na-phone">Cell</label>
-          <input class="f" id="na-phone" type="tel" inputmode="tel" autocomplete="tel" />
-          <label class="k" for="na-email">Email</label>
-          <input class="f" id="na-email" type="email" inputmode="email" autocomplete="email" />
-          <div class="pair">
-            <div>
-              <label class="k" for="na-year">Year</label>
-              <input class="f" id="na-year" inputmode="numeric" />
-            </div>
-            <div>
-              <label class="k" for="na-make">Make</label>
-              <input class="f" id="na-make" />
-            </div>
-          </div>
-          <label class="k" for="na-model">Model</label>
-          <input class="f" id="na-model" />
-          <label class="k" for="na-trim">Trim</label>
-          <input class="f" id="na-trim" />
-          <label class="k" for="na-vin">VIN</label>
-          <input class="f" id="na-vin" maxlength="17" inputmode="text" autocapitalize="characters" autocomplete="off" spellcheck="false" style="text-transform:uppercase" />
-          <div class="pair">
-            <div>
-              <label class="k" for="na-color">Colour</label>
-              <input class="f" id="na-color" />
-            </div>
-            <div>
-              <label class="k" for="na-km">Kilometres</label>
-              <input class="f" id="na-km" inputmode="numeric" />
-            </div>
-          </div>
-          <label class="k" for="na-app">Application #</label>
-          <input class="f" id="na-app" placeholder="Optional — or the number you searched" autocomplete="off" />
-          <button class="pill purple newapp-go" type="submit" id="newAppGo">Create application and continue</button>
-        </form>
       </div>
     </div>
     <div id="wbJob" class="hide">
@@ -1608,7 +1611,7 @@ body.center-gallery-on { overflow:hidden; }
   <div class="card">
     <button class="x" type="button" data-close="typeSheet">✕</button>
     <h3>Appraisal type</h3>
-    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application.</p>
+    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d23</span></p>
     <div id="typeChips" class="to-chips"></div>
     <div id="leadBox" class="lead-box hide">
       <p class="hint">Lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a New application — no appointment calendar.</p>
@@ -1874,7 +1877,8 @@ function needsNewApplication(job, staff){
 function newAppDeskRedirect(id, job, staff){
   if(!needsNewApplication(job, staff)) return "";
   id=String(id||"");
-  if(id==="home"||id==="start"||id==="photos"||id==="verify"||id==="submit") return "workbench";
+  if(id==="home") return "";
+  if(id==="photos"||id==="verify"||id==="submit"||id==="workbench") return "home";
   return "";
 }
 function appraiseLocked(job, staff){
@@ -1905,9 +1909,18 @@ function requireAppraiseType(){
 }
 function paintAppraiseGate(){
   var lock=appraiseLocked();
+  var pending=needsNewApplication();
+  var guest=APP.role==="guest";
+  var web=typeof isWeb==="function" && isWeb();
   ["storyBlock","btnType","homeDocs","vinBtns"].forEach(function(id){
     var el=$(id);
-    if(el) el.classList.toggle("home-gate", lock);
+    if(!el) return;
+    el.classList.toggle("home-gate", !!(lock && !pending));
+    var hide=!!pending;
+    if(id==="homeDocs") hide=hide || guest || web;
+    if(id==="btnType") hide=hide || guest;
+    if(id==="vinBtns") hide=hide || web;
+    el.classList.toggle("hide", hide);
   });
   ["btnStory","btnType","btnDocs","btnVin"].forEach(function(id){
     var el=$(id);
@@ -1926,15 +1939,14 @@ function paintAppraiseGate(){
     } else if(needsAppraiseAppt()){
       note.textContent="Pick the booked appointment first. The workbench opens already filled.";
       note.classList.remove("hide");
-    } else if(needsNewApplication()){
-      note.textContent="Start a New application first. Customer, vehicle, and VIN, then continue into Appraise.";
-      note.classList.remove("hide");
     } else {
       note.classList.add("hide");
     }
   }
-  if($("typeWrap")) $("typeWrap").classList.toggle("need-type", lock);
+  if($("typeWrap")) $("typeWrap").classList.toggle("need-type", lock && !pending);
   if($("home")) $("home").setAttribute("data-appraise-gate", lock?"1":"0");
+  if($("home")) $("home").setAttribute("data-new-app", pending?"1":"0");
+  if(typeof paintNewApplication==="function") paintNewApplication();
 }
 const DEAL_TYPES = ["Trade-in","Locate","Consumer Acquisition"];
 const LEAD_SOURCES = [
@@ -2246,7 +2258,7 @@ function openNewApplicationDesk(){
   APP.dealType="Consumer Acquisition";
   APP.newAppOpen=true;
   if($("typeSheet")) $("typeSheet").classList.remove("on");
-  show("workbench");
+  show("home");
   paintNewApplication();
   paintAppointments();
   paintWorkbench();
@@ -2477,7 +2489,7 @@ function applyMode(){
   $("stockWrap").classList.toggle("hide", !web);
   if($("webWrap")) $("webWrap").classList.toggle("hide", APP.role==="guest");
   if($("webLabel")) $("webLabel").textContent = web ? "Website-ready description" : "Description";
-  if($("storyBlock")) $("storyBlock").classList.remove("hide");
+  if($("storyBlock")) $("storyBlock").classList.toggle("hide", needsNewApplication());
   if($("typeWrap")) $("typeWrap").classList.toggle("hide", web);
   applyRole();
   paintStoryHelp();
@@ -2596,6 +2608,10 @@ function show(id){
     }
   }
   if(id==="photos"){ paintLists(); paintDocs(); }
+  if(id==="home"){
+    paintAppraiseGate();
+    paintNewApplication();
+  }
   if(id==="workbench") paintWorkbench();
   if(id==="camera") startPreview("shotCam");
   if(id==="submit") paintSubmit();
