@@ -1156,6 +1156,7 @@
     if (!$("webStudio") || $("webStudio")._bound) return;
     $("webStudio")._bound = true;
     if ($("webStudioX")) $("webStudioX").onclick = function () {
+      if (typeof root.pageClose === "function") { root.pageClose(); return; }
       if (typeof root.show === "function") root.show("photos");
     };
     document.querySelectorAll("[data-ws-tab]").forEach(function (b) {
