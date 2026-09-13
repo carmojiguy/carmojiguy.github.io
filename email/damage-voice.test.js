@@ -48,10 +48,13 @@ vm.runInContext(
   sliceFn("shotHasVoice", "playShotAudio") +
   sliceFn("audioExt", "cutDamageAudioClones") +
   sliceFn("damageCaptionLine", "isDamageNote") +
-  sliceFn("isDamageNote", "stampBanner") +
+  sliceFn("isDamageNote", "liveDamageCaption") +
+  sliceFn("liveDamageCaption", "stampBanner") +
+  sliceFn("stampBanner", "blobToDataURL") +
   sliceFn("capturedFiles", "loadImg") +
   "this.dmgShots=dmgShots;this.shotHasVoice=shotHasVoice;this.audioExt=audioExt;" +
-  "this.damageCaptionLine=damageCaptionLine;this.isDamageNote=isDamageNote;this.capturedFiles=capturedFiles;",
+  "this.damageCaptionLine=damageCaptionLine;this.isDamageNote=isDamageNote;" +
+  "this.liveDamageCaption=liveDamageCaption;this.stampBanner=stampBanner;this.capturedFiles=capturedFiles;",
   sandbox
 );
 
@@ -61,7 +64,36 @@ const short = sandbox.damageCaptionLine(long, 52);
 assert.ok(short.length <= 53, "short line stays short");
 assert.ok(/…$/.test(short), "long line ends with ellipsis");
 assert.ok(sandbox.isDamageNote(long), "long spoken notes still count as damage notes");
-assert.ok(!sandbox.isDamageNote("One-owner winter tires included rust-free extra"), "story dump is not tattooed");
+assert.ok(!sandbox.isDamageNote("One-owner winter tires included rust-free extra"), "story dump is still flagged");
+assert.equal(sandbox.liveDamageCaption("dent in the passenger door"), "dent in the passenger door");
+assert.equal(sandbox.liveDamageCaption("Listening… describe the damage"), "", "prompt text is not burned");
+assert.equal(sandbox.liveDamageCaption("Voice note"), "", "placeholder is not burned");
+function mockCanvas(w, h) {
+  const ops = [];
+  const ctx = {
+    font: "",
+    fillStyle: "",
+    strokeStyle: "",
+    textAlign: "",
+    textBaseline: "",
+    lineWidth: 1,
+    lineJoin: "",
+    miterLimit: 0,
+    createLinearGradient: function () { return { addColorStop: function () {} }; },
+    measureText: function (t) { return { width: String(t).length * 10 }; },
+    fillRect: function () { ops.push("bar"); },
+    fillText: function (t) { ops.push("text:" + t); },
+    strokeText: function (t) { ops.push("stroke:" + t); }
+  };
+  return { width: w, height: h, getContext: function () { return ctx; }, ops: ops };
+}
+const spoken = mockCanvas(1920, 1080);
+sandbox.stampBanner(spoken, "Rust on the front fender and a dent in the door");
+assert.ok(spoken.ops.some(function (x) { return x === "bar"; }), "caption paints a bottom band");
+assert.ok(spoken.ops.some(function (x) { return String(x).indexOf("Rust") >= 0; }), "spoken words are burned into the image");
+const storyDump = mockCanvas(1920, 1080);
+sandbox.stampBanner(storyDump, "One-owner winter tires included rust-free extra");
+assert.ok(storyDump.ops.some(function (x) { return String(x).indexOf("One-owner") >= 0 || String(x).indexOf("winter") >= 0; }), "live caption still burns even when it overlaps the story");
 assert.equal(sandbox.audioExt("audio/mp4"), "m4a");
 assert.equal(sandbox.audioExt("audio/webm;codecs=opus"), "webm");
 

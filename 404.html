@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-13 build d25s: strip-mail retry + no video attach; Thank you unless offline -->
+<!-- center-v3 + desk-home 2026-09-13 build d27m: media mux + captions -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -312,7 +312,7 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
 .cam-wait.off { display:none; }
 .flash { position:absolute; inset:0; background:#fff; opacity:0; pointer-events:none; }
 .flash.go { animation:pop .16s ease-out; }
-.dmg-banner { position:absolute; left:0; right:0; bottom:0; padding:28px 16px 16px; background:linear-gradient(transparent, rgba(0,0,0,.82)); color:#fff; font-size:16px; font-weight:700; line-height:1.3; text-align:center; pointer-events:none; opacity:0; transform:translateY(8px); transition:opacity .15s, transform .15s; text-shadow:0 1px 8px #000; }
+.dmg-banner { position:absolute; left:0; right:0; bottom:0; padding:32px 18px 20px; background:linear-gradient(180deg, transparent 0%, rgba(0,200,255,.18) 28%, rgba(90,90,255,.55) 62%, rgba(155,70,255,.92) 100%); color:#fff; font-size:18px; font-weight:800; letter-spacing:.01em; line-height:1.28; text-align:center; pointer-events:none; opacity:0; transform:translateY(8px); transition:opacity .15s, transform .15s; text-shadow:0 2px 12px rgba(20,10,40,.55); }
 .dmg-banner.on { opacity:1; transform:none; }
 @keyframes pop { from{opacity:.65} to{opacity:0} }
 .copy { background:#000; padding:16px 20px 8px; }
@@ -1612,7 +1612,7 @@ body.center-gallery-on { overflow:hidden; }
     <p class="quote" id="vinHint">Best: take a picture of the vehicle ownership (registration). You can also photograph the VIN on the dash or the sticker on the driver’s door. We’ll read the number from the photo.</p>
     <p class="vin-chip hide" id="vinChip"></p>
     </div>
-    <p class="build-stamp" id="buildStamp">build d25s</p>
+    <p class="build-stamp" id="buildStamp">build d27m</p>
   </div>
 </section>
 
@@ -1695,7 +1695,7 @@ body.center-gallery-on { overflow:hidden; }
         <button class="wb-card dmg" type="button" id="wbDmg">
           <i class="tag">Critical</i>
           <b>Damage photos</b>
-          <span>Every mark. Speak it, shoot it. The short line tattoos on the picture.</span>
+          <span>Every mark. Speak it, shoot it. That caption burns on the photo. Walk-around is one video with sound.</span>
         </button>
         <button class="wb-card" type="button" id="wbSendCard">
           <i class="tag">Airtight Send</i>
@@ -1781,8 +1781,8 @@ body.center-gallery-on { overflow:hidden; }
     <div class="how">
       <ol>
         <li><b>Tap the part of the car that’s damaged</b> using the same angles as the photos above (¾ front, driver side, rear, and so on).</li>
-        <li><b>First tap starts recording what you say.</b> Speak the damage — “rust on the front fender” or “dent in the passenger door.” The camera keeps the audio so Shawn can hear it later.</li>
-        <li><b>Second tap takes the picture.</b> A short line of what you said is tattooed on the bottom of that photo. Tap More on the picture to read the rest — it opens under the photo, not over the car. Need a close-up of the same spot? Tap that panel again and shoot as many as you want.</li>
+        <li><b>First tap starts recording what you say.</b> Speak the damage — “rust on the front fender” or “dent in the passenger door.” The walk records picture and sound as one clip, and that same spoken line burns onto the photo.</li>
+        <li><b>Second tap takes the picture.</b> The words on the live caption are tattooed on the bottom of that photo — big, bright — and stay on the saved photo and the PDF. Tap More on the picture to read the rest — it opens under the photo, not over the car. Need a close-up of the same spot? Tap that panel again and shoot as many as you want.</li>
       </ol>
     </div>
     <div id="damageRows"></div>
@@ -2071,7 +2071,7 @@ body.center-gallery-on { overflow:hidden; }
   <div class="card">
     <button class="x" type="button" data-close="typeSheet">✕</button>
     <h3>Appraisal type</h3>
-    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d25s</span></p>
+    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d27m</span></p>
     <div id="typeChips" class="to-chips"></div>
     <div id="leadBox" class="lead-box hide">
       <p class="hint">Lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a New application — no appointment calendar.</p>
@@ -2264,6 +2264,7 @@ window.APP = {
   mode:"photos", viewId:"qfront", stream:null, lock:false, rec:null, listening:false,
   dmgArmed:false, dmgCaption:"", dmgRec:null, dmgAudioRec:null, dmgFinal:"", emails:[],
   clips:[], recOn:false, recorder:null, recChunks:[], recTick:null, recStarted:0, recMime:"", zoom:1,
+  walkAudioRec:null, walkAudioChunks:null, walkAudioMime:"", walkAudioHold:null, walkAudioClones:null, walkStopPump:null,
   googleToken: window._gtoken || "", extraUsers:[], requestedBy:"", requestedByName:"",
   inviteUnit:"", inviteStock:"", inviteName:"", inviteEmail:"",
   dealType:"", leadSource:"", cdApp:"", centerId:"", sendId:"", centerFilter:"all", centerPhoto:0,
@@ -5049,6 +5050,7 @@ function wipeJob(goStart){
   APP.dealType=""; APP.leadSource=""; APP.cdApp=""; APP.apptId=""; APP.apptSeller=""; APP.lockedFromAirtable=false; APP.newApplication=false; APP.newAppOpen=false; APP.apptSearch=""; APP.centerId=""; APP.sendId=""; APP._sending=false; APP.deskTeam="";
   APP.photos={}; APP.damage={}; APP.closeups=[]; APP.docs={}; APP.damageCap={}; APP.closeupCap=[]; APP.closeupAudio=[];
   APP.clips=[]; APP.recOn=false; APP.recorder=null; APP.recChunks=[]; APP.zoom=1;
+  APP.walkAudioRec=null; APP.walkAudioChunks=null; APP.walkAudioHold=null; APP.walkAudioClones=null; APP.walkStopPump=null;
   APP._thanksHeroSrc=""; APP._thanksPop="";
   if(APP.role!=="guest"){
     APP.inviteFirst=APP.inviteLast=APP.inviteName=APP.inviteEmail=APP.invitePhone="";
@@ -7736,7 +7738,7 @@ function openCamera(mode, id){
   if(ban){ ban.textContent=""; ban.classList.remove("on"); }
   if($("camHint")){
     if(mode==="damage"||mode==="close"){
-      $("camHint").textContent="First tap records what you say. Second tap tattoos a short line on the photo and keeps the audio.";
+      $("camHint").textContent="First tap records what you say. Second tap burns that caption on the photo. Walk-around is one video with sound.";
     } else {
       const step=VIEWS.findIndex(function(x){ return x[0]===id; });
       const nxt=step>=0 ? VIEWS[step+1] : null;
@@ -7756,49 +7758,57 @@ function nextEmpty(afterId){
 }
 
 function keepShot(data, audio){
-  const cap=(APP.dmgCaption||"").trim();
+  const cap=liveDamageCaption();
   audio = audio || APP.dmgAudioHold || null;
   APP.dmgAudioHold=null;
   const voice=audio && (audio.data||audio) || "";
   const voiceMime=audio && audio.mime || "";
-  if(APP.mode==="damage"){
-    if(!Array.isArray(APP.damage[APP.viewId])) APP.damage[APP.viewId]=[];
-    APP.damage[APP.viewId].push({data:data, cap:cap, audio:voice, audioMime:voiceMime});
-  } else if(APP.mode==="close"){
-    if(!Array.isArray(APP.closeupAudio)) APP.closeupAudio=[];
-    if(String(APP.viewId).indexOf("c")===0 && APP.viewId!=="new"){
-      const i=Number(APP.viewId.slice(1));
-      APP.closeups[i] = data;
-      APP.closeupCap[i] = cap;
-      APP.closeupAudio[i] = voice ? {data:voice, mime:voiceMime} : null;
-    } else {
-      APP.closeups.push(data);
-      APP.closeupCap.push(cap);
-      APP.closeupAudio.push(voice ? {data:voice, mime:voiceMime} : null);
+  const talk=APP.mode==="damage"||APP.mode==="close";
+  function store(photo){
+    if(APP.mode==="damage"){
+      if(!Array.isArray(APP.damage[APP.viewId])) APP.damage[APP.viewId]=[];
+      APP.damage[APP.viewId].push({data:photo, cap:cap, audio:voice, audioMime:voiceMime});
+    } else if(APP.mode==="close"){
+      if(!Array.isArray(APP.closeupAudio)) APP.closeupAudio=[];
+      if(String(APP.viewId).indexOf("c")===0 && APP.viewId!=="new"){
+        const i=Number(APP.viewId.slice(1));
+        APP.closeups[i] = photo;
+        APP.closeupCap[i] = cap;
+        APP.closeupAudio[i] = voice ? {data:voice, mime:voiceMime} : null;
+      } else {
+        APP.closeups.push(photo);
+        APP.closeupCap.push(cap);
+        APP.closeupAudio.push(voice ? {data:voice, mime:voiceMime} : null);
+      }
+    } else APP.photos[APP.viewId] = photo;
+    scheduleDraftSave();
+    const f=$("flash"); f.classList.remove("go"); void f.offsetWidth; f.classList.add("go");
+    if(APP.mode==="photos"){
+      const nxt = nextEmpty(APP.viewId);
+      if(nxt){ openCamera("photos", nxt); return; }
+      toast("Walk-around done.");
+      show("photos"); return;
     }
-  } else APP.photos[APP.viewId] = data;
-  scheduleDraftSave();
-  const f=$("flash"); f.classList.remove("go"); void f.offsetWidth; f.classList.add("go");
-  if(APP.mode==="photos"){
-    const nxt = nextEmpty(APP.viewId);
-    if(nxt){ openCamera("photos", nxt); return; }
-    toast("Walk-around done.");
-    show("photos"); return;
+    if(APP.mode==="damage"){
+      APP.dmgArmed=false;
+      APP.dmgCaption="";
+      stopDamageMic();
+      const ban=$("dmgBanner");
+      if(ban){ ban.textContent=""; ban.classList.remove("on"); }
+      const n=dmgShots(APP.viewId).length;
+      const v=VIEWS.find(function(x){ return x[0]===APP.viewId; });
+      if($("camLabel") && v) $("camLabel").textContent="Damage — "+v[1]+" · "+n+" saved";
+      if($("camHint")) $("camHint").textContent="Saved. Tap to add another on this panel, or Done.";
+      toast("Saved. Add another or Done.");
+      return;
+    }
+    show("photos");
   }
-  if(APP.mode==="damage"){
-    APP.dmgArmed=false;
-    APP.dmgCaption="";
-    stopDamageMic();
-    const ban=$("dmgBanner");
-    if(ban){ ban.textContent=""; ban.classList.remove("on"); }
-    const n=dmgShots(APP.viewId).length;
-    const v=VIEWS.find(function(x){ return x[0]===APP.viewId; });
-    if($("camLabel") && v) $("camLabel").textContent="Damage — "+v[1]+" · "+n+" saved";
-    if($("camHint")) $("camHint").textContent="Saved. Tap to add another on this panel, or Done.";
-    toast("Saved. Add another or Done.");
+  if(talk && cap){
+    stampOnUrl(data, cap).then(store, function(){ store(data); });
     return;
   }
-  show("photos");
+  store(data);
 }
 
 function stopDamageMic(){
@@ -7949,18 +7959,27 @@ function isDamageNote(text){
   if(story && t.length>20 && story.indexOf(head)>=0) return false;
   return true;
 }
+function liveDamageCaption(text){
+  let raw=String(text!=null?text:(APP.dmgCaption||"")).replace(/\s+/g," ").trim();
+  if(!raw && typeof $==="function"){
+    const ban=$("dmgBanner");
+    if(ban) raw=String(ban.textContent||"").replace(/\s+/g," ").trim();
+  }
+  if(!raw) return "";
+  if(/^(Listening|Recording your voice|Speak, then tap|Mic on|Saved\.|Voice note)\b/i.test(raw)) return "";
+  return raw;
+}
 function stampBanner(canvas, text){
-  let raw=String(text||"").trim();
-  if(!raw && (APP.mode==="damage"||APP.mode==="close")) raw="Voice note";
-  if(!isDamageNote(raw) && raw!=="Voice note") return;
-  text=damageCaptionLine(raw, 72);
-  if(!text) return;
+  const raw=liveDamageCaption(text);
+  if(!raw) return;
   const ctx=canvas.getContext("2d");
   const w=canvas.width, h=canvas.height;
-  const size=Math.max(22, Math.round(w*0.036));
-  ctx.font="700 "+size+"px Manrope, system-ui, sans-serif";
-  const maxW=w-48, lineH=size+8;
-  const words=text.split(/\s+/);
+  if(!w || !h) return;
+  const size=Math.max(34, Math.round(w*0.044));
+  ctx.font="800 "+size+"px Manrope, system-ui, sans-serif";
+  const maxW=w-Math.round(w*0.08);
+  const lineH=Math.round(size*1.2);
+  const words=raw.split(/\s+/);
   let line="", lines=[];
   for(let i=0;i<words.length;i++){
     const test=line?line+" "+words[i]:words[i];
@@ -7968,18 +7987,47 @@ function stampBanner(canvas, text){
     else line=test;
   }
   if(line) lines.push(line);
-  if(lines.length>2){
-    lines=lines.slice(0,2);
-    lines[1]=damageCaptionLine(lines[1], Math.max(18, Math.floor(lines[1].length)));
+  if(lines.length>4){
+    lines=lines.slice(0,4);
+    lines[3]=damageCaptionLine(lines[3], Math.max(18, Math.floor(lines[3].length)));
   }
-  const bar=Math.min(Math.round(h*0.18), Math.max(64, Math.round(h*0.11), lines.length*lineH+28));
-  ctx.fillStyle="rgba(0,0,0,0.78)";
-  ctx.fillRect(0, h-bar, w, bar);
-  ctx.fillStyle="#fff";
-  ctx.textAlign="center";
+  const padX=Math.round(w*0.03);
+  const padY=Math.round(h*0.028);
+  const bar=Math.max(Math.round(h*0.17), Math.min(Math.round(h*0.28), lines.length*lineH+padY*2+Math.round(size*0.55)));
+  const y0=h-bar;
+  const grad=ctx.createLinearGradient(0, y0, w, h);
+  grad.addColorStop(0, "rgba(0, 214, 255, 0.96)");
+  grad.addColorStop(0.45, "rgba(64, 132, 255, 0.97)");
+  grad.addColorStop(1, "rgba(168, 72, 255, 0.98)");
+  ctx.fillStyle=grad;
+  ctx.fillRect(0, y0, w, bar);
+  const shine=ctx.createLinearGradient(0, y0, 0, y0+Math.round(bar*0.42));
+  shine.addColorStop(0, "rgba(255,255,255,0.42)");
+  shine.addColorStop(1, "rgba(255,255,255,0)");
+  ctx.fillStyle=shine;
+  ctx.fillRect(0, y0, w, Math.round(bar*0.42));
+  ctx.fillStyle="rgba(255,255,255,0.92)";
+  ctx.fillRect(0, y0, w, Math.max(3, Math.round(h*0.005)));
+  ctx.font="800 "+Math.max(13, Math.round(w*0.016))+"px Manrope, system-ui, sans-serif";
+  ctx.textAlign="left";
   ctx.textBaseline="top";
-  const top=h-bar+Math.round((bar-lines.length*lineH)/2);
-  lines.forEach(function(l,i){ ctx.fillText(l, w/2, top+i*lineH); });
+  ctx.fillStyle="rgba(255,255,255,0.92)";
+  ctx.fillText("SAID THIS", padX, y0+Math.round(padY*0.45));
+  ctx.font="800 "+size+"px Manrope, system-ui, sans-serif";
+  ctx.textAlign="center";
+  ctx.textBaseline="middle";
+  ctx.lineJoin="round";
+  ctx.miterLimit=2;
+  ctx.lineWidth=Math.max(3, Math.round(size*0.1));
+  ctx.strokeStyle="rgba(18, 12, 48, 0.45)";
+  ctx.fillStyle="#FFFFFF";
+  const top=y0+Math.round(bar*0.54);
+  const start=top-((lines.length-1)*lineH)/2;
+  lines.forEach(function(l,i){
+    const yy=start+i*lineH;
+    ctx.strokeText(l, w/2, yy);
+    ctx.fillText(l, w/2, yy);
+  });
 }
 function blobToDataURL(blob){
   return new Promise(function(res,rej){
@@ -8015,17 +8063,13 @@ function landscapeCanvas(src){
   return c;
 }
 function canvasShot(v){
-  const c=landscapeCanvas(v);
-  if(APP.mode==="damage"||APP.mode==="close") stampBanner(c, APP.dmgCaption);
-  return c.toDataURL("image/jpeg",0.93);
+  return landscapeCanvas(v).toDataURL("image/jpeg",0.93);
 }
 function framePhoto(dataUrl){
   return new Promise(function(res){
     const img=new Image();
     img.onload=function(){
-      const c=landscapeCanvas(img);
-      if(APP.mode==="damage"||APP.mode==="close") stampBanner(c, APP.dmgCaption);
-      res(c.toDataURL("image/jpeg",0.93));
+      res(landscapeCanvas(img).toDataURL("image/jpeg",0.93));
     };
     img.onerror=function(){ res(dataUrl); };
     img.src=dataUrl;
@@ -8048,14 +8092,16 @@ async function captureStill(){
   return null;
 }
 function stampOnUrl(url, text){
-  if(!text) return Promise.resolve(url);
+  const cap=liveDamageCaption(text);
+  if(!cap) return Promise.resolve(url);
   return new Promise(function(res){
     const img=new Image();
     img.onload=function(){
       const c=document.createElement("canvas");
-      c.width=img.naturalWidth; c.height=img.naturalHeight;
+      c.width=img.naturalWidth||img.width; c.height=img.naturalHeight||img.height;
+      if(!c.width || !c.height){ res(url); return; }
       c.getContext("2d").drawImage(img,0,0);
-      stampBanner(c, text);
+      stampBanner(c, cap);
       res(c.toDataURL("image/jpeg",0.94));
     };
     img.onerror=function(){ res(url); };
@@ -8188,6 +8234,9 @@ function killMediaNow(){
   } else {
     APP.recorder=null;
     APP.recOn=false;
+    try{ if(APP.walkStopPump) APP.walkStopPump(); }catch(e){}
+    APP.walkStopPump=null;
+    stopWalkSessionAudio(true);
     cutTracks(stream);
   }
   ["shotCam","liveCam"].forEach(function(id){
@@ -8228,41 +8277,325 @@ function recClock(ms){
   return Math.floor(s/60)+":"+String(s%60).padStart(2,"0");
 }
 function paintRec(){}
+function liveAudioTracks(){
+  const tracks=[];
+  function take(stream){
+    if(!stream) return;
+    stream.getAudioTracks().forEach(function(t){
+      if(t && t.readyState==="live") tracks.push(t);
+    });
+  }
+  take(APP.stream);
+  if(!tracks.length) take(APP.micStream);
+  return tracks;
+}
+function playableWalkClips(){
+  return (APP.clips||[]).filter(function(c){ return c && c.blob && c.blob.size>800 && !c.audioOnly && c.hasVideo!==false; });
+}
+function clipExt(c){
+  return videoExt({name:"", type:(c && (c.mime||(c.blob && c.blob.type)))||"video/mp4"});
+}
+function walkRecStream(){
+  const v=$("shotCam");
+  let videoTrack=null;
+  let stopPump=null;
+  try{
+    if(v && typeof v.captureStream==="function"){
+      videoTrack=(v.captureStream(30).getVideoTracks()||[])[0]||null;
+    } else if(v && typeof v.mozCaptureStream==="function"){
+      videoTrack=(v.mozCaptureStream(30).getVideoTracks()||[])[0]||null;
+    }
+  }catch(e){ videoTrack=null; }
+  if(!videoTrack && v && videoReady(v)){
+    try{
+      const c=document.createElement("canvas");
+      c.width=v.videoWidth||1920;
+      c.height=v.videoHeight||1080;
+      const ctx=c.getContext("2d");
+      let live=true;
+      function pump(){
+        if(!live) return;
+        try{ ctx.drawImage(v,0,0,c.width,c.height); }catch(e){}
+        APP._walkPump=requestAnimationFrame(pump);
+      }
+      pump();
+      stopPump=function(){ live=false; if(APP._walkPump) cancelAnimationFrame(APP._walkPump); APP._walkPump=0; };
+      const cs=c.captureStream ? c.captureStream(30) : null;
+      videoTrack=cs && cs.getVideoTracks()[0] || null;
+      if(!videoTrack && stopPump){ stopPump(); stopPump=null; }
+    }catch(e){ videoTrack=null; }
+  }
+  if(!videoTrack && APP.stream){
+    videoTrack=APP.stream.getVideoTracks().filter(function(t){ return t.readyState==="live"; })[0]||null;
+  }
+  const tracks=[];
+  if(videoTrack) tracks.push(videoTrack);
+  liveAudioTracks().forEach(function(t){ tracks.push(t); });
+  APP.walkStopPump=stopPump;
+  if(!tracks.length) return null;
+  return new MediaStream(tracks);
+}
+function startWalkSessionAudio(){
+  APP.walkAudioHold=null;
+  if(APP.walkAudioRec){
+    try{ if(APP.walkAudioRec.state!=="inactive") APP.walkAudioRec.stop(); }catch(e){}
+    APP.walkAudioRec=null;
+  }
+  (APP.walkAudioClones||[]).forEach(function(t){ try{ t.stop(); }catch(e){} });
+  APP.walkAudioClones=null;
+  const tracks=[], clones=[];
+  function take(stream){
+    if(!stream) return;
+    stream.getAudioTracks().forEach(function(t){
+      if(!t || t.readyState!=="live") return;
+      try{ const c=t.clone(); tracks.push(c); clones.push(c); }catch(e){ tracks.push(t); }
+    });
+  }
+  take(APP.stream);
+  if(!tracks.length) take(APP.micStream);
+  if(!tracks.length || !window.MediaRecorder) return;
+  APP.walkAudioClones=clones;
+  const stream=new MediaStream(tracks);
+  APP.walkAudioChunks=[];
+  APP.walkAudioMime=audioMime();
+  try{
+    const opts={audioBitsPerSecond:96000};
+    if(APP.walkAudioMime) opts.mimeType=APP.walkAudioMime;
+    APP.walkAudioRec=new MediaRecorder(stream, opts);
+  }catch(e){
+    try{ APP.walkAudioRec=new MediaRecorder(stream); }catch(err){ return; }
+  }
+  APP.walkAudioRec.ondataavailable=function(ev){ if(ev.data && ev.data.size) APP.walkAudioChunks.push(ev.data); };
+  try{ APP.walkAudioRec.start(200); }catch(e){
+    try{ APP.walkAudioRec.start(); }catch(err){ APP.walkAudioRec=null; }
+  }
+}
+function stopWalkSessionAudio(discard){
+  return new Promise(function(res){
+    const rec=APP.walkAudioRec;
+    function done(audio){
+      APP.walkAudioRec=null;
+      APP.walkAudioChunks=null;
+      (APP.walkAudioClones||[]).forEach(function(t){ try{ t.stop(); }catch(e){} });
+      APP.walkAudioClones=null;
+      if(discard) res(null);
+      else res(audio||null);
+    }
+    if(!rec){ done(discard?null:APP.walkAudioHold||null); return; }
+    rec.onstop=function(){
+      const type=rec.mimeType||APP.walkAudioMime||"audio/webm";
+      const blob=new Blob(APP.walkAudioChunks||[], {type:type});
+      if(discard || !blob.size || blob.size<200){ done(null); return; }
+      blobToDataURL(blob).then(function(url){
+        const hold={data:url, mime:type, blob:blob};
+        APP.walkAudioHold=hold;
+        done(hold);
+      }).catch(function(){ done(null); });
+    };
+    try{
+      if(rec.state!=="inactive") rec.stop();
+      else rec.onstop();
+    }catch(e){ done(null); }
+  });
+}
+function audioBlobFromHold(audio){
+  if(!audio) return null;
+  if(audio.blob && audio.blob.size) return audio.blob;
+  if(audio.data && String(audio.data).indexOf("base64,")>=0){
+    try{ return blobFrom(audio.data); }catch(e){ return null; }
+  }
+  return null;
+}
+function probeClip(blob){
+  return new Promise(function(res){
+    if(!blob){ res({video:false, audio:false}); return; }
+    if(/^audio\//i.test(blob.type||"")){ res({video:false, audio:true}); return; }
+    if(typeof document==="undefined"){ res({video:/^video\//i.test(blob.type||""), audio:false}); return; }
+    const url=URL.createObjectURL(blob);
+    const v=document.createElement("video");
+    v.muted=true;
+    v.preload="auto";
+    v.playsInline=true;
+    let settled=false;
+    const done=function(info){
+      if(settled) return;
+      settled=true;
+      try{ URL.revokeObjectURL(url); }catch(e){}
+      res(info);
+    };
+    const timer=setTimeout(function(){
+      done({video:v.videoWidth>16 && v.videoHeight>16, audio:false});
+    }, 2500);
+    v.onloadedmetadata=function(){
+      clearTimeout(timer);
+      const video=v.videoWidth>16 && v.videoHeight>16;
+      let audio=false;
+      try{ if(v.audioTracks && v.audioTracks.length) audio=true; }catch(e){}
+      try{ if(typeof v.mozHasAudio==="boolean") audio=!!v.mozHasAudio; }catch(e){}
+      if(!video) audio=true;
+      done({video:video, audio:audio});
+    };
+    v.onerror=function(){
+      clearTimeout(timer);
+      done({video:false, audio:/^audio\//i.test(blob.type||"") || blob.size>200});
+    };
+    v.src=url;
+  });
+}
+function muxVideoAudio(videoBlob, audioBlob){
+  return new Promise(function(res){
+    if(!videoBlob || !audioBlob || !window.MediaRecorder){ res(null); return; }
+    const video=document.createElement("video");
+    const audio=document.createElement("audio");
+    const vUrl=URL.createObjectURL(videoBlob);
+    const aUrl=URL.createObjectURL(audioBlob);
+    video.muted=true;
+    video.playsInline=true;
+    video.preload="auto";
+    audio.preload="auto";
+    audio.crossOrigin="anonymous";
+    let ac=null, rec=null, pump=0, settled=false;
+    const chunks=[];
+    const cleanup=function(blob){
+      if(settled) return;
+      settled=true;
+      try{ if(pump) cancelAnimationFrame(pump); }catch(e){}
+      try{ if(rec && rec.state!=="inactive") rec.stop(); }catch(e){}
+      try{ video.pause(); }catch(e){}
+      try{ audio.pause(); }catch(e){}
+      try{ URL.revokeObjectURL(vUrl); }catch(e){}
+      try{ URL.revokeObjectURL(aUrl); }catch(e){}
+      try{ if(ac && ac.close) ac.close(); }catch(e){}
+      res(blob||null);
+    };
+    const failTimer=setTimeout(function(){ cleanup(null); }, 120000);
+    function startMux(){
+      if(!(video.videoWidth>16 && video.videoHeight>16)){ clearTimeout(failTimer); cleanup(null); return; }
+      const canvas=document.createElement("canvas");
+      canvas.width=video.videoWidth;
+      canvas.height=video.videoHeight;
+      const ctx=canvas.getContext("2d");
+      let stream=null;
+      try{ stream=canvas.captureStream(30); }catch(e){ stream=null; }
+      if(!stream){ clearTimeout(failTimer); cleanup(null); return; }
+      try{
+        ac=new (window.AudioContext||window.webkitAudioContext)();
+        const dest=ac.createMediaStreamDestination();
+        const src=ac.createMediaElementSource(audio);
+        src.connect(dest);
+        dest.stream.getAudioTracks().forEach(function(t){ stream.addTrack(t); });
+      }catch(e){}
+      const mime=recMime();
+      try{
+        const opts={videoBitsPerSecond:3500000, audioBitsPerSecond:128000};
+        if(mime) opts.mimeType=mime;
+        rec=new MediaRecorder(stream, opts);
+      }catch(e){
+        try{ rec=new MediaRecorder(stream); }catch(err){ clearTimeout(failTimer); cleanup(null); return; }
+      }
+      rec.ondataavailable=function(ev){ if(ev.data && ev.data.size) chunks.push(ev.data); };
+      rec.onstop=function(){
+        clearTimeout(failTimer);
+        const type=rec.mimeType||mime||"video/mp4";
+        const blob=new Blob(chunks, {type:type});
+        cleanup(blob.size>800?blob:null);
+      };
+      const draw=function(){
+        if(settled) return;
+        try{ ctx.drawImage(video,0,0,canvas.width,canvas.height); }catch(e){}
+        if(!video.paused && !video.ended) pump=requestAnimationFrame(draw);
+      };
+      video.onended=function(){
+        setTimeout(function(){ try{ if(rec && rec.state!=="inactive") rec.stop(); }catch(e){ cleanup(null); } }, 180);
+      };
+      try{ rec.start(200); }catch(e){ try{ rec.start(); }catch(err){ clearTimeout(failTimer); cleanup(null); return; } }
+      const playV=video.play();
+      const playA=audio.play();
+      Promise.all([playV && playV.catch ? playV.catch(function(){}) : playV, playA && playA.catch ? playA.catch(function(){}) : playA]).then(function(){
+        draw();
+      });
+    }
+    let ready=0;
+    function hit(){ ready+=1; if(ready>=2) startMux(); }
+    video.onloadeddata=hit;
+    audio.onloadeddata=hit;
+    video.onerror=function(){ clearTimeout(failTimer); cleanup(null); };
+    audio.onerror=function(){ clearTimeout(failTimer); cleanup(null); };
+    video.src=vUrl;
+    audio.src=aUrl;
+  });
+}
+async function finalizeWalkClip(blob, type, dur, audioHold){
+  if(!blob || blob.size<=800) return null;
+  const audioBlob=audioBlobFromHold(audioHold);
+  let mixed=blob;
+  let mime=type||blob.type||"video/mp4";
+  let info=await probeClip(blob);
+  if(info.video && !info.audio && audioBlob){
+    const muxed=await muxVideoAudio(blob, audioBlob);
+    if(muxed && muxed.size>800){
+      mixed=muxed;
+      mime=muxed.type||mime;
+      info=await probeClip(mixed);
+    }
+  }
+  if(!info.video){
+    return null;
+  }
+  const url=URL.createObjectURL(mixed);
+  const clip={blob:mixed, url:url, dur:dur, mime:mime, hasVideo:true, hasAudio:!!info.audio || !!audioBlob, audioOnly:false};
+  APP.clips.push(clip);
+  return clip;
+}
 function startWalkRec(){
   if(APP.recOn || !APP.stream) return;
   if(!window.MediaRecorder){ paintRec(); return; }
+  const v=$("shotCam");
+  if(v && !videoReady(v)){
+    setTimeout(function(){ if(!APP.recOn && APP.stream) startWalkRec(); }, 280);
+    return;
+  }
   if(!APP.stream.getVideoTracks().some(function(t){ return t.readyState==="live"; })) return;
+  const mixed=walkRecStream();
+  const src=mixed && mixed.getVideoTracks().length ? mixed : APP.stream;
+  if(!src || !src.getVideoTracks().some(function(t){ return t.readyState==="live"; })) return;
   const mime=recMime();
   APP.recChunks=[];
   APP.recMime=mime;
   try{
     const opts={
-      videoBitsPerSecond:6500000,
+      videoBitsPerSecond:3500000,
       audioBitsPerSecond:128000
     };
     if(mime) opts.mimeType=mime;
-    APP.recorder=new MediaRecorder(APP.stream, opts);
+    APP.recorder=new MediaRecorder(src, opts);
   }catch(e){
-    try{ APP.recorder=new MediaRecorder(APP.stream); }catch(err){ return; }
+    try{ APP.recorder=new MediaRecorder(src); }catch(err){ return; }
   }
   APP.recorder.ondataavailable=function(ev){ if(ev.data && ev.data.size) APP.recChunks.push(ev.data); };
   APP.recorder.onstop=function(){
+    try{ if(APP.walkStopPump) APP.walkStopPump(); }catch(e){}
+    APP.walkStopPump=null;
     const type=(APP.recorder && APP.recorder.mimeType) || APP.recMime || "video/mp4";
     const blob=new Blob(APP.recChunks, {type:type});
     APP.recChunks=[];
     APP.recorder=null;
     APP.recOn=false;
     if(APP.recTick){ clearInterval(APP.recTick); APP.recTick=null; }
+    const dur=Date.now()-APP.recStarted;
+    const after=function(){ paintRec(); };
     if(blob.size>800){
-      const dur=Date.now()-APP.recStarted;
-      const url=URL.createObjectURL(blob);
-      APP.clips.push({blob:blob, url:url, dur:dur, mime:type});
+      stopWalkSessionAudio(false).then(function(audio){
+        return finalizeWalkClip(blob, type, dur, audio);
+      }).then(after, after);
+    } else {
+      stopWalkSessionAudio(true).then(after, after);
     }
-    paintRec();
   };
-  try{ APP.recorder.start(); }catch(e){ try{ APP.recorder.start(10000); }catch(err){ APP.recorder=null; return; } }
+  try{ APP.recorder.start(200); }catch(e){ try{ APP.recorder.start(); }catch(err){ APP.recorder=null; return; } }
   APP.recOn=true;
   APP.recStarted=Date.now();
+  startWalkSessionAudio();
   if(APP.recTick) clearInterval(APP.recTick);
   APP.recTick=setInterval(paintRec, 400);
   paintRec();
@@ -9923,6 +10256,71 @@ function studioPlate(dataUrl){
     return landscapeCanvas(img).toDataURL("image/jpeg", 0.93);
   }).catch(function(){ return dataUrl; });
 }
+function clipPoster(clip){
+  return new Promise(function(res){
+    if(!clip || !(clip.url||clip.blob)){ res(""); return; }
+    const url=clip.url || URL.createObjectURL(clip.blob);
+    const v=document.createElement("video");
+    v.muted=true;
+    v.playsInline=true;
+    v.preload="auto";
+    let settled=false;
+    const done=function(src){
+      if(settled) return;
+      settled=true;
+      if(!clip.url && url) try{ URL.revokeObjectURL(url); }catch(e){}
+      res(src||"");
+    };
+    const timer=setTimeout(function(){ done(""); }, 2500);
+    const grab=function(){
+      clearTimeout(timer);
+      try{
+        if(!(v.videoWidth>16 && v.videoHeight>16)){ done(""); return; }
+        done(landscapeCanvas(v).toDataURL("image/jpeg", 0.9));
+      }catch(e){ done(""); }
+    };
+    v.onloadeddata=function(){
+      try{
+        if(!(v.videoWidth>16 && v.videoHeight>16)){ clearTimeout(timer); done(""); return; }
+        const t=Math.min(0.35, Math.max(0, (v.duration||1)*0.08));
+        if(Math.abs((v.currentTime||0)-t)<0.05) grab();
+        else v.currentTime=t;
+      }catch(e){ grab(); }
+    };
+    v.onseeked=grab;
+    v.onerror=function(){ clearTimeout(timer); done(""); };
+    v.src=url;
+  });
+}
+async function withEmbeddedClips(doc, clips){
+  const list=clips||[];
+  if(!list.length || !doc || !doc.output) return doc;
+  try{
+    if(!window.PDFLib) await loadScript("https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js");
+    const bytes=await doc.output("arraybuffer");
+    const pdf=await window.PDFLib.PDFDocument.load(bytes);
+    for(let i=0;i<list.length;i++){
+      const c=list[i];
+      const raw=new Uint8Array(await c.blob.arrayBuffer());
+      const name="walk-around-"+String(i+1)+"."+clipExt(c);
+      await pdf.attach(raw, name, {
+        mimeType:c.mime||c.blob.type||"video/mp4",
+        description:"Walk-around video with picture and sound",
+        creationDate:new Date(),
+        modificationDate:new Date()
+      });
+    }
+    const out=await pdf.save();
+    const copy=out.buffer.slice(out.byteOffset, out.byteOffset+out.byteLength);
+    return {
+      output: function(kind){
+        if(kind==="arraybuffer") return copy;
+        if(kind==="blob") return new Blob([out], {type:"application/pdf"});
+        return doc.output(kind);
+      }
+    };
+  }catch(e){ return doc; }
+}
 
 function packetWhen(){
   try{ return new Date().toLocaleString("en-CA", {dateStyle:"medium", timeStyle:"short"}); }catch(e){ return new Date().toISOString().slice(0,16); }
@@ -10055,13 +10453,14 @@ async function buildPdf(){
     y=wrap(story, 36, y, W-72, 16);
     y+=18;
   }
-  if(APP.clips && APP.clips.length){
+  const walkClips=playableWalkClips();
+  if(walkClips.length){
     setFont(true, 13, INK);
     d.text("Walk-around video", 36, y);
     y+=16;
     setFont(false, 11, INK);
-    const clipLine=APP.clips.map(function(c,i){ return "Clip "+(i+1)+" · "+recClock(c.dur); }).join("   ");
-    y=wrap(clipLine+"  — attached to the email.", 36, y, W-72, 16);
+    const clipLine=walkClips.map(function(c,i){ return "Clip "+(i+1)+" · "+recClock(c.dur); }).join("   ");
+    y=wrap(clipLine+"  — picture + sound, embedded in this PDF.", 36, y, W-72, 16);
     y+=18;
   }
   if(isWeb()){
@@ -10097,13 +10496,9 @@ async function buildPdf(){
     try{ d.addImage(img, "JPEG", 24, 52, pw, ph, undefined, "NONE"); }catch(e){
       try{ d.addImage(img, "JPEG", 24, 52, pw, ph, undefined, "FAST"); }catch(err){}
     }
-    if(shot.cap){
-      setFont(false, 10, WHITE);
-      wrap(shot.cap, 24, 552, 700, 13);
-    }
     if(shot.audio){
       setFont(false, 9, [160,160,170]);
-      d.text("Spoken note attached — play "+(shot.audioName||"the matching audio")+" to hear it.", 24, 598);
+      d.text("Spoken note is also on this photo’s matching audio.", 24, 598);
     }
     setFont(false, 8, [90,90,100]);
     d.text(index+" / "+total, 768, 598, {align:"right"});
@@ -10112,7 +10507,41 @@ async function buildPdf(){
   walk.forEach(function(s,i){ photoPage(s, i+1, walk.length, "Walk-around"); });
   dmg.forEach(function(s,i){ photoPage(s, i+1, dmg.length, "Damage"); });
   close.forEach(function(s,i){ photoPage(s, i+1, close.length, "Close-up"); });
-  return d;
+
+  for(let i=0;i<walkClips.length;i++){
+    const clip=walkClips[i];
+    let poster="";
+    try{ poster=await clipPoster(clip); }catch(e){ poster=""; }
+    d.addPage("letter", "landscape");
+    d.setFillColor(8, 16, 36);
+    d.rect(0,0,792,612,"F");
+    const g1=CYAN, g2=PURPLE;
+    d.setFillColor(g1[0], g1[1], g1[2]);
+    d.rect(0,0,792,8,"F");
+    d.setFillColor(g2[0], g2[1], g2[2]);
+    d.rect(0,604,792,8,"F");
+    setFont(true, 11, [180, 240, 255]);
+    d.text("WALK-AROUND  ·  PICTURE + SOUND", 24, 32);
+    setFont(false, 10, [200, 210, 230]);
+    d.text((unitLabel()||"Vehicle")+"  ·  clip "+(i+1)+" of "+walkClips.length+"  ·  "+recClock(clip.dur), 768, 32, {align:"right"});
+    if(poster){
+      try{ d.addImage(poster, "JPEG", 24, 48, 744, 418, undefined, "NONE"); }catch(e){
+        try{ d.addImage(poster, "JPEG", 24, 48, 744, 418, undefined, "FAST"); }catch(err){}
+      }
+    } else {
+      d.setFillColor(16, 28, 58);
+      d.roundedRect(24, 48, 744, 418, 16, 16, "F");
+    }
+    d.setFillColor(0, 214, 255);
+    d.roundedRect(300, 230, 192, 56, 18, 18, "F");
+    setFont(true, 18, [8, 16, 36]);
+    d.text("PLAY", 396, 265, {align:"center"});
+    setFont(true, 14, WHITE);
+    d.text("This PDF embeds the playable clip — picture and sound, one file.", 396, 500, {align:"center"});
+    setFont(false, 11, [200, 220, 255]);
+    d.text("Open the attached walk-around-"+(i+1)+"."+clipExt(clip)+" if your viewer hides embedded video.", 396, 522, {align:"center"});
+  }
+  return withEmbeddedClips(d, walkClips);
 }
 
 async function savePhotos(){
@@ -10231,7 +10660,8 @@ function packetSummary(){
   if(caps.length) lines.push("Damage: "+caps.join("; "));
   const voices=capturedFiles().filter(function(s){ return s && s.audio; }).length;
   if(voices) lines.push("Spoken damage notes: "+voices);
-  if(APP.clips && APP.clips.length) lines.push("Walk-around video: "+APP.clips.length+" clip"+(APP.clips.length>1?"s":""));
+  const walkVids=playableWalkClips();
+  if(walkVids.length) lines.push("Walk-around video: "+walkVids.length+" clip"+(walkVids.length>1?"s":"")+" with picture and sound");
   let recs=0;
   Object.keys(APP.docs||{}).forEach(function(id){ recs+=((APP.docs[id]&&APP.docs[id].videos)||[]).length; });
   if(recs) lines.push("Market-data recordings: "+recs);
@@ -10249,9 +10679,8 @@ async function buildZip(){
     folder.file(s.name, blobFrom(s.data));
     if(s.audio) folder.file(s.audioName||s.name.replace(/\.jpg$/i,"-voice.webm"), blobFrom(s.audio));
   });
-  (APP.clips||[]).forEach(function(c,i){
-    const ext=(c.mime||"").indexOf("webm")>=0?"webm":"mp4";
-    folder.file("walk-around-"+String(i+1)+"."+ext, c.blob);
+  playableWalkClips().forEach(function(c,i){
+    folder.file("walk-around-"+String(i+1)+"."+clipExt(c), c.blob);
   });
   Object.keys(APP.docs||{}).forEach(function(id){
     const d=APP.docs[id]; if(!d) return;
@@ -10348,7 +10777,8 @@ function packetHtml(){
   const rows=[["Year",APP.year],["Make",APP.make],["Model",APP.model],["Trim",APP.trim],["Colour",APP.color],["Kilometres",APP.km],["VIN",APP.vin],["Stock",APP.stock],["Type",APP.dealType],["Lead",APP.leadSource],["Canada Drives #", isCanadaDrives()?APP.cdApp:""]].filter(function(r){ return r[1]; });
   let h='<div class="badge">'+esc(why())+'</div>';
   h+='<h2>'+esc(unitLabel())+'</h2>';
-  h+='<p class="quote">'+esc(shotCount()+" photo(s)")+'</p>';
+  const walkVids=playableWalkClips();
+  h+='<p class="quote">'+esc(shotCount()+" photo(s)")+(walkVids.length?" · "+walkVids.length+" walk-around video"+(walkVids.length>1?"s":"")+" (picture + sound)":"")+'</p>';
   h+='<div class="facts">';
   rows.forEach(function(r){ h+='<div><k>'+esc(r[0])+'</k><b>'+esc(r[1])+'</b></div>'; });
   h+='</div>';
@@ -10357,6 +10787,14 @@ function packetHtml(){
   if(isWeb()){ h+='<h4>Website listing</h4><p>'+esc(websiteCopy())+'</p>'; }
   const to=loadRecipients();
   if(to.length){ h+='<h4>Send to</h4><p>'+esc(to.join(", "))+'</p>'; }
+  if(walkVids.length){
+    h+='<div class="block">Walk-around video</div>';
+    walkVids.forEach(function(c,i){
+      const src=c.url || (c.blob?URL.createObjectURL(c.blob):"");
+      h+='<p class="cap">Clip '+(i+1)+' · '+esc(recClock(c.dur))+' · picture + sound</p>';
+      if(src) h+='<video class="full" src="'+src+'" controls playsinline style="width:100%;border-radius:14px;background:#111;margin:8px 0 18px"></video>';
+    });
+  }
   h+='<div class="block">Photos</div>';
   capturedFiles().forEach(function(s){
     h+='<img class="full" src="'+s.data+'" alt="">';
