@@ -148,6 +148,14 @@ must(/"andrew@autocorp.ca":"Andrew"/, "Andrew stays on Center");
 must(/"wes@thetrucktown.com":"Wes"/, "Wes stays on Center");
 must(/CENTER_DENY=/, "denied staff get a plain-English Center lock");
 must(/#startCenter\.locked/, "Center control is grayed out for everyone else");
+must(/function isCanadaDrives\(/, "Canada Drives type is explicit");
+must(/function requireCdApp\(/, "Canada Drives application number is required");
+must(/function cdAppNumber\(/, "CD application number is read for PDF + email");
+must(/CANADA DRIVES APPLICATION NUMBER/, "Send and Complete PDFs print the application number");
+must(/id="cdWrap"/, "home shows the CD number field");
+must(/id="centerCdWrap"/, "Center Complete shows the CD number field");
+must(/classList\.toggle\("hide", !cd\)/, "CD field hides unless type is Canada Drives");
+must(/Required\. This number goes on the PDF we email/, "plain-English required label");
 
 ["404.html", "inspect-vehicle.html"].forEach(function (name) {
   const copy = fs.readFileSync(path.join(root, name), "utf8");

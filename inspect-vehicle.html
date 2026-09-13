@@ -94,6 +94,10 @@ h2 { font-size:26px; font-weight:800; letter-spacing:-.5px; margin:4px 0 14px; }
 .box { width:100%; min-height:160px; max-height:none; border:0; background:#eef0f3; border-radius:16px; padding:14px; font-size:18px; font-family:inherit; resize:vertical; overflow:auto; field-sizing:content; }
 .pair { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:14px; }
 label.k { display:block; color:#6e6e73; font-size:13px; margin:11px 0 5px; }
+.cd-field { margin:12px 0 6px; padding:14px 14px 16px; background:#fff; border:1.5px solid var(--hair); border-radius:18px; }
+.cd-field label.k { font-size:15px; font-weight:800; color:var(--ink); margin:0 0 4px; }
+.cd-field .need { color:#8A3B12; font-size:14px; font-weight:700; margin:0 0 10px; line-height:1.35; }
+.cd-field .f { min-height:52px; font-size:18px; }
 input.f, textarea.note { width:100%; border:1.5px solid var(--hair); border-radius:16px; padding:13px 14px; font-size:17px; font-family:inherit; }
 textarea.note { min-height:160px; max-height:none; resize:vertical; overflow:auto; field-sizing:content; line-height:1.45; }
 .vin-fail { margin-top:14px; padding-top:12px; border-top:1px solid var(--hair); }
@@ -948,6 +952,11 @@ body.center-gallery-on { overflow:hidden; }
     <div class="block">Appraisal team</div>
     <div class="center-why-docs" id="centerWhyDocs"></div>
     <div class="team-rail" id="centerTeam"></div>
+    <div id="centerCdWrap" class="cd-field hide">
+      <label class="k" for="centerCdApp">Canada Drives application number</label>
+      <p class="need">Required. This number goes on the PDF we email Shawn and Christina.</p>
+      <input class="f" id="centerCdApp" placeholder="Type the application number" autocomplete="off" />
+    </div>
     <label class="k">Shawn approval / buy number</label>
     <input class="f" id="centerApproval" inputmode="decimal" placeholder="Enter the actual buy number" />
     <label class="k">Desk notes</label>
@@ -1014,9 +1023,10 @@ body.center-gallery-on { overflow:hidden; }
     <div id="typeWrap">
       <button class="pill" type="button" id="btnDealType">Appraisal type</button>
       <p class="quote" id="typeQuote">Trade-in, locate, general acquisition, or Canada Drives.</p>
-      <div id="cdWrap" class="hide">
-        <label class="k">Canada Drives application number</label>
-        <input class="f" id="home-cd-app" placeholder="Application number" autocomplete="off" />
+      <div id="cdWrap" class="cd-field hide">
+        <label class="k" for="home-cd-app">Canada Drives application number</label>
+        <p class="need">Required. This number goes on the PDF we email.</p>
+        <input class="f" id="home-cd-app" placeholder="Type the application number" autocomplete="off" inputmode="text" />
       </div>
     </div>
     <div id="storyBlock">
@@ -1284,9 +1294,10 @@ body.center-gallery-on { overflow:hidden; }
     <h3>Appraisal type</h3>
     <p class="hint">Pick one. If it’s Canada Drives, add the application number.</p>
     <div id="typeChips" class="to-chips"></div>
-    <div id="cdBox" class="hide">
-      <label class="k">Canada Drives application number</label>
-      <input class="f" id="cd-app" placeholder="Application number" autocomplete="off" />
+    <div id="cdBox" class="cd-field hide">
+      <label class="k" for="cd-app">Canada Drives application number</label>
+      <p class="need">Required. This number goes on the PDF we email.</p>
+      <input class="f" id="cd-app" placeholder="Type the application number" autocomplete="off" inputmode="text" />
     </div>
     <button class="pill purple" type="button" id="typeSave" style="margin-top:14px">Done</button>
   </div>
@@ -1416,6 +1427,30 @@ function why(){
   return APP.dealType || "Appraisal";
 }
 function isWeb(){ return APP.purpose==="website"; }
+function isCanadaDrives(item){
+  const t=item ? item.dealType : APP.dealType;
+  return t==="Canada Drives";
+}
+function cdAppNumber(item){
+  if(item) return String(item.cdApp||"").trim();
+  const typed=(($("home-cd-app")&&$("home-cd-app").value)||($("cd-app")&&$("cd-app").value)||APP.cdApp||"").trim();
+  return typed;
+}
+function requireCdApp(item){
+  if(!isCanadaDrives(item)) return true;
+  const num=cdAppNumber(item);
+  if(item){
+    if(!num){ toast("Add the Canada Drives application number first."); return false; }
+    return true;
+  }
+  APP.cdApp=num;
+  if(!num){
+    toast("Add the Canada Drives application number first.");
+    if(typeof openDealType==="function") openDealType();
+    return false;
+  }
+  return true;
+}
 const DEAL_TYPES = ["Trade-in","Locate","General acquisition","Canada Drives"];
 function paintDealType(){
   const t=APP.dealType||"";
@@ -3933,6 +3968,11 @@ function ensureCenterDetailScaffold(){
     '<div class="block">Appraisal team</div>'+
     '<div class="center-why-docs" id="centerWhyDocs"></div>'+
     '<div class="team-rail" id="centerTeam"></div>'+
+    '<div id="centerCdWrap" class="cd-field hide">'+
+      '<label class="k" for="centerCdApp">Canada Drives application number</label>'+
+      '<p class="need">Required. This number goes on the PDF we email Shawn and Christina.</p>'+
+      '<input class="f" id="centerCdApp" placeholder="Type the application number" autocomplete="off" />'+
+    '</div>'+
     '<label class="k">Shawn approval / buy number</label>'+
     '<input class="f" id="centerApproval" inputmode="decimal" placeholder="Enter the actual buy number" />'+
     '<label class="k">Desk notes</label>'+
@@ -3990,12 +4030,22 @@ function paintCenterDetail(){
       factCell("VIN", item.vin)+
       factCell("Colour", item.color)+
       factCell("Kilometres", item.km && Number(String(item.km).replace(/,/g,"")).toLocaleString("en-CA"))+
-      factCell("Stock", item.stock);
+      factCell("Stock", item.stock)+
+      factCell("Type", item.dealType)+
+      factCell("Canada Drives application number", isCanadaDrives(item)?item.cdApp:"");
   }
   if($("centerStory")) $("centerStory").textContent=item.story||item.webcopy||"No story yet.";
   if($("centerNotes")){
     $("centerNotes").value=item.notes||"";
     growArea($("centerNotes"));
+  }
+  if($("centerCdWrap")) $("centerCdWrap").classList.toggle("hide", !isCanadaDrives(item));
+  if($("centerCdApp")){
+    $("centerCdApp").value=item.cdApp||"";
+    $("centerCdApp").oninput=function(){
+      const el=this;
+      patchCenter(item.id, function(x){ x.dealType="Canada Drives"; x.cdApp=el.value.trim(); });
+    };
   }
   if($("centerApproval")){
     $("centerApproval").value=item.approval||"";
@@ -4136,6 +4186,7 @@ function packetReady(){
 }
 function kickShare(){
   if(!packetReady()){ toast("Add the story or photos first."); return; }
+  if(!requireCdApp()) return;
   if(APP.role==="guest") hideMailOpen();
   if(typeof navigator!=="undefined" && navigator.onLine===false){
     flushDraft();
@@ -6750,7 +6801,18 @@ async function buildPdf(){
   const sub=[APP.color, APP.km ? Number(String(APP.km).replace(/,/g,"")).toLocaleString("en-CA")+" km" : "", APP.trim].filter(Boolean).join("  ·  ");
   if(sub){ d.text(sub, 36, y); y+=16; }
   d.text(packetWhen(), 36, y);
-  y+=22;
+  y+=18;
+  if(isCanadaDrives()){
+    d.setFillColor(255,255,255);
+    d.roundedRect(36, y, W-72, 56, 10, 10, "F");
+    setFont(true, 9, MUTED);
+    d.text("CANADA DRIVES APPLICATION NUMBER", 52, y+20);
+    setFont(true, 18, INK);
+    d.text(String(cdAppNumber()||"—"), 52, y+42);
+    y+=70;
+  } else {
+    y+=4;
+  }
   const market=[
     ["Book", ""],
     ["MMR", ""],
@@ -6784,6 +6846,7 @@ async function buildPdf(){
     ["Colour", APP.color],["Kilometres", APP.km ? Number(String(APP.km).replace(/,/g,"")).toLocaleString("en-CA") : ""],
     ["VIN", APP.vin],["Stock", APP.stock]
   ];
+  if(isCanadaDrives()) specs.push(["Canada Drives application number", cdAppNumber()]);
   const colW=(W-72-16)/2;
   specs.forEach(function(row, i){
     const col=i%2, rown=Math.floor(i/2);
@@ -6796,7 +6859,7 @@ async function buildPdf(){
     setFont(true, 13, INK);
     d.text(String(row[1]||"—"), x+12, yy+34);
   });
-  y=y+16+4*52+18;
+  y=y+16+Math.ceil(specs.length/2)*52+18;
   const story=(APP.notes||APP.heard||"").trim();
   if(story){
     setFont(true, 13, INK);
@@ -7217,6 +7280,7 @@ function packetMailHtml(shots){
   return packetCatalogHtml(shots, function(s,i){ return "cid:photo"+i+"@inspect"; });
 }
 async function sharePacket(){
+  if(!requireCdApp()) return;
   const shots=capturedFiles();
   if(!shots.length && !(APP.clips&&APP.clips.length) && !Object.keys(APP.docs||{}).length && !(APP.notes||APP.heard)){ toast("Add the story or photos first."); return; }
   const dest=packetDest();
@@ -7439,7 +7503,18 @@ async function buildApprovalPdf(item, num){
   let y=244;
   d.setFontSize(13); d.text("Packet context", 36, y); y+=20;
   d.setFont("helvetica","normal"); d.setFontSize(11); d.setTextColor(INK[0],INK[1],INK[2]);
+  if(isCanadaDrives(item)){
+    d.setFillColor(243,240,250);
+    d.roundedRect(36, y, W-72, 52, 10, 10, "F");
+    d.setFont("helvetica","bold"); d.setFontSize(9); d.setTextColor(MUTED[0],MUTED[1],MUTED[2]);
+    d.text("CANADA DRIVES APPLICATION NUMBER", 52, y+18);
+    d.setFontSize(16); d.setTextColor(INK[0],INK[1],INK[2]);
+    d.text(String(cdAppNumber(item)||"—"), 52, y+40);
+    y+=68;
+  }
   const lines=[
+    item.dealType ? "Appraisal type: "+item.dealType : "",
+    isCanadaDrives(item) ? "Canada Drives application number: "+(cdAppNumber(item)||"—") : "",
     item.customer && item.customer.name ? "Customer: "+item.customer.name : "",
     item.salesperson ? "Salesperson: "+item.salesperson : "",
     item.sentBy ? "Sent by: "+item.sentBy : "",
@@ -7477,7 +7552,7 @@ async function emailApprovalPacket(item, num){
     mime:"application/pdf"
   }];
   const subject=(item.interest||item.ymmt||"Vehicle")+" — Shawn approval "+num;
-  const text=["Shawn approval / buy number: "+num, item.interest||item.ymmt||"", item.vin||"", item.story||""].filter(Boolean).join("\n");
+  const text=["Shawn approval / buy number: "+num, isCanadaDrives(item)?"Canada Drives application number: "+(cdAppNumber(item)||""):"", item.interest||item.ymmt||"", item.vin||"", item.story||""].filter(Boolean).join("\n");
   const extra={cc:[CHRISTINA_COPY], bcc:[SHAWN_COPY]};
   let sent=await withTimeout(sendFromMe([SHAWN_COPY], subject, text, "", parts, extra), 20000, {ok:false});
   if(!(sent && sent.ok)) sent=await withTimeout(sendFromMe([SHAWN_COPY], subject, text, "", parts, extra), 20000, {ok:false});
@@ -7500,6 +7575,10 @@ async function completeCenterFile(){
   }
   const appraisal=isCenterAppraisal(item);
   if(appraisal){
+    if($("centerCdApp") && isCanadaDrives(item)){
+      patchCenter(item.id, function(x){ x.cdApp=$("centerCdApp").value.trim(); x.dealType="Canada Drives"; });
+    }
+    if(!requireCdApp(getCenter(item.id)||item)) return;
     const num=(($("centerApproval")&&$("centerApproval").value)||item.approval||"").trim();
     if(!num){ toast("Enter Shawn’s approval number first."); return; }
     patchCenter(item.id, function(x){ x.approval=num; });
