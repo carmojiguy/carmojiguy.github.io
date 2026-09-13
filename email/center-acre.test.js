@@ -109,6 +109,7 @@ assert.equal(manifest.name, "Appraisal Center", "manifest name");
 assert.ok(manifest.icons.some(function (i) { return i.purpose === "maskable" && i.sizes === "512x512"; }), "maskable 512 icon");
 [
   "favicon.ico",
+  "apple-touch-icon.png",
   "icons/apple-touch-icon.png",
   "icons/icon-192.png",
   "icons/icon-512.png",
