@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v2 + acre-desk 2026-09-13: pop-out Waiting/History, acre detail, desktop desk -->
+<!-- center-v3 + desk-home 2026-09-13: Center home is the vehicle desk; Inbox/On-site/History pop-outs -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -315,35 +315,39 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
 .work-email .pill { margin:0; padding:12px 16px; width:auto; }
 .login-sub { text-align:center; color:var(--muted); font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; margin:4px 0 12px; }
 .who { position:absolute; top: calc(12px + env(safe-area-inset-top)); right:16px; z-index:2; background:rgba(0,0,0,.45); color:#fff; border:0; border-radius:999px; padding:8px 12px; font-size:12px; font-weight:700; }
-.center-home-pad { padding-top:8px; padding-bottom:48px; }
-.center-home-pad h2 { font-size:32px; letter-spacing:-.8px; margin:4px 0 10px; }
-.center-pops { display:flex; flex-direction:column; gap:14px; margin:28px 0 22px; }
-.center-pop {
-  width:100%; border:0; cursor:pointer; text-align:left;
-  border-radius:28px; padding:22px 22px 20px; min-height:108px;
-  display:grid; grid-template-columns:1fr auto; grid-template-rows:auto auto; gap:4px 12px;
-  box-shadow:0 18px 40px rgba(92,63,224,.12);
-  color:#fff;
+.center-lanes {
+  display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;
+  padding:4px 16px 12px;
 }
-.center-pop em { grid-column:1; font-style:normal; font-size:12px; font-weight:800; letter-spacing:.14em; text-transform:uppercase; opacity:.78; }
-.center-pop b { grid-column:1; font-size:28px; letter-spacing:-.6px; }
-.center-pop span {
-  grid-row:1 / span 2; grid-column:2; align-self:center;
-  min-width:52px; height:52px; padding:0 14px; border-radius:18px;
-  background:rgba(255,255,255,.2); color:#fff;
-  display:grid; place-items:center; font-size:20px; font-weight:800;
+.lane-pill {
+  border:0; cursor:pointer; text-align:left; color:#fff; font:inherit;
+  border-radius:16px; padding:11px 12px 10px; min-height:62px;
+  display:flex; flex-direction:column; justify-content:center; gap:2px;
 }
-.center-pop.wait { background:linear-gradient(135deg,#00A8E8 0%,#5B3FE0 100%); }
-.center-pop.hist { background:linear-gradient(135deg,#7C5CFF 0%,#3D2A8A 100%); }
-.center-whisper { color:var(--muted); font-size:14px; font-weight:600; line-height:1.45; margin:0; }
-.center-whisper b { color:var(--purple-deep); font-weight:800; }
+.lane-pill b { font-size:14px; letter-spacing:-.2px; }
+.lane-pill span { font-size:12px; font-weight:800; opacity:.82; }
+.lane-pill.inbox { background:linear-gradient(135deg,#00A8E8,#2F7FE0); }
+.lane-pill.onsite { background:linear-gradient(135deg,#7C5CFF,#4B35C8); }
+.lane-pill.hist { background:#1A1630; }
+.lane-pill.on { box-shadow:0 0 0 2px #fff, 0 0 0 4px var(--purple); }
+.center-desk { padding-bottom:120px; }
+#center h2 { font-size:30px; letter-spacing:-.7px; margin:6px 0 8px; }
+#center .block { margin:28px 0 10px; }
+#center .quote { margin:0 0 8px; }
+.center-sheet-dim {
+  display:none; position:fixed; inset:0; z-index:27;
+  background:rgba(17,14,26,.38);
+}
+.center-sheet-dim.on { display:block; }
 .center-sheet {
-  display:none; position:fixed; inset:0; z-index:28;
+  display:none; position:fixed; left:0; right:0; bottom:0; top:10vh; z-index:28;
   background:var(--page); overflow:auto; -webkit-overflow-scrolling:touch;
+  border-radius:28px 28px 0 0;
+  box-shadow:0 -18px 50px rgba(17,14,26,.18);
   padding-bottom:calc(28px + env(safe-area-inset-bottom));
 }
 .center-sheet.on { display:block; }
-.center-sheet .nav { padding-top:calc(12px + env(safe-area-inset-top)); }
+.center-sheet .nav { padding-top:14px; }
 .center-search { margin:0 0 12px; min-height:52px; }
 .center-date { position:relative; margin:0 0 18px; }
 .center-date .pill { margin:0; padding:16px 18px; font-size:17px; }
@@ -385,8 +389,13 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
 .acre-thumb img { width:100%; height:100%; object-fit:cover; display:block; }
 .acre-meta { min-width:0; flex:1; }
 .acre-meta .name { margin:0 0 4px; font-size:16px; font-weight:800; letter-spacing:-.3px; line-height:1.2; }
-.acre-meta .line { color:var(--muted); font-size:13px; line-height:1.35; margin:0 0 8px; font-weight:600; }
-.acre-flags { display:flex; flex-wrap:wrap; gap:6px; }
+.acre-meta .line { color:var(--muted); font-size:13px; line-height:1.35; margin:0 0 6px; font-weight:600; }
+.acre-meta .sentby { color:var(--ink); font-size:13px; font-weight:700; margin:0 0 4px; }
+.acre-kv { display:flex; gap:8px; margin:0 0 3px; }
+.acre-kv k { flex:0 0 64px; color:var(--purple-deep); font-size:11px; font-weight:800; letter-spacing:.04em; text-transform:uppercase; padding-top:2px; }
+.acre-kv b { font-size:14px; font-weight:800; line-height:1.25; }
+.acre-row.inbox { align-items:flex-start; min-height:118px; padding:14px; }
+.acre-flags { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
 .sample-badge, .stage-tag, .arch-tag {
   display:inline-block; border-radius:999px; padding:5px 10px; font-size:11px; font-weight:800; letter-spacing:.02em;
 }
@@ -394,9 +403,9 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
 .stage-tag.wait { background:#FFF3D6; color:#8A5A00; }
 .stage-tag.done { background:#D8F5E5; color:#0F6B3C; }
 .arch-tag { background:#F3F0FA; color:var(--purple-deep); }
-#centerDetail .block { margin:28px 0 10px; }
-#centerDetail .quote { margin:0 0 8px; }
-#centerDetail h2 { font-size:30px; letter-spacing:-.7px; margin:6px 0 8px; }
+#center .block, #centerDetail .block { margin:28px 0 10px; }
+#center .quote, #centerDetail .quote { margin:0 0 8px; }
+#center h2, #centerDetail h2 { font-size:30px; letter-spacing:-.7px; margin:6px 0 8px; }
 .acre-tags { display:flex; flex-wrap:wrap; gap:8px; margin:0 0 16px; }
 .acre-tags i {
   font-style:normal; background:#fff; border:1.5px solid var(--hair);
@@ -450,9 +459,9 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
 .team-rail { display:flex; flex-direction:column; gap:10px; }
 .team-card { background:#fff; border:1.5px solid var(--hair); border-radius:20px; padding:14px; }
 .team-card.final { border-color:#C4B6FF; background:#F6F3FF; }
-.team-card .who { display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin:0 0 10px; }
-.team-card .who b { font-size:17px; }
-.team-card .who k { color:var(--muted); font-size:11px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+.team-card .who-row { display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin:0 0 10px; }
+.team-card .who-row b { font-size:17px; }
+.team-card .who-row k { color:var(--muted); font-size:11px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
 .team-mm { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
 .team-mm label { margin:0; }
 .team-mm .f { padding:10px 8px; font-size:14px; text-align:center; }
@@ -485,7 +494,7 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
   .dock .pill { width:auto; min-width:240px; margin:0; }
   .pill { transition:transform .15s ease, box-shadow .15s ease, background .15s ease; }
   .pill:hover { transform:translateY(-1px); box-shadow:0 10px 24px rgba(92,63,224,.16); }
-  .row, .dmg-card, .doc-sq, .mail, .review, .gbtn, .acre-row, .center-pop, .doc-slot {
+  .row, .dmg-card, .doc-sq, .mail, .review, .gbtn, .acre-row, .lane-pill, .doc-slot {
     transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;
   }
   .row:hover, .dmg-card:hover, .mail:hover, .review:hover {
@@ -550,55 +559,27 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
   .start-actions .pill { font-size:16px; min-height:50px; }
   .start-more .pill { font-size:14px; min-height:46px; }
 
-  .center-home-pad { max-width:760px; margin:0 auto; padding-top:36px; }
-  .center-home-pad h2 { font-size:44px; }
-  .center-pops { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-top:36px; }
-  .center-pop { min-height:148px; padding:28px 26px; }
-  .center-pop b { font-size:34px; }
-  .center-pop:hover { transform:translateY(-2px); box-shadow:0 22px 48px rgba(92,63,224,.2); }
+  .center-lanes { max-width:1180px; width:100%; margin:0 auto; padding:8px 40px 16px; gap:12px; }
+  .lane-pill { min-height:72px; padding:14px 16px; border-radius:18px; }
+  .lane-pill b { font-size:17px; }
+  .lane-pill:hover { transform:translateY(-1px); box-shadow:0 12px 28px rgba(17,14,26,.14); }
   .acre-row:hover { transform:translateY(-1px); box-shadow:0 14px 32px rgba(17,14,26,.1); }
-
-  .phone.center-desk {
-    display:grid;
-    grid-template-columns:minmax(340px, 400px) 1fr;
-    grid-template-rows:auto 1fr;
-    max-width:none;
-    min-height:100dvh;
-    background:var(--page);
-  }
-  .phone.center-desk > .accent { grid-column:1 / -1; }
-  .phone.center-desk #center.screen,
-  .phone.center-desk #centerDetail.screen {
-    display:block !important;
-    min-height:calc(100dvh - 4px);
-    max-height:calc(100dvh - 4px);
-    overflow:auto;
-    padding-bottom:24px;
-  }
-  .phone.center-desk #center.screen {
-    border-right:1px solid var(--hair);
-    background:#F7F5FC;
-  }
-  .phone.center-desk #center .center-home { display:none; }
-  .phone.center-desk #center .center-sheet {
-    display:block;
-    position:relative; inset:auto; z-index:1;
-    background:transparent; padding-bottom:32px;
-  }
-  .phone.center-desk #centerDetail .pad { max-width:none; padding:0 36px 40px; }
-  .phone.center-desk #centerDetail h2 { font-size:40px; }
-  .phone.center-desk .center-hero { border-radius:28px; }
-  .phone.center-desk .center-hero img { height:min(42vh, 420px); }
-  .phone.center-desk .acre-vals { grid-template-columns:repeat(3, 1fr); gap:12px; }
-  .phone.center-desk .acre-chip { padding:16px 14px; }
-  .phone.center-desk .acre-chip b { font-size:22px; }
-  .phone.center-desk .acre-market { grid-template-columns:repeat(4, 1fr); gap:12px; }
-  .phone.center-desk .center-docs { grid-template-columns:repeat(5, 1fr); }
-  .phone.center-desk .team-rail { display:grid; grid-template-columns:repeat(2, 1fr); gap:12px; }
-  .phone.center-desk .team-card.final { grid-column:1 / -1; }
-  .phone.center-desk .dock {
-    position:sticky; left:auto; transform:none; width:auto;
-    justify-content:flex-end; background:transparent; padding:12px 36px 24px;
+  #center.screen { padding-bottom:40px; }
+  #center h2 { font-size:40px; }
+  #center .center-hero { border-radius:28px; }
+  #center .center-hero img { height:min(42vh, 420px); }
+  #center .acre-vals { gap:12px; }
+  #center .acre-chip { padding:16px 14px; }
+  #center .acre-chip b { font-size:22px; }
+  #center .acre-market { gap:12px; }
+  #center .center-docs { grid-template-columns:repeat(5, 1fr); }
+  #center .team-rail { display:grid; grid-template-columns:repeat(2, 1fr); gap:12px; }
+  #center .team-card.final { grid-column:1 / -1; }
+  .center-sheet-dim { background:rgba(17,14,26,.28); }
+  .center-sheet {
+    top:32px; bottom:32px; left:auto; right:28px;
+    width:min(440px, 38vw); border-radius:28px;
+    box-shadow:0 24px 60px rgba(17,14,26,.22);
   }
 }
 
@@ -755,44 +736,60 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
 </section>
 
 <section class="screen" id="center">
-  <div class="center-home" id="centerHome">
-    <div class="nav">
-      <button class="round" type="button" id="centerBack">✕</button>
-      <h1>Appraisal Center</h1>
-      <span></span>
-    </div>
-    <div class="pad center-home-pad">
-      <p class="login-kicker">Desk</p>
-      <h2>Open a lane</h2>
-      <p class="quote">Waiting is live work. History is everything already done — including the 90-day archive. Two big buttons. That’s the whole chrome.</p>
-      <div class="center-pops">
-        <button class="center-pop wait" type="button" id="centerWaitingBtn">
-          <em>Live</em>
-          <b>Waiting</b>
-          <span id="centerWaitCount">0</span>
-        </button>
-        <button class="center-pop hist" type="button" id="centerHistoryBtn">
-          <em>Past</em>
-          <b>History</b>
-          <span id="centerHistCount">0</span>
-        </button>
-      </div>
-      <p class="center-whisper">Files older than <b>90 days</b> archive themselves into History.</p>
-    </div>
+  <div class="nav">
+    <button class="round" type="button" id="centerBack">✕</button>
+    <h1>Appraisal Center</h1>
+    <span></span>
   </div>
+  <div class="center-lanes" id="centerLanes">
+    <button class="lane-pill inbox" type="button" id="centerInboxBtn">
+      <b>Inbox</b>
+      <span id="centerInboxCount">0</span>
+    </button>
+    <button class="lane-pill onsite" type="button" id="centerOnsiteBtn">
+      <b>On-site</b>
+      <span id="centerOnsiteCount">0</span>
+    </button>
+    <button class="lane-pill hist" type="button" id="centerHistoryBtn">
+      <b>History</b>
+      <span id="centerHistCount">0</span>
+    </button>
+  </div>
+  <div class="pad center-desk" id="centerDetailBody">
+    <div class="badge" id="centerDetailBadge">Waiting</div>
+    <h2 id="centerDetailTitle">Vehicle</h2>
+    <p class="quote" id="centerDetailSub"></p>
+    <div class="acre-tags" id="centerTags"></div>
+    <div class="center-hero" id="centerHero"></div>
+    <div class="acre-vals" id="centerValStrip"></div>
+    <div class="acre-market" id="centerMarket"></div>
+    <div class="facts" id="centerFacts"></div>
+    <div class="block">Notes</div>
+    <p class="quote" id="centerStory">No story yet.</p>
+    <div class="block">Documents</div>
+    <div class="center-docs" id="centerDocs"></div>
+    <div class="block">Appraisal team</div>
+    <div class="team-rail" id="centerTeam"></div>
+    <label class="k">Desk notes</label>
+    <textarea class="note" id="centerNotes" placeholder="Anything the team should know"></textarea>
+  </div>
+  <div class="dock" id="centerDock">
+    <button class="pill purple" type="button" id="centerStageBtn">Complete</button>
+  </div>
+  <div class="center-sheet-dim" id="centerSheetDim"></div>
   <div class="center-sheet" id="centerSheet">
     <div class="nav">
       <button class="round" type="button" id="centerSheetClose">✕</button>
-      <h1 id="centerTitleNav">Waiting</h1>
+      <h1 id="centerTitleNav">Inbox</h1>
       <span></span>
     </div>
     <div class="pad" style="padding-bottom:40px">
       <div id="centerHistoryBar" class="hide">
         <div class="center-archive-banner" id="centerArchiveBanner">
           <b>90-day archive</b>
-          <span>Older files stay here. They leave Waiting automatically after 90 days.</span>
+          <span>Older files stay here. They leave Inbox and On-site automatically after 90 days.</span>
         </div>
-        <input class="f center-search" id="centerSearch" type="search" placeholder="Search name, VIN, or vehicle" />
+        <input class="f center-search" id="centerSearch" type="search" placeholder="Search name, phone, VIN, or vehicle" />
         <div class="center-date">
           <button class="pill" type="button" id="centerDateBtn">Date</button>
           <div class="date-menu" id="centerDateMenu">
@@ -823,35 +820,6 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
       </div>
       <div id="centerList"></div>
     </div>
-  </div>
-</section>
-
-<section class="screen" id="centerDetail">
-  <div class="nav">
-    <button class="round" type="button" id="centerDetailBack">‹</button>
-    <h1 id="centerDetailHead">File</h1>
-    <button class="round" type="button">•••</button>
-  </div>
-  <div class="pad" id="centerDetailBody" style="padding-bottom:120px">
-    <div class="badge" id="centerDetailBadge">Waiting</div>
-    <h2 id="centerDetailTitle">Vehicle</h2>
-    <p class="quote" id="centerDetailSub"></p>
-    <div class="acre-tags" id="centerTags"></div>
-    <div class="center-hero" id="centerHero"></div>
-    <div class="acre-vals" id="centerValStrip"></div>
-    <div class="acre-market" id="centerMarket"></div>
-    <div class="facts" id="centerFacts"></div>
-    <div class="block">Notes</div>
-    <p class="quote" id="centerStory">No story yet.</p>
-    <div class="block">Documents</div>
-    <div class="center-docs" id="centerDocs"></div>
-    <div class="block">Appraisal team</div>
-    <div class="team-rail" id="centerTeam"></div>
-    <label class="k">Desk notes</label>
-    <textarea class="note" id="centerNotes" placeholder="Anything the team should know"></textarea>
-  </div>
-  <div class="dock">
-    <button class="pill purple" type="button" id="centerStageBtn">Complete</button>
   </div>
 </section>
 
@@ -1341,31 +1309,15 @@ function isDesk(){
 }
 function syncCenterDesk(){
   const phone=document.querySelector(".phone");
-  if(!phone) return;
-  const onCenter=APP.screen==="center" || APP.screen==="centerDetail";
-  const split=isDesk() && onCenter && !!APP.centerLane;
-  phone.classList.toggle("center-desk", split);
-  if(split){
-    if($("center")) $("center").classList.add("on");
-    if($("centerDetail")) $("centerDetail").classList.add("on");
-  } else if(!onCenter){
-    phone.classList.remove("center-desk");
-  }
+  if(phone) phone.classList.toggle("center-open", APP.screen==="center");
 }
 function show(id){
+  if(id==="centerDetail") id="center";
   const el=$(id);
   if(!el){ toast("Can’t open that screen."); return; }
   if(id!=="camera") killMediaNow();
-  const split=isDesk() && (id==="center" || id==="centerDetail") && !!APP.centerLane;
-  document.querySelectorAll(".screen").forEach(function(n){
-    if(split && (n.id==="center" || n.id==="centerDetail")) return;
-    n.classList.remove("on");
-  });
+  document.querySelectorAll(".screen").forEach(function(n){ n.classList.remove("on"); });
   el.classList.add("on");
-  if(split){
-    if($("center")) $("center").classList.add("on");
-    if($("centerDetail")) $("centerDetail").classList.add("on");
-  }
   window.scrollTo(0,0);
   APP.screen=id;
   syncCenterDesk();
@@ -1386,8 +1338,7 @@ function show(id){
   if(id==="camera") startPreview("shotCam");
   if(id==="submit") paintSubmit();
   if(id==="users") paintUsers();
-  if(id==="center") paintCenter();
-  if(id==="centerDetail") paintCenterDetail();
+  if(id==="center"){ paintCenter(); paintCenterDetail(); }
   if(id!=="login" && id!=="thanks" && id!=="start") scheduleDraftSave();
 }
 
@@ -2392,7 +2343,7 @@ function wipeJob(goStart){
 }
 
 const CENTER_KEY="inspect.center";
-const CENTER_SAMPLE_VER="acre3";
+const CENTER_SAMPLE_VER="acre4";
 const CENTER_TEAM=[
   ["shabot","Shabot","FINAL"],
   ["rybot","Rybot","Opinion"],
@@ -2475,10 +2426,55 @@ function centerSampleItems(){
   };
   return [
     {
-      id:"sample-v3-corolla", sample:true, sampleVer:CENTER_SAMPLE_VER, stage:"Waiting", source:"appraise",
-      ymmt:"2023 Toyota GR Corolla Core", year:"2023", make:"Toyota", model:"GR Corolla", trim:"Core",
+      id:"sample-v4-tucson", sample:true, sampleVer:CENTER_SAMPLE_VER, lane:"inbox", stage:"Waiting", source:"guest",
+      interest:"2025 Hyundai Tucson Preferred", ymmt:"2022 Hyundai Santa Fe Preferred",
+      year:"2022", make:"Hyundai", model:"Santa Fe", trim:"Preferred", color:"Portofino Gray", km:"64000", vin:"5NMS3DAJ7NH452632",
+      createdAt:daysAgo(0.3), updatedAt:daysAgo(0.3), sentAt:daysAgo(0.3),
+      salesperson:"Jay Cyr", customer:{name:"Maya Patel", email:"maya.patel@example.com", phone:"(613) 555-0142"},
+      story:"Guest link is out. Photos not back yet. One-owner AWD Santa Fe against a new Tucson.",
+      notes:"Incomplete — waiting on walk photos.", photoCount:0, thumb:"", photos:[],
+      docs:{vauto:{have:false,name:"",type:"",fmt:"PDF"},openlane:{have:false,name:"",type:"",fmt:"Screenshot"},eblock:{have:false,name:"",type:"",fmt:"Video"},carfax:{have:false,name:"",type:"",fmt:"PDF"},mmr:{have:false,name:"",type:"",fmt:"Screenshot"}},
+      values:emptyVals(), team:emptyTeam(), tags:["Inbox","Incomplete"]
+    },
+    {
+      id:"sample-v4-f150", sample:true, sampleVer:CENTER_SAMPLE_VER, lane:"inbox", stage:"Waiting", source:"trade-in",
+      interest:"2025 Ford F-150 Lariat", ymmt:"2018 Honda CR-V EX",
+      year:"2018", make:"Honda", model:"CR-V", trim:"EX", color:"White", km:"118000", vin:"2HKRW2H86JH123456",
+      createdAt:daysAgo(0.8), updatedAt:daysAgo(0.8), sentAt:daysAgo(0.8),
+      salesperson:"Wes", customer:{name:"Chris Nguyen", email:"", phone:"(613) 555-0198"},
+      story:"Trade-in link sent. Customer is dealing on the Lariat. CR-V is the trade — not back yet.",
+      notes:"", photoCount:0, thumb:"", photos:[],
+      docs:{vauto:{have:false,name:"",type:"",fmt:"PDF"},openlane:{have:false,name:"",type:"",fmt:"Screenshot"},eblock:{have:false,name:"",type:"",fmt:"Video"},carfax:{have:false,name:"",type:"",fmt:"PDF"},mmr:{have:false,name:"",type:"",fmt:"Screenshot"}},
+      values:emptyVals(), team:emptyTeam(), tags:["Inbox","Link sent"]
+    },
+    {
+      id:"sample-v4-elantra", sample:true, sampleVer:CENTER_SAMPLE_VER, lane:"inbox", stage:"Waiting", source:"guest",
+      interest:"2024 Honda Civic Sport", ymmt:"2016 Hyundai Elantra",
+      year:"2016", make:"Hyundai", model:"Elantra", trim:"", color:"Silver", km:"142000", vin:"5NPD74LF6GH334455",
+      createdAt:daysAgo(1.2), updatedAt:daysAgo(1.2), sentAt:daysAgo(1.2),
+      salesperson:"Isabella Coffey", customer:{name:"Aisha Khan", email:"", phone:"(343) 555-0177"},
+      story:"Packet came back thin. Story only — still missing photos. Shopping the red Civic on the lot.",
+      notes:"Incomplete packet.", photoCount:0, thumb:"", photos:[],
+      docs:{vauto:{have:false,name:"",type:"",fmt:"PDF"},openlane:{have:false,name:"",type:"",fmt:"Screenshot"},eblock:{have:false,name:"",type:"",fmt:"Video"},carfax:{have:false,name:"",type:"",fmt:"PDF"},mmr:{have:false,name:"",type:"",fmt:"Screenshot"}},
+      values:emptyVals(), team:emptyTeam(), tags:["Inbox","Not fully back"]
+    },
+    {
+      id:"sample-v4-sierra", sample:true, sampleVer:CENTER_SAMPLE_VER, lane:"inbox", stage:"Waiting", source:"trade-in",
+      interest:"2025 GMC Sierra AT4", ymmt:"2019 Chevrolet Silverado LT",
+      year:"2019", make:"Chevrolet", model:"Silverado", trim:"LT", color:"Black", km:"134000", vin:"1GCUYDED5KZ308812",
+      createdAt:daysAgo(0.15), updatedAt:daysAgo(0.15), sentAt:daysAgo(0.15),
+      salesperson:"Kyle", customer:{name:"Tom Bradley", email:"", phone:"(613) 555-0110"},
+      story:"Sent this morning. Customer wants the AT4. Silverado is the trade — photos promised tonight.",
+      notes:"", photoCount:0, thumb:"", photos:[],
+      docs:{vauto:{have:false,name:"",type:"",fmt:"PDF"},openlane:{have:false,name:"",type:"",fmt:"Screenshot"},eblock:{have:false,name:"",type:"",fmt:"Video"},carfax:{have:false,name:"",type:"",fmt:"PDF"},mmr:{have:false,name:"",type:"",fmt:"Screenshot"}},
+      values:emptyVals(), team:emptyTeam(), tags:["Inbox","Sent"]
+    },
+    {
+      id:"sample-v4-corolla", sample:true, sampleVer:CENTER_SAMPLE_VER, lane:"onsite", stage:"Waiting", source:"appraise",
+      interest:"", ymmt:"2023 Toyota GR Corolla Core", year:"2023", make:"Toyota", model:"GR Corolla", trim:"Core",
       color:"White", km:"10500", vin:"JTNABAAE8PA003162", stock:"",
       createdAt:daysAgo(0.2), updatedAt:daysAgo(0.2), sentAt:daysAgo(0.2),
+      salesperson:"Isabella Coffey", customer:{name:"Isabella Coffey", email:"", phone:""},
       story:"Selling as a trade. Already a GR86 deposit down and needs something they can release. Expecting closer to $37.8k. Clean, one-owner, no-accident 2023 GR Corolla Core at 10,500 km — the lowest-mileage unit in a while.",
       notes:"On-site. Customer waiting on a number.",
       photoCount:3, thumb:"https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?auto=format&fit=crop&w=1400&q=80",
@@ -2489,14 +2485,15 @@ function centerSampleItems(){
       ),
       docs:{vauto:{have:true,name:"vAuto book",type:"pdf",fmt:"PDF"},openlane:{have:true,name:"OpenLane shot",type:"image",fmt:"Screenshot"},eblock:{have:false,name:"",type:"",fmt:"Video"},carfax:{have:true,name:"Carfax clean",type:"pdf",fmt:"PDF"},mmr:{have:true,name:"MMR",type:"image",fmt:"Screenshot"}},
       values:{maya:"37800",vauto:"37000",predicted:"38400",book:"39000",mmr:"35100",pct:"",afc:"",rangeMin:"35800",rangeMax:""},
-      team:t, customer:{name:"Isabella Coffey",email:"",phone:""}, tags:["On-site","Clean","One owner","Japan"]
+      team:t, tags:["On-site","Clean","One owner","Japan"]
     },
     {
-      id:"sample-v3-f250", sample:true, sampleVer:CENTER_SAMPLE_VER, stage:"Waiting", source:"trade-in",
-      ymmt:"2025 Ford F-250 XLT Super Duty Crew Cab", year:"2025", make:"Ford", model:"F-250", trim:"XLT Super Duty",
-      color:"Oxford White", km:"75200", vin:"1FT8W2BT5SED42817", stock:"",
+      id:"sample-v4-f250", sample:true, sampleVer:CENTER_SAMPLE_VER, lane:"onsite", stage:"Waiting", source:"appraise",
+      interest:"", ymmt:"2025 Ford F-250 XLT Super Duty Crew Cab", year:"2025", make:"Ford", model:"F-250", trim:"XLT Super Duty",
+      color:"Oxford White", km:"75200", vin:"1FT8W2BT5SED42817",
       createdAt:daysAgo(1.1), updatedAt:daysAgo(1.1), sentAt:daysAgo(1.1),
-      story:"Customer trade against a new Super Duty. Truck works every day. Light box wear, no frame stories.",
+      salesperson:"Wes", customer:{name:"Wes", email:"", phone:""},
+      story:"On the lot. Truck works every day. Light box wear, no frame stories.",
       notes:"Need MMR screenshot and a walk video.",
       photoCount:2, thumb:"https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=1400&q=80",
       photos:pic(
@@ -2505,97 +2502,88 @@ function centerSampleItems(){
       ),
       docs:{vauto:{have:false,name:"",type:"",fmt:"PDF"},openlane:{have:false,name:"",type:"",fmt:"Screenshot"},eblock:{have:true,name:"Walk video",type:"video",fmt:"Video"},carfax:{have:false,name:"",type:"",fmt:"PDF"},mmr:{have:false,name:"",type:"",fmt:"Screenshot"}},
       values:{maya:"90000",vauto:"88000",predicted:"92500",book:"95800",mmr:"87200",pct:"102%",afc:"",rangeMin:"86000",rangeMax:"93000"},
-      team:truck, customer:{name:"Wes",email:"",phone:""}, tags:["Trade-in","Crew cab"]
+      team:truck, tags:["On-site","Crew cab"]
     },
     {
-      id:"sample-v3-santafe", sample:true, sampleVer:CENTER_SAMPLE_VER, stage:"Waiting", source:"guest",
-      ymmt:"2022 Hyundai Santa Fe Preferred", year:"2022", make:"Hyundai", model:"Santa Fe", trim:"Preferred",
-      color:"Portofino Gray", km:"64000", vin:"5NMS3DAJ7NH452632", stock:"",
-      createdAt:daysAgo(0.6), updatedAt:daysAgo(0.6), sentAt:daysAgo(0.6),
-      story:"Guest link just landed. Photos coming. Customer said it is a one-owner AWD.",
-      notes:"",
-      photoCount:0, thumb:"", photos:[],
-      docs:{vauto:{have:false,name:"",type:"",fmt:"PDF"},openlane:{have:false,name:"",type:"",fmt:"Screenshot"},eblock:{have:false,name:"",type:"",fmt:"Video"},carfax:{have:false,name:"",type:"",fmt:"PDF"},mmr:{have:false,name:"",type:"",fmt:"Screenshot"}},
-      values:{maya:"",vauto:"",predicted:"",book:"",mmr:"",pct:"",afc:""},
-      team:emptyTeam(), customer:{name:"Maya",email:"",phone:""}, tags:["Guest link","No photos"]
-    },
-    {
-      id:"sample-v3-civic", sample:true, sampleVer:CENTER_SAMPLE_VER, stage:"Waiting", source:"website",
-      ymmt:"2024 Honda Civic Sport", year:"2024", make:"Honda", model:"Civic", trim:"Sport",
+      id:"sample-v4-civic", sample:true, sampleVer:CENTER_SAMPLE_VER, lane:"onsite", stage:"Waiting", source:"website",
+      interest:"", ymmt:"2024 Honda Civic Sport", year:"2024", make:"Honda", model:"Civic", trim:"Sport",
       color:"Rallye Red", km:"18000", vin:"2HGFE2F54RH543210", stock:"W-4412",
       createdAt:daysAgo(2.4), updatedAt:daysAgo(2.4), sentAt:daysAgo(2.4),
-      story:"Website unit. Bright red Sport. Clean Carfax, two keys, winter tires in the box.",
+      salesperson:"Lord", customer:{name:"", email:"", phone:""},
+      story:"Website unit on the lot. Bright red Sport. Clean Carfax, two keys, winter tires in the box.",
       notes:"Post after we lock the number.",
       photoCount:1, thumb:"https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?auto=format&fit=crop&w=1400&q=80",
       photos:pic("https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?auto=format&fit=crop&w=1400&q=80"),
       docs:{vauto:{have:true,name:"vAuto",type:"pdf",fmt:"PDF"},openlane:{have:false,name:"",type:"",fmt:"Screenshot"},eblock:{have:false,name:"",type:"",fmt:"Video"},carfax:{have:true,name:"Carfax",type:"pdf",fmt:"PDF"},mmr:{have:false,name:"",type:"",fmt:"Screenshot"}},
       values:{maya:"28900",vauto:"27600",predicted:"29200",book:"30100",mmr:"26800",pct:"96%",afc:"25400"},
-      team:emptyTeam(), customer:{name:"",email:"",phone:""}, tags:["Website","In stock"]
+      team:emptyTeam(), tags:["On-site","In stock"]
     },
     {
-      id:"sample-v3-ram", sample:true, sampleVer:CENTER_SAMPLE_VER, stage:"Appraised", source:"appraise",
+      id:"sample-v4-ram", sample:true, sampleVer:CENTER_SAMPLE_VER, lane:"history", stage:"Appraised", source:"appraise",
       ymmt:"2021 RAM 1500 Rebel", year:"2021", make:"RAM", model:"1500", trim:"Rebel",
-      color:"Granite Crystal", km:"61200", vin:"1C6SRFLT4MN654321", stock:"",
+      color:"Granite Crystal", km:"61200", vin:"1C6SRFLT4MN654321",
       createdAt:daysAgo(0.05), updatedAt:daysAgo(0.05), sentAt:daysAgo(0.05),
+      salesperson:"Kyle", customer:{name:"Kyle", email:"", phone:""},
       story:"Rebel with the right miles. Done this morning — customer took $48,200.",
       notes:"Paid. Paperwork with Jay.",
       photoCount:1, thumb:"https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=1400&q=80",
       photos:pic("https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=1400&q=80"),
       docs:{vauto:{have:true,name:"vAuto",type:"pdf",fmt:"PDF"},openlane:{have:true,name:"OpenLane",type:"image",fmt:"Screenshot"},eblock:{have:false,name:"",type:"",fmt:"Video"},carfax:{have:true,name:"Carfax",type:"pdf",fmt:"PDF"},mmr:{have:true,name:"MMR",type:"image",fmt:"Screenshot"}},
       values:{maya:"48200",vauto:"47000",predicted:"49100",book:"50500",mmr:"45800",pct:"99%",afc:""},
-      team:emptyTeam(), customer:{name:"Kyle",email:"",phone:""}, tags:["Appraised","Today"]
+      team:emptyTeam(), tags:["Appraised","Today"]
     },
     {
-      id:"sample-v3-cx5", sample:true, sampleVer:CENTER_SAMPLE_VER, stage:"Appraised", source:"guest",
-      ymmt:"2020 Mazda CX-5 GT", year:"2020", make:"Mazda", model:"CX-5", trim:"GT",
-      color:"Soul Red", km:"88000", vin:"JM3KFBDM5L0147890", stock:"",
+      id:"sample-v4-cx5", sample:true, sampleVer:CENTER_SAMPLE_VER, lane:"history", stage:"Appraised", source:"guest",
+      interest:"2022 Mazda CX-50", ymmt:"2020 Mazda CX-5 GT", year:"2020", make:"Mazda", model:"CX-5", trim:"GT",
+      color:"Soul Red", km:"88000", vin:"JM3KFBDM5L0147890",
       createdAt:daysAgo(1.3), updatedAt:daysAgo(1.3), sentAt:daysAgo(1.3),
+      salesperson:"Jay Cyr", customer:{name:"Priya Shah", email:"", phone:"(613) 555-0166"},
       story:"Guest packet yesterday. GT with brown interior. We landed at $24,400.",
-      notes:"",
-      photoCount:1, thumb:"https://images.unsplash.com/photo-1619767886558-efdc259cde1a?auto=format&fit=crop&w=1400&q=80",
+      notes:"", photoCount:1, thumb:"https://images.unsplash.com/photo-1619767886558-efdc259cde1a?auto=format&fit=crop&w=1400&q=80",
       photos:pic("https://images.unsplash.com/photo-1619767886558-efdc259cde1a?auto=format&fit=crop&w=1400&q=80"),
       docs:{vauto:{have:true,name:"vAuto",type:"pdf",fmt:"PDF"},openlane:{have:false,name:"",type:"",fmt:"Screenshot"},eblock:{have:false,name:"",type:"",fmt:"Video"},carfax:{have:true,name:"Carfax",type:"pdf",fmt:"PDF"},mmr:{have:false,name:"",type:"",fmt:"Screenshot"}},
       values:{maya:"24400",vauto:"23800",predicted:"25100",book:"26200",mmr:"22900",pct:"94%",afc:""},
-      team:emptyTeam(), customer:{name:"Priya",email:"",phone:""}, tags:["Yesterday"]
+      team:emptyTeam(), tags:["Yesterday"]
     },
     {
-      id:"sample-v3-x3", sample:true, sampleVer:CENTER_SAMPLE_VER, stage:"Appraised", source:"appraise",
+      id:"sample-v4-x3", sample:true, sampleVer:CENTER_SAMPLE_VER, lane:"history", stage:"Appraised", source:"appraise",
       ymmt:"2018 BMW X3 xDrive30i", year:"2018", make:"BMW", model:"X3", trim:"xDrive30i",
-      color:"Alpine White", km:"112000", vin:"5UXTR9C50J0D33455", stock:"",
+      color:"Alpine White", km:"112000", vin:"5UXTR9C50J0D33455",
       createdAt:daysAgo(12), updatedAt:daysAgo(12), sentAt:daysAgo(12),
+      salesperson:"Lord", customer:{name:"Lord", email:"", phone:""},
       story:"This month. Service history in the dashbox. We were light because of the miles.",
-      notes:"",
-      photoCount:1, thumb:"https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=1400&q=80",
+      notes:"", photoCount:1, thumb:"https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=1400&q=80",
       photos:pic("https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=1400&q=80"),
       docs:{vauto:{have:true,name:"vAuto",type:"pdf",fmt:"PDF"},openlane:{have:false,name:"",type:"",fmt:"Screenshot"},eblock:{have:false,name:"",type:"",fmt:"Video"},carfax:{have:true,name:"Carfax",type:"pdf",fmt:"PDF"},mmr:{have:true,name:"MMR",type:"image",fmt:"Screenshot"}},
       values:{maya:"22800",vauto:"21900",predicted:"23400",book:"24600",mmr:"21100",pct:"91%",afc:""},
-      team:emptyTeam(), customer:{name:"Lord",email:"",phone:""}, tags:["This month"]
+      team:emptyTeam(), tags:["This month"]
     },
     {
-      id:"sample-v3-silverado", sample:true, sampleVer:CENTER_SAMPLE_VER, stage:"Appraised", source:"trade-in",
-      ymmt:"2019 Chevrolet Silverado LT", year:"2019", make:"Chevrolet", model:"Silverado", trim:"LT",
-      color:"Black", km:"134000", vin:"1GCUYDED5KZ308812", stock:"",
+      id:"sample-v4-silverado", sample:true, sampleVer:CENTER_SAMPLE_VER, lane:"history", stage:"Appraised", source:"trade-in",
+      interest:"2024 Chevrolet Silverado ZR2", ymmt:"2019 Chevrolet Silverado LT",
+      year:"2019", make:"Chevrolet", model:"Silverado", trim:"LT", color:"Black", km:"134000", vin:"1GCUYDED5KZ399001",
       createdAt:daysAgo(40), updatedAt:daysAgo(40), sentAt:daysAgo(40),
+      salesperson:"Josh", customer:{name:"Dana Cole", email:"", phone:"(613) 555-0188"},
       story:"Last month trade. Work truck miles. We passed at their number and they kept it.",
-      notes:"",
-      photoCount:1, thumb:"https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&w=1400&q=80",
+      notes:"", photoCount:1, thumb:"https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&w=1400&q=80",
       photos:pic("https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&w=1400&q=80"),
       docs:{vauto:{have:true,name:"vAuto",type:"pdf",fmt:"PDF"},openlane:{have:false,name:"",type:"",fmt:"Screenshot"},eblock:{have:false,name:"",type:"",fmt:"Video"},carfax:{have:false,name:"",type:"",fmt:"PDF"},mmr:{have:true,name:"MMR",type:"image",fmt:"Screenshot"}},
       values:{maya:"26500",vauto:"25800",predicted:"27100",book:"28400",mmr:"24900",pct:"",afc:""},
-      team:emptyTeam(), customer:{name:"Josh",email:"",phone:""}, tags:["Last month"]
+      team:emptyTeam(), tags:["Last month"]
     },
     {
-      id:"sample-v3-wrangler", sample:true, sampleVer:CENTER_SAMPLE_VER, stage:"Appraised", archived:true, source:"appraise",
+      id:"sample-v4-wrangler", sample:true, sampleVer:CENTER_SAMPLE_VER, lane:"history", stage:"Appraised", archived:true, source:"appraise",
       ymmt:"2017 Jeep Wrangler Sahara", year:"2017", make:"Jeep", model:"Wrangler", trim:"Sahara",
-      color:"Firecracker Red", km:"98000", vin:"1C4BJWEG5HL640112", stock:"",
+      color:"Firecracker Red", km:"98000", vin:"1C4BJWEG5HL640112",
       createdAt:daysAgo(120), updatedAt:daysAgo(120), sentAt:daysAgo(120),
+      salesperson:"Steve", customer:{name:"Steve", email:"", phone:""},
       story:"Older file kept so you can see the 90-day archive. Soft top, aftermarket radio.",
       notes:"Archived automatically after 90 days.",
       photoCount:1, thumb:"https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=1400&q=80",
       photos:pic("https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=1400&q=80"),
       docs:{vauto:{have:false,name:"",type:"",fmt:"PDF"},openlane:{have:false,name:"",type:"",fmt:"Screenshot"},eblock:{have:false,name:"",type:"",fmt:"Video"},carfax:{have:true,name:"Carfax",type:"pdf",fmt:"PDF"},mmr:{have:false,name:"",type:"",fmt:"Screenshot"}},
       values:{maya:"31200",vauto:"29800",predicted:"32000",book:"33400",mmr:"28900",pct:"",afc:""},
-      team:emptyTeam(), customer:{name:"Steve",email:"",phone:""}, tags:["90-day archive"]
+      team:emptyTeam(), tags:["90-day archive"]
     }
   ];
 }
@@ -2756,6 +2744,11 @@ function upsertCenterFromApp(extra){
   item.requestedBy=APP.requestedBy||item.requestedBy||"";
   item.requestedByName=APP.requestedByName||item.requestedByName||"";
   item.sentBy=APP.userName||APP.userEmail||item.sentBy||"";
+  item.salesperson=APP.requestedByName||APP.userName||item.salesperson||item.sentBy||"";
+  item.interest=APP.inviteUnit||item.interest||"";
+  if(item.stage!=="Appraised" && !item.archived){
+    item.lane=(item.source==="guest" || item.source==="trade-in") ? "inbox" : (item.lane||"onsite");
+  }
   item.updatedAt=now;
   if(extra.sent) item.sentAt=now;
   if(extra.stage) item.stage=extra.stage;
@@ -2794,7 +2787,9 @@ function upsertCenterInvite(){
     store.items.unshift(item);
   }
   item.source="trade-in";
-  item.ymmt=APP.inviteUnit || item.ymmt || "Trade-in";
+  item.lane="inbox";
+  item.interest=APP.inviteUnit || item.interest || "";
+  item.ymmt=item.ymmt && item.ymmt!=="Trade-in" ? item.ymmt : (item.interest ? "Trade incoming" : (APP.inviteUnit || "Trade-in"));
   item.stock=APP.inviteStock||item.stock||"";
   item.inviteUnit=APP.inviteUnit||"";
   item.customer={
@@ -2802,6 +2797,7 @@ function upsertCenterInvite(){
     email:APP.inviteEmail||"",
     phone:APP.invitePhone||""
   };
+  item.salesperson=APP.userName||item.salesperson||"";
   item.sentBy=APP.userName||APP.userEmail||"";
   item.sentAt=now;
   item.updatedAt=now;
@@ -2823,43 +2819,34 @@ function getCenter(id){
   return loadCenter().find(function(x){ return x.id===id; }) || null;
 }
 function openCenter(){
-  APP.centerViewId="";
   APP.centerHistory=false;
   APP.centerLane="";
   if($("centerSheet")) $("centerSheet").classList.remove("on");
+  if($("centerSheetDim")) $("centerSheetDim").classList.remove("on");
   show("center");
 }
 function openCenterLane(lane){
-  APP.centerLane=lane==="history" ? "history" : "waiting";
+  APP.centerLane=lane==="inbox"||lane==="onsite"||lane==="history" ? lane : "inbox";
   APP.centerHistory=APP.centerLane==="history";
   if($("centerSheet")) $("centerSheet").classList.add("on");
-  if(!isDesk()) APP.centerViewId="";
-  show("center");
-  paintCenter();
-  if(isDesk()){
-    if(APP.centerViewId && getCenter(APP.centerViewId)) paintCenterDetail();
-    else paintCenterDetailEmpty();
-  }
+  if($("centerSheetDim")) $("centerSheetDim").classList.add("on");
+  if(APP.screen!=="center") show("center");
+  else { paintCenter(); paintCenterDetail(); }
 }
 function closeCenterLane(){
   APP.centerLane="";
   APP.centerHistory=false;
-  APP.centerViewId="";
   if($("centerSheet")) $("centerSheet").classList.remove("on");
+  if($("centerSheetDim")) $("centerSheetDim").classList.remove("on");
   if($("centerDateMenu")) $("centerDateMenu").classList.remove("on");
-  show("center");
+  paintCenter();
 }
 function openCenterDetail(id){
   APP.centerViewId=id;
   APP.centerPhoto=0;
-  if(!APP.centerLane){
-    const item=getCenter(id);
-    APP.centerLane=item && isCenterArchived(item) ? "history" : "waiting";
-    APP.centerHistory=APP.centerLane==="history";
-    if($("centerSheet")) $("centerSheet").classList.add("on");
-  }
-  show("centerDetail");
-  paintCenter();
+  closeCenterLane();
+  show("center");
+  paintCenterDetail();
 }
 function centerWhen(item){
   return Number(item.sentAt||item.updatedAt||item.createdAt||0);
@@ -2929,7 +2916,7 @@ function inDateRange(item){
 function matchesCenterSearch(item, q){
   if(!q) return true;
   const vin=String(item.vin||"");
-  const blob=[item.ymmt, item.appNo, vin, vin.slice(-8), item.customer && item.customer.name, item.story].join(" ").toLowerCase();
+  const blob=[item.ymmt, item.interest, item.appNo, vin, vin.slice(-8), item.salesperson, item.customer && item.customer.name, item.customer && item.customer.phone, item.story].join(" ").toLowerCase();
   return blob.indexOf(q)>=0;
 }
 function centerVinLine(item){
@@ -2955,43 +2942,71 @@ function isCenterAged(item){
   const when=centerWhen(item);
   return !!(when && (Date.now()-when)>CENTER_ARCHIVE_MS);
 }
+function centerLaneOf(item){
+  if(!item) return "onsite";
+  if(isCenterArchived(item)) return "history";
+  if(item.lane==="inbox" || item.lane==="onsite" || item.lane==="history") return item.lane;
+  if(item.source==="guest" || item.source==="trade-in") return "inbox";
+  return "onsite";
+}
+function centerLaneLabel(lane){
+  return ({inbox:"Inbox", onsite:"On-site", history:"History"})[lane] || "Inbox";
+}
 function centerLaneCounts(){
   seedCenterSamples();
   archiveOldCenter();
-  const all=loadCenter();
-  let wait=0, hist=0;
-  all.forEach(function(item){
-    if(isCenterArchived(item)) hist++;
-    else wait++;
-  });
-  return {wait:wait, hist:hist};
+  const n={inbox:0, onsite:0, history:0};
+  loadCenter().forEach(function(item){ n[centerLaneOf(item)]++; });
+  return n;
 }
 function paintCenterPops(){
   const n=centerLaneCounts();
-  if($("centerWaitCount")) $("centerWaitCount").textContent=String(n.wait);
-  if($("centerHistCount")) $("centerHistCount").textContent=String(n.hist);
+  if($("centerInboxCount")) $("centerInboxCount").textContent=String(n.inbox);
+  if($("centerOnsiteCount")) $("centerOnsiteCount").textContent=String(n.onsite);
+  if($("centerHistCount")) $("centerHistCount").textContent=String(n.history);
+  document.querySelectorAll(".lane-pill").forEach(function(b){
+    const id=b.id||"";
+    const on=(id==="centerInboxBtn" && APP.centerLane==="inbox")
+      || (id==="centerOnsiteBtn" && APP.centerLane==="onsite")
+      || (id==="centerHistoryBtn" && APP.centerLane==="history");
+    b.classList.toggle("on", on);
+  });
 }
 function acreRow(item){
   const when=centerWhen(item);
   const sent=when ? timeAgo(when) : "";
-  const meta=[centerVinLine(item), centerKmLine(item), sent].filter(Boolean).join("  ·  ");
+  const lane=centerLaneOf(item);
   const status=centerStatus(item);
   const aged=isCenterAged(item);
   const thumb=item.thumb
     ? '<img src="'+item.thumb+'" alt="">'
-    : esc((item.make||item.ymmt||"?").slice(0,3).toUpperCase());
+    : esc((item.interest||item.make||item.ymmt||"?").slice(0,3).toUpperCase());
   const flags=
     (item.sample?'<i class="sample-badge">Sample</i>':'')+
-    '<em class="stage-tag '+(status==="Done"?"done":"wait")+'">'+esc(status)+'</em>'+
+    '<em class="stage-tag '+(status==="Done"?"done":"wait")+'">'+esc(lane==="inbox" && !item.photoCount ? "Incomplete" : status)+'</em>'+
     (aged?'<i class="arch-tag">90-day archive</i>':'');
   const btn=document.createElement("button");
   btn.type="button";
-  btn.className="acre-row"+(APP.centerViewId===item.id?" on":"");
-  btn.innerHTML=
-    '<div class="acre-thumb">'+thumb+'</div>'+
-    '<div class="acre-meta"><p class="name">'+esc(item.ymmt||"Vehicle")+'</p>'+
-    (meta?'<p class="line">'+esc(meta)+'</p>':'')+
-    '<div class="acre-flags">'+flags+'</div></div>';
+  btn.className="acre-row"+(lane==="inbox"?" inbox":"")+(APP.centerViewId===item.id?" on":"");
+  if(lane==="inbox"){
+    const phone=(item.customer && item.customer.phone) || "";
+    const cust=(item.customer && item.customer.name) || "Customer";
+    btn.innerHTML=
+      '<div class="acre-thumb">'+thumb+'</div>'+
+      '<div class="acre-meta">'+
+        '<div class="acre-kv"><k>Interest</k><b>'+esc(item.interest||"Unit not named")+'</b></div>'+
+        (item.ymmt && item.ymmt!==item.interest ? '<div class="acre-kv"><k>Trade</k><b>'+esc(item.ymmt)+'</b></div>' : "")+
+        '<p class="sentby">'+esc(item.salesperson||"Salesperson")+" · "+esc(cust)+'</p>'+
+        '<p class="line">'+esc(phone||"No phone")+(sent?"  ·  "+esc(sent):"")+'</p>'+
+        '<div class="acre-flags">'+flags+'</div></div>';
+  } else {
+    const meta=[centerVinLine(item), centerKmLine(item), sent].filter(Boolean).join("  ·  ");
+    btn.innerHTML=
+      '<div class="acre-thumb">'+thumb+'</div>'+
+      '<div class="acre-meta"><p class="name">'+esc(item.ymmt||"Vehicle")+'</p>'+
+      (meta?'<p class="line">'+esc(meta)+'</p>':'')+
+      '<div class="acre-flags">'+flags+'</div></div>';
+  }
   btn.onclick=function(){ openCenterDetail(item.id); };
   return btn;
 }
@@ -2999,46 +3014,49 @@ function paintCenter(){
   const host=$("centerList");
   if(!host) return;
   seedCenterSamples();
-  const hist=!!APP.centerHistory || APP.centerLane==="history";
-  APP.centerHistory=hist;
+  const lane=APP.centerLane||"";
+  APP.centerHistory=lane==="history";
   archiveOldCenter();
   paintCenterPops();
-  if($("centerSheet")) $("centerSheet").classList.toggle("on", !!APP.centerLane);
-  if($("centerTitleNav")) $("centerTitleNav").textContent=hist ? "History" : "Waiting";
-  if($("centerHistoryBar")) $("centerHistoryBar").classList.toggle("hide", !hist);
+  if($("centerSheet")) $("centerSheet").classList.toggle("on", !!lane);
+  if($("centerSheetDim")) $("centerSheetDim").classList.toggle("on", !!lane);
+  if($("centerTitleNav")) $("centerTitleNav").textContent=centerLaneLabel(lane||"inbox");
+  if($("centerHistoryBar")) $("centerHistoryBar").classList.toggle("hide", !lane);
+  if($("centerArchiveBanner")) $("centerArchiveBanner").classList.toggle("hide", lane!=="history");
+  const dateBox=document.querySelector("#centerSheet .center-date");
+  if(dateBox) dateBox.classList.toggle("hide", lane!=="history");
   if($("centerDateBtn")) $("centerDateBtn").textContent=dateBtnLabel();
   if($("centerYearLbl")) $("centerYearLbl").textContent=String(APP.centerYear||new Date().getFullYear());
-  if($("centerCal")) $("centerCal").classList.toggle("on", hist && APP.centerRange==="calendar");
+  if($("centerCal")) $("centerCal").classList.toggle("on", lane==="history" && APP.centerRange==="calendar");
   document.querySelectorAll("#centerDateMenu > button[data-range]").forEach(function(b){
     b.classList.toggle("on", b.getAttribute("data-range")===(APP.centerRange||""));
   });
   const q=String(APP.centerQuery||"").trim().toLowerCase();
   const all=loadCenter();
   const list=all.filter(function(item){
-    const archived=isCenterArchived(item);
-    if(hist && !archived) return false;
-    if(!hist && archived) return false;
-    if(hist && !matchesCenterSearch(item, q)) return false;
-    if(hist && !inDateRange(item)) return false;
+    if(centerLaneOf(item)!==lane) return false;
+    if(lane==="history" && !matchesCenterSearch(item, q)) return false;
+    if(lane==="history" && !inDateRange(item)) return false;
+    if(lane!=="history" && q && !matchesCenterSearch(item, q)) return false;
     return true;
   });
   host.innerHTML="";
   if(!list.length){
     const empty=document.createElement("div");
     empty.className="center-empty";
-    if(hist){
+    if(lane==="history"){
       empty.innerHTML=(q || (APP.centerRange && APP.centerRange!=="all"))
         ? "<p>Nothing in this range.</p>"
         : "<p>Nothing in History yet.</p>";
+    } else if(lane==="inbox"){
+      empty.innerHTML="<p>Inbox is clear.</p>";
     } else {
-      empty.innerHTML='<p>Nothing waiting.</p><button class="link" type="button">Appraise a vehicle</button>';
-      empty.querySelector("button").onclick=function(){ setPurpose("appraise"); paintDealType(); show("home"); };
+      empty.innerHTML="<p>Nothing on site.</p>";
     }
     host.appendChild(empty);
-    syncCenterDesk();
     return;
   }
-  if(hist){
+  if(lane==="history"){
     const fresh=list.filter(function(item){ return !isCenterAged(item); });
     const aged=list.filter(function(item){ return isCenterAged(item); });
     if(fresh.length){
@@ -3058,7 +3076,6 @@ function paintCenter(){
   } else {
     list.forEach(function(item){ host.appendChild(acreRow(item)); });
   }
-  syncCenterDesk();
 }
 function paintCenterHero(photos){
   const hero=$("centerHero"); if(!hero) return;
@@ -3154,7 +3171,7 @@ function paintCenterTeam(item){
     const card=document.createElement("div");
     card.className="team-card"+(pair[2]==="FINAL"?" final":"");
     card.innerHTML=
-      '<div class="who"><b>'+esc(pair[1])+'</b><k>'+esc(pair[2])+'</k></div>'+
+      '<div class="who-row"><b>'+esc(pair[1])+'</b><k>'+esc(pair[2])+'</k></div>'+
       '<div class="team-mm">'+
         '<label class="k">Min<input class="f" data-k="min" inputmode="decimal" placeholder="MIN" /></label>'+
         '<label class="k">Target<input class="f" data-k="target" inputmode="decimal" placeholder="TARGET" /></label>'+
@@ -3190,6 +3207,7 @@ function paintCenterTags(item){
   const host=$("centerTags"); if(!host) return;
   const tags=[].concat(item.tags||[]);
   if(item.sample) tags.unshift("Sample");
+  if(item.interest) tags.unshift("Interest "+item.interest);
   if(item.color) tags.push(item.color);
   if(item.km) tags.push(centerKmLine(item));
   if(isCenterAged(item)) tags.push("90-day archive");
@@ -3204,9 +3222,9 @@ function paintCenterTags(item){
 function paintCenterDetailEmpty(){
   const body=$("centerDetailBody");
   if(!body) return;
-  body.innerHTML='<div class="center-detail-empty"><b>Pick a vehicle</b><p>Waiting and History stay on the left. The file opens here — carousel, values, docs, team.</p></div>';
-  if($("centerDetailHead")) $("centerDetailHead").textContent="Desk";
+  body.innerHTML='<div class="center-detail-empty"><b>One car at a time</b><p>This desk is the workbench. Open <b>Inbox</b>, <b>On-site</b>, or <b>History</b> — tap a vehicle, and it lands here.</p></div>';
   if($("centerStageBtn")) $("centerStageBtn").classList.add("hide");
+  if($("centerDock")) $("centerDock").classList.add("hide");
 }
 function ensureCenterDetailScaffold(){
   const body=$("centerDetailBody");
@@ -3241,22 +3259,30 @@ function ensureCenterDetailScaffold(){
 function paintCenterDetail(){
   const item=getCenter(APP.centerViewId);
   if(!item){
-    if(isDesk() && APP.centerLane){ paintCenterDetailEmpty(); return; }
-    show("center");
+    paintCenterDetailEmpty();
     return;
   }
   ensureCenterDetailScaffold();
   if($("centerStageBtn")) $("centerStageBtn").classList.remove("hide");
+  if($("centerDock")) $("centerDock").classList.remove("hide");
   if($("centerDetailHead")) $("centerDetailHead").textContent=item.sample ? "Sample file" : "File";
-  if($("centerDetailBadge")) $("centerDetailBadge").textContent=centerStatus(item);
-  if($("centerDetailTitle")) $("centerDetailTitle").textContent=item.ymmt||"Vehicle";
-  const bits=[centerVinLine(item), centerKmLine(item)];
+  if($("centerDetailBadge")) $("centerDetailBadge").textContent=centerLaneLabel(centerLaneOf(item));
+  if($("centerDetailTitle")) $("centerDetailTitle").textContent=item.interest || item.ymmt || "Vehicle";
+  const bits=[];
+  if(item.interest && item.ymmt && item.ymmt!==item.interest) bits.push("Trade "+item.ymmt);
+  else if(item.ymmt && !item.interest) bits.push(item.ymmt);
+  bits.push(centerVinLine(item), centerKmLine(item));
   if(item.customer && item.customer.name) bits.unshift(item.customer.name);
   if(item.sentAt) bits.push(timeAgo(item.sentAt));
   if($("centerDetailSub")) $("centerDetailSub").textContent=bits.filter(Boolean).join("  ·  ");
   paintCenterTags(item);
   if($("centerFacts")){
     $("centerFacts").innerHTML=
+      factCell("Interest", item.interest)+
+      factCell("Trade", item.interest && item.ymmt && item.ymmt!==item.interest ? item.ymmt : "")+
+      factCell("Salesperson", item.salesperson)+
+      factCell("Customer", item.customer && item.customer.name)+
+      factCell("Phone", item.customer && item.customer.phone)+
       factCell("VIN", item.vin)+
       factCell("Colour", item.color)+
       factCell("Kilometres", item.km && Number(String(item.km).replace(/,/g,"")).toLocaleString("en-CA"))+
@@ -3267,7 +3293,7 @@ function paintCenterDetail(){
     $("centerNotes").value=item.notes||"";
     growArea($("centerNotes"));
   }
-  if($("centerStageBtn")) $("centerStageBtn").textContent=item.stage==="Appraised"?"Back to Waiting":"Complete";
+  if($("centerStageBtn")) $("centerStageBtn").textContent=item.stage==="Appraised"?"Return to desk lane":"Complete";
   const starter=(item.photos && item.photos.length) ? item.photos : (item.thumb ? [{data:item.thumb, title:item.ymmt}] : []);
   paintCenterHero(starter);
   paintCenterDocs(item, {docs:item.docs});
@@ -6254,17 +6280,9 @@ $("startAppraise").onclick = function(){ setPurpose("appraise"); paintDealType()
 if($("startCenter")) $("startCenter").onclick = openCenter;
 if($("centerBack")) $("centerBack").onclick = function(){ APP.centerLane=""; show("start"); };
 if($("centerSheetClose")) $("centerSheetClose").onclick = closeCenterLane;
-if($("centerWaitingBtn")) $("centerWaitingBtn").onclick = function(){ openCenterLane("waiting"); };
-if($("centerDetailBack")) $("centerDetailBack").onclick = function(){
-  if(isDesk() && APP.centerLane){
-    APP.centerViewId="";
-    paintCenter();
-    paintCenterDetailEmpty();
-    return;
-  }
-  show("center");
-  paintCenter();
-};
+if($("centerSheetDim")) $("centerSheetDim").onclick = closeCenterLane;
+if($("centerInboxBtn")) $("centerInboxBtn").onclick = function(){ openCenterLane("inbox"); };
+if($("centerOnsiteBtn")) $("centerOnsiteBtn").onclick = function(){ openCenterLane("onsite"); };
 if($("centerHistoryBtn")) $("centerHistoryBtn").onclick = function(){
   if($("centerDateMenu")) $("centerDateMenu").classList.remove("on");
   openCenterLane("history");
@@ -6305,13 +6323,14 @@ if($("centerStageBtn")) $("centerStageBtn").onclick = function(){
   const item=getCenter(APP.centerViewId);
   if(!item) return;
   const next=item.stage==="Appraised"?"Waiting":"Appraised";
-  patchCenter(item.id, function(x){ x.stage=next; });
-  paintCenterDetail();
-  toast(next==="Appraised"?"Moved to History.":"Back to Waiting.");
-  APP.centerLane=next==="Appraised"?"history":"waiting";
-  APP.centerHistory=APP.centerLane==="history";
-  if($("centerSheet")) $("centerSheet").classList.add("on");
+  patchCenter(item.id, function(x){
+    x.stage=next;
+    if(next==="Appraised"){ x.lane="history"; }
+    else { x.lane=(x.source==="guest"||x.source==="trade-in")?"inbox":"onsite"; x.archived=false; }
+  });
+  toast(next==="Appraised"?"Moved to History.":"Back on the desk.");
   paintCenter();
+  paintCenterDetail();
 };
 if($("centerNotes")) $("centerNotes").addEventListener("input", function(){
   const el=this;
@@ -6545,10 +6564,9 @@ growTextareas();
   function sync(){
     document.documentElement.classList.toggle("desk", mq.matches);
     syncCenterDesk();
-    if((APP.screen==="center" || APP.screen==="centerDetail") && APP.centerLane){
+    if(APP.screen==="center"){
       paintCenter();
-      if(APP.centerViewId) paintCenterDetail();
-      else if(mq.matches) paintCenterDetailEmpty();
+      paintCenterDetail();
     }
   }
   sync();
