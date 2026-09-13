@@ -2416,7 +2416,6 @@ function paintThanks(){
   if($("thanksSoft")) $("thanksSoft").textContent = "You can close this page. We'll be in touch.";
 }
 function finishGuest(){
-  landIncomingPacket({source:"guest", sent:true, stage:"Waiting", sendId:APP.sendId||packetSendId()});
   killMediaNow();
   clearDraft();
   clearSnapshot();
@@ -4798,7 +4797,7 @@ function armMailFallback(){
   if(APP.role==="guest"){
     hideMailOpen();
     if($("btnSharePack")){ $("btnSharePack").disabled=false; $("btnSharePack").textContent="Send"; }
-    landInCenter({sent:false, stage:"Waiting"});
+    flushDraft();
     toast("Couldn’t send — try again");
     return;
   }
@@ -4812,7 +4811,7 @@ function packetReady(){
 }
 function kickShare(){
   if(!packetReady()){ toast("Add the story or photos first."); return; }
-  if(!requireCdApp()) return;
+  if(APP.role!=="guest" && !requireCdApp()) return;
   if(APP.role==="guest") hideMailOpen();
   if(typeof navigator!=="undefined" && navigator.onLine===false){
     flushDraft();
@@ -4841,10 +4840,7 @@ function landIncomingPacket(extra){
   if(!item || !item.id) return Promise.resolve(null);
   const photos=packCenterPhotos();
   const docs=slimCenterDocs(APP.docs);
-  return persistCenterMedia(item.id, photos, docs).then(function(ok){
-    if(ok) return item;
-    return persistCenterMedia(item.id, photos, docs).then(function(ok2){ return ok2 ? item : null; });
-  }).catch(function(){ return null; });
+  return persistCenterMedia(item.id, photos, docs).then(function(){ return item; }).catch(function(){ return item; });
 }
 async function sendFromMe(to, subject, body, html, parts, extra){
   extra=extra||{};
@@ -7978,7 +7974,7 @@ function packetMailHtml(shots){
   return packetCatalogHtml(shots, function(s,i){ return "cid:photo"+i+"@inspect"; });
 }
 async function sharePacket(){
-  if(!requireCdApp()) return;
+  if(APP.role!=="guest" && !requireCdApp()) return;
   const shots=capturedFiles();
   if(!shots.length && !(APP.clips&&APP.clips.length) && !Object.keys(APP.docs||{}).length && !(APP.notes||APP.heard)){ toast("Add the story or photos first."); return; }
   const dest=packetDest();
@@ -8047,10 +8043,7 @@ async function sharePacket(){
     return true;
   }
   const watch=setTimeout(function(){
-    if(!finished){
-      if(guest) finish("Couldn’t send — try again", false);
-      else finish("Still working — tap Open Gmail and send.", true);
-    }
+    if(!finished) toast(guest ? "Still sending…" : "Still working…");
   }, 28000);
   try{
     if(wasDelivered(sendId)){
