@@ -12,11 +12,16 @@
 <meta name="application-name" content="Appraisal Center" />
 <meta name="theme-color" content="#003F7A" />
 <title>Appraisal Center</title>
-<link rel="manifest" href="/manifest.webmanifest" />
-<link rel="icon" href="/favicon.ico" sizes="any" />
-<link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png" />
-<link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
-<link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
+<link rel="manifest" href="/manifest.webmanifest?v=20260913c" />
+<link rel="icon" href="/favicon.ico?v=20260913c" sizes="any" />
+<link rel="icon" type="image/png" sizes="16x16" href="/icons/ac-v3-favicon-16.png?v=20260913c" />
+<link rel="icon" type="image/png" sizes="32x32" href="/icons/ac-v3-favicon-32.png?v=20260913c" />
+<link rel="icon" type="image/png" sizes="192x192" href="/icons/ac-v3-192.png?v=20260913c" />
+<link rel="apple-touch-icon" href="/icons/ac-v3-apple-180.png?v=20260913c" />
+<link rel="apple-touch-icon" sizes="180x180" href="/icons/ac-v3-apple-180.png?v=20260913c" />
+<link rel="apple-touch-icon-precomposed" href="/apple-touch-icon-precomposed.png?v=20260913c" />
+<meta name="msapplication-TileColor" content="#003F7A" />
+<meta name="msapplication-TileImage" content="/icons/ac-v3-192.png?v=20260913c" />
 <link rel="preconnect" href="https://accounts.google.com" />
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -1889,6 +1894,7 @@ function paintDealType(){
         return;
       }
       b.onclick=function(){
+        if(soon) return;
         if(name==="Consumer Acquisition" && APP.role==="employee" && !canPerm("ca")){
           toast("You don’t have Consumer Acquisition. Only Shawn can turn that on.");
           return;
