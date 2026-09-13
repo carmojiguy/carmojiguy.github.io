@@ -120,6 +120,7 @@ function sameSeat(a, b) {
 }
 
 function persistItem(raw) {
+  if (isSampleItem(raw)) return slimItem(raw);
   const item = slimItem(raw);
   const list = loadFile();
   const idx = list.findIndex(function (x) { return sameSeat(x, item); });
@@ -143,8 +144,14 @@ function persistItem(raw) {
   return item;
 }
 
+function isSampleItem(raw) {
+  if (!raw || typeof raw !== "object") return false;
+  if (raw.sample || raw.sampleVer) return true;
+  return /^sample[-_]/i.test(String(raw.id || ""));
+}
+
 function listItems() {
-  return loadFile().slice();
+  return loadFile().filter(function (x) { return !isSampleItem(x); });
 }
 
 function parseBody(raw) {

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-13 build d27x: close-X on d26s Incoming land -->
+<!-- center-v3 + desk-home 2026-09-13 build d27z: zero Center samples on d27x close-X -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -1648,7 +1648,7 @@ body.center-gallery-on { overflow:hidden; }
     <p class="quote" id="vinHint">Best: take a picture of the vehicle ownership (registration). You can also photograph the VIN on the dash or the sticker on the driver’s door. We’ll read the number from the photo.</p>
     <p class="vin-chip hide" id="vinChip"></p>
     </div>
-    <p class="build-stamp" id="buildStamp">build d27x</p>
+    <p class="build-stamp" id="buildStamp">build d27z</p>
   </div>
 </section>
 
@@ -2107,7 +2107,7 @@ body.center-gallery-on { overflow:hidden; }
   <div class="card">
     <button class="x" type="button" data-close="typeSheet">✕</button>
     <h3>Appraisal type</h3>
-    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d27x</span></p>
+    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d27z</span></p>
     <div id="typeChips" class="to-chips"></div>
     <div id="leadBox" class="lead-box hide">
       <p class="hint">Lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a New application — no appointment calendar.</p>
@@ -5097,7 +5097,6 @@ function wipeJob(goStart){
 }
 
 const CENTER_KEY="inspect.center";
-const CENTER_SAMPLE_VER="acre8";
 const CENTER_TEAM=[
   ["shabot","Shabot","FINAL"],
   ["rybot","Rybot","Opinion"],
@@ -5161,600 +5160,17 @@ function saveCenterStore(store){
   try{ sessionStorage.setItem(CENTER_KEY, JSON.stringify(store)); }catch(e){}
 }
 function daysAgo(n){ return Date.now() - Math.round(Number(n||0)*86400000); }
-function xmlEsc(s){
-  return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-}
-function sampleMoney(n){
-  return "$"+Number(n||0).toLocaleString("en-CA");
-}
-function sampleYmmt(item){
-  return [item && item.year, item && item.make, item && item.model, item && item.trim].filter(Boolean).join(" ") || (item && (item.ymmt||item.interest)) || "Sample vehicle";
-}
-function sampleColorHex(color){
-  const c=String(color||"").toLowerCase();
-  if(/white|oxford|alpine/.test(c)) return "#F4F1EA";
-  if(/black|granite|charcoal/.test(c)) return "#1A1630";
-  if(/red|firecracker|soul|rallye/.test(c)) return "#C0392B";
-  if(/blue|blueprint|navy/.test(c)) return "#1A61A2";
-  if(/gray|grey|silver|amazon/.test(c)) return "#8A93A3";
-  if(/green/.test(c)) return "#2F6B4F";
-  return "#4B5563";
-}
-function sampleBodyMark(kind, view){
-  const sport=kind==="sport", jeep=kind==="jeep", truck=kind==="truck";
-  if(view==="front"||view==="qfront") return truck
-    ? '<rect x="160" y="170" width="480" height="160" rx="28"/>'
-    : '<rect x="200" y="180" width="400" height="140" rx="32"/>';
-  return sport||jeep
-    ? '<rect x="180" y="188" width="440" height="130" rx="28"/>'
-    : '<rect x="200" y="190" width="400" height="130" rx="32"/>';
-}
-function sampleAngleSvg(item, view){
-  const ymmt=xmlEsc(sampleYmmt(item));
-  const color=xmlEsc(item.color||"");
-  const angle=xmlEsc(view[1]);
-  const kind=item.walk||"suv";
-  const hex=sampleColorHex(item.color);
-  const svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500">'+
-    '<rect width="800" height="500" fill="#10141C"/>'+
-    '<text x="28" y="48" fill="#fff" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="800">'+ymmt+'</text>'+
-    '<g fill="'+hex+'">'+sampleBodyMark(kind, view[0])+'</g>'+
-    '<text x="28" y="460" fill="#fff" font-family="Arial,Helvetica,sans-serif" font-size="20" font-weight="800">'+angle+'</text>'+
-    '<text x="28" y="486" fill="#C9D4E0" font-family="Arial,Helvetica,sans-serif" font-size="13">'+color+(color?" · ":"")+'matching walk-around</text>'+
-    '</svg>';
-  return "data:image/svg+xml;charset=utf-8,"+encodeURIComponent(svg);
-}
-function sampleWalk(itemOrKind){
-  const item=typeof itemOrKind==="string" ? {walk:itemOrKind, ymmt:"Sample vehicle", year:"", make:"", model:"", trim:"", color:""} : (itemOrKind||{});
-  return VIEWS.map(function(v,i){
-    const data=sampleAngleSvg(item, v);
-    return {title:v[1], data:data, cap:sampleYmmt(item)+" · "+v[1], view:v[0], kind:"walk", n:i+1};
-  });
-}
-function sampleVals(n){
-  n=Number(n)||0;
-  return {
-    maya:String(n),
-    vauto:String(n-800),
-    predicted:String(n+500),
-    book:String(n+1400),
-    mmr:String(n-1700),
-    pct:"98%",
-    afc:String(Math.round(n*0.86)),
-    rangeMin:String(n-1600),
-    rangeMax:String(n+900)
-  };
-}
-function sampleTeam(n, notes){
-  n=Number(n)||0;
-  notes=notes||{};
-  const t=emptyTeam();
-  t.shabot={min:String(n-900),target:String(n),max:String(n+700),note:notes.shabot||"Final sits here. The walk, Carfax, and books all point to the same number. I'm not stretching it and I'm not leaving money on the table."};
-  t.rybot={min:String(n-1400),target:String(n+200),max:String(n+600),note:notes.rybot||"I'd be a touch over book if the walk stays this clean. The deal on the lot has room — don't buy the new car with the trade."};
-  t.webot={min:String(n-1100),target:String(n-200),max:String(n+400),note:notes.webot||"Retail is there. I'd still walk the leading edges in person and budget a little recon before we advertise it."};
-  t.drebot={min:String(n-1600),target:String(n-400),max:String(n+200),note:notes.drebot||"Wholesale is fine as a trade. I wouldn't chase it if they want retail money."};
-  t.tbot={min:String(n-800),target:String(n+100),max:String(n+500),note:notes.tbot||"AFC covers the number. If they walk, take it to the block — the file is complete enough to run."};
-  return t;
-}
-function sampleDocSvg(kind, item){
-  const ymmt=xmlEsc(item.ymmt||item.interest||"Vehicle");
-  const vin=xmlEsc(item.vin||"—");
-  const km=xmlEsc(item.km?Number(String(item.km).replace(/,/g,"")).toLocaleString("en-CA")+" km":"—");
-  const color=xmlEsc(item.color||"—");
-  const v=item.values||{};
-  const heads={
-    vauto:["#FF6A00","#1A1630","vAuto","Appraisal book"],
-    openlane:["#0B5CAB","#0A1B33","OpenLane","Auction sheet"],
-    eblock:["#12C46A","#0B0B0B","eBlock","Live recap"],
-    carfax:["#1B6B3A","#F4F7F5","Carfax","Vehicle history"],
-    mmr:["#1E4E8C","#0E1C33","MMR","Wholesale guide"],
-    blackbook:["#C4A35A","#16120C","Black Book","Used values"]
-  };
-  const h=heads[kind]||heads.vauto;
-  const light=kind==="carfax";
-  const ink=light?"#1A1630":"#fff";
-  const sub=light?"#4A4458":"rgba(255,255,255,.72)";
-  const chip=light?"#E7F3EA":"rgba(255,255,255,.12)";
-  const chips=[
-    ["MAYA",sampleMoney(v.maya)],
-    ["vAuto",sampleMoney(v.vauto)],
-    [kind==="mmr"?"MMR":"Black Book",sampleMoney(kind==="mmr"?v.mmr:v.book)]
-  ];
-  let extra="";
-  if(kind==="carfax") extra='<text x="28" y="372" fill="#1B6B3A" font-family="Arial,Helvetica,sans-serif" font-size="14" font-weight="700">No accidents  ·  1 owner  ·  Service records on file</text>';
-  if(kind==="eblock") extra='<circle cx="578" cy="48" r="18" fill="#12C46A"/><polygon points="572,38 590,48 572,58" fill="#0B0B0B"/>';
-  if(kind==="openlane") extra='<text x="28" y="372" fill="rgba(255,255,255,.7)" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="700">Run 14  ·  Lane B  ·  Condition 3.2  ·  GREEN light</text>';
-  const svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400">'+
-    '<rect width="640" height="400" fill="'+h[1]+'"/>'+
-    '<rect width="640" height="78" fill="'+h[0]+'"/>'+
-    '<text x="28" y="34" fill="#fff" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="700">'+h[2]+'</text>'+
-    '<text x="28" y="62" fill="#fff" font-family="Arial,Helvetica,sans-serif" font-size="24" font-weight="800">'+h[3]+'</text>'+
-    '<text x="28" y="118" fill="'+ink+'" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="800">'+ymmt+'</text>'+
-    '<text x="28" y="146" fill="'+sub+'" font-family="Arial,Helvetica,sans-serif" font-size="14">VIN '+vin+'   ·   '+km+'   ·   '+color+'</text>'+
-    chips.map(function(c,i){
-      const x=28+i*200;
-      return '<rect x="'+x+'" y="178" width="184" height="96" rx="16" fill="'+chip+'"/><text x="'+(x+16)+'" y="208" fill="'+sub+'" font-family="Arial,Helvetica,sans-serif" font-size="12" font-weight="700">'+c[0]+'</text><text x="'+(x+16)+'" y="248" fill="'+ink+'" font-family="Arial,Helvetica,sans-serif" font-size="26" font-weight="800">'+c[1]+'</text>';
-    }).join("")+
-    extra+
-    '</svg>';
-  return "data:image/svg+xml;charset=utf-8,"+encodeURIComponent(svg);
-}
-function sampleExtract(id, item){
-  const vin=item.vin||"VIN TBA";
-  const ymm=item.ymmt||item.interest||"Vehicle";
-  const v=item.values||{};
-  const packs={
-    carfax:{title:"Carfax history", facts:[["Owners","1"],["Accidents","0 reported"],["Title","Clean"],["VIN",vin]]},
-    mmr:{title:"MMR wholesale", facts:[["MMR",sampleMoney(v.mmr)],["Unit",ymm],["VIN",vin]]},
-    blackbook:{title:"Black Book", facts:[["Book",sampleMoney(v.book)],["Unit",ymm],["VIN",vin]]},
-    summary:{title:"Appraisal summary", facts:[["vAuto",sampleMoney(v.vauto)],["Adjusted",sampleMoney(v.maya)],["VIN",vin]]},
-    compset:{title:"Competitive set", facts:[["Comps","4 nearby"],["Range",sampleMoney(Number(v.maya||18000)-1600)+" – "+sampleMoney(Number(v.maya||18000)+1400)],["VIN",vin]]}
-  };
-  const p=packs[id]||{title:id, facts:[["VIN",vin]]};
-  p.live=false;
-  p.note="Demo extract from the sample file. Live extract uses /api/extract.";
-  return p;
-}
-function sampleDocs(item){
-  return {
-    carfax:{have:true,name:"Carfax history.pdf",type:"pdf",fmt:"PDF",preview:sampleDocSvg("carfax",item),extract:sampleExtract("carfax",item)},
-    mmr:{have:true,name:"MMR wholesale.png",type:"image",fmt:"Screenshot",preview:sampleDocSvg("mmr",item),extract:sampleExtract("mmr",item)},
-    blackbook:{have:true,name:"Black Book values.png",type:"image",fmt:"Screenshot",preview:sampleDocSvg("blackbook",item),extract:sampleExtract("blackbook",item)},
-    summary:{have:true,name:"Appraisal summary.pdf",type:"pdf",fmt:"PDF",preview:sampleDocSvg("vauto",item),extract:sampleExtract("summary",item)},
-    compset:{have:true,name:"Competitive set.png",type:"image",fmt:"Screenshot",preview:sampleDocSvg("openlane",item),extract:sampleExtract("compset",item)},
-    olguide:{have:true,name:"OpenLane Market Guide.png",type:"image",fmt:"Screenshot",preview:sampleDocSvg("openlane",item),extract:sampleExtract("olguide",item)},
-    olforecast:{have:true,name:"OpenLane Forecast.png",type:"image",fmt:"Screenshot",preview:sampleDocSvg("openlane",item),extract:sampleExtract("olforecast",item)},
-    ebguide:{have:true,name:"eBlock Market Guide.png",type:"image",fmt:"Screenshot",preview:sampleDocSvg("eblock",item),extract:sampleExtract("ebguide",item)}
-  };
-}
-function finishSample(item){
-  const photos=sampleWalk(item);
-  item.sample=true;
-  item.sampleVer=CENTER_SAMPLE_VER;
-  item.photos=photos;
-  item.photoCount=photos.length;
-  item.thumb=photos[0].data;
-  item.values=sampleVals(item.ask);
-  item.team=sampleTeam(item.ask, item.opinions);
-  item.docs=sampleDocs(item);
-  delete item.walk;
-  delete item.ask;
-  delete item.opinions;
-  return item;
-}
-function finishTradeWait(item){
-  item.sample=true;
-  item.sampleVer=CENTER_SAMPLE_VER;
-  item.photos=[];
-  item.photoCount=0;
-  item.thumb="";
-  item.values=emptyVals();
-  item.team=emptyTeam();
-  item.docs={};
-  item.linkSent=true;
-  item.tradeStatus="waiting";
-  item.ymmt=item.ymmt || sampleYmmt(item);
-  delete item.walk;
-  delete item.ask;
-  delete item.opinions;
-  return item;
-}
-function centerSampleItems(){
-  return [
-    finishSample({
-      id:"sample-v5-tucson", lane:"inbox", stage:"Waiting", source:"guest", walk:"suv", ask:24800,
-      interest:"2025 Hyundai Tucson Preferred", ymmt:"2022 Hyundai Santa Fe Preferred",
-      year:"2022", make:"Hyundai", model:"Santa Fe", trim:"Preferred", color:"Portofino Gray", km:"64000", vin:"5NMS3DAJ7NH452632",
-      createdAt:daysAgo(0.3), updatedAt:daysAgo(0.3), sentAt:daysAgo(0.3),
-      salesperson:"Jay Cyr", customer:{name:"Maya Patel", email:"maya.patel@example.com", phone:"(613) 555-0142"},
-      story:"Guest packet is in. Full walk, Carfax, and the books are on the file. One-owner AWD Santa Fe against a new Tucson. Maya can come in this week.",
-      notes:"Ready to walk. Photos and market sheets attached.",
-      tags:["Incoming","Packet in","AWD"],
-      opinions:{shabot:"I'd sit at 24.8. Clean AWD Santa Fe, books agree, and the packet is complete. That's the final — not a penny more until someone walks the car and finds a surprise.",rybot:"Tucson deal has room. Don't give the trade away. I'd live at 24.8–25.0 if Maya is real this week.",webot:"Paint is honest on the walk. I'd still peek the rear bumper in person before we write a listing.",drebot:"Wholesale is there around 23. No reason to stretch a clean but ordinary Santa Fe.",tbot:"AFC covers 24. I'd take it. If they hesitate, run it — the file is ready."}
-    }),
-    finishSample({
-      id:"sample-v5-f150", lane:"inbox", stage:"Waiting", source:"trade-in", walk:"truck", ask:24800,
-      interest:"2025 Ford Expedition XLT", ymmt:"2018 Ford F-150 XLT SuperCrew",
-      year:"2018", make:"Ford", model:"F-150", trim:"XLT SuperCrew", color:"Oxford White", km:"118000", vin:"1FTEW1EP4JFA20331",
-      createdAt:daysAgo(0.8), updatedAt:daysAgo(0.8), sentAt:daysAgo(0.8),
-      salesperson:"Wes", customer:{name:"Chris Nguyen", email:"chris.nguyen@example.com", phone:"(613) 555-0198"},
-      story:"Trade-in packet landed. This file is the 2018 F-150 XLT SuperCrew — Oxford White, SuperCrew, the walk is the truck. Customer is dealing on an Expedition.",
-      notes:"Chris is waiting on a number before he comes back tonight. Every photo on this file is the F-150.",
-      tags:["Incoming","Link back","F-150"],
-      opinions:{shabot:"24.8 on a complete F-150 SuperCrew. Miles are real but the file is the truck.",rybot:"Don't buy the Expedition deal with the F-150.",webot:"Box wear is honest. Budget a little recon on the leading edge.",drebot:"Wholesale 23-ish. Fine as a trade.",tbot:"AFC is comfortable. Take the F-150 to the block if they walk."}
-    }),
-    finishSample({
-      id:"sample-v5-elantra", lane:"inbox", stage:"Waiting", source:"guest", walk:"sedan", ask:6800,
-      interest:"2024 Honda Civic Sport", ymmt:"2016 Hyundai Elantra",
-      year:"2016", make:"Hyundai", model:"Elantra", trim:"GL", color:"Silver", km:"142000", vin:"5NPD74LF6GH334455",
-      createdAt:daysAgo(1.2), updatedAt:daysAgo(1.2), sentAt:daysAgo(1.2),
-      salesperson:"Isabella Coffey", customer:{name:"Aisha Khan", email:"aisha.khan@example.com", phone:"(343) 555-0177"},
-      story:"Packet came back complete this morning. Story, walk, and books are all here. She's shopping the red Civic on the lot.",
-      notes:"High miles, honest car. Number is ready.",
-      tags:["Incoming","Packet in","High km"],
-      opinions:{shabot:"6.8 and we're done. Don't fall in love with it.",rybot:"Civic deal can carry a light trade.",webot:"Front bumper has parking rash. Cheap recon.",drebot:"Wholesale is thin. Keep it tight.",tbot:"AFC still works at 6.8."}
-    }),
-    finishSample({
-      id:"sample-v5-sierra", lane:"inbox", stage:"Waiting", source:"trade-in", walk:"truck", ask:22100,
-      interest:"2025 GMC Sierra AT4", ymmt:"2019 Chevrolet Silverado LT",
-      year:"2019", make:"Chevrolet", model:"Silverado", trim:"LT", color:"Black", km:"134000", vin:"1GCUYDED5KZ308812",
-      createdAt:daysAgo(0.15), updatedAt:daysAgo(0.15), sentAt:daysAgo(0.15),
-      salesperson:"Kyle", customer:{name:"Tom Bradley", email:"tom.bradley@example.com", phone:"(613) 555-0110"},
-      story:"Sent this morning and already back. Customer wants the AT4. Silverado walk, Carfax, and auction sheets are on the desk.",
-      notes:"Tom said he can be here at 4 if the number works.",
-      tags:["Incoming","Sent","Crew cab"],
-      opinions:{shabot:"22.1. Work-truck miles, complete file.",rybot:"AT4 deal has gross. Don't over-allow.",webot:"Box wear is honest. Frame looks clean in the stills.",drebot:"I'd rather be at 21.5 than 23.",tbot:"Block will take this all day."}
-    }),
-    finishSample({
-      id:"sample-v5-corolla", lane:"onsite", stage:"Waiting", source:"appraise", walk:"sport", ask:37000,
-      interest:"", ymmt:"2023 Toyota GR Corolla Core", year:"2023", make:"Toyota", model:"GR Corolla", trim:"Core",
-      color:"White", km:"10500", vin:"JTNABAAE8PA003162", stock:"A-1184",
-      createdAt:daysAgo(0.2), updatedAt:daysAgo(0.2), sentAt:daysAgo(0.2),
-      salesperson:"Isabella Coffey", customer:{name:"Isabella Coffey", email:"isabella.coffey@myloan.ca", phone:"(613) 555-0108"},
-      story:"Selling as a trade. Already a GR86 deposit down and needs something they can release. Expecting closer to $37.8k. Clean, one-owner, no-accident 2023 GR Corolla Core at 10,500 km — the lowest-mileage unit in a while.",
-      notes:"On-site. Customer waiting on a number. Walk and books are complete.",
-      tags:["On-site","Clean","One owner","Japan"],
-      opinions:{shabot:"Clean GR. One-owner. I'd sit at 37.",rybot:"I'd be a touch over book if the walk stays this clean.",webot:"Need a closer look at the front bumper in the sun.",drebot:"Wholesale is fine. I wouldn't chase it past 38.",tbot:"AFC loves this one. Take it."}
-    }),
-    finishSample({
-      id:"sample-v5-f250", lane:"onsite", stage:"Waiting", source:"appraise", walk:"truck", ask:90000,
-      interest:"", ymmt:"2025 Ford F-250 XLT Super Duty Crew Cab", year:"2025", make:"Ford", model:"F-250", trim:"XLT Super Duty",
-      color:"Oxford White", km:"75200", vin:"1FT8W2BT5SED42817", stock:"T-2209",
-      createdAt:daysAgo(1.1), updatedAt:daysAgo(1.1), sentAt:daysAgo(1.1),
-      salesperson:"Wes", customer:{name:"Wes", email:"wes@myloan.ca", phone:"(613) 555-0133"},
-      story:"On the lot. Truck works every day. Light box wear, no frame stories. Full walk, eBlock recap, and the books are attached.",
-      notes:"Customer is in the showroom. Number is ready.",
-      tags:["On-site","Crew cab","Super Duty"],
-      opinions:{shabot:"Crew cab. Super Duty money. 90 is the seat.",rybot:"I'd go 91 if the frame stays this clean.",webot:"Box wear is light. I'd still walk the rear links.",drebot:"Wholesale 87. Don't get cute.",tbot:"AFC and the block both work at 90."}
-    }),
-    finishSample({
-      id:"sample-v5-civic", lane:"onsite", stage:"Waiting", source:"website", walk:"sedan", ask:28900,
-      interest:"", ymmt:"2024 Honda Civic Sport", year:"2024", make:"Honda", model:"Civic", trim:"Sport",
-      color:"Rallye Red", km:"18000", vin:"2HGFE2F54RH543210", stock:"W-4412",
-      createdAt:daysAgo(2.4), updatedAt:daysAgo(2.4), sentAt:daysAgo(2.4),
-      salesperson:"Lord", customer:{name:"Alex Ruiz", email:"alex.ruiz@example.com", phone:"(613) 555-0174"},
-      story:"Website unit on the lot. Bright red Sport. Clean Carfax, two keys, winter tires in the box. Walk and market packets are complete.",
-      notes:"Post after we lock the number. Alex asked for a same-day write-up.",
-      tags:["On-site","In stock","Two keys"],
-      opinions:{shabot:"28.9. In-stock Civic with the right miles.",rybot:"Retail is easy. Don't cheap it.",webot:"Red will photograph. Check the driver's bolster.",drebot:"Wholesale 27. Comfortable.",tbot:"Website unit — price it to move."}
-    }),
-    finishSample({
-      id:"sample-v5-ram", lane:"history", stage:"Appraised", source:"appraise", walk:"truck", ask:48200,
-      interest:"", ymmt:"2021 RAM 1500 Rebel", year:"2021", make:"RAM", model:"1500", trim:"Rebel",
-      color:"Granite Crystal", km:"61200", vin:"1C6SRFLT4MN654321", stock:"H-0901",
-      createdAt:daysAgo(0.05), updatedAt:daysAgo(0.05), sentAt:daysAgo(0.05),
-      salesperson:"Kyle", customer:{name:"Kyle", email:"kyle@myloan.ca", phone:"(613) 555-0120"},
-      story:"Rebel with the right miles. Done this morning — customer took $48,200. Full packet stayed on the file.",
-      notes:"Paid. Paperwork with Jay.",
-      tags:["Appraised","Today"],
-      opinions:{shabot:"48.2 paid. That was the number.",rybot:"Rebel money. We were right.",webot:"Lift and tires were honest. No surprises.",drebot:"I'd have been 47.5. Fine.",tbot:"Block would have taken it too."}
-    }),
-    finishSample({
-      id:"sample-v5-cx5", lane:"history", stage:"Appraised", source:"guest", walk:"suv", ask:24400,
-      interest:"2022 Mazda CX-50", ymmt:"2020 Mazda CX-5 GT", year:"2020", make:"Mazda", model:"CX-5", trim:"GT",
-      color:"Soul Red", km:"88000", vin:"JM3KFBDM5L0147890",
-      createdAt:daysAgo(1.3), updatedAt:daysAgo(1.3), sentAt:daysAgo(1.3),
-      salesperson:"Jay Cyr", customer:{name:"Priya Shah", email:"priya.shah@example.com", phone:"(613) 555-0166"},
-      story:"Guest packet yesterday. GT with brown interior. We landed at $24,400. Walk, Carfax, and books are still on the file.",
-      notes:"Deal written. Priya is on the CX-50.",
-      tags:["Yesterday","Appraised"],
-      opinions:{shabot:"24.4 landed. Brown GT, honest miles.",rybot:"CX-50 deal made the trade easy.",webot:"Soul Red still pops. Soft on the rear hatch.",drebot:"Wholesale 23. We were close.",tbot:"Good guest file. Keep this pattern."}
-    }),
-    finishSample({
-      id:"sample-v5-x3", lane:"history", stage:"Appraised", source:"appraise", walk:"suv", ask:22800,
-      interest:"", ymmt:"2018 BMW X3 xDrive30i", year:"2018", make:"BMW", model:"X3", trim:"xDrive30i",
-      color:"Alpine White", km:"112000", vin:"5UXTR9C50J0D33455", stock:"H-3310",
-      createdAt:daysAgo(12), updatedAt:daysAgo(12), sentAt:daysAgo(12),
-      salesperson:"Lord", customer:{name:"Lord", email:"lord.grande@myloan.ca", phone:"(613) 555-0190"},
-      story:"This month. Service history in the dashbox. We were light because of the miles. Complete walk and books stayed with the file.",
-      notes:"Appraised and released. Service booklet scanned into Carfax slot notes.",
-      tags:["This month","Appraised"],
-      opinions:{shabot:"22.8 because of the miles. Service history helped.",rybot:"I wouldn't have gone 24.",webot:"Control-arm noise in the story. Budget it.",drebot:"Wholesale 21. We were right to stay light.",tbot:"Euro miles. AFC still cleared."}
-    }),
-    finishSample({
-      id:"sample-v5-silverado", lane:"history", stage:"Appraised", source:"trade-in", walk:"truck", ask:26500,
-      interest:"2024 Chevrolet Silverado ZR2", ymmt:"2019 Chevrolet Silverado LT",
-      year:"2019", make:"Chevrolet", model:"Silverado", trim:"LT", color:"Black", km:"134000", vin:"1GCUYDED5KZ399001",
-      createdAt:daysAgo(40), updatedAt:daysAgo(40), sentAt:daysAgo(40),
-      salesperson:"Josh", customer:{name:"Dana Cole", email:"dana.cole@example.com", phone:"(613) 555-0188"},
-      story:"Last month trade. Work truck miles. We passed at their number and they kept it. Packet is complete so you can still walk the file.",
-      notes:"They kept it. ZR2 deal died. File stays for the month view.",
-      tags:["Last month","Passed"],
-      opinions:{shabot:"26.5 was our walk-away. They wanted 29.",rybot:"Right pass. Don't buy someone else's truck.",webot:"Frame was clean. Miles were the story.",drebot:"Wholesale 25. No deal at 29.",tbot:"Good pass. Next."}
-    }),
-    finishSample({
-      id:"sample-v5-wrangler", lane:"history", stage:"Appraised", archived:true, source:"appraise", walk:"jeep", ask:31200,
-      interest:"", ymmt:"2017 Jeep Wrangler Sahara", year:"2017", make:"Jeep", model:"Wrangler", trim:"Sahara",
-      color:"Firecracker Red", km:"98000", vin:"1C4BJWEG5HL640112", stock:"H-0412",
-      createdAt:daysAgo(120), updatedAt:daysAgo(120), sentAt:daysAgo(120),
-      salesperson:"Steve", customer:{name:"Steve", email:"steve@myloan.ca", phone:"(613) 555-0155"},
-      story:"Older file kept so you can see the 90-day archive. Soft top, aftermarket radio. Walk and market packets stayed with it.",
-      notes:"Archived automatically after 90 days. Soft top, aftermarket radio.",
-      tags:["90-day archive"],
-      opinions:{shabot:"31.2 on a clean Sahara. Soft top kept it honest.",rybot:"Jeep money. Radio doesn't scare me.",webot:"Look at the door hinges in the walk. Fine.",drebot:"Wholesale 29. We were fine.",tbot:"Archive example. File is still complete."}
-    }),
-    finishSample({
-      id:"sample-v8-rav4", lane:"inbox", stage:"Waiting", source:"guest", walk:"suv", ask:26900,
-      interest:"2025 Toyota RAV4 Hybrid", ymmt:"2021 Toyota RAV4 XLE",
-      year:"2021", make:"Toyota", model:"RAV4", trim:"XLE", color:"Blueprint", km:"54000", vin:"2T3P1RFV5MW085221",
-      createdAt:daysAgo(0.45), updatedAt:daysAgo(0.45), sentAt:daysAgo(0.45),
-      salesperson:"Jay Cyr", customer:{name:"Noah Berger", email:"noah.berger@example.com", phone:"(613) 555-0129"},
-      story:"Guest packet on a Blueprint 2021 RAV4 XLE. Full walk and books are on the file. He's shopping the hybrid on the lot.",
-      notes:"Fifth Incoming packet so the desk always has five complete files to scan.",
-      tags:["Incoming","Packet in","AWD"],
-      opinions:{shabot:"26.9. Clean XLE, books agree.",rybot:"Hybrid deal has room. Don't give the trade away.",webot:"Blueprint photographs. Check the rear bumper in person.",drebot:"Wholesale 25. Fine.",tbot:"AFC covers 26."}
-    }),
-    finishTradeWait({
-      id:"sample-v8-wait-camry", lane:"inbox", stage:"Waiting", source:"trade-in",
-      interest:"2024 Toyota Camry SE", ymmt:"2017 Toyota Camry SE",
-      year:"2017", make:"Toyota", model:"Camry", trim:"SE", color:"Silver", km:"128000", vin:"4T1B11HK5HU234901",
-      createdAt:daysAgo(0.6), updatedAt:daysAgo(0.6), sentAt:daysAgo(0.6),
-      salesperson:"Isabella Coffey", customer:{name:"Elena Rossi", email:"elena.rossi@example.com", phone:"(343) 555-0160"},
-      story:"Trade-in link sent. Elena has not opened the walk yet.",
-      notes:"Waiting on customer.",
-      tags:["Waiting on customer","Sent"]
-    }),
-    finishTradeWait({
-      id:"sample-v8-wait-escape", lane:"inbox", stage:"Waiting", source:"trade-in",
-      interest:"2025 Ford Escape ST-Line", ymmt:"2018 Ford Escape SEL",
-      year:"2018", make:"Ford", model:"Escape", trim:"SEL", color:"White", km:"99000", vin:"1FMCU9HD5JUA44120",
-      createdAt:daysAgo(1.1), updatedAt:daysAgo(1.1), sentAt:daysAgo(1.1),
-      salesperson:"Wes", customer:{name:"Omar Diallo", email:"omar.diallo@example.com", phone:"(613) 555-0181"},
-      story:"Link sent yesterday. Escape walk is still empty.",
-      notes:"Send reminder if he does not start tonight.",
-      tags:["Waiting on customer","Sent"]
-    }),
-    finishTradeWait({
-      id:"sample-v8-wait-odyssey", lane:"inbox", stage:"Waiting", source:"trade-in",
-      interest:"2025 Honda Odyssey Touring", ymmt:"2016 Honda Odyssey EX",
-      year:"2016", make:"Honda", model:"Odyssey", trim:"EX", color:"Black", km:"161000", vin:"5FNRL5H69GB044882",
-      createdAt:daysAgo(0.2), updatedAt:daysAgo(0.2), sentAt:daysAgo(0.2),
-      salesperson:"Kyle", customer:{name:"Marisol Vega", email:"marisol.vega@example.com", phone:"(613) 555-0136"},
-      story:"Sent this afternoon. Van photos have not come back.",
-      notes:"Waiting on customer.",
-      tags:["Waiting on customer","Sent"]
-    }),
-    finishTradeWait({
-      id:"sample-v8-wait-outback", lane:"inbox", stage:"Waiting", source:"trade-in",
-      interest:"2024 Subaru Outback Wilderness", ymmt:"2019 Subaru Outback Limited",
-      year:"2019", make:"Subaru", model:"Outback", trim:"Limited", color:"Green", km:"87000", vin:"4S4BSANC7K3342091",
-      createdAt:daysAgo(2.1), updatedAt:daysAgo(2.1), sentAt:daysAgo(2.1),
-      salesperson:"Lord", customer:{name:"Ben Park", email:"ben.park@example.com", phone:"(613) 555-0172"},
-      story:"Link is two days old. Outback packet is still incomplete.",
-      notes:"Good reminder candidate.",
-      tags:["Waiting on customer","Incomplete"]
-    }),
-    finishTradeWait({
-      id:"sample-v8-wait-tundra", lane:"inbox", stage:"Waiting", source:"trade-in",
-      interest:"2025 Toyota Tundra Limited", ymmt:"2015 Toyota Tundra SR5",
-      year:"2015", make:"Toyota", model:"Tundra", trim:"SR5", color:"Black", km:"198000", vin:"5TFEY5F13FX194420",
-      createdAt:daysAgo(0.9), updatedAt:daysAgo(0.9), sentAt:daysAgo(0.9),
-      salesperson:"Josh", customer:{name:"Riley Cho", email:"riley.cho@example.com", phone:"(343) 555-0194"},
-      story:"Tundra link sent. Customer started then stopped before photos.",
-      notes:"Waiting on customer.",
-      tags:["Waiting on customer","Sent"]
-    }),
-    finishSample({
-      id:"sample-v8-pilot", lane:"onsite", stage:"Waiting", source:"appraise", walk:"suv", ask:31200,
-      interest:"", ymmt:"2020 Honda Pilot EX-L", year:"2020", make:"Honda", model:"Pilot", trim:"EX-L",
-      color:"White", km:"72000", vin:"5FNYF6H59LB012883", stock:"A-2210",
-      createdAt:daysAgo(0.5), updatedAt:daysAgo(0.5), sentAt:daysAgo(0.5),
-      salesperson:"Shane", customer:{name:"Shane", email:"shane@myloan.ca", phone:"(613) 555-0144"},
-      story:"On-site Pilot. Third-row family truckster, clean Carfax, two keys. Walk and books are complete.",
-      notes:"Customer is in F&I. Number is ready.",
-      tags:["On-site","AWD","Three-row"],
-      opinions:{shabot:"31.2. Honest Pilot miles.",rybot:"Family deal has room.",webot:"Check the third-row latch in person.",drebot:"Wholesale 29.5.",tbot:"AFC likes it."}
-    }),
-    finishSample({
-      id:"sample-v8-mazda3", lane:"onsite", stage:"Waiting", source:"appraise", walk:"sedan", ask:22400,
-      interest:"", ymmt:"2022 Mazda3 GT", year:"2022", make:"Mazda", model:"Mazda3", trim:"GT",
-      color:"Soul Red", km:"31000", vin:"JM1BPACL4N1142098", stock:"A-2218",
-      createdAt:daysAgo(0.7), updatedAt:daysAgo(0.7), sentAt:daysAgo(0.7),
-      salesperson:"Isabella Coffey", customer:{name:"Isabella Coffey", email:"isabella.coffey@myloan.ca", phone:"(613) 555-0108"},
-      story:"On-site Soul Red Mazda3 GT. Low miles, brown interior. Walk is complete.",
-      notes:"Fifth on-site file.",
-      tags:["On-site","Clean","GT"],
-      opinions:{shabot:"22.4. Red GT, right miles.",rybot:"Retail is easy.",webot:"Soul Red pops. Check the driver's bolster.",drebot:"Wholesale 21.",tbot:"Take it."}
-    }),
-    finishSample({
-      id:"sample-v8-web-accord", lane:"onsite", stage:"Waiting", source:"website", walk:"sedan", ask:27600,
-      interest:"", ymmt:"2023 Honda Accord EX", year:"2023", make:"Honda", model:"Accord", trim:"EX",
-      color:"White", km:"21000", vin:"1HGCV2F34PA018331", stock:"W-5501",
-      createdAt:daysAgo(0.4), updatedAt:daysAgo(0.4), sentAt:daysAgo(0.4),
-      salesperson:"Lord", customer:{name:"Website desk", email:"lord.grande@myloan.ca", phone:"(613) 555-0190"},
-      story:"Website package in progress. White Accord EX, full walk already shot.",
-      notes:"Active website photo package.",
-      tags:["Website","Active","In stock"],
-      opinions:{shabot:"27.6. Clean EX.",rybot:"Retail writes itself.",webot:"White is easy to photograph.",drebot:"Wholesale 26.",tbot:"Post it."}
-    }),
-    finishSample({
-      id:"sample-v8-web-tucson", lane:"onsite", stage:"Waiting", source:"website", walk:"suv", ask:31800,
-      interest:"", ymmt:"2024 Hyundai Tucson Preferred", year:"2024", make:"Hyundai", model:"Tucson", trim:"Preferred",
-      color:"Portofino Gray", km:"12000", vin:"KM8J3CA17RU223456", stock:"W-5508",
-      createdAt:daysAgo(1.4), updatedAt:daysAgo(1.4), sentAt:daysAgo(1.4),
-      salesperson:"Jay Cyr", customer:{name:"Website desk", email:"jay.cyr@myloan.ca", phone:"(613) 555-0112"},
-      story:"Website Tucson package. Portofino Gray Preferred, low km, walk is complete.",
-      notes:"Active website photo package.",
-      tags:["Website","Active"],
-      opinions:{shabot:"31.8. Fresh Tucson.",rybot:"Don't cheap a 12k-km unit.",webot:"Gray photographs honest.",drebot:"Wholesale 30.",tbot:"Post today."}
-    }),
-    finishSample({
-      id:"sample-v8-web-ranger", lane:"onsite", stage:"Waiting", source:"website", walk:"truck", ask:34400,
-      interest:"", ymmt:"2022 Ford Ranger XLT", year:"2022", make:"Ford", model:"Ranger", trim:"XLT",
-      color:"Oxford White", km:"28000", vin:"1FTER4EH5NLA20344", stock:"W-5512",
-      createdAt:daysAgo(1.8), updatedAt:daysAgo(1.8), sentAt:daysAgo(1.8),
-      salesperson:"Wes", customer:{name:"Website desk", email:"wes@myloan.ca", phone:"(613) 555-0133"},
-      story:"Website Ranger package. This is a Ranger XLT, not an F-150. SuperCab walk is the midsize truck.",
-      notes:"Active website photo package.",
-      tags:["Website","Active","Midsize"],
-      opinions:{shabot:"34.4. Ranger money.",rybot:"Don't mix this up with SuperCrew F-150s.",webot:"Box is clean.",drebot:"Wholesale 33.",tbot:"Post it."}
-    }),
-    finishSample({
-      id:"sample-v8-web-crv", lane:"onsite", stage:"Waiting", source:"website", walk:"suv", ask:29200,
-      interest:"", ymmt:"2021 Honda CR-V EX", year:"2021", make:"Honda", model:"CR-V", trim:"EX",
-      color:"White", km:"41000", vin:"2HKRW2H86MH612441", stock:"W-5519",
-      createdAt:daysAgo(2.2), updatedAt:daysAgo(2.2), sentAt:daysAgo(2.2),
-      salesperson:"Kyle", customer:{name:"Website desk", email:"kyle@myloan.ca", phone:"(613) 555-0120"},
-      story:"Website CR-V package. White EX, AWD, walk complete.",
-      notes:"Active website photo package.",
-      tags:["Website","Active"],
-      opinions:{shabot:"29.2. Bread-and-butter CR-V.",rybot:"Retail is there.",webot:"White EX is easy.",drebot:"Wholesale 28.",tbot:"Post."}
-    }),
-    finishSample({
-      id:"sample-v8-webh-camry", lane:"history", stage:"Appraised", source:"website", walk:"sedan", ask:21400,
-      interest:"", ymmt:"2019 Toyota Camry SE", year:"2019", make:"Toyota", model:"Camry", trim:"SE",
-      color:"Silver", km:"62000", vin:"4T1B11HK5KU512330", stock:"W-4401",
-      createdAt:daysAgo(8), updatedAt:daysAgo(8), sentAt:daysAgo(8),
-      salesperson:"Lord", customer:{name:"Website desk", email:"lord.grande@myloan.ca", phone:"(613) 555-0190"},
-      story:"Posted last week. Silver Camry SE package stayed in History.",
-      notes:"Website History sample.",
-      tags:["Website","Posted"],
-      opinions:{shabot:"21.4 posted.",rybot:"Moved.",webot:"Silver is honest.",drebot:"Fine.",tbot:"Done."}
-    }),
-    finishSample({
-      id:"sample-v8-webh-equinox", lane:"history", stage:"Appraised", source:"website", walk:"suv", ask:19800,
-      interest:"", ymmt:"2020 Chevrolet Equinox LT", year:"2020", make:"Chevrolet", model:"Equinox", trim:"LT",
-      color:"Black", km:"71000", vin:"3GNAXKEV5LS612449", stock:"W-4408",
-      createdAt:daysAgo(15), updatedAt:daysAgo(15), sentAt:daysAgo(15),
-      salesperson:"Jay Cyr", customer:{name:"Website desk", email:"jay.cyr@myloan.ca", phone:"(613) 555-0112"},
-      story:"Posted this month. Black Equinox LT.",
-      notes:"Website History sample.",
-      tags:["Website","Posted"],
-      opinions:{shabot:"19.8 posted.",rybot:"Moved.",webot:"Black hides miles.",drebot:"Fine.",tbot:"Done."}
-    }),
-    finishSample({
-      id:"sample-v8-webh-frontier", lane:"history", stage:"Appraised", source:"website", walk:"truck", ask:26800,
-      interest:"", ymmt:"2021 Nissan Frontier SV", year:"2021", make:"Nissan", model:"Frontier", trim:"SV",
-      color:"White", km:"44000", vin:"1N6ED0EA5MN712883", stock:"W-4415",
-      createdAt:daysAgo(20), updatedAt:daysAgo(20), sentAt:daysAgo(20),
-      salesperson:"Wes", customer:{name:"Website desk", email:"wes@myloan.ca", phone:"(613) 555-0133"},
-      story:"Posted Frontier SV. Midsize truck, not an F-150.",
-      notes:"Website History sample.",
-      tags:["Website","Posted"],
-      opinions:{shabot:"26.8 posted.",rybot:"Moved.",webot:"Box was clean.",drebot:"Fine.",tbot:"Done."}
-    }),
-    finishSample({
-      id:"sample-v8-webh-soul", lane:"history", stage:"Appraised", source:"website", walk:"suv", ask:14200,
-      interest:"", ymmt:"2018 Kia Soul EX", year:"2018", make:"Kia", model:"Soul", trim:"EX",
-      color:"Red", km:"89000", vin:"KNDJP3A59J7592201", stock:"W-4422",
-      createdAt:daysAgo(28), updatedAt:daysAgo(28), sentAt:daysAgo(28),
-      salesperson:"Kyle", customer:{name:"Website desk", email:"kyle@myloan.ca", phone:"(613) 555-0120"},
-      story:"Posted Soul EX. Red cube, honest miles.",
-      notes:"Website History sample.",
-      tags:["Website","Posted"],
-      opinions:{shabot:"14.2 posted.",rybot:"Moved.",webot:"Red cube pops.",drebot:"Fine.",tbot:"Done."}
-    }),
-    finishSample({
-      id:"sample-v8-webh-impreza", lane:"history", stage:"Appraised", source:"website", walk:"sedan", ask:15600,
-      interest:"", ymmt:"2017 Subaru Impreza Sport", year:"2017", make:"Subaru", model:"Impreza", trim:"Sport",
-      color:"Blue", km:"102000", vin:"4S3GTAM64H3742091", stock:"W-4430",
-      createdAt:daysAgo(35), updatedAt:daysAgo(35), sentAt:daysAgo(35),
-      salesperson:"Josh", customer:{name:"Website desk", email:"josh@myloan.ca", phone:"(613) 555-0162"},
-      story:"Posted Impreza Sport. AWD, winter car.",
-      notes:"Website History sample.",
-      tags:["Website","Posted"],
-      opinions:{shabot:"15.6 posted.",rybot:"Moved.",webot:"Blue Sport is honest.",drebot:"Fine.",tbot:"Done."}
-    }),
-    finishSample({
-      id:"sample-v8-ca-rvr", lane:"history", stage:"Appraised", source:"appraise", walk:"suv", ask:27600,
-      dealType:"Consumer Acquisition", leadSource:"Canada Drives",
-      interest:"", ymmt:"2024 Mitsubishi RVR SE", year:"2024", make:"Mitsubishi", model:"RVR", trim:"SE",
-      color:"White", km:"18000", vin:"JA4AJVAW3RU600349", stock:"CA-3247",
-      createdAt:daysAgo(0.9), updatedAt:daysAgo(0.9), sentAt:daysAgo(0.9),
-      salesperson:"Jay Cyr", customer:{name:"Thayaparana Thayaparana", email:"thaya@example.com", phone:"(416) 555-0101"},
-      story:"CA appointment completed. RVR SE packet stayed in History.",
-      notes:"Consumer Acquisition History.",
-      tags:["Consumer Acquisition","Completed"],
-      opinions:{shabot:"27.6 done.",rybot:"CD deal.",webot:"White RVR.",drebot:"Fine.",tbot:"Done."}
-    }),
-    finishSample({
-      id:"sample-v8-ca-evoque", lane:"history", stage:"Appraised", source:"appraise", walk:"suv", ask:22800,
-      dealType:"Consumer Acquisition", leadSource:"Canada Drives",
-      interest:"", ymmt:"2017 Land Rover Range Rover Evoque HSE", year:"2017", make:"Land Rover", model:"Range Rover Evoque", trim:"HSE",
-      color:"Black", km:"98000", vin:"SALVR2BG1HH237216", stock:"CA-3233",
-      createdAt:daysAgo(1.6), updatedAt:daysAgo(1.6), sentAt:daysAgo(1.6),
-      salesperson:"Lord", customer:{name:"Anton Tamas", email:"anton.tamas@example.com", phone:"(613) 555-0202"},
-      story:"CA Ottawa file completed. Evoque HSE.",
-      notes:"Consumer Acquisition History.",
-      tags:["Consumer Acquisition","Completed"],
-      opinions:{shabot:"22.8 euro miles.",rybot:"Done.",webot:"Black HSE.",drebot:"Light.",tbot:"Done."}
-    }),
-    finishSample({
-      id:"sample-v8-ca-crv", lane:"history", stage:"Appraised", source:"appraise", walk:"suv", ask:25400,
-      dealType:"Consumer Acquisition", leadSource:"My Loan",
-      interest:"", ymmt:"2021 Honda CR-V EX", year:"2021", make:"Honda", model:"CR-V", trim:"EX",
-      color:"White", km:"54000", vin:"2HKRW2H86MH612441", stock:"CA-10422",
-      createdAt:daysAgo(2.2), updatedAt:daysAgo(2.2), sentAt:daysAgo(2.2),
-      salesperson:"Wes", customer:{name:"Priya Shah", email:"priya.shah@example.com", phone:"(416) 555-0144"},
-      story:"My Loan CA completed. CR-V EX.",
-      notes:"Consumer Acquisition History.",
-      tags:["Consumer Acquisition","Completed"],
-      opinions:{shabot:"25.4 done.",rybot:"Done.",webot:"White EX.",drebot:"Fine.",tbot:"Done."}
-    }),
-    finishSample({
-      id:"sample-v8-ca-f150", lane:"history", stage:"Appraised", source:"appraise", walk:"truck", ask:31200,
-      dealType:"Consumer Acquisition", leadSource:"My Auto",
-      interest:"", ymmt:"2018 Ford F-150 XLT", year:"2018", make:"Ford", model:"F-150", trim:"XLT",
-      color:"Oxford White", km:"118000", vin:"1FTEW1EP4JFA20331", stock:"CA-8831",
-      createdAt:daysAgo(3.1), updatedAt:daysAgo(3.1), sentAt:daysAgo(3.1),
-      salesperson:"Wes", customer:{name:"Chris Benoit", email:"chris.benoit@example.com", phone:"(613) 555-0211"},
-      story:"My Auto CA completed. This History file is the 2018 F-150 XLT — SuperCrew truck, Oxford White, matching walk.",
-      notes:"Consumer Acquisition History. F-150 stays an F-150.",
-      tags:["Consumer Acquisition","F-150","Completed"],
-      opinions:{shabot:"31.2 on the F-150.",rybot:"Done.",webot:"Truck walk matches the XLT.",drebot:"Fine.",tbot:"Done."}
-    }),
-    finishSample({
-      id:"sample-v8-ca-cx5", lane:"history", stage:"Appraised", source:"appraise", walk:"suv", ask:22100,
-      dealType:"Consumer Acquisition", leadSource:"Carla",
-      interest:"", ymmt:"2019 Mazda CX-5 GS", year:"2019", make:"Mazda", model:"CX-5", trim:"GS",
-      color:"Soul Red", km:"77000", vin:"JM3KFBCM5K0408821", stock:"CA-22904",
-      createdAt:daysAgo(4.2), updatedAt:daysAgo(4.2), sentAt:daysAgo(4.2),
-      salesperson:"Jay Cyr", customer:{name:"Lina Ortega", email:"lina.ortega@example.com", phone:"(416) 555-0188"},
-      story:"Carla CA completed. Soul Red CX-5 GS.",
-      notes:"Consumer Acquisition History.",
-      tags:["Consumer Acquisition","Completed"],
-      opinions:{shabot:"22.1 done.",rybot:"Done.",webot:"Soul Red.",drebot:"Fine.",tbot:"Done."}
-    })
-    ,
-    (function(){
-      const item=finishSample({
-        id:"sample-v8-docs", lane:"needsdocs", stage:"Waiting", source:"appraise", walk:"suv", ask:18900,
-        interest:"2025 Kia Sportage EX", ymmt:"2021 Hyundai Tucson Preferred",
-        year:"2021", make:"Hyundai", model:"Tucson", trim:"Preferred", color:"Amazon Gray", km:"72000", vin:"KM8J3CAL5MU123456",
-        createdAt:daysAgo(0.05), updatedAt:daysAgo(0.05), sentAt:daysAgo(0.05),
-        salesperson:"Jay Cyr", customer:{name:"Sam Rivera", email:"sam.rivera@example.com", phone:"(613) 555-0162"},
-        story:"Sales sent this to the team leader — vAuto pack is on the file. Still missing OpenLane Forecast and eBlock Market Guide.",
-        notes:"Leader queue. Finish the two missing sheets, then promote to the full desk.",
-        tags:["Needs docs","Leader queue"]
-      });
-      item.docsIncomplete=true;
-      item.missingDocs=["OpenLane Forecast","eBlock Market Guide"];
-      if(item.docs){
-        delete item.docs.olforecast;
-        delete item.docs.ebguide;
-      }
-      item.team=emptyTeam();
-      return item;
-    })()
-  ];
+function isCenterSample(item){
+  if(!item) return false;
+  if(item.sample || item.sampleVer) return true;
+  const id=String(item.id||"");
+  return /^sample[-_]/i.test(id);
 }
 function seedCenterSamples(){
   const store=centerStore();
-  const stale=store.items.some(function(x){ return x && x.sample && x.sampleVer!==CENTER_SAMPLE_VER; });
-  if(stale){
-    store.items=store.items.filter(function(x){ return !(x && x.sample && x.sampleVer!==CENTER_SAMPLE_VER); });
-  }
-  const have={};
-  store.items.forEach(function(x){ if(x && x.id) have[x.id]=true; });
-  let added=0;
-  centerSampleItems().forEach(function(s){
-    if(have[s.id]) return;
-    store.items.push(s);
-    persistCenterMedia(s.id, s.photos, s.docs);
-    added++;
-  });
-  if(stale || added){
-    store.items.sort(function(a,b){ return centerWhen(b)-centerWhen(a); });
+  const next=store.items.filter(function(x){ return !isCenterSample(x); });
+  if(next.length!==store.items.length){
+    store.items=next;
     saveCenterStore(store);
   }
 }
@@ -6106,7 +5522,7 @@ function slimSharedCenterItem(item){
 }
 function shareIncomingBestEffort(item){
   try{
-    if(!item || !item.id) return;
+    if(!item || !item.id || isCenterSample(item)) return;
     const payload={kind:"land", item:slimSharedCenterItem(item)};
     const req=timedFetch(MAIL_HOST+"/api/incoming", {
       method:"POST",
@@ -6165,7 +5581,7 @@ function mergeIncomingShared(list){
     const store=centerStore();
     let changed=false;
     rows.forEach(function(remote){
-      if(!remote || typeof remote!=="object" || remote.sample) return;
+      if(!remote || typeof remote!=="object" || isCenterSample(remote)) return;
       const name=remote.customer && remote.customer.name || "";
       let item=findCenterMatch(store, {shared:true, sendId:remote.sendId||"", vin:remote.vin||"", customerName:name});
       if(!item){
@@ -6619,7 +6035,7 @@ function centerLaneCounts(){
   seedCenterSamples();
   archiveOldCenter();
   const n={inbox:0, onsite:0, history:0, needsdocs:0};
-  loadCenter().forEach(function(item){ n[centerLaneOf(item)]++; });
+  loadCenter().forEach(function(item){ if(!isCenterSample(item)) n[centerLaneOf(item)]++; });
   return n;
 }
 function paintCenterPops(){
@@ -6718,6 +6134,7 @@ function paintCenter(){
   }
   const all=loadCenter();
   const list=all.filter(function(item){
+    if(isCenterSample(item)) return false;
     if(centerLaneOf(item)!==lane) return false;
     if(teamFilter!=="all" && item.deskTeam!==teamFilter) return false;
     if(lane==="history" && !matchesCenterSearch(item, q)) return false;

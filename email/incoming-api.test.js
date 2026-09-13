@@ -78,6 +78,31 @@ assert.equal(incoming.isPacketSend({
   const empty = incoming.route("POST", { kind: "land", item: {} });
   assert.equal(empty.body.ok, false);
 
+  incoming.resetStore();
+  incoming.route("POST", {
+    kind: "land",
+    item: {
+      id: "sample-v5-civic",
+      sample: true,
+      vin: "2HGFE2F54RH543210",
+      ymmt: "2024 Honda Civic Sport",
+      customer: { name: "Alex Ruiz" }
+    }
+  });
+  incoming.route("POST", {
+    kind: "land",
+    item: {
+      id: "guest-christine-blazer-20260913",
+      vin: "3GNKBHRS0LS577461",
+      ymmt: "2020 Chevrolet Blazer LT",
+      source: "guest",
+      customer: { name: "Christine Cyr" }
+    }
+  });
+  const afterSkip = incoming.route("GET");
+  assert.equal(afterSkip.body.items.length, 1, "sample land is not listed");
+  assert.equal(afterSkip.body.items[0].id, "guest-christine-blazer-20260913");
+
   console.log("incoming-api: ok");
 })().catch(function (err) {
   console.error(err);
