@@ -104,13 +104,19 @@ label.k { display:block; color:#6e6e73; font-size:13px; margin:11px 0 5px; }
 #typeWrap.need-type #btnDealType{border-color:var(--purple);box-shadow:0 0 0 3px rgba(124,92,255,.18)}
 .appt-wrap{margin:0 0 18px;padding:14px 14px 16px;background:#fff;border:1.5px solid var(--hair);border-radius:18px}
 .appt-wrap .lbl{font-size:13px;font-weight:800;color:var(--ink);margin:0 0 6px}
-.appt-tabs,.appt-dates{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 10px}
-.appt-tabs button,.appt-dates button{border:1.5px solid var(--hair);background:#fff;border-radius:999px;padding:8px 12px;font-size:13px;font-weight:800;cursor:pointer}
-.appt-tabs button.on,.appt-dates button.on{background:var(--lavender);border-color:var(--purple);color:var(--purple-deep)}
+.appt-tabs{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 10px}
+.appt-dates{position:relative;display:flex;flex:0 0 auto;margin:0}
+.appt-tabs > button,.appt-dates > button{border:1.5px solid var(--hair);background:#fff;border-radius:999px;padding:8px 14px;font-size:13px;font-weight:800;cursor:pointer;flex:0 0 auto;width:auto}
+.appt-tabs > button.on,.appt-dates > button.on{background:var(--lavender);border-color:var(--purple);color:var(--purple-deep)}
+.appt-dates .date-menu{left:auto;right:0;width:min(280px,86vw);min-width:220px}
+.appt-dates .date-menu > button{font-size:15px;padding:12px 14px;min-height:44px}
 .appt-row{display:block;width:100%;text-align:left;border:1.5px solid var(--hair);background:#fff;border-radius:16px;padding:12px 14px;margin:0 0 8px;cursor:pointer}
 .appt-row.on{border-color:var(--purple);background:var(--lavender)}
 .appt-row b{display:block;font-size:16px}
 .appt-row span{display:block;color:var(--muted);font-size:13px;line-height:1.4;margin-top:2px}
+.appt-stage{display:inline-block;border-radius:999px;padding:2px 8px;margin:0 6px 0 0;font-size:11px;font-weight:800;letter-spacing:.02em;font-style:normal;vertical-align:1px}
+.appt-stage.booked{background:var(--lavender);color:var(--purple-deep)}
+.appt-stage.onsite{background:#D8F3FC;color:var(--cyan-deep)}
 .appt-empty{color:var(--muted);font-size:14px;line-height:1.45;margin:8px 2px 0}
 .lead-box{margin:12px 0 0}
 .lead-box .hint{margin-bottom:10px}
@@ -758,6 +764,8 @@ body.center-gallery-on { overflow:hidden; }
   .docs-grid, .center-docs, .center-why-docs { grid-template-columns:1fr 1fr; gap:18px; }
   .phone:has(#workbench.on){ max-width:none; }
   #workbench .pad { max-width:1180px; }
+  #apptTabs.appt-tabs{ flex-wrap:nowrap; width:auto; max-width:none; gap:10px; }
+  .appt-tabs > button,.appt-dates > button{ padding:10px 16px; font-size:14px; }
   .wb-grid { grid-template-columns:1fr 1fr; gap:16px; }
   .wb-hero h2 { font-size:40px; }
   .doc-sq, .doc-slot { min-height:200px; }
@@ -1129,13 +1137,16 @@ body.center-gallery-on { overflow:hidden; }
         <div class="appt-tabs" id="apptTabs">
           <button type="button" data-appt-region="GTA">GTA</button>
           <button type="button" data-appt-region="Ottawa">Ottawa</button>
-        </div>
-        <div class="appt-dates" id="apptDates">
-          <button type="button" data-appt-range="today">Today</button>
-          <button type="button" data-appt-range="tomorrow">Tomorrow</button>
-          <button type="button" data-appt-range="month">This month</button>
-          <button type="button" data-appt-range="lastMonth">Last month</button>
-          <button type="button" data-appt-range="calendar">Calendar</button>
+          <div class="appt-dates" id="apptDates">
+            <button type="button" id="apptDateBtn">Today</button>
+            <div class="date-menu" id="apptDateMenu">
+              <button type="button" data-appt-range="today">Today</button>
+              <button type="button" data-appt-range="tomorrow">Tomorrow</button>
+              <button type="button" data-appt-range="month">This month</button>
+              <button type="button" data-appt-range="lastMonth">Last month</button>
+              <button type="button" data-appt-range="calendar">Calendar</button>
+            </div>
+          </div>
         </div>
         <div id="apptCal" class="hide">
           <div class="pair">
@@ -1769,32 +1780,10 @@ function apptRegionOf(v){
   if(s.indexOf("OTTAWA")>=0) return "Ottawa";
   return "";
 }
-function apptDayIso(off){
-  const n=new Date();
-  const d=new Date(n.getFullYear(), n.getMonth(), n.getDate()+(off||0));
-  const m=String(d.getMonth()+1).padStart(2,"0");
-  const day=String(d.getDate()).padStart(2,"0");
-  return d.getFullYear()+"-"+m+"-"+day;
-}
-function lastMonthIso(){
-  const n=new Date();
-  const d=new Date(n.getFullYear(), n.getMonth()-1, 12);
-  const m=String(d.getMonth()+1).padStart(2,"0");
-  return d.getFullYear()+"-"+m+"-"+String(d.getDate()).padStart(2,"0");
-}
-function sampleAppointments(){
-  return [
-    {id:"sample-cd-gta-1", source:"Canada Drives", region:"GTA", appNo:"APP-0003247555", ymm:"2024 Mitsubishi RVR SE", year:"2024", make:"Mitsubishi", model:"RVR", trim:"SE", seller:"Thayaparana Thayaparana", vin:"JA4AJVAW3RU600349", date:apptDayIso(0)},
-    {id:"sample-cd-ott-1", source:"Canada Drives", region:"Ottawa", appNo:"APP-0003233604", ymm:"2017 Land Rover Range Rover Evoque HSE", year:"2017", make:"Land Rover", model:"Range Rover Evoque", trim:"HSE", seller:"Anton Tamas", vin:"SALVR2BG1HH237216", date:apptDayIso(0)},
-    {id:"sample-ml-gta-1", source:"My Loan", region:"GTA", appNo:"ML-10422", ymm:"2021 Honda CR-V EX", year:"2021", make:"Honda", model:"CR-V", trim:"EX", seller:"Priya Shah", vin:"2HKRW2H86MH612441", date:apptDayIso(0)},
-    {id:"sample-ma-ott-1", source:"My Auto", region:"Ottawa", appNo:"MA-8831", ymm:"2018 Ford F-150 XLT", year:"2018", make:"Ford", model:"F-150", trim:"XLT", seller:"Chris Benoit", vin:"1FTEW1EP4JFA20331", date:apptDayIso(0)},
-    {id:"sample-carla-gta-0", source:"Carla", region:"GTA", appNo:"CLC-22904", ymm:"2019 Mazda CX-5 GS", year:"2019", make:"Mazda", model:"CX-5", trim:"GS", seller:"Lina Ortega", vin:"JM3KFBCM5K0408821", date:apptDayIso(0)},
-    {id:"sample-carla-gta-1", source:"Carla", region:"GTA", appNo:"CLC-22910", ymm:"2022 Kia Sportage LX", year:"2022", make:"Kia", model:"Sportage", trim:"LX", seller:"Amira Haddad", vin:"KNDPMCAC7N7902144", date:apptDayIso(1)},
-    {id:"sample-cd-gta-2", source:"Canada Drives", region:"GTA", appNo:"APP-0003257111", ymm:"2023 Volkswagen Taos Comfortline", year:"2023", make:"Volkswagen", model:"Taos", trim:"Comfortline", seller:"Shamsher Singh", vin:"3VVWX7B24PM310061", date:apptDayIso(1)},
-    {id:"sample-cd-ott-2", source:"Canada Drives", region:"Ottawa", appNo:"APP-0003263289", ymm:"2019 Hyundai Tucson Essential", year:"2019", make:"Hyundai", model:"Tucson", trim:"Essential", seller:"Daouda Camara", vin:"KM8J2CA47KU042870", date:apptDayIso(1)},
-    {id:"sample-ml-ott-2", source:"My Loan", region:"Ottawa", appNo:"ML-10488", ymm:"2020 Toyota RAV4 LE", year:"2020", make:"Toyota", model:"RAV4", trim:"LE", seller:"Noah Berger", vin:"2T3P1RFV5LC085221", date:lastMonthIso()},
-    {id:"sample-cd-gta-3", source:"Canada Drives", region:"GTA", appNo:"APP-0003271130", ymm:"2020 Mercedes-Benz E-Class E450", year:"2020", make:"Mercedes-Benz", model:"E-Class", trim:"E450", seller:"Donny Wang", vin:"WDDZF6JB9LA720037", date:apptDayIso(-3)}
-  ];
+function apptStageOf(v){
+  const s=String(v||"").toLowerCase();
+  if(s==="on-site"||s==="onsite"||/on[-\s]?site/.test(s)) return "on-site";
+  return "booked";
 }
 function apptRangeBounds(kind, fromVal, toVal){
   const now=new Date();
@@ -1839,6 +1828,7 @@ function normalizeAppt(row){
     vin:String(row.vin||"").replace(/\s+/g,"").toUpperCase(),
     date:String(row.date||"").slice(0,10),
     region:apptRegionOf(row.region||row.location||"GTA")||"GTA",
+    stage:apptStageOf(row.stage),
     source:(function(s){
       s=String(s||"").trim();
       if(/car loans canada/i.test(s)) return "Carla";
@@ -1851,6 +1841,7 @@ const APPTS_AIRTABLE={
   base:"appfy57egeT1utqaI",
   table:"tbl2QiJ40S6A7IzyR",
   stage:"selqqamHvfGvK4CmK",
+  onsite:"selaCJ91ZmmGKF7i1",
   source:"sel90QtMNs2kN0MbE",
   path:"/api/appointments"
 };
@@ -1861,28 +1852,37 @@ async function loadAppointments(){
     const r=await fetch((typeof MAIL_HOST==="string"?MAIL_HOST:"")+APPTS_AIRTABLE.path+q, {cache:"no-store"});
     if(r && r.ok){
       const j=await r.json();
-      if(j && j.ok && j.live && Array.isArray(j.items) && j.items.length){
+      if(j && j.ok && j.live && Array.isArray(j.items)){
         APP.apptLive=true;
         APP.apptLiveNote="";
         return j.items.map(normalizeAppt).filter(Boolean);
       }
-      if(j && j.reason) APP.apptLiveNote=j.reason;
+      APP.apptLive=false;
+      APP.apptLiveNote=(j && j.reason) || "Live Airtable isn’t available for this source.";
+      return [];
     }
+    APP.apptLive=false;
+    APP.apptLiveNote="Couldn’t load live appointments.";
+    return [];
   }catch(e){}
   APP.apptLive=false;
-  if(!APP.apptLiveNote) APP.apptLiveNote="Live Airtable isn’t wired on this page yet. These are sample appointments so you can still pick one. Set AIRTABLE_TOKEN on the mailer host and open /api/appointments.";
-  return sampleAppointments().map(normalizeAppt);
+  if(!APP.apptLiveNote) APP.apptLiveNote="Couldn’t load live appointments. Set AIRTABLE_TOKEN on the mailer host and open /api/appointments.";
+  return [];
+}
+function apptDateBtnLabel(){
+  return ({today:"Today", tomorrow:"Tomorrow", month:"This month", lastMonth:"Last month", calendar:"Calendar"})[APP.apptRange||"today"] || "Today";
 }
 function filteredAppointments(){
   const region=APP.apptRegion||"GTA";
   const source=APP.leadSource||"";
-  const bounds=apptRangeBounds(APP.apptRange||"today", $("apptFrom")&&$("apptFrom").value, $("apptTo")&&$("apptTo").value);
+  const kind=APP.apptRange||"today";
+  const bounds=apptRangeBounds(kind, $("apptFrom")&&$("apptFrom").value, $("apptTo")&&$("apptTo").value);
   return (APP.apptItems||[]).filter(function(row){
     if(source && row.source && row.source!==source) return false;
     if((row.region||"GTA")!==region) return false;
     if(!bounds) return true;
     const when=apptWhen(row);
-    if(!when) return false;
+    if(!when) return kind==="today" || kind==="month";
     return when>=bounds.start && when<=bounds.end;
   });
 }
@@ -1899,6 +1899,10 @@ function paintAppointments(){
   document.querySelectorAll("#apptDates [data-appt-range]").forEach(function(b){
     b.classList.toggle("on", b.getAttribute("data-appt-range")===(APP.apptRange||"today"));
   });
+  if($("apptDateBtn")){
+    $("apptDateBtn").textContent=apptDateBtnLabel();
+    $("apptDateBtn").classList.add("on");
+  }
   if($("apptCal")) $("apptCal").classList.toggle("hide", (APP.apptRange||"")!=="calendar");
   const note=$("apptLiveNote");
   if(note){
@@ -1918,7 +1922,9 @@ function paintAppointments(){
     b.type="button";
     b.className="appt-row"+(APP.apptId===row.id?" on":"");
     const when=row.date ? new Date(row.date+"T12:00:00").toLocaleDateString("en-CA",{month:"short",day:"numeric",year:"numeric"}) : "Date TBA";
-    b.innerHTML="<b>"+escHtml(row.appNo||"Application")+" · "+escHtml(row.ymm||"Vehicle")+"</b><span>"+escHtml(row.seller||"Seller")+" · "+escHtml(row.vin||"VIN TBA")+" · "+escHtml(when)+"</span>";
+    const stageLbl=row.stage==="on-site"?"On-site":"Booked";
+    const stageCls=row.stage==="on-site"?"onsite":"booked";
+    b.innerHTML="<b>"+escHtml(row.appNo||"Application")+" · "+escHtml(row.ymm||"Vehicle")+"</b><span><i class=\"appt-stage "+stageCls+"\">"+escHtml(stageLbl)+"</i>"+escHtml(row.seller||"Seller")+" · "+escHtml(row.vin||"VIN TBA")+" · "+escHtml(when)+"</span>";
     b.onclick=function(){ applyAppointment(row); };
     host.appendChild(b);
   });
@@ -8296,14 +8302,24 @@ if($("apptTabs")) $("apptTabs").addEventListener("click", function(e){
   APP.apptRegion=b.getAttribute("data-appt-region")||"GTA";
   paintAppointments();
 });
+if($("apptDateBtn")) $("apptDateBtn").onclick = function(){
+  if($("apptDateMenu")) $("apptDateMenu").classList.toggle("on");
+};
 if($("apptDates")) $("apptDates").addEventListener("click", function(e){
   const b=e.target && e.target.closest && e.target.closest("[data-appt-range]");
   if(!b) return;
   APP.apptRange=b.getAttribute("data-appt-range")||"today";
+  if($("apptDateMenu")) $("apptDateMenu").classList.remove("on");
   paintAppointments();
 });
 if($("apptFrom")) $("apptFrom").addEventListener("change", function(){ APP.apptRange="calendar"; paintAppointments(); });
 if($("apptTo")) $("apptTo").addEventListener("change", function(){ APP.apptRange="calendar"; paintAppointments(); });
+document.addEventListener("click", function(e){
+  const menu=$("apptDateMenu");
+  if(!menu || !menu.classList.contains("on")) return;
+  if(e.target && e.target.closest && e.target.closest("#apptDates")) return;
+  menu.classList.remove("on");
+});
 if($("wbBack")) $("wbBack").onclick = function(){
   if(isConsumerAcquisition() && APP.apptId){
     APP.apptId="";
