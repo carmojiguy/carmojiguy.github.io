@@ -166,6 +166,7 @@ function isPacketSend(body) {
   if (/Private link to get a (real )?value/i.test(text)) return false;
   if (/Shawn approval/i.test(subject + text)) return false;
   if (/The photo catalog is in this email/.test(text)) return true;
+  if (/The sales-grade appraisal PDF is attached/.test(text)) return true;
   const parts = Array.isArray(body && body.parts) ? body.parts : [];
   const photos = parts.some(function (p) { return p && p.b64 && String(p.mime || "").indexOf("image/") === 0; });
   const pdf = parts.some(function (p) { return p && (p.mime === "application/pdf" || /\.pdf$/i.test(p.name || "")); });
@@ -189,7 +190,10 @@ function itemFromSend(body, sent) {
       return String.fromCharCode(Number(n));
     }).trim();
   }
-  const catalog = text.indexOf("The photo catalog is in this email");
+  const catalog = Math.max(
+    text.indexOf("The photo catalog is in this email"),
+    text.indexOf("The sales-grade appraisal PDF is attached")
+  );
   let story = "";
   if (catalog > 0) {
     const chunk = text.slice(0, catalog).split(/\n\n/).slice(1).join("\n\n").trim();

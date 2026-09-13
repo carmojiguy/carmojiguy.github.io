@@ -81,7 +81,9 @@ assert.ok(/id="viewerCapSheet"/.test(html), "expand is a sheet under the photo")
 assert.ok(/max-height:36vh/.test(html), "sheet does not cover the car");
 assert.ok(/function startDamageAudio\(/.test(html), "guest and staff damage start the same recorder");
 assert.ok(/APP\.mode==="damage" \|\| APP\.mode==="close"/.test(html), "employee close mode uses the same talk path");
-assert.ok(/pushVoiceParts\(parts, shots\)/.test(html), "Send attaches the voice files");
+assert.ok(/pushVoiceParts\(parts, shots\)/.test(html), "Send still calls pushVoiceParts");
+assert.ok(/damage-walk\.mp4/.test(html), "mail clip is one damage-walk video");
+assert.ok(/keepMail:true/.test(html), "muxed clip is marked keepMail");
 
 const mailbox = { APP: { role: "guest", purpose: "both" } };
 vm.createContext(mailbox);

@@ -51,7 +51,7 @@ mustNot(/oauthRedirectForSend\(/, "sharePacket never redirects to Google for Sen
 mustNot(/\$\("mailOpen"\)[\s\S]{0,80}classList\.remove\("hide"\)/, "sharePacket never unhides #mailOpen");
 must(/if\(!sentOk\) restoreSend\(\)/, "packet finally restores Send only on fail");
 must(/else hideSend\(\)/, "packet finally hides Send on success");
-must(/pushVoiceParts\(parts, shots\)/, "Send attaches spoken damage audio with the photos");
+must(/pushVoiceParts\(parts, shots\)/, "Send still calls pushVoiceParts");
 
 assert.ok(/function hideMailOpen\(\)\{/.test(html), "hideMailOpen exists");
 (function testRevealMailOpenHideOnly() {
@@ -286,28 +286,33 @@ for (const copy of copies) {
 }
 
 (function testMailStripHelpers() {
-  const from = html.indexOf("function isMailVideoPart(");
+  const from = html.indexOf("function isLoneMailAudioPart(");
   const to = html.indexOf("async function sendFromMe(", from);
   assert.ok(from > 0 && to > from, "mail strip helpers found");
   const sandbox = {};
   vm.createContext(sandbox);
-  vm.runInContext(html.slice(from, to) + "\nthis.isMailVideoPart=isMailVideoPart;this.stripMailVideoParts=stripMailVideoParts;this.stripMailPdfParts=stripMailPdfParts;this.mailPhotoParts=mailPhotoParts;this.packetMailAttempts=packetMailAttempts;", sandbox);
+  vm.runInContext(html.slice(from, to) + "\nthis.isLoneMailAudioPart=isLoneMailAudioPart;this.isKeepMailClip=isKeepMailClip;this.isMailVideoPart=isMailVideoPart;this.stripMailVideoParts=stripMailVideoParts;this.stripMailPdfParts=stripMailPdfParts;this.mailPhotoParts=mailPhotoParts;this.packetMailAttempts=packetMailAttempts;", sandbox);
   const parts = [
     { cid: "photo0@inspect", b64: "aaa", name: "front.jpg", mime: "image/jpeg" },
     { disp: "attachment", b64: "pdf", name: "vehicle.pdf", mime: "application/pdf" },
     { disp: "attachment", b64: "vid", name: "00_1.mp4", mime: "video/mp4" },
-    { disp: "attachment", b64: "voice", name: "dmg-voice.webm", mime: "audio/webm" }
+    { disp: "attachment", b64: "voice", name: "damage-03-driver-01-voice.m4a", mime: "audio/mp4" },
+    { disp: "attachment", b64: "mix", name: "damage-walk.mp4", mime: "video/mp4", keepMail: true }
   ];
   assert.equal(sandbox.isMailVideoPart(parts[2]), true, "mp4 screen recording is a video part");
-  assert.equal(sandbox.isMailVideoPart(parts[3]), false, "spoken audio webm is not stripped as video");
+  assert.equal(sandbox.isLoneMailAudioPart(parts[3]), true, "lone m4a is mail audio");
+  assert.equal(sandbox.isKeepMailClip(parts[4]), true, "damage-walk clip is keepMail");
+  assert.equal(sandbox.isMailVideoPart(parts[4]), false, "keepMail clip is not stripped as video");
   const noVid = sandbox.stripMailVideoParts(parts);
-  assert.deepStrictEqual(noVid.map(function (p) { return p.name; }), ["front.jpg", "vehicle.pdf", "dmg-voice.webm"], "video base64 never stays in the mailer payload");
+  assert.deepStrictEqual(noVid.map(function (p) { return p.name; }), ["front.jpg", "vehicle.pdf", "damage-walk.mp4"], "screen video and lone m4a drop; muxed clip stays");
   const ladder = sandbox.packetMailAttempts(parts);
   assert.equal(ladder.length, 4, "ladder is full → no PDF → photos only → HTML+text");
-  assert.ok(!ladder[0].some(function (p) { return p.mime.indexOf("video/") === 0; }), "full attempt still drops video");
+  assert.ok(ladder[0].some(function (p) { return p.name === "damage-walk.mp4"; }), "full attempt keeps the muxed damage clip");
+  assert.ok(!ladder[0].some(function (p) { return p.name === "00_1.mp4"; }), "full attempt still drops screen recording");
+  assert.ok(!ladder[0].some(function (p) { return /\.m4a$/i.test(p.name); }), "full attempt never keeps lone m4a");
   assert.ok(ladder[0].some(function (p) { return p.mime === "application/pdf"; }), "full attempt keeps PDF");
   assert.ok(!ladder[1].some(function (p) { return p.mime === "application/pdf"; }), "second attempt drops PDF");
-  assert.ok(ladder[1].some(function (p) { return p.mime === "audio/webm"; }), "second attempt keeps voice");
+  assert.ok(ladder[1].some(function (p) { return p.name === "damage-walk.mp4"; }), "second attempt keeps the muxed clip");
   assert.deepStrictEqual(ladder[2].map(function (p) { return p.name; }), ["front.jpg"], "third attempt is photos only");
   assert.equal(ladder[3] && ladder[3].length, 0, "fourth attempt is HTML+text only");
 })();
@@ -334,7 +339,7 @@ for (const copy of copies) {
 })();
 
 (async function testSendPacketMailLadder() {
-  const from = html.indexOf("function isMailVideoPart(");
+  const from = html.indexOf("function isLoneMailAudioPart(");
   const to = html.indexOf("async function sendFromMe(", from);
   const calls = [];
   const sandbox = {
@@ -342,8 +347,7 @@ for (const copy of copies) {
     sendFromMe: async function (to, subject, body, html, parts) {
       calls.push(parts);
       const hasPdf = (parts || []).some(function (p) { return p && p.mime === "application/pdf"; });
-      const hasVoice = (parts || []).some(function (p) { return p && p.mime === "audio/webm"; });
-      if (hasPdf || hasVoice) return { ok: false };
+      if (hasPdf) return { ok: false };
       if ((parts || []).some(function (p) { return p && p.cid; })) return { ok: true };
       return { ok: false };
     }
@@ -354,12 +358,17 @@ for (const copy of copies) {
     { cid: "photo0@inspect", b64: "aaa", name: "front.jpg", mime: "image/jpeg" },
     { disp: "attachment", b64: "pdf", name: "vehicle.pdf", mime: "application/pdf" },
     { disp: "attachment", b64: "vid", name: "00_1.mp4", mime: "video/mp4" },
-    { disp: "attachment", b64: "voice", name: "dmg-voice.webm", mime: "audio/webm" }
+    { disp: "attachment", b64: "voice", name: "dmg-voice.webm", mime: "audio/webm" },
+    { disp: "attachment", b64: "mix", name: "damage-walk.mp4", mime: "video/mp4", keepMail: true }
   ], {});
   assert.equal(sent.ok, true, "first ok (photos only) is Thank you");
-  assert.equal(calls.length, 3, "retries no-PDF then photos-only after full fails");
-  assert.ok(!calls[0].some(function (p) { return p && p.mime === "video/mp4"; }), "ladder never posts raw video");
-  assert.ok(calls[2].every(function (p) { return p.cid || /image\//.test(p.mime); }), "third try is photos only");
+  assert.equal(calls.length, 2, "retries photos-only after PDF attempt fails");
+  assert.ok(!calls[0].some(function (p) { return p && p.name === "00_1.mp4"; }), "ladder never posts screen-recording video");
+  assert.ok(!calls[0].some(function (p) { return p && /audio\//.test(p.mime || ""); }), "ladder never posts lone audio");
+  assert.ok(calls[0].some(function (p) { return p && p.name === "damage-walk.mp4"; }), "first attempt keeps the muxed damage clip");
+  assert.ok(calls[1].some(function (p) { return p.cid || /image\//.test(p.mime); }), "second try still has photos");
+  assert.ok(!calls[1].some(function (p) { return p && p.mime === "application/pdf"; }), "second try dropped the PDF");
+  assert.ok(calls[1].some(function (p) { return p && p.name === "damage-walk.mp4"; }), "second try keeps the muxed clip");
 })().then(function () {
   console.log("share-packet-fallback: ok");
 }).catch(function (err) {

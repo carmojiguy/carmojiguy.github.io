@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-13 build d28y: History reopen for full appraisal rework; zero Center samples -->
+<!-- center-v3 + desk-home 2026-09-13 build d29p: sales PDF email packet + one muxed damage clip; History reopen stays; zero Center samples -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -1810,7 +1810,7 @@ body.center-gallery-on { overflow:hidden; }
     <p class="quote" id="vinHint">Best: take a picture of the vehicle ownership (registration). You can also photograph the VIN on the dash or the sticker on the driver’s door. We’ll read the number from the photo.</p>
     <p class="vin-chip hide" id="vinChip"></p>
     </div>
-    <p class="build-stamp" id="buildStamp">build d28y</p>
+    <p class="build-stamp" id="buildStamp">build d29p</p>
   </div>
 </section>
 
@@ -1893,12 +1893,12 @@ body.center-gallery-on { overflow:hidden; }
         <button class="wb-card dmg" type="button" id="wbDmg">
           <i class="tag">Critical</i>
           <b>Damage photos</b>
-          <span>Every mark. Speak it, shoot it. The short line tattoos on the picture.</span>
+          <span>Every mark. Speak it, shoot it. The short line tattoos on the picture. Send is one video with sound.</span>
         </button>
         <button class="wb-card" type="button" id="wbSendCard">
           <i class="tag">Airtight Send</i>
           <b>Send the packet</b>
-          <span>PDF, every photo, who sent it — Incoming plus Shawn and Christina.</span>
+          <span>The sales PDF is the packet. Damage is one picture-and-sound clip — Incoming plus Shawn and Christina.</span>
         </button>
       </div>
       <div class="block">Documents</div>
@@ -1979,7 +1979,7 @@ body.center-gallery-on { overflow:hidden; }
     <div class="how">
       <ol>
         <li><b>Tap the part of the car that’s damaged</b> using the same angles as the photos above (¾ front, driver side, rear, and so on).</li>
-        <li><b>First tap starts recording what you say.</b> Speak the damage — “rust on the front fender” or “dent in the passenger door.” The camera keeps the audio so Shawn can hear it later.</li>
+        <li><b>First tap starts recording what you say.</b> Speak the damage — “rust on the front fender” or “dent in the passenger door.” Send muxes that voice onto the photo as one playable clip — never a lone audio file.</li>
         <li><b>Second tap takes the picture.</b> A short line of what you said is tattooed on the bottom of that photo. Tap More on the picture to read the rest — it opens under the photo, not over the car. Need a close-up of the same spot? Tap that panel again and shoot as many as you want.</li>
       </ol>
     </div>
@@ -2269,7 +2269,7 @@ body.center-gallery-on { overflow:hidden; }
   <div class="card">
     <button class="x" type="button" data-close="typeSheet">✕</button>
     <h3>Appraisal type</h3>
-    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d28y</span></p>
+    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d29p</span></p>
     <div id="typeChips" class="to-chips"></div>
     <div id="leadBox" class="lead-box hide">
       <p class="hint">Lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a New application — no appointment calendar.</p>
@@ -4909,10 +4909,14 @@ function packetSenderLine(){
   return email ? (who+" <"+email+">") : who;
 }
 function packetRecNote(){
-  let recs=0;
-  Object.keys(APP.docs||{}).forEach(function(id){ recs+=((APP.docs[id]&&APP.docs[id].videos)||[]).length; });
-  if(!((APP.clips&&APP.clips.length)||recs)) return "";
-  return "Screen recording is on the file — not attached to this email.";
+  return "";
+}
+function packetMailClipNote(shots){
+  const list=shots||(typeof capturedFiles==="function"?capturedFiles():[]);
+  const voices=list.filter(function(s){ return s && s.audio; }).length;
+  const ready=typeof APP!=="undefined" && APP._damageMailClip && APP._damageMailClip.b64;
+  if(voices || ready) return " Damage is one picture-and-sound clip.";
+  return "";
 }
 function packetMailText(){
   const lines=[(unitLabel()||"Vehicle")+" — "+(why()||"Appraisal")];
@@ -4923,16 +4927,14 @@ function packetMailText(){
   if(isCanadaDrives() && APP.cdApp) lines.push("Canada Drives # "+APP.cdApp);
   const story=(APP.notes||APP.heard||"").trim();
   if(story) lines.push("", story);
-  const voices=(typeof capturedFiles==="function"?capturedFiles():[]).filter(function(s){ return s && s.audio; }).length;
-  const rec=packetRecNote();
-  lines.push("", "The photo catalog is in this email. The PDF is attached."+(voices?" "+voices+" spoken damage note"+(voices===1?"":"s")+" attached.":"")+(rec?" "+rec:""));
+  const shots=typeof capturedFiles==="function"?capturedFiles():[];
+  lines.push("", "The sales-grade appraisal PDF is attached."+packetMailClipNote(shots));
   return lines.join("\n");
 }
 function packetCatalogHtml(shots, srcFor){
   const title=escHtml(unitLabel()||"Vehicle");
   const kicker=escHtml((why()||"Appraisal").toUpperCase());
   const km=APP.km ? Number(String(APP.km).replace(/,/g,"")).toLocaleString("en-CA")+" km" : "";
-  const guest=APP.role==="guest";
   const who=escHtml(packetSenderLine());
   const facts=[
     ["Year", APP.year],["Make", APP.make],["Model", APP.model],["Trim", APP.trim],
@@ -4948,34 +4950,35 @@ function packetCatalogHtml(shots, srcFor){
   const hero=srcAt(0);
   const sub=[APP.trim, APP.color, km].filter(Boolean).join("  ·  ");
   const story=(APP.notes||APP.heard||"").trim();
-  let h='<!DOCTYPE html><html><body style="margin:0;padding:0;background:#F3F0EA">';
-  h+='<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F3F0EA;margin:0;padding:0"><tr><td align="center" style="padding:28px 12px">';
-  h+='<table role="presentation" width="640" cellpadding="0" cellspacing="0" style="width:100%;max-width:640px;background:#FFFFFF;border-radius:18px;overflow:hidden;border:1px solid #E7E1D4">';
-  h+='<tr><td style="background:#FFFFFF;padding:22px 28px 18px;border-bottom:1px solid #EFEAE0">';
-  h+='<p style="margin:0 0 6px;font-family:Georgia,\'Times New Roman\',serif;font-size:12px;letter-spacing:.16em;color:#8A7A4A;font-weight:400">G&amp;M AUTO SALES</p>';
-  h+='<p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:800;letter-spacing:.14em;color:#1F6B8A">'+kicker+'</p>';
+  let h='<!DOCTYPE html><html><body style="margin:0;padding:0;background:#FAF9FC">';
+  h+='<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#FAF9FC;margin:0;padding:0"><tr><td align="center" style="padding:28px 12px">';
+  h+='<table role="presentation" width="640" cellpadding="0" cellspacing="0" style="width:100%;max-width:640px;background:#FFFFFF;border-radius:18px;overflow:hidden;border:1px solid #E4DFF0">';
+  h+='<tr><td style="background:#00A8E8;height:6px;font-size:0;line-height:0">&nbsp;</td></tr>';
+  h+='<tr><td style="background:#FFFFFF;padding:22px 28px 18px;border-bottom:1px solid #EEE8F6">';
+  h+='<p style="margin:0 0 6px;font-family:Georgia,\'Times New Roman\',serif;font-size:12px;letter-spacing:.16em;color:#7C5CFF;font-weight:400">G&amp;M AUTO SALES</p>';
+  h+='<p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:800;letter-spacing:.14em;color:#00A8E8">'+kicker+'</p>';
   h+='</td></tr>';
   if(hero){
-    h+='<tr><td style="padding:0;background:#11110F">';
+    h+='<tr><td style="padding:0;background:#110E1A">';
     h+='<img src="'+hero+'" width="640" alt="'+title+'" style="display:block;width:100%;max-width:640px;height:auto;border:0"/>';
     h+='</td></tr>';
   }
   h+='<tr><td style="padding:26px 28px 8px">';
   h+='<p style="margin:0 0 6px;font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#6B6278">'+who+'</p>';
-  h+='<h1 style="margin:0;font-family:Georgia,\'Times New Roman\',serif;font-size:32px;line-height:1.15;letter-spacing:-.4px;color:#16130C;font-weight:700">'+title+'</h1>';
-  if(sub) h+='<p style="margin:10px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:16px;color:#5C5346">'+escHtml(sub)+'</p>';
+  h+='<h1 style="margin:0;font-family:Georgia,\'Times New Roman\',serif;font-size:32px;line-height:1.15;letter-spacing:-.4px;color:#110E1A;font-weight:700">'+title+'</h1>';
+  if(sub) h+='<p style="margin:10px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:16px;color:#6B6278">'+escHtml(sub)+'</p>';
   h+='</td></tr>';
   if(facts.length){
     h+='<tr><td style="padding:18px 28px 6px">';
-    h+='<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#FAF7F1;border-radius:14px">';
+    h+='<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F3F0FA;border-radius:14px">';
     for(let i=0;i<facts.length;i+=2){
       h+='<tr>';
       for(let j=0;j<2;j++){
         const row=facts[i+j];
         h+='<td width="50%" valign="top" style="padding:14px 16px">';
         if(row){
-          h+='<div style="font-family:Arial,Helvetica,sans-serif;font-size:10px;font-weight:800;letter-spacing:.1em;color:#8A7A4A;text-transform:uppercase">'+escHtml(row[0])+'</div>';
-          h+='<div style="font-family:Georgia,\'Times New Roman\',serif;font-size:18px;color:#16130C;margin-top:4px">'+escHtml(row[1])+'</div>';
+          h+='<div style="font-family:Arial,Helvetica,sans-serif;font-size:10px;font-weight:800;letter-spacing:.1em;color:#7C5CFF;text-transform:uppercase">'+escHtml(row[0])+'</div>';
+          h+='<div style="font-family:Georgia,\'Times New Roman\',serif;font-size:18px;color:#110E1A;margin-top:4px">'+escHtml(row[1])+'</div>';
         }
         h+='</td>';
       }
@@ -4986,55 +4989,22 @@ function packetCatalogHtml(shots, srcFor){
   if(story){
     h+='<tr><td style="padding:16px 28px 8px">';
     h+='<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F7F3FF;border-radius:14px"><tr><td style="padding:16px 18px">';
-    h+='<div style="font-family:Arial,Helvetica,sans-serif;font-size:10px;font-weight:800;letter-spacing:.12em;color:#6B4C9A;text-transform:uppercase;margin-bottom:8px">Story / condition</div>';
-    h+='<p style="margin:0;font-family:Georgia,\'Times New Roman\',serif;font-size:16px;line-height:1.55;color:#241B33">'+escHtml(story)+'</p>';
+    h+='<div style="font-family:Arial,Helvetica,sans-serif;font-size:10px;font-weight:800;letter-spacing:.12em;color:#7C5CFF;text-transform:uppercase;margin-bottom:8px">Story / condition</div>';
+    h+='<p style="margin:0;font-family:Georgia,\'Times New Roman\',serif;font-size:16px;line-height:1.55;color:#110E1A">'+escHtml(story)+'</p>';
     h+='</td></tr></table></td></tr>';
   }
-  const rest=list.slice(hero?1:0);
-  if(rest.length){
-    h+='<tr><td style="padding:20px 28px 8px">';
-    h+='<p style="margin:0 0 12px;font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:800;letter-spacing:.12em;color:#8A7A4A;text-transform:uppercase">Photo catalog</p>';
-    h+='<table role="presentation" width="100%" cellpadding="0" cellspacing="0">';
-    for(let i=0;i<rest.length;i+=2){
-      h+='<tr>';
-      for(let j=0;j<2;j++){
-        const idx=i+j+(hero?1:0);
-        const s=list[idx];
-        const src=srcAt(idx);
-        h+='<td width="50%" valign="top" style="padding:0 8px 16px '+(j? "8px":"0")+'">';
-        if(s && src){
-          h+='<img src="'+src+'" width="284" alt="" style="display:block;width:100%;max-width:284px;height:auto;border-radius:12px;background:#111;border:0"/>';
-          h+='<p style="margin:8px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:800;letter-spacing:.06em;color:#6B6278">'+(escHtml((s.title||("Photo "+(idx+1))).toUpperCase()))+(s.cap?' — '+escHtml(s.cap):'')+'</p>';
-        }
-        h+='</td>';
-      }
-      h+='</tr>';
-    }
-    h+='</table></td></tr>';
-  } else if(!hero){
-    (list).forEach(function(s,i){
-      const src=srcAt(i);
-      if(!src) return;
-      h+='<tr><td style="padding:8px 28px">';
-      h+='<p style="margin:0 0 8px;font-family:Arial,Helvetica,sans-serif;font-weight:800;font-size:12px;letter-spacing:.08em;color:#6B6278">'+(escHtml((s.title||("Photo "+(i+1))).toUpperCase()))+(s.cap?' — '+escHtml(s.cap):'')+'</p>';
-      h+='<img src="'+src+'" width="584" alt="" style="display:block;width:100%;max-width:584px;border-radius:14px;background:#111;border:0"/>';
-      h+='</td></tr>';
-    });
-  }
-  h+='<tr><td style="padding:10px 28px 28px">';
-  const voices=(list||[]).filter(function(s){ return s && s.audio; }).length;
-  const rec=typeof packetRecNote==="function"?packetRecNote():((APP.clips&&APP.clips.length)?"Screen recording is on the file — not attached to this email.":"");
-  h+='<p style="margin:0;font-family:Arial,Helvetica,sans-serif;color:#6B6278;font-size:13px;line-height:1.5">High-definition catalog PDF is attached.'+(rec?" "+rec:"")+(voices?" Spoken damage notes are attached — play the matching audio to hear what was said.":"")+'</p>';
+  h+='<tr><td style="padding:16px 28px 28px">';
+  h+='<p style="margin:0;font-family:Arial,Helvetica,sans-serif;color:#6B6278;font-size:13px;line-height:1.5">The sales-grade appraisal PDF is the packet.'+escHtml(packetMailClipNote(list))+' Photos and burned captions live in that PDF.</p>';
   h+='<!--PACKET_PDF-->';
   h+='</td></tr>';
-  h+='<tr><td style="padding:16px 28px 22px;background:#FAF7F1;border-top:1px solid #EFEAE0">';
-  h+='<p style="margin:0;font-family:Georgia,\'Times New Roman\',serif;font-size:13px;color:#5C5346">Ottawa · G&amp;M Auto Sales · Confidential appraisal packet</p>';
+  h+='<tr><td style="padding:16px 28px 22px;background:#F3F0FA;border-top:1px solid #EEE8F6">';
+  h+='<p style="margin:0;font-family:Georgia,\'Times New Roman\',serif;font-size:13px;color:#6B6278">Ottawa · G&amp;M Auto Sales · Confidential appraisal packet</p>';
   h+='</td></tr></table></td></tr></table></body></html>';
   return h;
 }
 function packetMailHtmlHosted(shots, pdfUrl){
   let h=packetCatalogHtml(shots, function(s){ return s && s.url ? escHtml(s.url) : ""; });
-  if(pdfUrl) h=h.replace("<!--PACKET_PDF-->", '<p style="margin:14px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:14px"><a href="'+escHtml(pdfUrl)+'" style="color:#1F6B8A;font-weight:800">Download the catalog PDF</a></p>');
+  if(pdfUrl) h=h.replace("<!--PACKET_PDF-->", '<p style="margin:14px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:14px"><a href="'+escHtml(pdfUrl)+'" style="color:#00A8E8;font-weight:800">Open the appraisal PDF</a></p>');
   return h;
 }
 async function loadMailerToken(){
@@ -5066,6 +5036,7 @@ async function sendGuestCatalog(to, subject, text){
   if(token) APP.googleToken=token;
   try{
     const shots=capturedFiles();
+    try{ await withTimeout(queueDamageMux(), 8000, null); }catch(e){}
     const mailShots=[];
     for(let i=0;i<shots.length;i++){
       try{ mailShots.push({title:shots[i].title, name:shots[i].name, cap:shots[i].cap||"", data:await withTimeout(compressDataUrl(shots[i].data, 1200, 0.8), 4000, shots[i].data), audio:shots[i].audio||"", audioMime:shots[i].audioMime||"", audioName:shots[i].audioName||""}); }
@@ -5447,6 +5418,7 @@ function wipeJob(goStart){
   APP.dealType=""; APP.leadSource=""; APP.cdApp=""; APP.apptId=""; APP.apptSeller=""; APP.lockedFromAirtable=false; APP.newApplication=false; APP.newAppOpen=false; APP.apptSearch=""; APP.centerId=""; APP.sendId=""; APP._sending=false; APP.deskTeam="";
   APP.photos={}; APP.damage={}; APP.closeups=[]; APP.docs={}; APP.damageCap={}; APP.closeupCap=[]; APP.closeupAudio=[];
   APP.clips=[]; APP.recOn=false; APP.recorder=null; APP.recChunks=[]; APP.zoom=1;
+  APP._damageMailClip=null; APP._damageMailKey=""; APP._damageMuxInflight=null;
   APP._thanksHeroSrc=""; APP._thanksPop=""; APP._thanksKind="";
   if(APP.role!=="guest"){
     APP.inviteFirst=APP.inviteLast=APP.inviteName=APP.inviteEmail=APP.invitePhone="";
@@ -7492,8 +7464,26 @@ function landIncomingPacket(extra){
   try{ shareIncomingBestEffort(item); }catch(e){}
   return persistCenterMedia(item.id, photos, docs).then(function(){ return item; }).catch(function(){ return item; });
 }
+function isLoneMailAudioPart(p){
+  if(!p) return false;
+  const mime=String(p.mime||"").toLowerCase();
+  const name=String(p.name||"").toLowerCase();
+  if(mime.indexOf("audio/")===0) return true;
+  if(/\.(m4a|mp3|wav|ogg|aac)$/i.test(name)) return true;
+  if(/-voice\.(m4a|webm|mp3|ogg|aac)$/i.test(name) && mime.indexOf("video/")!==0) return true;
+  return false;
+}
+function isKeepMailClip(p){
+  if(!p) return false;
+  if(isLoneMailAudioPart(p)) return false;
+  const mime=String(p.mime||"").toLowerCase();
+  const name=String(p.name||"").toLowerCase();
+  if(p.keepMail && mime.indexOf("video/")===0) return true;
+  return name.indexOf("damage-walk.")===0 && mime.indexOf("video/")===0;
+}
 function isMailVideoPart(p){
   if(!p) return false;
+  if(isKeepMailClip(p)) return false;
   const mime=String(p.mime||"").toLowerCase();
   if(mime.indexOf("video/")===0) return true;
   if(mime.indexOf("audio/")===0) return false;
@@ -7501,7 +7491,11 @@ function isMailVideoPart(p){
   return /\.(mov|mp4|m4v|qt)$/i.test(name) || (/\.webm$/i.test(name) && mime.indexOf("audio/")!==0);
 }
 function stripMailVideoParts(parts){
-  return (parts||[]).filter(function(p){ return p && p.b64 && !isMailVideoPart(p); });
+  return (parts||[]).filter(function(p){
+    if(!p || !p.b64) return false;
+    if(isLoneMailAudioPart(p)) return false;
+    return !isMailVideoPart(p);
+  });
 }
 function stripMailPdfParts(parts){
   return (parts||[]).filter(function(p){
@@ -8083,7 +8077,11 @@ function keepShot(data, audio){
     if($("camLabel") && v) $("camLabel").textContent="Damage — "+v[1]+" · "+n+" saved";
     if($("camHint")) $("camHint").textContent="Saved. Tap to add another on this panel, or Done.";
     toast("Saved. Add another or Done.");
+    try{ queueDamageMux(); }catch(e){}
     return;
+  }
+  if(APP.mode==="close"){
+    try{ queueDamageMux(); }catch(e){}
   }
   show("photos");
 }
@@ -8236,9 +8234,20 @@ function isDamageNote(text){
   if(story && t.length>20 && story.indexOf(head)>=0) return false;
   return true;
 }
+function liveDamageCaption(text){
+  let raw=String(text!=null?text:(APP.dmgCaption||"")).replace(/\s+/g," ").trim();
+  if(!raw && typeof $==="function"){
+    const ban=$("dmgBanner");
+    if(ban) raw=String(ban.textContent||"").replace(/\s+/g," ").trim();
+  }
+  if(!raw) return "";
+  if(/^(Listening|Recording your voice|Speak, then tap|Mic on|Saved\.|Voice note)\b/i.test(raw)) return "";
+  return raw;
+}
 function stampBanner(canvas, text){
-  let raw=String(text||"").trim();
+  let raw=liveDamageCaption(text);
   if(!raw && (APP.mode==="damage"||APP.mode==="close")) raw="Voice note";
+  if(!raw) return;
   if(!isDamageNote(raw) && raw!=="Voice note") return;
   text=damageCaptionLine(raw, 72);
   if(!text) return;
@@ -10824,13 +10833,13 @@ async function buildPdf(){
     y=wrap(story, 36, y, W-72, 16);
     y+=18;
   }
-  if(APP.clips && APP.clips.length){
+  const dmgVoices=dmg.filter(function(s){ return s && s.audio; }).length+close.filter(function(s){ return s && s.audio; }).length;
+  if(dmgVoices || (APP._damageMailClip && APP._damageMailClip.b64)){
     setFont(true, 13, INK);
-    d.text("Walk-around video", 36, y);
+    d.text("Damage walk", 36, y);
     y+=16;
     setFont(false, 11, INK);
-    const clipLine=APP.clips.map(function(c,i){ return "Clip "+(i+1)+" · "+recClock(c.dur); }).join("   ");
-    y=wrap(clipLine+"  — attached to the email.", 36, y, W-72, 16);
+    y=wrap("Picture + sound is one attached clip (damage-walk). Spoken captions stay burned on the photos.", 36, y, W-72, 16);
     y+=18;
   }
   if(isWeb()){
@@ -10870,9 +10879,9 @@ async function buildPdf(){
       setFont(false, 10, WHITE);
       wrap(shot.cap, 24, 552, 700, 13);
     }
-    if(shot.audio){
+    if(shot.audio && (shot.kind==="damage" || shot.kind==="close")){
       setFont(false, 9, [160,160,170]);
-      d.text("Spoken note attached — play "+(shot.audioName||"the matching audio")+" to hear it.", 24, 598);
+      d.text("Hear it on the damage-walk clip — captions stay on this photo.", 24, 598);
     }
     setFont(false, 8, [90,90,100]);
     d.text(index+" / "+total, 768, 598, {align:"right"});
@@ -10999,7 +11008,7 @@ function packetSummary(){
   });
   if(caps.length) lines.push("Damage: "+caps.join("; "));
   const voices=capturedFiles().filter(function(s){ return s && s.audio; }).length;
-  if(voices) lines.push("Spoken damage notes: "+voices);
+  if(voices) lines.push("Damage walk: one picture-and-sound clip");
   if(APP.clips && APP.clips.length) lines.push("Walk-around video: "+APP.clips.length+" clip"+(APP.clips.length>1?"s":""));
   let recs=0;
   Object.keys(APP.docs||{}).forEach(function(id){ recs+=((APP.docs[id]&&APP.docs[id].videos)||[]).length; });
@@ -11216,23 +11225,165 @@ async function paintSubmit(){
     $("pdfHint").textContent="Tap to open the complete file";
   }
   $("pdfCard").onclick=openPacket;
+  try{ queueDamageMux(); }catch(e){}
 }
 function dataB64(dataUrl){
   const s=String(dataUrl||"");
   const i=s.indexOf("base64,");
   return i>=0 ? s.slice(i+7) : "";
 }
-function pushVoiceParts(parts, shots){
-  (shots||[]).forEach(function(s){
-    const b64=dataB64(s && s.audio);
-    if(!b64) return;
-    parts.push({
-      disp:"attachment",
-      b64:b64,
-      name:s.audioName || ((s.name||"voice").replace(/\.jpg$/i,"")+"-voice."+audioExt(s.audioMime)),
-      mime:s.audioMime || "audio/webm"
+function damageMuxKey(shots){
+  return (shots||[]).filter(function(s){ return s && (s.kind==="damage"||s.kind==="close"); }).map(function(s){
+    return [s.name||"", (s.audio||"").length, s.audioMime||"", s.cap||""].join("|");
+  }).join(";");
+}
+function rememberDamageMailClip(clip, key){
+  return new Promise(function(res){
+    if(!clip || !clip.blob){ res(null); return; }
+    const mime=String(clip.mime||clip.blob.type||"video/mp4");
+    if(/^audio\//i.test(mime)){ res(null); return; }
+    blobToDataURL(clip.blob).then(function(url){
+      const b64=dataB64(url);
+      if(!b64){ res(null); return; }
+      APP._damageMailClip={b64:b64, mime:mime, name:"damage-walk.mp4", blob:clip.blob};
+      APP._damageMailKey=key||"";
+      res(APP._damageMailClip);
+    }).catch(function(){ res(null); });
+  });
+}
+function muxDamageWalkClip(shots){
+  return new Promise(function(res){
+    const list=(shots||[]).filter(function(s){ return s && s.data && (s.kind==="damage"||s.kind==="close") && s.audio; });
+    if(!list.length || typeof document==="undefined" || !window.MediaRecorder){ res(null); return; }
+    const canvas=document.createElement("canvas");
+    canvas.width=1280; canvas.height=720;
+    const ctx=canvas.getContext("2d");
+    if(!ctx || !canvas.captureStream){ res(null); return; }
+    let stream=null;
+    try{ stream=canvas.captureStream(30); }catch(e){ res(null); return; }
+    if(!stream){ res(null); return; }
+    let ac=null, dest=null;
+    try{
+      ac=new (window.AudioContext||window.webkitAudioContext)();
+      dest=ac.createMediaStreamDestination();
+      dest.stream.getAudioTracks().forEach(function(t){ stream.addTrack(t); });
+    }catch(e){}
+    const mime=typeof recMime==="function"?recMime():"";
+    let rec=null;
+    try{
+      const opts={videoBitsPerSecond:2500000, audioBitsPerSecond:128000};
+      if(mime) opts.mimeType=mime;
+      rec=new MediaRecorder(stream, opts);
+    }catch(e){
+      try{ rec=new MediaRecorder(stream); }catch(err){ res(null); return; }
+    }
+    const chunks=[];
+    let settled=false;
+    const done=function(blob){
+      if(settled) return;
+      settled=true;
+      try{ if(ac && ac.close) ac.close(); }catch(e){}
+      if(blob && blob.size>800 && !/^audio\//i.test(blob.type||"")) res({blob:blob, mime:blob.type||mime||"video/mp4"});
+      else res(null);
+    };
+    rec.ondataavailable=function(ev){ if(ev.data && ev.data.size) chunks.push(ev.data); };
+    rec.onstop=function(){
+      const type=rec.mimeType||mime||"video/mp4";
+      done(new Blob(chunks, {type:type}));
+    };
+    const drawCover=function(img){
+      ctx.fillStyle="#110E1A";
+      ctx.fillRect(0,0,canvas.width,canvas.height);
+      const iw=img.naturalWidth||img.width, ih=img.naturalHeight||img.height;
+      if(!iw || !ih) return;
+      const target=canvas.width/canvas.height;
+      let sx=0, sy=0, sw=iw, sh=ih;
+      if(iw/ih>target){ sw=ih*target; sx=(iw-sw)/2; }
+      else { sh=iw/target; sy=(ih-sh)/2; }
+      ctx.drawImage(img, sx,sy,sw,sh, 0,0,canvas.width,canvas.height);
+    };
+    const loadImg=function(src){
+      return new Promise(function(ok, bad){
+        const img=new Image();
+        img.onload=function(){ ok(img); };
+        img.onerror=bad;
+        img.src=src;
+      });
+    };
+    const playShot=function(shot){
+      return loadImg(shot.data).then(function(img){
+        drawCover(img);
+        return new Promise(function(ok){
+          if(!shot.audio){ setTimeout(ok, 1800); return; }
+          const audio=document.createElement("audio");
+          audio.preload="auto";
+          audio.src=shot.audio;
+          let hooked=false;
+          if(ac && dest){
+            try{
+              const src=ac.createMediaElementSource(audio);
+              src.connect(dest);
+              hooked=true;
+            }catch(e){}
+          }
+          const finish=function(){ setTimeout(ok, 120); };
+          audio.onended=finish;
+          audio.onerror=function(){ setTimeout(ok, 1800); };
+          const p=audio.play();
+          if(p && p.catch) p.catch(function(){ setTimeout(ok, hooked?Math.round((audio.duration||2)*1000):1800); });
+          setTimeout(finish, Math.min(20000, Math.max(1800, Math.round(((audio.duration||3)+0.3)*1000))));
+        });
+      }).catch(function(){ return null; });
+    };
+    try{ rec.start(200); }catch(e){ try{ rec.start(); }catch(err){ done(null); return; } }
+    const failTimer=setTimeout(function(){ try{ if(rec.state!=="inactive") rec.stop(); }catch(e){ done(null); } }, 90000);
+    list.reduce(function(p, shot){ return p.then(function(){ return playShot(shot); }); }, Promise.resolve()).then(function(){
+      clearTimeout(failTimer);
+      try{ if(rec.state!=="inactive") rec.stop(); else done(null); }catch(e){ done(null); }
+    }).catch(function(){
+      clearTimeout(failTimer);
+      try{ if(rec.state!=="inactive") rec.stop(); else done(null); }catch(e){ done(null); }
     });
   });
+}
+function queueDamageMux(){
+  const shots=typeof capturedFiles==="function"?capturedFiles():[];
+  const key=damageMuxKey(shots);
+  if(APP._damageMailClip && APP._damageMailKey===key) return Promise.resolve(APP._damageMailClip);
+  if(APP._damageMuxInflight && APP._damageMuxInflight.key===key) return APP._damageMuxInflight.p;
+  const p=muxDamageWalkClip(shots).then(function(clip){
+    if(!clip){
+      if(APP._damageMailKey===key) return APP._damageMailClip;
+      APP._damageMailClip=null;
+      APP._damageMailKey=key;
+      return null;
+    }
+    return rememberDamageMailClip(clip, key);
+  });
+  APP._damageMuxInflight={key:key, p:p};
+  return p.finally(function(){
+    if(APP._damageMuxInflight && APP._damageMuxInflight.p===p) APP._damageMuxInflight=null;
+  });
+}
+function damageMailClipPart(){
+  const clip=APP && APP._damageMailClip;
+  if(!clip || !clip.b64) return null;
+  const mime=String(clip.mime||"video/mp4").toLowerCase();
+  const name=String(clip.name||"damage-walk.mp4").toLowerCase();
+  if(mime.indexOf("audio/")===0) return null;
+  if(/\.(m4a|mp3|wav|ogg|aac)$/i.test(name)) return null;
+  if(/-voice\.(m4a|webm|mp3|ogg)$/i.test(name)) return null;
+  return {
+    disp:"attachment",
+    b64:clip.b64,
+    name:"damage-walk.mp4",
+    mime:mime.indexOf("video/")===0?mime:"video/mp4",
+    keepMail:true
+  };
+}
+function pushVoiceParts(parts, shots){
+  const clip=damageMailClipPart();
+  if(clip) parts.push(clip);
 }
 function packetMailHtml(shots){
   return packetCatalogHtml(shots, function(s,i){ return "cid:photo"+i+"@inspect"; });
