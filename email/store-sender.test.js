@@ -26,6 +26,8 @@ assert.ok(/MAIL_FROM/.test(api), "documents optional MAIL_FROM");
 assert.ok(/async function resolveSender/.test(api), "resolveSender picks token, refresh, mk, then store");
 assert.ok(/via: "store"/.test(api), "store sender is a first-class via");
 assert.ok(/kind === "oauth"/.test(api) || /kind==="oauth"/.test(api), "staff oauth code exchange stays");
+assert.ok(/kind === "sms"/.test(api) || /kind==="sms"/.test(api), "invite SMS is a mailer kind");
+assert.ok(/TWILIO_ACCOUNT_SID/.test(api), "Twilio env is documented on the mailer");
 assert.ok(/error: "mailer"/.test(api), "missing store env still returns mailer");
 assert.ok(/error: "empty"/.test(api), "empty post still returns empty");
 assert.ok(/error: "missing code"/.test(api), "oauth without code stays missing code");

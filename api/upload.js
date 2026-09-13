@@ -25,7 +25,15 @@
  *
  * Staff Google login still uses kind:"oauth" (code exchange) with the same
  * GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET. Do not remove those.
+ *
+ * Invite / trade-in link Send also posts {kind:"sms", to, text} so the
+ * customer gets a real Twilio SMS. Same Twilio env as /api/notify-appraisal:
+ *
+ *   TWILIO_ACCOUNT_SID    Twilio account SID
+ *   TWILIO_AUTH_TOKEN     Twilio auth token — never put in the client
+ *   TWILIO_FROM           Twilio From number (E.164)
  */
+const sms = require("./lib/sms");
 const ALLOW = [
   "https://carmojiguy.github.io",
   "https://gnm-guest-mailer-shawn-6802.vercel.app"
@@ -320,15 +328,42 @@ function isEmptySend(body) {
   if (!keys.length) return true;
   if (body.kind === "send") return false;
   if (body.kind === "oauth") return false;
+  if (body.kind === "sms") return false;
   if (body.name && body.b64) return false;
   if (!body.kind && !body.to && !body.subject && !body.html && !body.text && !body.b64) return true;
   return false;
 }
 
-async function route(body) {
+async function handleSms(body, deps) {
+  deps = deps || {};
+  const sendSms = deps.sendSms || sms.sendSms;
+  const to = (body && (body.to || body.phone)) || "";
+  const text = String((body && (body.text || body.body)) || "").trim();
+  const out = await sendSms(to, text, {
+    env: deps.env || process.env,
+    fetch: deps.fetch,
+    log: deps.log || console
+  });
+  if (out && out.ok) {
+    return { status: 200, body: { ok: true, sid: out.sid || "", to: out.to || "", via: "twilio" } };
+  }
+  if (out && out.skipped === "no-phone") {
+    return { status: 400, body: { ok: false, error: "empty" } };
+  }
+  if (out && out.skipped === "twilio") {
+    return { status: 503, body: { ok: false, error: "twilio", skipped: "twilio" } };
+  }
+  return { status: 502, body: { ok: false, error: (out && out.error) || "twilio" } };
+}
+
+async function route(body, deps) {
   if (isEmptySend(body)) return { status: 400, body: { ok: false, error: "empty" } };
   const kind = String((body && body.kind) || "");
   if (kind === "oauth") return handleOauth(body);
+  if (kind === "sms") {
+    try { return await handleSms(body, deps); }
+    catch (e) { return { status: 502, body: { ok: false, error: "twilio" } }; }
+  }
   if (kind === "send") {
     try { return await handleSend(body); }
     catch (e) { return { status: 401, body: { ok: false, error: "mailer" } }; }
@@ -362,6 +397,7 @@ module.exports = async function handler(req, res) {
 };
 
 module.exports.route = route;
+module.exports.handleSms = handleSms;
 module.exports.resolveSender = resolveSender;
 module.exports.buildRfc822 = buildRfc822;
 module.exports.gmailSend = gmailSend;

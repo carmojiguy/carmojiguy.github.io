@@ -1385,7 +1385,7 @@ body.center-gallery-on { overflow:hidden; }
         <p id="invUrl" style="word-break:break-all"></p>
       </button>
       <a class="pill purple hide" id="invMailBtn" target="_blank" rel="noopener" style="text-align:center;text-decoration:none;margin-top:10px">Open Gmail as you</a><!-- never unhide on trade-in Send; silent mailer only -->
-      <a class="pill hide" id="invSmsBtn" style="text-align:center;text-decoration:none;margin-top:10px">Open Text with the link</a>
+      <a class="pill hide" id="invSmsBtn" style="text-align:center;text-decoration:none;margin-top:10px">Open Text with the link</a><!-- never unhide on trade-in Send; silent Twilio / mailer SMS -->
     </div>
   </div>
   <div class="dock">
@@ -3807,6 +3807,11 @@ function customerFirst(){
   if(!n || n==="Guest") return "";
   return n.split(/\s+/)[0];
 }
+function senderFirst(){
+  const n=(APP.userName|| (typeof nameForEmail==="function"?nameForEmail(APP.userEmail):"") || "").trim();
+  if(!n) return "";
+  return n.split(/\s+/)[0];
+}
 const THANKS_EXTERIOR=["qfront","front","driver","qfront_pass","qrear_drv","qrear_pass","rear","pass"];
 const THANKS_POPS=["You're famous now","Caught in the wild","The cameras found you","Red-carpet energy","This one's a star"];
 function thanksHeroPhoto(){
@@ -3895,15 +3900,20 @@ function replayThanksMotion(){
   host.classList.add("on");
 }
 function paintThanks(){
-  const first=customerFirst();
+  const invite=APP._thanksKind==="invite";
+  const first=invite ? senderFirst() : customerFirst();
   const src=stashThanksHero();
   const host=$("thanks");
   if(host) host.classList.toggle("thanks-nophoto", !src);
   if($("thanksHello")) $("thanksHello").textContent = first ? ("Thank you, "+first+".") : "Thank you.";
-  if($("thanksLead")) $("thanksLead").textContent = "We've got your vehicle. We're getting to work for you right now — taking it to buyers across Canada and the United States to find the strongest value we can.";
-  if($("thanksSoft")) $("thanksSoft").textContent = APP.role==="employee"
-    ? "The packet is with the team. You can keep going whenever you’re ready."
-    : "You can close this page. We'll be in touch.";
+  if($("thanksLead")) $("thanksLead").textContent = invite
+    ? "The appraisal link is on its way. Thanks for sending it."
+    : "We've got your vehicle. We're getting to work for you right now — taking it to buyers across Canada and the United States to find the strongest value we can.";
+  if($("thanksSoft")) $("thanksSoft").textContent = invite
+    ? "You can keep going whenever you’re ready."
+    : (APP.role==="employee"
+      ? "The packet is with the team. You can keep going whenever you’re ready."
+      : "You can close this page. We'll be in touch.");
   if($("thanksCaption")) $("thanksCaption").textContent = thanksPopLine();
   if($("thanksDone")) $("thanksDone").classList.toggle("hide", APP.role!=="employee");
   const img=$("thanksBg");
@@ -3925,6 +3935,7 @@ function finishThanks(){
   clearDraft();
   clearSnapshot();
   paintThanks();
+  APP._thanksKind="";
   show("thanks");
   replayThanksMotion();
 }
@@ -4086,6 +4097,25 @@ async function sendTextTo(phone, text){
     return !!(sent && sent.ok);
   }catch(e){ return false; }
 }
+async function sendInviteSms(phone, text){
+  const to=String(phone||"").trim();
+  const body=String(text||"").trim();
+  if(!to || !body) return {ok:false, skipped:"no-phone"};
+  try{
+    const r=await timedFetch(MAIL_HOST+"/api/upload", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({kind:"sms", store:true, token:"", refresh:"", mk:"", to:to, text:body})
+    }, 12000);
+    const j=await r.json().catch(function(){ return {}; });
+    if(j && j.ok) return {ok:true, via:j.via||"twilio", sid:j.sid||""};
+  }catch(e){}
+  try{
+    const gate=await sendTextTo(to, body);
+    if(gate) return {ok:true, via:"gateway"};
+  }catch(e){}
+  return {ok:false};
+}
 function fireSms(phone, text){
   if(!phone) return "";
   const href=smsHref(phone, text);
@@ -4113,8 +4143,8 @@ function invitePreview(){
   if(!email && !phone){ n.textContent="Add an email, a cell, or both."; return; }
   const bits=[];
   if(email) bits.push("email "+first+" at "+email);
-  if(phone) bits.push("open a text to "+formatPhoneMask(phone)+" with the link");
-  n.textContent = (from ? ("From "+from+" — ") : "") + "this will "+bits.join(" and ")+". Tap Send in Messages if it opens.";
+  if(phone) bits.push("text "+formatPhoneMask(phone)+" the link");
+  n.textContent = (from ? ("From "+from+" — ") : "") + "this will "+bits.join(" and ")+".";
 }
 function openInvite(){
   const parts=(APP.inviteName||"").trim().split(/\s+/);
@@ -5116,7 +5146,7 @@ function wipeJob(goStart){
   APP.dealType=""; APP.leadSource=""; APP.cdApp=""; APP.apptId=""; APP.apptSeller=""; APP.lockedFromAirtable=false; APP.newApplication=false; APP.newAppOpen=false; APP.apptSearch=""; APP.centerId=""; APP.sendId=""; APP._sending=false; APP.deskTeam="";
   APP.photos={}; APP.damage={}; APP.closeups=[]; APP.docs={}; APP.damageCap={}; APP.closeupCap=[]; APP.closeupAudio=[];
   APP.clips=[]; APP.recOn=false; APP.recorder=null; APP.recChunks=[]; APP.zoom=1;
-  APP._thanksHeroSrc=""; APP._thanksPop="";
+  APP._thanksHeroSrc=""; APP._thanksPop=""; APP._thanksKind="";
   if(APP.role!=="guest"){
     APP.inviteFirst=APP.inviteLast=APP.inviteName=APP.inviteEmail=APP.invitePhone="";
     APP.inviteUnit=APP.inviteStock="";
@@ -7097,7 +7127,6 @@ async function sendTradeInvite(){
   const subject=copy.subject, msg=copy.text, html=copy.html;
   const from=APP.userEmail||"";
   const sms=phone ? inviteSmsShort(first, url) : "";
-  const smsLink=phone ? smsHref(phone, sms) : "";
   const btn=$("inviteSend");
   if(btn && btn.disabled) return;
   if(btn){ btn.disabled=true; btn.textContent="Sending…"; }
@@ -7112,12 +7141,8 @@ async function sendTradeInvite(){
     hideInvMailBtn();
     hideMailOpen();
     const smsBtn=$("invSmsBtn");
-    if(smsBtn){
-      if(phone){ smsBtn.classList.remove("hide"); smsBtn.href=smsLink; smsBtn.textContent="Send the text"; }
-      else smsBtn.classList.add("hide");
-    }
+    if(smsBtn){ smsBtn.classList.add("hide"); smsBtn.href=""; }
   }catch(e){}
-  if(phone) fireSms(phone, sms);
   try{ upsertCenterInvite(); }catch(e){}
   function restoreSend(){
     hideInvMailBtn();
@@ -7139,10 +7164,24 @@ async function sendTradeInvite(){
   function thankYouOnly(){
     hideSend();
     if($("invConfirm")) $("invConfirm").textContent="Thank you.";
+    APP._thanksKind="invite";
     try{ finishGuest(); }catch(e){}
   }
+  function failSend(){
+    if($("invConfirm")) $("invConfirm").textContent="Couldn’t send — try again";
+    toast("Couldn’t send — try again");
+    restoreSend();
+  }
+  let texted=false;
+  if(phone){
+    try{
+      const smsOut=await withTimeout(sendInviteSms(phone, sms), 12000, {ok:false});
+      texted=!!(smsOut && smsOut.ok);
+    }catch(e){ texted=false; }
+  }
   if(!email){
-    thankYouOnly();
+    if(texted) thankYouOnly();
+    else failSend();
     return;
   }
   try{
@@ -7153,19 +7192,16 @@ async function sendTradeInvite(){
     if(!(sent && sent.ok)) sent=await withTimeout(sendFromMe(email, subject, msg, packed.html, packed.parts, {bcc:[SHAWN_COPY]}), 12000, {ok:false});
     hideInvMailBtn();
     hideMailOpen();
-    if(sent && sent.ok){
+    if((sent && sent.ok) || texted){
       thankYouOnly();
     } else {
-      if($("invConfirm")) $("invConfirm").textContent="Couldn’t send — try again";
-      toast("Couldn’t send — try again");
-      restoreSend();
+      failSend();
     }
   }catch(e){
     hideInvMailBtn();
     hideMailOpen();
-    if($("invConfirm")) $("invConfirm").textContent="Couldn’t send — try again";
-    toast("Couldn’t send — try again");
-    restoreSend();
+    if(texted) thankYouOnly();
+    else failSend();
   }
 }
 function logOut(){
@@ -10304,6 +10340,7 @@ async function sharePacket(){
     markMailed(sendId);
     APP._thanksHeroSrc="";
     APP._thanksPop="";
+    APP._thanksKind="";
     try{ stashThanksHero(); }catch(e){}
     try{ clearSnapshot(); }catch(e){}
     try{ clearDraft(); }catch(e){}
