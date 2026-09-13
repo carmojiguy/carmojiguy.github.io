@@ -7,7 +7,7 @@ const assert = require("assert");
 const vm = require("vm");
 
 const html = fs.readFileSync(path.join(__dirname, "..", "index.html"), "utf8");
-const start = html.indexOf("function packetCatalogHtml(shots, srcFor){");
+const start = html.indexOf("function packetRecNote(){");
 const end = html.indexOf("\nfunction packetMailHtmlHosted(", start);
 assert.ok(start > 0 && end > start, "packetCatalogHtml not found");
 const src = html.slice(start, end);
@@ -49,7 +49,7 @@ const sandbox = {
   packetSenderLine: function () { return "Maya Patel · customer trade-in"; }
 };
 vm.createContext(sandbox);
-vm.runInContext(src + "\nthis.packetCatalogHtml=packetCatalogHtml;", sandbox);
+vm.runInContext(src + "\nthis.packetCatalogHtml=packetCatalogHtml;this.packetRecNote=packetRecNote;", sandbox);
 
 const htmlOut = sandbox.packetCatalogHtml(
   [
@@ -66,5 +66,15 @@ assert.ok(htmlOut.indexOf("Maya Patel") >= 0, "customer name");
 assert.ok(htmlOut.indexOf("One-owner, winter tires included.") >= 0, "story");
 assert.ok(htmlOut.indexOf("G&amp;M AUTO SALES") >= 0, "brand");
 assert.ok(htmlOut.indexOf("#F3F0EA") >= 0, "warm paper background");
+assert.ok(htmlOut.indexOf("Walk-around video is attached.") < 0, "HTML does not claim video is attached");
+
+sandbox.APP.clips = [{ dur: 4 }];
+sandbox.APP.docs = { carfax: { videos: [{ name: "00_1.mp4", type: "video/mp4" }] } };
+const recOut = sandbox.packetCatalogHtml(
+  [{ title: "Front 3/4", cap: "", data: "x" }],
+  function (s, i) { return "cid:photo" + i + "@inspect"; }
+);
+assert.ok(recOut.indexOf("not attached to this email") >= 0, "screen recording is a note, not a mail attachment");
+assert.ok(recOut.indexOf("Walk-around video is attached.") < 0, "recording note never says attached");
 
 console.log("packet-catalog: ok");
