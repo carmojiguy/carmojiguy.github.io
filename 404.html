@@ -1536,10 +1536,10 @@ body.center-gallery-on { overflow:hidden; }
   <div class="card">
     <button class="x" type="button" data-close="typeSheet">✕</button>
     <h3>Appraisal type</h3>
-    <p class="hint">Pick one. Consumer Acquisition then needs a lead source — Canada Drives, My Loan, My Auto, or Carla.</p>
+    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application.</p>
     <div id="typeChips" class="to-chips"></div>
     <div id="leadBox" class="lead-box hide">
-      <p class="hint">Lead source — pick one before appointments open.</p>
+      <p class="hint">Lead source — Canada Drives uses the appointment book. Everyone else starts a new application.</p>
       <div id="leadChips" class="to-chips"></div>
     </div>
     <div id="cdBox" class="cd-field hide">
@@ -1766,6 +1766,15 @@ function needsLeadSource(job, staff){
   if(!isConsumerAcquisition(p)) return false;
   return !String(p.leadSource||"").trim();
 }
+function usesCaAppointments(job){
+  var p=job||APP;
+  if(!p || !isConsumerAcquisition(p)) return false;
+  return String(p.leadSource||"").trim()==="Canada Drives";
+}
+function isBookedCaAppt(job){
+  var p=job||APP;
+  return usesCaAppointments(p) && !!String(p.apptId||"").trim() && p.apptId!=="new" && !p.newApplication;
+}
 function needsAppraiseAppt(job, staff){
   if(needsAppraiseType(job, staff) || needsLeadSource(job, staff)) return false;
   var isStaff=staff===undefined?(APP.role!=="guest"):!!staff;
@@ -1773,6 +1782,9 @@ function needsAppraiseAppt(job, staff){
   var p=job||APP;
   if(!p || p.purpose==="website") return false;
   if(!isConsumerAcquisition(p)) return false;
+  var src=String(p.leadSource||"").trim();
+  if(src!=="Canada Drives") return false;
+  if(p.newApplication || p.apptId==="new") return false;
   return !String(p.apptId||"").trim();
 }
 function appraiseLocked(job, staff){
@@ -1884,7 +1896,10 @@ function paintDealType(){
         APP.dealType=name;
         if(name!=="Consumer Acquisition"){ APP.leadSource=""; APP.apptId=""; APP.apptSeller=""; APP.lockedFromAirtable=false; APP.newApplication=false; }
         paintDealType();
-        if(name==="Consumer Acquisition" && APP.leadSource) openAppointments();
+        if(name==="Consumer Acquisition" && APP.leadSource){
+          if(usesCaAppointments()) openAppointments();
+          else startNewApplication();
+        }
       };
       host.appendChild(b);
     });
@@ -1905,7 +1920,8 @@ function paintDealType(){
         APP.apptSeller="";
         APP.newApplication=false;
         paintDealType();
-        openAppointments();
+        if(s.id==="Canada Drives") openAppointments();
+        else startNewApplication();
       };
       leads.appendChild(b);
     });
@@ -2093,21 +2109,22 @@ function startNewApplication(){
   APP.apptId="new";
   APP.apptSeller="";
   APP.lockedFromAirtable=false;
-  if(q) APP.cdApp=q;
+  if(q && isCanadaDrives()) APP.cdApp=q;
   if($("wb-cd-app") && APP.cdApp) $("wb-cd-app").value=APP.cdApp;
   if($("home-cd-app") && APP.cdApp) $("home-cd-app").value=APP.cdApp;
   if($("cd-app") && APP.cdApp) $("cd-app").value=APP.cdApp;
+  if($("typeSheet")) $("typeSheet").classList.remove("on");
   paintDealType();
   paintAppointments();
   paintWorkbench();
   paintAppraiseGate();
-  show("workbench");
-  toast(q ? ("New application "+q+" — full appraisal.") : "New application — full appraisal.");
+  show("home");
+  toast(q && isCanadaDrives() ? ("New application "+q+" — full appraisal.") : "New application — full appraisal.");
 }
 function paintAppointments(){
   const wrap=$("apptWrap");
   if(!wrap) return;
-  const show=APP.role!=="guest" && !isWeb() && isConsumerAcquisition() && !!APP.leadSource;
+  const show=APP.role!=="guest" && !isWeb() && usesCaAppointments();
   wrap.classList.toggle("hide", !show);
   bindTrackerLinks();
   if($("wbPickKicker")) $("wbPickKicker").textContent = (APP.leadSource||"Consumer Acquisition")+" · Appointments";
@@ -2156,6 +2173,10 @@ function paintAppointments(){
   });
 }
 function openAppointments(){
+  if(!usesCaAppointments()){
+    startNewApplication();
+    return;
+  }
   if($("typeSheet")) $("typeSheet").classList.remove("on");
   if($("apptWrap")) $("apptWrap").classList.remove("hide");
   show("workbench");
@@ -2201,12 +2222,12 @@ function applyAppointment(row){
 }
 function paintWorkbench(){
   const pick=$("wbPick"), job=$("wbJob");
-  const on=isConsumerAcquisition() && APP.role!=="guest" && !isWeb();
-  const ready=on && APP.leadSource && APP.apptId;
+  const on=isConsumerAcquisition() && APP.role!=="guest" && !isWeb() && usesCaAppointments();
+  const ready=on && APP.leadSource && APP.apptId && APP.apptId!=="new" && !APP.newApplication;
   if(pick) pick.classList.toggle("hide", !on || !!ready);
   if(job) job.classList.toggle("hide", !ready);
   if(!on) return;
-  if($("wbPickLead")) $("wbPickLead").textContent="Pick the booked "+(APP.leadSource||"")+" appointment, search an app #, or start a new application. Year, make, VIN, app #, and seller come with a live row.";
+  if($("wbPickLead")) $("wbPickLead").textContent="Pick the booked Canada Drives appointment or start a new application. Year, make, VIN, app #, and seller come with a live row.";
   if(!ready) return;
   const ymm=[APP.year,APP.make,APP.model,APP.trim].filter(Boolean).join(" ") || (APP.newApplication || APP.apptId==="new" ? "New application" : "Vehicle");
   if($("wbKicker")) $("wbKicker").textContent="Consumer Acquisition · "+(APP.leadSource||"");
@@ -8845,7 +8866,8 @@ if($("typeSave")) $("typeSave").onclick = function(){
   if(needsLeadSource()){ toast("Pick the lead source first — Canada Drives, My Loan, My Auto, or Carla."); return; }
   if($("typeSheet")) $("typeSheet").classList.remove("on");
   paintDealType();
-  if(isConsumerAcquisition()) openAppointments();
+  if(usesCaAppointments()) openAppointments();
+  else if(isConsumerAcquisition()) startNewApplication();
 };
 function onCdInput(el){
   if(!el) return;
@@ -8887,7 +8909,7 @@ document.addEventListener("click", function(e){
   menu.classList.remove("on");
 });
 if($("wbBack")) $("wbBack").onclick = function(){
-  if(isConsumerAcquisition() && (APP.apptId || APP.newApplication)){
+  if(isBookedCaAppt()){
     APP.apptId="";
     APP.apptSeller="";
     APP.lockedFromAirtable=false;
@@ -8971,7 +8993,7 @@ if($("invCopy")) $("invCopy").onclick = function(){
 if($("inv-phone")) $("inv-phone").addEventListener("input", onPhoneInput);
 $("homeX").onclick = function(){ show("start"); };
 $("photosX").onclick = function(){
-  if(isConsumerAcquisition() && APP.apptId) show("workbench");
+  if(isBookedCaAppt()) show("workbench");
   else show("home");
 };
 $("camX").onclick = $("camDone").onclick = function(){ show("photos"); };
@@ -9030,7 +9052,7 @@ $("useStory").onclick = function(){
   const raw=($("transcript") && $("transcript").value || APP.storyFinal || "").trim();
   applyStory(raw);
   $("storySheet").classList.remove("on");
-  if(isConsumerAcquisition() && APP.apptId){
+  if(isBookedCaAppt()){
     paintWorkbench();
     show("workbench");
     toast("Story saved — vehicle fields stay as Airtable filled them.");
