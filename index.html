@@ -411,8 +411,29 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
   font-style:normal; background:#fff; border:1.5px solid var(--hair);
   border-radius:999px; padding:8px 12px; font-size:13px; font-weight:700;
 }
-.center-hero { position:relative; margin:0 0 18px; border-radius:24px; overflow:hidden; background:#111; min-height:220px; }
-.center-hero img { width:100%; height:240px; object-fit:cover; display:block; background:#111; }
+.center-hero { position:relative; margin:0 0 18px; border-radius:24px; overflow:hidden; background:#111; min-height:220px; touch-action:manipulation; user-select:none; -webkit-user-select:none; }
+.center-hero img { width:100%; height:240px; object-fit:cover; display:block; background:#111; pointer-events:none; }
+.center-gallery {
+  display:none; position:fixed; inset:0; z-index:95; background:#0b0b10;
+  touch-action:none; user-select:none; -webkit-user-select:none;
+}
+.center-gallery.on { display:block; }
+.center-gallery img {
+  position:absolute; inset:0; width:100%; height:100%;
+  object-fit:contain; background:#0b0b10; pointer-events:none;
+}
+.center-gallery .count {
+  position:absolute; left:16px; bottom:calc(16px + env(safe-area-inset-bottom));
+  z-index:2; color:#fff; font-size:13px; font-weight:800;
+  background:rgba(0,0,0,.45); border-radius:999px; padding:6px 12px;
+}
+.center-gallery .dots {
+  position:absolute; left:0; right:0; bottom:calc(18px + env(safe-area-inset-bottom));
+  display:flex; justify-content:center; gap:7px; z-index:2;
+}
+.center-gallery .dots i { width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,.35); }
+.center-gallery .dots i.on { background:#fff; }
+body.center-gallery-on { overflow:hidden; }
 .center-hero .ph { min-height:220px; display:grid; place-items:center; color:#c7c7cc; font-size:15px; font-weight:700; padding:28px; text-align:center; }
 .center-hero .dots { position:absolute; left:0; right:0; bottom:14px; display:flex; justify-content:center; gap:6px; }
 .center-hero .dots i { width:7px; height:7px; border-radius:50%; background:rgba(255,255,255,.35); }
@@ -1029,7 +1050,8 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
       <img src="pose-qfront.jpg?v=17" alt="Stand about six feet off the front corner, phone out, for the 3/4 front photo">
       <em>Stand here · about 6 feet off the front corner · tap to shoot</em>
     </button>
-    <div class="block">Photos</div>
+    <div class="block">Walk-around</div>
+    <p class="quote" id="walkOrderNote">Go around the vehicle in this order: ¾ front, front, driver side, rear, passenger side, then interior.</p>
     <div id="photoRows"></div>
     <div class="block">Damage</div>
     <p class="quote">Skip this if the vehicle is clean. If something is damaged, tell us here — rust, a dent, a scratch, a cracked light, a panel that doesn’t open.</p>
@@ -1136,6 +1158,7 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
   <video id="viewerVid" class="hide" controls playsinline></video>
   <div class="viewer-doc" id="viewerDoc"></div>
 </div>
+<div class="center-gallery" id="centerGallery" aria-label="Vehicle photos"></div>
 
 <div class="sheet" id="googleSheet">
   <div class="card">
@@ -1299,7 +1322,8 @@ window.APP = {
   googleToken: window._gtoken || "", extraUsers:[], requestedBy:"", requestedByName:"",
   inviteUnit:"", inviteStock:"", inviteName:"", inviteEmail:"",
   dealType:"", cdApp:"", centerId:"", centerFilter:"all", centerPhoto:0,
-  centerHistory:false, centerLane:"", centerQuery:"", centerRange:"all", centerYear:new Date().getFullYear()
+  centerHistory:false, centerLane:"", centerQuery:"", centerRange:"all", centerYear:new Date().getFullYear(),
+  centerShots:[], centerGalleryOn:false
 };
 
 function $(id){ return document.getElementById(id); }
@@ -1452,6 +1476,7 @@ function show(id){
   if(id==="submit") paintSubmit();
   if(id==="users") paintUsers();
   if(id==="center"){ paintCenter(); paintCenterDetail(); }
+  else if(typeof closeCenterGallery==="function") closeCenterGallery();
   if(id!=="login" && id!=="thanks" && id!=="start") scheduleDraftSave();
 }
 
@@ -2575,7 +2600,7 @@ function wipeJob(goStart){
 }
 
 const CENTER_KEY="inspect.center";
-const CENTER_SAMPLE_VER="acre5";
+const CENTER_SAMPLE_VER="acre6";
 const CENTER_TEAM=[
   ["shabot","Shabot","FINAL"],
   ["rybot","Rybot","Opinion"],
@@ -2651,7 +2676,6 @@ function sampleMoney(n){
   return "$"+Number(n||0).toLocaleString("en-CA");
 }
 function sampleWalk(kind){
-  const titles=["3/4 front","Front","Side","Rear 3/4","Interior","Odometer","VIN plate","Engine"];
   const u=function(id){ return "https://images.unsplash.com/"+id+"?auto=format&fit=crop&w=1600&h=1000&q=80"; };
   const shared=[u("photo-1485291571150-772bcfc10da5"),u("photo-1449965408869-eaa3f722e40d"),u("photo-1489824904134-891ab64532f1"),u("photo-1542362567-b07e54358753")];
   const pool={
@@ -2661,7 +2685,10 @@ function sampleWalk(kind){
     sport:[u("photo-1621007947382-bb3c3994e3fb"),u("photo-1552519507-da3b142c6e3d"),u("photo-1494976388531-d1058494cdd8"),u("photo-1503376780353-7e6692767b70")].concat(shared),
     jeep:[u("photo-1590362891991-f776e747a588"),u("photo-1502877338535-766e1452684d"),u("photo-1493238792000-8113da705763"),u("photo-1609521263047-f8f205293f24")].concat(shared)
   };
-  return (pool[kind]||pool.suv).map(function(src,i){ return {title:titles[i]||("Walk "+(i+1)), data:src, cap:""}; });
+  const urls=pool[kind]||pool.suv;
+  return VIEWS.slice(0, urls.length).map(function(v,i){
+    return {title:v[1], data:urls[i], cap:"", view:v[0], kind:"walk", n:i+1};
+  });
 }
 function sampleVals(n){
   n=Number(n)||0;
@@ -3152,6 +3179,7 @@ function centerSplitLayout(){
   return window.matchMedia && window.matchMedia("(min-width:768px)").matches;
 }
 function openCenterDetail(id){
+  if(APP.centerViewId!==id) closeCenterGallery();
   APP.centerViewId=id;
   APP.centerPhoto=0;
   if(!centerSplitLayout()) closeCenterLane();
@@ -3388,22 +3416,154 @@ function paintCenter(){
     list.forEach(function(item){ host.appendChild(acreRow(item)); });
   }
 }
+function walkViewIndex(key){
+  const k=String(key||"").trim().toLowerCase();
+  if(!k) return -1;
+  const exact=VIEWS.findIndex(function(v){ return v[0]===key || v[1].toLowerCase()===k; });
+  if(exact>=0) return exact;
+  const aliases={
+    "qfront":0,"3/4 front":0,"¾ front":0,"3/4 front (main image)":0,
+    "front":1,
+    "driver":2,"driver side":2,"side":2,
+    "qrear_drv":3,"qrear":3,"3/4 rear driver":3,"3/4 rear":3,"rear 3/4":3,
+    "rear":4,
+    "qrear_pass":5,"3/4 rear passenger":5,
+    "pass":6,"passenger":6,"passenger side":6,
+    "qfront_pass":7,"3/4 front passenger":7,
+    "dash":8,"dashboard":8,"odometer":8,
+    "console":9,"vin plate":9,"vin":9,
+    "tire":10,"engine":10,
+    "interior":11,"driver interior":11
+  };
+  return aliases[k]>=0 ? aliases[k] : -1;
+}
+function walkIndex(shot){
+  if(!shot) return 999;
+  if(shot.kind==="damage") return 100+(walkViewIndex(shot.view)>=0?walkViewIndex(shot.view):0);
+  if(shot.kind==="close") return 200+(Number(shot.n)||0);
+  const i=walkViewIndex(shot.view||shot.title);
+  if(i>=0) return i;
+  if(shot.n) return Number(shot.n)-1;
+  return 50;
+}
+function orderCenterPhotos(photos){
+  return (photos||[]).slice().filter(function(p){ return p && p.data; }).sort(function(a,b){
+    const d=walkIndex(a)-walkIndex(b);
+    if(d) return d;
+    return (Number(a.n)||0)-(Number(b.n)||0);
+  });
+}
+function centerWalkShots(){
+  return orderCenterPhotos(APP.centerShots||[]);
+}
+function stepCenterPhoto(dir){
+  const shots=centerWalkShots();
+  if(shots.length<2) return;
+  APP.centerPhoto=(Number(APP.centerPhoto||0)+dir+shots.length)%shots.length;
+  paintCenterHero(shots);
+}
+function closeCenterGallery(){
+  APP.centerGalleryOn=false;
+  const host=$("centerGallery");
+  if(host){ host.classList.remove("on"); host.innerHTML=""; }
+  document.body.classList.remove("center-gallery-on");
+}
+function paintCenterGallery(){
+  const host=$("centerGallery");
+  if(!host || !APP.centerGalleryOn){ closeCenterGallery(); return; }
+  const shots=centerWalkShots();
+  if(!shots.length){ closeCenterGallery(); return; }
+  if(APP.centerPhoto>=shots.length) APP.centerPhoto=0;
+  const i=APP.centerPhoto||0;
+  const cap=shots[i].title || shots[i].cap || "";
+  host.classList.add("on");
+  document.body.classList.add("center-gallery-on");
+  host.innerHTML='<img src="'+shots[i].data+'" alt="'+esc(cap)+'"><span class="count">'+(i+1)+" / "+shots.length+(cap?" · "+esc(cap):"")+"</span>"+
+    (shots.length>1?'<div class="dots">'+shots.map(function(_,n){ return "<i"+(n===i?' class="on"':'')+"></i>"; }).join("")+"</div>":"");
+  bindCenterPhotoGestures(host);
+}
+function openCenterGallery(){
+  if(!centerWalkShots().length) return;
+  APP.centerGalleryOn=true;
+  paintCenterGallery();
+}
+function toggleCenterGallery(){
+  if(APP.centerGalleryOn) closeCenterGallery();
+  else openCenterGallery();
+}
+function bindCenterPhotoGestures(host){
+  if(!host || host._centerGestures) return;
+  host._centerGestures=true;
+  let x0=0,y0=0,tracking=false,axis="",moved=false;
+  function pt(e){
+    if(e.touches && e.touches[0]) return {x:e.touches[0].clientX,y:e.touches[0].clientY};
+    if(e.changedTouches && e.changedTouches[0]) return {x:e.changedTouches[0].clientX,y:e.changedTouches[0].clientY};
+    return {x:e.clientX, y:e.clientY};
+  }
+  function start(e){
+    if(e.target && e.target.closest && e.target.closest(".nav-hit")) return;
+    const p=pt(e);
+    x0=p.x; y0=p.y; tracking=true; axis=""; moved=false;
+  }
+  function move(e){
+    if(!tracking) return;
+    const p=pt(e);
+    const dx=p.x-x0, dy=p.y-y0;
+    if(!axis && (Math.abs(dx)>8 || Math.abs(dy)>8)) axis=Math.abs(dx)>=Math.abs(dy)?"x":"y";
+    if(axis==="x"){
+      moved=true;
+      if(e.cancelable) e.preventDefault();
+    }
+  }
+  function end(e){
+    if(!tracking) return;
+    tracking=false;
+    const dx=pt(e).x-x0;
+    if(axis==="x" && Math.abs(dx)>40) stepCenterPhoto(dx<0?1:-1);
+    host._centerMoved=moved;
+  }
+  host.addEventListener("pointerdown", start);
+  host.addEventListener("pointermove", move);
+  host.addEventListener("pointerup", end);
+  host.addEventListener("pointercancel", function(){ tracking=false; });
+  host.addEventListener("touchstart", start, {passive:true});
+  host.addEventListener("touchmove", move, {passive:false});
+  host.addEventListener("touchend", end);
+  host.addEventListener("dblclick", function(e){
+    if(e.target && e.target.closest && e.target.closest(".nav-hit")) return;
+    e.preventDefault();
+    toggleCenterGallery();
+  });
+  let last=0, lx=0, ly=0;
+  host.addEventListener("pointerup", function(e){
+    if(host._centerMoved) return;
+    if(e.pointerType==="mouse") return;
+    const now=Date.now();
+    if(now-last<320 && Math.abs(e.clientX-lx)<36 && Math.abs(e.clientY-ly)<36){
+      last=0;
+      toggleCenterGallery();
+    } else {
+      last=now; lx=e.clientX; ly=e.clientY;
+    }
+  });
+}
 function paintCenterHero(photos){
   const hero=$("centerHero"); if(!hero) return;
-  const shots=(photos||[]).filter(function(p){ return p && p.data; });
+  let shots=orderCenterPhotos(photos||[]);
   if(!shots.length){
     const item=getCenter(APP.centerViewId);
-    if(item && item.thumb){
-      hero.innerHTML='<img src="'+item.thumb+'" alt="">';
-      return;
-    }
+    if(item && item.thumb) shots=[{data:item.thumb, title:item.ymmt||"", view:"qfront", kind:"walk", n:1}];
+  }
+  APP.centerShots=shots;
+  if(!shots.length){
     hero.innerHTML='<div class="ph">Photos will land here — walk, video stills, or a customer packet.</div>';
+    closeCenterGallery();
     return;
   }
   if(APP.centerPhoto>=shots.length) APP.centerPhoto=0;
   const i=APP.centerPhoto||0;
   const cap=shots[i].title || shots[i].cap || "";
-  let extras='<span class="count">'+(i+1)+" / "+shots.length+"</span>";
+  let extras='<span class="count">'+(i+1)+" / "+shots.length+(cap?" · "+esc(cap):"")+"</span>";
   if(shots.length>1){
     extras+='<div class="dots">'+shots.map(function(_,n){ return "<i"+(n===i?' class="on"':'')+"></i>"; }).join("")+"</div>";
     extras+='<button class="nav-hit prev" type="button" aria-label="Previous photo">‹</button>';
@@ -3412,8 +3572,10 @@ function paintCenterHero(photos){
   hero.innerHTML='<img src="'+shots[i].data+'" alt="'+esc(cap)+'">'+extras;
   const prev=hero.querySelector(".prev");
   const next=hero.querySelector(".next");
-  if(prev) prev.onclick=function(){ APP.centerPhoto=(i-1+shots.length)%shots.length; paintCenterHero(shots); };
-  if(next) next.onclick=function(){ APP.centerPhoto=(i+1)%shots.length; paintCenterHero(shots); };
+  if(prev) prev.onclick=function(e){ e.stopPropagation(); stepCenterPhoto(-1); };
+  if(next) next.onclick=function(e){ e.stopPropagation(); stepCenterPhoto(1); };
+  bindCenterPhotoGestures(hero);
+  if(APP.centerGalleryOn) paintCenterGallery();
 }
 function paintCenterDocs(item, media){
   const host=$("centerDocs"); if(!host) return;
@@ -4066,8 +4228,8 @@ function paintLists(){
 function fillRows(host, bucket){
   host.innerHTML = "";
   const store = APP.photos;
-  VIEWS.forEach(function(v){
-    const id=v[0], label=v[1], icon=v[2];
+  VIEWS.forEach(function(v, i){
+    const id=v[0], label=(i+1)+" · "+v[1], icon=v[2];
     const taken=!!store[id];
     host.appendChild(rowEl(label, taken ? store[id] : pic(icon), taken, function(){ openCamera("photos", id); }, taken?"Replace photo":"Add photo", !taken && isPassGhost(icon)));
   });
@@ -4128,7 +4290,11 @@ function openCamera(mode, id){
       const n=dmgShots(id).length;
       if(n) label += " · "+n+" saved";
     }
-    if(mode!=="damage" && v[0]==="qfront") label = "3/4 Front (Main image)";
+    if(mode!=="damage" && v[0]==="qfront") label = "1 · 3/4 Front (Main image)";
+    else if(mode!=="damage" && mode!=="close"){
+      const step=VIEWS.findIndex(function(x){ return x[0]===id; });
+      if(step>=0) label=(step+1)+" · "+v[1];
+    }
     icon = v[2];
   }
   $("camLabel").textContent = label;
@@ -4150,9 +4316,15 @@ function openCamera(mode, id){
   const ban=$("dmgBanner");
   if(ban){ ban.textContent=""; ban.classList.remove("on"); }
   if($("camHint")){
-    $("camHint").textContent = (mode==="damage"||mode==="close")
-      ? "Mic is live on the video. Tap once to caption this still, tap again to shoot."
-      : "Wide landscape for the website — fill this frame with the vehicle";
+    if(mode==="damage"||mode==="close"){
+      $("camHint").textContent="Mic is live on the video. Tap once to caption this still, tap again to shoot.";
+    } else {
+      const step=VIEWS.findIndex(function(x){ return x[0]===id; });
+      const nxt=step>=0 ? VIEWS[step+1] : null;
+      $("camHint").textContent = nxt
+        ? "Walk-around "+(step+1)+" of "+VIEWS.length+" — next is "+nxt[1]+"."
+        : "Last walk-around shot. Then you’re done.";
+    }
   }
   show("camera");
 }
@@ -6748,6 +6920,9 @@ if($("btnSharePack")) $("btnSharePack").onclick = kickShare;
 if($("extraMailAdd")) $("extraMailAdd").onclick = addExtraRecipient;
 if($("extraMail")) $("extraMail").addEventListener("keydown", function(e){ if(e.key==="Enter"){ e.preventDefault(); addExtraRecipient(); } });
 if($("viewerX")) $("viewerX").onclick = closeViewer;
+document.addEventListener("keydown", function(e){
+  if(e.key==="Escape" && APP.centerGalleryOn) closeCenterGallery();
+});
 if($("storyCard")) $("storyCard").onclick = function(){
   openViewer("packet", "<h2>Story / condition</h2><p>"+esc(APP.notes||APP.heard||"No story yet.")+"</p>", "Story / condition");
 };
