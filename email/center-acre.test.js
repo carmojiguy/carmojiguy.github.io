@@ -222,6 +222,8 @@ must(/APPTS_DEMO=false/, "sample appointments are gated off by default");
 must(/function sampleAppointments\(/, "sample appointments exist behind the demo flag");
 must(/function applyAppointment\(/, "tapping an appointment prefills Appraise");
 must(/function loadAppointments\(/, "live Airtable path is explicit");
+must(/function apptStageOk\(/, "live rows are locked to Appointment Booked and On-Site Visit");
+must(/\.filter\(apptStageOk\)/, "live API rows drop any other stage");
 must(/\/api\/appointments/, "wire-live appointments endpoint");
 must(/Appointments API isn’t on the mailer yet/, "404 empty/error copy");
 must(/The mailer must deploy that route/, "network fail copy names the mailer route");
@@ -243,6 +245,20 @@ must(/label:"Website photos"/, "Users screen has Website photos toggle");
 must(/label:"Appraisal Center"/, "Users screen has Appraisal Center toggle");
 must(/label:"Admin"/, "Users screen has Admin toggle");
 must(/inbox:"Incoming"/, "Center lanes stay Incoming / On-site / History");
+
+(function testApptStageOk() {
+  const m = html.match(/function apptStageOk\(row\)\{[\s\S]*?\n\}/);
+  assert.ok(m, "apptStageOk source is extractable");
+  const apptStageOk = eval("(" + m[0].replace("function apptStageOk", "function") + ")");
+  assert.strictEqual(apptStageOk({stage:"Appointment Booked"}), true, "Appointment Booked is live");
+  assert.strictEqual(apptStageOk({stage:"On-Site Visit"}), true, "On-Site Visit is live");
+  assert.strictEqual(apptStageOk({stage:"On-site"}), true, "On-site spelling is live");
+  assert.strictEqual(apptStageOk({stage:"selqqamHvfGvK4CmK"}), true, "Booked stage id is live");
+  assert.strictEqual(apptStageOk({stage:"selaCJ91ZmmGKF7i1"}), true, "On-Site Visit stage id is live");
+  assert.strictEqual(apptStageOk({stage:"Requested"}), false, "Requested is not live");
+  assert.strictEqual(apptStageOk({stage:"Appraised"}), false, "Appraised is not live");
+  assert.strictEqual(apptStageOk({stage:""}), false, "blank stage is not live");
+})();
 
 (function testNeedsAppraiseAppt() {
   const m = html.match(/function needsAppraiseAppt\(job, staff\)\{[\s\S]*?\n\}/);

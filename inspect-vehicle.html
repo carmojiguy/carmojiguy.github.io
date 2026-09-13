@@ -1901,6 +1901,14 @@ function normalizeAppt(row){
     })(row.source||row.leadSource||"")
   };
 }
+function apptStageOk(row){
+  const s=String((row&&row.stage)||"").trim();
+  if(!s) return false;
+  if(s==="selqqamHvfGvK4CmK" || s==="selaCJ91ZmmGKF7i1") return true;
+  if(/appointment booked/i.test(s)) return true;
+  if(/on[\s-]*site/i.test(s)) return true;
+  return false;
+}
 const APPTS_AIRTABLE={
   base:"appfy57egeT1utqaI",
   table:"tbl2QiJ40S6A7IzyR",
@@ -1930,7 +1938,7 @@ async function loadAppointments(){
         APP.apptLiveNote="";
         APP.apptError="";
         APP.apptLoading=false;
-        return j.items.map(normalizeAppt).filter(Boolean);
+        return j.items.map(normalizeAppt).filter(Boolean).filter(apptStageOk);
       }
       APP.apptError=(j && (j.reason||j.error)) || "The mailer did not return live appointments.";
     } else {
@@ -1956,6 +1964,7 @@ function filteredAppointments(){
   const source=APP.leadSource||"";
   const bounds=apptRangeBounds(APP.apptRange||"today", $("apptFrom")&&$("apptFrom").value, $("apptTo")&&$("apptTo").value);
   return (APP.apptItems||[]).filter(function(row){
+    if(APP.apptLive && !apptStageOk(row)) return false;
     if(source && row.source && row.source!==source) return false;
     if((row.region||"GTA")!==region) return false;
     if(!bounds) return true;
