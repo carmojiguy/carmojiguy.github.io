@@ -46,6 +46,8 @@ function mustNotBounceToGoogle() {
   assert.ok(!/requestGmailThenSend\(/.test(kick), "kickShare never starts a Google chooser");
   assert.ok(!/oauthRedirectForSend\(/.test(kick), "kickShare never redirects to Google");
   assert.ok(/sharePacket\(\);/.test(kick), "kickShare always goes to the silent mailer");
+  assert.ok(!/openDocsIncompleteModal\(/.test(kick), "kickShare never returns on docsGate");
+  assert.ok(!/needsMarketDocsGate\(/.test(kick), "incomplete docs never block Send");
 }
 
 const from = html.indexOf("const THANKS_EXTERIOR=");
