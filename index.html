@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-13 build d23: My Loan create form lives on the HOME Appraise desk -->
+<!-- center-v3 + desk-home 2026-09-13 build d24: VIN Type / Dictate / Ownership photo -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -272,7 +272,10 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
 .to-add .pill { width:auto; margin:0; white-space:nowrap; padding:13px 14px; font-size:14px; }
 .vin-box { display:flex; flex-direction:column; gap:8px; }
 .vin-box .f { width:100%; font-size:16px; letter-spacing:.12em; font-weight:800; text-transform:uppercase; min-height:52px; }
-.vin-box .pill { width:100%; }
+.vin-box .f.vin-bad { box-shadow:0 0 0 2px #C0392B; }
+.vin-actions { display:flex; gap:8px; flex-wrap:wrap; }
+.vin-actions .pill { flex:1; min-width:92px; width:auto; margin:0; padding:12px 8px; font-size:13px; }
+.vin-status { margin:0; min-height:18px; font-weight:700; }
 #vinHear { margin:0; min-height:18px; font-weight:700; }
 .cam { background:#000; color:#fff; padding:0 !important; }
 .screen.cam { display:none; }
@@ -1528,7 +1531,15 @@ body.center-gallery-on { overflow:hidden; }
         <label class="k" for="na-trim">Trim</label>
         <input class="f" id="na-trim" />
         <label class="k" for="na-vin">VIN</label>
-        <input class="f" id="na-vin" maxlength="17" inputmode="text" autocapitalize="characters" autocomplete="off" spellcheck="false" style="text-transform:uppercase" />
+        <div class="vin-box" data-vin-target="na-vin">
+          <input class="f" id="na-vin" maxlength="17" inputmode="text" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="17-character VIN" />
+          <div class="vin-actions">
+            <button class="pill wash" type="button" data-vin-act="type">Type</button>
+            <button class="pill cyan" type="button" data-vin-act="dictate">Dictate</button>
+            <button class="pill" type="button" data-vin-act="photo">Ownership photo</button>
+          </div>
+          <p class="quote vin-status" id="naVinHear"></p>
+        </div>
         <div class="pair">
           <div>
             <label class="k" for="na-color">Colour</label>
@@ -1562,7 +1573,7 @@ body.center-gallery-on { overflow:hidden; }
     <p class="quote" id="vinHint">Best: take a picture of the vehicle ownership (registration). You can also photograph the VIN on the dash or the sticker on the driver’s door. We’ll read the number from the photo.</p>
     <p class="vin-chip hide" id="vinChip"></p>
     </div>
-    <p class="build-stamp" id="buildStamp">build d23</p>
+    <p class="build-stamp" id="buildStamp">build d24</p>
   </div>
 </section>
 
@@ -1684,22 +1695,24 @@ body.center-gallery-on { overflow:hidden; }
       <div><label class="k">Kilometres</label><input class="f" id="v-km" inputmode="numeric" /></div>
     </div>
     <label class="k">VIN</label>
-    <div class="vin-box">
-      <input class="f" id="v-vin" maxlength="17" inputmode="text" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="Type the 17-character VIN" />
-      <button class="pill cyan" type="button" id="verifyVinSpeak">Speak the VIN</button>
-      <p class="quote" id="vinHear"></p>
+    <div class="vin-box" data-vin-target="v-vin">
+      <input class="f" id="v-vin" maxlength="17" inputmode="text" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="17-character VIN" />
+      <div class="vin-actions">
+        <button class="pill wash" type="button" data-vin-act="type">Type</button>
+        <button class="pill cyan" type="button" id="verifyVinDictate" data-vin-act="dictate">Dictate</button>
+        <button class="pill" type="button" id="verifyVin" data-vin-act="photo">Ownership photo</button>
+      </div>
+      <p class="quote vin-status" id="vinHear"></p>
     </div>
-    <button class="pill wash" type="button" id="verifyVin">Take a picture of the ownership</button>
-    <p class="quote" style="margin:8px 0 0">Type it, or tap Speak and read the VIN out loud — letter by letter is fine.</p>
     <div id="stockWrap" class="hide">
       <label class="k">Stock number</label><input class="f" id="v-stock" placeholder="e.g. A1042" />
     </div>
     <label class="k">Condition / story</label>
     <textarea class="note" id="v-notes" rows="8"></textarea>
     <div id="webWrap">
-      <label class="k" id="webLabel">Description</label>
-      <textarea class="note" id="v-webcopy" rows="10" style="min-height:180px" placeholder="Listing appears here — edit anything."></textarea>
-      <button class="pill cyan" type="button" id="btnWebAi" style="margin-top:10px">Generate AI description</button>
+      <label class="k" id="webLabel">Retail description</label>
+      <textarea class="note" id="v-webcopy" rows="10" style="min-height:180px" placeholder="Retail-ready listing appears here — edit anything."></textarea>
+      <button class="pill cyan" type="button" id="btnWebAi" style="margin-top:10px">Write retail description</button>
     </div>
   </div>
   <div class="dock">
@@ -1948,12 +1961,20 @@ body.center-gallery-on { overflow:hidden; }
       <h3 style="margin:0 0 8px">Ownership or VIN</h3>
       <p class="hint">Best: photograph the vehicle ownership (registration). That’s the easiest. You can also photo the VIN on the dash or the sticker on the driver’s door.</p>
       <button class="pill cyan" type="button" id="btnVinShot">Take photo</button>
+      <button class="pill wash" type="button" id="btnVinGallery">Choose from gallery</button>
+      <input type="file" id="vinGallery" accept="image/*" class="hide" />
       <div id="vinFail" class="vin-fail hide">
-        <p id="vinFailCopy">We couldn’t read that VIN with 100% confidence. Type the 17 characters, or tap Speak and say them.</p>
-        <input class="f" id="vinManual" maxlength="17" placeholder="17-character VIN" autocomplete="off" spellcheck="false" />
+        <p id="vinFailCopy">We couldn’t read that VIN with 100% confidence. Type the 17 characters, dictate them, or try another ownership photo.</p>
+        <div class="vin-box" data-vin-target="vinManual">
+          <input class="f" id="vinManual" maxlength="17" inputmode="text" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="17-character VIN" />
+          <div class="vin-actions">
+            <button class="pill wash" type="button" data-vin-act="type">Type</button>
+            <button class="pill cyan" type="button" id="vinDictate" data-vin-act="dictate">Dictate</button>
+            <button class="pill" type="button" id="vinRetry" data-vin-act="photo">Ownership photo</button>
+          </div>
+          <p class="quote vin-status" id="vinManualHear"></p>
+        </div>
         <button class="pill purple" type="button" id="vinTypeGo" style="margin-top:10px">Use this VIN</button>
-        <button class="pill cyan" type="button" id="vinSpeak">Speak the VIN</button>
-        <button class="pill wash" type="button" id="vinRetry">Take another photo</button>
       </div>
     </div>
   </div>
@@ -1989,7 +2010,7 @@ body.center-gallery-on { overflow:hidden; }
   <div class="card">
     <button class="x" type="button" data-close="typeSheet">✕</button>
     <h3>Appraisal type</h3>
-    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d23</span></p>
+    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d24</span></p>
     <div id="typeChips" class="to-chips"></div>
     <div id="leadBox" class="lead-box hide">
       <p class="hint">Lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a New application — no appointment calendar.</p>
@@ -2050,7 +2071,16 @@ body.center-gallery-on { overflow:hidden; }
       <div><label class="k">Colour</label><input class="f" id="f-color" /></div>
       <div><label class="k">Kilometres</label><input class="f" id="f-km" /></div>
     </div>
-    <label class="k">VIN</label><input class="f" id="f-vin" maxlength="17" style="text-transform:uppercase" />
+    <label class="k">VIN</label>
+    <div class="vin-box" data-vin-target="f-vin">
+      <input class="f" id="f-vin" maxlength="17" inputmode="text" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="17-character VIN" style="text-transform:uppercase" />
+      <div class="vin-actions">
+        <button class="pill wash" type="button" data-vin-act="type">Type</button>
+        <button class="pill cyan" type="button" data-vin-act="dictate">Dictate</button>
+        <button class="pill" type="button" data-vin-act="photo">Ownership photo</button>
+      </div>
+      <p class="quote vin-status" id="fVinHear"></p>
+    </div>
     <label class="k">Notes</label><textarea class="note" id="f-notes" rows="8"></textarea>
     <button class="pill purple" type="button" id="saveUnit">Save</button>
   </div>
@@ -7695,7 +7725,97 @@ function normalizeVin(text){
   const m=u.match(/[A-HJ-NPR-Z0-9]{17}/);
   return m ? m[0] : "";
 }
+function cleanVinTyped(raw){
+  return String(raw||"").toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g,"").slice(0,17);
+}
 function vinOk(vin){ return /^[A-HJ-NPR-Z0-9]{17}$/.test(vin||""); }
+function vinFieldEl(id){
+  return $(id||APP.vinTarget||"") || $("v-vin") || $("na-vin") || $("vinManual") || $("f-vin");
+}
+function vinStatusEl(el){
+  if(!el) return $("vinHear");
+  const box=el.closest ? el.closest(".vin-box") : null;
+  if(box){
+    const s=box.querySelector(".vin-status");
+    if(s) return s;
+  }
+  return $(el.id==="na-vin"?"naVinHear":el.id==="f-vin"?"fVinHear":el.id==="vinManual"?"vinManualHear":"vinHear") || $("vinHear");
+}
+function paintVinStatus(el){
+  el=el||vinFieldEl();
+  const vin=cleanVinTyped(el && el.value);
+  if(el){
+    el.value=vin;
+    el.classList.toggle("vin-bad", !!(vin && vin.length!==17));
+  }
+  const status=vinStatusEl(el);
+  if(status) status.textContent = !vin ? "" : (vin.length===17 ? vin : vin+"  ·  "+vin.length+"/17 — need 17");
+}
+function rejectBadVinLength(vin){
+  vin=cleanVinTyped(vin);
+  if(vin.length===17) return false;
+  toast(vin ? "A VIN is 17 characters. No I, O, or Q." : "Type, dictate, or photograph a 17-character VIN.");
+  return true;
+}
+function writeVinInto(el, vin, sync){
+  vin=cleanVinTyped(vin);
+  if(el) el.value=vin;
+  APP.vin=vin;
+  if(sync){
+    ["v-vin","f-vin","na-vin","vinManual"].forEach(function(id){
+      if($(id) && $(id)!==el) $(id).value=vin;
+    });
+  }
+  paintVinStatus(el);
+}
+function focusVinType(el){
+  el=el||vinFieldEl();
+  if(!el) return;
+  APP.vinTarget=el.id||APP.vinTarget;
+  stopVinSpeak();
+  el.focus();
+  try{ el.setSelectionRange(el.value.length, el.value.length); }catch(e){}
+  paintVinStatus(el);
+}
+function bindVinField(el){
+  if(!el || el._vinBound) return;
+  el._vinBound=true;
+  el.addEventListener("input", function(){
+    if(APP.vinListening) stopVinSpeak();
+    writeVinInto(el, el.value, false);
+    APP.vinTarget=el.id||APP.vinTarget;
+  });
+  el.addEventListener("paste", function(e){
+    const t=(e.clipboardData || window.clipboardData);
+    const raw=t && t.getData ? t.getData("text") : "";
+    if(!raw) return;
+    e.preventDefault();
+    writeVinInto(el, raw, false);
+    APP.vinTarget=el.id||APP.vinTarget;
+  });
+  el.addEventListener("blur", function(){
+    const vin=cleanVinTyped(el.value);
+    writeVinInto(el, vin, false);
+    if(vin && vin.length!==17) rejectBadVinLength(vin);
+  });
+}
+function openVinPhoto(el){
+  el=el||vinFieldEl();
+  if(el) APP.vinTarget=el.id||APP.vinTarget;
+  if(typeof requireAppraiseType==="function" && $("home") && $("home").classList.contains("on") && el && el.id==="na-vin"){
+    /* create-form VIN photo is allowed before story lock */
+  } else if(typeof requireAppraiseType==="function" && el && el.id!=="na-vin" && el.id!=="vinManual"){
+    if(!requireAppraiseType()) return;
+  }
+  openVinCam();
+}
+function onVinAction(act, el){
+  el=el||vinFieldEl();
+  if(el) APP.vinTarget=el.id||APP.vinTarget;
+  if(act==="type"){ focusVinType(el); return; }
+  if(act==="dictate"){ speakVinField(el); return; }
+  if(act==="photo"){ openVinPhoto(el); return; }
+}
 function vinCheckOk(vin){
   if(!vinOk(vin)) return false;
   const t={A:1,B:2,C:3,D:4,E:5,F:6,G:7,H:8,J:1,K:2,L:3,M:4,N:5,P:7,R:9,S:2,T:3,U:4,V:5,W:6,X:7,Y:8,Z:9};
@@ -7897,8 +8017,7 @@ async function acceptVin(vin){
   if(chip){ chip.textContent=vin; chip.classList.remove("hide"); }
   const vchip=$("vVinChip");
   if(vchip){ vchip.textContent=vin; vchip.classList.remove("hide"); }
-  if($("v-vin")) $("v-vin").value=vin;
-  if($("f-vin")) $("f-vin").value=vin;
+  writeVinInto(vinFieldEl(APP.vinTarget), vin, true);
   if($("scanStatus")) $("scanStatus").textContent="VIN confirmed";
   if($("btnVinShot")) $("btnVinShot").textContent="Take another photo";
   hideVinFail();
@@ -8026,8 +8145,8 @@ async function readVinFromStill(data){
     pile.push.apply(pile, ocr);
     if(await pickConfirmedVin(pile)) return;
   }catch(e){}
-  showVinFail("We couldn’t confirm that VIN with 100% confidence. Type the 17 characters from the ownership or the plate, or tap Speak and say them out loud.");
-  toast("VIN not confirmed — type it or say it.");
+  showVinFail("We couldn’t confirm that VIN with 100% confidence. Type the 17 characters, dictate them, or try another ownership photo.");
+  toast("VIN not confirmed — type it, dictate it, or photograph the ownership.");
 }
 function openVinCam(){
   if(isWeb()) return;
@@ -8072,45 +8191,17 @@ function spokenToVin(raw){
   const pass=cands.filter(vinCheckOk);
   return pass[0] || cands[0] || "";
 }
+function markDictateBtns(listening){
+  document.querySelectorAll('[data-vin-act="dictate"]').forEach(function(b){
+    b.textContent=listening ? "Listening…" : "Dictate";
+  });
+}
 function speakVin(){
-  const Rec=speechEngine();
-  if(!Rec){ toast("Type the VIN — this phone won’t take dictation."); if($("vinManual")) $("vinManual").focus(); return; }
-  try{ if(APP.vinRec) APP.vinRec.stop(); }catch(e){}
-  const rec=new Rec();
-  APP.vinRec=rec;
-  rec.lang="en-CA";
-  rec.continuous=false;
-  rec.interimResults=true;
-  rec.maxAlternatives=3;
-  if($("vinSpeak")) $("vinSpeak").textContent="Listening…";
-  if($("scanStatus")) $("scanStatus").textContent="Say the VIN, character by character.";
-  rec.onresult=function(ev){
-    let said="";
-    for(let i=0;i<ev.results.length;i++){
-      said += (ev.results[i][0] && ev.results[i][0].transcript) || "";
-      said += " ";
-    }
-    const guess=spokenToVin(said);
-    if($("vinManual") && guess) $("vinManual").value=guess;
-    if(ev.results[ev.results.length-1].isFinal){
-      acceptVin(guess).then(function(ok){
-        if(!ok){
-          toast("That didn’t confirm. Say it again, or type it.");
-          if($("vinSpeak")) $("vinSpeak").textContent="Speak the VIN";
-        }
-      });
-    }
-  };
-  rec.onerror=function(){
-    if($("vinSpeak")) $("vinSpeak").textContent="Speak the VIN";
-    toast("Couldn’t hear that. Type the VIN.");
-  };
-  rec.onend=function(){ if($("vinSpeak")) $("vinSpeak").textContent="Speak the VIN"; };
-  try{ rec.start(); askMic(); }catch(e){ toast("Allow the microphone, then tap Speak again."); }
+  speakVinField($("vinManual") || vinFieldEl());
 }
 async function submitTypedVin(){
-  const typed=(($("vinManual") && $("vinManual").value)||"").trim().toUpperCase();
-  if(!vinOk(normalizeVin(typed))){ toast("A VIN is 17 characters. No I, O, or Q."); return; }
+  const typed=cleanVinTyped(($("vinManual") && $("vinManual").value)||"");
+  if(rejectBadVinLength(typed)){ if($("vinManual")) $("vinManual").focus(); return; }
   const ok=await acceptVin(typed);
   if(!ok) toast("That VIN doesn’t check out. Look at the ownership and try again.");
 }
@@ -8170,24 +8261,32 @@ function parseStory(raw){
   }
   return o;
 }
-function writeListing(){
+function writeRetailListing(){
   const title=[APP.year,APP.make,APP.model,APP.trim].filter(Boolean).join(" ");
   const km=APP.km ? Number(String(APP.km).replace(/,/g,"")).toLocaleString("en-CA")+" km" : "";
+  const color=APP.color||"";
   const bits=[];
-  if(title) bits.push((title+(APP.color?" in "+APP.color:""))+(km?" with "+km:"")+".");
-  else if(km) bits.push(km+" on the odometer.");
+  if(title) bits.push((color?color+" ":"")+title+(km?" with "+km:"")+" — photographed and ready for retail.");
+  else if(km) bits.push(km+" on the odometer — photographed and ready for retail.");
+  else bits.push("Photographed and ready for a retail listing.");
   const note=(APP.notes||APP.heard||"").replace(/\s+/g," ").trim();
   if(note){
     let clean=note;
-    if(title) clean=clean.replace(new RegExp(title.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"),"ig"),"").trim();
+    if(title){
+      const safe=title.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+      clean=clean.replace(new RegExp(safe,"ig"),"").trim();
+    }
     clean=clean.replace(/^i['’]?m looking at (an? )?|^this is (an? )?/i,"").trim();
     if(clean && clean.length>8) bits.push(clean.replace(/\.$/,"")+".");
   }
-  if(APP.stock) bits.push("Stock #"+APP.stock+".");
-  if(APP.vin) bits.push("VIN "+APP.vin+".");
-  bits.push("Available now.");
+  const facts=[];
+  if(APP.stock) facts.push("Stock #"+APP.stock);
+  if(APP.vin) facts.push("VIN "+APP.vin);
+  if(facts.length) bits.push(facts.join(" · ")+".");
+  bits.push("Come see it in person.");
   return bits.join(" ");
 }
+function writeListing(){ return writeRetailListing(); }
 
 function fillUnit(){
   const vinBusy=$("v-vin") && document.activeElement===$("v-vin");
@@ -8241,8 +8340,8 @@ async function generateWebCopy(){
   if(!text) text=fallback;
   APP.webcopy=text;
   if(box){ box.value=text; growArea(box); }
-  if(btn){ btn.disabled=false; btn.textContent="Generate AI description"; }
-  toast(text && text!==fallback ? "Description ready — edit if you want." : "Description filled in from the story.");
+  if(btn){ btn.disabled=false; btn.textContent="Write retail description"; }
+  toast(text && text!==fallback ? "Retail description ready — edit if you want." : "Retail description filled in from the story.");
 }
 function applyStory(raw){
   const text=String(raw||"").trim();
@@ -8346,36 +8445,47 @@ function stopVinSpeak(){
   APP.vinListening=false;
   try{ APP.vinFieldRec && APP.vinFieldRec.stop(); }catch(e){}
   APP.vinFieldRec=null;
-  if($("verifyVinSpeak")) $("verifyVinSpeak").textContent="Speak the VIN";
+  markDictateBtns(false);
 }
-function speakVinField(){
+function speakVinField(el){
+  el=el||vinFieldEl();
   if(APP.vinListening){ stopVinSpeak(); return; }
+  const Rec=speechEngine();
+  if(!Rec){ toast("Type the VIN — this phone won’t take dictation."); focusVinType(el); return; }
   stopMic();
   APP.vinListening=true;
   APP.vinSpeakBuf="";
-  if($("verifyVinSpeak")) $("verifyVinSpeak").textContent="Stop";
-  if($("vinHear")) $("vinHear").textContent="Listening… say each character.";
-  if($("v-vin")) $("v-vin").blur();
+  APP.vinTarget=el && el.id ? el.id : APP.vinTarget;
+  markDictateBtns(true);
+  const status=vinStatusEl(el);
+  if(status) status.textContent="Listening… say each character.";
+  if(el) el.blur();
   APP.vinFieldRec=startRec({
     fresh:true,
     noGum:true,
     bufKey:"vinSpeakBuf",
     alive:function(){ return APP.vinListening; },
     ontext:function(tx){
-      const packed=packVinSpeech(tx);
-      if($("v-vin")) $("v-vin").value=packed;
-      APP.vin=packed;
-      if($("vinHear")){
-        $("vinHear").textContent = packed
-          ? (packed.length>=17 ? packed : packed+"  ·  "+packed.length+"/17")
+      const packed=cleanVinTyped(packVinSpeech(tx));
+      writeVinInto(el, packed, false);
+      if(status){
+        status.textContent = packed
+          ? (packed.length>=17 ? packed : packed+"  ·  "+packed.length+"/17 — need 17")
           : "Listening… say each character.";
       }
-      if(packed.length>=17){
+      if(packed.length===17){
         toast("VIN "+packed);
         stopVinSpeak();
+        acceptVin(packed);
+      } else if(packed && tx && tx.length>40 && packed.length!==17){
+        /* keep listening until they finish */
       }
     },
-    onfail:function(){ stopVinSpeak(); }
+    onfail:function(){
+      stopVinSpeak();
+      const cur=cleanVinTyped(el && el.value);
+      if(cur && cur.length!==17) rejectBadVinLength(cur);
+    }
   });
 }
 function stopMic(){
@@ -10255,14 +10365,39 @@ $("doneX").onclick = $("btnAnother").onclick = resetAll;
 $("btnStory").onclick = function(){ if(!requireAppraiseType()) return; openStoryMic(); };
 $("btnStart").onclick = function(){ openCamera("photos","qfront"); };
 $("btnDocs").onclick = function(){ if(!requireAppraiseType()) return; paintDocs(); show("photos"); $("docsBlock") && $("docsBlock").scrollIntoView({behavior:"smooth", block:"start"}); };
-$("btnVin").onclick = $("verifyVin").onclick = function(){ if(!requireAppraiseType()) return; openVinCam(); };
+$("btnVin").onclick = function(){ if(!requireAppraiseType()) return; APP.vinTarget="v-vin"; openVinCam(); };
 if($("btnVinShot")) $("btnVinShot").onclick = snapVinStill;
 if($("carfaxGo")) $("carfaxGo").onclick = ingestCarfax;
 if($("carfaxUrl")) $("carfaxUrl").addEventListener("keydown", function(e){ if(e.key==="Enter"){ e.preventDefault(); ingestCarfax(); } });
 if($("vinTypeGo")) $("vinTypeGo").onclick = submitTypedVin;
-if($("vinSpeak")) $("vinSpeak").onclick = speakVin;
-if($("vinRetry")) $("vinRetry").onclick = function(){ hideVinFail(); openVinCam(); };
+if($("btnVinGallery")) $("btnVinGallery").onclick = function(){ const inp=$("vinGallery"); if(inp){ inp.value=""; inp.click(); } };
+if($("vinGallery")) $("vinGallery").addEventListener("change", function(){
+  const f=this.files && this.files[0];
+  if(!f) return;
+  const r=new FileReader();
+  r.onload=function(){
+    const data=r.result;
+    if($("vinSheet")) $("vinSheet").classList.add("on");
+    const still=$("vinStill");
+    if(still){ still.src=data; still.classList.remove("hide"); }
+    const cam=$("liveCam"); if(cam) cam.classList.add("off");
+    const finder=$("finder"); if(finder){ finder.classList.remove("scanning","live"); finder.classList.add("shot"); }
+    if($("scanStatus")) $("scanStatus").textContent="Reading the VIN — confirming every character…";
+    if($("btnVinShot")){ $("btnVinShot").disabled=true; $("btnVinShot").textContent="Reading…"; }
+    readVinFromStill(data);
+  };
+  r.readAsDataURL(f);
+});
 if($("vinManual")) $("vinManual").addEventListener("keydown", function(e){ if(e.key==="Enter"){ e.preventDefault(); submitTypedVin(); } });
+document.querySelectorAll("[data-vin-act]").forEach(function(btn){
+  btn.addEventListener("click", function(e){
+    e.preventDefault();
+    const box=btn.closest(".vin-box");
+    const id=box && box.getAttribute("data-vin-target");
+    onVinAction(btn.getAttribute("data-vin-act"), $(id) || vinFieldEl(id));
+  });
+});
+["v-vin","na-vin","f-vin","vinManual"].forEach(function(id){ if($(id)) bindVinField($(id)); });
 $("unitLine").onclick = function(){ fillUnit(); $("unitSheet").classList.add("on"); };
 $("btnSend").onclick = function(){
   killMediaNow();
@@ -10337,24 +10472,6 @@ $("verifyGo").onclick = function(){
   paintLists();
   show("photos");
 };
-if($("verifyVinSpeak")) $("verifyVinSpeak").onclick = speakVinField;
-if($("v-vin")){
-  $("v-vin").addEventListener("input", function(){
-    if(APP.vinListening) stopVinSpeak();
-    APP.vin=this.value.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/gi,"").slice(0,17);
-    if($("vinHear")) $("vinHear").textContent = APP.vin ? (APP.vin.length+"/17") : "";
-  });
-  $("v-vin").addEventListener("paste", function(e){
-    const t=(e.clipboardData || window.clipboardData);
-    const raw=t && t.getData ? t.getData("text") : "";
-    if(!raw) return;
-    e.preventDefault();
-    const v=String(raw).toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g,"").slice(0,17);
-    this.value=v;
-    APP.vin=v;
-    if($("vinHear")) $("vinHear").textContent = v ? (v.length+"/17") : "";
-  });
-}
 if($("btnWebAi")) $("btnWebAi").onclick = generateWebCopy;
 
 if($("resumeContinue")) $("resumeContinue").onclick = continueDraft;
