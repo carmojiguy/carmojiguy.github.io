@@ -23,6 +23,12 @@ must(/id="startTrade"/, "keeps Send trade-in link");
 must(/id="startUsers"/, "keeps Users");
 must(/#startAppraise, #startCenter, #startWebsite \{ top:auto/, "start pills are not mid-photo");
 must(/class="start-dock"/, "start dock wrapper present");
+must(/#start:has\(#startDock:not\(\.hide\)\) \.start-bg/, "staff start photo ends above the thumb dock");
+must(/z-index:24/, "start thumb dock sits above the hero");
+must(/rel="apple-touch-icon"/, "apple-touch-icon linked");
+must(/rel="manifest"/, "web app manifest linked");
+must(/apple-mobile-web-app-title" content="Appraisal Center"/, "iOS home-screen name");
+must(/<title>Appraisal Center<\/title>/, "document title");
 must(/id="centerInboxBtn"/, "Incoming pop-out button id stays inbox");
 must(/<b>Incoming<\/b>/, "Incoming pop-out button label");
 must(/id="centerTitleNav">Incoming/, "Incoming sheet title");
@@ -78,6 +84,7 @@ must(/@media \(min-width:1200px\)/, "desktop breakpoint");
 must(/centerSplitLayout/, "tablet/desktop keep list+detail");
 must(/id="resumeContinue">Continue</, "guest resume Continue");
 must(/id="resumeFresh">Start over</, "guest resume Start over");
+must(/function offerResume\(\)\{\s*if\(APP\.role!=="guest"\) return;/, "staff start never hides dock behind resume");
 must(/function tradeLinkId\(/, "same trade-in link has a stable draft id");
 must(/function loadDraftSnap\(/, "guest draft restore");
 must(/function liveJobProgress\(/, "invite-link fields are not treated as progress");
@@ -95,6 +102,21 @@ must(/item\.salesperson=/, "persist salesperson on center files");
 ["404.html", "inspect-vehicle.html"].forEach(function (name) {
   const copy = fs.readFileSync(path.join(root, name), "utf8");
   assert.equal(copy, html, name + " must stay in sync with index.html");
+});
+
+const manifest = JSON.parse(fs.readFileSync(path.join(root, "manifest.webmanifest"), "utf8"));
+assert.equal(manifest.name, "Appraisal Center", "manifest name");
+assert.ok(manifest.icons.some(function (i) { return i.purpose === "maskable" && i.sizes === "512x512"; }), "maskable 512 icon");
+[
+  "favicon.ico",
+  "icons/apple-touch-icon.png",
+  "icons/icon-192.png",
+  "icons/icon-512.png",
+  "icons/icon-maskable-192.png",
+  "icons/icon-maskable-512.png",
+  "icons/favicon-32.png"
+].forEach(function (name) {
+  assert.ok(fs.existsSync(path.join(root, name)), name + " exists");
 });
 
 console.log("center-acre: ok");
