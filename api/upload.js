@@ -259,7 +259,14 @@ async function handleSend(body) {
   if (!sender || !sender.token) return { status: 401, body: { ok: false, error: "mailer" } };
   const rfc = buildRfc822(body, sender.from);
   const sent = await gmailSend(sender.token, rfc);
-  return { status: 200, body: { ok: true, id: sent.id || "", via: sender.via } };
+  const out = { status: 200, body: { ok: true, id: sent.id || "", via: sender.via } };
+  try {
+    const incoming = require("./incoming");
+    if (incoming && typeof incoming.persistFromSend === "function") {
+      await incoming.persistFromSend(body, sent);
+    }
+  } catch (e) {}
+  return out;
 }
 
 async function handleOauth(body) {
