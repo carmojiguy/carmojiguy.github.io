@@ -305,20 +305,29 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
 .work-email .pill { margin:0; padding:12px 16px; width:auto; }
 .login-sub { text-align:center; color:var(--muted); font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; margin:4px 0 12px; }
 .who { position:absolute; top: calc(12px + env(safe-area-inset-top)); right:16px; z-index:2; background:rgba(0,0,0,.45); color:#fff; border:0; border-radius:999px; padding:8px 12px; font-size:12px; font-weight:700; }
-.center-filters { display:flex; gap:8px; margin:0 0 16px; }
-.center-filters .pill { width:auto; flex:1; margin:0; padding:10px 8px; font-size:13px; }
-.center-filters .pill.on { background:var(--purple); color:#fff; border-color:var(--purple); }
-.center-empty { background:#fff; border:1.5px dashed var(--hair); border-radius:18px; padding:28px 18px; text-align:center; }
-.center-empty b { display:block; font-size:17px; margin:0 0 6px; }
-.center-row { display:flex; gap:12px; align-items:center; width:100%; text-align:left; border:1.5px solid var(--hair); background:#fff; border-radius:18px; padding:10px 12px; margin:0 0 10px; cursor:pointer; }
-.center-row .thumb { width:72px; height:56px; flex:0 0 72px; border-radius:12px; overflow:hidden; background:#1A1630; }
-.center-row .thumb img { width:100%; height:100%; object-fit:cover; padding:0; filter:none; }
-.center-row .meta { min-width:0; flex:1; }
-.center-row .meta b { display:block; font-size:16px; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.center-row .meta span { display:block; color:var(--muted); font-size:13px; margin-top:2px; line-height:1.35; }
-.stage-tag { display:inline-block; border-radius:999px; padding:5px 9px; font-size:11px; font-weight:800; letter-spacing:.04em; text-transform:uppercase; flex:0 0 auto; }
+.center-toolbar { margin:0 0 18px; }
+.center-toolbar .pill { margin:0; }
+.center-search { margin:0 0 12px; }
+.center-date { position:relative; margin:0 0 18px; }
+.center-date .pill { margin:0; }
+.date-menu { display:none; position:absolute; left:0; right:0; top:calc(100% + 8px); z-index:12; background:#fff; border-radius:18px; box-shadow:0 18px 50px rgba(17,14,26,.16); padding:8px; }
+.date-menu.on { display:block; }
+.date-menu button { width:100%; margin:0; border:0; background:transparent; border-radius:14px; padding:14px 14px; font-size:16px; font-weight:700; text-align:left; cursor:pointer; }
+.date-menu button:hover, .date-menu button.on { background:var(--fill); }
+.date-cal { display:none; padding:8px 8px 12px; }
+.date-cal.on { display:block; }
+.date-cal .pair { margin-top:8px; }
+.center-empty { background:#fff; border:1.5px solid var(--hair); border-radius:22px; padding:36px 22px; text-align:center; }
+.center-empty p { color:var(--muted); font-size:16px; line-height:1.45; margin:0 0 18px; font-weight:600; }
+.center-empty .pill { margin:0; }
+.center-card { background:#fff; border:1.5px solid var(--hair); border-radius:22px; padding:18px 16px; margin:0 0 14px; }
+.center-card .name { margin:0 0 8px; font-size:20px; font-weight:800; letter-spacing:-.3px; line-height:1.2; }
+.center-card .line { color:var(--muted); font-size:15px; line-height:1.45; margin:0 0 4px; font-weight:600; }
+.center-card .foot { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:16px; }
+.stage-tag { display:inline-block; border-radius:999px; padding:7px 12px; font-size:12px; font-weight:800; letter-spacing:.04em; }
 .stage-tag.wait { background:#FFF3D6; color:#8A5A00; }
 .stage-tag.done { background:#D8F5E5; color:#0F6B3C; }
+.center-card .open { width:auto; min-width:120px; margin:0; padding:12px 18px; }
 .center-hero { position:relative; margin:0 0 16px; border-radius:18px; overflow:hidden; background:#111; min-height:180px; }
 .center-hero img { width:100%; height:220px; object-fit:cover; display:block; background:#111; }
 .center-hero .ph { min-height:180px; display:grid; place-items:center; color:#c7c7cc; font-size:14px; font-weight:700; padding:24px; text-align:center; }
@@ -358,7 +367,7 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
   .dock .pill { width:auto; min-width:240px; margin:0; }
   .pill { transition:transform .15s ease, box-shadow .15s ease, background .15s ease; }
   .pill:hover { transform:translateY(-1px); box-shadow:0 10px 24px rgba(92,63,224,.16); }
-  .row, .dmg-card, .doc-sq, .mail, .review, .gbtn, .center-row {
+  .row, .dmg-card, .doc-sq, .mail, .review, .gbtn, .center-card {
     transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;
   }
   .row:hover, .dmg-card:hover, .mail:hover, .review:hover {
@@ -571,9 +580,36 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
     <button class="round" type="button">•••</button>
   </div>
   <div class="pad" style="padding-bottom:40px">
-    <h2>Where appraisals happen</h2>
-    <p class="quote">Every send lands here — guest story, staff appraise, website post, or a trade-in link.</p>
-    <div class="center-filters" id="centerFilters"></div>
+    <h2 id="centerTitle">Appraisal Center</h2>
+    <p class="quote" id="centerLead">Every send lands here.</p>
+    <div class="center-toolbar">
+      <button class="pill" type="button" id="centerHistoryBtn">History</button>
+    </div>
+    <div id="centerHistoryBar" class="hide">
+      <input class="f center-search" id="centerSearch" type="search" placeholder="Search name, VIN, or vehicle" />
+      <div class="center-date">
+        <button class="pill" type="button" id="centerDateBtn">Date</button>
+        <div class="date-menu" id="centerDateMenu">
+          <button type="button" data-range="today">Today</button>
+          <button type="button" data-range="yesterday">Yesterday</button>
+          <button type="button" data-range="month">This month</button>
+          <button type="button" data-range="lastMonth">Last month</button>
+          <button type="button" data-range="calendar">Calendar</button>
+          <div class="date-cal" id="centerCal">
+            <div class="pair">
+              <div>
+                <label class="k">From</label>
+                <input class="f" id="centerFrom" type="date" />
+              </div>
+              <div>
+                <label class="k">To</label>
+                <input class="f" id="centerTo" type="date" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
     <div id="centerList"></div>
   </div>
 </section>
@@ -603,7 +639,7 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
     <textarea class="note" id="centerNotes" placeholder="Anything the team should know"></textarea>
   </div>
   <div class="dock">
-    <button class="pill purple" type="button" id="centerStageBtn">Mark appraised</button>
+    <button class="pill purple" type="button" id="centerStageBtn">Done — History</button>
   </div>
 </section>
 
@@ -969,7 +1005,8 @@ window.APP = {
   clips:[], recOn:false, recorder:null, recChunks:[], recTick:null, recStarted:0, recMime:"", zoom:1,
   googleToken: window._gtoken || "", extraUsers:[], requestedBy:"", requestedByName:"",
   inviteUnit:"", inviteStock:"", inviteName:"", inviteEmail:"",
-  dealType:"", cdApp:"", centerId:"", centerFilter:"all", centerPhoto:0
+  dealType:"", cdApp:"", centerId:"", centerFilter:"all", centerPhoto:0,
+  centerHistory:false, centerQuery:"", centerRange:"all"
 };
 
 function $(id){ return document.getElementById(id); }
@@ -2361,6 +2398,7 @@ function getCenter(id){
 }
 function openCenter(){
   APP.centerViewId="";
+  APP.centerHistory=false;
   show("center");
 }
 function openCenterDetail(id){
@@ -2368,56 +2406,122 @@ function openCenterDetail(id){
   APP.centerPhoto=0;
   show("centerDetail");
 }
+function centerWhen(item){
+  return Number(item.sentAt||item.updatedAt||item.createdAt||0);
+}
+function isCenterArchived(item){
+  if(!item) return false;
+  if(item.stage==="Appraised") return true;
+  const when=centerWhen(item);
+  return !!(when && (Date.now()-when) > 90*24*60*60*1000);
+}
+function startOfDay(d){
+  const x=new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  return x.getTime();
+}
+function rangeBounds(kind, fromVal, toVal){
+  const now=new Date();
+  if(kind==="today") return {start:startOfDay(now), end:startOfDay(now)+86400000-1};
+  if(kind==="yesterday"){
+    const y=new Date(now.getFullYear(), now.getMonth(), now.getDate()-1);
+    return {start:startOfDay(y), end:startOfDay(y)+86400000-1};
+  }
+  if(kind==="month") return {start:new Date(now.getFullYear(), now.getMonth(), 1).getTime(), end:Date.now()};
+  if(kind==="lastMonth"){
+    const start=new Date(now.getFullYear(), now.getMonth()-1, 1).getTime();
+    const end=new Date(now.getFullYear(), now.getMonth(), 1).getTime()-1;
+    return {start:start, end:end};
+  }
+  if(kind==="calendar"){
+    const a=fromVal ? Date.parse(fromVal+"T00:00:00") : 0;
+    const b=toVal ? Date.parse(toVal+"T23:59:59") : Date.now();
+    if(!a && !toVal) return null;
+    return {start:a||0, end:b||Date.now()};
+  }
+  return null;
+}
+function dateBtnLabel(){
+  const kind=APP.centerRange||"all";
+  return ({today:"Today", yesterday:"Yesterday", month:"This month", lastMonth:"Last month", calendar:"Calendar", all:"Date"})[kind] || "Date";
+}
+function inDateRange(item){
+  const bounds=rangeBounds(APP.centerRange, $("centerFrom") && $("centerFrom").value, $("centerTo") && $("centerTo").value);
+  if(!bounds) return true;
+  const when=centerWhen(item);
+  if(!when) return false;
+  return when>=bounds.start && when<=bounds.end;
+}
+function matchesCenterSearch(item, q){
+  if(!q) return true;
+  const vin=String(item.vin||"");
+  const blob=[item.ymmt, item.appNo, vin, vin.slice(-8), item.customer && item.customer.name, item.story].join(" ").toLowerCase();
+  return blob.indexOf(q)>=0;
+}
+function centerVinLine(item){
+  const vin=String(item.vin||"").toUpperCase();
+  if(vin.length>=8) return "VIN "+vin.slice(-8);
+  if(vin) return "VIN "+vin;
+  return "";
+}
+function centerKmLine(item){
+  if(!item.km) return "";
+  const n=Number(String(item.km).replace(/,/g,""));
+  if(!n) return String(item.km);
+  return n.toLocaleString("en-CA")+" km";
+}
+function centerStatus(item){
+  if(item.stage==="Appraised") return "Done";
+  if(item.sentAt) return "Sent";
+  return "Waiting";
+}
 function paintCenter(){
   const host=$("centerList");
-  const filters=$("centerFilters");
   if(!host) return;
+  const hist=!!APP.centerHistory;
+  if($("centerTitle")) $("centerTitle").textContent=hist ? "History" : "Appraisal Center";
+  if($("centerLead")) $("centerLead").textContent=hist ? "Older and finished files." : "Every send lands here.";
+  if($("centerHistoryBtn")) $("centerHistoryBtn").textContent=hist ? "Back" : "History";
+  if($("centerHistoryBar")) $("centerHistoryBar").classList.toggle("hide", !hist);
+  if($("centerDateBtn")) $("centerDateBtn").textContent=dateBtnLabel();
+  const q=String(APP.centerQuery||"").trim().toLowerCase();
   const all=loadCenter();
-  const filter=APP.centerFilter||"all";
-  const waiting=all.filter(function(x){ return x.stage!=="Appraised"; }).length;
-  const done=all.filter(function(x){ return x.stage==="Appraised"; }).length;
-  if(filters){
-    filters.innerHTML="";
-    [["all","All · "+all.length],["Waiting","Waiting · "+waiting],["Appraised","Appraised · "+done]].forEach(function(pair){
-      const b=document.createElement("button");
-      b.type="button";
-      b.className="pill"+(filter===pair[0]?" on":"");
-      b.textContent=pair[1];
-      b.onclick=function(){ APP.centerFilter=pair[0]; paintCenter(); };
-      filters.appendChild(b);
-    });
-  }
-  const list=all.filter(function(x){
-    if(filter==="Waiting") return x.stage!=="Appraised";
-    if(filter==="Appraised") return x.stage==="Appraised";
+  const list=all.filter(function(item){
+    const archived=isCenterArchived(item);
+    if(hist && !archived) return false;
+    if(!hist && archived) return false;
+    if(hist && !matchesCenterSearch(item, q)) return false;
+    if(hist && !inDateRange(item)) return false;
     return true;
   });
   host.innerHTML="";
   if(!list.length){
     const empty=document.createElement("div");
     empty.className="center-empty";
-    empty.innerHTML=all.length
-      ? "<b>Nothing in this list</b><span class=\"quote\" style=\"margin:0\">Try All, or send another vehicle.</span>"
-      : "<b>Nothing here yet</b><span class=\"quote\" style=\"margin:0\">Appraise a vehicle, finish a guest story, or send a trade-in link. It will show up here.</span>";
+    if(hist){
+      empty.innerHTML="<p>Nothing in this range.</p>";
+    } else {
+      empty.innerHTML='<p>Nothing sent yet.</p><button class="pill purple" type="button">Appraise a vehicle</button>';
+      empty.querySelector("button").onclick=function(){ setPurpose("appraise"); paintDealType(); show("home"); };
+    }
     host.appendChild(empty);
     return;
   }
   list.forEach(function(item){
-    const b=document.createElement("button");
-    b.type="button";
-    b.className="center-row";
-    const title=item.ymmt || "Vehicle";
-    const bits=[item.appNo];
-    if(item.vin) bits.push("VIN "+String(item.vin).slice(-6));
-    if(item.km) bits.push(Number(String(item.km).replace(/,/g,"")).toLocaleString("en-CA")+" km");
-    bits.push(centerSourceLabel(item.source));
-    const thumb=item.thumb
-      ? '<img src="'+item.thumb+'" alt="">'
-      : "";
-    const stage=item.stage==="Appraised"?"Appraised":"Waiting";
-    b.innerHTML='<div class="thumb">'+thumb+'</div><div class="meta"><b>'+esc(title)+'</b><span>'+esc(bits.join(" · "))+'</span></div><em class="stage-tag '+(stage==="Appraised"?"done":"wait")+'">'+esc(stage)+'</em>';
-    b.onclick=function(){ openCenterDetail(item.id); };
-    host.appendChild(b);
+    const card=document.createElement("div");
+    card.className="center-card";
+    const when=centerWhen(item);
+    const sent=when ? ("Sent "+timeAgo(when)) : "";
+    const vin=centerVinLine(item);
+    const km=centerKmLine(item);
+    const status=centerStatus(item);
+    card.innerHTML=
+      '<p class="name">'+esc(item.ymmt||"Vehicle")+'</p>'+
+      (vin?'<p class="line">'+esc(vin)+'</p>':'')+
+      (km?'<p class="line">'+esc(km)+'</p>':'')+
+      (sent?'<p class="line">'+esc(sent)+'</p>':'')+
+      '<div class="foot"><em class="stage-tag '+(status==="Done"?"done":"wait")+'">'+esc(status)+'</em><button class="pill purple open" type="button">Open</button></div>';
+    card.querySelector(".open").onclick=function(){ openCenterDetail(item.id); };
+    host.appendChild(card);
   });
 }
 function paintCenterHero(photos){
@@ -2512,7 +2616,7 @@ function paintCenterDetail(){
   const item=getCenter(APP.centerViewId);
   if(!item){ show("center"); return; }
   if($("centerDetailHead")) $("centerDetailHead").textContent=item.appNo||"Appraisal";
-  if($("centerDetailBadge")) $("centerDetailBadge").textContent=item.stage==="Appraised"?"Appraised":"Waiting";
+  if($("centerDetailBadge")) $("centerDetailBadge").textContent=centerStatus(item);
   if($("centerDetailTitle")) $("centerDetailTitle").textContent=item.ymmt||"Vehicle";
   const bits=[];
   if(item.customer && item.customer.name) bits.push(item.customer.name);
@@ -2536,7 +2640,7 @@ function paintCenterDetail(){
     $("centerNotes").value=item.notes||"";
     growArea($("centerNotes"));
   }
-  if($("centerStageBtn")) $("centerStageBtn").textContent=item.stage==="Appraised"?"Mark waiting":"Mark appraised";
+  if($("centerStageBtn")) $("centerStageBtn").textContent=item.stage==="Appraised"?"Move back to Center":"Done — History";
   paintCenterHero(item.thumb ? [{data:item.thumb, title:item.ymmt}] : []);
   paintCenterDocs(item, {docs:item.docs});
   paintCenterVals(item);
@@ -2673,7 +2777,10 @@ async function sendFromMe(to, subject, body, html, parts, extra){
         headers:{Authorization:"Bearer "+APP.googleToken, "Content-Type":"message/rfc822"},
         body:rfc
       }, 20000);
-      if(r && r.ok) return {ok:true, via:"gmail"};
+      if(r && r.ok){
+        const j=await r.json().catch(function(){ return {}; });
+        if(j && j.id) return {ok:true, verified:true, via:"gmail", id:j.id};
+      }
     }catch(e){}
   }
   const payload={
@@ -2696,7 +2803,8 @@ async function sendFromMe(to, subject, body, html, parts, extra){
       body:JSON.stringify(payload)
     }, 14000);
     const j=await r.json().catch(function(){ return {}; });
-    if(j && j.ok) return {ok:true, via:"server"};
+    if(j && j.ok && (j.id || j.messageId || j.gmailId)) return {ok:true, verified:true, via:"server", id:j.id||j.messageId||j.gmailId};
+    if(j && j.ok) return {ok:true, verified:false, via:"server"};
   }catch(e){}
   return {ok:false, via:"fail"};
 }
@@ -5387,28 +5495,30 @@ async function sharePacket(){
   if($("mailOpen")){
     $("mailOpen").href=href;
     $("mailOpen").textContent = APP.role==="employee" ? "Open Gmail and send" : "Open Mail and send";
-    $("mailOpen").classList.add("hide");
+    $("mailOpen").classList.remove("hide");
   }
   if(btn){ btn.disabled=true; btn.textContent="Sending…"; }
   let finished=false;
+  function showMail(){
+    if($("mailOpen")){
+      $("mailOpen").href=href;
+      $("mailOpen").textContent = APP.role==="employee" ? "Open Gmail and send" : "Open Mail and send";
+      $("mailOpen").classList.remove("hide");
+    }
+  }
   function finish(msg, openMail){
     if(btn){ btn.disabled=false; btn.textContent="Send"; }
-    if(openMail){
-      if($("mailOpen")){
-        $("mailOpen").href=href;
-        $("mailOpen").textContent = APP.role==="employee" ? "Open Gmail and send" : "Open Mail and send";
-        $("mailOpen").classList.remove("hide");
-      }
-    }
+    if(openMail) showMail();
     if(msg) toast(msg);
-    if(openMail===false && msg) finished=true;
+    finished=true;
   }
   const watch=setTimeout(function(){
     if(!finished) finish("Still working — use the mail button if nothing arrives.", true);
-  }, 18000);
+  }, 8000);
   try{
     if(!APP.googleToken) APP.googleToken=readGoogleToken()||"";
     toast("Sending the catalog…");
+    showMail();
     const mailShots=[];
     for(let i=0;i<shots.length;i++){
       try{ mailShots.push({title:shots[i].title, name:shots[i].name, cap:shots[i].cap||"", data:await withTimeout(compressDataUrl(shots[i].data, 1100, 0.76), 3500, shots[i].data)}); }
@@ -5427,31 +5537,36 @@ async function sharePacket(){
     }catch(e){}
     const sent=await withTimeout(sendFromMe(to, subject, body, html, parts, extra), 15000, {ok:false});
     clearTimeout(watch);
-    if(sent && sent.ok){
+    if(sent && sent.ok && sent.verified){
       finished=true;
       landInCenter({sent:true, stage:"Waiting"});
       clearSnapshot();
       clearDraft();
+      if($("mailOpen")) $("mailOpen").classList.add("hide");
       if(APP.role==="guest"){ finish(""); finishGuest(); return; }
       finish("Sent to "+tradeToLine(to)+".");
       return;
     }
     const slim=parts.filter(function(p){ return p.disp==="attachment"; });
     const slimSent=slim.length ? await withTimeout(sendFromMe(to, subject, body, "", slim, extra), 8000, {ok:false}) : {ok:false};
-    if(slimSent && slimSent.ok){
+    if(slimSent && slimSent.ok && slimSent.verified){
       finished=true;
       landInCenter({sent:true, stage:"Waiting"});
+      if($("mailOpen")) $("mailOpen").classList.add("hide");
       if(APP.role==="guest"){ finish(""); finishGuest(); return; }
       finish("Sent the PDF to "+tradeToLine(to)+".");
       return;
     }
+    landInCenter({sent:false, stage:"Waiting"});
     finish("Couldn’t send from here. Tap the mail button.", true);
   }catch(e){
     clearTimeout(watch);
+    showMail();
     finish("Couldn’t send. Tap the mail button.", true);
   }finally{
     clearTimeout(watch);
     if(btn){ btn.disabled=false; btn.textContent="Send"; }
+    if(!finished) showMail();
     releaseHardware();
   }
 }
@@ -5474,13 +5589,45 @@ $("startAppraise").onclick = function(){ setPurpose("appraise"); paintDealType()
 if($("startCenter")) $("startCenter").onclick = openCenter;
 if($("centerBack")) $("centerBack").onclick = function(){ show("start"); };
 if($("centerDetailBack")) $("centerDetailBack").onclick = function(){ show("center"); };
+if($("centerHistoryBtn")) $("centerHistoryBtn").onclick = function(){
+  APP.centerHistory=!APP.centerHistory;
+  if($("centerDateMenu")) $("centerDateMenu").classList.remove("on");
+  paintCenter();
+};
+if($("centerSearch")) $("centerSearch").addEventListener("input", function(){
+  APP.centerQuery=this.value||"";
+  paintCenter();
+});
+if($("centerDateBtn")) $("centerDateBtn").onclick = function(){
+  if($("centerDateMenu")) $("centerDateMenu").classList.toggle("on");
+};
+if($("centerDateMenu")) $("centerDateMenu").addEventListener("click", function(e){
+  const b=e.target && e.target.closest && e.target.closest("[data-range]");
+  if(!b) return;
+  const kind=b.getAttribute("data-range");
+  APP.centerRange=kind;
+  if($("centerCal")) $("centerCal").classList.toggle("on", kind==="calendar");
+  if(kind!=="calendar"){
+    $("centerDateMenu").classList.remove("on");
+    paintCenter();
+  }
+  if($("centerDateBtn")) $("centerDateBtn").textContent=dateBtnLabel();
+});
+if($("centerFrom")) $("centerFrom").addEventListener("change", function(){ APP.centerRange="calendar"; paintCenter(); });
+if($("centerTo")) $("centerTo").addEventListener("change", function(){ APP.centerRange="calendar"; paintCenter(); });
+document.addEventListener("click", function(e){
+  const menu=$("centerDateMenu");
+  if(!menu || !menu.classList.contains("on")) return;
+  if(e.target && e.target.closest && e.target.closest(".center-date")) return;
+  menu.classList.remove("on");
+});
 if($("centerStageBtn")) $("centerStageBtn").onclick = function(){
   const item=getCenter(APP.centerViewId);
   if(!item) return;
   const next=item.stage==="Appraised"?"Waiting":"Appraised";
   patchCenter(item.id, function(x){ x.stage=next; });
   paintCenterDetail();
-  toast(next==="Appraised"?"Marked appraised.":"Back to waiting.");
+  toast(next==="Appraised"?"Moved to History.":"Back in Center.");
 };
 if($("centerNotes")) $("centerNotes").addEventListener("input", function(){
   const el=this;
