@@ -10589,6 +10589,11 @@ function normalizeSpoken(raw){
   s=s.replace(/\b(eighty|ninety)\s+(one|two|three|four|five|six|seven|eight|nine)\b/g, function(_,t,o){ return String(1900+(spokenSmall(t)||0)+(spokenSmall(o)||0)); });
   s=s.replace(/\b(one|two|three|four|five|six|seven|eight|nine)\s+hundred(?:\s+and)?\s+(twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)(?:\s+(one|two|three|four|five|six|seven|eight|nine))?\s*thousand\b/g, function(_,h,t,o){ return String((spokenSmall(h)||0)*100000+(spokenSmall(t)||0)*1000+(spokenSmall(o)||0)*1000); });
   s=s.replace(/\b(\d{1,3})\s+thousand\b/g, function(_,n){ return String(Number(n)*1000); });
+  s=s.replace(/\bex\s+lee\b/g," xle ");
+  s=s.replace(/\bx\s+l\s+e\b/g," xle ");
+  s=s.replace(/\bx\s+s\s+e\b/g," xse ");
+  s=s.replace(/\bl\s+e\b/g," le ");
+  s=s.replace(/\bt\s+r\s+d\b/g," trd ");
   return s.replace(/\s+/g," ").trim();
 }
 function prettyStoryTrim(name){
@@ -10597,14 +10602,15 @@ function prettyStoryTrim(name){
     l:"L", le:"LE", se:"SE", xl:"XL", ex:"EX", st:"ST", gt:"GT", ss:"SS",
     xle:"XLE", xse:"XSE", xlt:"XLT", exl:"EX-L", trd:"TRD",
     sel:"SEL", ses:"SES", slt:"SLT", sle:"SLE", ltz:"LTZ", zr2:"ZR2", zr1:"ZR1", rst:"RST",
-    hybridle:"Hybrid LE", hybridxle:"Hybrid XLE", hybridxse:"Hybrid XSE"
+    hybridle:"Hybrid LE", hybridxle:"Hybrid XLE", hybridxse:"Hybrid XSE",
+    trdoffroad:"TRD Off-Road", trdsport:"TRD Sport", awd:"AWD"
   };
   if(caps[key]) return caps[key];
   return String(name||"").replace(/\b\w/g, function(c){ return c.toUpperCase(); });
 }
 function matchStoryTrim(low){
   const text=String(low||"");
-  const trims=["eddie bauer","king ranch","preferred plus","high country","outer banks","hybrid xle","hybrid xse","hybrid le","nightshade","platinum","limited","lariat","denali","wildtrak","heritage","badlands","touring","premier","preferred","ultimate","caliber","ex lee","x l e","x s e","x l t","t r d","l e","s e","x l","zr2","zr1","rst","ltz","slt","sle","xlt","xle","xse","sel","ses","ex-l","exl","hybrid","trd","sport","xl","le","se","ex","st","gt","ss","l"];
+  const trims=["eddie bauer","king ranch","preferred plus","high country","outer banks","trd off-road","trd sport","hybrid xle","hybrid xse","hybrid le","nightshade","platinum","limited","lariat","denali","wildtrak","heritage","badlands","touring","premier","preferred","ultimate","caliber","adventure","trail","zr2","zr1","rst","ltz","slt","sle","xlt","xle","xse","sel","ses","ex-l","exl","hybrid","prime","trd","sport","xl","le","se","ex","st","gt","ss","l","awd"];
   for(let i=0;i<trims.length;i++){
     const pat=trims[i].replace(/-/g,"[- ]").replace(/\s+/g,"\\s+");
     if(new RegExp("\\b"+pat+"\\b","i").test(text)) return prettyStoryTrim(trims[i]==="ex lee"?"xle":trims[i]);
