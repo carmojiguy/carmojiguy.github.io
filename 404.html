@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-14 build d31w: website-post story-first year/make/model/trim/condition, no team select, original start not webdesk, pictures still relaunch/post; Acre GR Corolla desk lock — FIFO oldest home, left-rail Incoming/On-site/Needs docs/History pills, no hist KPI strip, Ask Maya, appraisal range/competing/ask; users GET/POST kind:users persist; 911 Incoming FINAL min+target+max clears Running and lands Appraisal Team numbers (Blazer s1af19al / F-150 sir78n6); Run Appraisal Team tap always fires (rerun + Unlocked History); kind:team wake; Incoming FINAL settles Running; schema 1.0 team + panel boxes; market pills append multiple files into shots[]; compact V Auto / Carfax / OpenLane / eBlock chips; same sendId/id Incoming POST; panel runs progress → existing FINAL; no invented solds; real Carfax http url opens the uploaded file; sample recreate only when no docs.carfax.url; Carfax square + huge card add/upload kind:file carfax; staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; Incoming keeps http docs.url; Incoming appends shots[]; status dropdown every lane; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples; hides generated From V Auto lane -->
+<!-- center-v3 + desk-home 2026-09-14 build d31w: website-post story-first year/make/model/trim/condition, no team select, original start not webdesk, pictures still relaunch/post; Acre GR Corolla desk lock — FIFO oldest home, left-rail Incoming/On-site/Needs docs/History pills, no hist KPI strip, Ask Maya, appraisal range/competing/ask; users GET/POST kind:users persist; 911 Acre team reads finalRationale.markdown + panel Rybot/Webot/Drebot/TBot + team.shabot note, hides boxes with no numbers; 911 Incoming FINAL min+target+max clears Running and lands Appraisal Team numbers (Blazer s1af19al / F-150 sir78n6); Run Appraisal Team tap always fires (rerun + Unlocked History); kind:team wake; Incoming FINAL settles Running; schema 1.0 team + panel boxes; market pills append multiple files into shots[]; compact V Auto / Carfax / OpenLane / eBlock chips; same sendId/id Incoming POST; panel runs progress → existing FINAL; no invented solds; real Carfax http url opens the uploaded file; sample recreate only when no docs.carfax.url; Carfax square + huge card add/upload kind:file carfax; staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; Incoming keeps http docs.url; Incoming appends shots[]; status dropdown every lane; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples; hides generated From V Auto lane -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -5871,7 +5871,11 @@ function emptyVals(){
 function teamSlot(raw){
   if(!raw) return {min:"",target:"",max:"",note:""};
   if(typeof raw==="string") return {min:"",target:"",max:"",note:raw};
-  return {min:raw.min||"", target:raw.target||"", max:raw.max||"", note:raw.note||""};
+  function n(v){
+    if(v==null || v==="") return "";
+    return String(v).trim();
+  }
+  return {min:n(raw.min), target:n(raw.target), max:n(raw.max), note:n(raw.note || raw.why)};
 }
 function moneyShort(v){
   const s=String(v||"").trim();
@@ -6022,23 +6026,34 @@ function panelSlotOf(rat, botId){
   const panel=rat && rat.panel;
   if(!panel || typeof panel!=="object") return null;
   if(panel[botId]) return panel[botId];
-  const want=String(botId||"").toLowerCase();
+  const want=String(botId||"").toLowerCase().replace(/[^a-z0-9]/g,"");
+  const aliases={
+    rybot:["rybot","ry","ryan"],
+    webot:["webot","wes","we"],
+    drebot:["drebot","drew","dre"],
+    tbot:["tbot","t","sean"]
+  };
   const keys=Object.keys(panel);
   for(let i=0;i<keys.length;i++){
-    if(String(keys[i]).toLowerCase()===want) return panel[keys[i]];
+    const k=String(keys[i]).toLowerCase().replace(/[^a-z0-9]/g,"");
+    if(k===want) return panel[keys[i]];
+    if((aliases[want]||[]).indexOf(k)>=0) return panel[keys[i]];
   }
   return null;
 }
 function botHasCompleteNumbers(slot){
   slot=slot||{};
-  return !!(String(slot.min||"").trim() && String(slot.target||"").trim() && String(slot.max||"").trim());
+  function n(v){ return String(v==null?"":v).trim(); }
+  return !!(n(slot.min) && n(slot.target) && n(slot.max));
 }
 function shabotHowWeGotHere(item){
   const rat=(item&&item.finalRationale)||{};
   const md=String(rat.markdown||"").trim();
   if(md) return md;
   const title=String(rat.title||"").trim();
-  const note=String((item&&item.team&&item.team.shabot&&item.team.shabot.note)||(rat.shabot&&rat.shabot.note)||"").trim();
+  const teamNote=String((item&&item.team&&item.team.shabot&&item.team.shabot.note)||"").trim();
+  const ratNote=String((rat.shabot&&(rat.shabot.note||rat.shabot.why))||"").trim();
+  const note=teamNote||ratNote;
   if(title && note && note.indexOf(title)<0) return title+"\n\n"+note;
   return note||title;
 }
@@ -6058,15 +6073,17 @@ function hydrateTeamFromIncoming(item, remote){
   const remoteTeam=(src.team && typeof src.team==="object")?src.team:{};
   ["shabot","rybot","webot","drebot","tbot"].forEach(function(k){
     const keep=teamSlot(item.team[k]);
-    const fromTeam=remoteTeam[k] || panelSlotOf({panel:remoteTeam}, k) || {};
-    const fromPanel=panelSlotOf(src.finalRationale, k) || {};
+    const rawTeam=remoteTeam[k] || panelSlotOf({panel:remoteTeam}, k) || {};
+    const rawPanel=panelSlotOf(src.finalRationale, k) || {};
+    const fromTeam=teamSlot(rawTeam);
+    const fromPanel=teamSlot(rawPanel);
     const useTeam=typeof botHasCompleteNumbers==="function" && botHasCompleteNumbers(fromTeam);
     const usePanel=typeof botHasCompleteNumbers==="function" && botHasCompleteNumbers(fromPanel);
     const slot=useTeam?fromTeam:(usePanel?fromPanel:fromTeam);
     const min=keep.min||slot.min||"";
     const target=keep.target||slot.target||"";
     const max=keep.max||slot.max||"";
-    let note=keep.note||fromTeam.note||fromPanel.note||fromPanel.why||slot.note||"";
+    let note=keep.note||fromTeam.note||fromPanel.note||String(rawPanel.why||rawPanel.note||rawTeam.note||"").trim()||"";
     if(k==="shabot"){
       const how=shabotHowWeGotHere({team:{shabot:{note:note}}, finalRationale:item.finalRationale||src.finalRationale});
       if(how) note=how;
@@ -8906,30 +8923,28 @@ function landTeamRunFromFile(item){
   const fin=typeof resolveAppraisalFinal==="function"?resolveAppraisalFinal(item):null;
   if(fin && typeof hasAppraisalFinalNumbers==="function" && hasAppraisalFinalNumbers(fin.min, fin.target, fin.max)){
     const keep=teamSlot(item.team.shabot);
-    const ratNote=item.finalRationale&&item.finalRationale.shabot&&item.finalRationale.shabot.note;
+    const how=typeof shabotHowWeGotHere==="function"?shabotHowWeGotHere(item):"";
     item.team.shabot={
-      min:keep.min||fin.min||"",
-      target:keep.target||fin.target||"",
-      max:keep.max||fin.max||"",
-      note:keep.note||ratNote||""
+      min:keep.min||String(fin.min==null?"":fin.min),
+      target:keep.target||String(fin.target==null?"":fin.target),
+      max:keep.max||String(fin.max==null?"":fin.max),
+      note:how||keep.note||""
     };
     if(typeof syncAppraisalFinalFromTeam==="function") syncAppraisalFinalFromTeam(item);
   }
-  const panel=item.finalRationale&&item.finalRationale.panel;
-  if(panel){
-    ["rybot","webot","drebot","tbot"].forEach(function(k){
-      const p=panel[k];
-      if(!p) return;
-      const keep=teamSlot(item.team[k]);
-      const min=keep.min||p.min||"";
-      const target=keep.target||p.target||"";
-      const max=keep.max||p.max||"";
-      const note=keep.note||p.why||p.note||"";
-      if((typeof hasAppraisalFinalNumbers==="function" && hasAppraisalFinalNumbers(min, target, max)) || note){
-        item.team[k]={min:min, target:target, max:max, note:note};
-      }
-    });
-  }
+  ["rybot","webot","drebot","tbot"].forEach(function(k){
+    const p=typeof panelSlotOf==="function"?panelSlotOf(item.finalRationale, k):null;
+    if(!p) return;
+    const keep=teamSlot(item.team[k]);
+    const slot=teamSlot(p);
+    const min=keep.min||slot.min||"";
+    const target=keep.target||slot.target||"";
+    const max=keep.max||slot.max||"";
+    const note=keep.note||slot.note||String(p.why||p.note||"").trim()||"";
+    if(typeof botHasCompleteNumbers==="function" && botHasCompleteNumbers({min:min, target:target, max:max})){
+      item.team[k]={min:String(min), target:String(target), max:String(max), note:String(note||"")};
+    }
+  });
   if(typeof hasCompleteAppraisalFinal==="function" && hasCompleteAppraisalFinal(item)) item.teamStatus="final";
   return item;
 }
@@ -9131,18 +9146,16 @@ function paintCenterTeam(item){
   const host=$("centerTeam"); if(!host) return;
   host.innerHTML="";
   if(typeof hydrateTeamFromIncoming==="function") hydrateTeamFromIncoming(item);
-  const team=item.team||emptyTeam();
+  if(typeof landTeamRunFromFile==="function") landTeamRunFromFile(item);
   const complete=typeof hasCompleteAppraisalFinal==="function" && hasCompleteAppraisalFinal(item);
   if(complete && typeof settleTeamRunIfFinal==="function") settleTeamRunIfFinal(item);
+  const team=item.team||emptyTeam();
   const running=isTeamActivated(item) && !complete;
   const run=complete?{shabot:"ready", rybot:"ready", webot:"ready", drebot:"ready", tbot:"ready"}:(item.teamRun||{});
   host.classList.toggle("running", running);
   CENTER_TEAM.forEach(function(pair){
     const slot=teamSlot(team[pair[0]]);
-    if(typeof botHasCompleteNumbers==="function" && !botHasCompleteNumbers(slot)){
-      const any=CENTER_TEAM.some(function(p){ return botHasCompleteNumbers(teamSlot(team[p[0]])); });
-      if(!running || any) return;
-    }
+    if(typeof botHasCompleteNumbers==="function" && !botHasCompleteNumbers(slot)) return;
     const card=document.createElement("div");
     const state=run[pair[0]]||(running?(pair[2]==="FINAL"?"running":"waiting"):"");
     card.className="team-card"+(pair[2]==="FINAL"?" final":"")+(running?" running":"")+(state?" "+state:"");
