@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-14 build d31c: Acre GR Corolla desk lock — FIFO oldest home, left-rail Incoming/On-site/Needs docs/History pills, no hist KPI strip, Ask Maya, appraisal range/competing/ask; users GET/POST kind:users persist; Run Appraisal Team tap always fires (rerun + Unlocked History); kind:team wake; Incoming FINAL settles Running; schema 1.0 team + panel boxes; market pills append multiple files into shots[]; compact V Auto / Carfax / OpenLane / eBlock chips; same sendId/id Incoming POST; panel runs progress → existing FINAL; no invented solds; real Carfax http url opens the uploaded file; sample recreate only when no docs.carfax.url; Carfax square + huge card add/upload kind:file carfax; staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; Incoming keeps http docs.url; Incoming appends shots[]; status dropdown every lane; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples; hides generated From V Auto lane -->
+<!-- center-v3 + desk-home 2026-09-14 build d31w: website-post story-first year/make/model/trim/condition, no team select, original start not webdesk, pictures still relaunch/post; Acre GR Corolla desk lock — FIFO oldest home, left-rail Incoming/On-site/Needs docs/History pills, no hist KPI strip, Ask Maya, appraisal range/competing/ask; users GET/POST kind:users persist; Run Appraisal Team tap always fires (rerun + Unlocked History); kind:team wake; Incoming FINAL settles Running; schema 1.0 team + panel boxes; market pills append multiple files into shots[]; compact V Auto / Carfax / OpenLane / eBlock chips; same sendId/id Incoming POST; panel runs progress → existing FINAL; no invented solds; real Carfax http url opens the uploaded file; sample recreate only when no docs.carfax.url; Carfax square + huge card add/upload kind:file carfax; staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; Incoming keeps http docs.url; Incoming appends shots[]; status dropdown every lane; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples; hides generated From V Auto lane -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -2097,7 +2097,7 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
     <p class="quote" id="vinHint">Best: take a picture of the vehicle ownership (registration). You can also photograph the VIN on the dash or the sticker on the driver’s door. We’ll read the number from the photo.</p>
     <p class="vin-chip hide" id="vinChip"></p>
     </div>
-    <p class="build-stamp" id="buildStamp">build d31c</p>
+    <p class="build-stamp" id="buildStamp">build d31w</p>
   </div>
 </section>
 
@@ -2569,7 +2569,7 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
   <div class="card">
     <button class="x" type="button" data-close="typeSheet">✕</button>
     <h3>Appraisal type</h3>
-    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d31c</span></p>
+    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d31w</span></p>
     <div id="typeChips" class="to-chips"></div>
     <div id="leadBox" class="lead-box hide">
       <p class="hint">Lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a New application — no appointment calendar.</p>
@@ -3539,10 +3539,12 @@ function paintStoryHelp(){
       : "Press What’s the Story. The microphone turns on. Talk like you’re standing next to the vehicle with a buyer.";
   host.innerHTML =
     '<p class="quote">'+open+'</p>'+
-    '<p class="quote">'+(ca
+    '<p class="quote">'+(web
+      ? "Say the year, make, model, trim, and condition of the vehicle."
+      : ca
       ? "Walk the condition in detail: rust, dents, scratches, paintwork, glass, tires, interior, warning lights, noises, how it drives, accidents, service history, winter tires, extra keys. Be specific. The more we know, the better."
       : "Say the year, make, model, trim or options, colour, and kilometres. Then walk the condition in detail: rust, dents, scratches, paintwork, glass, tires, interior, warning lights, noises, how it drives, accidents, service history, winter tires, extra keys — anything you’d mention in the driveway. Be specific. The more we know, the better.")+'</p>'+
-    (ca ? "" : '<p class="quote">If you have the ownership (registration), take a photo of it — that’s the easiest VIN. No ownership with you? Just read the 17-character VIN out loud while you tell the story.</p>');
+    (ca || web ? "" : '<p class="quote">If you have the ownership (registration), take a photo of it — that’s the easiest VIN. No ownership with you? Just read the 17-character VIN out loud while you tell the story.</p>');
 }
 function paintWebsitePhotosChrome(){
   const web=isWeb();
@@ -3560,6 +3562,7 @@ function applyMode(){
   if($("webLabel")) $("webLabel").textContent = web ? "Website-ready description" : "Description";
   if($("storyBlock")) $("storyBlock").classList.toggle("hide", needsNewApplication());
   if($("typeWrap")) $("typeWrap").classList.toggle("hide", web);
+  if($("teamWrap")) $("teamWrap").classList.toggle("hide", web);
   applyRole();
   paintStoryHelp();
   if(web) stopVinScan();
@@ -4655,7 +4658,7 @@ function applyRole(){
   hideMailOpen();
   if($("startX")) $("startX").classList.toggle("hide", guest);
   if($("typeWrap")) $("typeWrap").classList.toggle("hide", guest || isWeb());
-  if($("teamWrap")) $("teamWrap").classList.toggle("hide", guest);
+  if($("teamWrap")) $("teamWrap").classList.toggle("hide", guest || isWeb());
   const web=isWeb();
   if(web){
     ["vinScanWrap","vinBtns","homeDocs","docsBlock"].forEach(function(id){
@@ -6801,6 +6804,13 @@ function openWebdesk(){
   setPurpose("website");
   paintWebLanes();
   show("webdesk");
+}
+function startWebsitePost(){
+  if(!requirePerm("website")) return;
+  setPurpose("website");
+  paintAppraiseGate();
+  show("home");
+  openStoryMic();
 }
 function tradeInviteUrl(item){
   if(item && item.inviteUrl) return item.inviteUrl;
@@ -12668,7 +12678,7 @@ function printCarfaxRecreatePdf(item){
     d.text(body, 36, y+32);
     d.setFillColor(27,107,58); d.rect(0,H-40,W,40,"F");
     d.setTextColor(255,255,255); d.setFont("helvetica","bold"); d.setFontSize(8);
-    d.text("NOT OFFICIAL CARFAX  ·  SAMPLE / PENDING  ·  carfax-sample  ·  build d31c", 36, H-18);
+    d.text("NOT OFFICIAL CARFAX  ·  SAMPLE / PENDING  ·  carfax-sample  ·  build d31w", 36, H-18);
     d.setProperties({title:"SAMPLE PENDING NOT OFFICIAL CARFAX — 2024 RAV4 LE AWD", author:"G&M Appraisal Center"});
     d.save("rav4-2T3B1RFVXRC466025-carfax-sample.pdf");
     storeRav4CarfaxDoc(item);
@@ -14319,7 +14329,9 @@ function openStoryMic(){
   if($("storyTitle")) $("storyTitle").textContent="What's the Story?";
   const hint=document.querySelector("#storySheet .hint");
   if(hint){
-    hint.textContent = (isConsumerAcquisition() && APP.lockedFromAirtable)
+    hint.textContent = isWeb()
+      ? "Talk through year, make, model, trim, and condition of the vehicle. Allow the microphone — tap Speak if it doesn’t start."
+      : (isConsumerAcquisition() && APP.lockedFromAirtable)
       ? "Verbal description only. Year, make, VIN, and seller stay as Airtable filled them. Talk the condition."
       : "Talk through year, make, model, trim, colour, kilometres, and condition in detail. If you have the ownership, photograph it. If not, read the 17-character VIN out loud. Allow the microphone — tap Speak if it doesn’t start.";
   }
@@ -14334,7 +14346,7 @@ if($("guestType")) $("guestType").onclick = function(){
   setPurpose("appraise");
   openVerify();
 };
-$("startWebsite").onclick = function(){ openWebdesk(); };
+$("startWebsite").onclick = function(){ startWebsitePost(); };
 if($("startTrade")) $("startTrade").onclick = function(){ if(!requirePerm("trade")) return; openInvite(); };
 function openUsers(){ if(!canOpenUsers()){ toast(isTeamLeader()?permDeny("admin"):"Ask Shawn or a team leader to open Users."); return; } try{ Promise.resolve(pullUsersRemote()).then(function(){ ensureRoster(true); paintUsers(); }); }catch(e){} paintUsers(); show("users"); }
 if($("startUsers")) $("startUsers").onclick = openUsers;
@@ -14384,7 +14396,7 @@ if($("webdeskHistBtn") || $("webHistLaneBtn")) {
   if($("webHistLaneBtn")) $("webHistLaneBtn").onclick = openWebHist;
 }
 if($("webActiveBtn")) $("webActiveBtn").onclick = function(){ openStaffHistory("website"); };
-if($("webdeskNew")) $("webdeskNew").onclick = function(){ setPurpose("website"); paintAppraiseGate(); show("home"); };
+if($("webdeskNew")) $("webdeskNew").onclick = function(){ startWebsitePost(); };
 if($("marketDocView")) $("marketDocView").onclick = function(){
   const ctx=APP._marketDoc||{};
   const item=typeof getCenter==="function"?getCenter(ctx.itemId):null;
