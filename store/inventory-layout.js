@@ -71,9 +71,62 @@ function buggyInventoryLayout(pathname, hooks) {
   return { view: "lot", hooks: recorded };
 }
 
+/**
+ * Soft-nav the Lot parent the way TanStack keeps it mounted:
+ * list → unit → list → sibling. Each step records hook names.
+ */
+function softNav(pathnames, layoutFn, hooks) {
+  return (pathnames || []).map((pathname) => {
+    const result = layoutFn(pathname, hooks) || {};
+    return {
+      pathname,
+      view: result.view,
+      hooks: Array.isArray(result.hooks) ? result.hooks.slice() : [],
+    };
+  });
+}
+
+/**
+ * React #300 fires when a mounted parent changes hook count.
+ * Names and length must be identical on every step, including
+ * sibling unit details and the list return.
+ */
+function assertStableHookCounts(steps, expectedHooks) {
+  const expected = expectedHooks || INVENTORY_LAYOUT_HOOKS;
+  const rows = Array.isArray(steps) ? steps : [];
+  for (const step of rows) {
+    const actual = (step && step.hooks) || [];
+    if (actual.length !== expected.length) {
+      const err = new Error(
+        `React #300: ${step.pathname} ran ${actual.length} hooks, expected ${expected.length}`,
+      );
+      err.code = "REACT_300";
+      throw err;
+    }
+    for (let i = 0; i < expected.length; i++) {
+      if (actual[i] !== expected[i]) {
+        const err = new Error(
+          `React #300: ${step.pathname} hook[${i}] was ${actual[i]}, expected ${expected[i]}`,
+        );
+        err.code = "REACT_300";
+        throw err;
+      }
+    }
+  }
+  return rows;
+}
+
+function hookCountsDiverge(steps) {
+  const lengths = (steps || []).map((step) => ((step && step.hooks) || []).length);
+  return lengths.some((n) => n !== lengths[0]);
+}
+
 module.exports = {
   INVENTORY_LAYOUT_HOOKS,
   isInventoryChildPath,
   inventoryLayout,
   buggyInventoryLayout,
+  softNav,
+  assertStableHookCounts,
+  hookCountsDiverge,
 };

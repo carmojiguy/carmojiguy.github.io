@@ -11,6 +11,10 @@ const { isInventoryChildPath } = require("./inventory-layout");
  *   const vehicles = useStore((s) => s.vehicles)
  *   const deals = useStore((s) => s.deals)
  *   if (inventoryPageShouldOutlet(pathname)) return <Outlet />
+ *
+ * Call every hook above that return. Sibling unit URLs
+ * (`/inventory/v-g3698a`, `/inventory/v-g3710`, …) keep this parent
+ * mounted; skipping hooks there is the same React #300 as G3709.
  */
 const inventoryPageShouldOutlet = isInventoryChildPath;
 
