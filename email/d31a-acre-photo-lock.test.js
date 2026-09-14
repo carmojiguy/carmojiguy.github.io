@@ -27,7 +27,8 @@ function sha(s) {
 
 must(/id="buildStamp">build d31a</, "footer stamp stays d31a");
 must(/<!--[\s\S]*HARD LOCK photo desk/, "header names the photo hard lock");
-must(/<!--[\s\S]*notes in mid column/, "header names notes in the photo mid column");
+must(/<!--[\s\S]*notes under hero/, "header names notes under hero");
+must(/<!--[\s\S]*white GR Corolla fixture pack/, "header names the white GR fixture pack");
 must(/<!--[\s\S]*thumbs strip/, "header names the thumbs strip");
 must(/<!--[\s\S]*blue Complete/, "header names blue Complete");
 must(/<!--[\s\S]*pixel-faithful Acre GR Corolla desk/, "pixel-faithful phrase stays");
@@ -43,8 +44,14 @@ must(/#centerNavHistBtn \{ display:none/, "top hist pills stay killed");
 must(/id="acreDesk"/, "Acre desk wrapper");
 must(/class="acre-col-hero"/, "hero column");
 must(/acre-notes-block/, "notes block on the photo desk");
-must(/class="acre-col-mid"[\s\S]*acre-notes-block/, "notes sit in the mid column like the photo");
+must(/class="acre-col-hero"[\s\S]*acre-notes-block/, "notes sit under the hero like the lock");
+must(/id="centerThumbsNext"/, "fifth-tile peek chevron");
+must(/id="centerThumbsPrev"/, "first-tile prev chevron");
 must(/id="centerMayaStrip"/, "Maya strip under notes");
+must(/function seedPhotoLockGrCorolla\(/, "local white GR fixture seeder");
+must(/start-bgs\/gr-corolla/, "fixture URLs point at the white GR pack");
+must(/isPhotoLockItem\(item\)/, "photo-lock fixture never POSTs to the live mailer");
+must(/acre-range-pair/, "appraisal range stays two boxes");
 must(/class="acre-col-mid"/, "mid column");
 must(/acre-score-row/, "Maya / Clutch / VAuto / Predicted row");
 must(/Clutch Killer/, "Clutch Killer label");
@@ -70,7 +77,7 @@ must(/#center #centerDocs \{ display:none/, "launch-tool overflow stays off the 
 must(/#center #centerWhyDocs/, "WHY slots stay off the photo desk");
 must(/function openCenterDetail\(id\)\{[\s\S]{0,420}APP\.centerLane="";/, "opening a car closes the list so the photo desk is full width");
 must(/class="acre-thumbs-row"/, "bottom thumbs strip");
-must(/#center \.center-thumbs button\{[^}]*height:140px/, "photo thumbs are large tiles, not tiny pills");
+must(/#center \.center-thumbs button\{[\s\S]*height:210px/, "photo thumbs are four huge tiles plus a 5th peek");
 must(/#center \.acre-desk\{[\s\S]{0,280}grid-template-areas:"hero mid market"/, "desktop is hero | mid | market");
 must(/#center\.screen \{[\s\S]{0,220}background:#F5F6F8/, "white Acre page");
 mustNot(/#center\.screen \{[\s\S]{0,280}--purple:#1F6B6A/, "teal accent stays gone");
@@ -99,5 +106,10 @@ assert.equal(sha(send), "a87ba1cb730ce79683938a05a22d839878d60319f35418efb408cab
   const copy = fs.readFileSync(path.join(root, name), "utf8");
   assert.equal(copy, html, name + " must stay in sync with index.html");
 });
+
+for (let i = 1; i <= 16; i++) {
+  const shot = path.join(root, "start-bgs/gr-corolla/" + String(i).padStart(2, "0") + ".jpg");
+  assert.ok(fs.existsSync(shot), "white GR pack " + path.basename(shot));
+}
 
 console.log("d31a-acre-photo-lock: ok");

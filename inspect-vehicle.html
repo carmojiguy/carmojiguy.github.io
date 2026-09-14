@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-14 build d31a: pixel-faithful Acre GR Corolla desk (white hero|mid|market, not stone/teal); HARD LOCK photo desk — notes in mid column, large thumbs strip, blue Complete, Documents/VAUTO/BLACK BOOK/OPENLANE/eBlock/CARFAX/MMR cards; CA workbench redo — drop the verbal-only tag forever; What's the Story walks the car and talks; Walk-around photos only; keep Critical damage; salesperson CA has no packet-send card; Tracker mobile cards + current month; website-post story-first year/make/model/trim/condition, no team select, original start not webdesk, pictures still relaunch/post; Acre GR Corolla desk lock — FIFO oldest home, left-rail Incoming/On-site/Needs docs/History pills, no hist KPI strip, Ask Maya, appraisal range/competing/ask; users GET/POST kind:users persist; 911 Acre team reads finalRationale.markdown + panel Rybot/Webot/Drebot/TBot + team.shabot note, hides boxes with no numbers; mailer keeps rich team/rationale on Center refresh; Trade-in start drops stray top History (rail History stays); 911 Incoming FINAL min+target+max clears Running and lands Appraisal Team numbers (Blazer s1af19al / F-150 sir78n6); Run Appraisal Team tap always fires (rerun + Unlocked History); kind:team wake; Incoming FINAL settles Running; schema 1.0 team + panel boxes; market pills append multiple files into shots[]; compact V Auto / Carfax / OpenLane / eBlock chips; same sendId/id Incoming POST; panel runs progress → existing FINAL; no invented solds; real Carfax http url opens the uploaded file; sample recreate only when no docs.carfax.url; Carfax square + huge card add/upload kind:file carfax; staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; Incoming keeps http docs.url; Incoming appends shots[]; status dropdown every lane; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples; hides generated From V Auto lane -->
+<!-- center-v3 + desk-home 2026-09-14 build d31a: pixel-faithful Acre GR Corolla desk (white hero|mid|market, not stone/teal); HARD LOCK photo desk — notes under hero, MAYA strip, four huge thumbs strip + 5th peek, white GR Corolla fixture pack, blue Complete, Documents/VAUTO/BLACK BOOK/OPENLANE/eBlock/CARFAX/MMR cards; CA workbench redo — drop the verbal-only tag forever; What's the Story walks the car and talks; Walk-around photos only; keep Critical damage; salesperson CA has no packet-send card; Tracker mobile cards + current month; website-post story-first year/make/model/trim/condition, no team select, original start not webdesk, pictures still relaunch/post; Acre GR Corolla desk lock — FIFO oldest home, left-rail Incoming/On-site/Needs docs/History pills, no hist KPI strip, Ask Maya, appraisal range/competing/ask; users GET/POST kind:users persist; 911 Acre team reads finalRationale.markdown + panel Rybot/Webot/Drebot/TBot + team.shabot note, hides boxes with no numbers; mailer keeps rich team/rationale on Center refresh; Trade-in start drops stray top History (rail History stays); 911 Incoming FINAL min+target+max clears Running and lands Appraisal Team numbers (Blazer s1af19al / F-150 sir78n6); Run Appraisal Team tap always fires (rerun + Unlocked History); kind:team wake; Incoming FINAL settles Running; schema 1.0 team + panel boxes; market pills append multiple files into shots[]; compact V Auto / Carfax / OpenLane / eBlock chips; same sendId/id Incoming POST; panel runs progress → existing FINAL; no invented solds; real Carfax http url opens the uploaded file; sample recreate only when no docs.carfax.url; Carfax square + huge card add/upload kind:file carfax; staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; Incoming keeps http docs.url; Incoming appends shots[]; status dropdown every lane; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples; hides generated From V Auto lane -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -1095,8 +1095,8 @@ body.center-locked #centerUnlock {
   font-style:normal; background:#fff; border:1px solid #E4E7EC;
   border-radius:999px; padding:4px 8px; font-size:11px; font-weight:700;
 }
-.center-hero { position:relative; margin:0 0 10px; border-radius:8px; overflow:hidden; background:#111; min-height:220px; touch-action:manipulation; user-select:none; -webkit-user-select:none; }
-.center-hero img { width:100%; height:240px; object-fit:cover; display:block; background:#111; pointer-events:none; }
+.center-hero { position:relative; margin:0 0 10px; border-radius:8px; overflow:hidden; background:#fff; min-height:220px; touch-action:manipulation; user-select:none; -webkit-user-select:none; }
+.center-hero img { width:100%; height:240px; object-fit:contain; display:block; background:#fff; pointer-events:none; }
 .center-gallery {
   display:none; position:fixed; inset:0; z-index:95; background:#0b0b10;
   touch-action:none; user-select:none; -webkit-user-select:none;
@@ -1186,17 +1186,21 @@ body.center-gallery-on { overflow:hidden; }
   background:#2F6BFF; color:#fff; border-color:#2F6BFF;
 }
 #centerMayaGo { display:none !important; }
-.acre-notes-block { margin:8px 0 0; }
-.acre-notes-block .block { margin:10px 0 6px; font-size:13px; letter-spacing:.08em; text-transform:uppercase; }
-#center .acre-notes-block .note { min-height:72px; border-radius:8px; padding:10px 12px; font-size:14px; }
+.acre-notes-block { margin:6px 0 0; }
+.acre-notes-block .block { margin:8px 0 4px; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:#6B7380; }
+#center .acre-notes-block .note {
+  min-height:52px; max-height:78px; border:0; background:transparent; border-radius:0;
+  padding:0; font-size:12px; line-height:1.4; font-weight:600; color:#3B4A63; resize:none;
+}
 .acre-maya-strip {
-  margin:8px 0 0; padding:8px 10px; background:#F3F6FB; border:1px solid #E4E7EC; border-radius:8px;
-  color:#3B4A63; font-size:12px; font-weight:700; min-height:18px;
+  margin:0; padding:0; background:transparent; border:0; border-radius:0;
+  color:#3B4A63; font-size:12px; font-weight:600; line-height:1.4; min-height:18px;
 }
 .acre-maya-strip:empty { display:none; }
+.acre-notes-block .block:has(+ .acre-maya-strip:empty) { display:none; }
 #center .center-desk-lane { display:none !important; }
 #center .center-detail-bar { padding:0 0 8px; background:#F5F6F8; }
-#center #centerDetailSub { display:block; margin:0 0 8px; font-size:12px; font-weight:700; color:#6B7380; letter-spacing:.02em; }
+#center #centerDetailSub { display:none; }
 #center .acre-doc-head {
   display:flex; align-items:baseline; justify-content:space-between;
   font-size:11px; font-weight:800; letter-spacing:.1em; text-transform:uppercase;
@@ -1239,8 +1243,16 @@ body.center-gallery-on { overflow:hidden; }
   font-size:11px; font-weight:800; color:#3B4A63; cursor:pointer;
 }
 .acre-sources button.on { background:#111318; color:#fff; border-color:#111318; }
-.acre-thumbs-row { min-width:0; }
+.acre-thumbs-row { min-width:0; position:relative; }
 .acre-thumbs-row .center-thumbs { margin:0; }
+#center .acre-thumbs-prev, #center .acre-thumbs-next {
+  position:absolute; top:50%; transform:translateY(-50%);
+  width:44px; height:44px; border:0; border-radius:50%;
+  background:#fff; color:#111318; font-size:22px; font-weight:800; cursor:pointer;
+  box-shadow:0 8px 20px rgba(0,0,0,.18); z-index:2;
+}
+#center .acre-thumbs-prev { left:10px; }
+#center .acre-thumbs-next { right:10px; }
 .mkt-chip b { font-size:14px; }
 .center-docs, .center-why-docs { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:4px 0 8px; }
 .doc-slot {
@@ -1462,27 +1474,44 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
     grid-template-areas:"hero mid market" "thumbs thumbs thumbs";
     gap:12px 16px;
     align-items:start;
-    min-height:calc(100dvh - 210px);
+    min-height:0;
   }
   #center .acre-col-hero{ grid-area:hero; }
   #center .acre-col-mid{ grid-area:mid; }
   #center .acre-col-market{ grid-area:market; }
   #center .acre-thumbs-row{ grid-area:thumbs; }
   #center .acre-vals{
-    display:flex; flex-direction:column; gap:0; margin:8px 0 14px;
+    display:flex; flex-direction:column; gap:0; margin:6px 0 10px;
   }
   #center .acre-vals .acre-chip{
     display:grid; grid-template-columns:148px minmax(0,1fr); align-items:center;
     background:transparent; border:0; border-bottom:1px solid #E4E7EC; border-radius:0;
-    padding:12px 2px;
+    padding:10px 2px;
   }
   #center .acre-vals .acre-chip k{ margin:0; font-size:11px; letter-spacing:.06em; }
   #center .acre-vals .acre-chip .f{
     border:0; background:transparent; padding:0; min-height:0; font-size:22px; font-weight:800;
   }
+  #center .acre-range-pair{
+    display:grid; grid-template-columns:1fr auto 1fr; gap:10px; align-items:center;
+  }
+  #center .acre-range-pair em{ font-style:normal; color:#9AA3AF; font-weight:800; }
   #center .acre-market{ display:flex; flex-direction:column; gap:0; margin:0; }
-  #center .center-thumbs{ gap:10px; }
-  #center .center-thumbs button{ flex-basis:220px; width:220px; height:140px; border-radius:8px; }
+  #center .acre-thumbs-row{ position:relative; }
+  #center .center-thumbs{ gap:12px; overflow-x:auto; scrollbar-width:none; padding:0 52px 0 44px; }
+  #center .center-thumbs::-webkit-scrollbar{ display:none; }
+  #center .center-thumbs button{
+    flex:0 0 calc((100% - 48px) / 4.22); width:calc((100% - 48px) / 4.22);
+    height:210px; border-radius:10px;
+  }
+  #center .center-detail-bar{ display:none; }
+  #center .packet-pdf{ display:none !important; }
+  #center #centerTeamHead,
+  #center #centerRunTeamWrap,
+  #center #centerTeam,
+  #center #centerCdWrap,
+  #center label.k,
+  #center #centerApproval { margin-top:28px; }
   #center.screen:has(#centerSheet.on) .center-sheet-dim{ display:none !important; }
   #center.screen:has(#centerSheet.on) .center-sheet{
     display:flex;
@@ -1512,8 +1541,8 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
   #centerLanes .lane-pill{ min-height:52px; padding:9px 7px; border-radius:999px; }
   #centerLanes .lane-pill b{ font-size:12px; }
   #center h2{ font-size:22px; letter-spacing:-.3px; margin:0 0 8px; }
-  #center .center-hero{ min-height:300px; border-radius:8px; }
-  #center .center-hero img{ height:min(38vh, 360px); }
+  #center .center-hero{ min-height:240px; border-radius:8px; background:#fff; }
+  #center .center-hero img{ height:min(28vh, 280px); object-fit:contain; background:#fff; }
   #center .center-docs, #center .center-why-docs, #center .docs-grid{ grid-template-columns:1fr 1fr; }
   #center .doc-slot, #center .doc-sq { min-height:196px; }
   #center .doc-slot b, #center .doc-sq b { font-size:20px; }
@@ -1561,8 +1590,8 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
   #centerLanes .lane-pill{ min-height:54px; padding:10px 8px; }
   #centerLanes .lane-pill b{ font-size:12px; }
   #center h2{ font-size:24px; letter-spacing:-.3px; }
-  #center .center-hero{ border-radius:8px; min-height:340px; }
-  #center .center-hero img{ height:min(42vh, 400px); }
+  #center .center-hero{ border-radius:8px; min-height:260px; background:#fff; }
+  #center .center-hero img{ height:min(30vh, 300px); object-fit:contain; background:#fff; }
   #center .acre-chip{ padding:10px 4px; }
   #center .acre-chip b{ font-size:20px; }
   #center .facts{ grid-template-columns:repeat(4, 1fr); }
@@ -2050,6 +2079,13 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
     <div class="acre-desk" id="acreDesk">
       <div class="acre-col-hero">
         <div class="center-hero" id="centerHero"></div>
+        <div class="acre-notes-block">
+          <div class="block">Notes</div>
+          <p class="quote hide" id="centerStory"></p>
+          <textarea class="note" id="centerNotes" placeholder="Anything the team should know"></textarea>
+          <div class="block">Maya</div>
+          <div class="acre-maya-strip" id="centerMayaStrip"></div>
+        </div>
       </div>
       <div class="acre-col-mid">
         <h2 id="centerDetailTitle">Vehicle</h2>
@@ -2066,18 +2102,14 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
         <div class="acre-rank-row" id="centerRankRow"></div>
         <div class="acre-vals" id="centerValStrip"></div>
         <div class="acre-sources" id="centerSources"></div>
-        <div class="acre-notes-block">
-          <div class="block">Notes</div>
-          <p class="quote" id="centerStory">No story yet.</p>
-          <textarea class="note" id="centerNotes" placeholder="Anything the team should know"></textarea>
-          <div class="acre-maya-strip" id="centerMayaStrip"></div>
-        </div>
       </div>
       <div class="acre-col-market">
         <div class="acre-market" id="centerMarket"></div>
       </div>
       <div class="acre-thumbs-row">
+        <button class="acre-thumbs-prev" type="button" id="centerThumbsPrev" aria-label="Previous photos">‹</button>
         <div class="center-thumbs" id="centerThumbs"></div>
+        <button class="acre-thumbs-next" type="button" id="centerThumbsNext" aria-label="Next photos">›</button>
       </div>
     </div>
     <div class="docs-grid center-docs" id="centerDocs"></div>
@@ -6151,7 +6183,7 @@ const CENTER_MARKET=[
 const CENTER_SCORES=[
   ["maya","Maya","maya"],
   ["clutch","Clutch Killer","clutch"],
-  ["vautoScore","VAuto","vauto"],
+  ["vautoScore","VAUTO","vauto"],
   ["predicted","Predicted","predicted"]
 ];
 const CENTER_RANKS=[
@@ -6768,6 +6800,55 @@ function isCenterSample(item){
   const id=String(item.id||"");
   return /^sample[-_]/i.test(id);
 }
+function isPhotoLockItem(item){
+  if(!item) return false;
+  if(item.photoLock) return true;
+  return String(item.id||"")==="photolock-grcorolla";
+}
+function isLocalPhotoLockHost(){
+  const h=String(location.hostname||"");
+  return h==="localhost" || h==="127.0.0.1" || h==="";
+}
+function photoLockGrPack(){
+  const shots=[];
+  for(let i=1;i<=16;i++) shots.push("/start-bgs/gr-corolla/"+String(i).padStart(2,"0")+".jpg");
+  return shots;
+}
+function seedPhotoLockGrCorolla(){
+  if(!isLocalPhotoLockHost()) return;
+  const id="photolock-grcorolla";
+  const photos=photoLockGrPack();
+  const store=centerStore();
+  let item=store.items.find(function(x){ return isPhotoLockItem(x); });
+  if(!item){
+    item={id:id};
+    store.items.push(item);
+  }
+  item.photoLock=true;
+  item.id=id;
+  item.ymmt="2023 Toyota GR Corolla Core";
+  item.year="2023"; item.make="Toyota"; item.model="GR Corolla"; item.trim="Core";
+  item.color="White"; item.km="10500"; item.vin="JTNABAAE8PA003162";
+  item.origin="Japan"; item.clean=true; item.noAccident=true; item.accident="none";
+  item.tags=["Appraised","Not out of province","Not a US vehicle"];
+  item.lane="onsite"; item.stage="Waiting";
+  if(!item.sentAt || (Date.now()-Number(item.sentAt))>80*86400000) item.sentAt=Date.now()-2*86400000;
+  item.createdAt=item.createdAt||item.sentAt;
+  item.notes="Selling a GR? Already has a down payment and needs a number today if you release it. Expecting closer to $42,000 on a 10,500 km, 1-owner, garage-kept, never winter-driven, no-accident 2023 GR Corolla Core.";
+  item.story="";
+  item.mayaLog="Retail is the stronger exit. CBB retail extra $6,625, market average $43,400 on cars with 4x the mileage. VAuto pin appraised at lowest-mileage unit in the whole competitive set.";
+  item.photos=photos;
+  item.thumb=photos[0];
+  item.values=Object.assign(emptyVals(), {
+    maya:"37800", clutch:"", vautoScore:"37700", predicted:"38400",
+    recon:"1200", profit:"3000", vrank:"4 of 12", prank:"6 of 12",
+    range:"35800 – 45200", rangeMin:"35800", rangeMax:"45200",
+    compete:"0", ask:"0", book:"38150", vauto:"38900", mmr:"",
+    competeSource:"None"
+  });
+  item.docs=Object.assign({}, item.docs, {carfax:{have:true}});
+  saveCenterStore(store);
+}
 function seedCenterSamples(){
   const store=centerStore();
   const next=store.items.filter(function(x){ return !isCenterSample(x); });
@@ -6775,6 +6856,7 @@ function seedCenterSamples(){
     store.items=next;
     saveCenterStore(store);
   }
+  if(typeof seedPhotoLockGrCorolla==="function") seedPhotoLockGrCorolla();
 }
 function isTradeLinkItem(item){ return !!(item && (item.source==="trade-in" || item.linkSent)); }
 function isWebsiteItem(item){ return !!(item && item.source==="website"); }
@@ -7668,7 +7750,7 @@ function slimSharedCenterItem(item){
 }
 function shareIncomingBestEffort(item){
   try{
-    if(!item || !item.id || isCenterSample(item)) return;
+    if(!item || !item.id || isCenterSample(item) || isPhotoLockItem(item)) return;
     function post(){
       const payload={kind:"land", item:slimSharedCenterItem(item)};
       const req=timedFetch(MAIL_HOST+"/api/incoming", {
@@ -8493,7 +8575,7 @@ function slimCenterLaneItem(item){
 }
 function shareCenterLaneBestEffort(item){
   try{
-    if(!item || !item.id || (typeof isCenterSample==="function" && isCenterSample(item))) return;
+    if(!item || !item.id || (typeof isCenterSample==="function" && isCenterSample(item)) || (typeof isPhotoLockItem==="function" && isPhotoLockItem(item))) return;
     const payload={kind:"land", item:slimCenterLaneItem(item)};
     const req=timedFetch(MAIL_HOST+"/api/incoming", {
       method:"POST",
@@ -8914,6 +8996,19 @@ function paintCenterThumbs(shots, active){
     };
     host.appendChild(b);
   });
+  const next=$("centerThumbsNext");
+  const prev=$("centerThumbsPrev");
+  const step=function(dir){
+    host.scrollBy({left:dir*Math.max(160, host.clientWidth*0.22), behavior:"smooth"});
+  };
+  if(next){
+    next.classList.toggle("hide", shots.length<5);
+    next.onclick=function(e){ e.stopPropagation(); step(1); };
+  }
+  if(prev){
+    prev.classList.toggle("hide", shots.length<5);
+    prev.onclick=function(e){ e.stopPropagation(); step(-1); };
+  }
 }
 function paintCenterMetrics(item){
   const host=$("centerMetrics"); if(!host) return;
@@ -8974,7 +9069,7 @@ function paintCenterMayaStrip(item){
     text=String((last && (last.q || last.note || last.text)) || last || "").trim();
   }
   if(!text && item && item.mayaNote) text=String(item.mayaNote).trim();
-  host.textContent=text ? ("Maya · "+text) : "";
+  host.textContent=text || "";
 }
 function askMaya(){
   const inp=$("centerMayaAsk");
@@ -9271,12 +9366,37 @@ function paintCenterVals(item){
     CENTER_VALS.forEach(function(pair){
       const chip=document.createElement("label");
       chip.className="acre-chip";
-      chip.innerHTML="<k>"+esc(pair[1])+"</k><input class=\"f\" inputmode=\"decimal\" placeholder=\"$\" />";
-      const inp=chip.querySelector("input");
       const raw=String(vals[pair[0]]||"").trim();
-      const parts=raw.match(/\d[\d,]*(?:\.\d+)?/g)||[];
-      inp.value=(parts.length===1 && Number(parts[0].replace(/,/g,""))>=1000) ? moneyPretty(raw) : raw;
-      bindValInput(item, pair[0], inp);
+      if(pair[0]==="range"){
+        const parts=raw.match(/\d[\d,]*(?:\.\d+)?/g)||[];
+        const min=String(vals.rangeMin||parts[0]||"").trim();
+        const max=String(vals.rangeMax||parts[1]||"").trim();
+        chip.innerHTML="<k>"+esc(pair[1])+"</k><span class=\"acre-range-pair\">"+
+          "<input class=\"f\" data-range=\"min\" inputmode=\"decimal\" placeholder=\"$\" />"+
+          "<em>–</em>"+
+          "<input class=\"f\" data-range=\"max\" inputmode=\"decimal\" placeholder=\"$\" />"+
+          "</span>";
+        const a=chip.querySelector("[data-range=min]");
+        const b=chip.querySelector("[data-range=max]");
+        a.value=min && Number(String(min).replace(/,/g,""))>=1000 ? moneyPretty(min) : (min||"");
+        b.value=max && Number(String(max).replace(/,/g,""))>=1000 ? moneyPretty(max) : (max||"");
+        function writeRange(){
+          patchCenter(item.id, function(x){
+            x.values=x.values||emptyVals();
+            x.values.rangeMin=a.value.trim();
+            x.values.rangeMax=b.value.trim();
+            x.values.range=[a.value.trim(), b.value.trim()].filter(Boolean).join(" – ");
+          });
+        }
+        a.addEventListener("input", writeRange);
+        b.addEventListener("input", writeRange);
+      } else {
+        chip.innerHTML="<k>"+esc(pair[1])+"</k><input class=\"f\" inputmode=\"decimal\" placeholder=\"$\" />";
+        const inp=chip.querySelector("input");
+        const parts=raw.match(/\d[\d,]*(?:\.\d+)?/g)||[];
+        inp.value=(parts.length===1 && Number(parts[0].replace(/,/g,""))>=1000) ? moneyPretty(raw) : raw;
+        bindValInput(item, pair[0], inp);
+      }
       strip.appendChild(chip);
     });
   }
@@ -9668,6 +9788,8 @@ function paintCenterTags(item){
   if(item.origin) tags.push(item.origin);
   if(item.clean) tags.push("Clean");
   if(item.noAccident || item.accident==="none") tags.push("No accident");
+  if(item.notOop || item.origin==="Japan") tags.push("Not out of province");
+  if(item.notUs || item.origin==="Japan") tags.push("Not a US vehicle");
   if(isCenterAged(item)) tags.push("90-day archive");
   const seen={};
   host.innerHTML=tags.filter(function(t){
@@ -9712,6 +9834,13 @@ function ensureCenterDetailScaffold(){
     '<div class="acre-desk" id="acreDesk">'+
       '<div class="acre-col-hero">'+
         '<div class="center-hero" id="centerHero"></div>'+
+        '<div class="acre-notes-block">'+
+          '<div class="block">Notes</div>'+
+          '<p class="quote hide" id="centerStory"></p>'+
+          '<textarea class="note" id="centerNotes" placeholder="Anything the team should know"></textarea>'+
+          '<div class="block">Maya</div>'+
+          '<div class="acre-maya-strip" id="centerMayaStrip"></div>'+
+        '</div>'+
       '</div>'+
       '<div class="acre-col-mid">'+
         '<h2 id="centerDetailTitle">Vehicle</h2>'+
@@ -9728,18 +9857,14 @@ function ensureCenterDetailScaffold(){
         '<div class="acre-rank-row" id="centerRankRow"></div>'+
         '<div class="acre-vals" id="centerValStrip"></div>'+
         '<div class="acre-sources" id="centerSources"></div>'+
-        '<div class="acre-notes-block">'+
-          '<div class="block">Notes</div>'+
-          '<p class="quote" id="centerStory">No story yet.</p>'+
-          '<textarea class="note" id="centerNotes" placeholder="Anything the team should know"></textarea>'+
-          '<div class="acre-maya-strip" id="centerMayaStrip"></div>'+
-        '</div>'+
       '</div>'+
       '<div class="acre-col-market">'+
         '<div class="acre-market" id="centerMarket"></div>'+
       '</div>'+
       '<div class="acre-thumbs-row">'+
+        '<button class="acre-thumbs-prev" type="button" id="centerThumbsPrev" aria-label="Previous photos">‹</button>'+
         '<div class="center-thumbs" id="centerThumbs"></div>'+
+        '<button class="acre-thumbs-next" type="button" id="centerThumbsNext" aria-label="Next photos">›</button>'+
       '</div>'+
     '</div>'+
     '<div class="docs-grid center-docs" id="centerDocs"></div>'+
@@ -9886,7 +10011,11 @@ function paintCenterDetail(){
       factCell("Lead source", item.leadSource)+
       factCell("Canada Drives application number", isCanadaDrives(item)?item.cdApp:"");
   }
-  if($("centerStory")) $("centerStory").textContent=item.story||item.webcopy||"No story yet.";
+  if($("centerStory")){
+    const story=String(item.story||item.webcopy||"").trim();
+    $("centerStory").textContent=story||"No story yet.";
+    $("centerStory").classList.toggle("hide", !story);
+  }
   if($("centerNotes")){
     $("centerNotes").value=item.notes||"";
     $("centerNotes").readOnly=!!locked;
