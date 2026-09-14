@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-14 build d30h: History↔On-site keeps fat sheet; status dropdown every lane; Incoming pull never slims or unarchives; Run Appraisal Team; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples -->
+<!-- center-v3 + desk-home 2026-09-14 build d30i: V Auto / OpenLane / eBlock pills open a doc sheet; kind:file blob url; Incoming keeps http docs.url; status dropdown every lane; Run Appraisal Team; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -2016,7 +2016,7 @@ body.center-gallery-on { overflow:hidden; }
     <p class="quote" id="vinHint">Best: take a picture of the vehicle ownership (registration). You can also photograph the VIN on the dash or the sticker on the driver’s door. We’ll read the number from the photo.</p>
     <p class="vin-chip hide" id="vinChip"></p>
     </div>
-    <p class="build-stamp" id="buildStamp">build d30h</p>
+    <p class="build-stamp" id="buildStamp">build d30i</p>
   </div>
 </section>
 
@@ -2471,11 +2471,23 @@ body.center-gallery-on { overflow:hidden; }
     <p class="hint">Add V Auto, OpenLane, and eBlock documents. The desk builds Black Book, MMR, Carfax, and the offers as soon as the files land.</p>
   </div>
 </div>
+<div class="sheet" id="marketDocSheet">
+  <div class="card">
+    <button class="x" type="button" data-close="marketDocSheet">✕</button>
+    <h3 id="marketDocTitle">Document</h3>
+    <p class="hint" id="marketDocHint">Add a video, screenshot, or PDF for this document only.</p>
+    <p class="quote hide" id="marketDocName"></p>
+    <button class="pill purple hide" type="button" id="marketDocView">View</button>
+    <button class="pill wash" type="button" id="marketDocAdd">Add file</button>
+    <input class="hide" type="file" id="marketDocFile" accept="application/pdf,image/*,video/*,.pdf,.jpg,.jpeg,.png,.heic,.webp,.mov,.mp4,.m4v" />
+    <p class="hint hide" id="marketDocStatus"></p>
+  </div>
+</div>
 <div class="sheet" id="typeSheet">
   <div class="card">
     <button class="x" type="button" data-close="typeSheet">✕</button>
     <h3>Appraisal type</h3>
-    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d30h</span></p>
+    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d30i</span></p>
     <div id="typeChips" class="to-chips"></div>
     <div id="leadBox" class="lead-box hide">
       <p class="hint">Lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a New application — no appointment calendar.</p>
@@ -2632,7 +2644,7 @@ function packetDocHave(docs, spec){
   for(let i=0;i<keys.length;i++){
     const got=docs[keys[i]];
     if(got===true||got===1||got==="true") return true;
-    if(got && (got.have || got.data || got.extract || got.preview || (got.shots&&got.shots.length))) return true;
+    if(got && (got.have || got.data || got.extract || got.preview || got.url || (got.shots&&got.shots.length))) return true;
   }
   return false;
 }
@@ -6616,11 +6628,13 @@ function slimCenterDocs(docs){
     const hit=map[slot].map(function(k){ return src[k]; }).find(Boolean);
     if(!hit){ out[slot]={have:false, name:"", preview:"", type:""}; return; }
     const preview=(hit.shots && hit.shots[0]) || (hit.data && String(hit.data).indexOf("data:image")===0 ? hit.data : "");
+    const url=(typeof slimSharedHttpUrl==="function"?slimSharedHttpUrl(hit.url):(/^https?:\/\//i.test(String(hit.url||""))?String(hit.url):""));
     out[slot]={
       have:true,
       name:hit.name||slot,
       preview:preview||"",
-      type:hit.type||""
+      type:hit.type||"",
+      url:url
     };
   });
   return out;
@@ -6650,7 +6664,7 @@ function sharedDocsHaveCount(docs){
   Object.keys(docs).forEach(function(k){
     const d=docs[k];
     if(d===true||d===1||d==="true") n++;
-    else if(d && (d.have || d.data || d.extract || d.preview || (d.shots&&d.shots.length))) n++;
+    else if(d && (d.have || d.data || d.extract || d.preview || d.url || (d.shots&&d.shots.length))) n++;
   });
   return n;
 }
@@ -6824,16 +6838,44 @@ function firstMarketDocPayload(d){
   }
   return null;
 }
+function marketDocKey(id){
+  const k=String(id||"").toLowerCase();
+  if(k==="vauto"||k==="vauto_docs"||k==="vauto_summary"||k==="summary") return "vauto";
+  if(k==="openlane"||k==="openlane_docs"||k==="olguide"||k==="olforecast") return "openlane";
+  if(k==="eblock"||k==="eblock_docs"||k==="ebguide") return "eblock";
+  return "";
+}
+function marketDocSlot(docs, key){
+  docs=docs||{};
+  return docs[key] || docs[key+"_docs"] || null;
+}
+function postIncomingFile(sendId, key, name, type, data){
+  return timedFetch(MAIL_HOST+"/api/incoming", {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({kind:"file", sendId:sendId, key:key, name:name||key, type:type||"", data:data||""})
+  }, 60000).then(function(r){ return r && r.json ? r.json() : {}; }).then(function(j){
+    const url=slimSharedHttpUrl(j && j.url);
+    return url ? {ok:true, url:url, sendId:(j&&j.sendId)||sendId, key:(j&&j.key)||key, name:(j&&j.name)||name} : {ok:false};
+  }).catch(function(){ return {ok:false}; });
+}
 function persistMarketDocUrls(item){
   if(!item || !item.docs) return Promise.resolve(item);
+  const sendId=item.sendId||APP.sendId||item.id||"";
   const keys=Object.keys(item.docs);
   let chain=Promise.resolve();
   keys.forEach(function(k){
     chain=chain.then(function(){
+      const pack=marketDocKey(k);
       const d=item.docs[k];
       if(!d || d===true || slimSharedHttpUrl(d.url)) return;
       const payload=firstMarketDocPayload(d);
       if(!payload) return;
+      if(pack && sendId && payload.data){
+        return postIncomingFile(sendId, pack, payload.name, payload.mime, payload.data).then(function(got){
+          if(got && got.url){ d.url=got.url; d.have=true; }
+        });
+      }
       const put=payload.blob && typeof hostBlob==="function"
         ? hostBlob(payload.name, payload.mime, payload.blob)
         : (typeof hostFile==="function" ? hostFile(payload.name, payload.mime||"application/octet-stream", payload.data) : Promise.resolve(""));
@@ -6964,7 +7006,7 @@ function centerDocsAreFat(docs){
   docs=docs||{};
   return Object.keys(docs).some(function(k){
     const d=docs[k];
-    return !!(d && (d.data || d.extract || d.preview || (d.shots && d.shots.length)));
+    return !!(d && (d.data || d.extract || d.preview || /^https?:\/\//i.test(String(d.url||"")) || (d.shots && d.shots.length)));
   });
 }
 function seedSharedIncomingFinal(item, remote){
@@ -7067,11 +7109,11 @@ function applySharedIncoming(item, remote){
     const incoming=slimSharedDocs(remote.docs);
     const localFat=item.docs && Object.keys(item.docs).some(function(k){
       const d=item.docs[k];
-      return !!(d && (d.data || d.extract || d.preview || (d.shots && d.shots.length)));
+      return !!(d && (d.data || d.extract || d.preview || /^https?:\/\//i.test(String(d.url||"")) || (d.shots && d.shots.length)));
     });
     const remoteFat=remote.docs && Object.keys(remote.docs).some(function(k){
       const d=remote.docs[k];
-      return !!(d && (d.data || d.extract || d.preview || (d.shots && d.shots.length)));
+      return !!(d && (d.data || d.extract || d.preview || /^https?:\/\//i.test(String(d.url||"")) || (d.shots && d.shots.length)));
     });
     if(localFat && !remoteFat){
       Object.keys(incoming).forEach(function(k){
@@ -7079,7 +7121,13 @@ function applySharedIncoming(item, remote){
         if(slot && incoming[k] && incoming[k].url && !slot.url) slot.url=incoming[k].url;
       });
     } else if(!(sharedDocsHaveCount(incoming)===0 && sharedDocsHaveCount(item.docs)>0)){
+      const prev=item.docs||{};
       item.docs=incoming;
+      Object.keys(prev).forEach(function(k){
+        const slot=item.docs[k];
+        const old=prev[k];
+        if(slot && old && /^https?:\/\//i.test(String(old.url||"")) && !/^https?:\/\//i.test(String(slot.url||""))) slot.url=old.url;
+      });
     }
   }
   if(!item.docs) item.docs={};
@@ -8093,7 +8141,105 @@ function paintCenterDocs(item, media){
   const writable=isNeedsDocsItem(item);
   if(writable) APP._docSinkId=item.id;
   else if(APP._docSinkId===item.id) APP._docSinkId="";
-  paintPacketDocs(host, {docs:(media && media.docs) || item.docs || {}, item:item, readOnly:!writable});
+  const docs=Object.assign({}, item.docs||{}, (media && media.docs)||{});
+  [item.docs, media && media.docs].forEach(function(src){
+    if(!src) return;
+    Object.keys(src).forEach(function(k){
+      const u=src[k] && /^https?:\/\//i.test(String(src[k].url||"")) ? String(src[k].url) : "";
+      if(u && docs[k] && !/^https?:\/\//i.test(String(docs[k].url||""))) docs[k].url=u;
+    });
+  });
+  paintPacketDocs(host, {docs:docs, item:item, readOnly:!writable});
+}
+function marketDocUrlOf(docs, key){
+  const slot=marketDocSlot(docs, key);
+  return slimSharedHttpUrl(slot && slot.url);
+}
+function viewMarketDocUrl(url, type, title){
+  url=slimSharedHttpUrl(url);
+  if(!url){ toast("No saved file yet."); return; }
+  const t=String(type||"").toLowerCase();
+  if(t.indexOf("video/")===0 || /\.(mp4|mov|m4v|webm)(\?|$)/i.test(url)) openViewer("vid", url, title||"Document");
+  else if(t.indexOf("pdf")>=0 || /\.pdf(\?|$)/i.test(url)) openViewer("pdf", url, title||"Document");
+  else openViewer("img", url, title||"Document");
+}
+function applyMarketDocToItem(item, key, slot){
+  if(!item || !key || !slot) return item;
+  item.docs=item.docs||{};
+  item.docs[key]={
+    have:true,
+    name:slot.name||key,
+    type:slot.type||"",
+    url:slimSharedHttpUrl(slot.url),
+    preview:slot.preview||"",
+    shots:Array.isArray(slot.shots)?slot.shots:[]
+  };
+  const addId=key+"_docs";
+  if(typeof APP!=="undefined"){
+    APP.docs=APP.docs||{};
+    APP.docs[addId]=Object.assign({}, item.docs[key]);
+    APP.docs[key]=Object.assign({}, item.docs[key]);
+  }
+  if(!item.sendId && APP.sendId) item.sendId=APP.sendId;
+  const routed=typeof laneFromMarketDocs==="function"?laneFromMarketDocs(item.docs, item.lane):null;
+  if(routed && !item.lanePick){
+    item.docsIncomplete=routed.docsIncomplete;
+    item.missingDocs=routed.missingDocs;
+    if(item.lane!=="history" && !item.archived) item.lane=routed.lane;
+  }
+  return item;
+}
+function openMarketDocSheet(item, spec){
+  if(!item || !spec) return;
+  const key=spec.pack||marketDocKey(spec.id)||"vauto";
+  APP._marketDoc={itemId:item.id, key:key, label:spec.label||key, addId:spec.id||(key+"_docs")};
+  const docs=Object.assign({}, item.docs||{}, APP.docs||{});
+  const slot=marketDocSlot(docs, key);
+  const url=marketDocUrlOf(docs, key);
+  if($("marketDocTitle")) $("marketDocTitle").textContent=(spec.label||key).replace(/ documents$/i,"");
+  if($("marketDocHint")) $("marketDocHint").textContent=url
+    ? "This file is saved. View it, or replace it with a new video, screenshot, or PDF."
+    : "Add a video, screenshot, or PDF for this document only. It saves to the file.";
+  if($("marketDocName")){
+    $("marketDocName").textContent=slot && (slot.name||url) ? (slot.name||url) : "";
+    $("marketDocName").classList.toggle("hide", !(slot && (slot.name||url)));
+  }
+  if($("marketDocView")) $("marketDocView").classList.toggle("hide", !url);
+  if($("marketDocAdd")) $("marketDocAdd").textContent=url?"Replace file":"Add file";
+  if($("marketDocStatus")){ $("marketDocStatus").textContent=""; $("marketDocStatus").classList.add("hide"); }
+  if($("marketDocSheet")) $("marketDocSheet").classList.add("on");
+}
+function uploadMarketDocFile(file){
+  const ctx=APP._marketDoc||{};
+  const item=typeof getCenter==="function"?getCenter(ctx.itemId):null;
+  if(!item || !ctx.key || !file){ toast("Couldn’t add that file."); return; }
+  if(!item.sendId) item.sendId=APP.sendId||item.id||("s"+Date.now().toString(36));
+  if($("marketDocStatus")){
+    $("marketDocStatus").textContent="Saving…";
+    $("marketDocStatus").classList.remove("hide");
+  }
+  const reader=new FileReader();
+  reader.onload=function(){
+    const data=String(reader.result||"");
+    Promise.resolve(postIncomingFile(item.sendId, ctx.key, file.name||ctx.key, file.type||"", data)).then(function(got){
+      if(!got || !got.url){ toast("Couldn’t save that file."); if($("marketDocStatus")) $("marketDocStatus").textContent="Save failed."; return; }
+      patchCenter(item.id, function(x){
+        if(!x.sendId) x.sendId=item.sendId;
+        applyMarketDocToItem(x, ctx.key, {name:file.name||ctx.key, type:file.type||"", url:got.url});
+      });
+      const live=getCenter(item.id);
+      try{ persistCenterMedia(item.id, (live&&live.photos)||[], (live&&live.docs)||{}); }catch(e){}
+      try{ shareIncomingBestEffort(live||item); }catch(e){}
+      toast((ctx.label||ctx.key)+" saved.");
+      openMarketDocSheet(live||item, {id:ctx.addId, pack:ctx.key, label:ctx.label});
+      if(typeof paintCenter==="function") paintCenter();
+      if(typeof paintCenterDetail==="function") paintCenterDetail();
+    }).catch(function(){
+      toast("Couldn’t save that file.");
+      if($("marketDocStatus")) $("marketDocStatus").textContent="Save failed.";
+    });
+  };
+  reader.readAsDataURL(file);
 }
 function teamWhyHtml(item, botId){
   const pair=CENTER_TEAM.find(function(t){ return t[0]===botId; }) || [botId, botId, "Opinion"];
@@ -11136,18 +11282,23 @@ function paintPacketDocs(host, opts){
   const adds=document.createElement("div");
   adds.className="research-adds";
   PACKET_ADDS.forEach(function(spec){
-    const got=normalizePacketDoc(store[spec.id]);
+    const pack=spec.pack||marketDocKey(spec.id);
+    const got=normalizePacketDoc(store[spec.id]||store[pack]||(item&&item.docs&&item.docs[pack]));
     const el=document.createElement("button");
     el.type="button";
-    el.className="research-add"+(got && got.have?" on":"");
+    el.className="research-add"+(got && (got.have||got.url)?" on":"");
     el.setAttribute("aria-label",spec.label);
-    const sub=got && got.have
-      ? ((got.shots&&got.shots.length) ? got.shots.length+" in" : (got.fmt||"Added"))
+    const sub=got && (got.have||got.url)
+      ? (got.url ? "On file — tap to view" : ((got.shots&&got.shots.length) ? got.shots.length+" in" : (got.fmt||"Added")))
       : "Add files";
     el.innerHTML="<b>"+escHtml(spec.label)+"</b><span>"+escHtml(sub)+"</span>";
     el.onclick=function(){
+      if(item && typeof openMarketDocSheet==="function"){
+        openMarketDocSheet(item, spec);
+        return;
+      }
       if(readOnly){
-        toast(spec.label+(got && got.have ? " is on the file." : " is empty on this file."));
+        toast(spec.label+(got && (got.have||got.url) ? " is on the file." : " is empty on this file."));
         return;
       }
       pickPhotoLibrary(spec.id, spec.label);
@@ -11434,7 +11585,7 @@ function docAlias(id){
 }
 function normalizePacketDoc(got){
   if(!got) return null;
-  if(got.have || got.data || got.extract || got.preview) return Object.assign({have:true}, got);
+  if(got.have || got.data || got.extract || got.preview || (got.url && /^https?:\/\//i.test(String(got.url)))) return Object.assign({have:true}, got);
   return got;
 }
 const VAUTO_PROVISION="https://provision.vauto.app.coxautoinc.com/";
@@ -11637,7 +11788,7 @@ function printCarfaxRecreatePdf(item){
     d.text(body, 36, y+32);
     d.setFillColor(27,107,58); d.rect(0,H-40,W,40,"F");
     d.setTextColor(255,255,255); d.setFont("helvetica","bold"); d.setFontSize(8);
-    d.text("NOT OFFICIAL CARFAX  ·  SAMPLE / PENDING  ·  carfax-sample  ·  build d30h", 36, H-18);
+    d.text("NOT OFFICIAL CARFAX  ·  SAMPLE / PENDING  ·  carfax-sample  ·  build d30i", 36, H-18);
     d.setProperties({title:"SAMPLE PENDING NOT OFFICIAL CARFAX — 2024 RAV4 LE AWD", author:"G&M Appraisal Center"});
     d.save("rav4-2T3B1RFVXRC466025-carfax-sample.pdf");
     storeRav4CarfaxDoc(item);
@@ -12513,12 +12664,16 @@ function openViewer(kind, src, title, meta){
   const v=$("viewer"); if(!v) return;
   $("viewerTitle").textContent = title || "File";
   const pdf=$("viewerPdf"); const img=$("viewerImg"); const doc=$("viewerDoc"); const vid=$("viewerVid");
-  if(pdf){ pdf.style.display="none"; pdf.removeAttribute("src"); }
+  if(pdf){ pdf.classList.add("hide"); pdf.style.display="none"; pdf.removeAttribute("src"); }
   if(img){ img.style.display="none"; img.removeAttribute("src"); }
   if(vid){ vid.classList.add("hide"); vid.removeAttribute("src"); vid.pause && vid.pause(); }
   if(doc){ doc.classList.remove("on"); doc.innerHTML=""; }
   if(kind==="packet"){ if(doc){ doc.innerHTML=src; doc.classList.add("on"); } }
   else if(kind==="vid"){ if(vid){ vid.classList.remove("hide"); vid.src=src; vid.play && vid.play(); } }
+  else if(kind==="pdf" || (src && /\.pdf(\?|$)/i.test(src))){
+    if(pdf){ pdf.classList.remove("hide"); pdf.style.display="block"; pdf.src=src; }
+    else if(doc){ doc.classList.add("on"); doc.innerHTML='<p class="quote"><a href="'+esc(src)+'" target="_blank" rel="noopener">Open PDF</a></p>'; }
+  }
   else if(kind==="img"){ img.style.display="block"; img.src=src; }
   else if(src && /^data:image\//.test(src)){ img.style.display="block"; img.src=src; }
   else if(src && src.indexOf("data:application/pdf")===0){
@@ -12535,7 +12690,7 @@ function openViewer(kind, src, title, meta){
 }
 function closeViewer(){
   const v=$("viewer"); if(v) v.classList.remove("on");
-  const pdf=$("viewerPdf"); if(pdf) pdf.removeAttribute("src");
+  const pdf=$("viewerPdf"); if(pdf){ pdf.classList.add("hide"); pdf.removeAttribute("src"); }
   const vid=$("viewerVid"); if(vid){ try{ vid.pause(); }catch(e){} vid.removeAttribute("src"); vid.classList.add("hide"); }
   const doc=$("viewerDoc"); if(doc){ doc.classList.remove("on"); doc.innerHTML=""; }
   const audio=$("viewerAudio"); if(audio){ try{ audio.pause(); }catch(e){} audio.removeAttribute("src"); }
@@ -13349,6 +13504,22 @@ if($("webdeskHistBtn") || $("webHistLaneBtn")) {
 }
 if($("webActiveBtn")) $("webActiveBtn").onclick = function(){ openStaffHistory("website"); };
 if($("webdeskNew")) $("webdeskNew").onclick = function(){ setPurpose("website"); paintAppraiseGate(); show("home"); };
+if($("marketDocView")) $("marketDocView").onclick = function(){
+  const ctx=APP._marketDoc||{};
+  const item=typeof getCenter==="function"?getCenter(ctx.itemId):null;
+  const docs=Object.assign({}, (item&&item.docs)||{}, APP.docs||{});
+  viewMarketDocUrl(marketDocUrlOf(docs, ctx.key), (marketDocSlot(docs, ctx.key)||{}).type, ctx.label);
+};
+if($("marketDocAdd")) $("marketDocAdd").onclick = function(){
+  const inp=$("marketDocFile");
+  if(!inp) return;
+  inp.value="";
+  inp.click();
+};
+if($("marketDocFile")) $("marketDocFile").addEventListener("change", function(){
+  const f=this.files && this.files[0];
+  if(f) uploadMarketDocFile(f);
+});
 if($("staffHistClose")) $("staffHistClose").onclick = closeStaffHist;
 if($("staffHistDim")) $("staffHistDim").onclick = closeStaffHist;
 if($("invCopy")) $("invCopy").onclick = function(){
