@@ -102,6 +102,7 @@ function persistCenterMedia(id, photos, docs) {
 const findCenterMatch = eval("(" + matchSrc + ")");
 const teamSlot = eval("(" + html.match(/function teamSlot\(raw\)\{[\s\S]*?\n\}/)[0].replace("function teamSlot", "function") + ")");
 const moneyShort = eval("(" + html.match(/function moneyShort\(v\)\{[\s\S]*?\n\}/)[0].replace("function moneyShort", "function") + ")");
+const moneyPretty = eval("(" + html.match(/function moneyPretty\(v\)\{[\s\S]*?\n\}/)[0].replace("function moneyPretty", "function") + ")");
 const emptyAppraisalFinal = eval("(" + html.match(/function emptyAppraisalFinal\(\)\{[\s\S]*?\n\}/)[0].replace("function emptyAppraisalFinal", "function") + ")");
 const hasAppraisalFinalNumbers = eval("(" + html.match(/function hasAppraisalFinalNumbers\(min, target, max\)\{[\s\S]*?\n\}/)[0].replace("function hasAppraisalFinalNumbers", "function") + ")");
 const resolveAppraisalFinal = eval("(" + html.match(/function resolveAppraisalFinal\(item\)\{[\s\S]*?\n\}/)[0].replace("function resolveAppraisalFinal", "function") + ")");
@@ -667,7 +668,12 @@ function $(id) {
   if (id === "centerFinalOpen") return paintHost.btn;
   return null;
 }
-const paintCenterFinalBox = eval("(" + takeFn("paintCenterFinalBox", "centerStore") + ")");
+const paintCenterFinalBox = eval("(" + (function () {
+  const start = html.indexOf("function paintCenterFinalBox(");
+  const end = html.indexOf("\nconst RAV4_ONSITE_VIN=", start);
+  assert.ok(start > 0 && end > start, "paintCenterFinalBox found before RAV4 seed consts");
+  return html.slice(start, end).replace("function paintCenterFinalBox", "function");
+})() + ")");
 
 (function testIncomingFinalSeedPaintsBox() {
   paintHost.classList.hide = true;
@@ -703,9 +709,9 @@ const paintCenterFinalBox = eval("(" + takeFn("paintCenterFinalBox", "centerStor
   assert.equal(item.lane, "onsite");
   paintCenterFinalBox(item);
   assert.equal(paintHost.classList.hide, false, "FINAL box is shown after Incoming seed");
-  assert.ok(/\$23k/.test(paintHost.innerHTML), "painted box includes seeded MIN");
-  assert.ok(/\$24k/.test(paintHost.innerHTML), "painted box includes seeded TARGET");
-  assert.ok(/\$25k/.test(paintHost.innerHTML), "painted box includes seeded MAX");
+  assert.ok(/\$22,800/.test(paintHost.innerHTML), "painted box includes seeded MIN via moneyPretty");
+  assert.ok(/\$24,000/.test(paintHost.innerHTML), "painted box includes seeded TARGET via moneyPretty");
+  assert.ok(/\$25,000/.test(paintHost.innerHTML), "painted box includes seeded MAX via moneyPretty");
   assert.ok(/Shabot FINAL/.test(paintHost.innerHTML), "painted box keeps the FINAL kicker");
 })();
 
@@ -804,7 +810,7 @@ const paintCenterFinalBox = eval("(" + takeFn("paintCenterFinalBox", "centerStor
 })();
 
 assert.ok(/scheduleIncomingPull\(\)/.test(html), "Center boot/paint schedules the Incoming pull");
-assert.ok(/build d30c/.test(html), "build stamp bumped to d30c");
+assert.ok(/build d30d/.test(html), "build stamp bumped to d30d");
 assert.ok(/function seedSharedIncomingFinal\(/.test(html), "Incoming FINAL seed helper exists");
 assert.ok(/seedSharedIncomingFinal\(item, remote\)/.test(html), "applySharedIncoming copies Incoming FINAL");
 assert.ok(/appraisalFinal:\{/.test(html), "slimSharedCenterItem includes appraisalFinal");
@@ -813,6 +819,12 @@ assert.ok(/finalMin:item\.finalMin/.test(html), "slimSharedCenterItem includes f
 assert.ok(/finalTarget:item\.finalTarget/.test(html), "slimSharedCenterItem includes finalTarget");
 assert.ok(/finalMax:item\.finalMax/.test(html), "slimSharedCenterItem includes finalMax");
 assert.ok(/item\.team && item\.team\.shabot/.test(html), "slimSharedCenterItem keeps team.shabot when present");
+assert.ok(/enrichRav4OnsiteFinal/.test(html), "Incoming land seeds the RAV4 FINAL");
+assert.ok(/openCarfaxRecreate/.test(html), "Carfax recreate is wired");
+assert.ok(/24000/.test(html), "RAV4 TARGET 24000 is seeded");
+assert.ok(/s1ex074-sales-final/.test(html), "sales-final PDF url is present");
+assert.ok(/carfax-sample/.test(html), "carfax-sample path is present");
+assert.ok(/openlane:\s*\[\]/.test(html), "OpenLane solds stay openlane:[]");
 assert.ok(/item\.pdfUrl=remote\.pdfUrl\|\|item\.pdfUrl/.test(html), "applySharedIncoming copies remote.pdfUrl");
 assert.ok(/item\.pdfName=remote\.pdfName\|\|item\.pdfName/.test(html), "applySharedIncoming copies remote.pdfName");
 assert.ok(/id="centerPacketPdf"/.test(html), "detail sheet has Open packet PDF control");

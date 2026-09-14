@@ -12,10 +12,25 @@ const html = fs.readFileSync(path.join(root, "index.html"), "utf8");
 function must(re, msg) {
   assert.ok(re.test(html), msg);
 }
+function mustNot(re, msg) {
+  assert.ok(!re.test(html), msg);
+}
 
-must(/id="buildStamp">build d30c</, "footer stamp is build d30c");
-must(/<!--[\s\S]*build d30c[\s\S]*sales PDF packet stays; zero Center samples/, "HTML comment stamp is d30c and keeps the sales PDF / zero-sample lock");
-must(/id="typeSheet"[\s\S]*build d30c/, "type sheet stamp is build d30c");
+must(/id="buildStamp">build d30d</, "footer stamp is build d30d");
+must(/<!--[\s\S]*build d30d[\s\S]*sales PDF packet stays; zero Center samples/, "HTML comment stamp is d30d and keeps the sales PDF / zero-sample lock");
+must(/id="typeSheet"[\s\S]*build d30d/, "type sheet stamp is build d30d");
+must(/function enrichRav4OnsiteFinal\(/, "enrichRav4 seeds the On-site RAV4 FINAL");
+must(/function openCarfaxRecreate\(/, "openCarfaxRecreate desk path");
+must(/function printCarfaxRecreatePdf\(/, "printCarfaxRecreatePdf helper");
+mustNot(/async function printCarfaxRecreatePdf/, "printCarfaxRecreatePdf is not async/await");
+must(/printCarfaxRecreatePdf[\s\S]{0,220}\.then\(/, "printCarfaxRecreatePdf uses Promise.then");
+must(/24000/, "RAV4 TARGET 24000 is in the seed");
+must(/s1ex074-sales-final/, "sales-final PDF is auto-seeded");
+must(/carfax-sample/, "carfax-sample doc path is present");
+must(/openlane:\s*\[\]/, "OpenLane comps stay openlane:[]");
+must(/function moneyPretty\(/, "moneyPretty formats full dollars");
+must(/pretty\(fin\.target\)|moneyPretty\(fin\.target\)/, "FINAL box TARGET uses moneyPretty");
+must(/openCarfaxPaste\(\)\{[\s\S]*openCarfaxRecreate/, "openCarfaxPaste redirects to recreate on the RAV4 demo");
 
 must(/item\.appraisalFinal/, "durable appraisalFinal shape");
 must(/item\.finalRationale/, "durable finalRationale shape");
@@ -69,10 +84,11 @@ assert.ok(/finishThanks\(\);/.test(guest), "finishGuest still only finishes Than
 
 const teamSlotSrc = html.match(/function teamSlot\(raw\)\{[\s\S]*?\n\}/)[0];
 const moneySrc = html.match(/function moneyShort\(v\)\{[\s\S]*?\n\}/)[0];
+const prettySrc = html.match(/function moneyPretty\(v\)\{[\s\S]*?\n\}/)[0];
 const from = html.indexOf("function emptyAppraisalFinal(){");
 const to = html.indexOf("\nfunction centerStore(){", from);
 assert.ok(from > 0 && to > from, "final-decision helpers extractable");
-const src = teamSlotSrc + "\n" + moneySrc + "\n" + html.slice(from, to);
+const src = teamSlotSrc + "\n" + moneySrc + "\n" + prettySrc + "\n" + html.slice(from, to);
 
 const sandbox = { Date: Date };
 vm.createContext(sandbox);
@@ -83,7 +99,11 @@ vm.runInContext(
     "this.resolveAppraisalFinal=resolveAppraisalFinal;" +
     "this.buildFinalDecisionHtml=buildFinalDecisionHtml;" +
     "this.syncAppraisalFinalFromTeam=syncAppraisalFinalFromTeam;" +
-    "this.emptyAppraisalFinal=emptyAppraisalFinal;",
+    "this.emptyAppraisalFinal=emptyAppraisalFinal;" +
+    "this.moneyPretty=moneyPretty;" +
+    "this.enrichRav4OnsiteFinal=enrichRav4OnsiteFinal;" +
+    "this.rav4FinalRationaleSeed=rav4FinalRationaleSeed;" +
+    "this.isRav4OnsiteDemo=isRav4OnsiteDemo;",
   sandbox
 );
 
@@ -95,6 +115,7 @@ assert.ok(Array.isArray(empty.marketEvidence.openlane), "openlane comps array");
 assert.ok(Array.isArray(empty.marketEvidence.eblock), "eblock comps array");
 assert.ok(Array.isArray(empty.marketEvidence.carfax), "carfax comps array");
 
+assert.equal(sandbox.moneyPretty("24000"), "$24,000", "moneyPretty shows $24,000");
 assert.equal(sandbox.resolveAppraisalFinal({}), null, "no FINAL without numbers");
 const fromAf = sandbox.resolveAppraisalFinal({ appraisalFinal: { min: "18000", target: "19500", max: "21000", path: "Retail" } });
 assert.equal(fromAf.min, "18000", "prefers appraisalFinal min");
@@ -185,6 +206,26 @@ live.team.shabot.target = "22200";
 sandbox.syncAppraisalFinalFromTeam(live);
 assert.equal(live.appraisalFinal.target, "22200", "Shabot inputs sync appraisalFinal");
 assert.equal(live.finalRationale.authors[0], "Wes", "sync does not wipe finalRationale");
+
+const rav4 = { id: "cmu0avif7rslu", sendId: "s1ex074", vin: "2T3B1RFVXRC466025", lane: "onsite" };
+assert.ok(sandbox.isRav4OnsiteDemo(rav4), "RAV4 VIN matches the on-site demo");
+sandbox.enrichRav4OnsiteFinal(rav4);
+assert.equal(rav4.appraisalFinal.min, "22800", "RAV4 MIN 22800");
+assert.equal(rav4.appraisalFinal.target, "24000", "RAV4 TARGET 24000");
+assert.equal(rav4.appraisalFinal.max, "25000", "RAV4 MAX 25000");
+assert.equal(rav4.appraisalFinal.path, "Retail", "RAV4 path Retail");
+assert.equal(sandbox.moneyPretty(rav4.appraisalFinal.target), "$24,000", "seed TARGET paints $24,000");
+assert.ok(/s1ex074-sales-final\.pdf/.test(rav4.pdfUrl), "missing pdfUrl becomes sales-final");
+assert.equal(rav4.docs.carfax.have, true, "docs.carfax.have");
+assert.equal(rav4.docs.carfax.sample, true, "docs.carfax.sample");
+assert.equal(rav4.docs.carfax.pending, true, "docs.carfax.pending");
+assert.ok(/carfax-sample/.test(rav4.docs.carfax.url), "docs.carfax.url is carfax-sample");
+assert.equal(rav4.finalRationale.schema_version, "1.0", "rationale schema 1.0");
+assert.equal(rav4.finalRationale.panel.webot.sidedWith, true, "Webot sidedWith true");
+assert.ok(Array.isArray(rav4.finalRationale.marketEvidence.openlane) && rav4.finalRationale.marketEvidence.openlane.length === 0, "openlane:[] — no invented solds");
+assert.ok(rav4.finalRationale.marketEvidence.vauto.length > 0, "public retail asks seed as directional vauto comps");
+assert.ok(fs.existsSync(path.join(root, "docs/HOW-WE-GOT-HERE-2T3B1RFVXRC466025.md")), "HOW-WE-GOT-HERE markdown is in docs/");
+assert.ok(fs.existsSync(path.join(root, "docs/rav4-2T3B1RFVXRC466025-carfax-sample.pdf")), "carfax-sample PDF is in docs/");
 
 ["404.html", "inspect-vehicle.html"].forEach(function (name) {
   const copy = fs.readFileSync(path.join(root, name), "utf8");
