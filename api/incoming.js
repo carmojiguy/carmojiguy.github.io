@@ -192,7 +192,7 @@ function persistFile(body) {
   const sendId = String(body.sendId || "");
   const key = String(body.key || "").toLowerCase();
   if (!sendId) return { status: 400, body: { ok: false, error: "sendId" } };
-  if (key !== "vauto" && key !== "openlane" && key !== "eblock") {
+  if (key !== "vauto" && key !== "openlane" && key !== "eblock" && key !== "carfax") {
     return { status: 400, body: { ok: false, error: "key" } };
   }
   const name = String(body.name || (key + ".bin"));
