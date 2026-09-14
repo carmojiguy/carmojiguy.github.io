@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-13 build d30d: never overwrite Center tiles; new Send = new On-site card; VIN collapse off; Incoming pull does not unarchive; Thank-you frozen; sales PDF packet stays; zero Center samples -->
+<!-- center-v3 + desk-home 2026-09-14 build d30e: never VIN-collapse; new Send = new On-site card; lock superseded with New appraisal submitted; Refresh + abandoned Continue/Start; RAV4 $24k + Carfax stay; Thank-you frozen; sales PDF packet stays; zero Center samples -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -44,8 +44,8 @@ body { font-family:Manrope,system-ui,sans-serif; color:var(--ink); }
 .nav { display:grid; grid-template-columns:36px 1fr auto; align-items:center; padding:12px 16px 8px; gap:10px; }
 .nav h1 { margin:0; text-align:center; font-size:15px; font-weight:800; }
 .exit-chrome {
-  display:none; position:fixed; top:0; left:0; right:0; z-index:110;
-  grid-template-columns:56px minmax(92px,1fr) minmax(92px,1fr);
+  display:none; position:fixed; top:0; left:0; right:0; z-index:200;
+  grid-template-columns:56px minmax(68px,1fr) minmax(68px,1fr) minmax(68px,1fr);
   gap:8px; align-items:center;
   padding:calc(10px + env(safe-area-inset-top)) 12px 12px;
   background:linear-gradient(180deg,#FAF9FC 0%, rgba(250,249,252,.96) 58%, rgba(250,249,252,0));
@@ -59,17 +59,21 @@ body { font-family:Manrope,system-ui,sans-serif; color:var(--ink); }
   box-shadow:0 10px 24px rgba(124,92,255,.22);
   font-size:26px; font-weight:800; line-height:1; cursor:pointer;
 }
-.exit-back, .exit-home {
+.exit-back, .exit-home, .exit-refresh {
   min-height:56px; border:0; border-radius:18px; cursor:pointer;
-  font:inherit; font-size:17px; font-weight:800;
+  font:inherit; font-size:16px; font-weight:800;
 }
 .exit-back { background:#fff; color:var(--purple-deep); border:1.5px solid #D4C8F5; box-shadow:0 8px 22px rgba(124,92,255,.14); }
 .exit-home { background:linear-gradient(135deg,#7C5CFF,#00A4E2); color:#fff; box-shadow:0 10px 24px rgba(0,164,226,.28); }
+.exit-refresh { background:#fff; color:var(--purple-deep); border:1.5px solid #D4C8F5; box-shadow:0 8px 22px rgba(124,92,255,.14); }
 body.exit-on .screen:not(.start):not(.cam) { padding-top:calc(72px + env(safe-area-inset-top)); }
 body.exit-on .screen:not(.start):not(.cam) > .nav { padding-top:4px; }
 body.exit-on .screen > .nav > .round:first-of-type { visibility:hidden; pointer-events:none; }
 body.exit-on .screen.cam > .nav { padding-top:calc(72px + env(safe-area-inset-top)); }
 body.exit-on .center-sheet { top:max(10vh, calc(72px + env(safe-area-inset-top))); }
+body.exit-on .login-hero { top: calc(80px + env(safe-area-inset-top)); }
+body.exit-on .start-x { visibility:hidden; pointer-events:none; }
+body.exit-on #whoChip { top: calc(80px + env(safe-area-inset-top)); }
 @media (max-width:767px){
   body.exit-on #center.center-has-detail #centerDetailBody{
     top:calc(72px + env(safe-area-inset-top));
@@ -550,19 +554,29 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
 .guest-story .pill { width:100%; margin:14px 0 0; padding:15px 20px; position:sticky; bottom:0; }
 .guest-story .link { display:block; width:100%; margin:10px 0 0; color:var(--purple-deep); text-align:center; }
 .guest-story p { color:var(--muted); text-shadow:none; font-size:14px; line-height:1.5; margin:0 0 10px; font-weight:600; }
+.resume-layer {
+  display:none; position:fixed; inset:0; z-index:150;
+  align-items:flex-end; justify-content:center;
+  padding:calc(88px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom));
+  background:rgba(18,15,28,.52);
+  backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+}
+.resume-layer.on { display:flex; }
 .resume-card {
-  position:absolute; left:16px; right:16px;
-  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
-  z-index:8;
-  background:rgba(250,249,252,.97); backdrop-filter:blur(22px); -webkit-backdrop-filter:blur(22px);
-  border-radius:26px; padding:22px 18px 16px;
+  position:relative; left:auto; right:auto; bottom:auto;
+  width:min(440px, 100%);
+  z-index:1;
+  background:rgba(250,249,252,.98); backdrop-filter:blur(22px); -webkit-backdrop-filter:blur(22px);
+  border-radius:26px; padding:24px 20px 18px;
   box-shadow:0 18px 50px rgba(0,0,0,.28);
 }
 .resume-card.hide { display:none; }
-.resume-card h2 { margin:0 0 8px; font-size:26px; letter-spacing:-.5px; }
-.resume-card .quote { margin:0 0 16px; }
-.resume-card .pill { margin:0 0 8px; }
+.resume-card h2 { margin:0 0 8px; font-size:28px; letter-spacing:-.5px; }
+.resume-card .quote { margin:0 0 18px; }
+.resume-card .pill { margin:0 0 10px; min-height:64px; font-size:18px; }
+.resume-card .pill:last-child { margin-bottom:0; }
 #start.has-resume .guest-story { visibility:hidden; pointer-events:none; }
+#start.has-resume .start-dock { visibility:hidden; pointer-events:none; }
 .guest-steps { display:flex; gap:6px; margin:4px 0 0; }
 .guest-steps span { flex:1; text-align:center; background:var(--fill); color:var(--purple-deep); border-radius:999px; padding:7px 4px; font-size:11px; font-weight:800; letter-spacing:.02em; }
 .start-x { position:absolute; top: calc(12px + env(safe-area-inset-top)); left:16px; z-index:2; }
@@ -869,7 +883,29 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
   text-align:left; border:0; background:#fff; cursor:pointer;
   border-radius:22px; padding:12px; margin:0 0 12px;
   box-shadow:0 10px 28px rgba(17,14,26,.06);
-  min-height:92px;
+  min-height:92px; position:relative; overflow:hidden;
+}
+.acre-row.superseded { cursor:pointer; }
+.acre-watermark {
+  position:absolute; inset:0; display:grid; place-items:center;
+  pointer-events:none; z-index:3;
+  background:rgba(148,148,156,.28);
+  color:rgba(72,72,80,.52);
+  font-size:18px; font-weight:800; letter-spacing:.01em;
+  transform:rotate(-10deg);
+}
+.center-supersede-mark {
+  position:sticky; top:8px; z-index:3; pointer-events:none;
+  text-align:center; padding:18px 12px; margin:0 0 12px;
+  color:rgba(90,90,98,.48);
+  background:rgba(160,160,168,.22);
+  font-size:22px; font-weight:800; letter-spacing:.01em;
+  border-radius:16px;
+}
+body.center-locked #centerDetailBody input,
+body.center-locked #centerDetailBody textarea,
+body.center-locked #centerDock {
+  pointer-events:none; opacity:.72;
 }
 .acre-row.on { box-shadow:0 0 0 2px var(--purple), 0 10px 28px rgba(92,63,224,.12); }
 .acre-thumb {
@@ -1099,6 +1135,26 @@ body.center-gallery-on { overflow:hidden; }
   background:#FFF0F5; border-radius:14px; padding:10px 14px; margin:0 0 8px; font-weight:700;
 }
 .final-decision-doc .empty-call { font-style:normal; color:#8A7B68; font-weight:700; }
+.carfax-recreate {
+  background:linear-gradient(180deg,#F4FFF0 0%, #FAF9FC 42%, #E8F8FF 100%);
+  border-radius:22px; padding:6px 0 28px; color:var(--ink);
+}
+.carfax-recreate .cfx-hero {
+  background:linear-gradient(135deg,#1B6B3A 0%, #0B2A18 58%, #123048 100%);
+  color:#F4FFF0; border-radius:22px; padding:20px 18px 16px; margin:0 0 14px;
+  box-shadow:0 16px 36px rgba(27,107,58,.2);
+}
+.carfax-recreate .cfx-hero .badge { background:#D6FFD8; color:#0B2A18; }
+.carfax-recreate .cfx-hero h2 { margin:8px 0 6px; font-size:26px; letter-spacing:-.5px; color:#fff; }
+.carfax-recreate .cfx-hero p { margin:0; font-size:14px; font-weight:700; opacity:.88; }
+.carfax-recreate .cfx-banner {
+  margin:0 0 16px; padding:12px 14px; border-radius:16px; font-weight:800;
+  background:#FFF4D6; color:#8A4B08; box-shadow:0 8px 18px rgba(180,83,9,.08);
+}
+.carfax-recreate .cfx-banner k { display:block; font-size:11px; letter-spacing:.12em; text-transform:uppercase; }
+.carfax-recreate .cfx-banner span { display:block; margin-top:4px; font-size:13px; font-weight:700; }
+.carfax-recreate h3 { margin:20px 0 10px; font-size:18px; color:#1B6B3A; }
+.carfax-recreate .cfx-actions { display:flex; flex-wrap:wrap; gap:8px; margin:16px 0 0; }
 .center-detail-empty {
   min-height:calc(100dvh - 80px); display:grid; place-items:center; text-align:center; padding:40px 24px;
 }
@@ -1214,8 +1270,9 @@ body.center-gallery-on { overflow:hidden; }
     left:50%; right:auto; top:50%; transform:translate(-50%, -50%);
     width:min(520px, 72vw); max-width:520px; bottom:auto;
   }
+  .resume-layer{ align-items:center; }
   .resume-card{
-    left:50%; right:auto; top:50%; bottom:auto; transform:translate(-50%, -50%);
+    left:auto; right:auto; top:auto; bottom:auto; transform:none;
     width:min(460px, 72vw); max-width:460px;
     padding:26px 22px 18px;
   }
@@ -1307,7 +1364,7 @@ body.center-gallery-on { overflow:hidden; }
   .exit-chrome {
     left:0; right:0; max-width:none;
     padding:calc(12px + env(safe-area-inset-top)) 40px 14px;
-    grid-template-columns:56px 180px 180px;
+    grid-template-columns:56px 160px 160px 160px;
     justify-content:start;
   }
   .sheet { display:none; align-items:center; justify-content:center; padding:calc(88px + env(safe-area-inset-top)) 24px 48px; background:rgba(18,15,28,.46); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); }
@@ -1332,8 +1389,9 @@ body.center-gallery-on { overflow:hidden; }
     left:50%; right:auto; top:50%; transform:translate(-50%, -50%);
     width:min(520px, 46vw); max-width:520px;
   }
+  .resume-layer{ align-items:center; }
   .resume-card {
-    left:50%; right:auto; top:50%; bottom:auto; transform:translate(-50%, -50%);
+    left:auto; right:auto; top:auto; bottom:auto; transform:none;
     width:min(480px, 42vw); max-width:480px;
   }
   .thanks-hero-frame {
@@ -1488,13 +1546,23 @@ body.center-gallery-on { overflow:hidden; }
 
 </style>
 </head>
-<body>
+<body class="exit-on">
 <div class="phone">
 <div class="accent"></div>
-<div class="exit-chrome" id="exitChrome">
+<div class="exit-chrome on" id="exitChrome">
   <button class="exit-x" type="button" id="exitClose" aria-label="Close">✕</button>
   <button class="exit-back" type="button" id="exitBack">Back</button>
   <button class="exit-home" type="button" id="exitHome">Home</button>
+  <button class="exit-refresh" type="button" id="exitRefresh">Refresh</button>
+</div>
+<div class="resume-layer" id="resumeLayer" role="dialog" aria-modal="true" aria-labelledby="resumeTitle">
+  <div class="resume-card" id="resumeCard">
+    <p class="login-kicker">Abandoned session</p>
+    <h2 id="resumeTitle">Continue abandoned session?</h2>
+    <p class="quote" id="resumeLead">We still have your story, photos, and anything you already typed.</p>
+    <button class="pill purple" type="button" id="resumeContinue">Continue abandoned session</button>
+    <button class="pill wash" type="button" id="resumeFresh">Start a new one</button>
+  </div>
 </div>
 
 <section class="screen on start" id="login">
@@ -1550,13 +1618,6 @@ body.center-gallery-on { overflow:hidden; }
     </div>
     <button class="pill cyan" type="button" id="startStory">Start by clicking here!</button>
     <button class="link" type="button" id="guestType">Type instead</button>
-  </div>
-  <div class="resume-card hide" id="resumeCard">
-    <p class="login-kicker">Saved trade-in</p>
-    <h2>Pick up where you left off?</h2>
-    <p class="quote" id="resumeLead">We still have your story, photos, and anything you already typed.</p>
-    <button class="pill purple" type="button" id="resumeContinue">Continue</button>
-    <button class="pill wash" type="button" id="resumeFresh">Start over</button>
   </div>
 </section>
 
@@ -1711,6 +1772,7 @@ body.center-gallery-on { overflow:hidden; }
       <button class="round center-close-x" type="button" id="centerDetailClose" aria-label="Close vehicle">✕</button>
       <div class="badge" id="centerDetailBadge">Waiting</div>
     </div>
+    <div class="center-supersede-mark hide" id="centerSupersedeMark">New appraisal submitted</div>
     <h2 id="centerDetailTitle">Vehicle</h2>
     <p class="quote" id="centerDetailSub"></p>
     <div id="centerFinalBox" class="hide"></div>
@@ -1901,7 +1963,7 @@ body.center-gallery-on { overflow:hidden; }
     <p class="quote" id="vinHint">Best: take a picture of the vehicle ownership (registration). You can also photograph the VIN on the dash or the sticker on the driver’s door. We’ll read the number from the photo.</p>
     <p class="vin-chip hide" id="vinChip"></p>
     </div>
-    <p class="build-stamp" id="buildStamp">build d30d</p>
+    <p class="build-stamp" id="buildStamp">build d30e</p>
   </div>
 </section>
 
@@ -2360,7 +2422,7 @@ body.center-gallery-on { overflow:hidden; }
   <div class="card">
     <button class="x" type="button" data-close="typeSheet">✕</button>
     <h3>Appraisal type</h3>
-    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d30d</span></p>
+    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d30e</span></p>
     <div id="typeChips" class="to-chips"></div>
     <div id="leadBox" class="lead-box hide">
       <p class="hint">Lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a New application — no appointment calendar.</p>
@@ -3499,10 +3561,10 @@ function armAppBack(){
 }
 function syncExitChrome(){
   const bar=$("exitChrome");
-  const hide=!APP.screen || APP.screen==="start" || APP.screen==="login" || APP.screen==="thanks";
-  if(bar) bar.classList.toggle("on", !hide);
-  document.body.classList.toggle("exit-on", !hide);
-  if(!hide) armAppBack();
+  const show=!!APP.screen;
+  if(bar) bar.classList.toggle("on", show);
+  document.body.classList.toggle("exit-on", show);
+  if(show) armAppBack();
   else APP._backArmed=false;
 }
 function closeNamedSheet(id){
@@ -3537,7 +3599,14 @@ function dismissOpenLayer(){
   if(APP.screen==="center" && APP.centerLane){ closeCenterLane(); return true; }
   return false;
 }
+function pageRefresh(){
+  try{ location.reload(); }catch(e){ location.href=location.href; }
+}
 function pageHome(){
+  if(APP.screen==="login" && APP.role!=="guest" && APP.role!=="employee"){
+    show("login");
+    return;
+  }
   APP._centerFromPop=true;
   try{
     closeAllOverlays();
@@ -5440,6 +5509,7 @@ function timeAgo(ts){
 function hideResume(){
   APP._resumeOpen=false;
   APP._resumeSnap=null;
+  if($("resumeLayer")) $("resumeLayer").classList.remove("on");
   if($("resumeCard")) $("resumeCard").classList.add("hide");
   if($("start")) $("start").classList.remove("has-resume");
 }
@@ -5455,6 +5525,7 @@ function paintResume(snap){
   bits.push("saved "+timeAgo(snap.at));
   if($("resumeLead")) $("resumeLead").textContent=bits.join(" · ");
   if($("resumeCard")) $("resumeCard").classList.remove("hide");
+  if($("resumeLayer")) $("resumeLayer").classList.add("on");
   if($("start")) $("start").classList.add("has-resume");
   APP._resumeOpen=true;
   APP._resumeSnap=snap;
@@ -5466,19 +5537,38 @@ function loadDraftSnap(){
     return readDraftLocal();
   });
 }
+function loadAbandonedSnap(){
+  return loadDraftSnap().then(function(draft){
+    return idbGet("pending").then(function(pending){
+      const cands=[];
+      if(draft && draftHasWork(draft.app)) cands.push(draft);
+      if(pending && draftHasWork(pending.app)) cands.push(pending);
+      if(!cands.length) return null;
+      cands.sort(function(a,b){ return (Number(b.at)||0)-(Number(a.at)||0); });
+      return cands[0];
+    }, function(){ return draft && draftHasWork(draft.app) ? draft : null; });
+  });
+}
 function offerResume(){
-  if(APP.role!=="guest") return;
-  if(APP._resumeOpen) return;
-  if(liveJobProgress()) return;
-  if(!$("start") || !$("start").classList.contains("on")) return;
-  loadDraftSnap().then(function(snap){
-    if(!snap || !draftHasWork(snap.app)) return;
-    if(snap.at && Date.now()-snap.at > 21*24*60*60*1000){ clearDraft(); return; }
-    if($("start") && $("start").classList.contains("on") && !liveJobProgress()) paintResume(snap);
+  if(APP._resumeOpen || APP._resumeAsked) return;
+  if(APP._sending) return;
+  loadAbandonedSnap().then(function(snap){
+    if(APP._resumeOpen || APP._resumeAsked) return;
+    if(snap && snap.at && Date.now()-snap.at > 21*24*60*60*1000){
+      clearDraft();
+      try{ idbDel("pending"); }catch(e){}
+      snap=null;
+    }
+    if(snap && draftHasWork(snap.app)){ paintResume(snap); return; }
+    if(liveJobProgress()) paintResume({app:collectDraft().app, screen:APP.screen||"home", at:Date.now()});
+  }).catch(function(){
+    if(APP._resumeOpen || APP._resumeAsked) return;
+    if(liveJobProgress()) paintResume({app:collectDraft().app, screen:APP.screen||"home", at:Date.now()});
   });
 }
 function continueDraft(){
   const snap=APP._resumeSnap;
+  APP._resumeAsked=true;
   hideResume();
   if(!snap) return;
   applySnapshot(snap);
@@ -5494,8 +5584,13 @@ function continueDraft(){
   show("home");
 }
 function startFresh(){
+  APP._resumeAsked=true;
   hideResume();
   clearDraft();
+  if(!APP._sending){
+    try{ sessionStorage.removeItem("inspect.pendingSend"); }catch(e){}
+    try{ idbDel("pending"); }catch(e){}
+  }
   wipeJob(false);
   applyRole();
   show("start");
@@ -5564,6 +5659,14 @@ function moneyShort(v){
   if(!n) return s;
   if(n>=1000) return "$"+(n/1000).toFixed(n>=10000?0:1).replace(/\.0$/,"")+"k";
   return "$"+n.toLocaleString("en-CA");
+}
+function moneyPretty(v){
+  const s=String(v||"").trim();
+  if(!s) return "—";
+  if(/[%x]/i.test(s)) return s;
+  const n=Number(String(s).replace(/[^0-9.]/g,""));
+  if(!isFinite(n) || !n) return s || "—";
+  return "$"+Math.round(n).toLocaleString("en-CA");
 }
 function emptyAppraisalFinal(){
   return {min:"", target:"", max:"", path:"", at:0, authors:[]};
@@ -5847,6 +5950,7 @@ function buildFinalDecisionHtml(item){
 }
 function openFinalDecision(item){
   if(!item) return;
+  if(typeof enrichRav4OnsiteFinal==="function") enrichRav4OnsiteFinal(item);
   openViewer("packet", buildFinalDecisionHtml(item), "Shabot FINAL");
 }
 function paintCenterFinalBox(item){
@@ -5860,19 +5964,142 @@ function paintCenterFinalBox(item){
     return;
   }
   const path=fin.path||"";
+  const pretty=typeof moneyPretty==="function"?moneyPretty:moneyShort;
   host.innerHTML=
     '<button type="button" class="final-decision-box" id="centerFinalOpen">'+
       '<div class="final-kicker">Shabot FINAL</div>'+
       '<div class="final-path">'+(path?finalEsc(path)+" path":"Tap for the full decision")+"</div>"+
       '<div class="final-nums">'+
-        '<span class="fn min"><k>MIN</k><b>'+finalEsc(moneyShort(fin.min))+"</b></span>"+
-        '<span class="fn target"><k>TARGET</k><b>'+finalEsc(moneyShort(fin.target))+"</b></span>"+
-        '<span class="fn max"><k>MAX</k><b>'+finalEsc(moneyShort(fin.max))+"</b></span>"+
+        '<span class="fn min"><k>MIN</k><b>'+finalEsc(pretty(fin.min))+"</b></span>"+
+        '<span class="fn target"><k>TARGET</k><b>'+finalEsc(pretty(fin.target))+"</b></span>"+
+        '<span class="fn max"><k>MAX</k><b>'+finalEsc(pretty(fin.max))+"</b></span>"+
       "</div>"+
       '<div class="final-cta">Open detailed decision</div>'+
     "</button>";
   const btn=$("centerFinalOpen") || host.querySelector(".final-decision-box");
   if(btn) btn.onclick=function(){ openFinalDecision(item); };
+}
+const RAV4_ONSITE_VIN="2T3B1RFVXRC466025";
+const RAV4_INCOMING_ID="cmu0avif7rslu";
+const RAV4_SEND_ID="s1ex074";
+const RAV4_SALES_PDF="https://7codzfkcbtucfujs.public.blob.vercel-storage.com/incoming/s1ex074-sales-final.pdf";
+const RAV4_CARFAX_SAMPLE="docs/rav4-2T3B1RFVXRC466025-carfax-sample.pdf";
+function isRav4OnsiteDemo(item){
+  if(!item){
+    try{
+      const vin=String((typeof currentVin==="function"&&currentVin())||"").toUpperCase().replace(/[^A-Z0-9]/g,"");
+      return vin===RAV4_ONSITE_VIN;
+    }catch(e){ return false; }
+  }
+  const vin=String(item.vin||"").toUpperCase().replace(/[^A-Z0-9]/g,"");
+  if(vin===RAV4_ONSITE_VIN) return true;
+  if(String(item.id||"")===RAV4_INCOMING_ID) return true;
+  if(String(item.sendId||"")===RAV4_SEND_ID) return true;
+  return false;
+}
+function rav4FinalRationaleSeed(){
+  return {
+    schema_version:"1.0",
+    vehicle:{
+      ymmt:"2024 Toyota RAV4 LE AWD",
+      vin:RAV4_ONSITE_VIN,
+      km:"86000",
+      stock:"t7162",
+      customer:"Chris Cyr",
+      lane:"onsite"
+    },
+    shabot:{
+      min:"22800",
+      target:"24000",
+      max:"25000",
+      path:"Retail",
+      note:"Sided with Wes. Defended retail EXIT $30,000. Exit 30k − profit 4k = 26k − recon 1,500 − scuff 300 = 24,200 → MIN 22,800 / TARGET 24,000 / MAX 25,000. BUY to TARGET $24,000 Retail; do not chase past MAX without Carfax+books."
+    },
+    panel:{
+      rybot:{min:"24200", target:"25500", max:"26500", sidedWith:false, why:"Ryan velocity accepted but MAX capped $25,000 until official Carfax."},
+      webot:{min:"22800", target:"24000", max:"24500", sidedWith:true, why:"Wes held the 86k-km high-use discount and the $4k profit after recon. Shabot sided with Wes."},
+      drebot:{min:"25500", target:"27000", max:"28500", sidedWith:false, why:"Drew too rich for 86k on a 2024 LE until books and official Carfax land."},
+      tbot:{min:"19500", target:"20500", max:"21500", sidedWith:false, why:"Sean too tight — wholesale pressure without OpenLane solds on file."}
+    },
+    marketEvidence:{
+      vauto:[
+        {price:"$35,995–$36,995", km:"80838", date:"", notes:"Westland / Pembroke 2024 LE AWD — public ask, not a sold", source:"V Auto (directional ask)"},
+        {price:"$32,977", km:"70961", date:"", notes:"CarGurus public ask — directional only", source:"V Auto (directional ask)"},
+        {price:"$33,888", km:"80849", date:"", notes:"Public retail ask — directional only", source:"V Auto (directional ask)"},
+        {price:"$29,995", km:"73271", date:"", notes:"Public retail ask — directional only", source:"V Auto (directional ask)"},
+        {price:"$29,990", km:"76485", date:"", notes:"Public retail ask — directional only", source:"V Auto (directional ask)"},
+        {price:"$28,786", km:"96899", date:"", notes:"Public retail ask — directional only", source:"V Auto (directional ask)"},
+        {price:"$29,995", km:"64340", date:"", notes:"LE AWD gray — public ask, not a sold", source:"V Auto (directional ask)"},
+        {price:"$34,987", km:"10396", date:"", notes:"Georgetown Toyota — not a peer (10k km)", source:"V Auto (directional ask)"},
+        {price:"$34,726", km:"", date:"", notes:"Cardog average — directional ask, not a sold", source:"V Auto (directional ask)"}
+      ],
+      openlane:[],
+      eblock:[],
+      carfax:[{price:"", km:"86000", date:"2026-09-13", notes:"SAMPLE / PENDING / NOT OFFICIAL CARFAX — G&M recreate only", source:"Carfax recreate"}]
+    },
+    seasonality:{
+      adjustment:"Protect ~$4,000 after recon",
+      note:"Fall to winter AWD CUV demand rises; LE is the volume trim; 86k is high-use vs peers 20–60k."
+    },
+    condition:{
+      damage:"Cosmetic rear-driver bumper scuffs ~$300",
+      recon:"$1,500",
+      tires:"Near-new all-seasons",
+      story:"2024 RAV4 LE AWD, grey, 86,000 km, automatic. Very good condition, clean cabin, no smells. 86k km is the economic problem."
+    },
+    missingData:[
+      "T1 V Auto MISSING (flags only)",
+      "T2 OpenLane / eBlock MISSING / UNDER-READ — do not invent solds",
+      "Official Carfax pending — SAMPLE recreate only"
+    ],
+    risks:[
+      "Carfax unknown / not official",
+      "86k km on a 2024",
+      "OpenLane under-read (Shawn will screen-record)",
+      "eBlock / V Auto books absent",
+      "Scuff paint could expand"
+    ],
+    whatMovesNumber:[
+      "Official Carfax + books would let MAX move",
+      "OpenLane solds (Shawn screen-record) would confirm wholesale — openlane:[] until then"
+    ],
+    timestamp:Date.parse("2026-09-13T20:00:00-04:00"),
+    authors:["Shabot","Webot","Shawn Cyr"]
+  };
+}
+function enrichRav4OnsiteFinal(item){
+  if(!item || !isRav4OnsiteDemo(item)) return item;
+  if(!item.appraisalFinal || !hasAppraisalFinalNumbers(item.appraisalFinal.min, item.appraisalFinal.target, item.appraisalFinal.max)){
+    item.appraisalFinal={
+      min:"22800",
+      target:"24000",
+      max:"25000",
+      path:"Retail",
+      at:Date.parse("2026-09-13T20:00:00-04:00"),
+      authors:["Shabot","Webot"]
+    };
+  } else if(!item.appraisalFinal.path){
+    item.appraisalFinal.path="Retail";
+  }
+  if(!hasStoredFinalRationale(item)) item.finalRationale=rav4FinalRationaleSeed();
+  if(!item.pdfUrl || !/^https?:\/\//i.test(String(item.pdfUrl))){
+    item.pdfUrl=RAV4_SALES_PDF;
+    item.pdfName=item.pdfName||"s1ex074-sales-final.pdf";
+  }
+  item.docs=item.docs||{};
+  const cf=item.docs.carfax||{};
+  item.docs.carfax={
+    have:true,
+    url:cf.url||RAV4_CARFAX_SAMPLE,
+    sample:true,
+    pending:true
+  };
+  item.team=item.team||{};
+  const sh=item.team.shabot||{};
+  if(!hasAppraisalFinalNumbers(sh.min, sh.target, sh.max)){
+    item.team.shabot={min:"22800", target:"24000", max:"25000", note:"Sided with Wes. BUY to TARGET $24,000 Retail."};
+  }
+  return item;
 }
 function centerStore(){
   try{
@@ -5973,12 +6200,14 @@ function staffHistRow(item, extra){
   extra=extra||{};
   const btn=document.createElement("button");
   btn.type="button";
-  btn.className="acre-row";
+  const locked=typeof isSupersededCenter==="function" && isSupersededCenter(item);
+  btn.className="acre-row"+(locked?" superseded":"");
   const when=typeof centerWhen==="function"?centerWhen(item):0;
   const status=staffStatusLabel(item);
   const thumb=item.thumb ? '<img src="'+item.thumb+'" alt="">' : esc((item.ymmt||item.interest||"?").slice(0,3).toUpperCase());
   const flags='<em class="stage-tag '+(status==="Completed"?"done":status==="Waiting on customer"?"waitcust":"sent")+'">'+esc(status==="Waiting on customer"?"Waiting":status)+'</em>'+(item.sample?'<i class="sample-badge">Sample</i>':'');
-  btn.innerHTML='<div class="acre-thumb">'+thumb+'</div><div class="acre-meta"><p class="name">'+esc(item.ymmt||item.interest||"Vehicle")+'</p><p class="sentby">'+esc((item.customer&&item.customer.name)||item.salesperson||"Staff")+(when?" · "+esc(timeAgo(when)):"")+'</p><div class="acre-flags">'+flags+'</div>'+(extra.remind?'<button class="remind-btn" type="button">Send reminder</button>':"")+'</div>';
+  const mark=locked?'<span class="acre-watermark">New appraisal submitted</span>':"";
+  btn.innerHTML='<div class="acre-thumb">'+thumb+'</div><div class="acre-meta"><p class="name">'+esc(item.ymmt||item.interest||"Vehicle")+'</p><p class="sentby">'+esc((item.customer&&item.customer.name)||item.salesperson||"Staff")+(when?" · "+esc(timeAgo(when)):"")+'</p><div class="acre-flags">'+flags+'</div>'+(extra.remind?'<button class="remind-btn" type="button">Send reminder</button>':"")+'</div>'+mark;
   if(extra.remind){
     const r=btn.querySelector(".remind-btn");
     r.onclick=function(e){ e.preventDefault(); e.stopPropagation(); sendTradeReminder(item); };
@@ -5986,6 +6215,10 @@ function staffHistRow(item, extra){
   btn.onclick=function(){
     closeStaffHist();
     closeTradeLane();
+    if(typeof isSupersededCenter==="function" && isSupersededCenter(item)){
+      if(canUseCenter()) openCenterDetail(item.id);
+      return;
+    }
     if(typeof isWebsiteItem==="function" && isWebsiteItem(item)){
       if(canUseCenter()) openCenterDetail(item.id);
       return;
@@ -6186,6 +6419,10 @@ function parkAppraisalToHistory(){
 function reopenHistoryAppraisal(id){
   const item=typeof getCenter==="function" ? getCenter(id) : null;
   if(!item){ toast("Couldn’t open that file."); return; }
+  if(typeof isSupersededCenter==="function" && isSupersededCenter(item)){
+    if(typeof openCenterDetail==="function") openCenterDetail(id);
+    return;
+  }
   if(typeof isWebsiteItem==="function" && isWebsiteItem(item)){
     if(typeof canUseCenter==="function" && canUseCenter()) openCenterDetail(id);
     return;
@@ -6411,25 +6648,33 @@ function findCenterMatch(store, hint){
     const byRemoteId=store.items.find(function(x){ return x && !x.sample && x.id && x.id===hint.id; });
     if(byRemoteId) return byRemoteId;
   }
-  if(!shared && APP.centerId){
+  if(shared){
+    const name=String(hint.customerName || "").trim().toLowerCase();
+    if(name){
+      const byName=store.items.find(function(x){
+        return x && !x.sample && x.source==="trade-in" && x.stage==="Waiting" && String((x.customer&&x.customer.name)||"").trim().toLowerCase()===name;
+      });
+      if(byName) return byName;
+    }
+    return null;
+  }
+  if(APP.centerId){
     const open=store.items.find(function(x){ return x.id===APP.centerId; });
     if(open) return open;
   }
-  if(!shared){
-    const vin=String(hint.vin || APP.vin || "").trim().toUpperCase();
-    if(vin.length===17){
-      const hits=store.items.filter(function(x){ return x && !x.sample && String(x.vin||"").toUpperCase()===vin; });
-      if(hits.length){
-        if(sendId){
-          const bySendVin=hits.find(function(x){ return x.sendId && x.sendId===sendId; });
-          if(bySendVin) return bySendVin;
-        }
-        hits.sort(function(a,b){ return sharedItemStamp(b)-sharedItemStamp(a); });
-        return hits[0];
+  const vin=String(hint.vin || APP.vin || "").trim().toUpperCase();
+  if(vin.length===17){
+    const hits=store.items.filter(function(x){ return x && !x.sample && String(x.vin||"").toUpperCase()===vin; });
+    if(hits.length){
+      if(sendId){
+        const bySendVin=hits.find(function(x){ return x.sendId && x.sendId===sendId; });
+        if(bySendVin) return bySendVin;
       }
+      hits.sort(function(a,b){ return sharedItemStamp(b)-sharedItemStamp(a); });
+      return hits[0];
     }
   }
-  const name=String(hint.customerName || (shared?"":APP.inviteName) || "").trim().toLowerCase();
+  const name=String(hint.customerName || APP.inviteName || "").trim().toLowerCase();
   if(name){
     const byName=store.items.find(function(x){
       return x && !x.sample && x.source==="trade-in" && x.stage==="Waiting" && String((x.customer&&x.customer.name)||"").trim().toLowerCase()===name;
@@ -6438,20 +6683,34 @@ function findCenterMatch(store, hint){
   }
   return null;
 }
+function isSupersededCenter(item){
+  return !!(item && (item.superseded || item.locked || item.supersedeLock));
+}
+function lockSupersededCard(item, remote){
+  if(!item) return item;
+  item.archived=true;
+  item.superseded=true;
+  item.locked=true;
+  item.supersedeLock=true;
+  item.supersedeMark="New appraisal submitted";
+  const by=(remote && (remote.sendId||remote.id))||"";
+  if(by) item.supersededBy=by;
+  return item;
+}
 function archiveOnsiteSameVin(store, remote){
   if(!store || !Array.isArray(store.items)) return false;
   const vin=String((remote && remote.vin) || "").trim().toUpperCase();
   if(vin.length!==17) return false;
   const remoteWhen=sharedItemStamp(remote);
+  const remoteSend=(remote && (remote.sendId||remote.id))||"";
   let changed=false;
   store.items.forEach(function(item){
-    if(!item || isCenterSample(item) || item.archived) return;
+    if(!item || isCenterSample(item)) return;
     if(String(item.vin||"").toUpperCase()!==vin) return;
-    const onsite=(typeof centerLaneOf==="function" && centerLaneOf(item)==="onsite") || item.lane==="onsite";
-    if(!onsite) return;
+    if(remoteSend && ((item.sendId && item.sendId===remoteSend) || (item.id && remote.id && item.id===remote.id))) return;
     const localWhen=sharedItemStamp(item);
     if(remoteWhen && localWhen && remoteWhen<localWhen) return;
-    item.archived=true;
+    lockSupersededCard(item, remote);
     changed=true;
   });
   return changed;
@@ -6651,6 +6910,7 @@ function applySharedIncoming(item, remote){
   item.docsIncomplete=routed.docsIncomplete;
   item.missingDocs=routed.missingDocs;
   seedSharedIncomingFinal(item, remote);
+  if(typeof enrichRav4OnsiteFinal==="function") enrichRav4OnsiteFinal(item);
   if(item.photos && item.photos.length && typeof persistCenterMedia==="function"){
     try{
       const saved=persistCenterMedia(item.id, item.photos, item.docs||{});
@@ -7196,9 +7456,11 @@ function acreRow(item){
     (item.deskTeam?'<i class="acre-team">'+esc(item.deskTeam)+'</i>':'')+
     (aged?'<i class="arch-tag">90-day archive</i>':'')+
     (fin && fin.target ? '<i class="final-chip">TARGET '+esc(moneyShort(fin.target))+'</i>':'');
+  const locked=typeof isSupersededCenter==="function" && isSupersededCenter(item);
+  const mark=locked?'<span class="acre-watermark">New appraisal submitted</span>':"";
   const btn=document.createElement("button");
   btn.type="button";
-  btn.className="acre-row"+(lane==="inbox"?" inbox":"")+(APP.centerViewId===item.id?" on":"");
+  btn.className="acre-row"+(lane==="inbox"?" inbox":"")+(APP.centerViewId===item.id?" on":"")+(locked?" superseded":"");
   if(lane==="inbox"){
     const phone=(item.customer && item.customer.phone) || "";
     const cust=(item.customer && item.customer.name) || "Customer";
@@ -7209,16 +7471,17 @@ function acreRow(item){
         (item.ymmt && item.ymmt!==item.interest ? '<div class="acre-kv"><k>Trade</k><b>'+esc(item.ymmt)+'</b></div>' : "")+
         '<p class="sentby">'+esc(item.salesperson||"Salesperson")+" · "+esc(cust)+'</p>'+
         '<p class="line">'+esc(phone||"No phone")+(sent?"  ·  "+esc(sent):"")+'</p>'+
-        '<div class="acre-flags">'+flags+'</div></div>';
+        '<div class="acre-flags">'+flags+'</div></div>'+mark;
   } else {
     const meta=[centerVinLine(item), centerKmLine(item), sent].filter(Boolean).join("  ·  ");
     btn.innerHTML=
       '<div class="acre-thumb">'+thumb+'</div>'+
       '<div class="acre-meta"><p class="name">'+esc(item.ymmt||"Vehicle")+'</p>'+
       (meta?'<p class="line">'+esc(meta)+'</p>':'')+
-      '<div class="acre-flags">'+flags+'</div></div>';
+      '<div class="acre-flags">'+flags+'</div></div>'+mark;
   }
   btn.onclick=function(){
+    if(locked){ openCenterDetail(item.id); return; }
     if(lane==="history" && typeof reopenHistoryAppraisal==="function"){
       reopenHistoryAppraisal(item.id);
       return;
@@ -7671,6 +7934,8 @@ function paintCenterTags(item){
   }).map(function(t){ return "<i>"+esc(t)+"</i>"; }).join("");
 }
 function paintCenterDetailEmpty(){
+  document.body.classList.remove("center-locked");
+  if($("centerSupersedeMark")) $("centerSupersedeMark").classList.add("hide");
   const body=$("centerDetailBody");
   if(!body) return;
   body.innerHTML='<div class="center-detail-empty"><b>One car at a time</b><p>This desk is the workbench. Open <b>Incoming</b>, <b>On-site</b>, <b>Needs docs</b>, or <b>History</b> — tap a vehicle, and it lands here.</p></div>';
@@ -7681,12 +7946,13 @@ function paintCenterDetailEmpty(){
 function ensureCenterDetailScaffold(){
   const body=$("centerDetailBody");
   if(!body) return;
-  if($("centerDetailTitle") && $("centerHero") && $("centerTeam") && $("centerFinalBox")) return;
+  if($("centerDetailTitle") && $("centerHero") && $("centerTeam") && $("centerFinalBox") && $("centerSupersedeMark")) return;
   body.innerHTML=
     '<div class="center-detail-bar">'+
       '<button class="round center-close-x" type="button" id="centerDetailClose" aria-label="Close vehicle">✕</button>'+
       '<div class="badge" id="centerDetailBadge">Waiting</div>'+
     '</div>'+
+    '<div class="center-supersede-mark hide" id="centerSupersedeMark">New appraisal submitted</div>'+
     '<h2 id="centerDetailTitle">Vehicle</h2>'+
     '<p class="quote" id="centerDetailSub"></p>'+
     '<div id="centerFinalBox" class="hide"></div>'+
@@ -7766,7 +8032,17 @@ function paintCenterDetail(){
     paintCenterDetailEmpty();
     return;
   }
+  if(typeof enrichRav4OnsiteFinal==="function"){
+    enrichRav4OnsiteFinal(item);
+    try{ saveCenterStore(centerStore()); }catch(e){}
+  }
   ensureCenterDetailScaffold();
+  const locked=typeof isSupersededCenter==="function" && isSupersededCenter(item);
+  document.body.classList.toggle("center-locked", !!locked);
+  if($("centerSupersedeMark")){
+    $("centerSupersedeMark").textContent="New appraisal submitted";
+    $("centerSupersedeMark").classList.toggle("hide", !locked);
+  }
   if($("centerStageBtn")) $("centerStageBtn").classList.remove("hide");
   if($("centerDock")) $("centerDock").classList.remove("hide");
   if($("centerDetailHead")) $("centerDetailHead").textContent=item.sample ? "Sample file" : "File";
@@ -7800,19 +8076,22 @@ function paintCenterDetail(){
   if($("centerStory")) $("centerStory").textContent=item.story||item.webcopy||"No story yet.";
   if($("centerNotes")){
     $("centerNotes").value=item.notes||"";
+    $("centerNotes").readOnly=!!locked;
     growArea($("centerNotes"));
   }
   if($("centerCdWrap")) $("centerCdWrap").classList.toggle("hide", !isCanadaDrives(item));
   if($("centerCdApp")){
     $("centerCdApp").value=item.cdApp||"";
-    $("centerCdApp").oninput=function(){
+    $("centerCdApp").readOnly=!!locked;
+    $("centerCdApp").oninput=locked?null:function(){
       const el=this;
       patchCenter(item.id, function(x){ x.dealType=x.dealType||"Consumer Acquisition"; x.leadSource=x.leadSource||"Canada Drives"; x.cdApp=el.value.trim(); });
     };
   }
   if($("centerApproval")){
     $("centerApproval").value=item.approval||"";
-    $("centerApproval").oninput=function(){
+    $("centerApproval").readOnly=!!locked;
+    $("centerApproval").oninput=locked?null:function(){
       const el=this;
       patchCenter(item.id, function(x){ x.approval=el.value.trim(); });
     };
@@ -7828,7 +8107,10 @@ function paintCenterDetail(){
     }
   }
   if($("centerStageBtn")){
-    if(needs){
+    if(locked){
+      $("centerStageBtn").disabled=true;
+      $("centerStageBtn").textContent="Locked";
+    } else if(needs){
       $("centerStageBtn").textContent=missNow.length?"Waiting on docs":"Send to Appraisal Center";
       $("centerStageBtn").disabled=!!missNow.length;
     } else {
@@ -10587,7 +10869,14 @@ function carfaxCard(m, store, readOnly){
   el.className="carfax-card";
   const cf=m.carfax||{owners:1, accidents:"0 reported", title:"Clean"};
   el.innerHTML='<em>Carfax</em><b class="big">'+escHtml(cf.title||"Clean")+' title</b><span>'+escHtml(String(cf.owners))+' owner · '+escHtml(cf.accidents)+' · generated from V Auto</span>';
-  el.onclick=function(){ openMarketDoc("Carfax", store.carfax, m, "carfax"); };
+  el.onclick=function(){
+    const live= (typeof getCenter==="function" && APP.centerViewId) ? getCenter(APP.centerViewId) : null;
+    if(typeof openCarfaxRecreate==="function" && (isRav4OnsiteDemo(live) || (store.carfax&&(store.carfax.sample||store.carfax.pending)))){
+      openCarfaxRecreate(live);
+      return;
+    }
+    openMarketDoc("Carfax", store.carfax, m, "carfax");
+  };
   return el;
 }
 function openlaneOfferCard(m, store, readOnly){
@@ -10796,6 +11085,11 @@ function openMarketTab(url){
 }
 function openMarketSite(kind, item, e){
   if(e){ e.preventDefault(); e.stopPropagation(); }
+  if(kind==="carfax" && typeof openCarfaxRecreate==="function" && (isRav4OnsiteDemo(item) || isRav4OnsiteDemo({vin:typeof currentVin==="function"?currentVin():""}))){
+    if(item && item.vin) APP.vin=APP.vin||String(item.vin).toUpperCase();
+    openCarfaxRecreate(item);
+    return;
+  }
   const label=kind==="vauto"?"V Auto":kind==="carfax"?"Carfax":kind==="openlane"?"OpenLane":"eBlock";
   const vin=String((item && item.vin) || currentVin() || "").trim().toUpperCase();
   if(vin){
@@ -10850,10 +11144,122 @@ function openBrand(url){
   if(vin) copyVin();
 }
 function openCarfaxPaste(){
+  const live=(typeof getCenter==="function" && APP.centerViewId) ? getCenter(APP.centerViewId) : null;
+  if(typeof openCarfaxRecreate==="function" && (isRav4OnsiteDemo(live) || isRav4OnsiteDemo({vin:typeof currentVin==="function"?currentVin():""}))){
+    openCarfaxRecreate(live);
+    return;
+  }
   const el=$("carfaxUrl");
   if(el) el.value="";
   if($("carfaxSheet")) $("carfaxSheet").classList.add("on");
   setTimeout(function(){ if(el) el.focus(); }, 150);
+}
+function buildCarfaxRecreateHtml(item){
+  item=item||{};
+  const vin=String(item.vin||RAV4_ONSITE_VIN).toUpperCase();
+  const ymmt=item.ymmt||item.interest||"2024 Toyota RAV4 LE AWD";
+  let h='<div class="carfax-recreate">';
+  h+='<div class="cfx-hero">';
+  h+='<div class="badge">SAMPLE · PENDING · NOT OFFICIAL CARFAX</div>';
+  h+="<h2>"+finalEsc(ymmt)+"</h2>";
+  h+="<p>G&amp;M sales-grade history brief · VIN "+finalEsc(vin)+"</p>";
+  h+="</div>";
+  h+='<div class="cfx-banner"><k>Not an official Carfax</k><span>This is a pending desk recreate for tonight\'s demo. Owners, accidents, and title brands have not been pulled from Carfax.ca.</span></div>';
+  h+="<h3>File identity</h3>";
+  h+='<div class="facts">';
+  [["VIN",vin],["Stock",item.stock||"t7162"],["Kilometres",item.km||"86000"],["Colour",item.color||"Grey"],["Customer",(item.customer&&(item.customer.name||item.customer))||"Chris Cyr"],["Incoming","cmu0avif7rslu / s1ex074"]].forEach(function(r){
+    h+="<div><k>"+finalEsc(r[0])+"</k><b>"+finalBlank(r[1],"Missing")+"</b></div>";
+  });
+  h+="</div>";
+  h+="<h3>What the file shows</h3>";
+  h+="<p>Clean cabin, near-new all-seasons, cosmetic rear-driver bumper scuffs ~$300. 86k km on a 2024 is the economic problem. Packet story: very good condition, no smells, AWD, grey, automatic LE.</p>";
+  h+="<h3>Official report</h3>";
+  h+='<p class="empty">PENDING — official Carfax is not on this file. Label stays SAMPLE / PENDING / NOT OFFICIAL CARFAX.</p>';
+  h+='<div class="cfx-actions">';
+  h+='<button type="button" class="pill purple" id="carfaxRecreatePrint">Print sample PDF</button>';
+  h+='<a class="pill wash" href="https://www.carfax.ca/" target="_blank" rel="noopener">Open carfax.ca</a>';
+  h+='<a class="pill wash" href="'+finalEsc(RAV4_CARFAX_SAMPLE)+'" target="_blank" rel="noopener">Open sample PDF</a>';
+  h+="</div>";
+  h+="<p class=\"quote\">Stored as docs.carfax { have, url: carfax-sample, sample:true, pending:true }.</p>";
+  h+="</div>";
+  return h;
+}
+function storeRav4CarfaxDoc(item){
+  const doc={have:true, url:RAV4_CARFAX_SAMPLE, sample:true, pending:true};
+  try{
+    APP.docs=APP.docs||{};
+    APP.docs.carfax=Object.assign({}, APP.docs.carfax||{}, doc);
+  }catch(e){}
+  if(item){
+    item.docs=item.docs||{};
+    item.docs.carfax=Object.assign({}, item.docs.carfax||{}, doc);
+    if(item.id && typeof patchCenter==="function"){
+      try{ patchCenter(item.id, function(x){ x.docs=x.docs||{}; x.docs.carfax=Object.assign({}, x.docs.carfax||{}, doc); }); }catch(e){}
+    }
+  }
+  return doc;
+}
+function openCarfaxRecreate(item){
+  item=item||((typeof getCenter==="function" && APP.centerViewId)?getCenter(APP.centerViewId):null)||{vin:RAV4_ONSITE_VIN, ymmt:"2024 Toyota RAV4 LE AWD", stock:"t7162", km:"86000", color:"Grey", customer:{name:"Chris Cyr"}};
+  if(typeof enrichRav4OnsiteFinal==="function") enrichRav4OnsiteFinal(item);
+  storeRav4CarfaxDoc(item);
+  openViewer("packet", buildCarfaxRecreateHtml(item), "Carfax · SAMPLE");
+  const btn=$("carfaxRecreatePrint");
+  if(btn) btn.onclick=function(){ printCarfaxRecreatePdf(item); };
+}
+function printCarfaxRecreatePdf(item){
+  const ready=window.jspdf ? Promise.resolve() : loadScript("https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js");
+  ready.then(function(){
+    const jsPDF=(window.jspdf&&window.jspdf.jsPDF)||window.jsPDF;
+    if(!jsPDF) throw new Error("jspdf");
+    const d=new jsPDF({unit:"pt", format:"letter", compress:true});
+    const W=612, H=792;
+    d.setFillColor(247,251,246); d.rect(0,0,W,H,"F");
+    d.setFillColor(27,107,58); d.rect(0,0,W,88,"F");
+    d.setFillColor(0,168,232); d.rect(0,88,W,6,"F");
+    d.setTextColor(255,255,255);
+    d.setFont("helvetica","bold"); d.setFontSize(11);
+    d.text("G&M APPRAISAL CENTER", 36, 28);
+    d.setFontSize(22); d.text("Vehicle history brief", 36, 52);
+    d.setFont("helvetica","normal"); d.setFontSize(10);
+    d.text("2024 Toyota RAV4 LE AWD  ·  VIN 2T3B1RFVXRC466025  ·  SAMPLE / PENDING", 36, 72);
+    d.setFillColor(255,244,214); d.roundedRect(36, 110, W-72, 42, 8, 8, "F");
+    d.setTextColor(180,83,9); d.setFont("helvetica","bold"); d.setFontSize(12);
+    d.text("SAMPLE  ·  PENDING  ·  NOT OFFICIAL CARFAX", 48, 128);
+    d.setFont("helvetica","normal"); d.setFontSize(9); d.setTextColor(90,107,96);
+    d.text("Desk recreate. Official Carfax.ca report has not been pulled.", 48, 144);
+    d.setTextColor(20,32,24); d.setFont("helvetica","bold"); d.setFontSize(13);
+    d.text("File identity", 36, 180);
+    const rows=[
+      ["VIN","2T3B1RFVXRC466025"],
+      ["Stock","t7162"],
+      ["Kilometres","86,000 km"],
+      ["Customer","Chris Cyr"],
+      ["Official Carfax","PENDING — not on file"]
+    ];
+    let y=202;
+    rows.forEach(function(r){
+      d.setFont("helvetica","bold"); d.setFontSize(8); d.setTextColor(90,107,96);
+      d.text(r[0].toUpperCase(), 36, y);
+      d.setFont("helvetica","bold"); d.setFontSize(12); d.setTextColor(20,32,24);
+      d.text(r[1], 200, y);
+      y+=22;
+    });
+    d.setFontSize(13); d.text("What the file shows (not Carfax)", 36, y+12);
+    d.setFont("helvetica","normal"); d.setFontSize(10);
+    const body=d.splitTextToSize("Clean cabin, near-new all-seasons, cosmetic rear-driver bumper scuffs ~$300. 86k km is the economic problem. Do not treat this page as an official vehicle history report.", W-72);
+    d.text(body, 36, y+32);
+    d.setFillColor(27,107,58); d.rect(0,H-40,W,40,"F");
+    d.setTextColor(255,255,255); d.setFont("helvetica","bold"); d.setFontSize(8);
+    d.text("NOT OFFICIAL CARFAX  ·  SAMPLE / PENDING  ·  carfax-sample  ·  build d30e", 36, H-18);
+    d.setProperties({title:"SAMPLE PENDING NOT OFFICIAL CARFAX — 2024 RAV4 LE AWD", author:"G&M Appraisal Center"});
+    d.save("rav4-2T3B1RFVXRC466025-carfax-sample.pdf");
+    storeRav4CarfaxDoc(item);
+    toast("Sample Carfax PDF ready — not official.");
+  }).catch(function(){
+    toast("Could not print the sample Carfax.");
+    try{ window.open(RAV4_CARFAX_SAMPLE, "_blank", "noopener"); }catch(e){}
+  });
 }
 function closeCarfaxPaste(){
   if($("carfaxSheet")) $("carfaxSheet").classList.remove("on");
@@ -12176,6 +12582,7 @@ document.querySelectorAll(".sheet").forEach(function(sheet){
 if($("exitClose")) $("exitClose").onclick = function(e){ if(e){ e.preventDefault(); e.stopPropagation(); } pageClose(); };
 if($("exitBack")) $("exitBack").onclick = function(e){ if(e){ e.preventDefault(); e.stopPropagation(); } pageBack(); };
 if($("exitHome")) $("exitHome").onclick = function(e){ if(e){ e.preventDefault(); e.stopPropagation(); } pageHome(); };
+if($("exitRefresh")) $("exitRefresh").onclick = function(e){ if(e){ e.preventDefault(); e.stopPropagation(); } pageRefresh(); };
 $("startAppraise").onclick = function(){
   if(!requirePerm("appraise")) return;
   setPurpose("appraise");
@@ -12356,6 +12763,10 @@ async function emailApprovalPacket(item, num){
 async function completeCenterFile(){
   const item=getCenter(APP.centerViewId);
   if(!item) return;
+  if(typeof isSupersededCenter==="function" && isSupersededCenter(item)){
+    toast("This appraisal is locked — a new one was submitted.");
+    return;
+  }
   if(!canUseCenter()){ denyCenter(); return; }
   if(isNeedsDocsItem(item)){
     promoteNeedsDocs(item);

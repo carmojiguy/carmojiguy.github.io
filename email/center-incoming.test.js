@@ -93,6 +93,8 @@ const sharedRemoteBeats = eval("(" + takeFn("sharedRemoteBeats", "reviveSharedCe
 const reviveSharedCenterItem = eval("(" + takeFn("reviveSharedCenterItem", "collapseSharedRemotes") + ")");
 const collapseSharedRemotes = eval("(" + takeFn("collapseSharedRemotes", "collapseCenterVinDupes") + ")");
 const collapseCenterVinDupes = eval("(" + takeFn("collapseCenterVinDupes", "findCenterMatch") + ")");
+const isSupersededCenter = eval("(" + takeFn("isSupersededCenter", "lockSupersededCard") + ")");
+const lockSupersededCard = eval("(" + takeFn("lockSupersededCard", "archiveOnsiteSameVin") + ")");
 const archiveOnsiteSameVin = eval("(" + takeFn("archiveOnsiteSameVin", "persistCenterMedia") + ")");
 const APP = { sendId: "", centerId: "open-other", vin: "", inviteName: "" };
 const persistedMedia = [];
@@ -103,6 +105,7 @@ function persistCenterMedia(id, photos, docs) {
 const findCenterMatch = eval("(" + matchSrc + ")");
 const teamSlot = eval("(" + html.match(/function teamSlot\(raw\)\{[\s\S]*?\n\}/)[0].replace("function teamSlot", "function") + ")");
 const moneyShort = eval("(" + html.match(/function moneyShort\(v\)\{[\s\S]*?\n\}/)[0].replace("function moneyShort", "function") + ")");
+const moneyPretty = eval("(" + html.match(/function moneyPretty\(v\)\{[\s\S]*?\n\}/)[0].replace("function moneyPretty", "function") + ")");
 const emptyAppraisalFinal = eval("(" + html.match(/function emptyAppraisalFinal\(\)\{[\s\S]*?\n\}/)[0].replace("function emptyAppraisalFinal", "function") + ")");
 const hasAppraisalFinalNumbers = eval("(" + html.match(/function hasAppraisalFinalNumbers\(min, target, max\)\{[\s\S]*?\n\}/)[0].replace("function hasAppraisalFinalNumbers", "function") + ")");
 const resolveAppraisalFinal = eval("(" + html.match(/function resolveAppraisalFinal\(item\)\{[\s\S]*?\n\}/)[0].replace("function resolveAppraisalFinal", "function") + ")");
@@ -366,6 +369,8 @@ function slimSharedDocs(docs) {
   assert.ok(old && neu, "old tile and new Send both exist");
   assert.equal(old.sendId, "old-rav4", "pull does not overwrite the old card sendId");
   assert.equal(old.archived, true, "older On-site moves to History");
+  assert.equal(old.supersedeMark, "New appraisal submitted");
+  assert.equal(isSupersededCenter(old), true);
   assert.equal(centerLaneOf(old), "history");
   assert.equal(old.photos[0].data, "data:image/jpeg;base64,OLD", "History keeps photos");
   assert.equal(old.pdfUrl, "https://example.com/old-final.pdf", "History keeps PDF");
@@ -681,7 +686,12 @@ function $(id) {
   if (id === "centerFinalOpen") return paintHost.btn;
   return null;
 }
-const paintCenterFinalBox = eval("(" + takeFn("paintCenterFinalBox", "centerStore") + ")");
+const paintCenterFinalBox = eval("(" + (function () {
+  const start = html.indexOf("function paintCenterFinalBox(");
+  const end = html.indexOf("\nconst RAV4_ONSITE_VIN=", start);
+  assert.ok(start > 0 && end > start, "paintCenterFinalBox found before RAV4 seed consts");
+  return html.slice(start, end).replace("function paintCenterFinalBox", "function");
+})() + ")");
 
 (function testIncomingFinalSeedPaintsBox() {
   paintHost.classList.hide = true;
@@ -717,9 +727,9 @@ const paintCenterFinalBox = eval("(" + takeFn("paintCenterFinalBox", "centerStor
   assert.equal(item.lane, "onsite");
   paintCenterFinalBox(item);
   assert.equal(paintHost.classList.hide, false, "FINAL box is shown after Incoming seed");
-  assert.ok(/\$23k/.test(paintHost.innerHTML), "painted box includes seeded MIN");
-  assert.ok(/\$24k/.test(paintHost.innerHTML), "painted box includes seeded TARGET");
-  assert.ok(/\$25k/.test(paintHost.innerHTML), "painted box includes seeded MAX");
+  assert.ok(/\$22,800/.test(paintHost.innerHTML), "painted box includes seeded MIN via moneyPretty");
+  assert.ok(/\$24,000/.test(paintHost.innerHTML), "painted box includes seeded TARGET via moneyPretty");
+  assert.ok(/\$25,000/.test(paintHost.innerHTML), "painted box includes seeded MAX via moneyPretty");
   assert.ok(/Shabot FINAL/.test(paintHost.innerHTML), "painted box keeps the FINAL kicker");
 })();
 
@@ -850,6 +860,9 @@ const paintCenterFinalBox = eval("(" + takeFn("paintCenterFinalBox", "centerStor
   assert.ok(older && newer);
   assert.notEqual(older.id, newer.id);
   assert.equal(older.archived, true, "older On-site moves to History");
+  assert.equal(older.superseded, true, "older card is locked/superseded");
+  assert.equal(older.supersedeMark, "New appraisal submitted");
+  assert.equal(isSupersededCenter(older), true);
   assert.equal(centerLaneOf(older), "history");
   assert.equal(newer.archived, false, "newer Send stays On-site");
   assert.equal(centerLaneOf(newer), "onsite");
@@ -957,15 +970,73 @@ const paintCenterFinalBox = eval("(" + takeFn("paintCenterFinalBox", "centerStor
   const hist = store.items.find(function (x) { return x.id === "hist-old"; });
   const neu = store.items.find(function (x) { return x.sendId === "s-new"; });
   assert.equal(hist.archived, true, "History card is not yanked back On-site");
+  assert.equal(hist.supersedeMark, "New appraisal submitted");
+  assert.equal(isSupersededCenter(hist), true);
   assert.equal(hist.photos[0].data, "data:image/jpeg;base64,OLD");
   assert.equal(neu.id, "new-send");
   assert.equal(neu.archived, false);
   assert.equal(centerLaneOf(neu), "onsite");
 })();
 
+(function testS1a09d264StaysOwnOnsiteCard() {
+  const store = {
+    seq: 1000,
+    items: [{
+      id: "cmu0avif7rslu",
+      sendId: "s1ex074",
+      vin: "2T3B1RFVXRC466025",
+      ymmt: "2024 Toyota RAV4",
+      km: "72000",
+      source: "guest",
+      lane: "onsite",
+      archived: true,
+      photos: [{ title: "keep", data: "data:image/jpeg;base64,OLD" }],
+      docs: { vauto: { have: true }, openlane: { have: true }, eblock: { have: true } },
+      appraisalFinal: { min: "22800", target: "24000", max: "25000" },
+      customer: { name: "Chris Cyr" }
+    }]
+  };
+  function centerStore() { return store; }
+  function saveCenterStore() {}
+  const mergeIncomingShared = eval("(" + mergeSrc + ")");
+  mergeIncomingShared([{
+    id: "send-86100",
+    sendId: "s1a09d264",
+    vin: "2T3B1RFVXRC466025",
+    ymmt: "2024 TOYOTA RAV4",
+    km: "86100",
+    lane: "onsite",
+    sentAt: Date.now(),
+    docs: { vauto: { have: true }, openlane: { have: true }, eblock: { have: true } },
+    customer: { name: "Chris Cyr" }
+  }]);
+  assert.equal(store.items.length, 2, "s1a09d264 does not collapse onto s1ex074");
+  const hist = store.items.find(function (x) { return x.sendId === "s1ex074"; });
+  const neu = store.items.find(function (x) { return x.sendId === "s1a09d264"; });
+  assert.equal(hist.id, "cmu0avif7rslu", "History keeps cmu0avif7rslu");
+  assert.equal(hist.archived, true, "History keeps s1ex074");
+  assert.equal(hist.supersedeMark, "New appraisal submitted");
+  assert.equal(isSupersededCenter(hist), true, "prior card is locked");
+  assert.equal(centerLaneOf(hist), "history");
+  assert.equal(neu.km, "86100", "On-site shows km 86100 on its own card");
+  assert.equal(neu.archived, false);
+  assert.equal(centerLaneOf(neu), "onsite");
+  assert.notEqual(neu.id, hist.id);
+})();
+
 assert.ok(/scheduleIncomingPull\(\)/.test(html), "Center boot/paint schedules the Incoming pull");
-assert.ok(/build d30d/.test(html), "build stamp bumped to d30d");
+assert.ok(/build d30e/.test(html), "build stamp bumped to d30e");
 assert.ok(/function archiveOnsiteSameVin\(/.test(html), "new Send archives the prior On-site card");
+assert.ok(/enrichRav4OnsiteFinal/.test(html), "Incoming land seeds the RAV4 FINAL");
+assert.ok(/openCarfaxRecreate/.test(html), "Carfax recreate is wired");
+assert.ok(/24000/.test(html), "RAV4 TARGET 24000 is seeded");
+assert.ok(/s1ex074-sales-final/.test(html), "sales-final PDF url is present");
+assert.ok(/carfax-sample/.test(html), "carfax-sample path is present");
+assert.ok(/openlane:\s*\[\]/.test(html), "OpenLane solds stay openlane:[]");
+assert.ok(/New appraisal submitted/.test(html), "superseded watermark copy is exact");
+assert.ok(/id="exitRefresh">Refresh/.test(html), "Refresh sits in exit chrome");
+assert.ok(/Continue abandoned session/.test(html), "abandoned Continue label");
+assert.ok(/Start a new one/.test(html), "abandoned Start a new one label");
 assert.ok(/shared && hint\.id/.test(html), "Incoming remotes also match by id");
 assert.ok(/function seedSharedIncomingFinal\(/.test(html), "Incoming FINAL seed helper exists");
 assert.ok(/seedSharedIncomingFinal\(item, remote\)/.test(html), "applySharedIncoming copies Incoming FINAL");
