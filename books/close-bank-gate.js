@@ -1,57 +1,36 @@
 "use strict";
 
 /**
- * BOOKS-BANK-001 — Close the day / Statement pack unmatched-bank gate
+ * BOOKS-BANK-001 + BOOKS-BANK-BADGE-001
  *
  * Live OS (birch-lake-zinc-dawn.grok.me, store-DOO4oKbP.js + accounting-CymDpuHW.js):
  *
- *   Ct(journals, vehicles) → booksOk
- *     booksOk = inventoryOk && floorOk && unitDrift.length === 0
- *     blockReason = VIN On 1100 / Floor liens only
- *   Close the day: disabled={!q.booksOk}; onClick → toast "Day closed"
- *   Statement pack: same booksOk; banner "Statement pack blocked. " + blockReason
+ *   Ct(journals, vehicles) → booksOk  (VIN / floor / liens only — no bank)
+ *   Close the day: toast "Day closed"  (not a period lock — BOOKS-006 later)
  *
- *   Flow → Cash → Bank rec badge:
+ *   Bank → Reconcile unmatched (authoritative):
+ *     bank.filter(tx => tx.status === "unmatched" && inRange(tx.date, start, end))
+ *
+ *   Flow → Cash → Bank rec badge (BUG):
  *     bank.filter(tx => tx.status === "unmatched").length   // ALL dates
  *
- *   Bank → Reconcile unmatched:
- *     bank.filter(tx => tx.status === "unmatched" && inRange(date))
+ * Breaker: Bank Today unmatched 0, Flow badge 1 (META ADS 2026-08-30 sits
+ * outside Today). CFO 2026-09-14: do NOT gate Close on that Flow 1.
+ * Authoritative count is the live Bank unmatched count. Badge ≡ Bank.
  *
- * FAIL: Stock VIN tied → Close toasted "Day closed" while Flow still showed
- * "1 unmatched". Bank on Today showed unmatched 0 because the remaining
- * unmatched line sat outside the date range (META ADS 2026-08-30 vs Today
- * 2026-09-01). Close never read bank status at all.
+ * If Bank unmatched > 0: hard-block Close + Statement with
+ * "Clear unmatched bank lines before close".
  *
- * Authoritative unmatched count = Flow's count (every unmatched bank line,
- * no date filter). Close / Statement / Flow badge / Reconcile "rec is done"
- * must share that source so Close cannot succeed while Flow shows unmatched>0.
- *
- * CFO split from BOOKS-FLOOR-TIE-001: bank unmatched gates even when VIN /
- * floor / liens also fail. Do not swallow the unmatched-bank reason.
+ * FLOOR-TIE stays separate (this run floor = liens). Bank reason still
+ * appends when floor also fails.
  *
  * HOLD: Deliver / BOOKS-004, Appraisal Center #73, OpenLane solds.
  */
 
+var BANK_CLOSE_BLOCK = "Clear unmatched bank lines before close";
+
 function isUnmatchedBank(tx) {
   return !!(tx && tx.status === "unmatched");
-}
-
-/** Flow Bank rec `open` / Close / Statement — never date-filter this. */
-function unmatchedBankLines(bank) {
-  return (bank || []).filter(isUnmatchedBank);
-}
-
-function unmatchedBankCount(bank) {
-  return unmatchedBankLines(bank).length;
-}
-
-/** Bank view list helper only. Close must not use this. */
-function unmatchedBankInRange(bank, start, end) {
-  return (bank || []).filter(function (tx) {
-    if (!isUnmatchedBank(tx)) return false;
-    if (start == null && end == null) return true;
-    return inDateRange(tx.date, start, end);
-  });
 }
 
 function inDateRange(date, start, end) {
@@ -62,15 +41,37 @@ function inDateRange(date, start, end) {
   return true;
 }
 
-function unmatchedBankReason(count) {
-  var n = Number(count) || 0;
-  if (n <= 0) return "";
-  if (n === 1) return "1 unmatched bank line";
-  return n + " unmatched bank lines";
+function rangeOf(range) {
+  if (!range) return { start: undefined, end: undefined };
+  return { start: range.start, end: range.end };
 }
 
-function flowBankRec(bank) {
-  var open = unmatchedBankCount(bank);
+/** Live Bank unmatched lines — same filter as Bank → Reconcile `K`. */
+function bankUnmatchedLines(bank, range) {
+  var r = rangeOf(range);
+  return (bank || []).filter(function (tx) {
+    if (!isUnmatchedBank(tx)) return false;
+    if (r.start == null && r.end == null) return true;
+    return inDateRange(tx.date, r.start, r.end);
+  });
+}
+
+function bankUnmatchedCount(bank, range) {
+  return bankUnmatchedLines(bank, range).length;
+}
+
+/** Old Flow formula. Do not use for Close or the badge. */
+function allDatesUnmatchedCount(bank) {
+  return (bank || []).filter(isUnmatchedBank).length;
+}
+
+function unmatchedBankReason(count) {
+  return (Number(count) || 0) > 0 ? BANK_CLOSE_BLOCK : "";
+}
+
+/** Flow Bank rec badge — MUST equal bankUnmatchedCount (badge ≡ Bank). */
+function flowBankRec(bank, range) {
+  var open = bankUnmatchedCount(bank, range);
   return {
     id: "bank",
     label: "Bank rec",
@@ -84,12 +85,13 @@ function joinReasons(parts) {
 }
 
 /**
- * Overlay the unmatched-bank gate on the VIN/floor result from Ct().
- * Does not change VIN math (BOOKS-FLOOR-TIE-001 stays a separate ticket).
+ * Overlay the Bank unmatched gate on VIN/floor Ct().
+ * range is the live Bank date range (Today bar). Do not omit it or Close
+ * will count all-dates unmatched the way the Flow badge used to.
  */
-function withBankCloseGate(vin, bank) {
+function withBankCloseGate(vin, bank, range) {
   var src = vin || {};
-  var unmatched = unmatchedBankCount(bank);
+  var unmatched = bankUnmatchedCount(bank, range);
   var bankOk = unmatched === 0;
   var vinOk = src.vinOk;
   if (vinOk == null) vinOk = src.booksOk !== false;
@@ -108,6 +110,7 @@ function withBankCloseGate(vin, bank) {
     closeDisabled: !booksOk,
     statementLocked: !booksOk,
     statementBanner: booksOk ? null : "Statement pack blocked. " + blockReason,
+    range: range || null,
   });
 }
 
@@ -125,15 +128,11 @@ function closeBlockedBanner(gate) {
   };
 }
 
-/**
- * Close the day. Refuses when booksOk is false. When unmatched>0 the
- * reason always includes unmatched-bank text, even if VIN/floor also fail.
- */
 function refuseReason(gate) {
   var unmatched = gate && typeof gate.unmatchedBank === "number" ? gate.unmatchedBank : 0;
   var bankReason = unmatchedBankReason(unmatched);
   var existing = gate && gate.blockReason ? String(gate.blockReason).trim() : "";
-  if (existing && /unmatched bank/.test(existing)) return existing;
+  if (existing && existing.indexOf(BANK_CLOSE_BLOCK) >= 0) return existing;
   return joinReasons([existing, bankReason]);
 }
 
@@ -151,6 +150,7 @@ function closeTheDay(gate) {
       blocked: false,
       toast: "Day closed",
       reason: "",
+      periodLocked: false,
     };
   }
   var reason = refuseReason(gate);
@@ -160,6 +160,7 @@ function closeTheDay(gate) {
     blocked: true,
     toast: null,
     reason: reason,
+    periodLocked: false,
   };
 }
 
@@ -217,10 +218,14 @@ function vinUntied(extras) {
 }
 
 module.exports = {
+  BANK_CLOSE_BLOCK: BANK_CLOSE_BLOCK,
   isUnmatchedBank: isUnmatchedBank,
-  unmatchedBankLines: unmatchedBankLines,
-  unmatchedBankCount: unmatchedBankCount,
-  unmatchedBankInRange: unmatchedBankInRange,
+  inDateRange: inDateRange,
+  bankUnmatchedLines: bankUnmatchedLines,
+  bankUnmatchedCount: bankUnmatchedCount,
+  unmatchedBankCount: bankUnmatchedCount,
+  allDatesUnmatchedCount: allDatesUnmatchedCount,
+  unmatchedBankInRange: bankUnmatchedLines,
   unmatchedBankReason: unmatchedBankReason,
   flowBankRec: flowBankRec,
   withBankCloseGate: withBankCloseGate,
@@ -230,5 +235,4 @@ module.exports = {
   openStatementPack: openStatementPack,
   vinTied: vinTied,
   vinUntied: vinUntied,
-  inDateRange: inDateRange,
 };
