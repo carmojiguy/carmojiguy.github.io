@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-14 build d30s: Run Appraisal Team tap always fires (rerun + Unlocked History); kind:team wake; Incoming FINAL settles Running; compact V Auto / Carfax / OpenLane / eBlock chips; same sendId/id Incoming POST; panel runs progress → existing FINAL; no invented solds; real Carfax http url opens the uploaded file; sample recreate only when no docs.carfax.url; Carfax square + huge card add/upload kind:file carfax; staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; Incoming keeps http docs.url; status dropdown every lane; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples -->
+<!-- center-v3 + desk-home 2026-09-14 build d30s: Run Appraisal Team tap always fires (rerun + Unlocked History); kind:team wake; Incoming FINAL settles Running; market pills append multiple files into shots[]; compact V Auto / Carfax / OpenLane / eBlock chips; same sendId/id Incoming POST; panel runs progress → existing FINAL; no invented solds; real Carfax http url opens the uploaded file; sample recreate only when no docs.carfax.url; Carfax square + huge card add/upload kind:file carfax; staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; Incoming keeps http docs.url; Incoming appends shots[]; status dropdown every lane; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -314,6 +314,10 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
 .research-add span { display:block; margin-top:1px; font-size:9px; font-weight:700; opacity:.7; }
 #center .desk-tool, #center .research-add { min-height:32px; }
 #center .desk-tool-art { min-height:28px; max-height:28px; height:28px; }
+#marketDocSheet .market-doc-list { display:flex; flex-direction:column; gap:6px; margin:8px 0 12px; }
+#marketDocSheet .market-doc-file { display:flex; align-items:center; justify-content:space-between; gap:8px; width:100%; padding:8px 10px; border:1px solid var(--hair); border-radius:12px; background:#fff; font:inherit; text-align:left; cursor:pointer; }
+#marketDocSheet .market-doc-file b { font-size:13px; font-weight:800; }
+#marketDocSheet .market-doc-file span { font-size:12px; font-weight:700; color:var(--muted); }
 .desk-empty { margin:8px 0 0; padding:16px 16px 18px; border-radius:20px; background:linear-gradient(135deg,#E8F8FF 0%, #FFF8D8 58%, #F3ECFF 100%); color:#123; font-size:15px; font-weight:800; line-height:1.35; box-shadow:0 10px 24px rgba(124,92,255,.08); }
 .desk-empty span { display:block; margin-top:6px; font-size:13px; font-weight:700; color:#4A5A70; }
 .research-derived { display:flex; flex-direction:column; gap:14px; margin-top:10px; }
@@ -2486,11 +2490,12 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
   <div class="card">
     <button class="x" type="button" data-close="marketDocSheet">✕</button>
     <h3 id="marketDocTitle">Document</h3>
-    <p class="hint" id="marketDocHint">Add a video, screenshot, or PDF for this document only.</p>
+    <p class="hint" id="marketDocHint">Add videos, screenshots, or PDFs. Phone and desk. New files stay with the ones already saved.</p>
+    <div id="marketDocList" class="market-doc-list hide"></div>
     <p class="quote hide" id="marketDocName"></p>
-    <button class="pill purple hide" type="button" id="marketDocView">View</button>
-    <button class="pill wash" type="button" id="marketDocAdd">Add file</button>
-    <input class="hide" type="file" id="marketDocFile" accept="application/pdf,image/*,video/*,.pdf,.jpg,.jpeg,.png,.heic,.webp,.mov,.mp4,.m4v" />
+    <button class="pill purple hide" type="button" id="marketDocView">View latest</button>
+    <button class="pill wash" type="button" id="marketDocAdd">Add files</button>
+    <input class="hide" type="file" id="marketDocFile" multiple accept="application/pdf,image/*,video/*,.pdf,.jpg,.jpeg,.png,.heic,.webp,.mov,.mp4,.m4v" />
     <p class="hint hide" id="marketDocStatus"></p>
   </div>
 </div>
@@ -2630,9 +2635,9 @@ const PACKET_LAUNCH = [
   {id:"eblock", label:"eBlock", kind:"launch", brand:"eblock-sq", open:"eblock"}
 ];
 const PACKET_ADDS = [
-  {id:"vauto_docs", label:"V Auto documents", pack:"vauto", hint:"Phone: screenshots or video. Desk: PDFs."},
-  {id:"openlane_docs", label:"OpenLane documents", pack:"openlane", hint:"Screenshots, PDFs, or video"},
-  {id:"eblock_docs", label:"eBlock documents", pack:"eblock", hint:"Screenshots, PDFs, or video"}
+  {id:"vauto_docs", label:"V Auto documents", pack:"vauto", hint:"Phone and desk: videos, screenshots, or PDFs. Add several."},
+  {id:"openlane_docs", label:"OpenLane documents", pack:"openlane", hint:"Phone and desk: videos, screenshots, or PDFs. Add several."},
+  {id:"eblock_docs", label:"eBlock documents", pack:"eblock", hint:"Phone and desk: videos, screenshots, or PDFs. Add several."}
 ];
 const PACKET_DOCS = PACKET_LAUNCH.concat(PACKET_ADDS).concat([
   {id:"mmr", label:"MMR", kind:"derived", hint:"Extracted from V Auto — no upload"},
@@ -6643,8 +6648,10 @@ function slimCenterDocs(docs){
   Object.keys(map).forEach(function(slot){
     const hit=map[slot].map(function(k){ return src[k]; }).find(Boolean);
     if(!hit){ out[slot]={have:false, name:"", preview:"", type:""}; return; }
-    const preview=(hit.shots && hit.shots[0]) || (hit.data && String(hit.data).indexOf("data:image")===0 ? hit.data : "");
+    const previewShot=hit.shots && hit.shots[0];
+    const preview=(typeof previewShot==="string"?previewShot:(previewShot&&previewShot.url)) || (hit.data && String(hit.data).indexOf("data:image")===0 ? hit.data : "");
     const url=(typeof slimSharedHttpUrl==="function"?slimSharedHttpUrl(hit.url):(/^https?:\/\//i.test(String(hit.url||""))?String(hit.url):""));
+    const shots=(typeof appendMarketDocShots==="function"?appendMarketDocShots(hit.shots, url):[]);
     out[slot]={
       have:true,
       name:hit.name||slot,
@@ -6652,6 +6659,7 @@ function slimCenterDocs(docs){
       type:hit.type||"",
       url:url
     };
+    if(shots.length) out[slot].shots=shots;
   });
   return out;
 }
@@ -6859,6 +6867,24 @@ function slimSharedHttpUrl(v){
   const s=String(v||"").trim();
   return /^https?:\/\//i.test(s) ? s : "";
 }
+function appendMarketDocShots(){
+  const seen={};
+  const shots=[];
+  function add(s){
+    const u=slimSharedHttpUrl(typeof s==="string"?s:(s&&(s.url||s.href||"")));
+    if(!u || seen[u]) return;
+    seen[u]=true;
+    const name=(s && typeof s==="object" && (s.name||s.title)) || "";
+    const type=(s && typeof s==="object" && s.type) || "";
+    shots.push(name||type ? {url:u, name:name, type:type} : {url:u});
+  }
+  for(let i=0;i<arguments.length;i++){
+    const raw=arguments[i];
+    if(Array.isArray(raw)) raw.forEach(add);
+    else if(raw) add(raw);
+  }
+  return shots;
+}
 function slimSharedDocs(docs){
   const src=docs||{};
   const out={};
@@ -6872,14 +6898,17 @@ function slimSharedDocs(docs){
     if(extract) slot.extract=extract;
     const preview=slimSharedHttpUrl(d&&d.preview);
     if(preview) slot.preview=preview;
-    if(d && Array.isArray(d.shots)){
-      const shots=[];
-      d.shots.forEach(function(s){
-        const u=slimSharedHttpUrl(typeof s==="string"?s:(s&&(s.url||s.href||"")));
-        if(u) shots.push({url:u});
-      });
-      if(shots.length) slot.shots=shots;
+    const shots=[];
+    const seen={};
+    function addShot(s){
+      const u=slimSharedHttpUrl(typeof s==="string"?s:(s&&(s.url||s.href||"")));
+      if(!u || seen[u]) return;
+      seen[u]=true;
+      shots.push({url:u});
     }
+    if(d && Array.isArray(d.shots)) d.shots.forEach(addShot);
+    if(url) addShot(url);
+    if(shots.length) slot.shots=shots;
     out[k]=slot;
   });
   return out;
@@ -6929,23 +6958,45 @@ function persistMarketDocUrls(item){
     chain=chain.then(function(){
       const pack=marketDocKey(k);
       const d=item.docs[k];
-      if(!d || d===true || slimSharedHttpUrl(d.url)) return;
-      const payload=firstMarketDocPayload(d);
-      if(!payload) return;
-      if(pack && sendId && payload.data){
-        return postIncomingFile(sendId, pack, payload.name, payload.mime, payload.data).then(function(got){
-          if(got && got.url){ d.url=got.url; d.have=true; }
+      if(!d || d===true) return;
+      const pending=[];
+      if(!slimSharedHttpUrl(d.url)){
+        const payload=firstMarketDocPayload(d);
+        if(payload && (payload.data || payload.blob)) pending.push({kind:"url", payload:payload});
+      }
+      if(Array.isArray(d.shots)){
+        d.shots.forEach(function(s, idx){
+          const raw=typeof s==="string"?s:(s&&(s.url||s.data||s.href||""));
+          if(slimSharedHttpUrl(raw)) return;
+          if(String(raw).indexOf("data:")===0){
+            pending.push({kind:"shot", idx:idx, payload:{data:raw, name:(s&&s.name)||(d.name||(pack||k)+"-shot-"+(idx+1)), mime:(s&&s.type)||d.type||""}});
+          }
         });
       }
-      const put=payload.blob && typeof hostBlob==="function"
-        ? hostBlob(payload.name, payload.mime, payload.blob)
-        : (typeof hostFile==="function" ? hostFile(payload.name, payload.mime||"application/octet-stream", payload.data) : Promise.resolve(""));
-      return Promise.resolve(put).then(function(url){
-        if(slimSharedHttpUrl(url)){
-          d.url=url;
-          d.have=true;
-        }
-      }).catch(function(){});
+      if(!pending.length) return;
+      let p=Promise.resolve();
+      pending.forEach(function(job){
+        p=p.then(function(){
+          if(pack && sendId && job.payload.data){
+            return postIncomingFile(sendId, pack, job.payload.name, job.payload.mime, job.payload.data).then(function(got){
+              if(!got || !got.url) return;
+              if(job.kind==="url") d.url=got.url;
+              d.have=true;
+              d.shots=appendMarketDocShots(d.shots, d.url, {url:got.url, name:job.payload.name, type:job.payload.mime});
+            });
+          }
+          const put=job.payload.blob && typeof hostBlob==="function"
+            ? hostBlob(job.payload.name, job.payload.mime, job.payload.blob)
+            : (typeof hostFile==="function" ? hostFile(job.payload.name, job.payload.mime||"application/octet-stream", job.payload.data) : Promise.resolve(""));
+          return Promise.resolve(put).then(function(url){
+            if(!slimSharedHttpUrl(url)) return;
+            if(job.kind==="url") d.url=url;
+            d.have=true;
+            d.shots=appendMarketDocShots(d.shots, d.url, {url:url, name:job.payload.name, type:job.payload.mime});
+          }).catch(function(){});
+        });
+      });
+      return p;
     });
   });
   return chain.then(function(){ return item; }).catch(function(){ return item; });
@@ -7201,6 +7252,16 @@ function applySharedIncoming(item, remote){
       Object.keys(incoming).forEach(function(k){
         const slot=item.docs[k];
         if(slot && incoming[k] && incoming[k].url && !slot.url) slot.url=incoming[k].url;
+        if(slot && incoming[k] && ((incoming[k].shots&&incoming[k].shots.length) || incoming[k].url) && typeof appendMarketDocShots==="function"){
+          const keep=Array.isArray(slot.shots)?slot.shots.slice():[];
+          const extra=appendMarketDocShots(incoming[k].shots, incoming[k].url);
+          extra.forEach(function(s){
+            const u=s&&s.url;
+            if(!u) return;
+            if(!keep.some(function(x){ return slimSharedHttpUrl(typeof x==="string"?x:(x&&(x.url||x.href||"")))===u; })) keep.push(s);
+          });
+          if(keep.length) slot.shots=keep;
+        }
       });
     } else if(!(sharedDocsHaveCount(incoming)===0 && sharedDocsHaveCount(item.docs)>0)){
       const prev=item.docs||{};
@@ -7209,6 +7270,11 @@ function applySharedIncoming(item, remote){
         const slot=item.docs[k];
         const old=prev[k];
         if(slot && old && /^https?:\/\//i.test(String(old.url||"")) && !/^https?:\/\//i.test(String(slot.url||""))) slot.url=old.url;
+        if(slot && old && typeof appendMarketDocShots==="function"){
+          slot.shots=appendMarketDocShots(old.shots, slot.shots, old.url, slot.url);
+        } else if(old && (old.shots&&old.shots.length || /^https?:\/\//i.test(String(old.url||"")))){
+          item.docs[k]=old;
+        }
       });
     }
   }
@@ -8290,13 +8356,18 @@ function viewMarketDocUrl(url, type, title){
 function applyMarketDocToItem(item, key, slot){
   if(!item || !key || !slot) return item;
   item.docs=item.docs||{};
+  const prev=item.docs[key]||{};
+  const extra=Array.isArray(slot.shots)?slot.shots.slice():[];
+  if(slot.url) extra.push({url:slot.url, name:slot.name||"", type:slot.type||""});
+  const shots=appendMarketDocShots(prev.shots, prev.url, extra);
+  const url=slimSharedHttpUrl(slot.url)||slimSharedHttpUrl(prev.url)||(shots[0]&&shots[0].url)||"";
   item.docs[key]={
     have:true,
-    name:slot.name||key,
-    type:slot.type||"",
-    url:slimSharedHttpUrl(slot.url),
-    preview:slot.preview||"",
-    shots:Array.isArray(slot.shots)?slot.shots:[]
+    name:slot.name||prev.name||key,
+    type:slot.type||prev.type||"",
+    url:url,
+    preview:slot.preview||prev.preview||"",
+    shots:shots
   };
   if(key==="carfax"){
     item.docs[key].sample=false;
@@ -8317,6 +8388,37 @@ function applyMarketDocToItem(item, key, slot){
   }
   return item;
 }
+function marketDocShotLabel(s, i){
+  if(typeof s==="string"){
+    const path=s.split("?")[0];
+    return path.split("/").pop() || ("File "+(i+1));
+  }
+  const name=(s && s.name) || "";
+  if(name) return name;
+  const u=slimSharedHttpUrl(s && (s.url||s.href||""));
+  if(u){
+    const path=u.split("?")[0];
+    return decodeURIComponent(path.split("/").pop() || "") || ("File "+(i+1));
+  }
+  return "File "+(i+1);
+}
+function paintMarketDocList(item, key){
+  const host=$("marketDocList");
+  if(!host) return [];
+  const slot=marketDocSlot((item&&item.docs)||{}, key)||{};
+  const shots=appendMarketDocShots(slot.shots, slot.url);
+  host.innerHTML="";
+  host.classList.toggle("hide", !shots.length);
+  shots.forEach(function(s, i){
+    const btn=document.createElement("button");
+    btn.type="button";
+    btn.className="market-doc-file";
+    btn.innerHTML="<b>"+esc(marketDocShotLabel(s, i))+"</b><span>View</span>";
+    btn.onclick=function(){ viewMarketDocUrl(s.url||s, s.type||slot.type, marketDocShotLabel(s, i)); };
+    host.appendChild(btn);
+  });
+  return shots;
+}
 function openMarketDocSheet(item, spec){
   if(!item || !spec) return;
   const key=spec.pack||marketDocKey(spec.id)||"vauto";
@@ -8324,63 +8426,89 @@ function openMarketDocSheet(item, spec){
   const docs=Object.assign({}, item.docs||{}, APP.docs||{});
   const slot=marketDocSlot(docs, key);
   const url=marketDocUrlOf(docs, key);
-  const sampleCarfax=key==="carfax" && !url && (typeof isRav4OnsiteDemo==="function" && (isRav4OnsiteDemo(item) || (docs.carfax&&(docs.carfax.sample||docs.carfax.pending))));
+  const shots=paintMarketDocList(item, key);
+  const n=shots.length;
+  const sampleCarfax=key==="carfax" && !url && !n && (typeof isRav4OnsiteDemo==="function" && (isRav4OnsiteDemo(item) || (docs.carfax&&(docs.carfax.sample||docs.carfax.pending))));
   if($("marketDocTitle")) $("marketDocTitle").textContent=(spec.label||key).replace(/ documents$/i,"");
-  if($("marketDocHint")) $("marketDocHint").textContent=url
-    ? "This file is saved. View it, or replace it with a new video, screenshot, or PDF."
+  if($("marketDocHint")) $("marketDocHint").textContent=n
+    ? (n===1
+      ? "1 file saved. Add more videos, screenshots, or PDFs — the ones already on the file stay."
+      : n+" files saved. Add more videos, screenshots, or PDFs — the ones already on the file stay.")
     : (key==="carfax"
       ? (sampleCarfax
         ? "Official Carfax is pending. Add the real PDF or image. Sample is OK until then."
         : "Add the official Carfax PDF or image. It saves to the file.")
-      : "Add a video, screenshot, or PDF for this document only. It saves to the file.");
+      : "Add videos, screenshots, or PDFs. Phone and desk. New files stay with the ones already saved.");
   if($("marketDocName")){
-    $("marketDocName").textContent=slot && (slot.name||url) ? (slot.name||url) : "";
-    $("marketDocName").classList.toggle("hide", !(slot && (slot.name||url)));
+    $("marketDocName").textContent=n ? (n===1 ? "1 file on file" : n+" files on file") : "";
+    $("marketDocName").classList.toggle("hide", !n);
   }
-  if($("marketDocView")) $("marketDocView").classList.toggle("hide", !url && !sampleCarfax);
+  if($("marketDocView")) $("marketDocView").classList.toggle("hide", !url && !n && !sampleCarfax);
   const locked=typeof isCenterLocked==="function" && isCenterLocked(item);
   if($("marketDocAdd")){
     $("marketDocAdd").classList.toggle("hide", !!locked);
-    $("marketDocAdd").textContent=url?"Replace file":"Add file";
+    $("marketDocAdd").textContent=n?"Add more files":"Add files";
   }
-  if(locked && $("marketDocHint")) $("marketDocHint").textContent=url
-    ? "This file is saved. Unlock the appraisal to replace it."
-    : "Unlock this appraisal to add a video, screenshot, or PDF.";
+  if(locked && $("marketDocHint")) $("marketDocHint").textContent=n
+    ? (n===1 ? "1 file is saved. Unlock the appraisal to add more." : n+" files are saved. Unlock the appraisal to add more.")
+    : "Unlock this appraisal to add videos, screenshots, or PDFs.";
   if($("marketDocStatus")){ $("marketDocStatus").textContent=""; $("marketDocStatus").classList.add("hide"); }
   if($("marketDocSheet")) $("marketDocSheet").classList.add("on");
 }
+function readMarketDocFile(file){
+  return new Promise(function(resolve, reject){
+    const reader=new FileReader();
+    reader.onload=function(){ resolve(String(reader.result||"")); };
+    reader.onerror=function(){ reject(new Error("read")); };
+    reader.readAsDataURL(file);
+  });
+}
 function uploadMarketDocFile(file){
+  if(file && typeof file.length==="number" && !file.name){
+    return uploadMarketDocFiles(file);
+  }
+  return uploadMarketDocFiles(file ? [file] : []);
+}
+function uploadMarketDocFiles(files){
+  const list=Array.prototype.slice.call(files||[]).filter(Boolean);
   const ctx=APP._marketDoc||{};
   const item=typeof getCenter==="function"?getCenter(ctx.itemId):null;
-  if(!item || !ctx.key || !file){ toast("Couldn’t add that file."); return; }
-  if(typeof isCenterLocked==="function" && isCenterLocked(item)){ toast("Unlock this appraisal first."); return; }
+  if(!item || !ctx.key || !list.length){ toast("Couldn’t add that file."); return Promise.resolve(); }
+  if(typeof isCenterLocked==="function" && isCenterLocked(item)){ toast("Unlock this appraisal first."); return Promise.resolve(); }
   if(!item.sendId) item.sendId=APP.sendId||item.id||("s"+Date.now().toString(36));
   if($("marketDocStatus")){
-    $("marketDocStatus").textContent="Saving…";
+    $("marketDocStatus").textContent=list.length>1 ? "Saving 1 of "+list.length+"…" : "Saving…";
     $("marketDocStatus").classList.remove("hide");
   }
-  const reader=new FileReader();
-  reader.onload=function(){
-    const data=String(reader.result||"");
-    Promise.resolve(postIncomingFile(item.sendId, ctx.key, file.name||ctx.key, file.type||"", data)).then(function(got){
-      if(!got || !got.url){ toast("Couldn’t save that file."); if($("marketDocStatus")) $("marketDocStatus").textContent="Save failed."; return; }
-      patchCenter(item.id, function(x){
-        if(!x.sendId) x.sendId=item.sendId;
-        applyMarketDocToItem(x, ctx.key, {name:file.name||ctx.key, type:file.type||"", url:got.url});
+  let i=0;
+  let chain=Promise.resolve();
+  list.forEach(function(file){
+    chain=chain.then(function(){
+      i++;
+      if($("marketDocStatus") && list.length>1) $("marketDocStatus").textContent="Saving "+i+" of "+list.length+"…";
+      return readMarketDocFile(file).then(function(data){
+        return Promise.resolve(postIncomingFile(item.sendId, ctx.key, file.name||ctx.key, file.type||"", data));
+      }).then(function(got){
+        if(!got || !got.url) throw new Error("save");
+        patchCenter(item.id, function(x){
+          if(!x.sendId) x.sendId=item.sendId;
+          applyMarketDocToItem(x, ctx.key, {name:file.name||ctx.key, type:file.type||"", url:got.url, shots:[{url:got.url, name:file.name||ctx.key, type:file.type||""}]});
+        });
       });
-      const live=getCenter(item.id);
-      try{ persistCenterMedia(item.id, (live&&live.photos)||[], (live&&live.docs)||{}); }catch(e){}
-      try{ shareIncomingBestEffort(live||item); }catch(e){}
-      toast((ctx.label||ctx.key)+" saved.");
-      openMarketDocSheet(live||item, {id:ctx.addId, pack:ctx.key, label:ctx.label});
-      if(typeof paintCenter==="function") paintCenter();
-      if(typeof paintCenterDetail==="function") paintCenterDetail();
-    }).catch(function(){
-      toast("Couldn’t save that file.");
-      if($("marketDocStatus")) $("marketDocStatus").textContent="Save failed.";
     });
-  };
-  reader.readAsDataURL(file);
+  });
+  return chain.then(function(){
+    const live=getCenter(item.id);
+    try{ persistCenterMedia(item.id, (live&&live.photos)||[], (live&&live.docs)||{}); }catch(e){}
+    try{ shareIncomingBestEffort(live||item); }catch(e){}
+    toast(list.length===1 ? ((ctx.label||ctx.key)+" saved.") : (list.length+" files saved."));
+    openMarketDocSheet(live||item, {id:ctx.addId, pack:ctx.key, label:ctx.label});
+    if(typeof paintCenter==="function") paintCenter();
+    if(typeof paintCenterDetail==="function") paintCenterDetail();
+  }).catch(function(){
+    toast("Couldn’t save that file.");
+    if($("marketDocStatus")) $("marketDocStatus").textContent="Save failed.";
+  });
 }
 function teamWhyHtml(item, botId){
   const pair=CENTER_TEAM.find(function(t){ return t[0]===botId; }) || [botId, botId, "Opinion"];
@@ -11674,8 +11802,9 @@ function paintPacketDocs(host, opts){
     el.type="button";
     el.className="research-add"+(got && (got.have||got.url)?" on":"");
     el.setAttribute("aria-label",spec.label);
-    const sub=got && (got.have||got.url)
-      ? (got.url ? "On file — tap to view" : ((got.shots&&got.shots.length) ? got.shots.length+" in" : (got.fmt||"Added")))
+    const shotN=((got && got.shots)||[]).length;
+    const sub=got && (got.have||got.url||shotN)
+      ? (shotN>1 ? shotN+" on file" : (got.url ? "On file — tap to view" : (got.fmt||"Added")))
       : "Add files";
     el.innerHTML="<b>"+escHtml(spec.label)+"</b><span>"+escHtml(sub)+"</span>";
     el.onclick=function(){
@@ -13963,8 +14092,8 @@ if($("marketDocAdd")) $("marketDocAdd").onclick = function(){
   inp.click();
 };
 if($("marketDocFile")) $("marketDocFile").addEventListener("change", function(){
-  const f=this.files && this.files[0];
-  if(f) uploadMarketDocFile(f);
+  const files=this.files;
+  if(files && files.length) uploadMarketDocFiles(files);
 });
 if($("staffHistClose")) $("staffHistClose").onclick = closeStaffHist;
 if($("staffHistDim")) $("staffHistDim").onclick = closeStaffHist;
