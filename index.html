@@ -1130,7 +1130,7 @@ body.center-gallery-on { overflow:hidden; }
 .center-hero .dots i { width:7px; height:7px; border-radius:50%; background:rgba(255,255,255,.35); }
 .center-hero .dots i.on { background:#fff; }
 .center-hero .count {
-  position:absolute; left:14px; bottom:12px; color:#fff; font-size:12px; font-weight:800;
+  position:absolute; right:14px; left:auto; bottom:12px; color:#fff; font-size:12px; font-weight:800;
   background:rgba(0,0,0,.45); border-radius:999px; padding:5px 10px;
 }
 .center-hero .nav-hit {
@@ -1233,7 +1233,8 @@ body.center-gallery-on { overflow:hidden; }
 }
 #center .acre-doc-pair { display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:6px 0; border-bottom:1px solid #E4E7EC; }
 #center .acre-doc-pair .acre-doc-card { border:1px solid #E4E7EC; border-radius:8px; padding:6px 8px; grid-template-columns:minmax(0,1fr) auto; }
-#center .center-hero .dots { display:none; }
+#center .center-hero .nav-hit { z-index:2; }
+#center .center-hero .count { z-index:2; }
 #center #centerDocs { display:none !important; }
 #center #centerWhyDocs,
 #center #centerFacts { display:none !important; }
@@ -1242,7 +1243,7 @@ body.center-gallery-on { overflow:hidden; }
 }
 .acre-score-row .acre-score { background:transparent; border:0; border-radius:0; padding:0; }
 .acre-score-row .acre-score k { display:block; color:#6B7380; font-size:9px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
-.acre-score-row .acre-score b { display:block; font-size:22px; letter-spacing:-.6px; line-height:1.05; }
+.acre-score-row .acre-score b { display:block; font-size:28px; letter-spacing:-.6px; line-height:1.05; }
 .acre-score-row .acre-score.maya b { color:#16A34A; }
 .acre-score-row .acre-score.clutch b { color:#EA580C; }
 .acre-score-row .acre-score.vauto b { color:#D97706; }
@@ -1509,7 +1510,7 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
     height:100%;
     overflow:hidden;
   }
-  #center .acre-col-hero{ grid-area:hero; min-height:0; }
+  #center .acre-col-hero{ grid-area:hero; min-height:0; position:relative; }
   #center .acre-col-mid{ grid-area:mid; align-self:start; min-width:0; }
   #center .acre-col-market{ grid-area:market; min-width:0; }
   #center .acre-notes-block{ grid-area:notes; }
@@ -1547,7 +1548,7 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
     border-radius:10px; background:#fff; box-shadow:none; overflow:hidden;
   }
   #center .center-thumbs button.on{ box-shadow:none; }
-  #center .center-thumbs img{ object-fit:cover; object-position:center 62%; background:#fff; }
+  #center .center-thumbs img{ object-fit:cover; object-position:center 58%; background:#fff; }
   #center .center-detail-bar{ display:none; }
   #center .packet-pdf{ display:none !important; }
   #center #centerTeamHead,
@@ -1586,8 +1587,8 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
   #centerLanes .lane-pill b{ font-size:12px; }
   #center h2{ font-size:20px; letter-spacing:-.3px; margin:0 0 4px; }
   #center .acre-col-hero{ display:flex; flex-direction:column; min-height:0; }
-  #center .center-hero{ flex:1; min-height:0; height:100%; margin:0; border-radius:10px; background:#fff; }
-  #center .center-hero img{ height:100%; width:100%; min-height:0; max-height:none; object-fit:contain; object-position:center; background:#fff; }
+  #center .center-hero{ flex:1; min-height:0; height:100%; margin:0; border-radius:10px; background:#fff; position:relative; }
+  #center .center-hero img{ position:absolute; inset:0; height:100%; width:100%; min-height:0; max-height:none; object-fit:contain; object-position:center; background:#fff; }
   #center .center-docs, #center .center-why-docs, #center .docs-grid{ grid-template-columns:1fr 1fr; }
   #center .doc-slot, #center .doc-sq { min-height:196px; }
   #center .doc-slot b, #center .doc-sq b { font-size:20px; }
@@ -1637,8 +1638,8 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
   #centerLanes .lane-pill{ min-height:54px; padding:10px 8px; }
   #centerLanes .lane-pill b{ font-size:12px; }
   #center h2{ font-size:22px; letter-spacing:-.3px; }
-  #center .center-hero{ border-radius:10px; min-height:0; background:#fff; }
-  #center .center-hero img{ height:100%; min-height:0; max-height:none; object-fit:contain; background:#fff; }
+  #center .center-hero{ border-radius:10px; min-height:0; background:#fff; position:relative; }
+  #center .center-hero img{ position:absolute; inset:0; height:100%; min-height:0; max-height:none; object-fit:contain; background:#fff; }
   #center .acre-chip{ padding:6px 4px; }
   #center .acre-chip b{ font-size:18px; }
   #center .facts{ grid-template-columns:repeat(4, 1fr); }
@@ -6256,8 +6257,9 @@ const CENTER_PHOTO_DOCS=[
 const CENTER_PHOTO_DOC_THUMBS={
   vauto:"/start-bgs/gr-corolla/01.jpg",
   book:"/start-bgs/gr-corolla/07.jpg",
-  openlane:"/docs/openlane.jpg",
+  openlane:"/start-bgs/gr-corolla/02.jpg",
   eblock:"/docs/eblock.jpg",
+  eblockLogo:"/docs/eblock.jpg",
   carfax:"/docs/carfax.jpg"
 };
 function emptyTeam(){
@@ -9077,7 +9079,7 @@ function paintCenterMetrics(item){
     let shown=v||"—";
     if(v){
       const n=Number(String(v).replace(/[^0-9.]/g,""));
-      if(n>=1000) shown="$"+(n/1000).toFixed(n>=10000?0:1).replace(/\.0$/,"")+"K";
+      if(n>=1000) shown="$"+(n/1000).toFixed(1).replace(/\.0$/,"")+"K";
     }
     return '<span class="acre-score '+pair[2]+'"><k>'+esc(pair[1])+'</k><b>'+esc(shown)+'</b></span>';
   }).join("");
@@ -9091,7 +9093,8 @@ function paintCenterRanks(item){
     if(!v) return "";
     if(pair[0]==="recon" || pair[0]==="profit"){
       const n=Number(String(v).replace(/[^0-9.]/g,""));
-      if(n) v=moneyPretty(v);
+      if(n>=1000) v="$"+(n/1000).toFixed(1).replace(/\.0$/,"")+"K";
+      else if(n) v=moneyPretty(v);
     }
     return "<i>"+esc(pair[1]+" "+v)+"</i>";
   }).filter(Boolean);
@@ -9470,6 +9473,7 @@ function photoDocShown(item, vals, docs, row){
     return raw;
   }
   if(row[0]==="eblock") return "Block";
+  if(row[0]==="eblockLogo") return "";
   if(row[0]==="carfax" && item && (item.clean || item.noAccident || item.accident==="none")) return "Clean";
   const slot=docs[row[2]]||docs[row[0]];
   if(slot && (slot.have || slot.url || (slot.shots && slot.shots.length))){
@@ -9487,6 +9491,7 @@ function photoDocCard(item, vals, docs, row){
   b.type="button";
   b.className="acre-doc-card";
   let html="<span><k>"+esc(label)+"</k><b"+(key==="eblock"?' class="acre-eblock-go"':"")+">"+esc(shown)+"</b></span>";
+  if(key==="eblockLogo") html="";
   if(thumb) html+='<img class="acre-doc-thumb" src="'+thumb+'" alt="">';
   b.innerHTML=html;
   b.onclick=function(){
@@ -9523,11 +9528,19 @@ function paintCenterPhotoDocs(item){
       const pair=document.createElement("div");
       pair.className="acre-doc-pair";
       pair.appendChild(photoDocCard(item, vals, docs, row));
-      pair.appendChild(photoDocCard(item, vals, docs, CENTER_PHOTO_DOCS[i+1]));
+      pair.appendChild(photoDocCard(item, vals, docs, ["openlane","OPENLANE","openlane","openlane"]));
       host.appendChild(pair);
       return;
     }
-    if(row[0]==="eblock") return;
+    if(row[0]==="eblock"){
+      const pair=document.createElement("div");
+      pair.className="acre-doc-pair";
+      pair.appendChild(photoDocCard(item, vals, docs, row));
+      const extra=photoDocCard(item, vals, docs, ["eblockLogo","eBlock","eblock",""]);
+      pair.appendChild(extra);
+      host.appendChild(pair);
+      return;
+    }
     host.appendChild(photoDocCard(item, vals, docs, row));
   });
 }
@@ -9845,18 +9858,22 @@ function paintCenterTeam(item){
 }
 function paintCenterTags(item){
   const host=$("centerTags"); if(!host) return;
-  const tags=[].concat(item.tags||[]).map(function(t){ return t==="Inbox" ? "Incoming" : t; });
-  if(item.sample) tags.unshift("Sample");
-  if(item.deskTeam) tags.unshift(item.deskTeam);
-  if(item.interest) tags.unshift("Interest "+item.interest);
-  if(item.stage==="Appraised") tags.push("Appraised");
-  if(item.color) tags.push(item.color);
+  const tags=[];
+  if(item.sample) tags.push("Sample");
+  if(item.deskTeam) tags.push(item.deskTeam);
+  if(item.interest) tags.push("Interest "+item.interest);
+  if(item.stage==="Appraised" || (item.tags||[]).indexOf("Appraised")>=0) tags.push("Appraised");
   if(item.km) tags.push(centerKmLine(item));
+  if(item.color) tags.push(item.color);
   if(item.origin) tags.push(item.origin);
   if(item.clean) tags.push("Clean");
   if(item.noAccident || item.accident==="none") tags.push("No accident");
   if(item.notOop || item.origin==="Japan") tags.push("Not out of province");
   if(item.notUs || item.origin==="Japan") tags.push("Not a US vehicle");
+  [].concat(item.tags||[]).forEach(function(t){
+    t=t==="Inbox" ? "Incoming" : t;
+    if(tags.indexOf(t)<0) tags.push(t);
+  });
   if(isCenterAged(item)) tags.push("90-day archive");
   const seen={};
   host.innerHTML=tags.filter(function(t){
