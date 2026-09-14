@@ -27,7 +27,7 @@ function sha(s) {
 }
 
 must(/id="buildStamp">build d31a</, "footer stamp is build d31a");
-must(/id="typeSheet"[\s\S]*build d30/, "type sheet stamp is build d30");
+must(/id="typeSheet"[\s\S]*build d31a/, "type sheet stamp is build d31a");
 must(/PACKET_LAUNCH/, "research tool launchers");
 must(/PACKET_ADDS/, "three add-doc pills");
 must(/V Auto documents/, "V Auto documents pill");

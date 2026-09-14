@@ -3725,7 +3725,6 @@ function paintStoryHelp(){
       : ca
       ? "Inside and outside condition, high-value options, selling features and hinderances. Rust, dents, scratches, paintwork, glass, tires, interior, warning lights, noises, how it drives, accidents, service history, winter tires, extra keys. Be specific."
       : "Say the year, make, model, trim or options, colour, and kilometres. Then walk the condition in detail: rust, dents, scratches, paintwork, glass, tires, interior, warning lights, noises, how it drives, accidents, service history, winter tires, extra keys — anything you’d mention in the driveway. Be specific. The more we know, the better.")+'</p>'+
-      : "Say the year, make, model, trim or options, colour, and kilometres. Then walk the condition in detail: rust, dents, scratches, paintwork, glass, tires, interior, warning lights, noises, how it drives, accidents, service history, winter tires, extra keys — anything you’d mention in the driveway. Be specific. The more we know, the better.")+'</p>'+
     (ca || web ? "" : '<p class="quote">If you have the ownership (registration), take a photo of it — that’s the easiest VIN. No ownership with you? Just read the 17-character VIN out loud while you tell the story.</p>');
 }
 function paintWebsitePhotosChrome(){
@@ -14545,11 +14544,10 @@ function openStoryMic(){
   if($("storyTitle")) $("storyTitle").textContent="What's the Story?";
   const hint=$("storyHint") || document.querySelector("#storySheet .hint");
   if(hint){
-    '<p class="quote">'+(web
-      ? "Say the year, make, model, trim, and condition of the vehicle."
-      : ca
-      ? "Inside and outside condition, high-value options, selling features and hinderances. Rust, dents, scratches, paintwork, glass, tires, interior, warning lights, noises, how it drives, accidents, service history, winter tires, extra keys. Be specific."
-      : "Say the year, make, model, trim or options, colour, and kilometres. Then walk the condition in detail: rust, dents, scratches, paintwork, glass, tires, interior, warning lights, noises, how it drives, accidents, service history, winter tires, extra keys — anything you’d mention in the driveway. Be specific. The more we know, the better.")+'</p>'+
+    hint.textContent = isWeb()
+      ? "Talk through year, make, model, trim, and condition of the vehicle. Allow the microphone — tap Speak if it doesn’t start."
+      : isConsumerAcquisition()
+      ? "Walk the car and talk. Tap opens the mic — keep going, any length. Inside and outside condition, high-value options, selling features and hinderances."
       : "Talk through year, make, model, trim, colour, kilometres, and condition in detail. If you have the ownership, photograph it. If not, read the 17-character VIN out loud. Allow the microphone — tap Speak if it doesn’t start.";
   }
   $("storySheet").classList.add("on");
