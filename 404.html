@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-14 build d31a: pixel-faithful Acre GR Corolla desk (white hero|mid|market, not stone/teal); CA workbench redo — drop the verbal-only tag forever; What's the Story walks the car and talks; Walk-around photos only; keep Critical damage; salesperson CA has no packet-send card; Tracker mobile cards + current month; website-post story-first year/make/model/trim/condition, no team select, original start not webdesk, pictures still relaunch/post; Acre GR Corolla desk lock — FIFO oldest home, left-rail Incoming/On-site/Needs docs/History pills, no hist KPI strip, Ask Maya, appraisal range/competing/ask; users GET/POST kind:users persist; 911 Acre team reads finalRationale.markdown + panel Rybot/Webot/Drebot/TBot + team.shabot note, hides boxes with no numbers; mailer keeps rich team/rationale on Center refresh; Trade-in start drops stray top History (rail History stays); 911 Incoming FINAL min+target+max clears Running and lands Appraisal Team numbers (Blazer s1af19al / F-150 sir78n6); Run Appraisal Team tap always fires (rerun + Unlocked History); kind:team wake; Incoming FINAL settles Running; schema 1.0 team + panel boxes; market pills append multiple files into shots[]; compact V Auto / Carfax / OpenLane / eBlock chips; same sendId/id Incoming POST; panel runs progress → existing FINAL; no invented solds; real Carfax http url opens the uploaded file; sample recreate only when no docs.carfax.url; Carfax square + huge card add/upload kind:file carfax; staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; Incoming keeps http docs.url; Incoming appends shots[]; status dropdown every lane; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples; hides generated From V Auto lane -->
+<!-- center-v3 + desk-home 2026-09-14 build d31a: pixel-faithful Acre GR Corolla desk (white hero|mid|market, not stone/teal); HARD LOCK photo desk — notes under hero, thumbs strip, blue Complete; CA workbench redo — drop the verbal-only tag forever; What's the Story walks the car and talks; Walk-around photos only; keep Critical damage; salesperson CA has no packet-send card; Tracker mobile cards + current month; website-post story-first year/make/model/trim/condition, no team select, original start not webdesk, pictures still relaunch/post; Acre GR Corolla desk lock — FIFO oldest home, left-rail Incoming/On-site/Needs docs/History pills, no hist KPI strip, Ask Maya, appraisal range/competing/ask; users GET/POST kind:users persist; 911 Acre team reads finalRationale.markdown + panel Rybot/Webot/Drebot/TBot + team.shabot note, hides boxes with no numbers; mailer keeps rich team/rationale on Center refresh; Trade-in start drops stray top History (rail History stays); 911 Incoming FINAL min+target+max clears Running and lands Appraisal Team numbers (Blazer s1af19al / F-150 sir78n6); Run Appraisal Team tap always fires (rerun + Unlocked History); kind:team wake; Incoming FINAL settles Running; schema 1.0 team + panel boxes; market pills append multiple files into shots[]; compact V Auto / Carfax / OpenLane / eBlock chips; same sendId/id Incoming POST; panel runs progress → existing FINAL; no invented solds; real Carfax http url opens the uploaded file; sample recreate only when no docs.carfax.url; Carfax square + huge card add/upload kind:file carfax; staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; Incoming keeps http docs.url; Incoming appends shots[]; status dropdown every lane; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples; hides generated From V Auto lane -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -1183,8 +1183,39 @@ body.center-gallery-on { overflow:hidden; }
 #center #centerDock.acre-dock .center-maya { flex:1; min-width:0; }
 #center #centerDock.acre-dock #centerStageBtn {
   width:auto; min-width:132px; margin:0; border-radius:14px;
-  background:#111318; color:#fff; border-color:#111318;
+  background:#2F6BFF; color:#fff; border-color:#2F6BFF;
 }
+#centerMayaGo { display:none !important; }
+.acre-notes-block { margin:8px 0 0; }
+.acre-notes-block .block { margin:10px 0 6px; font-size:13px; letter-spacing:.08em; text-transform:uppercase; }
+.acre-maya-strip {
+  margin:8px 0 0; padding:8px 10px; background:#F3F6FB; border:1px solid #E4E7EC; border-radius:10px;
+  color:#3B4A63; font-size:12px; font-weight:700; min-height:18px;
+}
+.acre-maya-strip:empty { display:none; }
+.acre-score-row {
+  display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; margin:0 0 10px;
+}
+.acre-score-row .acre-score { background:#fff; border:1px solid #E4E7EC; border-radius:12px; padding:8px 8px 7px; }
+.acre-score-row .acre-score k { display:block; color:#6B7380; font-size:9px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+.acre-score-row .acre-score b { display:block; font-size:20px; letter-spacing:-.4px; line-height:1.15; }
+.acre-score-row .acre-score.maya b { color:#16A34A; }
+.acre-score-row .acre-score.clutch b { color:#EA580C; }
+.acre-score-row .acre-score.vauto b { color:#D97706; }
+.acre-score-row .acre-score.predicted b { color:#CA8A04; }
+.acre-rank-row { display:flex; flex-wrap:wrap; gap:6px; margin:0 0 10px; }
+.acre-rank-row i {
+  font-style:normal; background:#fff; border:1px solid #E4E7EC; border-radius:999px;
+  padding:5px 10px; font-size:11px; font-weight:800; color:#3B4A63;
+}
+.acre-sources { display:flex; flex-wrap:wrap; gap:6px; margin:4px 0 0; }
+.acre-sources button {
+  border:1px solid #E4E7EC; background:#fff; border-radius:999px; padding:6px 10px;
+  font-size:11px; font-weight:800; color:#3B4A63; cursor:pointer;
+}
+.acre-sources button.on { background:#111318; color:#fff; border-color:#111318; }
+.acre-thumbs-row { min-width:0; }
+.acre-thumbs-row .center-thumbs { margin:0; }
 .mkt-chip b { font-size:14px; }
 .center-docs, .center-why-docs { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:4px 0 8px; }
 .doc-slot {
@@ -1403,13 +1434,14 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
   #center .acre-desk{
     display:grid;
     grid-template-columns:minmax(240px,1.05fr) minmax(280px,1.15fr) minmax(200px,.85fr);
-    grid-template-areas:"hero mid market";
+    grid-template-areas:"hero mid market" "thumbs thumbs thumbs";
     gap:18px 22px;
     align-items:start;
   }
   #center .acre-col-hero{ grid-area:hero; }
   #center .acre-col-mid{ grid-area:mid; }
   #center .acre-col-market{ grid-area:market; }
+  #center .acre-thumbs-row{ grid-area:thumbs; }
   #center .acre-vals{
     display:flex; flex-direction:column; gap:0; margin:8px 0 14px;
   }
@@ -1993,7 +2025,12 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
     <div class="acre-desk" id="acreDesk">
       <div class="acre-col-hero">
         <div class="center-hero" id="centerHero"></div>
-        <div class="center-thumbs" id="centerThumbs"></div>
+        <div class="acre-notes-block">
+          <div class="block">Notes</div>
+          <p class="quote" id="centerStory">No story yet.</p>
+          <textarea class="note" id="centerNotes" placeholder="Anything the team should know"></textarea>
+          <div class="acre-maya-strip" id="centerMayaStrip"></div>
+        </div>
       </div>
       <div class="acre-col-mid">
         <h2 id="centerDetailTitle">Vehicle</h2>
@@ -2006,16 +2043,18 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
           <b>Open packet PDF</b>
           <span id="centerPacketPdfName"></span>
         </a>
-        <div class="center-metrics" id="centerMetrics"></div>
+        <div class="center-metrics acre-score-row" id="centerMetrics"></div>
+        <div class="acre-rank-row" id="centerRankRow"></div>
         <div class="acre-vals" id="centerValStrip"></div>
-        <div class="block">Notes</div>
-        <p class="quote" id="centerStory">No story yet.</p>
-        <textarea class="note" id="centerNotes" placeholder="Anything the team should know"></textarea>
+        <div class="acre-sources" id="centerSources"></div>
       </div>
       <div class="acre-col-market">
         <div class="acre-market" id="centerMarket"></div>
         <div class="docs-grid center-docs" id="centerDocs"></div>
         <div class="center-why-docs" id="centerWhyDocs"></div>
+      </div>
+      <div class="acre-thumbs-row">
+        <div class="center-thumbs" id="centerThumbs"></div>
       </div>
     </div>
     <div class="facts" id="centerFacts"></div>
@@ -6084,6 +6123,19 @@ const CENTER_MARKET=[
   ["pct","% market"],
   ["afc","AFC"]
 ];
+const CENTER_SCORES=[
+  ["maya","Maya","maya"],
+  ["clutch","Clutch Killer","clutch"],
+  ["vautoScore","VAuto","vauto"],
+  ["predicted","Predicted","predicted"]
+];
+const CENTER_RANKS=[
+  ["recon","Recon"],
+  ["profit","Profit"],
+  ["vrank","V rank"],
+  ["prank","P rank"]
+];
+const CENTER_SOURCES=["None","Clutch","CarDoor","Dealer","CarGurus","Kijiji","AutoTrader","Private"];
 function emptyTeam(){
   const o={};
   CENTER_TEAM.forEach(function(t){ o[t[0]]={min:"",target:"",max:"",note:""}; });
@@ -6093,7 +6145,10 @@ function emptyVals(){
   const o={};
   CENTER_VALS.forEach(function(t){ o[t[0]]=""; });
   CENTER_MARKET.forEach(function(t){ o[t[0]]=""; });
+  CENTER_SCORES.forEach(function(t){ o[t[0]]=""; });
+  CENTER_RANKS.forEach(function(t){ o[t[0]]=""; });
   o.rangeMin=""; o.rangeMax="";
+  o.competeSource="";
   return o;
 }
 function teamSlot(raw){
@@ -8821,17 +8876,51 @@ function paintCenterThumbs(shots, active){
 }
 function paintCenterMetrics(item){
   const host=$("centerMetrics"); if(!host) return;
-  const bits=[];
-  if(item.year) bits.push(item.year);
-  if(item.km) bits.push(centerKmLine(item)||String(item.km));
-  if(item.color) bits.push(item.color);
-  const vin=centerVinLine(item);
-  if(vin) bits.push(vin);
-  const n=(item.photos&&item.photos.length)||item.photoCount||((APP.centerShots||[]).length)||0;
-  if(n) bits.push(n===1?"1 photo":n+" photos");
-  if(item.dealType) bits.push(item.dealType);
-  host.innerHTML=bits.map(function(t){ return "<i>"+esc(t)+"</i>"; }).join("");
+  const vals=(item&&item.values)||emptyVals();
+  host.innerHTML=CENTER_SCORES.map(function(pair){
+    const v=String(vals[pair[0]]||"").trim();
+    return '<span class="acre-score '+pair[2]+'"><k>'+esc(pair[1])+'</k><b>'+esc(v||"—")+'</b></span>';
+  }).join("");
+  host.classList.remove("hide");
+}
+function paintCenterRanks(item){
+  const host=$("centerRankRow"); if(!host) return;
+  const vals=(item&&item.values)||emptyVals();
+  const bits=CENTER_RANKS.map(function(pair){
+    const v=String(vals[pair[0]]||"").trim();
+    if(!v) return "";
+    return "<i>"+esc(pair[1]+" "+v)+"</i>";
+  }).filter(Boolean);
+  host.innerHTML=bits.join("");
   host.classList.toggle("hide", !bits.length);
+}
+function paintCenterSources(item){
+  const host=$("centerSources"); if(!host) return;
+  const vals=(item&&item.values)||emptyVals();
+  const cur=String(vals.competeSource||"").trim();
+  host.innerHTML="";
+  CENTER_SOURCES.forEach(function(name){
+    const b=document.createElement("button");
+    b.type="button";
+    b.textContent=name;
+    if(cur===name) b.className="on";
+    b.onclick=function(){
+      if(typeof isCenterLocked==="function" && isCenterLocked(item)){ toast("Unlock this appraisal first."); return; }
+      patchCenter(item.id, function(x){
+        x.values=x.values||emptyVals();
+        x.values.competeSource=name;
+      });
+      paintCenterSources(getCenter(item.id)||item);
+    };
+    host.appendChild(b);
+  });
+}
+function paintCenterMayaStrip(item){
+  const host=$("centerMayaStrip"); if(!host) return;
+  const log=item && Array.isArray(item.mayaLog) ? item.mayaLog : [];
+  const last=log.length ? log[log.length-1] : null;
+  const q=last && String(last.q||"").trim();
+  host.textContent=q ? ("Maya · "+q) : "";
 }
 function askMaya(){
   const inp=$("centerMayaAsk");
@@ -9467,8 +9556,12 @@ function paintCenterTags(item){
   if(item.sample) tags.unshift("Sample");
   if(item.deskTeam) tags.unshift(item.deskTeam);
   if(item.interest) tags.unshift("Interest "+item.interest);
+  if(item.stage==="Appraised") tags.push("Appraised");
   if(item.color) tags.push(item.color);
   if(item.km) tags.push(centerKmLine(item));
+  if(item.origin) tags.push(item.origin);
+  if(item.clean) tags.push("Clean");
+  if(item.noAccident || item.accident==="none") tags.push("No accident");
   if(isCenterAged(item)) tags.push("90-day archive");
   const seen={};
   host.innerHTML=tags.filter(function(t){
@@ -9513,7 +9606,12 @@ function ensureCenterDetailScaffold(){
     '<div class="acre-desk" id="acreDesk">'+
       '<div class="acre-col-hero">'+
         '<div class="center-hero" id="centerHero"></div>'+
-        '<div class="center-thumbs" id="centerThumbs"></div>'+
+        '<div class="acre-notes-block">'+
+          '<div class="block">Notes</div>'+
+          '<p class="quote" id="centerStory">No story yet.</p>'+
+          '<textarea class="note" id="centerNotes" placeholder="Anything the team should know"></textarea>'+
+          '<div class="acre-maya-strip" id="centerMayaStrip"></div>'+
+        '</div>'+
       '</div>'+
       '<div class="acre-col-mid">'+
         '<h2 id="centerDetailTitle">Vehicle</h2>'+
@@ -9526,16 +9624,18 @@ function ensureCenterDetailScaffold(){
           '<b>Open packet PDF</b>'+
           '<span id="centerPacketPdfName"></span>'+
         '</a>'+
-        '<div class="center-metrics" id="centerMetrics"></div>'+
+        '<div class="center-metrics acre-score-row" id="centerMetrics"></div>'+
+        '<div class="acre-rank-row" id="centerRankRow"></div>'+
         '<div class="acre-vals" id="centerValStrip"></div>'+
-        '<div class="block">Notes</div>'+
-        '<p class="quote" id="centerStory">No story yet.</p>'+
-        '<textarea class="note" id="centerNotes" placeholder="Anything the team should know"></textarea>'+
+        '<div class="acre-sources" id="centerSources"></div>'+
       '</div>'+
       '<div class="acre-col-market">'+
         '<div class="acre-market" id="centerMarket"></div>'+
         '<div class="docs-grid center-docs" id="centerDocs"></div>'+
         '<div class="center-why-docs" id="centerWhyDocs"></div>'+
+      '</div>'+
+      '<div class="acre-thumbs-row">'+
+        '<div class="center-thumbs" id="centerThumbs"></div>'+
       '</div>'+
     '</div>'+
     '<div class="facts" id="centerFacts"></div>'+
@@ -9660,6 +9760,9 @@ function paintCenterDetail(){
   if($("centerDetailSub")) $("centerDetailSub").textContent=bits.filter(Boolean).join("  ·  ");
   paintCenterTags(item);
   paintCenterMetrics(item);
+  paintCenterRanks(item);
+  paintCenterSources(item);
+  paintCenterMayaStrip(item);
   paintCenterPacketPdf(item);
   if($("centerFacts")){
     $("centerFacts").innerHTML=
@@ -9723,7 +9826,7 @@ function paintCenterDetail(){
     }
   }
   const onsiteDesk=typeof centerLaneOf==="function" && centerLaneOf(item)==="onsite";
-  ["centerValStrip","centerMarket","centerWhyDocs","centerTeam","centerTeamHead","centerFinalBox"].forEach(function(id){
+  ["centerValStrip","centerMarket","centerSources","centerRankRow","centerWhyDocs","centerTeam","centerTeamHead","centerFinalBox"].forEach(function(id){
     if($(id)) $(id).classList.toggle("hide", needs && !onsiteDesk);
   });
   if($("centerRunTeamWrap")) $("centerRunTeamWrap").classList.toggle("hide", (needs && !onsiteDesk) || APP.role!=="employee");
