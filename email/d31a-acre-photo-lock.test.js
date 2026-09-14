@@ -65,6 +65,8 @@ must(/acre-doc-head/, "Documents heading");
 must(/function normalizeCenterPhoto\(/, "string photo URLs become hero shots");
 must(/#center \.center-desk-lane \{ display:none/, "desk HISTORY chip stays off the photo");
 must(/#center #centerDocs \{ display:none/, "launch-tool overflow stays off the photo column");
+must(/#center #centerWhyDocs/, "WHY slots stay off the photo desk");
+must(/function openCenterDetail\(id\)\{[\s\S]{0,420}APP\.centerLane="";/, "opening a car closes the list so the photo desk is full width");
 must(/class="acre-thumbs-row"/, "bottom thumbs strip");
 must(/#center \.acre-desk\{[\s\S]{0,280}grid-template-areas:"hero mid market"/, "desktop is hero | mid | market");
 must(/#center\.screen \{[\s\S]{0,220}background:#F5F6F8/, "white Acre page");

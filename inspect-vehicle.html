@@ -1212,6 +1212,8 @@ body.center-gallery-on { overflow:hidden; }
 #center .acre-doc-card b { display:block; font-size:14px; font-weight:800; color:#111318; letter-spacing:-.2px; }
 #center .center-hero .dots { display:none; }
 #center #centerDocs { display:none !important; }
+#center #centerWhyDocs,
+#center #centerFacts { display:none !important; }
 .acre-score-row {
   display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; margin:0 0 10px;
 }
@@ -1456,6 +1458,7 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
     grid-template-areas:"hero mid market" "thumbs thumbs thumbs";
     gap:12px 16px;
     align-items:start;
+    min-height:calc(100dvh - 210px);
   }
   #center .acre-col-hero{ grid-area:hero; }
   #center .acre-col-mid{ grid-area:mid; }
@@ -1504,8 +1507,8 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
   #centerLanes .lane-pill{ min-height:52px; padding:9px 7px; border-radius:999px; }
   #centerLanes .lane-pill b{ font-size:12px; }
   #center h2{ font-size:22px; letter-spacing:-.3px; margin:0 0 8px; }
-  #center .center-hero{ min-height:240px; border-radius:8px; }
-  #center .center-hero img{ height:min(32vh, 280px); }
+  #center .center-hero{ min-height:300px; border-radius:8px; }
+  #center .center-hero img{ height:min(38vh, 360px); }
   #center .center-docs, #center .center-why-docs, #center .docs-grid{ grid-template-columns:1fr 1fr; }
   #center .doc-slot, #center .doc-sq { min-height:196px; }
   #center .doc-slot b, #center .doc-sq b { font-size:20px; }
@@ -1553,8 +1556,8 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
   #centerLanes .lane-pill{ min-height:54px; padding:10px 8px; }
   #centerLanes .lane-pill b{ font-size:12px; }
   #center h2{ font-size:24px; letter-spacing:-.3px; }
-  #center .center-hero{ border-radius:8px; min-height:260px; }
-  #center .center-hero img{ height:min(34vh, 300px); }
+  #center .center-hero{ border-radius:8px; min-height:340px; }
+  #center .center-hero img{ height:min(42vh, 400px); }
   #center .acre-chip{ padding:10px 4px; }
   #center .acre-chip b{ font-size:20px; }
   #center .facts{ grid-template-columns:repeat(4, 1fr); }
@@ -8292,17 +8295,14 @@ function closeCenterLane(fromPop){
 function openCenterDetail(id){
   if(!canUseCenter()){ denyCenter(); return; }
   if(APP.centerViewId!==id) closeCenterGallery();
-  const replacingLane=!centerSplitLayout() && !!APP.centerLane;
+  const replacingLane=!!APP.centerLane;
   APP.centerViewId=id;
   APP.centerPhoto=0;
-  if(!centerSplitLayout()){
-    APP.centerLane="";
-    APP.centerHistory=false;
-    if($("centerDateMenu")) $("centerDateMenu").classList.remove("on");
-  }
+  APP.centerLane="";
+  APP.centerHistory=false;
+  if($("centerDateMenu")) $("centerDateMenu").classList.remove("on");
   show("center");
   paintCenterDetail();
-  if(centerSplitLayout() && APP.centerLane) paintCenter();
   syncCenterLayers();
   const s=centerHistState();
   if(replacingLane || s.ac==="lane" || s.ac==="detail") replaceCenterHist("detail");
