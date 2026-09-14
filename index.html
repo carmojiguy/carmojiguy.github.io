@@ -7049,7 +7049,7 @@ function applySharedIncoming(item, remote){
       item.lane="history";
     } else {
       const routed=laneFromMarketDocs(item.docs, remote.lane);
-      item.lane=remote.lane==="inbox" && routed.lane!=="needsdocs" ? "inbox" : routed.lane;
+      item.lane=routed.lane;
       item.docsIncomplete=routed.docsIncomplete;
       item.missingDocs=routed.missingDocs;
     }

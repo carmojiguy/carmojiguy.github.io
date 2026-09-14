@@ -68,6 +68,7 @@ function isNeedsDocsItem(item) {
 function isLandedCenterPacket() { return true; }
 function marketDocsComplete() { return true; }
 const centerLaneOf = eval("(" + html.match(/function centerLaneOf\(item\)\{[\s\S]*?\n\}/)[0].replace("function centerLaneOf", "function") + ")");
+const normalizeCenterLane = eval("(" + html.match(/function normalizeCenterLane\(lane\)\{[\s\S]*?\n\}/)[0].replace("function normalizeCenterLane", "function") + ")");
 const applyCenterLaneMove = eval("(" + html.match(/function applyCenterLaneMove\(item, lane\)\{[\s\S]*?\n\}/)[0].replace("function applyCenterLaneMove", "function") + ")");
 const slimSharedDocs = eval("(" + html.match(/function slimSharedDocs\(docs\)\{[\s\S]*?\n\}/)[0].replace("function slimSharedDocs", "function") + ")");
 function laneFromMarketDocs(docs, prefer) {
