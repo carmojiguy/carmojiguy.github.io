@@ -34,9 +34,9 @@ function sha(s) {
 assert.equal(copy404, html, "404.html stays a byte-identical copy of index.html");
 assert.equal(inspect, html, "inspect-vehicle.html stays a byte-identical copy of index.html");
 
-must(/id="buildStamp">build d30s</, "home footer stamp is d30s");
-must(/<!--[\s\S]*build d30s[\s\S]*Run Appraisal Team tap always fires/, "file header stamp is d30s tap");
-must(/id="typeSheet"[\s\S]*build d30s/, "type sheet stamp is d30s");
+must(/id="buildStamp">build d31c</, "home footer stamp is d31c");
+must(/<!--[\s\S]*build d31c[\s\S]*Run Appraisal Team tap always fires/, "file header stamp keeps d30s tap lock");
+must(/id="typeSheet"[\s\S]*build d31c/, "type sheet stamp is d31c");
 must(/function activateAppraisalTeam\(/, "activate helper exists");
 must(/function landTeamRunFromFile\(/, "panel lands existing file numbers");
 must(/function startTeamRunProgress\(/, "panel progress helper exists");
