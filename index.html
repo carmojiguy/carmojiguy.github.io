@@ -6289,8 +6289,8 @@ const CENTER_PHOTO_DOCS=[
   ["mmr","MMR","mmr","mmr"]
 ];
 const CENTER_PHOTO_DOC_THUMBS={
-  vauto:"/start-bgs/gr-corolla/01.jpg",
-  book:"/start-bgs/gr-corolla/07.jpg",
+  vauto:"/docs/vauto.svg",
+  openlane:"/docs/openlane.jpg",
   openlane:"/docs/openlane.jpg",
   eblock:"/docs/eblock.jpg",
   eblockLogo:"/docs/eblock.jpg",
@@ -6926,7 +6926,7 @@ function seedPhotoLockGrCorolla(){
   item.origin="Japan"; item.clean=true; item.noAccident=true; item.accident="none";
   item.tags=["Appraised","Not out of province","Not a US vehicle"];
   item.lane="onsite"; item.stage="Waiting";
-  item.sentAt=Date.now()-400*86400000;
+  item.sentAt=Date.now();
   item.createdAt=item.createdAt||item.sentAt;
   item.notes="Selling as a trade. Already has a GR86 deposit down and needs a number today so they can release it. Expecting closer to $42,000 because of 10,500 km and the 6-speed. One owner, garage kept, never winter driven. CarGurus has similar.";
   item.story="";
@@ -8586,6 +8586,7 @@ function centerStatus(item){
 }
 function isCenterAged(item){
   if(!item) return false;
+  if(typeof isPhotoLockItem==="function" && isPhotoLockItem(item)) return false;
   if(item.archived) return true;
   const when=centerWhen(item);
   return !!(when && (Date.now()-when)>CENTER_ARCHIVE_MS);
@@ -9902,7 +9903,7 @@ function paintCenterTags(item){
   const host=$("centerTags"); if(!host) return;
   const tags=[];
   if(item.sample) tags.push("Sample");
-  if(item.deskTeam) tags.push(item.deskTeam);
+  if(item.deskTeam && item.deskTeam!==item.salesperson) tags.push(item.deskTeam);
   if(item.interest) tags.push("Interest "+item.interest);
   if(item.stage==="Appraised" || (item.tags||[]).indexOf("Appraised")>=0) tags.push("Appraised");
   if(item.km) tags.push(centerKmLine(item));
