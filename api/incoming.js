@@ -8,13 +8,15 @@
  *        → { ok:true, kind:"users", users:[], teams:[], permissions:{}, updatedAt, via }
  *        via is "blob" only when Vercel Blob actually served the roster;
  *        otherwise "tmp" (/tmp/center-users-v1.json) or "memory".
- *        Users roster PUT/GET pathname center-users-v1.json (same Blob headers
- *        as api/lib/notify-store.js) so toggles survive cold starts.
+ *        Users roster PUT/GET pathname center-users-v1.json
+ *        (addRandomSuffix false, allowOverwrite true, cacheControlMaxAge 0).
+ *        List prefix center-users-v1 picks newest updatedAt; never overwrite
+ *        a non-empty users[] with empty; via is "blob" only after read-back.
  *   POST same URL
  *        { kind:"land", item: slimCenterItem }
  *        → { ok:true, id }
  *        { kind:"users", users:[], teams:[], permissions:{} }
- *        → { ok:true, kind:"users", updatedAt, via }  (via honest; Blob awaited)
+ *        → { ok:true, kind:"users", updatedAt, via }  (via honest; read-back)
  *        { kind:"team", sendId, id, vin, ymmt, pdfUrl, docs, item }
  *        → persist teamActivated + notify-appraisal + APPRAISAL_TEAM_WEBHOOK
  *        Empty land never wipes a complete appraisalFinal (min+target+max).
@@ -663,6 +665,18 @@ async function listUsers(deps) {
 async function persistUsers(body, deps) {
   const existing = await hydrateUsersFromBlob(deps);
   const next = buildUsersBlob(body);
+  if (!usersStore.hasUsers(next) && usersStore.hasUsers(existing)) {
+    return {
+      status: 200,
+      body: {
+        ok: true,
+        kind: "users",
+        updatedAt: existing.updatedAt || 0,
+        via: honestVia(usersStore.via()),
+        skipped: "empty"
+      }
+    };
+  }
   if (!usersStore.isPopulated(next) && usersStore.isPopulated(existing)) {
     return {
       status: 200,

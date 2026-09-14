@@ -103,7 +103,9 @@ must(/function persistUsersRemote\(/, "Users save to mailer");
 must(/kind:"users"/, "Users blob kind is users");
 must(/\/api\/incoming\?kind=users/, "Users GET hits kind=users");
 must(/function applyUsersBlob\(/, "empty remote does not invent users");
-must(/if\(!people\.length && !\(blob\.permissions/, "empty blob does not wipe or invent");
+must(/function mergePermsByEmail\(/, "permissions merge by email");
+must(/if\(!people\.length\)[\s\S]{0,220}localPeople\.length/, "empty remote users do not replace local people");
+must(/skipped:"empty-users"/, "empty-users persist is refused when local has people");
 
 must(/function finishGuest\(\)\{\s*finishThanks\(\);/, "Thank-you stays frozen");
 mustNot(/id="exitRefresh"/, "Refresh stays gone");
@@ -133,13 +135,13 @@ mustNot(/openlane:\s*\[\{ask|sold:/, "do not invent OpenLane solds");
 })();
 
 (function testUsersBlobEmptyDoesNotInvent() {
-  const applySrc = sliceFn("applyUsersBlob", "persistUsersRemote");
+  const applySrc = sliceFn("mergePermsByEmail", "persistUsersRemote");
   let stored = { people: [{ email: "local@myloan.ca", name: "Local", teams: [], leader: false }], permissions: {} };
   function loadUsersStore() { return stored; }
   function saveUsersStore(next) { stored = next; }
   function staffEmail(v) { return String(v || "").trim().toLowerCase(); }
   function normalizeTeams(v) { return Array.isArray(v) ? v : []; }
-  const applyUsersBlob = eval("(" + applySrc.replace("function applyUsersBlob", "function") + ")");
+  const applyUsersBlob = eval("(function(){\n" + applySrc + "\nreturn applyUsersBlob;\n})()");
   assert.strictEqual(applyUsersBlob({ ok: true, kind: "users", users: [], teams: [], permissions: {} }), false, "empty live roster is not applied");
   assert.strictEqual(stored.people[0].email, "local@myloan.ca", "empty GET does not invent or wipe local people");
   assert.ok(applyUsersBlob({
