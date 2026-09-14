@@ -84,18 +84,23 @@ must(/TRACKER_OTTAWA_URL="https:\/\/docs\.google\.com\/spreadsheets\/d\/1QRmPSMX
 
 must(/function trackerCurrentMonth\(/, "tracker current month helper");
 must(/function trackerHref\(/, "tracker href helper");
-must(/function openTrackerSheet\(/, "tracker opens in-app");
+must(/function openTrackerSheet\(/, "tracker helper stays");
+must(/function openTrackerGoogleDoc\(/, "tracker taps open Google Docs");
 must(/function paintTrackerSheet\(/, "tracker paints mobile + desk");
+must(/function paintApptMonths\(/, "main page paints month pills");
+must(/id="apptMonths"/, "main page has month scroller");
 must(/class="tracker-mobile"/, "tracker mobile card host");
 must(/class="tracker-desk"/, "tracker desktop table host");
 must(/@media \(max-width:979px\)\{[\s\S]*\.tracker-desk\{display:none !important\}/, "phone hides the wide table");
 must(/@media \(min-width:980px\)\{[\s\S]*\.tracker-mobile\{display:none\}/, "desktop hides stacked cards");
 must(/if\(!APP\.trackerMonth\) APP\.trackerMonth=trackerCurrentMonth\(\)/, "tracker opens on current month");
-must(/encodeURIComponent\("'"\+m\+"'!A1"\)/, "Google Sheet link aims at the named month");
 must(/id="trackerSheet"/, "in-app tracker sheet exists");
-must(/openTrackerSheet\("GTA"/, "GTA Tracker opens the in-app sheet");
-must(/openTrackerSheet\("Ottawa"/, "Ottawa Tracker opens the in-app sheet");
+must(/openTrackerSheet\("GTA"/, "GTA Tracker tap uses the Google Doc opener");
+must(/openTrackerSheet\("Ottawa"/, "Ottawa Tracker tap uses the Google Doc opener");
 must(/view=tracker/, "month pull asks the mailer for the tracker view");
+must(/apptRange:"month"/, "desk defaults to the current month, not Today");
+mustNot(/range=\+encodeURIComponent\("'"\+m\+"'!A1"\)/, "quoted September range is gone — it blocked Google Docs");
+must(/function openExternalDoc\(/, "Google Doc taps use window.open + fallback");
 
 (function testCurrentMonthHref() {
   const start = html.indexOf("const TRACKER_MONTHS=");
@@ -104,8 +109,11 @@ must(/view=tracker/, "month pull asks the mailer for the tracker view");
   const h = new Function(html.slice(start, end) + "; return { trackerCurrentMonth: trackerCurrentMonth, trackerHref: trackerHref };")();
   assert.strictEqual(h.trackerCurrentMonth(new Date(2026, 8, 14)), "September", "14 Sep 2026 is September");
   assert.strictEqual(h.trackerCurrentMonth(new Date(2026, 0, 1)), "January", "1 Jan is January");
-  assert.ok(h.trackerHref("https://example/edit?usp=sharing", "September").indexOf("range=") >= 0, "href includes range");
-  assert.ok(decodeURIComponent(h.trackerHref("https://example/edit?usp=sharing", "September")).indexOf("'September'!A1") >= 0, "href points at September tab");
+  const href = h.trackerHref("https://docs.google.com/spreadsheets/d/abc/edit?usp=sharing", "September");
+  assert.ok(href.indexOf("docs.google.com/spreadsheets") >= 0, "href stays a Google Sheet");
+  assert.ok(href.indexOf("usp=sharing") >= 0, "sharing URL stays");
+  assert.ok(href.indexOf("range=") < 0, "href has no range= that Google login rejects");
+  assert.ok(href.indexOf("'September'") < 0, "href has no quoted sheet name");
 })();
 
 assert.strictEqual(api.trackerCurrentMonth(new Date(2026, 8, 14)), "September", "API current month is September");

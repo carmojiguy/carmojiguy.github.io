@@ -262,6 +262,45 @@ function needleOf(q) {
   return String(q || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
 }
 
+function isoMonthName(iso) {
+  const d = String(iso || "").slice(0, 10);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) return "";
+  return TRACKER_MONTHS[Number(d.slice(5, 7)) - 1] || "";
+}
+
+function inTrackerRegion(row, region) {
+  const r = apptRegion((row && (row.region || row.location)) || "");
+  if (r === region) return true;
+  if (region === "GTA" && !r) return true;
+  return false;
+}
+
+function mergeAppointmentRows(a, b) {
+  const seen = {};
+  const out = [];
+  function add(row) {
+    if (!row) return;
+    const key = needleOf(row.appNo || row.id);
+    if (key && Object.prototype.hasOwnProperty.call(seen, key)) {
+      const i = seen[key];
+      const cur = out[i];
+      if ((!cur.vin || cur.vin === "TBD") && row.vin && row.vin !== "TBD") {
+        out[i] = Object.assign({}, cur, {
+          vin: row.vin,
+          ymm: cur.ymm || row.ymm,
+          seller: cur.seller || row.seller
+        });
+      }
+      return;
+    }
+    if (key) seen[key] = out.length;
+    out.push(row);
+  }
+  (a || []).forEach(add);
+  (b || []).forEach(add);
+  return out;
+}
+
 function matchApp(row, needle) {
   if (!needle) return false;
   const app = String((row && (row.appNo || row.cdApp)) || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
@@ -340,12 +379,25 @@ async function handle(req, res) {
     const regionRaw = url ? String(url.searchParams.get("region") || "").trim() : "";
     const region = /ottawa/i.test(regionRaw) ? "Ottawa" : "GTA";
     if (view === "tracker") {
-      const useMonth = month || trackerCurrentMonth();
+      const useMonth = TRACKER_MONTHS.indexOf(month) >= 0 ? month : trackerCurrentMonth();
       const pulled = await trackerMonthRows(region, useMonth);
-      if (!pulled.ok) {
-        return json(res, 200, { ok: true, live: false, view: "tracker", month: useMonth, region: region, items: [], reason: pulled.reason }, origin);
-      }
-      return json(res, 200, { ok: true, live: true, view: "tracker", month: useMonth, region: region, items: pulled.items }, origin);
+      const sheetItems = pulled.ok ? (pulled.items || []) : [];
+      const air = await allRecords("Canada Drives");
+      const airItems = (air.live ? air.records.map(mapRecord) : []).filter(function (row) {
+        return inTrackerRegion(row, region) && isoMonthName(row.date) === useMonth;
+      });
+      const items = mergeAppointmentRows(airItems, sheetItems);
+      const live = !!(air.live || pulled.ok);
+      return json(res, 200, {
+        ok: true,
+        live: live,
+        view: "tracker",
+        month: useMonth,
+        region: region,
+        items: items,
+        via: sheetItems.length && airItems.length ? "sheet+airtable" : (sheetItems.length ? "sheet" : "airtable"),
+        reason: live ? "" : (pulled.reason || air.reason || "Couldn’t load the month.")
+      }, origin);
     }
     if (!usesAppointmentsSource(sourceName)) {
       return json(res, 200, { ok: true, live: true, items: [], appointments: false, reason: "Appointments are Canada Drives only. Use New application." }, origin);
@@ -388,3 +440,6 @@ module.exports.parseTrackerMatrix = parseTrackerMatrix;
 module.exports.excelSerialDate = excelSerialDate;
 module.exports.matchApp = matchApp;
 module.exports.needleOf = needleOf;
+module.exports.isoMonthName = isoMonthName;
+module.exports.inTrackerRegion = inTrackerRegion;
+module.exports.mergeAppointmentRows = mergeAppointmentRows;

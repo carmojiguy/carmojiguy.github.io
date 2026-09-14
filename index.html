@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-14 build d31a: pixel-faithful Acre GR Corolla desk (white hero|mid|market, not stone/teal); CA workbench redo — drop the verbal-only tag forever; What's the Story walks the car and talks; Walk-around photos only; keep Critical damage; salesperson CA has no packet-send card; Tracker mobile cards + current month; website-post story-first year/make/model/trim/condition, no team select, original start not webdesk, pictures still relaunch/post; Acre GR Corolla desk lock — FIFO oldest home, left-rail Incoming/On-site/Needs docs/History pills, no hist KPI strip, Ask Maya, appraisal range/competing/ask; users GET/POST kind:users persist; 911 Acre team reads finalRationale.markdown + panel Rybot/Webot/Drebot/TBot + team.shabot note, hides boxes with no numbers; mailer keeps rich team/rationale on Center refresh; Trade-in start drops stray top History (rail History stays); 911 Incoming FINAL min+target+max clears Running and lands Appraisal Team numbers (Blazer s1af19al / F-150 sir78n6); Run Appraisal Team tap always fires (rerun + Unlocked History); kind:team wake; Incoming FINAL settles Running; schema 1.0 team + panel boxes; market pills append multiple files into shots[]; compact V Auto / Carfax / OpenLane / eBlock chips; same sendId/id Incoming POST; panel runs progress → existing FINAL; no invented solds; real Carfax http url opens the uploaded file; sample recreate only when no docs.carfax.url; Carfax square + huge card add/upload kind:file carfax; staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; Incoming keeps http docs.url; Incoming appends shots[]; status dropdown every lane; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples; hides generated From V Auto lane -->
+<!-- center-v3 + desk-home 2026-09-14 build d31a: pixel-faithful Acre GR Corolla desk (white hero|mid|market, not stone/teal); CA workbench redo — drop the verbal-only tag forever; What's the Story walks the car and talks; Walk-around photos only; keep Critical damage; salesperson CA has no packet-send card; Tracker mobile cards + current month; Canada Drives appointments: month list from Airtable Appointment Booked + GTA/Ottawa Tracker, Google Docs open (no preventDefault overlay), Acre-bright desk; website-post story-first year/make/model/trim/condition, no team select, original start not webdesk, pictures still relaunch/post; Acre GR Corolla desk lock — FIFO oldest home, left-rail Incoming/On-site/Needs docs/History pills, no hist KPI strip, Ask Maya, appraisal range/competing/ask; users GET/POST kind:users persist; 911 Acre team reads finalRationale.markdown + panel Rybot/Webot/Drebot/TBot + team.shabot note, hides boxes with no numbers; mailer keeps rich team/rationale on Center refresh; Trade-in start drops stray top History (rail History stays); 911 Incoming FINAL min+target+max clears Running and lands Appraisal Team numbers (Blazer s1af19al / F-150 sir78n6); Run Appraisal Team tap always fires (rerun + Unlocked History); kind:team wake; Incoming FINAL settles Running; schema 1.0 team + panel boxes; market pills append multiple files into shots[]; compact V Auto / Carfax / OpenLane / eBlock chips; same sendId/id Incoming POST; panel runs progress → existing FINAL; no invented solds; real Carfax http url opens the uploaded file; sample recreate only when no docs.carfax.url; Carfax square + huge card add/upload kind:file carfax; staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; Incoming keeps http docs.url; Incoming appends shots[]; status dropdown every lane; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples; hides generated From V Auto lane -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -169,35 +169,53 @@ label.k { display:block; color:#6e6e73; font-size:13px; margin:11px 0 5px; }
 .home-gate .pill,.home-gate .link,#home .pill:disabled,#home .link:disabled{cursor:not-allowed}
 .type-gate-note{margin:0 0 14px;color:var(--ink);font-size:15px;line-height:1.45;font-weight:700}
 #typeWrap.need-type #btnDealType{border-color:var(--purple);box-shadow:0 0 0 3px rgba(124,92,255,.18)}
-.appt-wrap{margin:0 0 18px;padding:14px 14px 16px;background:#fff;border:1.5px solid var(--hair);border-radius:18px}
+.appt-wrap{margin:0 0 18px;padding:0;background:transparent;border:0;border-radius:0}
 .appt-wrap .lbl{font-size:13px;font-weight:800;color:var(--ink);margin:0 0 6px}
-.appt-tabs{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 10px}
+.appt-tabs{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0}
 .appt-dates{position:relative;display:flex;flex:0 0 auto;margin:0}
-.appt-tabs > button,.appt-dates > button{border:1.5px solid var(--hair);background:#fff;border-radius:999px;padding:8px 14px;font-size:13px;font-weight:800;cursor:pointer;flex:0 0 auto;width:auto}
-.appt-tabs > button.on,.appt-dates > button.on{background:var(--lavender);border-color:var(--purple);color:var(--purple-deep)}
+.appt-tabs > button,.appt-dates > button{border:1px solid #E4E7EC;background:#fff;border-radius:999px;padding:10px 16px;font-size:13px;font-weight:800;cursor:pointer;flex:0 0 auto;width:auto;min-height:44px;color:#111318}
+.appt-tabs > button.on,.appt-dates > button.on{background:#111318;border-color:#111318;color:#fff}
 .appt-dates .date-menu{left:auto;right:0;width:min(280px,86vw);min-width:220px}
 .appt-dates .date-menu > button{font-size:15px;padding:12px 14px;min-height:44px}
-.appt-row{display:block;width:100%;text-align:left;border:1.5px solid var(--hair);background:#fff;border-radius:16px;padding:12px 14px;margin:0 0 8px;cursor:pointer}
-.appt-row.on{border-color:var(--purple);background:var(--lavender)}
-.appt-row b{display:block;font-size:16px}
-.appt-row span{display:block;color:var(--muted);font-size:13px;line-height:1.4;margin-top:2px}
+.appt-row{display:grid;grid-template-columns:64px minmax(0,1fr);gap:12px;align-items:center;width:100%;text-align:left;border:0;background:#fff;border-radius:20px;padding:12px 14px;margin:0 0 10px;cursor:pointer;box-shadow:0 10px 24px rgba(17,19,24,.06);min-height:88px}
+.appt-row.on{box-shadow:0 0 0 2px #2563EB, 0 10px 24px rgba(37,99,235,.16)}
+.appt-row .appt-when{display:flex;flex-direction:column;align-items:center;justify-content:center;width:64px;height:64px;border-radius:16px;background:#EEF4FF;color:#1D4ED8;flex:0 0 64px}
+.appt-row .appt-when b{display:block;font-size:20px;letter-spacing:-.4px;line-height:1}
+.appt-row .appt-when i{display:block;font-size:10px;font-weight:800;font-style:normal;letter-spacing:.08em;text-transform:uppercase;margin-top:4px}
+.appt-row .appt-body{min-width:0}
+.appt-row .appt-body b{display:block;font-size:16px;letter-spacing:-.3px;line-height:1.2;margin:0 0 4px}
+.appt-row .appt-body span{display:block;color:#6B7380;font-size:13px;line-height:1.4;font-weight:600}
 .appt-stage{display:inline-block;border-radius:999px;padding:2px 8px;margin:0 6px 0 0;font-size:11px;font-weight:800;letter-spacing:.02em;font-style:normal;vertical-align:1px}
-.appt-stage.booked{background:var(--lavender);color:var(--purple-deep)}
-.appt-stage.onsite{background:#D8F3FC;color:var(--cyan-deep)}
-.appt-empty{color:var(--muted);font-size:14px;line-height:1.45;margin:8px 2px 0}
-.appt-toolbar{display:flex;flex-direction:column;gap:10px;margin:0 0 12px}
+.appt-stage.booked{background:#E8F1FF;color:#1D4ED8}
+.appt-stage.onsite{background:#D8F5E5;color:#0F6B3C}
+.appt-empty{color:#6B7380;font-size:14px;line-height:1.45;margin:8px 2px 0;font-weight:600}
+.appt-toolbar{display:flex;flex-direction:column;gap:12px;margin:0 0 14px;padding:14px;background:#fff;border-radius:22px;box-shadow:0 10px 28px rgba(17,19,24,.05)}
 .appt-search{display:block;margin:0}
-.appt-search-lbl{display:block;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--cyan-deep);margin:0 0 6px}
-.appt-search input{width:100%;min-height:52px;border:1.5px solid #BFE8F7;border-radius:16px;padding:12px 16px;font-size:17px;font-weight:700;background:#F3FBFF;color:var(--ink)}
-.appt-search input:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,164,226,.18);background:#fff}
+.appt-search-lbl{display:block;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#1D4ED8;margin:0 0 6px}
+.appt-search input{width:100%;min-height:52px;border:1.5px solid #D7E3F4;border-radius:16px;padding:12px 16px;font-size:17px;font-weight:700;background:#F7FAFF;color:#111318}
+.appt-search input:focus{outline:none;border-color:#2563EB;box-shadow:0 0 0 3px rgba(37,99,235,.16);background:#fff}
 .appt-rowbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
 .appt-actions{display:flex;flex-wrap:wrap;gap:8px;width:100%}
-.appt-tracker,.appt-new{border:1.5px solid var(--hair);background:#fff;border-radius:999px;padding:10px 14px;font-size:13px;font-weight:800;cursor:pointer;text-decoration:none;color:var(--ink);line-height:1.2;display:inline-flex;align-items:center;justify-content:center;min-height:40px}
-.appt-tracker{background:#E8F8FF;border-color:#7AD4F0;color:var(--cyan-deep)}
-.appt-new{background:var(--purple);border-color:var(--purple);color:#fff}
-.appt-empty-cta{margin:14px 0 4px;padding:16px;border-radius:18px;background:linear-gradient(180deg,#F4FBFF,#F3F0FF);border:1.5px dashed rgba(124,92,255,.35)}
+.appt-tracker,.appt-new{border:1px solid #E4E7EC;background:#fff;border-radius:999px;padding:10px 14px;font-size:13px;font-weight:800;cursor:pointer;text-decoration:none;color:#111318;line-height:1.2;display:inline-flex;align-items:center;justify-content:center;min-height:44px}
+.appt-tracker{background:#F7FAFF;border-color:#BFDBFE;color:#1D4ED8}
+.appt-new{background:#111318;border-color:#111318;color:#fff}
+.appt-empty-cta{margin:14px 0 4px;padding:16px;border-radius:20px;background:#fff;border:1px dashed #D7E3F4;box-shadow:0 8px 20px rgba(17,19,24,.04)}
 .appt-empty-cta b{display:block;font-size:16px;margin:0 0 4px}
-.appt-empty-cta p{margin:0 0 12px;color:var(--muted);font-size:14px;font-weight:600;line-height:1.4}
+.appt-empty-cta p{margin:0 0 12px;color:#6B7380;font-size:14px;font-weight:600;line-height:1.4}
+.appt-months{display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;margin:2px 0 0;padding:2px 2px 6px;scrollbar-width:none}
+.appt-months::-webkit-scrollbar{display:none}
+.appt-months button{
+  flex:0 0 auto;border:1px solid #E4E7EC;background:#F5F6F8;border-radius:999px;
+  padding:10px 16px;font-size:13px;font-weight:800;cursor:pointer;min-height:44px;color:#111318
+}
+.appt-months button.on{background:#2563EB;border-color:#2563EB;color:#fff;box-shadow:0 8px 18px rgba(37,99,235,.24)}
+.appt-count{margin:0 2px 10px;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#6B7380}
+#apptCal{padding:0 2px 8px}
+#apptCal .pair{grid-template-columns:minmax(0,1fr);gap:10px;margin:0}
+#apptCal .f{min-width:0;max-width:100%}
+@media (min-width:520px){
+  #apptCal .pair{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+}
 @media (min-width:720px){
   .appt-rowbar{align-items:center}
   .appt-actions{width:auto;margin-left:auto}
@@ -219,18 +237,23 @@ label.k { display:block; color:#6e6e73; font-size:13px; margin:11px 0 5px; }
 #typeSheet .build-stamp{display:inline;margin:0 0 0 8px;opacity:.8}
 .lead-box{margin:12px 0 0}
 .lead-box .hint{margin-bottom:10px}
-#workbench{background:
-  radial-gradient(920px 480px at 6% -12%, rgba(0,164,226,.22), transparent 58%),
-  radial-gradient(820px 420px at 110% -4%, rgba(124,92,255,.18), transparent 54%),
-  radial-gradient(640px 280px at 50% 120%, rgba(255,215,106,.16), transparent 60%),
-  #F4FBFF}
-.phone:has(#workbench.on){max-width:min(1180px,100%);background:var(--page)}
-html:has(#workbench.on), body:has(#workbench.on){background:#E4F4FF}
+#workbench{background:#F5F6F8}
+.phone:has(#workbench.on){max-width:min(1180px,100%);background:#F5F6F8}
+html:has(#workbench.on), body:has(#workbench.on){background:#ECEEF2}
 #workbench .nav h1{font-size:16px;letter-spacing:.02em}
 #workbench .hist-jump{
-  background:linear-gradient(135deg,#7C5CFF,#00A4E2);
-  box-shadow:0 12px 28px rgba(124,92,255,.22)
+  background:#111318;
+  color:#fff;
+  box-shadow:0 10px 24px rgba(17,19,24,.12)
 }
+#wbPick .wb-hero{
+  margin:4px 0 18px;padding:20px 18px 18px;border-radius:24px;color:#111318;
+  background:#fff;border:1px solid #E4E7EC;
+  box-shadow:0 10px 28px rgba(17,19,24,.06)
+}
+#wbPick .wb-kicker{margin:0;font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#1D4ED8;opacity:1}
+#wbPick .wb-hero h2{margin:8px 0 6px;font-size:30px;letter-spacing:-.7px;line-height:1.05;color:#111318}
+#wbPick .wb-hero p{margin:0;font-size:15px;font-weight:600;opacity:1;line-height:1.4;color:#6B7380}
 .wb-hero{
   margin:4px 0 18px;padding:22px 20px 20px;border-radius:28px;color:#fff;
   background:linear-gradient(135deg,#19B6F0 0%,#00A4E2 38%,#5B7CFF 72%,#7C5CFF 100%);
@@ -253,29 +276,29 @@ html:has(#workbench.on), body:has(#workbench.on){background:#E4F4FF}
 .wb-card.on{outline:2px solid var(--purple)}
 .tracker-sheet .tracker-card{
   width:min(1080px,100%);max-height:min(86dvh,920px);overflow:auto;
-  padding:20px 16px 18px
+  padding:20px 16px 18px;background:#F5F6F8
 }
 .tracker-months{display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 0 14px;padding-bottom:4px}
 .tracker-months button{
-  flex:0 0 auto;border:1.5px solid var(--hair);background:#fff;border-radius:999px;
-  padding:8px 14px;font-size:13px;font-weight:800;cursor:pointer;min-height:40px
+  flex:0 0 auto;border:1px solid #E4E7EC;background:#fff;border-radius:999px;
+  padding:10px 16px;font-size:13px;font-weight:800;cursor:pointer;min-height:44px
 }
-.tracker-months button.on{background:var(--lavender);border-color:var(--purple);color:var(--purple-deep)}
+.tracker-months button.on{background:#2563EB;border-color:#2563EB;color:#fff}
 .tracker-mobile{display:flex;flex-direction:column;gap:10px}
 .tracker-row{
-  display:block;width:100%;text-align:left;border:0;border-radius:20px;padding:14px 14px 12px;
-  background:#fff;box-shadow:0 10px 24px rgba(17,14,26,.06);cursor:pointer;font:inherit;color:var(--ink)
+  display:grid;grid-template-columns:64px minmax(0,1fr);gap:12px;align-items:center;width:100%;text-align:left;border:0;border-radius:20px;padding:12px 14px;
+  background:#fff;box-shadow:0 10px 24px rgba(17,19,24,.06);cursor:pointer;font:inherit;color:#111318;min-height:88px
 }
-.tracker-row b{display:block;font-size:16px;letter-spacing:-.2px;margin:0 0 4px}
-.tracker-row span{display:block;color:var(--muted);font-size:13px;font-weight:600;line-height:1.4}
-.tracker-row i{display:inline-block;margin:0 6px 6px 0;border-radius:999px;padding:2px 8px;font-size:11px;font-weight:800;font-style:normal;background:#E8F8FF;color:var(--cyan-deep)}
-.tracker-desk{display:none;overflow:auto;-webkit-overflow-scrolling:touch;margin:0 0 14px;border-radius:18px;background:#fff;box-shadow:0 10px 24px rgba(17,14,26,.05)}
+.tracker-row b{display:block;font-size:16px;letter-spacing:-.3px;margin:0 0 4px}
+.tracker-row span{display:block;color:#6B7380;font-size:13px;font-weight:600;line-height:1.4}
+.tracker-row i{display:inline-block;margin:0 6px 6px 0;border-radius:999px;padding:2px 8px;font-size:11px;font-weight:800;font-style:normal;background:#E8F1FF;color:#1D4ED8}
+.tracker-desk{display:none;overflow:auto;-webkit-overflow-scrolling:touch;margin:0 0 14px;border-radius:18px;background:#fff;box-shadow:0 10px 24px rgba(17,19,24,.05)}
 .tracker-desk table{width:100%;border-collapse:collapse;min-width:640px}
-.tracker-desk th,.tracker-desk td{padding:10px 12px;text-align:left;font-size:13px;border-bottom:1px solid var(--hair);vertical-align:top}
-.tracker-desk th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--cyan-deep);background:#F4FBFF;position:sticky;top:0}
+.tracker-desk th,.tracker-desk td{padding:10px 12px;text-align:left;font-size:13px;border-bottom:1px solid #E4E7EC;vertical-align:top}
+.tracker-desk th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#1D4ED8;background:#F7FAFF;position:sticky;top:0}
 .tracker-desk tr{cursor:pointer}
-.tracker-desk tr:hover td{background:#F7F3FF}
-.tracker-empty{margin:8px 0 14px;color:var(--muted);font-size:14px;font-weight:600;line-height:1.4}
+.tracker-desk tr:hover td{background:#F7FAFF}
+.tracker-empty{margin:8px 0 14px;color:#6B7380;font-size:14px;font-weight:600;line-height:1.4}
 @media (max-width:979px){
   .tracker-desk{display:none !important}
   .tracker-mobile{display:flex}
@@ -1548,7 +1571,7 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
   #damageRows .dmg-card { margin:0; }
   .docs-grid, .center-docs, .center-why-docs { grid-template-columns:1fr 1fr; gap:18px; }
   .phone:has(#workbench.on){ max-width:none; background:var(--page); }
-  html:has(#workbench.on), body:has(#workbench.on){ background:#DCEFFA; }
+  html:has(#workbench.on), body:has(#workbench.on){ background:#ECEEF2; }
   #workbench.screen{ padding-bottom: calc(80px + env(safe-area-inset-bottom)); }
   #workbench .nav, #workbench .pad { max-width:1240px; }
   #workbench .pad { display:block; }
@@ -2210,9 +2233,9 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
     <button class="hist-jump" type="button" id="wbHistBtn">History — completed CA files</button>
     <div id="wbPick" class="wb-pick-desk">
       <div class="wb-hero">
-        <p class="wb-kicker" id="wbPickKicker">Appointments</p>
+        <p class="wb-kicker" id="wbPickKicker">Canada Drives</p>
         <h2 id="wbPickTitle">Who’s coming in</h2>
-        <p id="wbPickLead">Pick the booked appointment. The workbench opens already filled — we don’t ask again for what Airtable already has.</p>
+        <p id="wbPickLead">Booked appointments from the GTA and Ottawa Tracker sheets. Tap a month, tap a vehicle — Appraise opens already filled.</p>
       </div>
       <div id="apptWrap" class="appt-wrap">
         <div class="appt-toolbar" id="apptToolbar">
@@ -2225,7 +2248,7 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
               <button type="button" data-appt-region="GTA">GTA</button>
               <button type="button" data-appt-region="Ottawa">Ottawa</button>
               <div class="appt-dates" id="apptDates">
-                <button type="button" id="apptDateBtn">Today</button>
+                <button type="button" id="apptDateBtn">This month</button>
                 <div class="date-menu" id="apptDateMenu">
                   <button type="button" data-appt-range="today">Today</button>
                   <button type="button" data-appt-range="tomorrow">Tomorrow</button>
@@ -2236,11 +2259,12 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
               </div>
             </div>
             <div class="appt-actions">
-              <a class="appt-tracker" id="apptTrackerGta" href="https://docs.google.com/spreadsheets/d/1DXKFHK_k1cC_upbxzBIVTLbMKpOIv0u5MB2NbKq5XhM/edit?usp=sharing" target="_blank" rel="noopener noreferrer">GTA Tracker</a>
-              <a class="appt-tracker" id="apptTrackerOttawa" href="https://docs.google.com/spreadsheets/d/1QRmPSMX_-nksYs4ucJxZUfTQcvrMlfbnylJgTL0ckNU/edit?usp=sharing" target="_blank" rel="noopener noreferrer">Ottawa Tracker</a>
+              <a class="appt-tracker" id="apptTrackerGta" href="https://docs.google.com/spreadsheets/d/1DXKFHK_k1cC_upbxzBIVTLbMKpOIv0u5MB2NbKq5XhM/edit?usp=sharing" target="_blank" rel="noreferrer">GTA Tracker</a>
+              <a class="appt-tracker" id="apptTrackerOttawa" href="https://docs.google.com/spreadsheets/d/1QRmPSMX_-nksYs4ucJxZUfTQcvrMlfbnylJgTL0ckNU/edit?usp=sharing" target="_blank" rel="noreferrer">Ottawa Tracker</a>
               <button type="button" class="appt-new" id="apptNewApp">New application</button>
             </div>
           </div>
+          <div class="appt-months" id="apptMonths"></div>
         </div>
         <div id="apptCal" class="hide">
           <div class="pair">
@@ -2254,6 +2278,7 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
             </div>
           </div>
         </div>
+        <p class="appt-count" id="apptCount"></p>
         <p class="need hide" id="apptLiveNote"></p>
         <div id="apptList"></div>
       </div>
@@ -2580,12 +2605,12 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
     <button class="x" type="button" data-close="trackerSheet">✕</button>
     <p class="wb-kicker" id="trackerKicker">Tracker</p>
     <h3 id="trackerTitle">GTA Tracker</h3>
-    <p class="hint" id="trackerHint">This month. Phone uses cards. Desk stays a real table. Open the full Google Sheet when you need every column.</p>
+    <p class="hint" id="trackerHint">Booked vehicles for this month. Tap a row to open Appraise already filled. GTA Tracker and Ottawa Tracker still open the Google Sheet.</p>
     <div class="tracker-months" id="trackerMonths"></div>
     <p class="tracker-empty hide" id="trackerEmpty"></p>
     <div class="tracker-mobile" id="trackerMobile"></div>
     <div class="tracker-desk" id="trackerDesk"></div>
-    <a class="pill cyan" id="trackerOpenSheets" href="https://docs.google.com/spreadsheets/d/1DXKFHK_k1cC_upbxzBIVTLbMKpOIv0u5MB2NbKq5XhM/edit?usp=sharing" target="_blank" rel="noopener noreferrer" style="margin-top:12px;text-align:center;text-decoration:none">Open full sheet</a>
+    <a class="pill cyan" id="trackerOpenSheets" href="https://docs.google.com/spreadsheets/d/1DXKFHK_k1cC_upbxzBIVTLbMKpOIv0u5MB2NbKq5XhM/edit?usp=sharing" target="_blank" rel="noreferrer" style="margin-top:12px;text-align:center;text-decoration:none">Open Google Sheet</a>
   </div>
 </div>
 <div class="sheet" id="storySheet">
@@ -2889,7 +2914,7 @@ window.APP = {
   dealType:"", leadSource:"", cdApp:"", centerId:"", sendId:"", centerFilter:"all", centerPhoto:0,
   centerHistory:false, centerLane:"", centerQuery:"", centerRange:"all", centerYear:new Date().getFullYear(),
   centerShots:[], centerGalleryOn:false, lockedFromAirtable:false, deskTeam:"", userFilter:"all", userEdit:"",
-  apptId:"", apptSeller:"", apptRegion:"GTA", apptRange:"today", apptItems:[],
+  apptId:"", apptSeller:"", apptRegion:"GTA", apptRange:"month", apptMonth:"", apptItems:[],
   apptSearch:"", newApplication:false, newAppOpen:false
 };
 
@@ -3242,7 +3267,16 @@ function apptRangeBounds(kind, fromVal, toVal){
     const t=new Date(now.getFullYear(), now.getMonth(), now.getDate()+1);
     return {start:startOfDay(t), end:startOfDay(t)+86400000-1};
   }
-  if(kind==="month") return {start:new Date(now.getFullYear(), now.getMonth(), 1).getTime(), end:new Date(now.getFullYear(), now.getMonth()+1, 1).getTime()-1};
+  if(kind==="month"){
+    let monthIdx=now.getMonth();
+    const year=now.getFullYear();
+    if(typeof APP!=="undefined" && APP && APP.apptMonth){
+      const names=["January","February","March","April","May","June","July","August","September","October","November","December"];
+      const i=names.indexOf(APP.apptMonth);
+      if(i>=0) monthIdx=i;
+    }
+    return {start:new Date(year, monthIdx, 1).getTime(), end:new Date(year, monthIdx+1, 1).getTime()-1};
+  }
   if(kind==="lastMonth"){
     const start=new Date(now.getFullYear(), now.getMonth()-1, 1).getTime();
     const end=new Date(now.getFullYear(), now.getMonth(), 1).getTime()-1;
@@ -3298,7 +3332,8 @@ const APPTS_AIRTABLE={
   source:"sel90QtMNs2kN0MbE",
   path:"/api/appointments"
 };
-// Human schedule sheets (MyCar.ca). In-app month view on the phone; desktop keeps a real table.
+// Human schedule sheets (MyCar.ca). Month list is Airtable Appointment Booked + Tracker.
+// GTA Tracker / Ottawa Tracker open the real Google Sheet. Quoted range='Month'!A1 blocked Google login.
 // App # search sends ?q= against the full GTA + Ottawa Tracker sheets. Empty search stays Airtable Booked/On-site.
 const TRACKER_GTA_URL="https://docs.google.com/spreadsheets/d/1DXKFHK_k1cC_upbxzBIVTLbMKpOIv0u5MB2NbKq5XhM/edit?usp=sharing";
 const TRACKER_OTTAWA_URL="https://docs.google.com/spreadsheets/d/1QRmPSMX_-nksYs4ucJxZUfTQcvrMlfbnylJgTL0ckNU/edit?usp=sharing";
@@ -3308,42 +3343,79 @@ function trackerCurrentMonth(now){
   return TRACKER_MONTHS[d.getMonth()] || "January";
 }
 function trackerHref(base, month){
-  const m=String(month||trackerCurrentMonth()).trim() || trackerCurrentMonth();
-  const u=String(base||"").split("#")[0];
-  const join=u.indexOf("?")>=0?"&":"?";
-  return u+join+"range="+encodeURIComponent("'"+m+"'!A1");
+  const raw=String(base||"").split("#")[0];
+  const clean=raw.replace(/([?&])range=[^&]*/g,"$1").replace(/\?&/,"?").replace(/[?&]$/,"");
+  return clean || TRACKER_GTA_URL;
 }
 function bindTrackerLinks(){
-  const month=APP.trackerMonth||trackerCurrentMonth();
+  const month=APP.apptMonth||APP.trackerMonth||trackerCurrentMonth();
   const g=$("apptTrackerGta"), o=$("apptTrackerOttawa");
-  if(g){ g.href=trackerHref(TRACKER_GTA_URL, month); g.target="_blank"; g.rel="noopener noreferrer"; }
-  if(o){ o.href=trackerHref(TRACKER_OTTAWA_URL, month); o.target="_blank"; o.rel="noopener noreferrer"; }
+  if(g){ g.href=trackerHref(TRACKER_GTA_URL, month); g.target="_blank"; g.rel="noreferrer"; }
+  if(o){ o.href=trackerHref(TRACKER_OTTAWA_URL, month); o.target="_blank"; o.rel="noreferrer"; }
   const open=$("trackerOpenSheets");
   if(open){
     const region=(APP.trackerRegion||APP.apptRegion||"GTA")==="Ottawa"?"Ottawa":"GTA";
     open.href=trackerHref(region==="Ottawa"?TRACKER_OTTAWA_URL:TRACKER_GTA_URL, month);
     open.target="_blank";
-    open.rel="noopener noreferrer";
+    open.rel="noreferrer";
   }
+}
+function openExternalDoc(url, e){
+  const href=String(url||"").trim();
+  if(!href) return false;
+  if(e){ e.preventDefault(); e.stopPropagation(); }
+  let opened=null;
+  try{ opened=window.open(href, "_blank"); }catch(err){ opened=null; }
+  if(opened) return true;
+  try{
+    const a=document.createElement("a");
+    a.href=href;
+    a.target="_blank";
+    a.rel="noreferrer";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    return true;
+  }catch(err2){}
+  try{ window.top.location.href=href; }catch(err3){ window.location.href=href; }
+  return false;
+}
+function openTrackerGoogleDoc(region, e){
+  const month=APP.apptMonth||APP.trackerMonth||trackerCurrentMonth();
+  const url=trackerHref(region==="Ottawa"?TRACKER_OTTAWA_URL:TRACKER_GTA_URL, month);
+  bindTrackerLinks();
+  return openExternalDoc(url, e);
 }
 function trackerMonthTabs(){
   const now=new Date();
   const cur=now.getMonth();
   const out=[];
-  for(let i=-2;i<=2;i++){
+  for(let i=-3;i<=3;i++){
     const idx=(cur+i+12)%12;
     out.push(TRACKER_MONTHS[idx]);
   }
   if(out.indexOf(trackerCurrentMonth(now))<0) out.unshift(trackerCurrentMonth(now));
   return out;
 }
+function apptMonthName(row){
+  const raw=String((row && row.date)||"").slice(0,10);
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(raw)) return "";
+  return TRACKER_MONTHS[Number(raw.slice(5,7))-1] || "";
+}
+function monthRowsFromAppointments(region, month){
+  const want=month||trackerCurrentMonth();
+  const rgn=region==="Ottawa"?"Ottawa":"GTA";
+  return (APP.apptItems||[]).filter(function(row){
+    if((row.region||"GTA")!==rgn) return false;
+    const name=apptMonthName(row);
+    if(!name) return want===trackerCurrentMonth();
+    return name===want;
+  });
+}
 function openTrackerSheet(region, e){
-  if(e){ e.preventDefault(); e.stopPropagation(); }
   APP.trackerRegion=region==="Ottawa"?"Ottawa":"GTA";
   if(!APP.trackerMonth) APP.trackerMonth=trackerCurrentMonth();
-  if($("trackerSheet")) $("trackerSheet").classList.add("on");
-  paintTrackerSheet();
-  loadTrackerSheet();
+  return openTrackerGoogleDoc(region, e);
 }
 function paintTrackerMonths(){
   const host=$("trackerMonths");
@@ -3353,12 +3425,22 @@ function paintTrackerMonths(){
     return '<button type="button" data-tracker-month="'+escHtml(name)+'" class="'+(name===month?"on":"")+'">'+escHtml(name)+"</button>";
   }).join("");
 }
+function paintApptMonths(){
+  const host=$("apptMonths");
+  if(!host) return;
+  if(!APP.apptMonth) APP.apptMonth=trackerCurrentMonth();
+  const month=APP.apptMonth;
+  const named=(APP.apptRange||"month")==="month";
+  host.innerHTML=trackerMonthTabs().map(function(name){
+    return '<button type="button" data-appt-month="'+escHtml(name)+'" class="'+(named && name===month?"on":"")+'">'+escHtml(name)+"</button>";
+  }).join("");
+}
 function paintTrackerSheet(){
   const region=(APP.trackerRegion||"GTA")==="Ottawa"?"Ottawa":"GTA";
   const month=APP.trackerMonth||trackerCurrentMonth();
   if($("trackerKicker")) $("trackerKicker").textContent=region+" · "+month;
   if($("trackerTitle")) $("trackerTitle").textContent=region+" Tracker";
-  if($("trackerHint")) $("trackerHint").textContent="Opens on "+month+" — this month. Phone uses cards so the sheet is readable. Desk stays a real table.";
+  if($("trackerHint")) $("trackerHint").textContent=month+" booked vehicles. Tap a row to open Appraise already filled. GTA Tracker and Ottawa Tracker open the Google Sheet.";
   paintTrackerMonths();
   bindTrackerLinks();
   const rows=APP.trackerItems||[];
@@ -3373,7 +3455,7 @@ function paintTrackerSheet(){
     mobile.innerHTML=rows.map(function(row){
       const when=row.date?new Date(row.date+"T12:00:00").toLocaleDateString("en-CA",{month:"short",day:"numeric"}):"Date TBA";
       const status=row.status||row.stage||"";
-      return '<button type="button" class="tracker-row" data-tracker-id="'+escHtml(row.id||"")+'"><i>'+escHtml(status||"Booked")+"</i><i>"+escHtml(when)+"</i><b>"+escHtml(row.appNo||"Application")+" · "+escHtml(row.ymm||"Vehicle")+"</b><span>"+escHtml(row.seller||"Seller")+(row.city?" · "+escHtml(row.city):"")+(row.phone?" · "+escHtml(row.phone):"")+"</span></button>";
+      return '<button type="button" class="tracker-row" data-tracker-id="'+escHtml(row.id||"")+'"><i>'+escHtml(status||"Booked")+"</i><i>"+escHtml(when)+"</i><b>"+escHtml(row.ymm||"Vehicle")+"</b><span>"+escHtml(row.appNo||"Application")+" · "+escHtml(row.seller||"Seller")+(row.city?" · "+escHtml(row.city):"")+(row.phone?" · "+escHtml(row.phone):"")+"</span></button>";
     }).join("");
     mobile.querySelectorAll("[data-tracker-id]").forEach(function(b){
       b.onclick=function(){ applyTrackerRow(b.getAttribute("data-tracker-id")); };
@@ -3411,19 +3493,23 @@ async function loadTrackerSheet(){
     if(seq!==APP.trackerSeq) return;
     if(j && j.ok && j.view==="tracker" && Array.isArray(j.items)){
       APP.trackerItems=j.items.map(normalizeAppt).filter(Boolean);
-      APP.trackerNote=APP.trackerItems.length?"":"No "+region+" rows on "+month+".";
+      APP.trackerNote=APP.trackerItems.length?"":"No "+region+" booked appointments in "+month+".";
       paintTrackerSheet();
       return;
     }
-    APP.trackerItems=[];
-    APP.trackerNote="Open the full "+region+" sheet for "+month+" — the phone cards need the live month pull.";
-    paintTrackerSheet();
   }catch(e){
     if(seq!==APP.trackerSeq) return;
-    APP.trackerItems=[];
-    APP.trackerNote="Couldn’t load "+month+". Use Open full sheet.";
-    paintTrackerSheet();
   }
+  if(!(APP.apptItems||[]).length){
+    try{
+      const items=await loadAppointments();
+      if(seq!==APP.trackerSeq) return;
+      APP.apptItems=items;
+    }catch(e2){}
+  }
+  APP.trackerItems=monthRowsFromAppointments(region, month);
+  APP.trackerNote=APP.trackerItems.length?"":"No "+region+" booked appointments in "+month+".";
+  paintTrackerSheet();
 }
 function usesCaAppointments(item){
   var p=item||APP;
@@ -3481,12 +3567,12 @@ function queueLoadAppointments(immediate){
   _apptLoadTimer=setTimeout(function(){ _apptLoadTimer=0; run(); }, 280);
 }
 function apptDateBtnLabel(){
-  return ({today:"Today", tomorrow:"Tomorrow", month:"This month", lastMonth:"Last month", calendar:"Calendar"})[APP.apptRange||"today"] || "Today";
+  return ({today:"Today", tomorrow:"Tomorrow", month:"This month", lastMonth:"Last month", calendar:"Calendar"})[APP.apptRange||"month"] || "This month";
 }
 function filteredAppointments(){
   const region=APP.apptRegion||"GTA";
   const source=APP.leadSource||"";
-  const kind=APP.apptRange||"today";
+  const kind=APP.apptRange||"month";
   const q=String(($("apptSearch") && $("apptSearch").value) || APP.apptSearch || "").trim();
   const bounds=apptRangeBounds(kind, $("apptFrom")&&$("apptFrom").value, $("apptTo")&&$("apptTo").value);
   return (APP.apptItems||[]).filter(function(row){
@@ -3621,21 +3707,23 @@ function completeNewApplication(e){
 function paintAppointments(){
   const wrap=$("apptWrap");
   if(!wrap) return;
+  if(!APP.apptMonth) APP.apptMonth=trackerCurrentMonth();
   const show=APP.role!=="guest" && !isWeb() && isConsumerAcquisition() && usesCaAppointments() && !APP.newAppOpen;
   wrap.classList.toggle("hide", !show);
   bindTrackerLinks();
-  if($("wbPickKicker")) $("wbPickKicker").textContent = (APP.leadSource||"Consumer Acquisition")+" · Appointments";
+  paintApptMonths();
+  if($("wbPickKicker")) $("wbPickKicker").textContent = (APP.leadSource||"Canada Drives");
   if($("apptSearch") && $("apptSearch")!==document.activeElement) $("apptSearch").value=APP.apptSearch||"";
   if(!show) return;
   document.querySelectorAll("#apptTabs [data-appt-region]").forEach(function(b){
     b.classList.toggle("on", b.getAttribute("data-appt-region")===(APP.apptRegion||"GTA"));
   });
   document.querySelectorAll("#apptDates [data-appt-range]").forEach(function(b){
-    b.classList.toggle("on", b.getAttribute("data-appt-range")===(APP.apptRange||"today"));
+    b.classList.toggle("on", b.getAttribute("data-appt-range")===(APP.apptRange||"month"));
   });
   if($("apptDateBtn")){
     $("apptDateBtn").textContent=apptDateBtnLabel();
-    $("apptDateBtn").classList.add("on");
+    $("apptDateBtn").classList.toggle("on", (APP.apptRange||"month")!=="month");
   }
   if($("apptCal")) $("apptCal").classList.toggle("hide", (APP.apptRange||"")!=="calendar");
   const note=$("apptLiveNote");
@@ -3646,13 +3734,23 @@ function paintAppointments(){
   const host=$("apptList");
   if(!host) return;
   host.innerHTML="";
-  const rows=filteredAppointments();
+  const rows=filteredAppointments().slice().sort(function(a,b){
+    return (a.date||"").localeCompare(b.date||"") || (a.seller||"").localeCompare(b.seller||"");
+  });
+  if($("apptCount")){
+    const month=APP.apptMonth||trackerCurrentMonth();
+    const label=(APP.apptRange||"month")==="month" ? month : apptDateBtnLabel();
+    $("apptCount").textContent=rows.length
+      ? (rows.length+" booked · "+(APP.apptRegion||"GTA")+" · "+label)
+      : ("No booked · "+(APP.apptRegion||"GTA")+" · "+label);
+  }
   if(!rows.length){
     const q=String(($("apptSearch") && $("apptSearch").value) || APP.apptSearch || "").trim();
     if(q){
       host.innerHTML='<div class="appt-empty-cta"><b>No live match for '+escHtml(q)+'</b><p>Not on the GTA or Ottawa Tracker, and nothing booked or on-site with that application number. Start a new application and do the full appraisal.</p><button type="button" class="appt-new" id="apptEmptyNew">New application</button></div>';
     } else {
-      host.innerHTML='<p class="appt-empty">No booked Canada Drives appointments in this date range for '+(APP.apptRegion||"GTA")+'.</p><div class="appt-empty-cta"><b>Need a new one?</b><p>Start a New application — add the customer and vehicle, then continue into Appraise.</p><button type="button" class="appt-new" id="apptEmptyNew">New application</button></div>';
+      const month=APP.apptMonth||trackerCurrentMonth();
+      host.innerHTML='<p class="appt-empty">No booked Canada Drives appointments in '+(APP.apptRange==="month"?month:"this date range")+' for '+(APP.apptRegion||"GTA")+'.</p><div class="appt-empty-cta"><b>Need a new one?</b><p>Start a New application — add the customer and vehicle, then continue into Appraise.</p><button type="button" class="appt-new" id="apptEmptyNew">New application</button></div>';
     }
     if($("apptEmptyNew")) $("apptEmptyNew").onclick=startNewApplication;
     return;
@@ -3661,10 +3759,13 @@ function paintAppointments(){
     const b=document.createElement("button");
     b.type="button";
     b.className="appt-row"+(APP.apptId===row.id?" on":"");
-    const when=row.date ? new Date(row.date+"T12:00:00").toLocaleDateString("en-CA",{month:"short",day:"numeric",year:"numeric"}) : "Date TBA";
+    const dt=row.date ? new Date(row.date+"T12:00:00") : null;
+    const day=dt ? String(dt.getDate()) : "—";
+    const mon=dt ? dt.toLocaleDateString("en-CA",{month:"short"}) : "TBA";
+    const when=dt ? dt.toLocaleDateString("en-CA",{month:"short",day:"numeric",year:"numeric"}) : "Date TBA";
     const stageLbl=row.stage==="on-site"?"On-site":"Booked";
     const stageCls=row.stage==="on-site"?"onsite":"booked";
-    b.innerHTML="<b>"+escHtml(row.appNo||"Application")+" · "+escHtml(row.ymm||"Vehicle")+"</b><span><i class=\"appt-stage "+stageCls+"\">"+escHtml(stageLbl)+"</i>"+escHtml(row.seller||"Seller")+" · "+escHtml(row.vin||"VIN TBA")+" · "+escHtml(when)+"</span>";
+    b.innerHTML='<span class="appt-when"><b>'+escHtml(day)+"</b><i>"+escHtml(mon)+'</i></span><span class="appt-body"><b>'+escHtml(row.ymm||"Vehicle")+"</b><span><i class=\"appt-stage "+stageCls+"\">"+escHtml(stageLbl)+"</i>"+escHtml(row.appNo||"Application")+" · "+escHtml(row.seller||"Seller")+(row.vin && row.vin!=="TBD"?" · "+escHtml(row.vin):"")+" · "+escHtml(when)+"</span></span>";
     b.onclick=function(){ applyAppointment(row); };
     host.appendChild(b);
   });
@@ -3728,7 +3829,7 @@ function paintWorkbench(){
     : ((APP.leadSource||"Consumer Acquisition")+" · New application");
   if($("wbPickTitle")) $("wbPickTitle").textContent = usesCaAppointments() ? "Who’s coming in" : "New application";
   if($("wbPickLead")) $("wbPickLead").textContent = usesCaAppointments()
-    ? "Pick a booked appointment, search any GTA or Ottawa Tracker app #, or start a New application. Year, make, VIN, app #, and seller come with a live row."
+    ? "Booked appointments from the GTA and Ottawa Tracker / Airtable Appointment Booked. Tap a month for that list, or search any app #. Year, make, VIN, app #, and seller come with a live row."
     : (APP.leadSource||"This source")+" has no appointment calendar. Create a New application — customer, vehicle, VIN — then continue into Appraise.";
   if(!ready) return;
   const ymm=[APP.year,APP.make,APP.model,APP.trim].filter(Boolean).join(" ") || (APP.newApplication || APP.apptId==="new" ? "New application" : "Vehicle");
@@ -14580,11 +14681,26 @@ if($("apptSearch")) $("apptSearch").addEventListener("input", function(){
 });
 if($("apptTrackerGta")) $("apptTrackerGta").onclick = function(e){ openTrackerSheet("GTA", e); };
 if($("apptTrackerOttawa")) $("apptTrackerOttawa").onclick = function(e){ openTrackerSheet("Ottawa", e); };
+if($("trackerOpenSheets")) $("trackerOpenSheets").onclick = function(e){
+  const region=(APP.trackerRegion||APP.apptRegion||"GTA")==="Ottawa"?"Ottawa":"GTA";
+  openTrackerGoogleDoc(region, e);
+};
 if($("trackerMonths")) $("trackerMonths").addEventListener("click", function(e){
   const b=e.target && e.target.closest && e.target.closest("[data-tracker-month]");
   if(!b) return;
   APP.trackerMonth=b.getAttribute("data-tracker-month")||trackerCurrentMonth();
+  APP.apptMonth=APP.trackerMonth;
+  APP.apptRange="month";
   loadTrackerSheet();
+  paintAppointments();
+});
+if($("apptMonths")) $("apptMonths").addEventListener("click", function(e){
+  const b=e.target && e.target.closest && e.target.closest("[data-appt-month]");
+  if(!b) return;
+  APP.apptMonth=b.getAttribute("data-appt-month")||trackerCurrentMonth();
+  APP.trackerMonth=APP.apptMonth;
+  APP.apptRange="month";
+  paintAppointments();
 });
 if($("apptNewApp")) $("apptNewApp").onclick = startNewApplication;
 if($("newAppCta")) $("newAppCta").onclick = startNewApplication;
@@ -14601,7 +14717,8 @@ if($("apptDateBtn")) $("apptDateBtn").onclick = function(){
 if($("apptDates")) $("apptDates").addEventListener("click", function(e){
   const b=e.target && e.target.closest && e.target.closest("[data-appt-range]");
   if(!b) return;
-  APP.apptRange=b.getAttribute("data-appt-range")||"today";
+  APP.apptRange=b.getAttribute("data-appt-range")||"month";
+  if(APP.apptRange==="month" && !APP.apptMonth) APP.apptMonth=trackerCurrentMonth();
   if($("apptDateMenu")) $("apptDateMenu").classList.remove("on");
   paintAppointments();
 });
