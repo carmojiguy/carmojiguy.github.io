@@ -89,7 +89,7 @@ must(/min-height:24px/, "Back/Home are quieter chrome");
 must(/font-size:11px; font-weight:500/, "Back/Home type is quieter");
 
 const activateSrc = sliceFn("activateAppraisalTeam", "paintCenterRunTeam");
-const notifySrc = sliceFn("notifyTeamActivated", "activateAppraisalTeam");
+const notifySrc = sliceFn("notifyTeamActivated", "shareTeamWakeBestEffort");
 const isOnSrc = sliceFn("isTeamActivated", "landTeamRunFromFile");
 const paintRunSrc = sliceFn("paintCenterRunTeam", "paintCenterTeam");
 const paintTeamSrc = sliceFn("paintCenterTeam", "paintCenterTags");
@@ -171,7 +171,7 @@ assert.ok(posts.some(function (p) {
 }), "remind note fired to Shawn");
 
 paintCenterRunTeam(got);
-assert.strictEqual(painted.btnText, "Rerun Appraisal Team");
+assert.strictEqual(painted.btnText, "Running…");
 assert.strictEqual(painted.btnDisabled, false);
 assert.equal(typeof painted.onclick, "function", "activated tap is not a no-op");
 assert.ok(/rerun|running/i.test(painted.note), "running note stays on the file");

@@ -341,6 +341,32 @@ function route(method, body) {
   if (method !== "POST") return { status: 405, body: { ok: false, error: "method" } };
   body = body && typeof body === "object" ? body : {};
   if (body.kind === "file") return persistFile(body);
+  if (body.kind === "team") {
+    const raw = (body.item && typeof body.item === "object") ? Object.assign({}, body.item, body) : body;
+    raw.teamActivated = true;
+    raw.teamActivatedAt = raw.teamActivatedAt || Date.now();
+    raw.teamStatus = raw.teamStatus || "running";
+    const has = raw.sendId || raw.vin || raw.id || raw.ymmt || (raw.customer && raw.customer.name);
+    if (!has) return { status: 400, body: { ok: false, error: "empty" } };
+    const item = persistItem(raw);
+    try {
+      const notify = require("./notify-appraisal");
+      const wake = {
+        kind: "upsert",
+        lane: "onsite-attention",
+        id: item.id,
+        email: "shawn@myloan.ca",
+        emails: ["shawn@myloan.ca"],
+        vehicle: item.ymmt || item.interest || "",
+        vin: item.vin || "",
+        missing: ["Appraisal Team activated"]
+      };
+      if (notify && typeof notify.route === "function") {
+        Promise.resolve(notify.route(wake)).catch(function () {});
+      }
+    } catch (e) {}
+    return { status: 200, body: { ok: true, id: item.id, kind: "team", teamActivated: true } };
+  }
   if (body.kind && body.kind !== "land") return { status: 400, body: { ok: false, error: "kind" } };
   const raw = body.item || body;
   if (!raw || typeof raw !== "object") return { status: 400, body: { ok: false, error: "empty" } };

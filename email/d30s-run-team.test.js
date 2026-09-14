@@ -40,8 +40,12 @@ must(/id="typeSheet"[\s\S]*build d30s/, "type sheet stamp is d30s");
 must(/function activateAppraisalTeam\(/, "activate helper exists");
 must(/function landTeamRunFromFile\(/, "panel lands existing file numbers");
 must(/function startTeamRunProgress\(/, "panel progress helper exists");
+must(/function shareTeamWakeBestEffort\(/, "kind:team wake helper exists");
+must(/kind:"team"/, "activate POSTs Incoming kind:team");
 must(/btn\.disabled=false/, "staff button stays enabled for rerun");
 must(/Rerun Appraisal Team/, "rerun label exists");
+must(/item\.lanePick==="onsite" \|\| item\.lane==="onsite"/, "Needs-docs moved to On-site is not needs");
+must(/paintCenterRunTeam\(item\)/, "run button paints even after a Needs-docs hide pass");
 must(/Unlock this appraisal first/, "locked tap toasts instead of swallowing");
 must(/notifyAppraisal/, "activate also hits existing CoS notify HTTP");
 must(/slim\.teamActivated=item\.teamActivated===true/, "slim always posts the activate boolean");
@@ -127,6 +131,9 @@ function patchCenter(id, fn) {
 function shareIncomingBestEffort(item) {
   posts.push({ kind: "incoming", id: item.id, sendId: item.sendId, teamActivated: item.teamActivated, teamStatus: item.teamStatus });
 }
+function shareTeamWakeBestEffort(item) {
+  posts.push({ kind: "team", id: item.id, sendId: item.sendId, vin: item.vin, ymmt: item.ymmt, teamActivated: true });
+}
 function timedFetch(url, req) {
   posts.push({ url: url, body: JSON.parse(req.body) });
   return Promise.resolve({ ok: true });
@@ -163,7 +170,7 @@ const MAIL_HOST = "https://gnm-guest-mailer-shawn-6802.vercel.app";
 
 const isTeamActivated = eval("(" + sliceFn("isTeamActivated", "landTeamRunFromFile").replace("function isTeamActivated", "function") + ")");
 const landTeamRunFromFile = eval("(" + sliceFn("landTeamRunFromFile", "clearTeamRunTimers").replace("function landTeamRunFromFile", "function") + ")");
-const notifyTeamActivated = eval("(" + sliceFn("notifyTeamActivated", "activateAppraisalTeam").replace("function notifyTeamActivated", "function") + ")");
+const notifyTeamActivated = eval("(" + sliceFn("notifyTeamActivated", "shareTeamWakeBestEffort").replace("function notifyTeamActivated", "function") + ")");
 const activateAppraisalTeam = eval("(" + sliceFn("activateAppraisalTeam", "paintCenterRunTeam").replace("function activateAppraisalTeam", "function") + ")");
 const paintCenterRunTeam = eval("(" + sliceFn("paintCenterRunTeam", "paintCenterTeam").replace("function paintCenterRunTeam", "function") + ")");
 
@@ -186,6 +193,7 @@ assert.ok(got.teamActivatedAt > 0);
 assert.strictEqual(got.teamStatus, "running");
 assert.strictEqual(store.items.length, 3, "no extra Center card");
 assert.ok(posts.some(function (p) { return p.kind === "incoming" && p.id === beforeId && p.sendId === beforeSend && p.teamActivated === true; }), "Incoming POST is the same row");
+assert.ok(posts.some(function (p) { return p.kind === "team" && p.id === beforeId && p.sendId === beforeSend && p.vin === "2T3B1RFVXRC466025"; }), "kind:team wake is the same sendId/id");
 assert.ok(posts.some(function (p) {
   return p.url === MAIL_HOST + "/api/remind" && p.body && p.body.details === "Appraisal Team activated";
 }), "remind note fired");
@@ -282,6 +290,41 @@ incoming.route("POST", {
 assert.equal(incoming.listItems()[0].teamActivated, true);
 assert.equal(incoming.listItems()[0].appraisalFinal.target, "24000", "mailer keeps existing FINAL");
 assert.equal(incoming.listItems()[0].team.shabot.target, "24000");
+
+incoming.resetStore();
+incoming.route("POST", {
+  kind: "team",
+  sendId: "sir78n6",
+  id: "cmu0kchd1rgc1",
+  vin: "1FTFW1E87PKE74233",
+  ymmt: "2023 Ford F-150",
+  lane: "onsite",
+  customer: { name: "" }
+});
+assert.equal(incoming.listItems().length, 1, "kind:team is the same card");
+assert.equal(incoming.listItems()[0].id, "cmu0kchd1rgc1");
+assert.equal(incoming.listItems()[0].sendId, "sir78n6");
+assert.equal(incoming.listItems()[0].teamActivated, true, "kind:team persists teamActivated");
+assert.ok(!incoming.listItems()[0].appraisalFinal || !incoming.listItems()[0].appraisalFinal.target, "F-150 kind:team does not invent FINAL");
+
+const isNeedsDocsItem = eval("(" + html.match(/function isNeedsDocsItem\(item\)\{[\s\S]*?\n\}/)[0].replace("function isNeedsDocsItem", "function") + ")");
+function isCenterArchived(item) { return !!(item && item.archived); }
+function marketDocsComplete() { return false; }
+function isLandedCenterPacket() { return true; }
+function missingMarketDocs() { return ["vauto"]; }
+assert.equal(isNeedsDocsItem({ lane: "needsdocs", docsIncomplete: true }), true);
+assert.equal(isNeedsDocsItem({ lane: "needsdocs", lanePick: "onsite", docsIncomplete: true }), false, "move to On-site clears needs");
+const applyCenterLaneMove = eval("(" + html.match(/function applyCenterLaneMove\(item, lane\)\{[\s\S]*?\n\}/)[0].replace("function applyCenterLaneMove", "function") + ")");
+function normalizeCenterLane(lane) {
+  const k = String(lane || "").toLowerCase().replace(/\s+/g, "");
+  if (k === "onsite" || k === "on-site") return "onsite";
+  if (k === "needsdocs") return "needsdocs";
+  return "";
+}
+const moved = applyCenterLaneMove({ id: "c-docs", lane: "needsdocs", docsIncomplete: true }, "onsite");
+assert.equal(moved.lane, "onsite");
+assert.equal(moved.lanePick, "onsite");
+assert.equal(isNeedsDocsItem(moved), false, "after lane move the Run button may paint");
 
 mustNot(/activateAppraisalTeam\([\s\S]{0,40}24000/, "activate does not seed invented 24000");
 mustNot(/landTeamRunFromFile[\s\S]{0,80}22800/, "land helper does not hardcode RAV4 numbers");

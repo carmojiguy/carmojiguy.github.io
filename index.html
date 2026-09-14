@@ -7737,7 +7737,7 @@ function isCenterAged(item){
 function isNeedsDocsItem(item){
   if(!item) return false;
   if(isCenterArchived(item)) return false;
-  if(item.lane==="onsite" || marketDocsComplete(item.docs)) return false;
+  if(item.lanePick==="onsite" || item.lane==="onsite" || marketDocsComplete(item.docs)) return false;
   if(item.docsIncomplete || item.lane==="needsdocs") return true;
   if(!isLandedCenterPacket(item)) return false;
   return missingMarketDocs(item.docs).length>0;
@@ -8559,6 +8559,31 @@ function notifyTeamActivated(item){
     }
   }catch(e){}
 }
+function shareTeamWakeBestEffort(item){
+  try{
+    if(!item || !item.id || (typeof isCenterSample==="function" && isCenterSample(item))) return;
+    if(typeof MAIL_HOST!=="string" || !MAIL_HOST) return;
+    const slim=typeof slimSharedCenterItem==="function"?slimSharedCenterItem(item):item;
+    const payload={
+      kind:"team",
+      sendId:item.sendId||slim.sendId||"",
+      id:item.id,
+      vin:item.vin||"",
+      ymmt:item.ymmt||item.interest||"",
+      pdfUrl:item.pdfUrl||"",
+      docs:slim.docs||{},
+      teamActivated:true,
+      teamStatus:item.teamStatus||"running",
+      item:slim
+    };
+    const req=timedFetch(MAIL_HOST+"/api/incoming", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify(payload)
+    }, 8000);
+    if(req && typeof req.catch==="function") req.catch(function(){});
+  }catch(e){}
+}
 function activateAppraisalTeam(id){
   if(APP.role==="guest") return null;
   const cur=typeof getCenter==="function"?getCenter(id):null;
@@ -8574,6 +8599,7 @@ function activateAppraisalTeam(id){
   }):null;
   if(!item) return null;
   try{ shareIncomingBestEffort(item); }catch(e){}
+  try{ shareTeamWakeBestEffort(item); }catch(e){}
   try{ notifyTeamActivated(item); }catch(e){}
   try{ if(typeof startTeamRunProgress==="function") startTeamRunProgress(id); }catch(e){}
   if(typeof paintCenterDetail==="function") paintCenterDetail();
@@ -8593,11 +8619,11 @@ function paintCenterRunTeam(item){
   const on=isTeamActivated(item);
   const locked=typeof isCenterLocked==="function" && isCenterLocked(item);
   const hasFinal=typeof resolveAppraisalFinal==="function" && !!resolveAppraisalFinal(item);
-  const rerun=on||hasFinal;
   btn.disabled=false;
-  btn.textContent=rerun?"Rerun Appraisal Team":"Run Appraisal Team";
+  btn.textContent=(on && !hasFinal)?"Running…":(on||hasFinal)?"Rerun Appraisal Team":"Run Appraisal Team";
   if(note){
-    if(item.teamStatus==="final" && hasFinal) note.textContent="Appraisal team FINAL is on the file — tap to rerun Shabot plus the opinion panel.";
+    if(hasFinal && item.teamStatus==="final") note.textContent="Appraisal team FINAL is on the file — tap to rerun Shabot plus the opinion panel.";
+    else if(on && !hasFinal) note.textContent="Appraisal team is running — Shabot FINAL plus Rybot, Webot, Drebot, and TBot. Numbers land here when Incoming has them. Staff can rerun.";
     else if(on) note.textContent="Appraisal team is running — Shabot FINAL plus Rybot, Webot, Drebot, and TBot. Staff can rerun.";
     else note.textContent="Kick Shabot FINAL and the Rybot / Webot / Drebot / TBot opinion panel.";
   }
@@ -8896,19 +8922,21 @@ function paintCenterDetail(){
       $("centerStageBtn").textContent=item.stage==="Appraised"?"Return to desk lane":"Complete";
     }
   }
-  ["centerValStrip","centerMarket","centerWhyDocs","centerTeam","centerTeamHead","centerFinalBox","centerRunTeamWrap"].forEach(function(id){
-    if($(id)) $(id).classList.toggle("hide", needs);
+  const onsiteDesk=typeof centerLaneOf==="function" && centerLaneOf(item)==="onsite";
+  ["centerValStrip","centerMarket","centerWhyDocs","centerTeam","centerTeamHead","centerFinalBox"].forEach(function(id){
+    if($(id)) $(id).classList.toggle("hide", needs && !onsiteDesk);
   });
+  if($("centerRunTeamWrap")) $("centerRunTeamWrap").classList.toggle("hide", (needs && !onsiteDesk) || APP.role!=="employee");
   const starter=(item.photos && item.photos.length) ? item.photos : (item.thumb ? [{data:item.thumb, title:item.ymmt}] : []);
   paintCenterHero(starter);
   paintCenterDocs(item, {docs:item.docs});
   paintCenterFinalBox(item);
-  if(!needs){
+  if(!needs || onsiteDesk){
     paintCenterWhyDocs(item);
     paintCenterVals(item);
     paintCenterTeam(item);
-    paintCenterRunTeam(item);
   }
+  paintCenterRunTeam(item);
   loadCenterMedia(item.id).then(function(media){
     if(APP.centerViewId!==item.id) return;
     paintCenterHero((media.photos||[]).length ? media.photos : starter);
