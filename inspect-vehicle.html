@@ -1188,6 +1188,7 @@ body.center-gallery-on { overflow:hidden; }
 #centerMayaGo { display:none !important; }
 .acre-notes-block { margin:8px 0 0; }
 .acre-notes-block .block { margin:10px 0 6px; font-size:13px; letter-spacing:.08em; text-transform:uppercase; }
+#center .acre-notes-block .note { min-height:72px; border-radius:8px; padding:10px 12px; font-size:14px; }
 .acre-maya-strip {
   margin:8px 0 0; padding:8px 10px; background:#F3F6FB; border:1px solid #E4E7EC; border-radius:8px;
   color:#3B4A63; font-size:12px; font-weight:700; min-height:18px;
@@ -9268,7 +9269,9 @@ function paintCenterVals(item){
       chip.className="acre-chip";
       chip.innerHTML="<k>"+esc(pair[1])+"</k><input class=\"f\" inputmode=\"decimal\" placeholder=\"$\" />";
       const inp=chip.querySelector("input");
-      inp.value=vals[pair[0]]||"";
+      const raw=vals[pair[0]]||"";
+      const n=Number(String(raw).replace(/[^0-9.]/g,""));
+      inp.value=(raw && n && !/[–-]/.test(raw)) ? moneyPretty(raw) : raw;
       bindValInput(item, pair[0], inp);
       strip.appendChild(chip);
     });
