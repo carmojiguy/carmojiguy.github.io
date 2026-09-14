@@ -24,8 +24,8 @@ function sliceFn(name, next) {
   return html.slice(start, end);
 }
 
-must(/id="buildStamp">build d30g</, "footer stamp is d30g");
-must(/<!--[\s\S]*build d30g[\s\S]*status dropdown/, "header stamp is d30g dropdown");
+must(/id="buildStamp">build d30h</, "footer stamp is d30h");
+must(/<!--[\s\S]*build d30h[\s\S]*status dropdown/, "header stamp is d30h dropdown");
 must(/class="lane-dd inbox"/, "desk card ships on-tile lane dropdown markup");
 must(/class="lane-dd-sel"/, "native status select is on the chip");
 must(/<option value="inbox" selected>Incoming<\/option>/, "Incoming option");
@@ -90,9 +90,15 @@ assert.equal(normalizeCenterLane("History"), "history");
 const item = {
   id: "c-dd-1",
   lane: "inbox",
-  docs: { vauto: { have: true }, openlane: { have: true }, eblock: { have: true } },
+  docs: { vauto: { have: true, preview: "data:image/jpeg,v" }, openlane: { have: true }, eblock: { have: true } },
   source: "guest",
-  stage: "Waiting"
+  stage: "Waiting",
+  photos: [{ title: "3/4 front", data: "data:image/jpeg;base64,FATPHOTO" }],
+  pdfUrl: "https://example.com/sales-final.pdf",
+  appraisalFinal: { min: "22800", target: "24000", max: "25000" },
+  finalRationale: { shabot: { min: "22800", target: "24000", max: "25000" } },
+  team: { shabot: { min: "22800", target: "24000", max: "25000", note: "seed" } },
+  story: "Clean trade. One key."
 };
 assert.equal(centerLaneOf(item), "onsite", "complete packet still paints On-site before a pick");
 applyCenterLaneMove(item, "inbox");
@@ -116,11 +122,24 @@ assert.equal(item.lane, "history");
 assert.equal(item.archived, true, "History pick archives");
 assert.equal(item.stage, "Appraised", "History pick is Appraised");
 assert.equal(centerLaneOf(item), "history", "History pick updates the lane immediately");
+assert.ok(!item.superseded && !item.locked && !item.supersedeLock, "manual History move does not lock/supersede");
+assert.equal(item.photos[0].data, "data:image/jpeg;base64,FATPHOTO", "History move keeps photos");
+assert.equal(item.pdfUrl, "https://example.com/sales-final.pdf", "History move keeps pdfUrl");
+assert.equal(item.appraisalFinal.target, "24000", "History move keeps FINAL");
+assert.equal(item.docs.vauto.preview, "data:image/jpeg,v", "History move keeps fat docs");
+assert.equal(item.story, "Clean trade. One key.", "History move keeps story");
+assert.equal(item.team.shabot.target, "24000", "History move keeps team");
 
 applyCenterLaneMove(item, "onsite");
 assert.equal(item.archived, false, "leaving History un-archives");
 assert.equal(item.stage, "Waiting", "leaving History clears Appraised");
+assert.equal(item.lane, "onsite");
 assert.equal(centerLaneOf(item), "onsite");
+assert.ok(!item.superseded && !item.locked && !item.supersedeLock, "History → On-site does not lock");
+assert.equal(item.photos[0].data, "data:image/jpeg;base64,FATPHOTO", "On-site move keeps photos");
+assert.equal(item.pdfUrl, "https://example.com/sales-final.pdf", "On-site move keeps pdfUrl");
+assert.equal(item.appraisalFinal.target, "24000", "On-site move keeps FINAL");
+assert.equal(item.docs.vauto.preview, "data:image/jpeg,v", "On-site move keeps fat docs");
 
 ["404.html", "inspect-vehicle.html"].forEach(function (name) {
   const copy = fs.readFileSync(path.join(root, name), "utf8");

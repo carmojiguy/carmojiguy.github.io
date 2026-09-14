@@ -208,6 +208,34 @@ assert.equal(incoming.isPacketSend({
   assert.equal(incoming.listItems().length, 1, "activate land does not create a new card");
   assert.equal(incoming.listItems()[0].teamActivated, true, "later land does not wipe teamActivated");
 
+  incoming.resetStore();
+  incoming.route("POST", {
+    kind: "land",
+    item: {
+      sendId: "s-doc-url",
+      vin: "2T3B1RFVXRC466025",
+      ymmt: "2024 Toyota RAV4",
+      customer: { name: "Chris Cyr" },
+      docs: {
+        vauto: {
+          have: true,
+          name: "vauto.mp4",
+          type: "video/mp4",
+          url: "https://example.com/vauto.mp4",
+          data: "data:video/mp4;base64,NOPE",
+          preview: "https://example.com/vauto.jpg",
+          shots: [{ url: "https://example.com/shot.jpg" }, "data:image/jpeg;base64,NO"]
+        }
+      }
+    }
+  });
+  const withUrl = incoming.listItems()[0];
+  assert.equal(withUrl.docs.vauto.url, "https://example.com/vauto.mp4", "mailer keeps docs.url");
+  assert.equal(withUrl.docs.vauto.preview, "https://example.com/vauto.jpg", "mailer keeps http preview");
+  assert.equal(withUrl.docs.vauto.data, undefined, "mailer still strips base64 data");
+  assert.equal(withUrl.docs.vauto.shots.length, 1);
+  assert.equal(withUrl.docs.vauto.shots[0].url, "https://example.com/shot.jpg");
+
   console.log("incoming-api: ok");
 })().catch(function (err) {
   console.error(err);

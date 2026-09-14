@@ -44,8 +44,8 @@ const SCREENS = [
 assert.equal(copy404, html, "404.html stays a byte-identical copy of index.html");
 assert.equal(inspect, html, "inspect-vehicle.html stays a byte-identical copy of index.html");
 
-must(/id="buildStamp">build d30g</, "home footer stamp is d30g");
-must(/<!--[\s\S]*build d30g[\s\S]*Thank-you frozen/, "file header stamp is d30g");
+must(/id="buildStamp">build d30h</, "home footer stamp is d30h");
+must(/<!--[\s\S]*build d30h[\s\S]*Thank-you frozen/, "file header stamp is d30h");
 
 must(/id="exitChrome"/, "global top chrome exists once");
 must(/id="exitBack">Back/, "Back is in the top chrome");

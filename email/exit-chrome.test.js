@@ -39,7 +39,7 @@ must(/function armAppBack\(/, "history trap for device Back");
 must(/\.sheet\.on/, "sheet closer still targets .sheet.on");
 must(/e\.target===sheet/, "backdrop tap closes sheets");
 must(/z-index:200/, "chrome is above sheets and Thank you at z-index 200");
-must(/min-height:32px/, "Back/Home are quiet 32px targets");
+must(/min-height:24px/, "Back/Home are quiet 24px targets");
 must(/width:56px; height:56px/, "Close X is 56px");
 must(/width:48px; height:48px/, "sheet card X is 48px, not 28px");
 must(/show\("start"\)/, "Home lands on the start hub");
@@ -72,7 +72,7 @@ must(/function finishGuest\(\)\{\s*finishThanks\(\);/, "finishGuest stays Thank-
 must(/function restoreSend\(\)/, "restoreSend stays");
 mustNot(/function pageHome\(\)\{[\s\S]{0,400}restoreSend/, "Home does not call restoreSend");
 
-must(/id="buildStamp">build d30g</, "build stamp");
+must(/id="buildStamp">build d30h</, "build stamp");
 mustNot(/id="exitRefresh">Refresh/, "Refresh label is gone");
 mustNot(/function pageRefresh\(\)/, "no Refresh reload helper");
 must(/id="exitBack">Back/, "Back stays");
