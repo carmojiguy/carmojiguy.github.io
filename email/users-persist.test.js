@@ -32,6 +32,8 @@ must(/Josh Lefave/, "Josh Lefave restored with seed spelling");
 must(/Steve Summerall/, "Steve Summerall restored by name");
 must(/keepalive:true/, "Users POST uses keepalive so leaving the page still saves");
 must(/Object\.keys\(blob\.permissions\)\.length/, "empty remote permissions do not wipe local toggles");
+must(/if\(!nUsers\)/, "persistUsersRemote skips POST when users length is 0");
+must(/if\(!people\.length && localCount\)/, "applyUsersBlob never replaces nonempty local people with empty remote");
 must(/e==="josh.lefave@gmautosales.ca" \|\| e==="steve.summerall@gmautosales.ca"/, "Josh/Steve defaultPerms are explicit");
 must(/id:"u-josh"/, "FixerBot seed id u-josh");
 must(/id:"u-steve-s"/, "FixerBot seed id u-steve-s");
@@ -106,6 +108,50 @@ must(/p\.role=seed\.role;/, "Josh/Steve seed role is pinned on restore");
   assert.strictEqual(stored.people.length, 3, "Josh/Steve/Adam stay local");
   assert.strictEqual(stored.permissions["adam@myloan.ca"].center, false, "toggle survives stale GET");
 })();
+
+(function testApplyKeepsLocalPeopleWhenRemoteUsersEmpty() {
+  const applySrc = sliceFn("applyUsersBlob", "persistUsersRemote");
+  let stored = {
+    people: [
+      { email: "nathan.rutter@myloan.ca", name: "Nathan Rutter" },
+      { email: "isabella.coffey@myloan.ca", name: "Isabella Coffey" }
+    ],
+    permissions: { "nathan.rutter@myloan.ca": { center: true } },
+    updatedAt: 100
+  };
+  function loadUsersStore() { return stored; }
+  function saveUsersStore(next) { stored = next; }
+  function staffEmail(v) { return String(v || "").trim().toLowerCase(); }
+  function normalizeTeams(v) { return Array.isArray(v) ? v : []; }
+  const applyUsersBlob = eval("(" + applySrc.replace("function applyUsersBlob", "function") + ")");
+  assert.strictEqual(applyUsersBlob({
+    ok: true,
+    users: [],
+    people: [],
+    permissions: {
+      "nathan.rutter@myloan.ca": { center: true, admin: true },
+      "isabella.coffey@myloan.ca": { center: true, admin: true }
+    },
+    updatedAt: 999
+  }), true, "permissions-only remote still applies toggles");
+  assert.strictEqual(stored.people.length, 2, "nonempty local people survive empty remote users");
+  assert.strictEqual(stored.people[0].email, "nathan.rutter@myloan.ca");
+  assert.strictEqual(stored.permissions["isabella.coffey@myloan.ca"].admin, true, "permissions may still update");
+})();
+
+function makeRoster(n) {
+  const users = [];
+  const permissions = {};
+  for (let i = 0; i < n; i++) {
+    const email = i === 0 ? "nathan.rutter@myloan.ca"
+      : i === 1 ? "isabella.coffey@myloan.ca"
+      : ("user" + i + "@myloan.ca");
+    const name = i === 0 ? "Nathan Rutter" : i === 1 ? "Isabella Coffey" : ("User " + i);
+    users.push({ email: email, name: name, id: "u-" + i, photo: "/staff/user-" + i + ".jpg" });
+    permissions[email] = { trade: true, appraise: true, website: true, center: true, admin: true, ca: true };
+  }
+  return { users: users, permissions: permissions };
+}
 
 function mockBlob() {
   const files = { puts: [] };
@@ -184,7 +230,9 @@ function clearIsolate(storePath) {
   assert.equal(put.headers.Authorization, "Bearer test-token");
   assert.equal(put.headers["x-api-version"], "7");
   assert.equal(put.headers["x-add-random-suffix"], "0");
-  assert.equal(put.headers["x-allow-overwrite"], "true");
+  assert.equal(put.headers["x-allow-overwrite"], "1", "Blob overwrite header is 1 (SDK wire format), not true");
+  assert.equal(put.headers["x-vercel-blob-access"], "public");
+  assert.equal(put.headers["x-content-type"], "application/json");
 
   clearIsolate(env.USERS_STORE_PATH);
   const got = await incoming.listUsers({ fetch: fetchImpl, env: env });
@@ -244,8 +292,92 @@ function clearIsolate(storePath) {
   assert.notEqual(memSaved.body.via, "blob", "no token is never labeled blob");
   assert.ok(memSaved.body.via === "tmp" || memSaved.body.via === "memory", "via is tmp or memory");
 
+  (function testNormalizePrefersPeopleWhenUsersEmpty() {
+    const kept = usersStore.normalizeUsersStore({
+      users: [],
+      people: [{ email: "nathan.rutter@myloan.ca", name: "Nathan Rutter" }],
+      permissions: { "nathan.rutter@myloan.ca": { admin: true } }
+    });
+    assert.equal(kept.users.length, 1, "normalizeUsersStore does not drop people when users=[]");
+    assert.equal(kept.users[0].email, "nathan.rutter@myloan.ca");
+    assert.equal(kept.people.length, 1);
+  })();
+
+  const persistSrc = sliceFn("persistUsersRemote", "pullUsersRemote");
+  const persistCalls = [];
+  const MAIL_HOST = "https://mailer.example";
+  function slimUsersBlob(store) {
+    const people = ((store && store.people) || store.users || []).filter(function (u) { return u && u.email; });
+    return { kind: "users", users: people, people: people, permissions: (store && store.permissions) || {} };
+  }
+  function loadUsersStore() { return { people: [], permissions: { "x@y.com": { center: true } } }; }
+  function fetch(url, req) { persistCalls.push({ url: url, req: req }); return Promise.resolve({ ok: true, json: function () { return Promise.resolve({ ok: true }); } }); }
+  const persistUsersRemote = eval("(" + persistSrc.replace("function persistUsersRemote", "function") + ")");
+  const skippedEmptyPerms = await persistUsersRemote({ people: [], users: [], permissions: { "x@y.com": { admin: true } } });
+  assert.equal(skippedEmptyPerms.skipped, "empty", "empty users skip even when permissions has keys");
+  assert.equal(persistCalls.length, 0, "no POST when users=[]");
+
+  const round = mockBlob();
+  const roundEnv = { BLOB_READ_WRITE_TOKEN: "test-token", USERS_STORE_PATH: "/tmp/users-persist-33-" + Date.now() + ".json" };
+  clearIsolate(roundEnv.USERS_STORE_PATH);
+  const roster33 = makeRoster(33);
+  const posted33 = await incoming.persistUsers({
+    kind: "users",
+    users: roster33.users,
+    people: roster33.users,
+    permissions: roster33.permissions
+  }, { fetch: round, env: roundEnv });
+  assert.equal(posted33.status, 200);
+  assert.equal(posted33.body.ok, true);
+  assert.equal(posted33.body.nusers, 33, "POST reports 33 users written");
+  assert.equal(posted33.body.via, "blob", "33-user POST lands on Blob");
+  const put33 = JSON.parse(round.files.body);
+  assert.equal(put33.users.length, 33, "Blob PUT body keeps the users array");
+  clearIsolate(roundEnv.USERS_STORE_PATH);
+  const got33 = await incoming.listUsers({ fetch: round, env: roundEnv });
+  assert.equal(got33.nusers, 33, "GET nusers is 33");
+  assert.equal(got33.users.length, 33, "POST 33 users → GET returns 33");
+  assert.equal(got33.users[0].email, "nathan.rutter@myloan.ca");
+  assert.equal(got33.users[1].email, "isabella.coffey@myloan.ca");
+  assert.equal(got33.via, "blob");
+
+  const permOnly = await incoming.persistUsers({
+    kind: "users",
+    users: [],
+    permissions: Object.assign({}, roster33.permissions, { "nathan.rutter@myloan.ca": { trade: true, appraise: true, website: true, center: true, admin: true, ca: true } })
+  }, { fetch: round, env: roundEnv });
+  assert.notEqual(permOnly.body.skipped, "empty", "permissions-only POST keeps existing users");
+  assert.equal(permOnly.body.nusers, 33, "existing 33 users are kept when incoming users=[]");
+  const afterPerm = await incoming.listUsers({ fetch: round, env: roundEnv });
+  assert.equal(afterPerm.users.length, 33, "permissions update does not wipe the 33-user roster");
+
+  const staleEnv = { BLOB_READ_WRITE_TOKEN: "test-token", USERS_STORE_PATH: "/tmp/users-persist-stale-" + Date.now() + ".json" };
+  const staleFetch = mockBlob();
+  clearIsolate(staleEnv.USERS_STORE_PATH);
+  const savedTmp = await incoming.persistUsers({
+    kind: "users",
+    users: roster33.users,
+    permissions: roster33.permissions
+  }, { fetch: staleFetch, env: staleEnv });
+  assert.equal(savedTmp.body.nusers, 33);
+  async function emptyBlobGet(url, opts) {
+    opts = opts || {};
+    if (String(opts.method || "GET").toUpperCase() === "PUT") return staleFetch(url, opts);
+    return {
+      ok: true,
+      json: async function () {
+        return { users: [], people: [], permissions: roster33.permissions, updatedAt: Date.now(), blobs: [{ pathname: usersStore.BLOB_NAME, url: staleFetch.files.url }] };
+      }
+    };
+  }
+  emptyBlobGet.files = staleFetch.files;
+  const fromStale = await incoming.listUsers({ fetch: emptyBlobGet, env: staleEnv });
+  assert.equal(fromStale.users.length, 33, "empty Blob users do not clobber nonempty tmp roster");
+
   clearIsolate(env.USERS_STORE_PATH);
   clearIsolate(missingEnv.USERS_STORE_PATH);
+  clearIsolate(roundEnv.USERS_STORE_PATH);
+  clearIsolate(staleEnv.USERS_STORE_PATH);
   console.log("users-persist: ok");
 })().catch(function (err) {
   console.error(err);

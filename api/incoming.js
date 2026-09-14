@@ -8,8 +8,10 @@
  *        → { ok:true, kind:"users", users:[], teams:[], permissions:{}, updatedAt, via }
  *        via is "blob" only when Vercel Blob actually served the roster;
  *        otherwise "tmp" (/tmp/center-users-v1.json) or "memory".
- *        Users roster PUT/GET pathname center-users-v1.json (same Blob headers
- *        as api/lib/notify-store.js) so toggles survive cold starts.
+ *        Users roster PUT/GET pathname center-users-v1.json (Blob headers
+ *        match @vercel/blob: x-allow-overwrite 1, x-vercel-blob-access public)
+ *        so a 33-user POST round-trips on GET. Empty incoming users never
+ *        replace a nonempty Blob/tmp roster; permissions may still update.
  *   POST same URL
  *        { kind:"land", item: slimCenterItem }
  *        → { ok:true, id }
@@ -628,11 +630,13 @@ function slimPermissions(raw) {
 }
 function buildUsersBlob(body) {
   body = body && typeof body === "object" ? body : {};
-  const raw = Array.isArray(body.users) ? body.users : (Array.isArray(body.people) ? body.people : []);
+  const fromUsers = Array.isArray(body.users) ? body.users : null;
+  const fromPeople = Array.isArray(body.people) ? body.people : null;
+  const raw = (fromUsers && fromUsers.length) ? fromUsers : ((fromPeople && fromPeople.length) ? fromPeople : (fromUsers || fromPeople || []));
   const users = raw.map(slimUser).filter(Boolean);
   const permissions = slimPermissions(body.permissions);
   const teams = Array.isArray(body.teams) ? body.teams.map(function (t) { return String(t || ""); }).filter(Boolean) : [];
-  return { users: users, teams: teams, permissions: permissions, updatedAt: Date.now() };
+  return { users: users, people: users, teams: teams, permissions: permissions, updatedAt: Date.now() };
 }
 function honestVia(v) {
   v = String(v || "");
@@ -654,26 +658,35 @@ async function listUsers(deps) {
     ok: true,
     kind: "users",
     users: blob.users || [],
+    people: blob.users || [],
     teams: blob.teams || [],
     permissions: blob.permissions || {},
     updatedAt: blob.updatedAt || 0,
+    nusers: (blob.users || []).length,
     via: honestVia(usersStore.via())
   };
 }
 async function persistUsers(body, deps) {
   const existing = await hydrateUsersFromBlob(deps);
   const next = buildUsersBlob(body);
-  if (!usersStore.isPopulated(next) && usersStore.isPopulated(existing)) {
-    return {
-      status: 200,
-      body: {
-        ok: true,
-        kind: "users",
-        updatedAt: existing.updatedAt || 0,
-        via: honestVia(usersStore.via()),
-        skipped: "empty"
-      }
-    };
+  if (!next.users.length) {
+    const existingUsers = (existing.users && existing.users.length) ? existing.users : [];
+    const permKeys = Object.keys(next.permissions || {}).length;
+    if (!existingUsers.length || !permKeys) {
+      return {
+        status: 200,
+        body: {
+          ok: true,
+          kind: "users",
+          updatedAt: existing.updatedAt || 0,
+          nusers: existingUsers.length,
+          via: honestVia(usersStore.via()),
+          skipped: "empty"
+        }
+      };
+    }
+    next.users = existingUsers;
+    next.people = existingUsers;
   }
   saveUsersFile(next);
   let via = "tmp";
@@ -683,7 +696,7 @@ async function persistUsers(body, deps) {
   } catch (e) {
     via = "tmp";
   }
-  return { status: 200, body: { ok: true, kind: "users", updatedAt: next.updatedAt, via: via } };
+  return { status: 200, body: { ok: true, kind: "users", updatedAt: next.updatedAt, nusers: next.users.length, via: via } };
 }
 const persistUsersDurable = persistUsers;
 const listUsersDurable = listUsers;

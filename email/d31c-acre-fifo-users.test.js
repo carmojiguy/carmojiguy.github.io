@@ -103,7 +103,7 @@ must(/function persistUsersRemote\(/, "Users save to mailer");
 must(/kind:"users"/, "Users blob kind is users");
 must(/\/api\/incoming\?kind=users/, "Users GET hits kind=users");
 must(/function applyUsersBlob\(/, "empty remote does not invent users");
-must(/if\(!people\.length && !\(blob\.permissions/, "empty blob does not wipe or invent");
+must(/if\(!people\.length && localCount\)/, "empty remote never wipes nonempty local people");
 
 must(/function finishGuest\(\)\{\s*finishThanks\(\);/, "Thank-you stays frozen");
 mustNot(/id="exitRefresh"/, "Refresh stays gone");
