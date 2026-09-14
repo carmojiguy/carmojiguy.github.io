@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-14 build d30i: V Auto / OpenLane / eBlock pills open a doc sheet; kind:file blob url; Incoming keeps http docs.url; status dropdown every lane; Run Appraisal Team; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples -->
+<!-- center-v3 + desk-home 2026-09-14 build d30k: spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; kind:file blob url; Incoming keeps http docs.url; status dropdown every lane; Run Appraisal Team; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -2016,7 +2016,7 @@ body.center-gallery-on { overflow:hidden; }
     <p class="quote" id="vinHint">Best: take a picture of the vehicle ownership (registration). You can also photograph the VIN on the dash or the sticker on the driver’s door. We’ll read the number from the photo.</p>
     <p class="vin-chip hide" id="vinChip"></p>
     </div>
-    <p class="build-stamp" id="buildStamp">build d30i</p>
+    <p class="build-stamp" id="buildStamp">build d30k</p>
   </div>
 </section>
 
@@ -2487,7 +2487,7 @@ body.center-gallery-on { overflow:hidden; }
   <div class="card">
     <button class="x" type="button" data-close="typeSheet">✕</button>
     <h3>Appraisal type</h3>
-    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d30i</span></p>
+    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d30k</span></p>
     <div id="typeChips" class="to-chips"></div>
     <div id="leadBox" class="lead-box hide">
       <p class="hint">Lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a New application — no appointment calendar.</p>
@@ -10591,6 +10591,26 @@ function normalizeSpoken(raw){
   s=s.replace(/\b(\d{1,3})\s+thousand\b/g, function(_,n){ return String(Number(n)*1000); });
   return s.replace(/\s+/g," ").trim();
 }
+function prettyStoryTrim(name){
+  const key=String(name||"").toLowerCase().replace(/-/g,"").replace(/\s+/g,"");
+  const caps={
+    l:"L", le:"LE", se:"SE", xl:"XL", ex:"EX", st:"ST", gt:"GT", ss:"SS",
+    xle:"XLE", xse:"XSE", xlt:"XLT", exl:"EX-L", trd:"TRD",
+    sel:"SEL", ses:"SES", slt:"SLT", sle:"SLE", ltz:"LTZ", zr2:"ZR2", zr1:"ZR1", rst:"RST",
+    hybridle:"Hybrid LE", hybridxle:"Hybrid XLE", hybridxse:"Hybrid XSE"
+  };
+  if(caps[key]) return caps[key];
+  return String(name||"").replace(/\b\w/g, function(c){ return c.toUpperCase(); });
+}
+function matchStoryTrim(low){
+  const text=String(low||"");
+  const trims=["eddie bauer","king ranch","preferred plus","high country","outer banks","hybrid xle","hybrid xse","hybrid le","nightshade","platinum","limited","lariat","denali","wildtrak","heritage","badlands","touring","premier","preferred","ultimate","caliber","ex lee","x l e","x s e","x l t","t r d","l e","s e","x l","zr2","zr1","rst","ltz","slt","sle","xlt","xle","xse","sel","ses","ex-l","exl","hybrid","trd","sport","xl","le","se","ex","st","gt","ss","l"];
+  for(let i=0;i<trims.length;i++){
+    const pat=trims[i].replace(/-/g,"[- ]").replace(/\s+/g,"\\s+");
+    if(new RegExp("\\b"+pat+"\\b","i").test(text)) return prettyStoryTrim(trims[i]==="ex lee"?"xle":trims[i]);
+  }
+  return "";
+}
 function parseStory(raw){
   const original=String(raw||"").trim();
   const heard=original.replace(/\s+/g," ");
@@ -10608,15 +10628,18 @@ function parseStory(raw){
     }
   }
   const models=["bronco","mustang","explorer","escape","ranger","expedition","f-150","f150","f-250","f250","f-350","f350","silverado","tahoe","suburban","equinox","camaro","corvette","sierra","yukon","acadia","civic","accord","cr-v","pilot","camry","corolla","rav4","highlander","tacoma","tundra","altima","rogue","pathfinder","sentra","wrangler","grand cherokee","cherokee","gladiator","compass","1500","2500","3500","charger","challenger","durango","caravan","soul","sportage","sorento","tucson","santa fe","elantra","palisade","cx-5","cx-50","mazda3","outback","forester","crosstrek","impreza","3-series","5-series","x3","x5","c-class","e-class","s-class","glc","gle","a4","q5","q7","golf","jetta","atlas","tiguan","model 3","model y","model s","model x","escalade","xt5","ct5","navigator","aviator","corsair","continental"];
-  for(let i=0;i<models.length;i++){
-    if(low.indexOf(models[i])>=0){
-      o.model=models[i].replace("f-150","F-150").replace("f150","F-150").replace("f-250","F-250").replace("f250","F-250").replace("f-350","F-350").replace("f350","F-350");
-      if(!/^F-/.test(o.model)) o.model=o.model.replace(/\b\w/g, function(c){ return c.toUpperCase(); });
-      break;
+  if(/\brav(?:\s*[-]?\s*4|\s+four)\b/.test(low)){
+    o.model="RAV4";
+  } else {
+    for(let i=0;i<models.length;i++){
+      if(low.indexOf(models[i])>=0){
+        o.model=models[i].replace("f-150","F-150").replace("f150","F-150").replace("f-250","F-250").replace("f250","F-250").replace("f-350","F-350").replace("f350","F-350");
+        if(!/^F-/.test(o.model)) o.model=o.model.replace(/\b\w/g, function(c){ return c.toUpperCase(); });
+        break;
+      }
     }
   }
-  const trims=["eddie bauer","king ranch","platinum","limited","lariat","denali","high country","zr2","zr1","rst","ltz","slt","sle","xlt","sel","ses","ex-l","exl","touring","premier","preferred plus","preferred","ultimate","caliber","outer banks","badlands","wildtrak","heritage","sport","xl","se","ex","st","gt","ss"];
-  for(let i=0;i<trims.length;i++) if(new RegExp("\\b"+trims[i].replace(/-/g,"[- ]")+"\\b","i").test(low)){ o.trim=trims[i].replace(/\b\w/g, function(c){ return c.toUpperCase(); }); break; }
+  o.trim=matchStoryTrim(low);
   const colors=["pearl white","off white","white","black","red","blue","grey","gray","silver","green","tan","beige","brown","orange","yellow","gold","maroon","burgundy","charcoal","navy"];
   for(let i=0;i<colors.length;i++) if(new RegExp("\\b"+colors[i]+"\\b","i").test(low)){ o.color=colors[i].replace(/\b\w/g, function(c){ return c.toUpperCase(); }); break; }
   const kmHits=text.match(/(\d{1,3}(?:,\d{3})+|\d{3,7})(?:\s*km)?/g) || [];
@@ -10709,6 +10732,24 @@ async function generateWebCopy(){
   if(btn){ btn.disabled=false; btn.textContent="Write retail description"; }
   toast(text && text!==fallback ? "Retail description ready — edit if you want." : "Retail description filled in from the story.");
 }
+function typedTrimValue(){
+  var fromField="";
+  try{
+    var a=typeof $==="function"?$("v-trim"):null;
+    var b=typeof $==="function"?$("f-trim"):null;
+    if(a && String(a.value||"").trim()) fromField=String(a.value).trim();
+    else if(b && String(b.value||"").trim()) fromField=String(b.value).trim();
+  }catch(e){}
+  return fromField || String((typeof APP!=="undefined" && APP.trim)||"").trim();
+}
+function spokenTrimClearer(spoken, typed){
+  if(!spoken) return false;
+  if(!typed) return true;
+  var a=String(spoken).replace(/[\s-]+/g,"").toLowerCase();
+  var b=String(typed).replace(/[\s-]+/g,"").toLowerCase();
+  if(a===b) return false;
+  return a.length>b.length && a.indexOf(b)>=0;
+}
 function applyStory(raw){
   const text=String(raw||"").trim();
   if(!text) return;
@@ -10716,9 +10757,15 @@ function applyStory(raw){
   if(!APP.notes) APP.notes=text;
   APP.webcopy="";
   if(APP.lockedFromAirtable) return;
+  var typedTrim=typedTrimValue();
+  if(typedTrim) APP.trim=typedTrim;
   const parsed=parseStory(text);
   Object.keys(parsed).forEach(function(k){
     if(k==="vin" || k==="heard" || k==="notes") return;
+    if(k==="trim"){
+      if(spokenTrimClearer(parsed.trim, APP.trim)) APP.trim=parsed.trim;
+      return;
+    }
     if(parsed[k]) APP[k]=parsed[k];
   });
   if(parsed.vin) APP.vin = parsed.vin;
@@ -11788,7 +11835,7 @@ function printCarfaxRecreatePdf(item){
     d.text(body, 36, y+32);
     d.setFillColor(27,107,58); d.rect(0,H-40,W,40,"F");
     d.setTextColor(255,255,255); d.setFont("helvetica","bold"); d.setFontSize(8);
-    d.text("NOT OFFICIAL CARFAX  ·  SAMPLE / PENDING  ·  carfax-sample  ·  build d30i", 36, H-18);
+    d.text("NOT OFFICIAL CARFAX  ·  SAMPLE / PENDING  ·  carfax-sample  ·  build d30k", 36, H-18);
     d.setProperties({title:"SAMPLE PENDING NOT OFFICIAL CARFAX — 2024 RAV4 LE AWD", author:"G&M Appraisal Center"});
     d.save("rav4-2T3B1RFVXRC466025-carfax-sample.pdf");
     storeRav4CarfaxDoc(item);

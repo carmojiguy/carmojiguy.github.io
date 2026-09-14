@@ -25,8 +25,8 @@ function sliceFn(name, next) {
   return html.slice(start, end);
 }
 
-must(/id="buildStamp">build d30i</, "footer stamp is d30i");
-must(/<!--[\s\S]*build d30i[\s\S]*kind:file/, "header stamp is d30i file pills");
+must(/id="buildStamp">build d30k</, "footer stamp is d30i");
+must(/<!--[\s\S]*build d30k[\s\S]*kind:file/, "header stamp is d30i file pills");
 must(/id="marketDocSheet"/, "per-doc sheet exists");
 must(/id="marketDocView">View</, "sheet has View");
 must(/id="marketDocAdd">Add file</, "sheet has Add file");
