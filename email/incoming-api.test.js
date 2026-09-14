@@ -207,6 +207,19 @@ assert.equal(incoming.isPacketSend({
   });
   assert.equal(incoming.listItems().length, 1, "activate land does not create a new card");
   assert.equal(incoming.listItems()[0].teamActivated, true, "later land does not wipe teamActivated");
+  incoming.route("POST", {
+    kind: "land",
+    item: {
+      id: "team-act-1",
+      sendId: "s-team-act",
+      vin: "2T3B1RFVXRC466025",
+      teamActivated: false,
+      teamStatus: "",
+      customer: { name: "Chris Cyr" }
+    }
+  });
+  assert.equal(incoming.listItems().length, 1, "false activate is the same card");
+  assert.equal(incoming.listItems()[0].teamActivated, false, "mailer persists teamActivated false");
 
   incoming.resetStore();
   incoming.route("POST", {

@@ -120,7 +120,36 @@ function slimItem(raw) {
   item.thumb = String(raw.thumb || "").slice(0, 180000);
   if (raw.teamActivated === true || raw.teamActivated === false) item.teamActivated = !!raw.teamActivated;
   if (raw.teamActivatedAt != null && raw.teamActivatedAt !== "") item.teamActivatedAt = Number(raw.teamActivatedAt) || 0;
-  if (raw.teamStatus) item.teamStatus = String(raw.teamStatus);
+  if (raw.teamStatus != null) item.teamStatus = String(raw.teamStatus);
+  if (raw.teamRun && typeof raw.teamRun === "object") item.teamRun = raw.teamRun;
+  if (raw.team && typeof raw.team === "object") {
+    item.team = {};
+    ["shabot", "rybot", "webot", "drebot", "tbot"].forEach(function (k) {
+      const s = raw.team[k];
+      if (!s || typeof s !== "object") return;
+      item.team[k] = {
+        min: String(s.min || ""),
+        target: String(s.target || ""),
+        max: String(s.max || ""),
+        note: String(s.note || "")
+      };
+    });
+  }
+  if (raw.appraisalFinal && typeof raw.appraisalFinal === "object") {
+    item.appraisalFinal = {
+      min: String(raw.appraisalFinal.min || ""),
+      target: String(raw.appraisalFinal.target || ""),
+      max: String(raw.appraisalFinal.max || ""),
+      path: String(raw.appraisalFinal.path || ""),
+      at: Number(raw.appraisalFinal.at) || 0,
+      authors: Array.isArray(raw.appraisalFinal.authors) ? raw.appraisalFinal.authors.map(String) : []
+    };
+  }
+  if (raw.finalRationale && typeof raw.finalRationale === "object") item.finalRationale = raw.finalRationale;
+  ["finalMin", "finalTarget", "finalMax", "finalPath"].forEach(function (k) {
+    if (raw[k] != null && raw[k] !== "") item[k] = String(raw[k]);
+  });
+  if (raw.finalAt != null && raw.finalAt !== "") item.finalAt = Number(raw.finalAt) || 0;
   if (raw.locked === true || raw.locked === false) item.locked = !!raw.locked;
   if (raw.superseded === true || raw.superseded === false) item.superseded = !!raw.superseded;
   if (raw.supersedeLock === true || raw.supersedeLock === false) item.supersedeLock = !!raw.supersedeLock;

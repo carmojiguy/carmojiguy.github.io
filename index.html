@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-14 build d30n: real Carfax http url opens the uploaded file; sample recreate only when no docs.carfax.url; Carfax square + huge card add/upload kind:file carfax; staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; Incoming keeps http docs.url; status dropdown every lane; Run Appraisal Team; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples -->
+<!-- center-v3 + desk-home 2026-09-14 build d30s: Run Appraisal Team tap always fires (rerun + Unlocked History); same sendId/id Incoming POST; panel runs progress → existing FINAL; no invented solds; real Carfax http url opens the uploaded file; sample recreate only when no docs.carfax.url; Carfax square + huge card add/upload kind:file carfax; staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; Incoming keeps http docs.url; status dropdown every lane; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -1108,6 +1108,8 @@ body.center-gallery-on { overflow:hidden; }
   box-shadow:0 12px 28px rgba(124,92,255,.28);
 }
 .center-run-team-btn:disabled { opacity:.72; cursor:default; box-shadow:none; transform:none; }
+body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { pointer-events:auto; opacity:1; }
+.team-card .team-wait.ready { color:#0F6B3C; background:#D8F5E5; }
 .center-run-team-note { margin:0; font-size:14px; }
 .final-decision-box {
   display:block; width:100%; border:0; cursor:pointer; text-align:left; font:inherit;
@@ -2022,7 +2024,7 @@ body.center-gallery-on { overflow:hidden; }
     <p class="quote" id="vinHint">Best: take a picture of the vehicle ownership (registration). You can also photograph the VIN on the dash or the sticker on the driver’s door. We’ll read the number from the photo.</p>
     <p class="vin-chip hide" id="vinChip"></p>
     </div>
-    <p class="build-stamp" id="buildStamp">build d30n</p>
+    <p class="build-stamp" id="buildStamp">build d30s</p>
   </div>
 </section>
 
@@ -2493,7 +2495,7 @@ body.center-gallery-on { overflow:hidden; }
   <div class="card">
     <button class="x" type="button" data-close="typeSheet">✕</button>
     <h3>Appraisal type</h3>
-    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d30n</span></p>
+    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d30s</span></p>
     <div id="typeChips" class="to-chips"></div>
     <div id="leadBox" class="lead-box hide">
       <p class="hint">Lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a New application — no appointment calendar.</p>
@@ -6832,7 +6834,8 @@ function unlockCenterItem(id){
     x.staffUnlocked=true;
     x.unlockedAt=Date.now();
     x.teamActivated=false;
-    if(x.teamStatus==="running") x.teamStatus="";
+    if(x.teamStatus==="running" || x.teamStatus==="final") x.teamStatus="";
+    x.teamRun=null;
     if(keepLane) x.lane=keepLane;
     if(keepPick) x.lanePick=keepPick;
     x.archived=keepArch;
@@ -7012,14 +7015,23 @@ function slimSharedCenterItem(item){
     finalTarget:item.finalTarget||(fin&&fin.target)||"",
     finalMax:item.finalMax||(fin&&fin.max)||""
   };
-  if(item.team && item.team.shabot){
-    slim.team={shabot:teamSlot(item.team.shabot)};
+  if(item.team){
+    const team={};
+    if(item.team && item.team.shabot) team.shabot=teamSlot(item.team.shabot);
+    const bots=(typeof CENTER_TEAM!=="undefined" && CENTER_TEAM)?CENTER_TEAM:[["rybot"],["webot"],["drebot"],["tbot"]];
+    bots.forEach(function(pair){
+      if(pair[0]==="shabot") return;
+      const slot=teamSlot(item.team[pair[0]]);
+      if((typeof hasAppraisalFinalNumbers==="function" && hasAppraisalFinalNumbers(slot.min, slot.target, slot.max)) || slot.note){
+        team[pair[0]]=slot;
+      }
+    });
+    if(team.shabot || Object.keys(team).length) slim.team=team;
   }
-  if(item.teamActivated===true){
-    slim.teamActivated=true;
-    slim.teamActivatedAt=Number(item.teamActivatedAt)||0;
-    slim.teamStatus=item.teamStatus||"running";
-  }
+  slim.teamActivated=item.teamActivated===true;
+  if(item.teamActivatedAt!=null && item.teamActivatedAt!=="") slim.teamActivatedAt=Number(item.teamActivatedAt)||0;
+  slim.teamStatus=item.teamStatus||(slim.teamActivated?"running":"");
+  if(item.teamRun && typeof item.teamRun==="object") slim.teamRun=item.teamRun;
   slim.locked=!!item.locked;
   slim.superseded=!!item.superseded;
   slim.supersedeLock=!!item.supersedeLock;
@@ -7229,11 +7241,18 @@ function applySharedIncoming(item, remote){
     }
   }
   seedSharedIncomingFinal(item, remote);
-  if(remote.teamActivated===true){
-    item.teamActivated=true;
-    item.teamActivatedAt=Number(remote.teamActivatedAt)||item.teamActivatedAt||0;
-    item.teamStatus=remote.teamStatus||item.teamStatus||"running";
+  if(remote.teamActivated===true || remote.teamActivated===false){
+    item.teamActivated=!!remote.teamActivated;
+    if(item.teamActivated){
+      item.teamActivatedAt=Number(remote.teamActivatedAt)||item.teamActivatedAt||0;
+      item.teamStatus=remote.teamStatus||item.teamStatus||"running";
+    } else if(remote.teamStatus!=null){
+      item.teamStatus=String(remote.teamStatus||"");
+    } else if(item.teamStatus==="running" || item.teamStatus==="final"){
+      item.teamStatus="";
+    }
   }
+  if(remote.teamRun && typeof remote.teamRun==="object") item.teamRun=remote.teamRun;
   if(remote.staffUnlocked===true){
     item.staffUnlocked=true;
     item.locked=false;
@@ -8420,7 +8439,85 @@ function paintCenterVals(item){
   }
 }
 function isTeamActivated(item){
-  return !!(item && (item.teamActivated===true || item.teamStatus==="running"));
+  return !!(item && (item.teamActivated===true || item.teamStatus==="running" || item.teamStatus==="final"));
+}
+function landTeamRunFromFile(item){
+  if(!item) return item;
+  item.team=item.team||(typeof emptyTeam==="function"?emptyTeam():{});
+  const fin=typeof resolveAppraisalFinal==="function"?resolveAppraisalFinal(item):null;
+  if(fin && typeof hasAppraisalFinalNumbers==="function" && hasAppraisalFinalNumbers(fin.min, fin.target, fin.max)){
+    const keep=teamSlot(item.team.shabot);
+    const ratNote=item.finalRationale&&item.finalRationale.shabot&&item.finalRationale.shabot.note;
+    item.team.shabot={
+      min:keep.min||fin.min||"",
+      target:keep.target||fin.target||"",
+      max:keep.max||fin.max||"",
+      note:keep.note||ratNote||""
+    };
+    if(typeof syncAppraisalFinalFromTeam==="function") syncAppraisalFinalFromTeam(item);
+  }
+  const panel=item.finalRationale&&item.finalRationale.panel;
+  if(panel){
+    ["rybot","webot","drebot","tbot"].forEach(function(k){
+      const p=panel[k];
+      if(!p) return;
+      const keep=teamSlot(item.team[k]);
+      const min=keep.min||p.min||"";
+      const target=keep.target||p.target||"";
+      const max=keep.max||p.max||"";
+      const note=keep.note||p.why||p.note||"";
+      if((typeof hasAppraisalFinalNumbers==="function" && hasAppraisalFinalNumbers(min, target, max)) || note){
+        item.team[k]={min:min, target:target, max:max, note:note};
+      }
+    });
+  }
+  if(typeof resolveAppraisalFinal==="function" && resolveAppraisalFinal(item)) item.teamStatus="final";
+  return item;
+}
+function clearTeamRunTimers(id){
+  APP._teamRunTimers=APP._teamRunTimers||{};
+  const list=APP._teamRunTimers[id]||[];
+  list.forEach(function(t){ try{ clearTimeout(t); }catch(e){} });
+  APP._teamRunTimers[id]=[];
+}
+function startTeamRunProgress(id){
+  if(typeof clearTeamRunTimers==="function") clearTeamRunTimers(id);
+  const order=["shabot","rybot","webot","drebot","tbot"];
+  function setRun(fn){
+    const item=typeof patchCenter==="function"?patchCenter(id, fn):null;
+    if(item && APP.centerViewId===id){
+      if(typeof paintCenterTeam==="function") paintCenterTeam(item);
+      if(typeof paintCenterRunTeam==="function") paintCenterRunTeam(item);
+      if(typeof paintCenterFinalBox==="function") paintCenterFinalBox(item);
+    }
+    return item;
+  }
+  setRun(function(x){
+    x.teamRun={shabot:"running", rybot:"waiting", webot:"waiting", drebot:"waiting", tbot:"waiting"};
+    x.teamStatus="running";
+  });
+  const delays=[350, 700, 1050, 1400, 1750];
+  delays.forEach(function(ms, i){
+    const bot=order[i];
+    const t=setTimeout(function(){
+      const item=setRun(function(x){
+        x.teamRun=x.teamRun||{};
+        if(i===0 && typeof landTeamRunFromFile==="function") landTeamRunFromFile(x);
+        x.teamRun[bot]="ready";
+        if(i<order.length-1){
+          const next=order[i+1];
+          if(!x.teamRun[next] || x.teamRun[next]==="waiting") x.teamRun[next]="running";
+        } else if(typeof resolveAppraisalFinal==="function" && resolveAppraisalFinal(x)){
+          x.teamStatus="final";
+        }
+      });
+      if(i===order.length-1 && item){
+        try{ shareIncomingBestEffort(item); }catch(e){}
+      }
+    }, ms);
+    APP._teamRunTimers=APP._teamRunTimers||{};
+    (APP._teamRunTimers[id]=APP._teamRunTimers[id]||[]).push(t);
+  });
 }
 function notifyTeamActivated(item){
   try{
@@ -8441,19 +8538,41 @@ function notifyTeamActivated(item){
     const p=(typeof timedFetch==="function")?timedFetch(url, req, 8000):fetch(url, req);
     if(p && typeof p.catch==="function") p.catch(function(){});
   }catch(e){}
+  try{
+    if(typeof notifyAppraisal==="function"){
+      notifyAppraisal({
+        kind:"upsert",
+        lane:"onsite-attention",
+        id:item.id,
+        email:"shawn@myloan.ca",
+        emails:["shawn@myloan.ca"],
+        customer:(item.customer&&item.customer.name)||"",
+        vehicle:item.ymmt||item.interest||"On-site vehicle",
+        vin:item.vin||"",
+        salesperson:item.salesperson||"",
+        missing:["Appraisal Team activated"],
+        dealType:item.dealType||""
+      });
+    }
+  }catch(e){}
 }
 function activateAppraisalTeam(id){
   if(APP.role==="guest") return null;
   const cur=typeof getCenter==="function"?getCenter(id):null;
-  if(typeof isCenterLocked==="function" && isCenterLocked(cur)) return null;
+  if(typeof isCenterLocked==="function" && isCenterLocked(cur)){
+    if(typeof toast==="function") toast("Unlock this appraisal first.");
+    return null;
+  }
   const item=typeof patchCenter==="function"?patchCenter(id, function(x){
     x.teamActivated=true;
     x.teamActivatedAt=Date.now();
     x.teamStatus="running";
+    x.teamRun={shabot:"running", rybot:"waiting", webot:"waiting", drebot:"waiting", tbot:"waiting"};
   }):null;
   if(!item) return null;
   try{ shareIncomingBestEffort(item); }catch(e){}
   try{ notifyTeamActivated(item); }catch(e){}
+  try{ if(typeof startTeamRunProgress==="function") startTeamRunProgress(id); }catch(e){}
   if(typeof paintCenterDetail==="function") paintCenterDetail();
   return item;
 }
@@ -8470,24 +8589,37 @@ function paintCenterRunTeam(item){
   }
   const on=isTeamActivated(item);
   const locked=typeof isCenterLocked==="function" && isCenterLocked(item);
-  btn.disabled=on||locked;
-  btn.textContent=on?"Running…":"Run Appraisal Team";
-  if(note) note.textContent=on
-    ? "Appraisal team is running — Shabot FINAL plus Rybot, Webot, Drebot, and TBot waiting."
-    : "Kick Shabot FINAL and the Rybot / Webot / Drebot / TBot opinion panel.";
-  btn.onclick=(!on && !locked)?function(){ activateAppraisalTeam(item.id); }:null;
+  const hasFinal=typeof resolveAppraisalFinal==="function" && !!resolveAppraisalFinal(item);
+  const rerun=on||hasFinal;
+  btn.disabled=false;
+  btn.textContent=rerun?"Rerun Appraisal Team":"Run Appraisal Team";
+  if(note){
+    if(item.teamStatus==="final" && hasFinal) note.textContent="Appraisal team FINAL is on the file — tap to rerun Shabot plus the opinion panel.";
+    else if(on) note.textContent="Appraisal team is running — Shabot FINAL plus Rybot, Webot, Drebot, and TBot. Staff can rerun.";
+    else note.textContent="Kick Shabot FINAL and the Rybot / Webot / Drebot / TBot opinion panel.";
+  }
+  btn.onclick=function(){
+    if(locked){
+      if(typeof toast==="function") toast("Unlock this appraisal first.");
+      return;
+    }
+    activateAppraisalTeam(item.id);
+  };
 }
 function paintCenterTeam(item){
   const host=$("centerTeam"); if(!host) return;
   host.innerHTML="";
   const team=item.team||emptyTeam();
   const running=isTeamActivated(item);
+  const run=item.teamRun||{};
   host.classList.toggle("running", running);
   CENTER_TEAM.forEach(function(pair){
     const slot=teamSlot(team[pair[0]]);
     const card=document.createElement("div");
-    card.className="team-card"+(pair[2]==="FINAL"?" final":"")+(running?" running":"");
-    const wait=running?'<em class="team-wait">'+(pair[2]==="FINAL"?"Running":"Waiting")+"</em>":"";
+    const state=run[pair[0]]||(running?(pair[2]==="FINAL"?"running":"waiting"):"");
+    card.className="team-card"+(pair[2]==="FINAL"?" final":"")+(running?" running":"")+(state?" "+state:"");
+    const waitLabel=state==="running"?"Running":state==="waiting"?"Waiting":state==="ready"?"In":"";
+    const wait=waitLabel?'<em class="team-wait '+state+'">'+waitLabel+"</em>":"";
     const hint=running
       ? (pair[2]==="FINAL"?"Shabot is running the FINAL — numbers land here when ready":"Opinion waiting — numbers land here when ready")
       : (pair[2]==="FINAL"?"Final number and why — this becomes the openable thought-process doc":"Opinion and how you got there");
@@ -12009,7 +12141,7 @@ function printCarfaxRecreatePdf(item){
     d.text(body, 36, y+32);
     d.setFillColor(27,107,58); d.rect(0,H-40,W,40,"F");
     d.setTextColor(255,255,255); d.setFont("helvetica","bold"); d.setFontSize(8);
-    d.text("NOT OFFICIAL CARFAX  ·  SAMPLE / PENDING  ·  carfax-sample  ·  build d30n", 36, H-18);
+    d.text("NOT OFFICIAL CARFAX  ·  SAMPLE / PENDING  ·  carfax-sample  ·  build d30s", 36, H-18);
     d.setProperties({title:"SAMPLE PENDING NOT OFFICIAL CARFAX — 2024 RAV4 LE AWD", author:"G&M Appraisal Center"});
     d.save("rav4-2T3B1RFVXRC466025-carfax-sample.pdf");
     storeRav4CarfaxDoc(item);

@@ -34,9 +34,9 @@ function sha(s) {
 assert.equal(copy404, html, "404.html stays a byte-identical copy of index.html");
 assert.equal(inspect, html, "inspect-vehicle.html stays a byte-identical copy of index.html");
 
-must(/id="buildStamp">build d30n</, "home footer stamp is d30h");
-must(/<!--[\s\S]*build d30n[\s\S]*Run Appraisal Team/, "file header stamp is d30h activate");
-must(/id="typeSheet"[\s\S]*build d30n/, "type sheet stamp is d30h");
+must(/id="buildStamp">build d30s</, "home footer stamp is d30s");
+must(/<!--[\s\S]*build d30s[\s\S]*Run Appraisal Team/, "file header stamp is d30s activate");
+must(/id="typeSheet"[\s\S]*build d30s/, "type sheet stamp is d30s");
 must(/id="centerRunTeam"/, "staff activate button id");
 must(/id="centerRunTeamWrap"/, "staff activate wrap");
 must(/>Run Appraisal Team</, "button label is Run Appraisal Team");
@@ -53,9 +53,9 @@ must(/details:"Appraisal Team activated"/, "remind note is Appraisal Team activa
 must(/toEmail:"shawn@myloan\.ca"/, "activate note goes to Shawn");
 must(/APP\.role==="guest"\) return null/, "guests cannot activate");
 must(/wrap\.classList\.toggle\("hide", !staff\)/, "guests never see the button");
-must(/btn\.textContent=on\?"Running…"|"Run Appraisal Team"/, "button shows Running… when activated");
+must(/Rerun Appraisal Team/, "button offers rerun after activate / FINAL");
 must(/host\.classList\.toggle\("running", running\)/, "team rail paints running");
-must(/pair\[2\]==="FINAL"\?"Running":"Waiting"/, "Shabot running + four opinions waiting");
+must(/state==="running"\?"Running":state==="waiting"\?"Waiting"/, "Shabot running + opinions waiting");
 must(/placeholder="MIN"/, "running panel keeps empty MIN");
 must(/placeholder="TARGET"/, "running panel keeps empty TARGET");
 must(/placeholder="MAX"/, "running panel keeps empty MAX");
@@ -90,7 +90,7 @@ must(/font-size:11px; font-weight:500/, "Back/Home type is quieter");
 
 const activateSrc = sliceFn("activateAppraisalTeam", "paintCenterRunTeam");
 const notifySrc = sliceFn("notifyTeamActivated", "activateAppraisalTeam");
-const isOnSrc = sliceFn("isTeamActivated", "notifyTeamActivated");
+const isOnSrc = sliceFn("isTeamActivated", "landTeamRunFromFile");
 const paintRunSrc = sliceFn("paintCenterRunTeam", "paintCenterTeam");
 const paintTeamSrc = sliceFn("paintCenterTeam", "paintCenterTags");
 const slimSrc = html.match(/function slimSharedCenterItem\(item\)\{[\s\S]*?\n\}/)[0];
@@ -171,9 +171,10 @@ assert.ok(posts.some(function (p) {
 }), "remind note fired to Shawn");
 
 paintCenterRunTeam(got);
-assert.strictEqual(painted.btnText, "Running…");
-assert.strictEqual(painted.btnDisabled, true);
-assert.ok(/waiting/i.test(painted.note), "running note mentions waiting opinions");
+assert.strictEqual(painted.btnText, "Rerun Appraisal Team");
+assert.strictEqual(painted.btnDisabled, false);
+assert.equal(typeof painted.onclick, "function", "activated tap is not a no-op");
+assert.ok(/rerun|running/i.test(painted.note), "running note stays on the file");
 
 APP.role = "guest";
 paintCenterRunTeam(got);
