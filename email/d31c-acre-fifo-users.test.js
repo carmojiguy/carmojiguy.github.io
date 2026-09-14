@@ -37,6 +37,7 @@ function sha(s) {
 
 must(/id="buildStamp">build d31c</, "footer stamp is d31c");
 must(/<!--[\s\S]*build d31c[\s\S]*FIFO oldest home/, "header stamp is d31c FIFO");
+must(/<!--[\s\S]*build d31c[\s\S]*911 Incoming FINAL/, "header stamp keeps the 911 FINAL fold-in");
 must(/<!--[\s\S]*build d31c[\s\S]*left-rail Incoming\/On-site\/Needs docs\/History/, "header stamp names rail pills");
 must(/<!--[\s\S]*build d31c[\s\S]*kind:users persist/, "header stamp names users persist");
 must(/<!--[\s\S]*build d31c[\s\S]*Thank-you frozen/, "Thank-you stays frozen in the stamp");
