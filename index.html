@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-14 build d30l: staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; kind:file blob url; Incoming keeps http docs.url; status dropdown every lane; Run Appraisal Team; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples -->
+<!-- center-v3 + desk-home 2026-09-14 build d30m: desktop walk-around drop-sort; staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; kind:file blob url; Incoming keeps http docs.url; status dropdown every lane; Run Appraisal Team; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -1392,6 +1392,12 @@ body.center-gallery-on { overflow:hidden; }
   #photoRows .row { margin:0; }
   #damageRows { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
   #damageRows .dmg-card { margin:0; }
+  #deskWalkHint { border:1.5px dashed #C4B6FF; border-radius:16px; padding:12px 14px; background:#F6F3FF; }
+  #photos.walk-hover #deskWalkHint { border-color:var(--cyan); color:var(--cyan-deep); background:#F3FBFF; }
+  #photos.walk-drop-on #photoRows .row.walk-drop-target,
+  #photos.walk-drop-on #damageRows .dmg-card.walk-drop-target {
+    border-color:var(--cyan); box-shadow:0 0 0 3px rgba(0,164,226,.18);
+  }
   .docs-grid, .center-docs, .center-why-docs { grid-template-columns:1fr 1fr; gap:18px; }
   .phone:has(#workbench.on){ max-width:none; }
   #workbench .pad { max-width:1180px; }
@@ -2022,7 +2028,7 @@ body.center-gallery-on { overflow:hidden; }
     <p class="quote" id="vinHint">Best: take a picture of the vehicle ownership (registration). You can also photograph the VIN on the dash or the sticker on the driver’s door. We’ll read the number from the photo.</p>
     <p class="vin-chip hide" id="vinChip"></p>
     </div>
-    <p class="build-stamp" id="buildStamp">build d30l</p>
+    <p class="build-stamp" id="buildStamp">build d30m</p>
   </div>
 </section>
 
@@ -2185,6 +2191,8 @@ body.center-gallery-on { overflow:hidden; }
     </button>
     <div class="block">Walk-around</div>
     <p class="quote" id="walkOrderNote">Go around the vehicle in this order: ¾ front, front, driver side, rear, passenger side, then interior.</p>
+    <p class="quote hide" id="deskWalkHint">Drop a folder or a pile of photos — they sort into these slots. Drop one file on a slot to override.</p>
+    <input id="deskWalkFiles" class="hide" type="file" accept="image/*" multiple />
     <div id="photoRows"></div>
     <div class="block">Damage</div>
     <p class="quote">Skip this if the vehicle is clean. If something is damaged, tell us here — rust, a dent, a scratch, a cracked light, a panel that doesn’t open.</p>
@@ -2493,7 +2501,7 @@ body.center-gallery-on { overflow:hidden; }
   <div class="card">
     <button class="x" type="button" data-close="typeSheet">✕</button>
     <h3>Appraisal type</h3>
-    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d30l</span></p>
+    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d30m</span></p>
     <div id="typeChips" class="to-chips"></div>
     <div id="leadBox" class="lead-box hide">
       <p class="hint">Lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a New application — no appointment calendar.</p>
@@ -3554,6 +3562,9 @@ function shotCount(){
 
 function isDesk(){
   try{ return window.matchMedia("(min-width:980px)").matches; }catch(e){ return false; }
+}
+function deskWalkDropOn(){
+  return !!(typeof isDesk==="function" && isDesk() && APP && APP.role!=="guest");
 }
 function syncCenterDesk(){
   const phone=document.querySelector(".phone");
@@ -8028,6 +8039,149 @@ function walkViewIndex(key){
   };
   return aliases[k]>=0 ? aliases[k] : -1;
 }
+function walkHintFromName(name){
+  const base=String(name||"").split(/[/\\]/).pop()||"";
+  const stem=base.replace(/\.[a-z0-9]{2,5}$/i,"");
+  const raw=stem.toLowerCase().replace(/[_-]+/g," ").replace(/\s+/g," ").trim();
+  if(!raw) return null;
+  const compact=raw.replace(/[^a-z0-9]+/g,"");
+  const quarter=/(?:3\s*[\/-]\s*4|¾|qfront|qrear|quarter)/.test(raw) || /qfront|qrear|34front|34rear/.test(compact);
+  const front=/\bfront\b|\bgrille\b|\bheadlight/.test(raw) || /(^|[^a-z])front/.test(compact);
+  const rear=/\brear\b|\bback\b|\btail|\bhatch/.test(raw) || /(^|[^a-z])rear|tailgate/.test(compact);
+  const pass=/\bpass(?:enger)?\b/.test(raw) || /passenger/.test(compact);
+  const drv=/\bdriv(?:er|ers|ing)?\b/.test(raw) || /driver/.test(compact);
+  const interior=/\binterior\b|\bcabin\b|\bseats?\b|\binside\b/.test(raw);
+  const dash=/\bdash(?:board)?\b|\bodometer\b|\bodom\b/.test(raw);
+  const cons=/\bconsole\b|\bshifter\b|\bvin\s*plate\b/.test(raw);
+  const tire=/\btire\b|\btyre\b|\bwheel\b|\bengine\b/.test(raw);
+  const dmg=/\bdamage\b|\bdent\b|\bscratch\b|\brust\b|\bcrack\b|\bding\b|\bscuff\b|\bchip\b|\bextras?\b/.test(raw);
+  let view="";
+  if((quarter && front && pass) || /qfrontpass|frontpass/.test(compact)) view="qfront_pass";
+  else if((quarter && rear && pass) || /qrearpass|rearpass/.test(compact)) view="qrear_pass";
+  else if((quarter && rear) || /qrear/.test(compact)) view="qrear_drv";
+  else if((quarter && front) || /qfront/.test(compact)) view="qfront";
+  else if(pass && front) view="qfront_pass";
+  else if(pass && rear) view="qrear_pass";
+  else if(drv && front) view="qfront";
+  else if(drv && rear) view="qrear_drv";
+  else if(dash) view="dash";
+  else if(cons) view="console";
+  else if(tire && !interior) view="tire";
+  else if(interior) view="interior";
+  else if(pass) view="pass";
+  else if(drv) view="driver";
+  else if(rear) view="rear";
+  else if(front) view="front";
+  else {
+    const ix=walkViewIndex(raw);
+    if(ix<0){
+      const compactIx=walkViewIndex(compact);
+      if(compactIx>=0) view=VIEWS[compactIx][0];
+    } else view=VIEWS[ix][0];
+  }
+  if(dmg) return {kind:"damage", view:view||"qfront"};
+  if(view) return {kind:"walk", view:view};
+  return null;
+}
+function parseExifDateString(s){
+  const m=String(s||"").match(/^(\d{4}):(\d{2}):(\d{2})[ T](\d{2}):(\d{2}):(\d{2})/);
+  if(!m) return 0;
+  const t=Date.UTC(+m[1], +m[2]-1, +m[3], +m[4], +m[5], +m[6]);
+  return isFinite(t) ? t : 0;
+}
+function readExifDateFromTiff(v, tiff){
+  if(!v || tiff<0 || tiff+8>v.byteLength) return 0;
+  const le=v.getUint16(tiff)===0x4949;
+  function u16(o){ return le ? v.getUint16(o,true) : v.getUint16(o,false); }
+  function u32(o){ return le ? v.getUint32(o,true) : v.getUint32(o,false); }
+  function readIfd(off){
+    const dates={}; let exif=0;
+    if(off<=0 || tiff+off+2>v.byteLength) return {dates:dates, exif:0};
+    const n=u16(tiff+off);
+    for(let i=0;i<n;i++){
+      const p=tiff+off+2+i*12;
+      if(p+12>v.byteLength) break;
+      const tag=u16(p), type=u16(p+2), count=u32(p+4), val=u32(p+8);
+      if(tag===0x8769) exif=val;
+      if((tag===0x0132 || tag===0x9003 || tag===0x9004) && type===2 && count>=19 && tiff+val+19<=v.byteLength){
+        let s="";
+        for(let k=0;k<19;k++) s+=String.fromCharCode(v.getUint8(tiff+val+k));
+        dates[tag]=s;
+      }
+    }
+    return {dates:dates, exif:exif};
+  }
+  const a=readIfd(u32(tiff+4));
+  const b=a.exif ? readIfd(a.exif) : {dates:{}};
+  return parseExifDateString(b.dates[0x9003] || b.dates[0x9004] || a.dates[0x0132] || b.dates[0x0132] || "");
+}
+function parseJpegExifDate(buf){
+  if(!buf || buf.byteLength<12) return 0;
+  const v=new DataView(buf.buffer || buf, buf.byteOffset||0, buf.byteLength||buf.length);
+  if(v.getUint16(0)!==0xFFD8) return 0;
+  let o=2;
+  while(o+8<v.byteLength){
+    if(v.getUint8(o)!==0xFF) break;
+    const marker=v.getUint8(o+1);
+    const len=v.getUint16(o+2);
+    if(marker===0xE1 && len>=8 && o+10<v.byteLength && v.getUint32(o+4)===0x45786966 && v.getUint16(o+8)===0){
+      const t=readExifDateFromTiff(v, o+10);
+      if(t) return t;
+    }
+    if(len<2) break;
+    o+=2+len;
+  }
+  return 0;
+}
+function exifOrFileDate(buf, file){
+  const fromExif=parseJpegExifDate(buf);
+  if(fromExif) return fromExif;
+  return (file && Number(file.lastModified)) || 0;
+}
+function planDeskWalkDrop(items, taken){
+  const used={};
+  Object.keys(taken||{}).forEach(function(k){ if(taken[k]) used[k]=true; });
+  const walk=[];
+  const damage=[];
+  const placed={};
+  const hinted=[];
+  const rest=[];
+  (items||[]).forEach(function(it, i){
+    if(!it) return;
+    const h=walkHintFromName(it.name);
+    const row={i:i, name:it.name||"", date:Number(it.date)||0, hint:h};
+    if(h && h.kind==="walk" && h.view) hinted.push(row);
+    else rest.push(row);
+  });
+  hinted.forEach(function(row){
+    if(!used[row.hint.view]){
+      used[row.hint.view]=true;
+      placed[row.i]=true;
+      walk.push({view:row.hint.view, i:row.i});
+    } else rest.push(row);
+  });
+  const unhinted=rest.filter(function(row){ return !(row.hint && (row.hint.kind==="walk" || row.hint.kind==="damage")); });
+  unhinted.sort(function(a,b){ return (a.date-b.date) || (a.i-b.i); });
+  (typeof VIEWS!=="undefined"?VIEWS:[]).forEach(function(v){
+    if(!v || used[v[0]]) return;
+    const row=unhinted.shift();
+    if(!row) return;
+    used[v[0]]=true;
+    placed[row.i]=true;
+    walk.push({view:v[0], i:row.i});
+  });
+  rest.forEach(function(row){
+    if(placed[row.i]) return;
+    if(unhinted.indexOf(row)>=0) return;
+    const view=(row.hint && row.hint.view) || "qfront";
+    damage.push({view:view, i:row.i});
+  });
+  unhinted.forEach(function(row){
+    if(placed[row.i]) return;
+    damage.push({view:"qfront", i:row.i});
+  });
+  return {walk:walk, damage:damage};
+}
 function walkIndex(shot){
   if(!shot) return 999;
   if(shot.kind==="damage") return 100+(walkViewIndex(shot.view)>=0?walkViewIndex(shot.view):0);
@@ -9453,10 +9607,15 @@ function setPurpose(p){
   applyMode();
 }
 
+function paintDeskWalkHint(){
+  const hint=$("deskWalkHint");
+  if(hint) hint.classList.toggle("hide", !deskWalkDropOn());
+}
 function paintLists(){
   $("unitLine").textContent = unitLabel()==="Unit"
     ? "Add year / make / VIN"
     : unitLabel() + (APP.km ? " · " + Number(String(APP.km).replace(/,/g,"")).toLocaleString("en-CA") + " km" : "");
+  paintDeskWalkHint();
   fillRows($("photoRows"), "photos");
   fillDamageRows();
 }
@@ -9467,7 +9626,9 @@ function fillRows(host, bucket){
   VIEWS.forEach(function(v, i){
     const id=v[0], label=(i+1)+" · "+v[1], icon=v[2];
     const taken=!!store[id];
-    host.appendChild(rowEl(label, taken ? store[id] : pic(icon), taken, function(){ openCamera("photos", id); }, taken?"Replace photo":"Add photo", !taken && isPassGhost(icon)));
+    const row=rowEl(label, taken ? store[id] : pic(icon), taken, function(){ openCamera("photos", id); }, taken?"Replace photo":"Add photo", !taken && isPassGhost(icon));
+    bindDeskWalkSlot(row, id, "photos");
+    host.appendChild(row);
   });
 }
 function fillDamageRows(){
@@ -9478,6 +9639,7 @@ function fillDamageRows(){
     const shots=dmgShots(id);
     const card=document.createElement("div");
     card.className="dmg-card"+(shots.length?" on":"");
+    bindDeskWalkSlot(card, id, "damage");
     const last=shots.length?shots[shots.length-1].data:pic(icon);
     const sub=shots.length
       ? (shots.length===1 ? "1 photo · tap to add a close-up" : shots.length+" photos · tap to add another")
@@ -9513,6 +9675,212 @@ function rowEl(label, src, taken, onClick, caption, flip){
   b.innerHTML = '<div class="thumb">'+img+'</div><div><b>'+label+'</b><span>'+sub+'</span></div>';
   b.addEventListener("click", onClick);
   return b;
+}
+function isWalkImageFile(f){
+  if(!f) return false;
+  const t=String(f.type||"");
+  const n=String(f.name||"");
+  if(t.indexOf("video/")===0 || t.indexOf("application/")===0) return false;
+  if(t.indexOf("image/")===0) return true;
+  return /\.(jpe?g|png|webp|gif|bmp|heic|heif)$/i.test(n);
+}
+function walkSlotLabel(id){
+  const v=VIEWS.find(function(x){ return x[0]===id; });
+  return (v && v[1]) || id || "slot";
+}
+function hasWalkFiles(dt){
+  if(!dt) return false;
+  const types=dt.types ? Array.from(dt.types) : [];
+  return types.indexOf("Files")>=0 || types.indexOf("application/x-moz-file")>=0;
+}
+function collectDeskWalkFiles(dt){
+  return new Promise(function(resolve){
+    const out=[];
+    function add(f){ if(isWalkImageFile(f)) out.push(f); }
+    if(!dt){ resolve(out); return; }
+    const items=dt.items ? Array.from(dt.items) : [];
+    let pending=0;
+    let started=false;
+    function done(){ if(pending<=0) resolve(out); }
+    function walkEntry(entry){
+      if(!entry) return;
+      if(entry.isFile){
+        pending++;
+        entry.file(function(f){ add(f); pending--; done(); }, function(){ pending--; done(); });
+      } else if(entry.isDirectory){
+        pending++;
+        const reader=entry.createReader();
+        function batch(){
+          reader.readEntries(function(ents){
+            if(!ents || !ents.length){ pending--; done(); return; }
+            ents.forEach(walkEntry);
+            batch();
+          }, function(){ pending--; done(); });
+        }
+        batch();
+      }
+    }
+    if(items.length){
+      items.forEach(function(it){
+        if(it.kind!=="file") return;
+        let entry=null;
+        try{ entry=it.webkitGetAsEntry && it.webkitGetAsEntry(); }catch(e){}
+        if(entry){ started=true; walkEntry(entry); }
+      });
+    }
+    if(started){ if(pending<=0) resolve(out); return; }
+    Array.from(dt.files||[]).forEach(add);
+    resolve(out);
+  });
+}
+function readDeskWalkImage(file){
+  return new Promise(function(resolve, reject){
+    const r=new FileReader();
+    r.onerror=function(){ reject(r.error); };
+    r.onload=function(){
+      const data=r.result;
+      if(!data || String(data).indexOf("data:")!==0){ resolve(null); return; }
+      function finish(buf){
+        resolve({file:file, data:data, date:exifOrFileDate(buf, file), name:file.name||""});
+      }
+      if(file.arrayBuffer){
+        file.arrayBuffer().then(finish).catch(function(){ finish(null); });
+      } else finish(null);
+    };
+    r.readAsDataURL(file);
+  });
+}
+function applyDeskWalkPlan(rows, extraTaken){
+  const taken={};
+  VIEWS.forEach(function(v){ if(APP.photos[v[0]]) taken[v[0]]=true; });
+  if(extraTaken) Object.keys(extraTaken).forEach(function(k){ if(extraTaken[k]) taken[k]=true; });
+  const plan=planDeskWalkDrop(rows.map(function(r){ return {name:r.name|| (r.file && r.file.name) || "", date:r.date}; }), taken);
+  plan.walk.forEach(function(p){
+    const r=rows[p.i];
+    if(r && r.data) APP.photos[p.view]=r.data;
+  });
+  plan.damage.forEach(function(p){
+    const r=rows[p.i];
+    if(!r || !r.data) return;
+    if(!Array.isArray(APP.damage[p.view])) APP.damage[p.view]=dmgShots(p.view).slice();
+    APP.damage[p.view].push({data:r.data, cap:"", audio:"", audioMime:""});
+  });
+  scheduleDraftSave();
+  paintLists();
+  const n=plan.walk.length+plan.damage.length;
+  if(!n){ toast("No empty slots for those photos."); return; }
+  toast(n===1 ? "Photo sorted into the walk-around." : n+" photos sorted into the walk-around.");
+}
+function applyDeskWalkFiles(files, slot){
+  if(!deskWalkDropOn() || !files || !files.length) return;
+  Promise.all(files.map(readDeskWalkImage)).then(function(rows){
+    rows=rows.filter(function(r){ return r && r.data && String(r.data).indexOf("data:")===0; });
+    if(!rows.length){ toast("No photos in that drop."); return; }
+    if(slot && slot.bucket==="photos" && slot.view){
+      APP.photos[slot.view]=rows[0].data;
+      const rest=rows.slice(1);
+      if(rest.length){
+        const extra={};
+        extra[slot.view]=true;
+        applyDeskWalkPlan(rest, extra);
+      } else {
+        scheduleDraftSave();
+        paintLists();
+      }
+      toast("Photo placed on "+walkSlotLabel(slot.view)+".");
+      return;
+    }
+    if(slot && slot.bucket==="damage" && slot.view){
+      rows.forEach(function(r){
+        if(!Array.isArray(APP.damage[slot.view])) APP.damage[slot.view]=dmgShots(slot.view).slice();
+        APP.damage[slot.view].push({data:r.data, cap:"", audio:"", audioMime:""});
+      });
+      scheduleDraftSave();
+      paintLists();
+      toast(rows.length===1 ? "Damage photo added." : rows.length+" damage photos added.");
+      return;
+    }
+    applyDeskWalkPlan(rows, null);
+  }).catch(function(){ toast("Couldn’t read those photos."); });
+}
+function bindDeskWalkSlot(el, viewId, bucket){
+  if(!el) return;
+  el.setAttribute("data-walk-slot", viewId);
+  el.setAttribute("data-walk-bucket", bucket);
+  if(el._walkDrop) return;
+  el._walkDrop=true;
+  el.addEventListener("dragenter", onDeskWalkSlotDrag);
+  el.addEventListener("dragover", onDeskWalkSlotDrag);
+  el.addEventListener("dragleave", onDeskWalkSlotLeave);
+  el.addEventListener("drop", onDeskWalkSlotDrop);
+}
+function onDeskWalkSlotDrag(e){
+  if(!deskWalkDropOn() || !hasWalkFiles(e.dataTransfer)) return;
+  e.preventDefault();
+  e.stopPropagation();
+  if(e.dataTransfer) e.dataTransfer.dropEffect="copy";
+  e.currentTarget.classList.add("walk-drop-target");
+  const photos=$("photos");
+  if(photos) photos.classList.add("walk-drop-on","walk-hover");
+}
+function onDeskWalkSlotLeave(e){
+  if(!e.currentTarget.contains(e.relatedTarget)) e.currentTarget.classList.remove("walk-drop-target");
+}
+function onDeskWalkSlotDrop(e){
+  if(!deskWalkDropOn()) return;
+  e.preventDefault();
+  e.stopPropagation();
+  e.currentTarget.classList.remove("walk-drop-target");
+  const photos=$("photos");
+  if(photos) photos.classList.remove("walk-hover","walk-drop-on");
+  const view=e.currentTarget.getAttribute("data-walk-slot");
+  const bucket=e.currentTarget.getAttribute("data-walk-bucket")||"photos";
+  collectDeskWalkFiles(e.dataTransfer).then(function(files){
+    applyDeskWalkFiles(files, {view:view, bucket:bucket});
+  });
+}
+function bindDeskWalkDrop(){
+  const host=$("photos");
+  if(!host || host._walkDrop) return;
+  host._walkDrop=true;
+  host.addEventListener("dragenter", function(e){
+    if(!deskWalkDropOn() || !hasWalkFiles(e.dataTransfer)) return;
+    e.preventDefault();
+    host.classList.add("walk-hover","walk-drop-on");
+  });
+  host.addEventListener("dragover", function(e){
+    if(!deskWalkDropOn() || !hasWalkFiles(e.dataTransfer)) return;
+    e.preventDefault();
+    if(e.dataTransfer) e.dataTransfer.dropEffect="copy";
+    host.classList.add("walk-hover","walk-drop-on");
+  });
+  host.addEventListener("dragleave", function(e){
+    if(!host.contains(e.relatedTarget)) host.classList.remove("walk-hover","walk-drop-on");
+  });
+  host.addEventListener("drop", function(e){
+    if(!deskWalkDropOn()) return;
+    e.preventDefault();
+    host.classList.remove("walk-hover","walk-drop-on");
+    collectDeskWalkFiles(e.dataTransfer).then(function(files){
+      applyDeskWalkFiles(files, null);
+    });
+  });
+  const hint=$("deskWalkHint");
+  if(hint){
+    hint.style.cursor="pointer";
+    hint.addEventListener("click", function(){
+      if(!deskWalkDropOn()) return;
+      const inp=$("deskWalkFiles");
+      if(inp){ inp.value=""; inp.click(); }
+    });
+  }
+  const inp=$("deskWalkFiles");
+  if(inp && !inp._bound){
+    inp._bound=true;
+    inp.addEventListener("change", function(){
+      applyDeskWalkFiles(Array.from(inp.files||[]), null);
+    });
+  }
 }
 
 function openCamera(mode, id){
@@ -11938,7 +12306,7 @@ function printCarfaxRecreatePdf(item){
     d.text(body, 36, y+32);
     d.setFillColor(27,107,58); d.rect(0,H-40,W,40,"F");
     d.setTextColor(255,255,255); d.setFont("helvetica","bold"); d.setFontSize(8);
-    d.text("NOT OFFICIAL CARFAX  ·  SAMPLE / PENDING  ·  carfax-sample  ·  build d30l", 36, H-18);
+    d.text("NOT OFFICIAL CARFAX  ·  SAMPLE / PENDING  ·  carfax-sample  ·  build d30m", 36, H-18);
     d.setProperties({title:"SAMPLE PENDING NOT OFFICIAL CARFAX — 2024 RAV4 LE AWD", author:"G&M Appraisal Center"});
     d.save("rav4-2T3B1RFVXRC466025-carfax-sample.pdf");
     storeRav4CarfaxDoc(item);
@@ -13690,6 +14058,7 @@ $("submitX").onclick = pageClose;
 $("doneX").onclick = $("btnAnother").onclick = resetAll;
 $("btnStory").onclick = function(){ if(!requireAppraiseType()) return; openStoryMic(); };
 $("btnStart").onclick = function(){ openCamera("photos","qfront"); };
+bindDeskWalkDrop();
 $("btnDocs").onclick = function(){ if(!requireAppraiseType()) return; paintDocs(); show("photos"); $("docsBlock") && $("docsBlock").scrollIntoView({behavior:"smooth", block:"start"}); };
 $("btnVin").onclick = function(){ if(!requireAppraiseType()) return; APP.vinTarget="v-vin"; openVinCam(); };
 if($("btnVinShot")) $("btnVinShot").onclick = snapVinStill;
@@ -13891,6 +14260,7 @@ growTextareas();
   function sync(){
     document.documentElement.classList.toggle("desk", mq.matches);
     syncCenterDesk();
+    if(APP.screen==="photos" && typeof paintDeskWalkHint==="function") paintDeskWalkHint();
     if(APP.screen==="center"){
       paintCenter();
       paintCenterDetail();
