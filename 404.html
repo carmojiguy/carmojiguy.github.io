@@ -11410,6 +11410,27 @@ function packVinSpeech(text, afterVin){
   }
   return packed.toUpperCase().replace(/I/g,"1").replace(/O/g,"0").replace(/Q/g,"0").replace(/[^A-HJ-NPR-Z0-9]/g,"").slice(0,17);
 }
+function dictateVinSpeech(text){
+  let s=String(text||"");
+  s=s.replace(/[’']/g,"");
+  s=s.replace(/x[\s-]*rays?/ig," xray ");
+  s=s.replace(/double[\s-]*u(?:e)?s?/ig," w ");
+  s=s.replace(/\b(um+|uh+|er+|ah+|okay|ok|please)\b/ig," ");
+  s=s.replace(/\bfor(?:e)?\b/ig," four ");
+  s=s.replace(/\bto\b/ig," two ");
+  s=s.replace(/\bowe\b/ig," oh ");
+  s=s.replace(/\bbe\b/ig," b ");
+  s=s.replace(/\bare\b/ig," r ");
+  s=s.replace(/\baye\b/ig," a ");
+  s=s.replace(/\beye\b/ig," 1 ");
+  s=s.replace(/\bcee\b/ig," c ");
+  s=s.replace(/\bpea\b/ig," p ");
+  const packed=packVinSpeech(s);
+  const compact=String(text||"").toUpperCase().replace(/[^A-Z0-9]/g,"");
+  const direct=compact.match(/[A-HJ-NPR-Z0-9]{17}/);
+  if(direct) return direct[0];
+  return packed;
+}
 function phoneticVin(text, force){
   const packed=packVinSpeech(text, !force);
   if(!force && !/\bvin\b/i.test(String(text||""))) return "";
@@ -12042,6 +12063,14 @@ function stopVinSpeak(){
   APP.vinFieldRec=null;
   markDictateBtns(false);
 }
+function primeVinMic(){
+  try{
+    if(!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)) return;
+    navigator.mediaDevices.getUserMedia({audio:true, video:false}).then(function(s){
+      try{ s.getTracks().forEach(function(t){ t.stop(); }); }catch(e){}
+    }).catch(function(){});
+  }catch(e){}
+}
 function speakVinField(el){
   el=el||vinFieldEl();
   if(APP.vinListening){ stopVinSpeak(); return; }
@@ -12055,33 +12084,75 @@ function speakVinField(el){
   const status=vinStatusEl(el);
   if(status) status.textContent="Listening… say each character.";
   if(el) el.blur();
-  APP.vinFieldRec=startRec({
-    fresh:true,
-    noGum:true,
-    bufKey:"vinSpeakBuf",
-    alive:function(){ return APP.vinListening; },
-    ontext:function(tx){
-      const packed=cleanVinTyped(packVinSpeech(tx));
-      writeVinInto(el, packed, false);
-      if(status){
-        status.textContent = packed
-          ? (packed.length>=17 ? packed : packed+"  ·  "+packed.length+"/17 — need 17")
-          : "Listening… say each character.";
+  primeVinMic();
+  const ios=/iPhone|iPad|iPod|CriOS|FxiOS/i.test(navigator.userAgent||"");
+  const rec=new Rec();
+  rec.lang="en-CA";
+  rec.interimResults=true;
+  rec.continuous=!ios;
+  rec.maxAlternatives=5;
+  rec.onresult=function(e){
+    let interim="";
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      const hit=e.results[i];
+      let best=hit[0] && hit[0].transcript || "";
+      let bestPack=dictateVinSpeech(best);
+      for(let a=1;a<hit.length;a++){
+        const alt=hit[a] && hit[a].transcript || "";
+        if(!alt) continue;
+        const pack=dictateVinSpeech(alt);
+        if(vinCheckOk(pack) || (!vinCheckOk(bestPack) && pack.length>bestPack.length)){
+          best=alt;
+          bestPack=pack;
+        }
       }
-      if(packed.length===17){
-        toast("VIN "+packed);
-        stopVinSpeak();
-        acceptVin(packed);
-      } else if(packed && tx && tx.length>40 && packed.length!==17){
-        /* keep listening until they finish */
-      }
-    },
-    onfail:function(){
-      stopVinSpeak();
-      const cur=cleanVinTyped(el && el.value);
-      if(cur && cur.length!==17) rejectBadVinLength(cur);
+      if(hit.isFinal){
+        APP.vinSpeakBuf=((APP.vinSpeakBuf||"")+" "+best).replace(/\s+/g," ").trim();
+      } else interim+=best+" ";
     }
-  });
+    const tx=((APP.vinSpeakBuf||"")+" "+interim).replace(/\s+/g," ").trim();
+    let packed=cleanVinTyped(dictateVinSpeech(tx));
+    const cands=generateVinCandidates(packed+" "+tx);
+    const pass=cands.filter(vinCheckOk);
+    if(pass[0]) packed=pass[0];
+    else if(vinOk(spokenToVin(tx))) packed=spokenToVin(tx);
+    writeVinInto(el, packed, false);
+    if(status){
+      status.textContent = packed
+        ? (packed.length>=17 ? packed : packed+"  ·  "+packed.length+"/17 — need 17")
+        : "Listening… say each character.";
+    }
+    if(vinOk(packed)){
+      toast("VIN "+packed);
+      stopVinSpeak();
+      acceptVin(packed);
+    }
+  };
+  rec.onerror=function(ev){
+    const err=ev && ev.error;
+    if(err==="no-speech" || err==="aborted") return;
+    if(err==="not-allowed" || err==="service-not-allowed"){
+      toast("Allow the microphone, then tap Dictate.");
+    } else {
+      toast("Couldn’t hear that. Tap Dictate and try again, or type the VIN.");
+    }
+    stopVinSpeak();
+    const cur=cleanVinTyped(el && el.value);
+    if(cur && cur.length!==17) rejectBadVinLength(cur);
+  };
+  rec.onend=function(){
+    if(!APP.vinListening) return;
+    try{ rec.start(); }catch(e){
+      setTimeout(function(){ if(APP.vinListening){ try{ rec.start(); }catch(x){} } }, 250);
+    }
+  };
+  try{ rec.start(); }
+  catch(e){
+    toast("Allow the microphone, then tap Dictate.");
+    stopVinSpeak();
+    return;
+  }
+  APP.vinFieldRec=rec;
 }
 function stopMic(){
   APP.listening=false;

@@ -30,6 +30,13 @@ must(/function cleanVinTyped\(/, "uppercase + strip bad VIN chars");
 must(/function rejectBadVinLength\(/, "reject bad VIN length");
 must(/function bindVinField\(/, "VIN field binders");
 must(/function speakVinField\(/, "dictate writes into the VIN field");
+must(/function dictateVinSpeech\(/, "dictate speech packer");
+must(/function primeVinMic\(/, "Dictate VIN asks for the microphone");
+must(/function speakVinField\([\s\S]{0,900}primeVinMic\(/, "Dictate primes mic in the same tap");
+must(/function primeVinMic\([\s\S]{0,400}getUserMedia\(\{audio:true/, "mic permission is getUserMedia audio");
+must(/function speakVinField\([\s\S]{0,5000}rec\.start\(\)/, "Dictate starts speech recognition");
+must(/Allow the microphone, then tap Dictate/, "Dictate permission copy names Dictate");
+mustNot(/function speakVinField\([\s\S]*noGum:true/, "Dictate VIN does not skip getUserMedia");
 must(/function writeRetailListing\(/, "retail-ready listing writer");
 must(/Write retail description/, "retail description button");
 must(/photographed and ready for retail/, "retail listing copy");
@@ -48,6 +55,42 @@ vm.runInContext(html.slice(from, to) + "\nthis.cleanVinTyped=cleanVinTyped;", sa
 assert.equal(sandbox.cleanVinTyped("1ft ew1ep4jfa20331"), "1FTEW1EP4JFA20331", "uppercase and strip spaces");
 assert.equal(sandbox.cleanVinTyped("1FTEW1EP4JFA20331EXTRA"), "1FTEW1EP4JFA20331", "caps at 17");
 assert.equal(sandbox.cleanVinTyped("abcioq"), "ABC", "drops I O Q");
+
+const packFrom = html.indexOf("function packVinSpeech(");
+const packTo = html.indexOf("function phoneticVin(", packFrom);
+assert.ok(packFrom > 0 && packTo > packFrom, "dictateVinSpeech found");
+const pbox = { APP: {} };
+vm.createContext(pbox);
+vm.runInContext(
+  html.slice(packFrom, packTo) +
+  "\nthis.packVinSpeech=packVinSpeech;this.dictateVinSpeech=dictateVinSpeech;",
+  pbox
+);
+assert.equal(
+  pbox.dictateVinSpeech("one F T E W one E P four J F A two zero three three one"),
+  "1FTEW1EP4JFA20331",
+  "spelled-out VIN packs to 17"
+);
+assert.equal(
+  pbox.dictateVinSpeech("one F T E W one E P for J F A two oh three three one"),
+  "1FTEW1EP4JFA20331",
+  "for → 4 and oh → 0"
+);
+assert.equal(
+  pbox.dictateVinSpeech("1ft ew1ep4jfa20331"),
+  "1FTEW1EP4JFA20331",
+  "chunked spoken VIN"
+);
+assert.equal(
+  pbox.dictateVinSpeech("2 T 3 B 1 R F V X R C for 6 6 0 to 5"),
+  "2T3B1RFVXRC466025",
+  "for/to letter-number errors"
+);
+assert.equal(
+  pbox.dictateVinSpeech("be are see 1 2 3"),
+  "BRC123",
+  "be/are/see → B/R/C"
+);
 
 const retailFrom = html.indexOf("function writeRetailListing(");
 const retailTo = html.indexOf("\nfunction writeListing()", retailFrom);
