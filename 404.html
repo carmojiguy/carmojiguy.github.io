@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-14 build d31a: pixel-faithful Acre GR Corolla desk (white hero|mid|market, not stone/teal); CA workbench redo — drop the verbal-only tag forever; What's the Story walks the car and talks; Walk-around photos only; keep Critical damage; salesperson CA has no packet-send card; Tracker mobile cards + current month; website-post story-first year/make/model/trim/condition, no team select, original start not webdesk, pictures still relaunch/post; Acre GR Corolla desk lock — FIFO oldest home, left-rail Incoming/On-site/Needs docs/History pills, no hist KPI strip, Ask Maya, appraisal range/competing/ask; users GET/POST kind:users persist; 911 Acre team reads finalRationale.markdown + panel Rybot/Webot/Drebot/TBot + team.shabot note, hides boxes with no numbers; mailer keeps rich team/rationale on Center refresh; Trade-in start drops stray top History (rail History stays); 911 Incoming FINAL min+target+max clears Running and lands Appraisal Team numbers (Blazer s1af19al / F-150 sir78n6); Run Appraisal Team tap always fires (rerun + Unlocked History); kind:team wake; Incoming FINAL settles Running; schema 1.0 team + panel boxes; market pills append multiple files into shots[]; compact V Auto / Carfax / OpenLane / eBlock chips; same sendId/id Incoming POST; panel runs progress → existing FINAL; no invented solds; real Carfax http url opens the uploaded file; sample recreate only when no docs.carfax.url; Carfax square + huge card add/upload kind:file carfax; staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; Incoming keeps http docs.url; Incoming appends shots[]; status dropdown every lane; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples; hides generated From V Auto lane -->
+<!-- center-v3 + desk-home 2026-09-14 build d31a: pixel-faithful Acre GR Corolla desk (white hero|mid|market, not stone/teal); HARD LOCK photo desk — packed mid (title, badges, MAYA/CLUTCH KILLER/VAUTO/PREDICTED 4-wide, recon/profit chips, range/compete/ask + Clutch source pills), notes under hero spanning the desk, MAYA strip, thumbs strip four CHUNKY landscape contain-fit tiles + 5th peek + chevron (3/4 front, side, rear-3/4, rear-other, rear peek — crops from 04-home-desk-exact.png, not cover-crop), sunset/dusk 3/4 GR hero crop from the lock PNG (car pixels only), Documents 7/7 fixture, OPENLANE|eBlock and CARFAX|MMR pairs, no invented OpenLane listing thumbs, blue Complete, Documents/VAUTO/BLACK BOOK/OPENLANE/eBlock/CARFAX/MMR cards; CA workbench redo — drop the verbal-only tag forever; What's the Story walks the car and talks; Walk-around photos only; keep Critical damage; salesperson CA has no packet-send card; Tracker mobile cards + current month; website-post story-first year/make/model/trim/condition, no team select, original start not webdesk, pictures still relaunch/post; Acre GR Corolla desk lock — FIFO oldest home, left-rail Incoming/On-site/Needs docs/History pills, no hist KPI strip, mobile kills the left sidebar and puts Incoming/On-site/Needs docs/History stage buttons beside Back/Home, Ask Maya, appraisal range/competing/ask; users GET/POST kind:users persist; 911 Acre team reads finalRationale.markdown + panel Rybot/Webot/Drebot/TBot + team.shabot note, hides boxes with no numbers; mailer keeps rich team/rationale on Center refresh; Trade-in start drops stray top History (rail History stays); 911 Incoming FINAL min+target+max clears Running and lands Appraisal Team numbers (Blazer s1af19al / F-150 sir78n6); Run Appraisal Team tap always fires (rerun + Unlocked History); kind:team wake; Incoming FINAL settles Running; schema 1.0 team + panel boxes; market pills append multiple files into shots[]; compact V Auto / Carfax / OpenLane / eBlock chips; same sendId/id Incoming POST; panel runs progress → existing FINAL; no invented solds; real Carfax http url opens the uploaded file; sample recreate only when no docs.carfax.url; Carfax square + huge card add/upload kind:file carfax; staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; Incoming keeps http docs.url; Incoming appends shots[]; status dropdown every lane; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples; hides generated From V Auto lane; website photos Retouch or Send as-is (listing PDF + one JPEG attachment per photo) -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -52,6 +52,7 @@ body { font-family:Manrope,system-ui,sans-serif; color:var(--ink); }
   pointer-events:none;
 }
 .exit-chrome.on { display:grid; }
+body:has(#center.on.center-has-detail) .exit-chrome { display:none !important; }
 .exit-chrome button { pointer-events:auto; -webkit-tap-highlight-color:transparent; }
 .exit-x {
   width:56px; height:56px; min-width:56px; border-radius:50%;
@@ -59,14 +60,26 @@ body { font-family:Manrope,system-ui,sans-serif; color:var(--ink); }
   box-shadow:0 10px 24px rgba(124,92,255,.22);
   font-size:26px; font-weight:800; line-height:1; cursor:pointer;
 }
-.exit-back, .exit-home {
+.exit-back, .exit-home, .exit-lane {
   width:auto; min-width:0; min-height:24px; margin:0; padding:2px 7px;
   border:0; border-radius:999px; cursor:pointer;
   background:transparent; color:#9A96A8;
   font:inherit; font-size:11px; font-weight:500; letter-spacing:0;
   box-shadow:none; opacity:.7;
 }
-.exit-back:hover, .exit-home:hover { background:transparent; color:var(--muted); opacity:1; }
+.exit-back:hover, .exit-home:hover, .exit-lane:hover { background:transparent; color:var(--muted); opacity:1; }
+.exit-lanes { display:none; align-items:center; gap:2px; min-width:0; overflow-x:auto; scrollbar-width:none; }
+.exit-lanes::-webkit-scrollbar { display:none; }
+.exit-lane { flex:0 0 auto; white-space:nowrap; }
+.exit-lane span { font:inherit; font-weight:inherit; letter-spacing:inherit; opacity:inherit; }
+.exit-lane.on { opacity:1; color:#6B6578; font-weight:700; }
+#inviteHistBtn, #usersHistBtn, #webdeskHistBtn, #centerSheetHistBtn, #photosHistBtn { display:none !important; }
+#tradeLanes, #webLanes { display:none !important; }
+body:has(#invite.on) .exit-lanes-trade,
+body:has(#center.on) .exit-lanes-center,
+body:has(#webdesk.on) .exit-lanes-web,
+body:has(#users.on) .exit-lanes-users { display:flex; }
+body:has(#center.on.center-has-detail) .exit-chrome { display:grid !important; }
 body.exit-on .screen:not(.start):not(.cam) { padding-top:calc(56px + env(safe-area-inset-top)); }
 body.exit-on .screen:not(.start):not(.cam) > .nav { padding-top:4px; }
 body.exit-on .screen > .nav > .round:first-of-type { visibility:hidden; pointer-events:none; }
@@ -79,6 +92,14 @@ body.exit-on #whoChip { top: calc(64px + env(safe-area-inset-top)); }
   body.exit-on #center.center-has-detail #centerDetailBody{
     top:calc(56px + env(safe-area-inset-top));
   }
+  body:has(#center.on.center-has-detail) .exit-chrome { display:grid !important; }
+  body:has(#center.on) .exit-chrome {
+    background:linear-gradient(180deg,#12141A 0%, rgba(18,20,26,.94) 58%, rgba(18,20,26,0));
+  }
+  body:has(#center.on) .exit-back,
+  body:has(#center.on) .exit-home,
+  body:has(#center.on) .exit-lane { color:#A8B0BA; }
+  body:has(#center.on) .exit-lane.on { opacity:1; color:#F3F5F7; font-weight:700; }
 }
 .nav-hist {
   height:36px; padding:0 14px; border:0; border-radius:999px;
@@ -558,7 +579,18 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
 .start-actions .pill.purple { background:var(--purple); color:#fff; border-color:var(--purple); }
 .start-actions .pill.cyan { background:var(--cyan); color:#fff; border-color:var(--cyan); }
 #startCenter {
+  position:relative; overflow:hidden;
   background:rgba(255,255,255,.94); color:var(--ink);
+}
+#startCenter::before {
+  content:"Coming Soon";
+  position:absolute; top:8px; right:-36px; z-index:2;
+  width:132px; padding:4px 0;
+  background:#C41E3A; color:#fff;
+  font-size:9px; font-weight:800; letter-spacing:.16em;
+  text-transform:uppercase; text-align:center;
+  transform:rotate(32deg);
+  box-shadow:0 2px 8px rgba(0,0,0,.28);
 }
 #startCenter.locked {
   background:rgba(250,249,252,.38);
@@ -858,6 +890,9 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
 }
 #center.screen.on {
   display:grid;
+  height:100dvh;
+  max-height:100dvh;
+  overflow:hidden;
 }
 #center > .nav { grid-column:1 / -1; }
 #centerNavHistBtn { display:none !important; }
@@ -900,6 +935,7 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
 }
 .lane-pill .nag.hide { display:none; }
 .center-desk { padding-bottom:120px; }
+#center #centerDetailBody.center-desk { padding-bottom:0; max-width:none; width:auto; margin:0; height:100%; min-height:0; }
 #center h2 { font-size:30px; letter-spacing:-.7px; margin:6px 0 8px; }
 #center .block { margin:28px 0 10px; }
 #center .quote { margin:0 0 8px; }
@@ -1090,13 +1126,34 @@ body.center-locked #centerUnlock {
 #center .block, #centerDetail .block { margin:28px 0 10px; }
 #center .quote, #centerDetail .quote { margin:0 0 8px; }
 #center h2, #centerDetail h2 { font-size:30px; letter-spacing:-.7px; margin:6px 0 8px; }
-.acre-tags { display:flex; flex-wrap:wrap; gap:8px; margin:0 0 16px; }
+.acre-tags { display:flex; flex-wrap:wrap; gap:4px; margin:0 0 4px; }
 .acre-tags i {
-  font-style:normal; background:#fff; border:1.5px solid var(--hair);
-  border-radius:999px; padding:8px 12px; font-size:13px; font-weight:700;
+  font-style:normal; background:#fff; border:1px solid #E4E7EC;
+  border-radius:999px; padding:3px 7px; font-size:10px; font-weight:700;
 }
-.center-hero { position:relative; margin:0 0 10px; border-radius:16px; overflow:hidden; background:#111; min-height:220px; touch-action:manipulation; user-select:none; -webkit-user-select:none; }
-.center-hero img { width:100%; height:240px; object-fit:cover; display:block; background:#111; pointer-events:none; }
+.acre-tags i.tag-appraised, .acre-tags i.tag-clean {
+  background:#DCFCE7; color:#166534; border-color:#BBF7D0;
+}
+.acre-tags i.tag-origin { display:inline-flex; align-items:center; gap:5px; }
+.acre-tags i.tag-origin:before {
+  content:""; width:6px; height:6px; border-radius:50%; background:#DC2626;
+}
+.acre-who {
+  display:flex; align-items:baseline; gap:14px; margin:0 0 6px;
+  font-size:12px; font-weight:800; color:#16A34A;
+}
+.acre-who span { color:#6B7380; font-weight:700; }
+.acre-desk-head {
+  display:none; align-items:baseline; gap:12px; margin:0 0 6px; min-width:0;
+}
+.acre-desk-head strong {
+  font-size:15px; font-weight:800; letter-spacing:-.2px; color:#111318;
+}
+.acre-desk-head span {
+  font-size:12px; font-weight:700; color:#6B7380; letter-spacing:.04em;
+}
+.center-hero { position:relative; margin:0 0 10px; border-radius:8px; overflow:hidden; background:#fff; min-height:220px; touch-action:manipulation; user-select:none; -webkit-user-select:none; }
+.center-hero img { width:100%; height:240px; object-fit:contain; display:block; background:#fff; pointer-events:none; }
 .center-gallery {
   display:none; position:fixed; inset:0; z-index:95; background:#0b0b10;
   touch-action:none; user-select:none; -webkit-user-select:none;
@@ -1125,7 +1182,7 @@ body.center-gallery-on { overflow:hidden; }
 .center-hero .dots i { width:7px; height:7px; border-radius:50%; background:rgba(255,255,255,.35); }
 .center-hero .dots i.on { background:#fff; }
 .center-hero .count {
-  position:absolute; left:14px; bottom:12px; color:#fff; font-size:12px; font-weight:800;
+  position:absolute; right:14px; left:auto; bottom:12px; color:#fff; font-size:12px; font-weight:800;
   background:rgba(0,0,0,.45); border-radius:999px; padding:5px 10px;
 }
 .center-hero .nav-hit {
@@ -1153,7 +1210,7 @@ body.center-gallery-on { overflow:hidden; }
   overflow:hidden; background:#D8DEE4; cursor:pointer;
 }
 .center-thumbs button.on { box-shadow:0 0 0 2px #111318; }
-.center-thumbs img { width:100%; height:100%; object-fit:cover; display:block; }
+.center-thumbs img { width:100%; height:100%; object-fit:contain; display:block; background:#fff; }
 .center-metrics {
   display:flex; flex-wrap:wrap; gap:6px; margin:0 0 12px;
 }
@@ -1183,8 +1240,98 @@ body.center-gallery-on { overflow:hidden; }
 #center #centerDock.acre-dock .center-maya { flex:1; min-width:0; }
 #center #centerDock.acre-dock #centerStageBtn {
   width:auto; min-width:132px; margin:0; border-radius:14px;
-  background:#111318; color:#fff; border-color:#111318;
+  background:#2F6BFF; color:#fff; border-color:#2F6BFF;
 }
+#centerMayaGo { display:none !important; }
+.acre-notes-block {
+  margin:0; display:grid; grid-template-columns:52px minmax(0,1fr); gap:2px 10px; align-items:start;
+}
+.acre-notes-block .block { margin:0; padding-top:2px; font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:#6B7380; }
+#center .acre-notes-block .note {
+  min-height:34px; max-height:48px; border:0; background:transparent; border-radius:0;
+  padding:0; font-size:12px; line-height:1.35; font-weight:600; color:#3B4A63; resize:none;
+}
+.acre-maya-strip {
+  margin:0; padding:0; background:transparent; border:0; border-radius:0;
+  color:#3B4A63; font-size:12px; font-weight:600; line-height:1.35; min-height:18px;
+  max-height:36px; overflow:hidden;
+}
+.acre-maya-strip:empty { display:none; }
+.acre-notes-block .block:has(+ .acre-maya-strip:empty) { display:none; }
+#center .center-desk-lane { display:none !important; }
+#center .center-detail-bar { padding:0 0 8px; background:#F5F6F8; }
+#center #centerDetailSub { display:none; }
+#center .acre-doc-head {
+  display:flex; align-items:baseline; justify-content:space-between; gap:10px;
+  width:fit-content; margin:0 0 8px auto; padding:7px 14px; border:0; border-radius:999px;
+  background:#E8F1FF; color:#2F6BFF; font-size:11px; font-weight:800; letter-spacing:.06em; text-transform:uppercase;
+}
+#center .acre-doc-head span { color:#2F6BFF; opacity:.9; }
+#center .acre-doc-card {
+  display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:10px;
+  width:100%; margin:0; padding:8px 0; border:0; border-bottom:1px solid #E4E7EC;
+  border-radius:0; background:transparent; cursor:pointer; font:inherit; text-align:left;
+}
+#center .acre-doc-card k {
+  display:block; font-size:10px; font-weight:800; letter-spacing:.08em;
+  text-transform:uppercase; color:#6B7380;
+}
+#center .acre-doc-card b { display:block; font-size:16px; font-weight:800; color:#111318; letter-spacing:-.2px; }
+#center .acre-doc-card .acre-doc-thumb {
+  width:52px; height:40px; border-radius:8px; object-fit:cover; background:#EEF0F3;
+}
+#center .acre-doc-card .acre-eblock-go {
+  display:inline-block; background:#16A34A; color:#fff; border-radius:8px;
+  padding:8px 16px; font-size:14px; font-weight:800; letter-spacing:0;
+}
+#center .acre-doc-card.acre-carfax-card k { display:none; }
+#center .acre-doc-card.acre-carfax-card b,
+#center .acre-doc-card .acre-carfax-mark {
+  font-size:32px; font-weight:900; color:#E11D2E; letter-spacing:-1.2px; line-height:1;
+}
+#center .acre-doc-card.acre-eblock-card {
+  justify-items:start; grid-template-columns:1fr; border:0 !important;
+  background:transparent; padding:4px 0 !important;
+}
+#center .acre-doc-card.acre-eblock-card k { display:none; }
+#center .acre-doc-pair { display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:6px 0; border-bottom:1px solid #E4E7EC; }
+#center .acre-doc-pair .acre-doc-card { border:1px solid #E4E7EC; border-radius:8px; padding:6px 8px; grid-template-columns:minmax(0,1fr) auto; }
+#center .center-hero .nav-hit { z-index:2; }
+#center .center-hero .count { z-index:2; }
+#center #centerDocs { display:none !important; }
+#center #centerWhyDocs,
+#center #centerFacts { display:none !important; }
+.acre-score-row {
+  display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; margin:2px 0 4px;
+}
+.acre-score-row .acre-score { background:transparent; border:0; border-radius:0; padding:0; }
+.acre-score-row .acre-score k { display:block; color:#6B7380; font-size:9px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+.acre-score-row .acre-score b { display:block; font-size:28px; letter-spacing:-.6px; line-height:1.05; }
+.acre-score-row .acre-score.maya b { color:#16A34A; }
+.acre-score-row .acre-score.clutch b { color:#EA580C; }
+.acre-score-row .acre-score.vauto b { color:#D97706; }
+.acre-score-row .acre-score.predicted b { color:#CA8A04; }
+.acre-rank-row { display:flex; flex-wrap:wrap; gap:4px; margin:0 0 4px; }
+.acre-rank-row i {
+  font-style:normal; background:#fff; border:1px solid #E4E7EC; border-radius:999px;
+  padding:3px 8px; font-size:10px; font-weight:800; color:#3B4A63;
+}
+.acre-sources { display:flex; flex-wrap:wrap; gap:6px; margin:4px 0 0; }
+.acre-sources button {
+  border:1px solid #E4E7EC; background:#fff; border-radius:999px; padding:6px 10px;
+  font-size:11px; font-weight:800; color:#3B4A63; cursor:pointer;
+}
+.acre-sources button.on { background:#fff; color:#EA580C; border-color:#EA580C; }
+.acre-thumbs-row { min-width:0; position:relative; }
+.acre-thumbs-row .center-thumbs { margin:0; }
+#center .acre-thumbs-prev, #center .acre-thumbs-next {
+  position:absolute; top:50%; transform:translateY(-50%);
+  width:44px; height:44px; border:0; border-radius:50%;
+  background:#fff; color:#111318; font-size:22px; font-weight:800; cursor:pointer;
+  box-shadow:0 8px 20px rgba(0,0,0,.18); z-index:2;
+}
+#center .acre-thumbs-prev { left:10px; }
+#center .acre-thumbs-next { right:10px; }
 .mkt-chip b { font-size:14px; }
 .center-docs, .center-why-docs { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:4px 0 8px; }
 .doc-slot {
@@ -1330,16 +1477,164 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
 .center-detail-empty b { display:block; font-size:28px; letter-spacing:-.6px; margin:0 0 8px; }
 .center-detail-empty p { color:var(--muted); font-size:16px; font-weight:600; margin:0; }
 @media (max-width:767px){
+  html:has(#center.on), body:has(#center.on){ background:#12141A; }
+  .phone:has(#center.on){ background:#12141A; }
+  .phone:has(#center.on) .accent{ display:none; }
+  #center.screen{
+    grid-template-columns:minmax(0,1fr);
+    grid-template-rows:minmax(0,1fr) auto;
+    background:#12141A;
+    --ink:#F3F5F7; --muted:#9AA3AF; --hair:#2A3038; --fill:#1A1E26;
+    --page:#12141A; --purple:#3B82F6; --purple-deep:#93C5FD;
+    --lavender:#1A1E26; --cyan:#38BDF8; --cyan-deep:#0EA5E9;
+  }
+  #center > .nav{ display:none !important; }
+  #centerLanes.center-rail, #center .center-lanes.center-rail{ display:none !important; }
+  #center #centerDetailBody{ grid-column:1; grid-row:1; }
+  #center #centerDock{ grid-column:1; grid-row:2; }
   #center.center-has-detail #centerDetailBody{
     position:relative; left:auto; right:auto; bottom:auto; top:auto;
     z-index:auto; width:auto; max-width:none;
     background:transparent; border-radius:0; box-shadow:none;
     padding:0 16px 12px;
+    display:flex; flex-direction:column; gap:8px;
+    color:#F3F5F7;
   }
+  #center.center-has-detail #centerDetailBody > * { order:20; }
+  #center #acreDesk{ display:contents; }
+  #center .acre-col-hero{ order:1; margin:0 -16px; }
+  #center .acre-notes-block{ order:2; }
+  #center .center-detail-bar{ order:3; }
+  #center .acre-desk-head{ order:4; }
+  #center .acre-col-mid{ order:5; }
+  #center .acre-col-market{ order:6; }
+  #center .acre-thumbs-row{ order:7; }
   #center.center-has-detail #centerDock{
     z-index:auto; width:auto; max-width:none; left:auto; transform:none;
   }
   #center.center-has-detail #centerSheetDim{ display:none; }
+  #center .center-detail-bar{
+    position:static; background:transparent; padding:0; min-height:0;
+  }
+  #center .center-detail-bar .center-close-x{ display:none; }
+  #center .center-desk-lane{
+    display:block !important; margin:0;
+    font-size:11px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:#9AA3AF;
+  }
+  #center .acre-desk-head{
+    display:flex; flex-direction:column; align-items:flex-start; gap:2px; margin:0;
+  }
+  #center .acre-desk-head strong{ color:#F8FAFC; font-size:22px; letter-spacing:-.4px; }
+  #center .acre-desk-head span{ color:#9AA3AF; font-size:12px; letter-spacing:.06em; }
+  #center .acre-desk-head .acre-doc-head{ display:none; }
+  #center #centerDetailTitle{ display:none; }
+  #center .acre-notes-block{
+    grid-template-columns:56px minmax(0,1fr); gap:4px 10px; margin:2px 0;
+  }
+  #center .acre-notes-block .block{ color:#9AA3AF; padding-top:4px; }
+  #center .acre-notes-block .note{
+    color:#E5E7EB; min-height:0; max-height:36px; overflow:hidden;
+    font-size:13px; line-height:1.35; white-space:nowrap; text-overflow:ellipsis;
+  }
+  #center .acre-maya-strip{ color:#E5E7EB; max-height:40px; font-size:13px; }
+  #center .center-hero{
+    margin:0; border-radius:0; min-height:200px; background:#0B0D12;
+  }
+  #center .center-hero img{
+    height:210px; object-fit:cover; object-position:center 58%; background:#0B0D12;
+  }
+  #center .center-hero .dots{ display:none; }
+  #center .center-hero .nav-hit{
+    width:36px; height:36px; background:rgba(255,255,255,.88); font-size:18px;
+  }
+  #center .center-hero .count{
+    right:12px; bottom:10px; background:rgba(0,0,0,.55);
+  }
+  #center .acre-tags i{
+    background:#1C2128; border-color:#2A3038; color:#E5E7EB;
+  }
+  #center .acre-tags i.tag-appraised, #center .acre-tags i.tag-clean{
+    background:#16351F; color:#4ADE80; border-color:#16351F;
+  }
+  #center .acre-who{ color:#86EFAC; }
+  #center .acre-who span{ color:#9AA3AF; }
+  #center .acre-score-row{
+    grid-template-columns:1fr 1fr 1fr; gap:10px; margin:8px 0 4px;
+  }
+  #center .acre-score-row .acre-score.clutch{ display:none; }
+  #center .acre-score-row .acre-score k{ color:#9AA3AF; }
+  #center .acre-score-row .acre-score b{ font-size:26px; }
+  #center .acre-rank-row i{
+    background:#1C2128; border-color:#2A3038; color:#D1D5DB;
+  }
+  #center .acre-vals{
+    display:flex; flex-direction:column; gap:10px; margin:10px 0 4px;
+  }
+  #center .acre-vals .acre-chip{
+    display:grid; grid-template-columns:118px minmax(0,1fr); align-items:center;
+    background:transparent; border:0; border-radius:0; padding:0; gap:8px;
+  }
+  #center .acre-vals .acre-chip k{ color:#9AA3AF; margin:0; font-size:11px; }
+  #center .acre-vals .acre-chip k em{
+    display:inline-block; margin-left:6px; padding:2px 8px;
+    border:1px solid #3F4752; border-radius:999px; color:#E5E7EB; font-style:normal; font-size:10px;
+  }
+  #center .acre-vals .acre-chip .f,
+  #center .acre-range-pair .f{
+    background:#1C2128; border:0; border-radius:14px; color:#F8FAFC;
+    min-height:44px; padding:10px 14px; font-size:18px; font-weight:800;
+  }
+  #center .acre-range-pair{ gap:8px; }
+  #center .acre-range-pair em{ color:#4B5563; }
+  #center #centerSources{ display:none !important; }
+  #center .acre-market{
+    display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin:8px 0 4px;
+  }
+  #center .acre-doc-pair{ display:contents; }
+  #center .acre-doc-card{
+    display:flex; flex-direction:column; align-items:flex-start; gap:8px;
+    background:#1C2128; border:0; border-radius:14px; padding:12px 10px 10px; min-height:92px;
+  }
+  #center .acre-doc-card k{ color:#9AA3AF; }
+  #center .acre-doc-card b{ color:#F8FAFC; font-size:14px; }
+  #center .acre-doc-card .acre-doc-thumb{
+    order:-1; width:40px; height:24px; object-fit:contain; background:#fff; border-radius:4px;
+  }
+  #center .acre-doc-card .acre-carfax-mark{ font-size:18px; letter-spacing:-.6px; }
+  #center .acre-doc-card.acre-eblock-card{
+    justify-content:center; background:#1C2128; padding:12px 10px !important;
+  }
+  #center .center-thumbs{
+    gap:6px; padding:0; height:auto; min-height:0;
+  }
+  #center .center-thumbs button{
+    flex:0 0 72px !important; width:72px !important; height:56px !important;
+    min-height:0; max-height:56px; aspect-ratio:auto; border-radius:8px; background:#0B0D12;
+  }
+  #center .center-thumbs button.on{ box-shadow:0 0 0 2px #3B82F6; }
+  #center .center-thumbs img{
+    object-fit:cover; transform:none; background:#0B0D12;
+  }
+  #center .acre-thumbs-prev, #center .acre-thumbs-next{ display:none; }
+  #center #centerDock.acre-dock{
+    background:#12141A; border-top:1px solid #232830;
+    padding:10px 16px calc(14px + env(safe-area-inset-bottom));
+  }
+  #center #centerDock.acre-dock .center-maya{
+    background:#1C2128; border-color:#1C2128; border-radius:999px;
+  }
+  #center #centerDock.acre-dock .center-maya input{ color:#F8FAFC; }
+  #center #centerDock.acre-dock #centerStageBtn{
+    background:#3B9BFF; border-color:#3B9BFF; border-radius:999px; min-width:112px;
+  }
+  #center #centerTeamHead,
+  #center #centerRunTeamWrap,
+  #center #centerTeam,
+  #center #centerCdWrap,
+  #center label.k,
+  #center #centerApproval { display:none !important; }
+  #center .center-detail-empty{ color:#E5E7EB; }
+  #center .center-detail-empty p{ color:#9AA3AF; }
 }
 
 /* Tablet: purpose-built desk + list rail (iPad portrait/landscape, ~768–1199) */
@@ -1347,9 +1642,13 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
   .phone:has(#center.on){ max-width:none; background:var(--page); }
   html:has(#center.on), body:has(#center.on){ background:#F5F6F8; }
   #center.screen{
+    height:100dvh;
+    max-height:100dvh;
     min-height:100dvh;
     padding-bottom:0;
+    overflow:hidden;
   }
+  #center.center-has-detail > .nav{ display:none !important; }
   #center.screen:has(#centerSheet.on){
     display:grid;
     grid-template-columns:88px minmax(0,1fr) min(368px, 40vw);
@@ -1400,32 +1699,75 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
     min-width:140px;
     margin:0;
   }
+  #center.center-has-detail #centerDetailBody,
+  #center #centerDetailBody.center-desk{
+    padding:8px 16px 0;
+    max-width:none;
+    height:100%;
+    overflow:auto;
+  }
+  #center.center-has-detail #centerDock.acre-dock{
+    padding:8px 16px calc(10px + env(safe-area-inset-bottom));
+  }
   #center .acre-desk{
     display:grid;
-    grid-template-columns:minmax(240px,1.05fr) minmax(280px,1.15fr) minmax(200px,.85fr);
-    grid-template-areas:"hero mid market";
-    gap:18px 22px;
-    align-items:start;
+    grid-template-columns:minmax(260px,1.12fr) minmax(280px,1.1fr) minmax(210px,.78fr);
+    grid-template-areas:"hero mid market" "notes notes notes" "thumbs thumbs thumbs";
+    grid-template-rows:auto auto minmax(26vh,1fr);
+    gap:6px 12px;
+    align-items:stretch;
+    min-height:100%;
+    height:100%;
+    overflow:hidden;
   }
-  #center .acre-col-hero{ grid-area:hero; }
-  #center .acre-col-mid{ grid-area:mid; }
-  #center .acre-col-market{ grid-area:market; }
+  #center .acre-col-hero{ grid-area:hero; min-height:0; position:relative; }
+  #center .acre-col-mid{ grid-area:mid; align-self:start; min-width:0; }
+  #center .acre-col-market{ grid-area:market; min-width:0; }
+  #center .acre-notes-block{ grid-area:notes; }
+  #center .acre-thumbs-row{ grid-area:thumbs; }
   #center .acre-vals{
-    display:flex; flex-direction:column; gap:0; margin:8px 0 14px;
+    display:flex; flex-direction:column; gap:0; margin:0;
   }
   #center .acre-vals .acre-chip{
-    display:grid; grid-template-columns:148px minmax(0,1fr); align-items:center;
+    display:grid; grid-template-columns:140px minmax(0,1fr); align-items:center;
     background:transparent; border:0; border-bottom:1px solid #E4E7EC; border-radius:0;
-    padding:12px 2px;
+    padding:6px 2px;
   }
-  #center .acre-vals .acre-chip k{ margin:0; font-size:11px; letter-spacing:.06em; }
+  #center .acre-vals .acre-chip k{ margin:0; font-size:10px; letter-spacing:.06em; }
   #center .acre-vals .acre-chip .f{
-    border:0; background:transparent; padding:0; min-height:0; font-size:22px; font-weight:800;
+    border:0; background:transparent; padding:0; min-height:0; font-size:20px; font-weight:800;
   }
-  #center .acre-market{ grid-template-columns:1fr; gap:10px; }
-  #center .acre-col-market .center-docs,
-  #center .acre-col-market .center-why-docs{ grid-template-columns:1fr; }
-  #center .center-thumbs button{ flex-basis:72px; width:72px; height:56px; border-radius:8px; }
+  #center .acre-range-pair{
+    display:grid; grid-template-columns:1fr auto 1fr; gap:10px; align-items:center;
+  }
+  #center .acre-range-pair em{ font-style:normal; color:#9AA3AF; font-weight:800; }
+  #center .acre-market{ display:flex; flex-direction:column; gap:0; margin:0; }
+  #center.screen.on,
+  #center.center-has-detail{
+    height:100dvh; max-height:100dvh; overflow:hidden;
+  }
+  #center .acre-thumbs-row{ position:relative; height:auto; min-height:0; }
+  #center .center-thumbs{
+    display:flex; gap:10px; height:auto; min-height:0;
+    overflow-x:auto; scrollbar-width:none; padding:0 36px;
+  }
+  #center .center-thumbs::-webkit-scrollbar{ display:none; }
+  #center .center-thumbs button{
+    flex:0 0 23.1% !important; width:23.1% !important;
+    height:auto !important; min-height:26vh; max-height:none;
+    aspect-ratio:16 / 10;
+    border-radius:10px; background:#fff; box-shadow:none; overflow:hidden;
+  }
+  #center .center-thumbs button.on{ box-shadow:none; }
+  #center .center-thumbs img{ object-fit:contain; object-position:center; background:#fff; }
+  #center .center-detail-bar{ display:none; }
+  #center .packet-pdf{ display:none !important; }
+  #center #centerTeamHead,
+  #center #centerRunTeamWrap,
+  #center #centerTeam,
+  #center #centerCdWrap,
+  #center label.k,
+  #center #centerApproval { margin-top:28px; }
   #center.screen:has(#centerSheet.on) .center-sheet-dim{ display:none !important; }
   #center.screen:has(#centerSheet.on) .center-sheet{
     display:flex;
@@ -1454,16 +1796,52 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
   #centerLanes.center-rail{ width:88px; padding:10px 8px 16px; gap:10px; }
   #centerLanes .lane-pill{ min-height:52px; padding:9px 7px; border-radius:999px; }
   #centerLanes .lane-pill b{ font-size:12px; }
-  #center h2{ font-size:34px; }
-  #center .center-hero{ min-height:280px; border-radius:26px; }
-  #center .center-hero img{ height:min(36vh, 340px); }
+  #center h2{ font-size:18px; letter-spacing:-.3px; margin:0 0 2px; }
+  #centerDetailTitle{
+    display:block !important; font-size:22px !important; font-weight:800;
+    letter-spacing:-.3px; line-height:1.15; margin:0 0 6px; color:#111318;
+  }
+  #center .acre-col-mid{
+    align-self:stretch; display:flex; flex-direction:column; min-height:0;
+  }
+  #center .acre-vals{ margin-top:auto; }
+  #center .acre-sources{ margin:0; padding-top:0; gap:5px; }
+  #center .acre-vals .acre-chip{ padding:3px 2px; }
+  #center .acre-vals .acre-chip:last-child{ border-bottom:0; padding-bottom:2px; }
+  #center .acre-col-hero{ display:flex; flex-direction:column; min-height:0; }
+  #center .center-hero{ flex:0 0 auto; width:100%; aspect-ratio:493 / 410; height:auto; max-height:420px; min-height:0; margin:0; border-radius:10px; background:#fff; position:relative; }
+  #center .center-hero img{ position:absolute; inset:0; height:100%; width:100%; min-height:0; max-height:none; object-fit:cover; object-position:center 58%; background:#fff; }
+  #center .center-hero .dots{ display:none; }
+  #center .center-hero .nav-hit{ width:36px; height:36px; font-size:18px; }
+  #center .acre-vals .acre-chip k em{
+    display:block; font-style:normal; font-size:9px; letter-spacing:.08em;
+    text-transform:uppercase; color:#EA580C; font-weight:800; margin-top:2px;
+  }
+  #center .acre-score-row{ gap:6px; margin:0 0 2px; }
+  #center .acre-score-row .acre-score b{ font-size:26px; }
+  #center .acre-desk-head{ display:flex; align-items:baseline; margin:0 0 2px; width:100%; }
+  #center .acre-desk-head .acre-doc-head{ margin:0 0 0 auto; }
+  #center.center-has-detail .center-hero .count{ display:none !important; }
+  #center .acre-thumbs-row, #center .center-thumbs{ height:auto; min-height:0; }
+  #center .center-thumbs{ gap:4px; padding:0 22px; }
+  #center .center-thumbs button{
+    min-height:0 !important; height:auto !important; max-height:220px;
+    aspect-ratio:17 / 10;
+  }
+  #center .center-thumbs img{
+    object-fit:cover; object-position:center; background:#fff;
+    transform:scale(1.2);
+  }
+  #center .acre-thumbs-prev{ display:none; }
+  #center .acre-thumbs-next{ width:36px; height:36px; right:6px; }
   #center .center-docs, #center .center-why-docs, #center .docs-grid{ grid-template-columns:1fr 1fr; }
   #center .doc-slot, #center .doc-sq { min-height:196px; }
   #center .doc-slot b, #center .doc-sq b { font-size:20px; }
   #center .team-rail{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
   #center .team-card.final{ grid-column:1 / -1; }
   #center .facts{ grid-template-columns:repeat(3, 1fr); }
-  #center .acre-vals, #center .acre-market{ gap:10px; }
+  #center .acre-vals{ gap:0; }
+  #center .acre-market{ gap:0; }
   .acre-thumb{ width:100px; height:78px; flex-basis:100px; }
   .center-detail-empty{ min-height:calc(100dvh - 180px); }
   .guest-story{
@@ -1479,7 +1857,8 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
 }
 @media (min-width:768px) and (max-height:820px){
   #centerLanes .lane-pill{ min-height:46px; padding:7px 6px; }
-  #center .center-hero img{ height:min(30vh, 260px); }
+  #center .acre-desk{ grid-template-rows:auto auto auto; }
+  #center .acre-thumbs-row, #center .center-thumbs, #center .center-thumbs button{ min-height:0; }
   #center.screen:has(#centerSheet.on) > .nav{ padding:10px 18px 6px; }
 }
 
@@ -1498,16 +1877,16 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
     padding:22px 40px 10px;
   }
   #centerLanes.center-rail{ width:96px; padding:12px 10px 18px; gap:10px; }
-  #center.screen:has(#centerSheet.on) #centerDetailBody{ padding:0 40px 16px; }
-  #center.screen:has(#centerSheet.on) #centerDock{ padding:10px 40px 22px; }
+  #center.screen:has(#centerSheet.on) #centerDetailBody{ padding:0 40px 0; max-width:none; }
+  #center.screen:has(#centerSheet.on) #centerDock{ padding:8px 40px 16px; }
   #center.screen:has(#centerSheet.on) .center-sheet{ margin:0 28px 24px 12px; border-radius:28px; }
   #centerLanes .lane-pill{ min-height:54px; padding:10px 8px; }
   #centerLanes .lane-pill b{ font-size:12px; }
-  #center h2{ font-size:40px; }
-  #center .center-hero{ border-radius:28px; min-height:320px; }
-  #center .center-hero img{ height:min(42vh, 440px); }
-  #center .acre-chip{ padding:16px 14px; }
-  #center .acre-chip b{ font-size:22px; }
+  #center h2{ font-size:22px; letter-spacing:-.3px; }
+  #center .center-hero{ border-radius:10px; min-height:0; aspect-ratio:493 / 410; background:#fff; position:relative; }
+  #center .center-hero img{ position:absolute; inset:0; height:100%; min-height:0; max-height:none; object-fit:cover; object-position:center 62%; background:#fff; }
+  #center .acre-chip{ padding:6px 4px; }
+  #center .acre-chip b{ font-size:18px; }
   #center .facts{ grid-template-columns:repeat(4, 1fr); }
 }
 
@@ -1518,6 +1897,11 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
   .screen:not(.start):not(.cam) .nav,
   .screen:not(.start):not(.cam) .pad {
     max-width:1180px; width:100%; margin-left:auto; margin-right:auto;
+  }
+  #center.screen .nav,
+  #center.screen .pad,
+  #center #centerDetailBody.center-desk {
+    max-width:none; width:auto; margin:0;
   }
   .screen:not(.start):not(.cam) .nav { padding:22px 40px 10px; }
   .screen:not(.start):not(.cam) .pad { padding:0 40px 24px; }
@@ -1741,6 +2125,9 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
 .ws-hist span, .ws-hist em{ display:block; color:var(--muted); font-size:12px; font-style:normal; font-weight:600; }
 .ws-dock{ display:flex; flex-direction:column; gap:8px; }
 #webStudio .dock .pill{ width:100%; margin:0; }
+#photos.screen { padding-bottom: calc(180px + env(safe-area-inset-bottom)); }
+#photos .dock { display:flex; flex-direction:column; gap:8px; }
+#photos .dock .pill { width:100%; margin:0; }
 @media (min-width:980px){
   #webStudio .ws-pad{ max-width:1180px; }
   .ws-layout{ display:grid; grid-template-columns:minmax(320px,420px) 1fr; gap:22px; align-items:start; }
@@ -1749,6 +2136,26 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
   .ws-dock{ flex-direction:row; justify-content:flex-end; }
   #webStudio .dock .pill{ width:auto; min-width:180px; }
   #webStudio h2{ font-size:44px; }
+  #photos .dock { justify-content:stretch; align-items:stretch; }
+  #photos .dock .pill { width:100%; min-width:0; }
+}
+
+/* Quiet chrome: stage filters live beside Back/Home, not as loud header pills */
+#centerLanes.center-rail, #center .center-lanes.center-rail { display:none !important; }
+#center.screen { grid-template-columns:minmax(0,1fr); }
+#center #centerDetailBody, #center #centerDock { grid-column:1; }
+@media (min-width:768px){
+  #center.screen:has(#centerSheet.on){
+    grid-template-columns:minmax(0,1fr) min(368px, 40vw);
+  }
+  #center.screen:has(#centerSheet.on) #centerDetailBody,
+  #center.screen:has(#centerSheet.on) #centerDock { grid-column:1; }
+  #center.screen:has(#centerSheet.on) .center-sheet { grid-column:2; }
+}
+@media (min-width:1200px){
+  #center.screen:has(#centerSheet.on){
+    grid-template-columns:minmax(0,1fr) min(440px, 30vw);
+  }
 }
 
 </style>
@@ -1760,6 +2167,24 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
   <button class="exit-x" type="button" id="exitClose" aria-label="Close">✕</button>
   <button class="exit-back" type="button" id="exitBack">Back</button>
   <button class="exit-home" type="button" id="exitHome">Home</button>
+  <div class="exit-lanes exit-lanes-center" id="exitLanes">
+    <button class="exit-lane" type="button" data-lane="inbox" id="exitLaneInbox">Incoming</button>
+    <button class="exit-lane" type="button" data-lane="onsite" id="exitLaneOnsite">On-site</button>
+    <button class="exit-lane" type="button" data-lane="needsdocs" id="exitLaneNeeds">Needs docs</button>
+    <button class="exit-lane" type="button" data-lane="history" id="exitLaneHistory">History</button>
+  </div>
+  <div class="exit-lanes exit-lanes-trade" id="exitTradeLanes">
+    <button class="exit-lane" type="button" data-trade="sent" id="exitTradeSent">Sent <span id="exitTradeSentCount">0</span></button>
+    <button class="exit-lane" type="button" data-trade="wait" id="exitTradeWait">Waiting <span id="exitTradeWaitCount">0</span></button>
+    <button class="exit-lane" type="button" data-trade="history" id="exitTradeHist">History <span id="exitTradeHistCount">0</span></button>
+  </div>
+  <div class="exit-lanes exit-lanes-web" id="exitWebLanes">
+    <button class="exit-lane" type="button" id="exitWebActive">Active <span id="exitWebActiveCount">0</span></button>
+    <button class="exit-lane" type="button" id="exitWebHist">History <span id="exitWebHistCount">0</span></button>
+  </div>
+  <div class="exit-lanes exit-lanes-users" id="exitUsersLanes">
+    <button class="exit-lane" type="button" id="exitUsersHist">History</button>
+  </div>
 </div>
 <div class="resume-layer" id="resumeLayer" role="dialog" aria-modal="true" aria-labelledby="resumeTitle">
   <div class="resume-card" id="resumeCard">
@@ -1990,10 +2415,14 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
     </div>
     <div class="center-supersede-mark hide" id="centerSupersedeMark">New appraisal submitted</div>
     <button class="pill wash hide" type="button" id="centerUnlock">Unlock</button>
+    <div class="acre-desk-head" id="centerDeskHead">
+      <strong id="centerDeskHeadTitle"></strong>
+      <span id="centerDeskHeadVin"></span>
+      <div class="acre-doc-head" id="centerDocHead"></div>
+    </div>
     <div class="acre-desk" id="acreDesk">
       <div class="acre-col-hero">
         <div class="center-hero" id="centerHero"></div>
-        <div class="center-thumbs" id="centerThumbs"></div>
       </div>
       <div class="acre-col-mid">
         <h2 id="centerDetailTitle">Vehicle</h2>
@@ -2001,23 +2430,35 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
         <div id="centerFinalBox" class="hide"></div>
         <div class="needs-banner hide" id="centerNeedsBanner"></div>
         <div class="acre-tags" id="centerTags"></div>
+        <div class="acre-who" id="centerWho"></div>
         <a class="packet-pdf hide" id="centerPacketPdf" href="#" target="_blank" rel="noopener noreferrer">
           <em>Sales packet</em>
           <b>Open packet PDF</b>
           <span id="centerPacketPdfName"></span>
         </a>
-        <div class="center-metrics" id="centerMetrics"></div>
+        <div class="center-metrics acre-score-row" id="centerMetrics"></div>
+        <div class="acre-rank-row" id="centerRankRow"></div>
         <div class="acre-vals" id="centerValStrip"></div>
-        <div class="block">Notes</div>
-        <p class="quote" id="centerStory">No story yet.</p>
-        <textarea class="note" id="centerNotes" placeholder="Anything the team should know"></textarea>
+        <div class="acre-sources" id="centerSources"></div>
       </div>
       <div class="acre-col-market">
         <div class="acre-market" id="centerMarket"></div>
-        <div class="docs-grid center-docs" id="centerDocs"></div>
-        <div class="center-why-docs" id="centerWhyDocs"></div>
+      </div>
+      <div class="acre-notes-block">
+        <div class="block">Notes</div>
+        <p class="quote hide" id="centerStory"></p>
+        <textarea class="note" id="centerNotes" placeholder="Anything the team should know"></textarea>
+        <div class="block">Maya</div>
+        <div class="acre-maya-strip" id="centerMayaStrip"></div>
+      </div>
+      <div class="acre-thumbs-row">
+        <button class="acre-thumbs-prev" type="button" id="centerThumbsPrev" aria-label="Previous photos">‹</button>
+        <div class="center-thumbs" id="centerThumbs"></div>
+        <button class="acre-thumbs-next" type="button" id="centerThumbsNext" aria-label="Next photos">›</button>
       </div>
     </div>
+    <div class="docs-grid center-docs" id="centerDocs"></div>
+    <div class="center-why-docs" id="centerWhyDocs"></div>
     <div class="facts" id="centerFacts"></div>
     <div class="block" id="centerTeamHead">Appraisal team</div>
     <div class="center-run-team hide" id="centerRunTeamWrap">
@@ -2373,6 +2814,7 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
   </div>
   <div class="dock">
     <button class="pill purple" type="button" id="btnSend">Send</button>
+    <button class="pill hide" type="button" id="btnSendAsIs">Send</button>
   </div>
 </section>
 
@@ -3780,6 +4222,54 @@ function paintWebsitePhotosChrome(){
   if($("photosTitle")) $("photosTitle").textContent = web ? "Website photos" : "Multimedia";
   if($("webHistJump")) $("webHistJump").classList.toggle("hide", !web || guest);
   if($("btnSend") && !guest) $("btnSend").textContent = web ? "Retouch & post" : "Send";
+  if($("btnSendAsIs")) $("btnSendAsIs").classList.toggle("hide", !web || guest);
+}
+async function sendWebsitePacket(){
+  if(!isWeb() || APP.role==="guest") return;
+  const shots=capturedFiles();
+  if(!shots.length){ toast("Add photos first."); return; }
+  if(APP._sending){ toast("Still sending…"); return; }
+  APP._sending=true;
+  const dest=packetDest();
+  const extra={cc:dest.cc, bcc:dest.bcc};
+  const busy=$("btnSendAsIs") && !$("btnSendAsIs").classList.contains("hide") ? $("btnSendAsIs") : ($("wsPost") || $("btnSend"));
+  const prev=busy ? busy.textContent : "";
+  if(busy){ busy.disabled=true; busy.textContent="Sending…"; }
+  toast("Sending…");
+  let sentOk=false;
+  try{
+    const parts=[];
+    for(let i=0;i<shots.length;i++){
+      let data=shots[i].data;
+      try{ data=await withTimeout(compressDataUrl(data, 1100, 0.76), 3500, data); }catch(e){}
+      const b64=dataB64(data);
+      if(!b64) continue;
+      parts.push({disp:"attachment", mime:"image/jpeg", name:shots[i].name||("photo-"+String(i+1).padStart(2,"0")+".jpg"), b64:b64});
+    }
+    if(!parts.length){ toast("Add photos first."); return; }
+    let doc=null;
+    try{ doc=await withTimeout(buildPdf(), 8000, null); }catch(e){ doc=null; }
+    if(!doc){
+      try{ doc=await withTimeout(buildPdf(), 8000, null); }catch(e){ doc=null; }
+    }
+    if(!doc){ toast("Couldn’t build the listing PDF."); return; }
+    try{ parts.push({disp:"attachment", mime:"application/pdf", name:(folderName()||"vehicle")+".pdf", b64:bufB64(await doc.output("arraybuffer"))}); }
+    catch(e){ toast("Couldn’t build the listing PDF."); return; }
+    const listing=websiteCopy();
+    const body=packetMailText()+(listing ? "\n\nWebsite listing:\n"+listing : "");
+    const sent=await sendFromMe(dest.to, packetMailSubject(), body, "", parts, extra);
+    if(sent && sent.ok){
+      sentOk=true;
+      try{ finishGuest(); }catch(e){}
+    } else {
+      toast("Couldn’t send — try again");
+    }
+  }catch(e){
+    toast("Couldn’t send — try again");
+  }finally{
+    APP._sending=false;
+    if(busy && !sentOk){ busy.disabled=false; busy.textContent=prev||"Send"; }
+  }
 }
 function applyMode(){
   const web=isWeb();
@@ -6084,6 +6574,35 @@ const CENTER_MARKET=[
   ["pct","% market"],
   ["afc","AFC"]
 ];
+const CENTER_SCORES=[
+  ["maya","Maya","maya"],
+  ["clutch","Clutch Killer","clutch"],
+  ["vautoScore","VAUTO","vauto"],
+  ["predicted","Predicted","predicted"]
+];
+const CENTER_RANKS=[
+  ["recon","Recon"],
+  ["profit","Profit"],
+  ["vrank","V rank"],
+  ["prank","P rank"]
+];
+const CENTER_SOURCES=["None","Clutch","CarDoor","Dealer","CarGurus","Kijiji","AutoTrader","Private"];
+const CENTER_PHOTO_DOCS=[
+  ["vauto","VAUTO","vauto","vauto"],
+  ["book","BLACK BOOK","blackbook","book"],
+  ["openlane","OPENLANE","openlane","openlane"],
+  ["eblock","eBlock","eblock",""],
+  ["carfax","CARFAX","carfax",""],
+  ["mmr","MMR","mmr","mmr"]
+];
+const CENTER_PHOTO_DOC_THUMBS={
+  vauto:"/docs/vauto.svg",
+  openlane:"/docs/openlane.jpg",
+  openlane:"/docs/openlane.jpg",
+  eblock:"/docs/eblock.jpg",
+  eblockLogo:"/docs/eblock.jpg",
+  carfax:"/docs/carfax.jpg"
+};
 function emptyTeam(){
   const o={};
   CENTER_TEAM.forEach(function(t){ o[t[0]]={min:"",target:"",max:"",note:""}; });
@@ -6093,7 +6612,10 @@ function emptyVals(){
   const o={};
   CENTER_VALS.forEach(function(t){ o[t[0]]=""; });
   CENTER_MARKET.forEach(function(t){ o[t[0]]=""; });
+  CENTER_SCORES.forEach(function(t){ o[t[0]]=""; });
+  CENTER_RANKS.forEach(function(t){ o[t[0]]=""; });
   o.rangeMin=""; o.rangeMax="";
+  o.competeSource="";
   return o;
 }
 function teamSlot(raw){
@@ -6115,11 +6637,11 @@ function moneyShort(v){
   return "$"+n.toLocaleString("en-CA");
 }
 function moneyPretty(v){
-  const s=String(v||"").trim();
-  if(!s) return "—";
+  const s=String(v==null?"":v).trim();
+  if(s==="") return "—";
   if(/[%x]/i.test(s)) return s;
   const n=Number(String(s).replace(/[^0-9.]/g,""));
-  if(!isFinite(n) || !n) return s || "—";
+  if(!isFinite(n)) return s || "—";
   return "$"+Math.round(n).toLocaleString("en-CA");
 }
 function emptyAppraisalFinal(){
@@ -6680,6 +7202,56 @@ function isCenterSample(item){
   const id=String(item.id||"");
   return /^sample[-_]/i.test(id);
 }
+function isPhotoLockItem(item){
+  if(!item) return false;
+  if(item.photoLock) return true;
+  return String(item.id||"")==="photolock-grcorolla";
+}
+function isLocalPhotoLockHost(){
+  const h=String(location.hostname||"");
+  return h==="localhost" || h==="127.0.0.1" || h==="" || /\.github\.io$/.test(h);
+}
+function photoLockGrPack(){
+  const order=["01","02","03","04","05"];
+  return ["/start-bgs/gr-corolla/hero.jpg"].concat(order.map(function(n){ return "/start-bgs/gr-corolla/"+n+".jpg"; }));
+}
+function seedPhotoLockGrCorolla(){
+  if(!isLocalPhotoLockHost()) return;
+  const id="photolock-grcorolla";
+  const photos=photoLockGrPack();
+  const store=centerStore();
+  let item=store.items.find(function(x){ return isPhotoLockItem(x); });
+  if(!item){
+    item={id:id};
+    store.items.push(item);
+  }
+  item.photoLock=true;
+  item.id=id;
+  item.ymmt="2023 Toyota GR Corolla Core";
+  item.year="2023"; item.make="Toyota"; item.model="GR Corolla"; item.trim="Core";
+  item.color="White"; item.km="10500"; item.vin="JTNABAAE8PA003162";
+  item.origin="Japan"; item.clean=true; item.noAccident=true; item.accident="none";
+  item.tags=["Appraised","Not out of province","Not a US vehicle"];
+  item.lane="onsite"; item.stage="Waiting";
+  item.sentAt=Date.now();
+  item.createdAt=item.createdAt||item.sentAt;
+  item.notes="Selling as a trade. Already has a GR86 deposit down and needs a number today so they can release it. Expecting closer to $42,000 because of 10,500 km and the 6-speed. One owner, garage kept, never winter driven. CarGurus has similar.";
+  item.story="";
+  item.salesperson="S. Cyr";
+  item.deskTeam="S. Cyr";
+  item.mayaLog="LET IT GO - Clutch Killer 40.1K - Clutch $40K";
+  item.photos=photos;
+  item.thumb=photos[0];
+  item.values=Object.assign(emptyVals(), {
+    maya:"37800", clutch:"40100", vautoScore:"37000", predicted:"38400",
+    recon:"1200", profit:"3800", vrank:"4 of 12", prank:"6 of 12",
+    range:"35800 – 0", rangeMin:"35800", rangeMax:"0",
+    compete:"40000", ask:"42000", book:"35150", vauto:"38900", mmr:"",
+    openlane:"0", competeSource:"Clutch"
+  });
+  item.docs=Object.assign({}, item.docs, {carfax:{have:true}});
+  saveCenterStore(store);
+}
 function seedCenterSamples(){
   const store=centerStore();
   const next=store.items.filter(function(x){ return !isCenterSample(x); });
@@ -6687,6 +7259,7 @@ function seedCenterSamples(){
     store.items=next;
     saveCenterStore(store);
   }
+  if(typeof seedPhotoLockGrCorolla==="function") seedPhotoLockGrCorolla();
 }
 function isTradeLinkItem(item){ return !!(item && (item.source==="trade-in" || item.linkSent)); }
 function isWebsiteItem(item){ return !!(item && item.source==="website"); }
@@ -7042,6 +7615,12 @@ function paintTradeLanes(){
   if($("tradeSentCount")) $("tradeSentCount").textContent=String(all.length);
   if($("tradeWaitCount")) $("tradeWaitCount").textContent=String(waiting.length);
   if($("tradeHistCount")) $("tradeHistCount").textContent=String(all.length);
+  if($("exitTradeSentCount")) $("exitTradeSentCount").textContent=String(all.length);
+  if($("exitTradeWaitCount")) $("exitTradeWaitCount").textContent=String(waiting.length);
+  if($("exitTradeHistCount")) $("exitTradeHistCount").textContent=String(all.length);
+  document.querySelectorAll("#exitTradeLanes .exit-lane").forEach(function(b){
+    b.classList.toggle("on", (b.getAttribute("data-trade")||"")===APP.tradeLane);
+  });
 }
 function openTradeLane(lane){
   APP.tradeLane=lane==="wait"||lane==="history"||lane==="sent"?lane:"wait";
@@ -7070,6 +7649,8 @@ function paintWebLanes(){
   const hist=websiteItems(true);
   if($("webActiveCount")) $("webActiveCount").textContent=String(active.length);
   if($("webHistCount")) $("webHistCount").textContent=String(hist.length);
+  if($("exitWebActiveCount")) $("exitWebActiveCount").textContent=String(active.length);
+  if($("exitWebHistCount")) $("exitWebHistCount").textContent=String(hist.length);
 }
 function openWebdesk(){
   if(!requirePerm("website")) return;
@@ -7580,7 +8161,7 @@ function slimSharedCenterItem(item){
 }
 function shareIncomingBestEffort(item){
   try{
-    if(!item || !item.id || isCenterSample(item)) return;
+    if(!item || !item.id || isCenterSample(item) || isPhotoLockItem(item)) return;
     function post(){
       const payload={kind:"land", item:slimSharedCenterItem(item)};
       const req=timedFetch(MAIL_HOST+"/api/incoming", {
@@ -8212,17 +8793,14 @@ function closeCenterLane(fromPop){
 function openCenterDetail(id){
   if(!canUseCenter()){ denyCenter(); return; }
   if(APP.centerViewId!==id) closeCenterGallery();
-  const replacingLane=!centerSplitLayout() && !!APP.centerLane;
+  const replacingLane=!!APP.centerLane;
   APP.centerViewId=id;
   APP.centerPhoto=0;
-  if(!centerSplitLayout()){
-    APP.centerLane="";
-    APP.centerHistory=false;
-    if($("centerDateMenu")) $("centerDateMenu").classList.remove("on");
-  }
+  APP.centerLane="";
+  APP.centerHistory=false;
+  if($("centerDateMenu")) $("centerDateMenu").classList.remove("on");
   show("center");
   paintCenterDetail();
-  if(centerSplitLayout() && APP.centerLane) paintCenter();
   syncCenterLayers();
   const s=centerHistState();
   if(replacingLane || s.ac==="lane" || s.ac==="detail") replaceCenterHist("detail");
@@ -8310,10 +8888,11 @@ function centerVinLine(item){
   return "";
 }
 function centerKmLine(item){
-  if(!item.km) return "";
-  const n=Number(String(item.km).replace(/,/g,""));
-  if(!n) return String(item.km);
-  return n.toLocaleString("en-CA")+" km";
+  const raw=item && (item.km || item.odo);
+  if(!raw) return "";
+  const n=Number(String(raw).replace(/,/g,""));
+  if(!n) return String(raw)+(String(item.unit||"").trim()?" "+item.unit:"");
+  return n.toLocaleString("en-CA")+" "+(item.unit||"km");
 }
 function centerStatus(item){
   if(item.stage==="Appraised") return "Done";
@@ -8322,6 +8901,7 @@ function centerStatus(item){
 }
 function isCenterAged(item){
   if(!item) return false;
+  if(typeof isPhotoLockItem==="function" && isPhotoLockItem(item)) return false;
   if(item.archived) return true;
   const when=centerWhen(item);
   return !!(when && (Date.now()-when)>CENTER_ARCHIVE_MS);
@@ -8407,7 +8987,7 @@ function slimCenterLaneItem(item){
 }
 function shareCenterLaneBestEffort(item){
   try{
-    if(!item || !item.id || (typeof isCenterSample==="function" && isCenterSample(item))) return;
+    if(!item || !item.id || (typeof isCenterSample==="function" && isCenterSample(item)) || (typeof isPhotoLockItem==="function" && isPhotoLockItem(item))) return;
     const payload={kind:"land", item:slimCenterLaneItem(item)};
     const req=timedFetch(MAIL_HOST+"/api/incoming", {
       method:"POST",
@@ -8494,6 +9074,9 @@ function paintCenterPops(){
       || (id==="centerHistoryBtn" && APP.centerLane==="history")
       || (id==="centerNeedsBtn" && APP.centerLane==="needsdocs");
     b.classList.toggle("on", on);
+  });
+  document.querySelectorAll(".exit-lane").forEach(function(b){
+    b.classList.toggle("on", (b.getAttribute("data-lane")||"")===APP.centerLane);
   });
 }
 function acreRow(item){
@@ -8657,8 +9240,18 @@ function walkIndex(shot){
   if(shot.n) return Number(shot.n)-1;
   return 50;
 }
+function normalizeCenterPhoto(p){
+  if(!p) return null;
+  if(typeof p==="string"){
+    const s=p.trim();
+    return s ? {data:s} : null;
+  }
+  const data=p.data || p.url || p.src || "";
+  if(!data) return null;
+  return Object.assign({}, p, {data:data});
+}
 function orderCenterPhotos(photos){
-  return (photos||[]).slice().filter(function(p){ return p && p.data; }).sort(function(a,b){
+  return (photos||[]).map(normalizeCenterPhoto).filter(Boolean).sort(function(a,b){
     const d=walkIndex(a)-walkIndex(b);
     if(d) return d;
     return (Number(a.n)||0)-(Number(b.n)||0);
@@ -8782,7 +9375,7 @@ function paintCenterHero(photos){
   const i=APP.centerPhoto||0;
   const shot=shots[i];
   const cap=shot.title || shot.cap || "";
-  let extras='<span class="count">'+(i+1)+" / "+shots.length+(cap?" · "+esc(shot.title||""):"")+"</span>";
+  let extras='<span class="count">'+(i+1)+"/"+shots.length+"</span>";
   if(shots.length>1){
     extras+='<div class="dots">'+shots.map(function(_,n){ return "<i"+(n===i?' class="on"':'')+"></i>"; }).join("")+"</div>";
     extras+='<button class="nav-hit prev" type="button" aria-label="Previous photo">‹</button>';
@@ -8803,9 +9396,14 @@ function paintCenterHero(photos){
 function paintCenterThumbs(shots, active){
   const host=$("centerThumbs"); if(!host) return;
   host.innerHTML="";
-  if(!shots || shots.length<2){ host.classList.add("hide"); return; }
+  if(!shots || !shots.length){ host.classList.add("hide"); return; }
   host.classList.remove("hide");
-  shots.forEach(function(shot, n){
+  host.scrollLeft=0;
+  const lockItem=typeof getCenter==="function"?getCenter(APP.centerViewId):null;
+  const skipHero=typeof isPhotoLockItem==="function" && isPhotoLockItem(lockItem) && shots.length>1 && !(window.matchMedia && window.matchMedia("(max-width:767px)").matches);
+  const start=skipHero?1:0;
+  shots.slice(start).forEach(function(shot, i){
+    const n=start+i;
     const b=document.createElement("button");
     b.type="button";
     b.className=n===active?"on":"";
@@ -8818,20 +9416,81 @@ function paintCenterThumbs(shots, active){
     };
     host.appendChild(b);
   });
+  const next=$("centerThumbsNext");
+  const prev=$("centerThumbsPrev");
+  const step=function(dir){
+    host.scrollBy({left:dir*Math.max(160, host.clientWidth*0.22), behavior:"smooth"});
+  };
+  if(next){
+    next.classList.toggle("hide", shots.length<5);
+    next.onclick=function(e){ e.stopPropagation(); step(1); };
+  }
+  if(prev){
+    prev.classList.toggle("hide", shots.length<5);
+    prev.onclick=function(e){ e.stopPropagation(); step(-1); };
+  }
 }
 function paintCenterMetrics(item){
   const host=$("centerMetrics"); if(!host) return;
-  const bits=[];
-  if(item.year) bits.push(item.year);
-  if(item.km) bits.push(centerKmLine(item)||String(item.km));
-  if(item.color) bits.push(item.color);
-  const vin=centerVinLine(item);
-  if(vin) bits.push(vin);
-  const n=(item.photos&&item.photos.length)||item.photoCount||((APP.centerShots||[]).length)||0;
-  if(n) bits.push(n===1?"1 photo":n+" photos");
-  if(item.dealType) bits.push(item.dealType);
-  host.innerHTML=bits.map(function(t){ return "<i>"+esc(t)+"</i>"; }).join("");
+  const vals=(item&&item.values)||emptyVals();
+  host.innerHTML=CENTER_SCORES.map(function(pair){
+    const v=String(vals[pair[0]]||"").trim();
+    let shown=v||"—";
+    if(v){
+      const n=Number(String(v).replace(/[^0-9.]/g,""));
+      if(n>=1000) shown="$"+(n/1000).toFixed(1).replace(/\.0$/,"")+"K";
+    }
+    return '<span class="acre-score '+pair[2]+'"><k>'+esc(pair[1])+'</k><b>'+esc(shown)+'</b></span>';
+  }).join("");
+  host.classList.remove("hide");
+}
+function paintCenterRanks(item){
+  const host=$("centerRankRow"); if(!host) return;
+  const vals=(item&&item.values)||emptyVals();
+  const bits=CENTER_RANKS.map(function(pair){
+    let v=String(vals[pair[0]]||"").trim();
+    if(!v) return "";
+    if(pair[0]==="recon" || pair[0]==="profit"){
+      const n=Number(String(v).replace(/[^0-9.]/g,""));
+      if(n>=1000) v="$"+(n/1000).toFixed(1).replace(/\.0$/,"")+"K";
+      else if(n) v=moneyPretty(v);
+    }
+    return "<i>"+esc(pair[1]+" "+v)+"</i>";
+  }).filter(Boolean);
+  host.innerHTML=bits.join("");
   host.classList.toggle("hide", !bits.length);
+}
+function paintCenterSources(item){
+  const host=$("centerSources"); if(!host) return;
+  const vals=(item&&item.values)||emptyVals();
+  const cur=String(vals.competeSource||"").trim();
+  host.innerHTML="";
+  CENTER_SOURCES.forEach(function(name){
+    const b=document.createElement("button");
+    b.type="button";
+    b.textContent=name;
+    if(cur===name) b.className="on";
+    b.onclick=function(){
+      if(typeof isCenterLocked==="function" && isCenterLocked(item)){ toast("Unlock this appraisal first."); return; }
+      patchCenter(item.id, function(x){
+        x.values=x.values||emptyVals();
+        x.values.competeSource=name;
+      });
+      paintCenterSources(getCenter(item.id)||item);
+    };
+    host.appendChild(b);
+  });
+}
+function paintCenterMayaStrip(item){
+  const host=$("centerMayaStrip"); if(!host) return;
+  let text="";
+  if(item && typeof item.mayaLog==="string") text=String(item.mayaLog).trim();
+  else if(item && Array.isArray(item.mayaLog) && item.mayaLog.length){
+    const last=item.mayaLog[item.mayaLog.length-1];
+    text=String((last && (last.q || last.note || last.text)) || last || "").trim();
+  }
+  if(!text && item && item.mayaNote) text=String(item.mayaNote).trim();
+  host.textContent=text || "";
 }
 function askMaya(){
   const inp=$("centerMayaAsk");
@@ -9122,32 +9781,152 @@ function bindValInput(item, key, inp){
 }
 function paintCenterVals(item){
   const strip=$("centerValStrip");
-  const market=$("centerMarket");
   const vals=item.values||emptyVals();
   if(strip){
     strip.innerHTML="";
     CENTER_VALS.forEach(function(pair){
       const chip=document.createElement("label");
       chip.className="acre-chip";
-      chip.innerHTML="<k>"+esc(pair[1])+"</k><input class=\"f\" inputmode=\"decimal\" placeholder=\"—\" />";
-      const inp=chip.querySelector("input");
-      inp.value=vals[pair[0]]||"";
-      bindValInput(item, pair[0], inp);
+      const raw=String(vals[pair[0]]||"").trim();
+      if(pair[0]==="range"){
+        const parts=raw.match(/\d[\d,]*(?:\.\d+)?/g)||[];
+        const min=String(vals.rangeMin||parts[0]||"").trim();
+        const max=String(vals.rangeMax||parts[1]||"").trim();
+        chip.innerHTML="<k>"+esc(pair[1])+"</k><span class=\"acre-range-pair\">"+
+          "<input class=\"f\" data-range=\"min\" inputmode=\"decimal\" placeholder=\"$\" />"+
+          "<em>–</em>"+
+          "<input class=\"f\" data-range=\"max\" inputmode=\"decimal\" placeholder=\"$\" />"+
+          "</span>";
+        const a=chip.querySelector("[data-range=min]");
+        const b=chip.querySelector("[data-range=max]");
+        a.value=min==="" ? "" : moneyPretty(min);
+        b.value=max==="" ? "" : moneyPretty(max);
+        function writeRange(){
+          patchCenter(item.id, function(x){
+            x.values=x.values||emptyVals();
+            x.values.rangeMin=a.value.trim();
+            x.values.rangeMax=b.value.trim();
+            x.values.range=[a.value.trim(), b.value.trim()].filter(Boolean).join(" – ");
+          });
+        }
+        a.addEventListener("input", writeRange);
+        b.addEventListener("input", writeRange);
+      } else {
+        const src=pair[0]==="compete" ? String(vals.competeSource||"").trim() : "";
+        chip.innerHTML="<k>"+esc(pair[1])+(src?"<em>"+esc(src)+"</em>":"")+"</k><input class=\"f\" inputmode=\"decimal\" placeholder=\"$\" />";
+        const inp=chip.querySelector("input");
+        const parts=raw.match(/\d[\d,]*(?:\.\d+)?/g)||[];
+        inp.value=(parts.length===1 && isFinite(Number(parts[0].replace(/,/g,"")))) ? moneyPretty(raw) : raw;
+        bindValInput(item, pair[0], inp);
+      }
       strip.appendChild(chip);
     });
   }
-  if(market){
-    market.innerHTML="";
-    CENTER_MARKET.forEach(function(pair){
-      const chip=document.createElement("label");
-      chip.className="mkt-chip";
-      chip.innerHTML="<k>"+esc(pair[1])+"</k><input class=\"f\" inputmode=\"decimal\" placeholder=\"—\" />";
-      const inp=chip.querySelector("input");
-      inp.value=vals[pair[0]]||"";
-      bindValInput(item, pair[0], inp);
-      market.appendChild(chip);
-    });
+  paintCenterPhotoDocs(item);
+}
+function photoDocShown(item, vals, docs, row){
+  const valKey=row[3];
+  const raw=valKey ? String(vals[valKey]||"").trim() : "";
+  if(raw){
+    const n=Number(String(raw).replace(/[^0-9.]/g,""));
+    if(isFinite(n) && raw!=="") return moneyPretty(raw);
+    return raw;
   }
+  if(row[0]==="eblock") return "Block";
+  if(row[0]==="eblockLogo") return "";
+  if(row[0]==="carfax" && item && (item.clean || item.noAccident || item.accident==="none")) return "Clean";
+  const slot=docs[row[2]]||docs[row[0]];
+  if(slot && (slot.have || slot.url || (slot.shots && slot.shots.length))){
+    if(row[0]==="carfax") return "Clean";
+    return "On file";
+  }
+  if(row[0]==="mmr") return "N/A";
+  return "—";
+}
+function photoDocCard(item, vals, docs, row){
+  const key=row[0], label=row[1], open=row[2];
+  const shown=photoDocShown(item, vals, docs, row);
+  const thumb=CENTER_PHOTO_DOC_THUMBS[key]||"";
+  const b=document.createElement("button");
+  b.type="button";
+  b.className="acre-doc-card";
+  let html="<span><k>"+esc(label)+"</k><b"+(key==="eblock"?' class="acre-eblock-go"':"")+">"+esc(shown)+"</b></span>";
+  if(key==="eblock"){
+    b.className="acre-doc-card acre-eblock-card";
+    html='<b class="acre-eblock-go">Block</b>';
+  } else if(key==="carfax"){
+    b.className="acre-doc-card acre-carfax-card";
+    html='<span><k>'+esc(label)+'</k><b class="acre-carfax-mark">CARFAX</b></span>';
+  }
+  if(key==="eblockLogo") html="";
+  if(thumb && key!=="eblock" && key!=="carfax") html+='<img class="acre-doc-thumb" src="'+thumb+'" alt="">';
+  b.innerHTML=html;
+  b.onclick=function(){
+    if(open==="vauto" || open==="openlane" || open==="eblock" || open==="carfax"){
+      if(typeof openMarketSite==="function") openMarketSite(open, item);
+      return;
+    }
+    const slot=docs[open]||docs[key];
+    const url=slot && (slot.url || (slot.shots && slot.shots[0] && slot.shots[0].url));
+    if(url && typeof viewMarketDocUrl==="function"){
+      viewMarketDocUrl(url, slot.type||"", label);
+      return;
+    }
+    if(item && typeof openMarketDocSheet==="function"){
+      openMarketDocSheet(item, {id:open, label:label, pack:open});
+      return;
+    }
+    toast("No saved file yet.");
+  };
+  return b;
+}
+function paintCenterPhotoDocs(item){
+  const host=$("centerMarket"); if(!host) return;
+  const vals=(item&&item.values)||emptyVals();
+  const docs=(item&&item.docs)||{};
+  host.innerHTML="";
+  const have=CENTER_PHOTO_DOCS.filter(function(row){ return photoDocShown(item, vals, docs, row)!=="—"; }).length;
+  const headHtml=isPhotoLockItem(item) ? "Documents<span>7/7</span>" : "Documents<span>"+have+"/"+CENTER_PHOTO_DOCS.length+"</span>";
+  const pinned=$("centerDocHead");
+  if(pinned){
+    pinned.className="acre-doc-head";
+    pinned.innerHTML=headHtml;
+  } else {
+    const head=document.createElement("div");
+    head.className="acre-doc-head";
+    head.innerHTML=headHtml;
+    host.appendChild(head);
+  }
+  CENTER_PHOTO_DOCS.forEach(function(row){
+    if(row[0]==="vauto"){
+      const pair=document.createElement("div");
+      pair.className="acre-doc-pair";
+      pair.appendChild(photoDocCard(item, vals, docs, row));
+      pair.appendChild(photoDocCard(item, vals, docs, ["book","BLACK BOOK","blackbook","book"]));
+      host.appendChild(pair);
+      return;
+    }
+    if(row[0]==="book") return;
+    if(row[0]==="openlane"){
+      const pair=document.createElement("div");
+      pair.className="acre-doc-pair";
+      pair.appendChild(photoDocCard(item, vals, docs, row));
+      pair.appendChild(photoDocCard(item, vals, docs, ["eblock","eBlock","eblock",""]));
+      host.appendChild(pair);
+      return;
+    }
+    if(row[0]==="eblock") return;
+    if(row[0]==="carfax"){
+      const pair=document.createElement("div");
+      pair.className="acre-doc-pair";
+      pair.appendChild(photoDocCard(item, vals, docs, row));
+      pair.appendChild(photoDocCard(item, vals, docs, ["mmr","MMR","mmr","mmr"]));
+      host.appendChild(pair);
+      return;
+    }
+    if(row[0]==="mmr") return;
+    host.appendChild(photoDocCard(item, vals, docs, row));
+  });
 }
 function isTeamActivated(item){
   return !!(item && (item.teamActivated===true || item.teamStatus==="running" || item.teamStatus==="final"));
@@ -9463,12 +10242,22 @@ function paintCenterTeam(item){
 }
 function paintCenterTags(item){
   const host=$("centerTags"); if(!host) return;
-  const tags=[].concat(item.tags||[]).map(function(t){ return t==="Inbox" ? "Incoming" : t; });
-  if(item.sample) tags.unshift("Sample");
-  if(item.deskTeam) tags.unshift(item.deskTeam);
-  if(item.interest) tags.unshift("Interest "+item.interest);
-  if(item.color) tags.push(item.color);
+  const tags=[];
+  if(item.sample) tags.push("Sample");
+  if(item.deskTeam && item.deskTeam!==item.salesperson) tags.push(item.deskTeam);
+  if(item.interest) tags.push("Interest "+item.interest);
+  if(item.stage==="Appraised" || (item.tags||[]).indexOf("Appraised")>=0) tags.push("Appraised");
   if(item.km) tags.push(centerKmLine(item));
+  if(item.color) tags.push(item.color);
+  if(item.origin) tags.push(item.origin);
+  if(item.clean) tags.push("Clean");
+  if(item.noAccident || item.accident==="none") tags.push("No accident");
+  if(item.notOop || item.origin==="Japan") tags.push("Not out of province");
+  if(item.notUs || item.origin==="Japan") tags.push("Not a US vehicle");
+  [].concat(item.tags||[]).forEach(function(t){
+    t=t==="Inbox" ? "Incoming" : t;
+    if(tags.indexOf(t)<0) tags.push(t);
+  });
   if(isCenterAged(item)) tags.push("90-day archive");
   const seen={};
   host.innerHTML=tags.filter(function(t){
@@ -9476,7 +10265,22 @@ function paintCenterTags(item){
     if(!k || seen[k]) return false;
     seen[k]=true;
     return true;
-  }).map(function(t){ return "<i>"+esc(t)+"</i>"; }).join("");
+  }).map(function(t){
+    const k=String(t||"").toLowerCase();
+    let cls="";
+    if(k==="appraised") cls="tag-appraised";
+    else if(k==="clean") cls="tag-clean";
+    else if(k==="japan") cls="tag-origin";
+    return "<i"+(cls?' class="'+cls+'"':"")+">"+esc(t)+"</i>";
+  }).join("");
+}
+function paintCenterWho(item){
+  const host=$("centerWho"); if(!host) return;
+  const who=String((item&& (item.salesperson||item.deskTeam))||"").trim();
+  const when=item && typeof centerWhen==="function" ? centerWhen(item) : 0;
+  const days=typeof isPhotoLockItem==="function" && isPhotoLockItem(item) ? 0 : (when ? Math.max(0, Math.round((Date.now()-when)/86400000)) : 0);
+  if(!who && !when){ host.innerHTML=""; return; }
+  host.innerHTML=(who?"<b>"+esc(who)+"</b>":"")+"<span>"+days+"d</span>";
 }
 function paintCenterDetailEmpty(){
   document.body.classList.remove("center-locked");
@@ -9492,7 +10296,7 @@ function paintCenterDetailEmpty(){
 function ensureCenterDetailScaffold(){
   const body=$("centerDetailBody");
   if(!body) return;
-  if($("centerDetailTitle") && $("centerHero") && $("centerThumbs") && $("centerMetrics") && $("acreDesk") && $("centerMayaBar") && $("centerTeam") && $("centerFinalBox") && $("centerSupersedeMark") && $("centerUnlock") && $("centerRunTeam")) return;
+  if($("centerDetailTitle") && $("centerHero") && $("centerThumbs") && $("centerMetrics") && $("acreDesk") && $("centerMayaBar") && $("centerTeam") && $("centerFinalBox") && $("centerSupersedeMark") && $("centerUnlock") && $("centerRunTeam") && $("centerWho") && $("centerDeskHead")) return;
   body.innerHTML=
     '<div class="center-detail-bar">'+
       '<button class="round center-close-x" type="button" id="centerDetailClose" aria-label="Close vehicle">✕</button>'+
@@ -9510,10 +10314,14 @@ function ensureCenterDetailScaffold(){
     '</div>'+
     '<div class="center-supersede-mark hide" id="centerSupersedeMark">New appraisal submitted</div>'+
     '<button class="pill wash hide" type="button" id="centerUnlock">Unlock</button>'+
+    '<div class="acre-desk-head" id="centerDeskHead">'+
+      '<strong id="centerDeskHeadTitle"></strong>'+
+      '<span id="centerDeskHeadVin"></span>'+
+      '<div class="acre-doc-head" id="centerDocHead"></div>'+
+    '</div>'+
     '<div class="acre-desk" id="acreDesk">'+
       '<div class="acre-col-hero">'+
         '<div class="center-hero" id="centerHero"></div>'+
-        '<div class="center-thumbs" id="centerThumbs"></div>'+
       '</div>'+
       '<div class="acre-col-mid">'+
         '<h2 id="centerDetailTitle">Vehicle</h2>'+
@@ -9521,23 +10329,35 @@ function ensureCenterDetailScaffold(){
         '<div id="centerFinalBox" class="hide"></div>'+
         '<div class="needs-banner hide" id="centerNeedsBanner"></div>'+
         '<div class="acre-tags" id="centerTags"></div>'+
+        '<div class="acre-who" id="centerWho"></div>'+
         '<a class="packet-pdf hide" id="centerPacketPdf" href="#" target="_blank" rel="noopener noreferrer">'+
           '<em>Sales packet</em>'+
           '<b>Open packet PDF</b>'+
           '<span id="centerPacketPdfName"></span>'+
         '</a>'+
-        '<div class="center-metrics" id="centerMetrics"></div>'+
+        '<div class="center-metrics acre-score-row" id="centerMetrics"></div>'+
+        '<div class="acre-rank-row" id="centerRankRow"></div>'+
         '<div class="acre-vals" id="centerValStrip"></div>'+
-        '<div class="block">Notes</div>'+
-        '<p class="quote" id="centerStory">No story yet.</p>'+
-        '<textarea class="note" id="centerNotes" placeholder="Anything the team should know"></textarea>'+
+        '<div class="acre-sources" id="centerSources"></div>'+
       '</div>'+
       '<div class="acre-col-market">'+
         '<div class="acre-market" id="centerMarket"></div>'+
-        '<div class="docs-grid center-docs" id="centerDocs"></div>'+
-        '<div class="center-why-docs" id="centerWhyDocs"></div>'+
+      '</div>'+
+      '<div class="acre-notes-block">'+
+        '<div class="block">Notes</div>'+
+        '<p class="quote hide" id="centerStory"></p>'+
+        '<textarea class="note" id="centerNotes" placeholder="Anything the team should know"></textarea>'+
+        '<div class="block">Maya</div>'+
+        '<div class="acre-maya-strip" id="centerMayaStrip"></div>'+
+      '</div>'+
+      '<div class="acre-thumbs-row">'+
+        '<button class="acre-thumbs-prev" type="button" id="centerThumbsPrev" aria-label="Previous photos">‹</button>'+
+        '<div class="center-thumbs" id="centerThumbs"></div>'+
+        '<button class="acre-thumbs-next" type="button" id="centerThumbsNext" aria-label="Next photos">›</button>'+
       '</div>'+
     '</div>'+
+    '<div class="docs-grid center-docs" id="centerDocs"></div>'+
+    '<div class="center-why-docs" id="centerWhyDocs"></div>'+
     '<div class="facts" id="centerFacts"></div>'+
     '<div class="block" id="centerTeamHead">Appraisal team</div>'+
     '<div class="center-run-team hide" id="centerRunTeamWrap">'+
@@ -9651,6 +10471,9 @@ function paintCenterDetail(){
     bindCenterLaneChip($("centerDetailBadge"), item);
   }
   if($("centerDetailTitle")) $("centerDetailTitle").textContent=item.interest || item.ymmt || "Vehicle";
+  if($("centerDeskHeadTitle")) $("centerDeskHeadTitle").textContent=item.interest || item.ymmt || "Vehicle";
+  if($("centerDeskHeadVin")) $("centerDeskHeadVin").textContent=String(item.vin||"").toUpperCase();
+  if($("centerDeskHead")) $("centerDeskHead").classList.toggle("hide", !(item.ymmt || item.vin));
   const bits=[];
   if(item.interest && item.ymmt && item.ymmt!==item.interest) bits.push("Trade "+item.ymmt);
   else if(item.ymmt && !item.interest) bits.push(item.ymmt);
@@ -9659,7 +10482,11 @@ function paintCenterDetail(){
   if(item.sentAt) bits.push(timeAgo(item.sentAt));
   if($("centerDetailSub")) $("centerDetailSub").textContent=bits.filter(Boolean).join("  ·  ");
   paintCenterTags(item);
+  paintCenterWho(item);
   paintCenterMetrics(item);
+  paintCenterRanks(item);
+  paintCenterSources(item);
+  paintCenterMayaStrip(item);
   paintCenterPacketPdf(item);
   if($("centerFacts")){
     $("centerFacts").innerHTML=
@@ -9677,7 +10504,11 @@ function paintCenterDetail(){
       factCell("Lead source", item.leadSource)+
       factCell("Canada Drives application number", isCanadaDrives(item)?item.cdApp:"");
   }
-  if($("centerStory")) $("centerStory").textContent=item.story||item.webcopy||"No story yet.";
+  if($("centerStory")){
+    const story=String(item.story||item.webcopy||"").trim();
+    $("centerStory").textContent=story||"No story yet.";
+    $("centerStory").classList.toggle("hide", !story);
+  }
   if($("centerNotes")){
     $("centerNotes").value=item.notes||"";
     $("centerNotes").readOnly=!!locked;
@@ -9719,11 +10550,11 @@ function paintCenterDetail(){
       $("centerStageBtn").disabled=!!missNow.length;
     } else {
       $("centerStageBtn").disabled=false;
-      $("centerStageBtn").textContent=item.stage==="Appraised"?"Return to desk lane":"Complete";
+      $("centerStageBtn").textContent="Complete";
     }
   }
   const onsiteDesk=typeof centerLaneOf==="function" && centerLaneOf(item)==="onsite";
-  ["centerValStrip","centerMarket","centerWhyDocs","centerTeam","centerTeamHead","centerFinalBox"].forEach(function(id){
+  ["centerValStrip","centerMarket","centerSources","centerRankRow","centerWhyDocs","centerTeam","centerTeamHead","centerFinalBox"].forEach(function(id){
     if($(id)) $(id).classList.toggle("hide", needs && !onsiteDesk);
   });
   if($("centerRunTeamWrap")) $("centerRunTeamWrap").classList.toggle("hide", (needs && !onsiteDesk) || APP.role!=="employee");
@@ -9735,6 +10566,8 @@ function paintCenterDetail(){
     paintCenterWhyDocs(item);
     paintCenterVals(item);
     paintCenterTeam(item);
+  } else {
+    paintCenterPhotoDocs(item);
   }
   paintCenterRunTeam(item);
   loadCenterMedia(item.id).then(function(media){
@@ -14366,6 +15199,19 @@ if(window.matchMedia){
 if($("centerInboxBtn")) $("centerInboxBtn").onclick = function(){ openCenterLane("inbox"); };
 if($("centerOnsiteBtn")) $("centerOnsiteBtn").onclick = function(){ openCenterLane("onsite"); };
 if($("centerNeedsBtn")) $("centerNeedsBtn").onclick = function(){ openCenterLane("needsdocs"); };
+if($("exitLanes")) $("exitLanes").addEventListener("click", function(e){
+  const b=e.target && e.target.closest ? e.target.closest(".exit-lane") : null;
+  if(!b) return;
+  openCenterLane(b.getAttribute("data-lane"));
+});
+if($("exitTradeLanes")) $("exitTradeLanes").addEventListener("click", function(e){
+  const b=e.target && e.target.closest ? e.target.closest(".exit-lane") : null;
+  if(!b) return;
+  openTradeLane(b.getAttribute("data-trade"));
+});
+if($("exitWebActive")) $("exitWebActive").onclick = function(){ openStaffHistory("website"); };
+if($("exitWebHist")) $("exitWebHist").onclick = function(){ if(window.WebStudio){ WebStudio.open("history"); return; } openStaffHistory("website"); };
+if($("exitUsersHist")) $("exitUsersHist").onclick = function(){ openStaffHistory("users"); };
 if($("docsGateLeader")) $("docsGateLeader").onclick = sendToTeamLeader;
 if($("docsGateStay")) $("docsGateStay").onclick = function(){ closeDocsGate(); };
 if($("docsGate")) $("docsGate").addEventListener("click", function(e){
@@ -14775,6 +15621,10 @@ $("btnSend").onclick = function(){
   killMediaNow();
   if(isWeb() && APP.role!=="guest" && window.WebStudio){ WebStudio.open("studio"); return; }
   show("submit");
+};
+if($("btnSendAsIs")) $("btnSendAsIs").onclick = function(){
+  killMediaNow();
+  sendWebsitePacket();
 };
 if($("btnSavePhotos")) $("btnSavePhotos").onclick = savePhotos;
 if($("thanksDone")) $("thanksDone").onclick = function(){ show("center"); };
