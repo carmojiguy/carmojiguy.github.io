@@ -668,7 +668,12 @@ function $(id) {
   if (id === "centerFinalOpen") return paintHost.btn;
   return null;
 }
-const paintCenterFinalBox = eval("(" + takeFn("paintCenterFinalBox", "isRav4OnsiteDemo") + ")");
+const paintCenterFinalBox = eval("(" + (function () {
+  const start = html.indexOf("function paintCenterFinalBox(");
+  const end = html.indexOf("\nconst RAV4_ONSITE_VIN=", start);
+  assert.ok(start > 0 && end > start, "paintCenterFinalBox found before RAV4 seed consts");
+  return html.slice(start, end).replace("function paintCenterFinalBox", "function");
+})() + ")");
 
 (function testIncomingFinalSeedPaintsBox() {
   paintHost.classList.hide = true;
