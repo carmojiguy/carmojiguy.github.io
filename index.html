@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-14 build d31a: pixel-faithful Acre GR Corolla desk (white hero|mid|market, not stone/teal); CA workbench redo — drop the verbal-only tag forever; What's the Story walks the car and talks; Walk-around photos only; keep Critical damage; salesperson CA has no packet-send card; Tracker mobile cards + current month; Canada Drives appointments: month list from Airtable Appointment Booked + GTA/Ottawa Tracker, Google Docs open (no preventDefault overlay), Acre-bright desk; website-post story-first year/make/model/trim/condition, no team select, original start not webdesk, pictures still relaunch/post; Acre GR Corolla desk lock — FIFO oldest home, left-rail Incoming/On-site/Needs docs/History pills, no hist KPI strip, Ask Maya, appraisal range/competing/ask; users GET/POST kind:users persist; 911 Acre team reads finalRationale.markdown + panel Rybot/Webot/Drebot/TBot + team.shabot note, hides boxes with no numbers; mailer keeps rich team/rationale on Center refresh; Trade-in start drops stray top History (rail History stays); 911 Incoming FINAL min+target+max clears Running and lands Appraisal Team numbers (Blazer s1af19al / F-150 sir78n6); Run Appraisal Team tap always fires (rerun + Unlocked History); kind:team wake; Incoming FINAL settles Running; schema 1.0 team + panel boxes; market pills append multiple files into shots[]; compact V Auto / Carfax / OpenLane / eBlock chips; same sendId/id Incoming POST; panel runs progress → existing FINAL; no invented solds; real Carfax http url opens the uploaded file; sample recreate only when no docs.carfax.url; Carfax square + huge card add/upload kind:file carfax; staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; Incoming keeps http docs.url; Incoming appends shots[]; status dropdown every lane; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples; hides generated From V Auto lane; users settings durable Vercel Blob center-users-v1.json; restore Josh Lefave josh.lefave@gmautosales.ca + Steve Summerall steve.summerall@gmautosales.ca website+center -->
+<!-- center-v3 + desk-home 2026-09-14 build d31a: pixel-faithful Acre GR Corolla desk (white hero|mid|market, not stone/teal); CA workbench redo — drop the verbal-only tag forever; What's the Story walks the car and talks; Walk-around photos only; keep Critical damage; salesperson CA has no packet-send card; Tracker mobile cards + current month; Canada Drives appointments: month list from Airtable Appointment Booked + GTA/Ottawa Tracker, Google Docs open (no preventDefault overlay), Acre-bright desk; website-post story-first year/make/model/trim/condition, no team select, original start not webdesk, pictures still relaunch/post; Acre GR Corolla desk lock — FIFO oldest home, left-rail Incoming/On-site/Needs docs/History pills, no hist KPI strip, Ask Maya, appraisal range/competing/ask; users GET/POST kind:users persist; 911 Acre team reads finalRationale.markdown + panel Rybot/Webot/Drebot/TBot + team.shabot note, hides boxes with no numbers; mailer keeps rich team/rationale on Center refresh; Trade-in start drops stray top History (rail History stays); 911 Incoming FINAL min+target+max clears Running and lands Appraisal Team numbers (Blazer s1af19al / F-150 sir78n6); Run Appraisal Team tap always fires (rerun + Unlocked History); kind:team wake; Incoming FINAL settles Running; schema 1.0 team + panel boxes; market pills append multiple files into shots[]; compact V Auto / Carfax / OpenLane / eBlock chips; same sendId/id Incoming POST; panel runs progress → existing FINAL; no invented solds; real Carfax http url opens the uploaded file; sample recreate only when no docs.carfax.url; Carfax square + huge card add/upload kind:file carfax; staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; Incoming keeps http docs.url; Incoming appends shots[]; status dropdown every lane; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples; hides generated From V Auto lane; users settings durable Vercel Blob center-users-v1.json; empty remote users never wipe local people; merge permissions by email; restore Josh Lefave josh.lefave@gmautosales.ca + Steve Summerall steve.summerall@gmautosales.ca website+center -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -4301,34 +4301,57 @@ function slimUsersBlob(store){
     updatedAt:Number((store && store.updatedAt) || Date.now())
   };
 }
+function mergePermsByEmail(local, remote){
+  const out=Object.assign({}, (local && typeof local==="object")?local:{});
+  if(!remote || typeof remote!=="object") return out;
+  Object.keys(remote).forEach(function(k){
+    const e=typeof staffEmail==="function"?staffEmail(k):String(k||"").trim().toLowerCase();
+    if(!e || e.indexOf("@")<1) return;
+    const p=remote[k] && typeof remote[k]==="object"?remote[k]:{};
+    out[e]=Object.assign({}, out[e]||{}, p);
+  });
+  return out;
+}
 function applyUsersBlob(blob){
   if(!blob || blob.ok===false) return false;
   const people=Array.isArray(blob.users)?blob.users:(Array.isArray(blob.people)?blob.people:null);
   if(!people) return false;
-  if(!people.length && !(blob.permissions && Object.keys(blob.permissions).length)) return false;
   const store=loadUsersStore();
+  const localPeople=Array.isArray(store.people)?store.people:[];
   const remoteAt=Number(blob.updatedAt||0);
   const localAt=Number(store.updatedAt||0);
-  const localCount=((store.people)||[]).length;
-  if(remoteAt && localAt && remoteAt<localAt && localCount>people.length) return false;
-  const by={};
-  people.forEach(function(u){
-    if(!u || !u.email) return;
-    const e=staffEmail(u.email);
-    by[e]=Object.assign({name:"", email:e, teams:[], leader:false, notes:"", phone:"", id:"", photo:"", role:""}, u, {
-      email:e,
-      teams:typeof normalizeTeams==="function"?normalizeTeams(u.teams!=null?u.teams:u.team):[].concat(u.teams||[]),
-      leader:!!u.leader,
-      notes:u.notes||"",
-      phone:u.phone||"",
-      id:u.id||"",
-      photo:u.photo||"",
-      role:u.role||""
+  const hasRemotePerms=!!(blob.permissions && typeof blob.permissions==="object" && Object.keys(blob.permissions).length);
+  if(!people.length){
+    if(localPeople.length){
+      if(!hasRemotePerms) return false;
+      store.permissions=mergePermsByEmail(store.permissions, blob.permissions);
+      if(remoteAt) store.updatedAt=Math.max(localAt, remoteAt);
+      saveUsersStore(store, true);
+      return true;
+    }
+    if(!hasRemotePerms) return false;
+  }
+  if(remoteAt && localAt && remoteAt<localAt && localPeople.length>people.length) return false;
+  if(people.length){
+    const by={};
+    people.forEach(function(u){
+      if(!u || !u.email) return;
+      const e=staffEmail(u.email);
+      by[e]=Object.assign({name:"", email:e, teams:[], leader:false, notes:"", phone:"", id:"", photo:"", role:""}, u, {
+        email:e,
+        teams:typeof normalizeTeams==="function"?normalizeTeams(u.teams!=null?u.teams:u.team):[].concat(u.teams||[]),
+        leader:!!u.leader,
+        notes:u.notes||"",
+        phone:u.phone||"",
+        id:u.id||"",
+        photo:u.photo||"",
+        role:u.role||""
+      });
     });
-  });
-  store.people=Object.keys(by).map(function(k){ return by[k]; });
-  if(blob.permissions && typeof blob.permissions==="object" && Object.keys(blob.permissions).length){
-    store.permissions=blob.permissions;
+    store.people=Object.keys(by).map(function(k){ return by[k]; });
+  }
+  if(hasRemotePerms){
+    store.permissions=mergePermsByEmail(store.permissions, blob.permissions);
   }
   if(remoteAt) store.updatedAt=remoteAt;
   saveUsersStore(store, true);
@@ -4337,7 +4360,13 @@ function applyUsersBlob(blob){
 function persistUsersRemote(store){
   try{
     if(typeof MAIL_HOST!=="string" || !MAIL_HOST) return Promise.resolve({ok:false});
-    const payload=slimUsersBlob(store||loadUsersStore());
+    const local=loadUsersStore();
+    const src=store||local;
+    const payload=slimUsersBlob(src);
+    const localCount=(((local&&local.people)||[]).length)||(((src&&src.people)||[]).length)||payload.users.length;
+    if(!payload.users.length && localCount){
+      return Promise.resolve({ok:false, skipped:"empty-users"});
+    }
     if(!payload.users.length && !(payload.permissions && Object.keys(payload.permissions).length)){
       return Promise.resolve({ok:false, skipped:"empty"});
     }
