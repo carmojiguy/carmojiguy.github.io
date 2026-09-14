@@ -102,6 +102,8 @@ must(/function pullUsersRemote\(/, "Users load from mailer");
 must(/function persistUsersRemote\(/, "Users save to mailer");
 must(/kind:"users"/, "Users blob kind is users");
 must(/\/api\/incoming\?kind=users/, "Users GET hits kind=users");
+must(/kind=users&at=/, "Users GET after save pins updatedAt");
+must(/function pullUsersRemote\(optionalAt\)/, "pullUsersRemote accepts optional at");
 must(/function applyUsersBlob\(/, "empty remote does not invent users");
 must(/function mergePermsByEmail\(/, "permissions merge by email");
 must(/if\(!people\.length\)[\s\S]{0,220}localPeople\.length/, "empty remote users do not replace local people");

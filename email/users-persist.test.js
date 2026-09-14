@@ -32,6 +32,11 @@ must(/Josh Lefave/, "Josh Lefave restored with seed spelling");
 must(/Steve Summerall/, "Steve Summerall restored by name");
 must(/empty remote users never wipe local people/, "stamp names the empty-users guard");
 must(/keepalive:true/, "Users POST uses keepalive so leaving the page still saves");
+must(/kind=users&at=/, "after save GET pins kind=users&at=updatedAt");
+must(/function persistUsersRemote\(store\)\{[\s\S]*?kind=users&at=/, "persistUsersRemote GET kind=users&at= after POST");
+must(/function pullUsersRemote\(optionalAt\)/, "pullUsersRemote accepts optional at");
+must(/skipped:"empty"/, "empty Users POST is skipped");
+must(/if\(!people\.length\)[\s\S]{0,220}localPeople\.length/, "empty remote users do not replace local people");
 must(/Object\.keys\(blob\.permissions\)\.length/, "empty remote permissions do not wipe local toggles");
 must(/function mergePermsByEmail\(/, "permissions merge by email");
 must(/skipped:"empty-users"/, "empty-users persist is refused when local has people");
@@ -182,6 +187,105 @@ must(/p\.role=seed\.role;/, "Josh/Steve seed role is pinned on restore");
   assert.equal(ranked[1].pathname, "center-users-v1-rt1.json");
 })();
 
+(async function testPersistUsersRemoteGetsPinnedAt() {
+  const persistSrc = sliceFn("persistUsersRemote", "pullUsersRemote");
+  const pullSrc = sliceFn("pullUsersRemote", "saveUsersStore");
+  const calls = [];
+  const MAIL_HOST = "https://gnm-guest-mailer-shawn-6802.vercel.app";
+  const APP = { lastRemoteUpdatedAt: 0 };
+  function slimUsersBlob(store) {
+    return {
+      kind: "users",
+      users: store.people,
+      people: store.people,
+      permissions: store.permissions,
+      updatedAt: store.updatedAt
+    };
+  }
+  function loadUsersStore() {
+    return {
+      people: [{ email: "josh.lefave@gmautosales.ca", name: "Josh Lefave" }],
+      permissions: { "josh.lefave@gmautosales.ca": { website: true, center: true } },
+      updatedAt: 111,
+      lastRemoteUpdatedAt: 111
+    };
+  }
+  function applyUsersBlob(blob) {
+    calls.push({ apply: blob });
+    return !!(blob && (Array.isArray(blob.users) ? blob.users.length : 0));
+  }
+  function rememberUsersRemoteAt(at) {
+    APP.lastRemoteUpdatedAt = Math.max(Number(APP.lastRemoteUpdatedAt || 0), Number(at || 0));
+    calls.push({ remember: Number(at) });
+  }
+  function fetch(url, opts) {
+    opts = opts || {};
+    calls.push({ url: String(url), method: String(opts.method || "GET").toUpperCase(), cache: opts.cache });
+    if (String(opts.method || "GET").toUpperCase() === "POST") {
+      return Promise.resolve({
+        ok: true,
+        json: function () { return Promise.resolve({ ok: true, kind: "users", updatedAt: 222 }); }
+      });
+    }
+    return Promise.resolve({
+      ok: true,
+      json: function () {
+        return Promise.resolve({
+          ok: true,
+          kind: "users",
+          updatedAt: 222,
+          users: [{ email: "josh.lefave@gmautosales.ca", name: "Josh Lefave" }],
+          permissions: { "josh.lefave@gmautosales.ca": { website: true, center: true } }
+        });
+      }
+    });
+  }
+  const persistUsersRemote = eval("(" + persistSrc.replace("function persistUsersRemote", "function") + ")");
+  const out = await persistUsersRemote(loadUsersStore());
+  assert.equal(out.ok, true);
+  assert.equal(out.updatedAt, 222);
+  const post = calls.find(function (c) { return c.method === "POST"; });
+  const get = calls.find(function (c) { return c.url && c.url.indexOf("kind=users&at=") >= 0; });
+  assert.ok(post, "POST kind:users still fires");
+  assert.ok(get, "POST success GETs kind=users&at=");
+  assert.ok(String(get.url).indexOf("/api/incoming?kind=users&at=222") >= 0, "GET pins POST updatedAt");
+  assert.equal(get.cache, "no-store");
+  assert.ok(calls.some(function (c) { return c.apply && Number(c.apply.updatedAt) === 222; }), "GET body applied");
+  assert.equal(APP.lastRemoteUpdatedAt, 222);
+
+  const emptyCalls = [];
+  function fetchEmpty() { emptyCalls.push("fetch"); return Promise.resolve({ ok: true, json: function () { return Promise.resolve({ ok: true }); } }); }
+  fetch = fetchEmpty;
+  const persistEmpty = eval("(" + persistSrc.replace("function persistUsersRemote", "function") + ")");
+  const skippedLocal = await persistEmpty({ people: [], permissions: {}, updatedAt: 1 });
+  assert.equal(skippedLocal.skipped, "empty-users", "empty payload does not overwrite a live local roster");
+  assert.equal(emptyCalls.length, 0, "empty POST does not hit the mailer when local has people");
+  loadUsersStore = function () { return { people: [], permissions: {}, updatedAt: 1 }; };
+  const skipped = await persistEmpty({ people: [], permissions: {}, updatedAt: 1 });
+  assert.equal(skipped.skipped, "empty", "empty POST is skipped");
+  assert.equal(emptyCalls.length, 0, "empty POST does not hit the mailer");
+
+  const pullCalls = [];
+  function fetchPull(url, opts) {
+    pullCalls.push({ url: String(url), cache: opts && opts.cache });
+    return Promise.resolve({
+      ok: true,
+      json: function () { return Promise.resolve({ ok: true, users: [{ email: "josh.lefave@gmautosales.ca" }], updatedAt: 333 }); }
+    });
+  }
+  fetch = fetchPull;
+  const pullUsersRemote = eval("(" + pullSrc.replace("function pullUsersRemote", "function") + ")");
+  await pullUsersRemote(333);
+  assert.ok(pullCalls[0].url.indexOf("kind=users&at=333") >= 0, "pullUsersRemote(optionalAt) sends &at=");
+  assert.equal(pullCalls[0].cache, "no-store");
+  pullCalls.length = 0;
+  APP.lastRemoteUpdatedAt = 444;
+  await pullUsersRemote();
+  assert.ok(pullCalls[0].url.indexOf("kind=users&at=444") >= 0, "pullUsersRemote prefers lastRemoteUpdatedAt when no at given");
+})().catch(function (err) {
+  console.error(err);
+  process.exit(1);
+});
 function mockBlob() {
   const files = { puts: [] };
   async function fetchImpl(url, opts) {
