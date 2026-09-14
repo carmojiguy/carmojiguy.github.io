@@ -22,15 +22,16 @@ function sliceFn(name) {
 }
 
 must(/id="exitChrome"/, "exit chrome exists");
-must(/id="exitClose"[\s\S]*id="exitBack"[\s\S]*id="exitHome"[\s\S]*id="exitRefresh"/, "Close, Back, Home, and Refresh are together");
+must(/id="exitClose"[\s\S]*id="exitBack"[\s\S]*id="exitHome"/, "Close, Back, and Home are together");
 must(/class="exit-x"/, "Close is the bright X");
-must(/class="exit-back"/, "Back is a big tap target");
-must(/class="exit-home"/, "Home is a big tap target");
-must(/class="exit-refresh"/, "Refresh is a big tap target");
+must(/class="exit-back"/, "Back stays in the chrome");
+must(/class="exit-home"/, "Home stays in the chrome");
+mustNot(/id="exitRefresh"/, "Refresh control is gone");
+mustNot(/class="exit-refresh"/, "Refresh chrome class is gone");
+mustNot(/function pageRefresh\(/, "pageRefresh is gone");
 must(/function pageClose\(/, "pageClose");
 must(/function pageBack\(/, "pageBack");
 must(/function pageHome\(/, "pageHome");
-must(/function pageRefresh\(/, "pageRefresh");
 must(/function dismissOpenLayer\(/, "dismissOpenLayer");
 must(/function closeAllOverlays\(/, "closeAllOverlays");
 must(/function syncExitChrome\(/, "syncExitChrome");
@@ -38,7 +39,7 @@ must(/function armAppBack\(/, "history trap for device Back");
 must(/\.sheet\.on/, "sheet closer still targets .sheet.on");
 must(/e\.target===sheet/, "backdrop tap closes sheets");
 must(/z-index:200/, "chrome is above sheets and Thank you at z-index 200");
-must(/min-height:56px/, "Back/Home are 56px tap targets");
+must(/min-height:32px/, "Back/Home are quiet 32px targets");
 must(/width:56px; height:56px/, "Close X is 56px");
 must(/width:48px; height:48px/, "sheet card X is 48px, not 28px");
 must(/show\("start"\)/, "Home lands on the start hub");
@@ -71,8 +72,10 @@ must(/function finishGuest\(\)\{\s*finishThanks\(\);/, "finishGuest stays Thank-
 must(/function restoreSend\(\)/, "restoreSend stays");
 mustNot(/function pageHome\(\)\{[\s\S]{0,400}restoreSend/, "Home does not call restoreSend");
 
-must(/id="buildStamp">build d30f</, "build stamp");
-must(/id="exitRefresh">Refresh/, "Refresh label is on the chrome");
-must(/location\.reload\(\)/, "Refresh reloads the live screen");
+must(/id="buildStamp">build d30g</, "build stamp");
+mustNot(/id="exitRefresh">Refresh/, "Refresh label is gone");
+mustNot(/function pageRefresh\(\)/, "no Refresh reload helper");
+must(/id="exitBack">Back/, "Back stays");
+must(/id="exitHome">Home/, "Home stays");
 must(/function syncExitChrome\(\)\{\s*const bar=\$\("exitChrome"\);\s*const show=!!APP\.screen;/, "chrome stays on every screen including login/start/thanks");
 console.log("exit-chrome tests ok");

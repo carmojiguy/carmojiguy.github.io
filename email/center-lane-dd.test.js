@@ -24,8 +24,8 @@ function sliceFn(name, next) {
   return html.slice(start, end);
 }
 
-must(/id="buildStamp">build d30f</, "footer stamp is d30f");
-must(/<!--[\s\S]*build d30f[\s\S]*status dropdown/, "header stamp is d30f dropdown");
+must(/id="buildStamp">build d30g</, "footer stamp is d30g");
+must(/<!--[\s\S]*build d30g[\s\S]*status dropdown/, "header stamp is d30g dropdown");
 must(/class="lane-dd inbox"/, "desk card ships on-tile lane dropdown markup");
 must(/class="lane-dd-sel"/, "native status select is on the chip");
 must(/<option value="inbox" selected>Incoming<\/option>/, "Incoming option");

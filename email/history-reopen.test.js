@@ -26,7 +26,7 @@ must(/function expandCenterDocs\(/, "expandCenterDocs");
 must(/function applyCenterItemToApp\(/, "applyCenterItemToApp");
 must(/function parkAppraisalToHistory\(/, "parkAppraisalToHistory");
 must(/function reopenHistoryAppraisal\(/, "reopenHistoryAppraisal");
-must(/id="buildStamp">build d30f</, "build stamp is d30f");
+must(/id="buildStamp">build d30g</, "build stamp is d30g");
 must(/History — open a file to keep working/, "History jump says open to keep working");
 must(/Tap a file to keep working/, "History lead says tap to keep working");
 
