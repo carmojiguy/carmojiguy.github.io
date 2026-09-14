@@ -6333,7 +6333,8 @@ function hydrateTeamFromIncoming(item, remote){
     const min=keep.min||slot.min||"";
     const target=keep.target||slot.target||"";
     const max=keep.max||slot.max||"";
-    let note=longerNote(keep.note, longerNote(fromTeam.note, fromPanel.note||rawPanel.why||rawTeam.note||""));
+    let note=fromTeam.note||fromPanel.note||String(rawPanel.why||rawPanel.note||rawTeam.note||"").trim()||"";
+    note=longerNote(keep.note, note);
     if(k==="shabot"){
       const how=shabotHowWeGotHere({team:{shabot:{note:note}}, finalRationale:item.finalRationale||src.finalRationale});
       if(how) note=how;
