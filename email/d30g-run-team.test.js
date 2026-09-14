@@ -90,7 +90,7 @@ must(/font-size:11px; font-weight:500/, "Back/Home type is quieter");
 
 const activateSrc = sliceFn("activateAppraisalTeam", "paintCenterRunTeam");
 const notifySrc = sliceFn("notifyTeamActivated", "shareTeamWakeBestEffort");
-const isOnSrc = sliceFn("isTeamActivated", "landTeamRunFromFile");
+const isOnSrc = sliceFn("isTeamActivated", "hasCompleteAppraisalFinal");
 const paintRunSrc = sliceFn("paintCenterRunTeam", "paintCenterTeam");
 const paintTeamSrc = sliceFn("paintCenterTeam", "paintCenterTags");
 const slimSrc = html.match(/function slimSharedCenterItem\(item\)\{[\s\S]*?\n\}/)[0];

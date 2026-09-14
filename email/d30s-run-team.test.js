@@ -41,7 +41,10 @@ must(/function activateAppraisalTeam\(/, "activate helper exists");
 must(/function landTeamRunFromFile\(/, "panel lands existing file numbers");
 must(/function startTeamRunProgress\(/, "panel progress helper exists");
 must(/function shareTeamWakeBestEffort\(/, "kind:team wake helper exists");
+must(/function hasCompleteAppraisalFinal\(/, "complete FINAL helper exists");
+must(/function settleTeamRunIfFinal\(/, "settle helper exists");
 must(/kind:"team"/, "activate POSTs Incoming kind:team");
+must(/\/api\/notify-appraisal/, "activate / kind:team hits notify-appraisal");
 must(/btn\.disabled=false/, "staff button stays enabled for rerun");
 must(/Rerun Appraisal Team/, "rerun label exists");
 must(/item\.lanePick==="onsite" \|\| item\.lane==="onsite"/, "Needs-docs moved to On-site is not needs");
@@ -168,12 +171,13 @@ function isCenterLocked(item) {
 }
 const MAIL_HOST = "https://gnm-guest-mailer-shawn-6802.vercel.app";
 
-const isTeamActivated = eval("(" + sliceFn("isTeamActivated", "landTeamRunFromFile").replace("function isTeamActivated", "function") + ")");
+const isTeamActivated = eval("(" + sliceFn("isTeamActivated", "hasCompleteAppraisalFinal").replace("function isTeamActivated", "function") + ")");
+const hasCompleteAppraisalFinal = eval("(" + sliceFn("hasCompleteAppraisalFinal", "settleTeamRunIfFinal").replace("function hasCompleteAppraisalFinal", "function") + ")");
+const settleTeamRunIfFinal = eval("(" + sliceFn("settleTeamRunIfFinal", "landTeamRunFromFile").replace("function settleTeamRunIfFinal", "function") + ")");
 const landTeamRunFromFile = eval("(" + sliceFn("landTeamRunFromFile", "clearTeamRunTimers").replace("function landTeamRunFromFile", "function") + ")");
 const notifyTeamActivated = eval("(" + sliceFn("notifyTeamActivated", "shareTeamWakeBestEffort").replace("function notifyTeamActivated", "function") + ")");
 const activateAppraisalTeam = eval("(" + sliceFn("activateAppraisalTeam", "paintCenterRunTeam").replace("function activateAppraisalTeam", "function") + ")");
 const paintCenterRunTeam = eval("(" + sliceFn("paintCenterRunTeam", "paintCenterTeam").replace("function paintCenterRunTeam", "function") + ")");
-
 const rav = store.items[0];
 paintCenterRunTeam(rav);
 assert.strictEqual(painted.wrapHide, false, "staff see the button");
@@ -190,7 +194,7 @@ assert.strictEqual(got.id, beforeId, "activate does not create a new card");
 assert.strictEqual(got.sendId, beforeSend, "sendId is preserved");
 assert.strictEqual(got.teamActivated, true);
 assert.ok(got.teamActivatedAt > 0);
-assert.strictEqual(got.teamStatus, "running");
+assert.strictEqual(got.teamStatus, "final", "Incoming/local complete FINAL settles Running");
 assert.strictEqual(store.items.length, 3, "no extra Center card");
 assert.ok(posts.some(function (p) { return p.kind === "incoming" && p.id === beforeId && p.sendId === beforeSend && p.teamActivated === true; }), "Incoming POST is the same row");
 assert.ok(posts.some(function (p) { return p.kind === "team" && p.id === beforeId && p.sendId === beforeSend && p.vin === "2T3B1RFVXRC466025"; }), "kind:team wake is the same sendId/id");
@@ -214,10 +218,13 @@ assert.strictEqual(store.items[0].teamActivated, true, "rerun keeps the same car
 const empty = activateAppraisalTeam("c-empty");
 assert.ok(empty);
 assert.strictEqual(empty.id, "c-empty");
+assert.strictEqual(empty.teamStatus, "running", "empty FINAL stays Running");
 assert.ok(!empty.team.shabot.target, "empty file does not invent Shabot TARGET");
 assert.ok(!empty.team.rybot || !empty.team.rybot.target, "empty file does not invent Rybot");
 landTeamRunFromFile(empty);
 assert.ok(!empty.team.shabot.target, "land from file does not invent solds");
+paintCenterRunTeam(empty);
+assert.strictEqual(painted.btnText, "Running…", "empty FINAL button stays Running");
 
 const unlocked = activateAppraisalTeam("c-unlocked");
 assert.ok(unlocked, "Unlocked History card can run");
@@ -236,6 +243,92 @@ store.items.push({
 painted.toast = "";
 assert.strictEqual(activateAppraisalTeam("c-locked"), null, "still-locked card does not activate");
 assert.ok(/Unlock/i.test(painted.toast || ""), "locked tap explains Unlock");
+
+const blazer = {
+  id: "cmu0a6138006k",
+  sendId: "s1af19al",
+  vin: "1GNKBHKDXPP123456",
+  ymmt: "2023 Chevrolet Blazer",
+  lane: "onsite",
+  teamActivated: true,
+  teamStatus: "running",
+  team: { shabot: { min: "", target: "", max: "", note: "" } },
+  appraisalFinal: { min: "15500", target: "17000", max: "18000" },
+  customer: { name: "Blazer" }
+};
+store.items.push(blazer);
+assert.ok(hasCompleteAppraisalFinal(blazer), "Blazer Incoming FINAL is complete");
+settleTeamRunIfFinal(blazer);
+assert.strictEqual(blazer.id, "cmu0a6138006k", "Blazer stays the same card");
+assert.strictEqual(blazer.sendId, "s1af19al");
+assert.strictEqual(blazer.teamStatus, "final", "Incoming min+target+max stops Running");
+assert.strictEqual(blazer.team.shabot.min, "15500");
+assert.strictEqual(blazer.team.shabot.target, "17000");
+assert.strictEqual(blazer.team.shabot.max, "18000");
+paintCenterRunTeam(blazer);
+assert.strictEqual(painted.btnText, "Rerun Appraisal Team", "Blazer button is not Running");
+assert.ok(!/Running/.test(painted.btnText));
+
+const f150Live = {
+  id: "cmu0kchd1rgc1",
+  sendId: "sir78n6",
+  vin: "1FTFW1E87PKE74233",
+  ymmt: "2023 Ford F-150",
+  lane: "onsite",
+  teamActivated: true,
+  teamStatus: "running",
+  team: { shabot: { min: "", target: "", max: "", note: "" } },
+  customer: { name: "" }
+};
+store.items.push(f150Live);
+assert.ok(!hasCompleteAppraisalFinal(f150Live), "live F-150 has no FINAL");
+settleTeamRunIfFinal(f150Live);
+landTeamRunFromFile(f150Live);
+assert.strictEqual(f150Live.teamStatus, "running", "empty F-150 stays Running");
+assert.ok(!f150Live.team.shabot.target, "do not invent F-150 TARGET");
+assert.ok(!f150Live.appraisalFinal, "do not invent F-150 appraisalFinal");
+paintCenterRunTeam(f150Live);
+assert.strictEqual(painted.btnText, "Running…", "empty F-150 button stays Running");
+
+const ravLive = {
+  id: "cmu0avif7rslu",
+  sendId: "s1pvwj8g",
+  vin: "2T3B1RFVXRC466025",
+  ymmt: "2024 Toyota RAV4",
+  teamActivated: true,
+  teamStatus: "running",
+  appraisalFinal: { min: "22800", target: "24000", max: "25000" },
+  team: { shabot: { min: "", target: "", max: "", note: "" } }
+};
+settleTeamRunIfFinal(ravLive);
+assert.strictEqual(ravLive.sendId, "s1pvwj8g");
+assert.strictEqual(ravLive.appraisalFinal.min, "22800");
+assert.strictEqual(ravLive.appraisalFinal.target, "24000");
+assert.strictEqual(ravLive.appraisalFinal.max, "25000");
+assert.strictEqual(ravLive.team.shabot.target, "24000", "RAV4 keeps existing FINAL");
+assert.strictEqual(ravLive.teamStatus, "final");
+
+function paintCenter() {}
+const unlockCenterItem = eval("(" + sliceFn("unlockCenterItem", "slimSharedHttpUrl").replace("function unlockCenterItem", "function") + ")");
+store.items.push({
+  id: "c-rerun",
+  sendId: "s-rerun",
+  vin: "1FTFW1E87PKE74233",
+  locked: true,
+  superseded: true,
+  teamActivated: true,
+  teamStatus: "running",
+  appraisalFinal: { min: "10000", target: "11000", max: "12000" },
+  customer: { name: "Unlock Rerun" }
+});
+const unlockedRun = unlockCenterItem("c-rerun");
+assert.ok(unlockedRun);
+assert.strictEqual(unlockedRun.teamActivated, false, "Unlock clears teamActivated");
+assert.strictEqual(unlockedRun.appraisalFinal.target, "11000", "Unlock keeps FINAL");
+const rerun = activateAppraisalTeam("c-rerun");
+assert.ok(rerun, "staff can activate after Unlock");
+assert.strictEqual(rerun.id, "c-rerun");
+assert.strictEqual(rerun.teamActivated, true);
 
 APP.role = "guest";
 assert.strictEqual(activateAppraisalTeam("c-team-1"), null, "guest activate is a no-op");
@@ -306,6 +399,43 @@ assert.equal(incoming.listItems()[0].id, "cmu0kchd1rgc1");
 assert.equal(incoming.listItems()[0].sendId, "sir78n6");
 assert.equal(incoming.listItems()[0].teamActivated, true, "kind:team persists teamActivated");
 assert.ok(!incoming.listItems()[0].appraisalFinal || !incoming.listItems()[0].appraisalFinal.target, "F-150 kind:team does not invent FINAL");
+
+incoming.resetStore();
+incoming.route("POST", {
+  kind: "land",
+  item: {
+    id: "cmu0avif7rslu",
+    sendId: "s1pvwj8g",
+    vin: "2T3B1RFVXRC466025",
+    ymmt: "2024 Toyota RAV4",
+    appraisalFinal: { min: "22800", target: "24000", max: "25000" },
+    team: { shabot: { min: "22800", target: "24000", max: "25000", note: "keep" } },
+    customer: { name: "Chris Cyr" }
+  }
+});
+incoming.route("POST", {
+  kind: "team",
+  sendId: "s1pvwj8g",
+  id: "cmu0avif7rslu",
+  vin: "2T3B1RFVXRC466025",
+  ymmt: "2024 Toyota RAV4"
+});
+assert.equal(incoming.listItems().length, 1, "RAV4 kind:team is the same card");
+assert.equal(incoming.listItems()[0].appraisalFinal.min, "22800");
+assert.equal(incoming.listItems()[0].appraisalFinal.target, "24000", "RAV4 kind:team keeps existing FINAL");
+assert.equal(incoming.listItems()[0].appraisalFinal.max, "25000");
+incoming.route("POST", {
+  kind: "land",
+  item: {
+    id: "cmu0avif7rslu",
+    sendId: "s1pvwj8g",
+    vin: "2T3B1RFVXRC466025",
+    teamActivated: true,
+    teamStatus: "running",
+    customer: { name: "Chris Cyr" }
+  }
+});
+assert.equal(incoming.listItems()[0].appraisalFinal.target, "24000", "empty land does not wipe RAV4 FINAL");
 
 const isNeedsDocsItem = eval("(" + html.match(/function isNeedsDocsItem\(item\)\{[\s\S]*?\n\}/)[0].replace("function isNeedsDocsItem", "function") + ")");
 function isCenterArchived(item) { return !!(item && item.archived); }

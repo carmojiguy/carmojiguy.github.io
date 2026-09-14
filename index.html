@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-14 build d30s: Run Appraisal Team tap always fires (rerun + Unlocked History); kind:team wake; compact V Auto / Carfax / OpenLane / eBlock chips; same sendId/id Incoming POST; panel runs progress → existing FINAL; no invented solds; real Carfax http url opens the uploaded file; sample recreate only when no docs.carfax.url; Carfax square + huge card add/upload kind:file carfax; staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; Incoming keeps http docs.url; status dropdown every lane; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples -->
+<!-- center-v3 + desk-home 2026-09-14 build d30s: Run Appraisal Team tap always fires (rerun + Unlocked History); kind:team wake; Incoming FINAL settles Running; compact V Auto / Carfax / OpenLane / eBlock chips; same sendId/id Incoming POST; panel runs progress → existing FINAL; no invented solds; real Carfax http url opens the uploaded file; sample recreate only when no docs.carfax.url; Carfax square + huge card add/upload kind:file carfax; staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; Incoming keeps http docs.url; status dropdown every lane; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -7092,6 +7092,13 @@ function seedSharedIncomingFinal(item, remote){
   const fromRat=(!seed && ratSlot && hasAppraisalFinalNumbers(ratSlot.min, ratSlot.target, ratSlot.max))
     ? {min:ratSlot.min||"", target:ratSlot.target||"", max:ratSlot.max||"", path:ratSlot.path||"", at:Number(rat.timestamp)||0, authors:Array.isArray(rat.authors)?rat.authors.slice():[]}
     : seed;
+  const remoteComplete=!!(fromRat && String(fromRat.min||"").trim() && String(fromRat.target||"").trim() && String(fromRat.max||"").trim());
+  if(!remoteComplete){
+    if(typeof hasStoredFinalRationale==="function" && hasStoredFinalRationale(remote)){
+      item.finalRationale=remote.finalRationale;
+    }
+    return item;
+  }
   if(fromRat){
     const prev=item.appraisalFinal||emptyAppraisalFinal();
     item.appraisalFinal={
@@ -7109,7 +7116,7 @@ function seedSharedIncomingFinal(item, remote){
     const keep=teamSlot((item.team||{}).shabot);
     if(remote.team && remote.team.shabot){
       const slot=teamSlot(remote.team.shabot);
-      item.team.shabot={min:slot.min||keep.min||"", target:slot.target||keep.target||"", max:slot.max||keep.max||"", note:slot.note||keep.note||""};
+      item.team.shabot={min:slot.min||fromRat.min||keep.min||"", target:slot.target||fromRat.target||keep.target||"", max:slot.max||fromRat.max||keep.max||"", note:slot.note||keep.note||""};
     } else if(hasAppraisalFinalNumbers(fromRat.min, fromRat.target, fromRat.max)){
       item.team.shabot={min:fromRat.min||keep.min||"", target:fromRat.target||keep.target||"", max:fromRat.max||keep.max||"", note:keep.note||""};
     }
@@ -7269,6 +7276,7 @@ function applySharedIncoming(item, remote){
     if(remote.centerLocked===true || remote.centerLocked===false) item.centerLocked=!!remote.centerLocked;
   }
   if(typeof enrichRav4OnsiteFinal==="function") enrichRav4OnsiteFinal(item);
+  if(typeof settleTeamRunIfFinal==="function") settleTeamRunIfFinal(item);
   if(item.photos && item.photos.length && typeof persistCenterMedia==="function"){
     try{
       const saved=persistCenterMedia(item.id, item.photos, item.docs||{});
@@ -7291,7 +7299,15 @@ function mergeIncomingShared(list){
       if(!remote || typeof remote!=="object" || isCenterSample(remote)) return;
       const name=remote.customer && remote.customer.name || "";
       let item=findCenterMatch(store, {shared:true, sendId:remote.sendId||"", id:remote.id||"", customerName:name});
-      if(item && !sharedRemoteBeats(remote, item)) return;
+      if(item && !sharedRemoteBeats(remote, item)){
+        if(typeof seedSharedIncomingFinal==="function") seedSharedIncomingFinal(item, remote);
+        if(typeof settleTeamRunIfFinal==="function") settleTeamRunIfFinal(item);
+        if(typeof hasCompleteAppraisalFinal==="function" && hasCompleteAppraisalFinal(item)){
+          saveCenterStore(store);
+          changed=true;
+        }
+        return;
+      }
       if(!item){
         if(typeof archiveOnsiteSameVin==="function" && archiveOnsiteSameVin(store, remote)) changed=true;
         item={
@@ -7308,6 +7324,7 @@ function mergeIncomingShared(list){
         store.items.unshift(item);
       }
       applySharedIncoming(item, remote);
+      if(typeof settleTeamRunIfFinal==="function") settleTeamRunIfFinal(item);
       if(item.photos && item.photos.length && typeof persistCenterMedia==="function"){
         try{
           const saved=persistCenterMedia(item.id, item.photos, item.docs||{});
@@ -8444,6 +8461,17 @@ function paintCenterVals(item){
 function isTeamActivated(item){
   return !!(item && (item.teamActivated===true || item.teamStatus==="running" || item.teamStatus==="final"));
 }
+function hasCompleteAppraisalFinal(item){
+  const fin=typeof resolveAppraisalFinal==="function"?resolveAppraisalFinal(item):null;
+  return !!(fin && String(fin.min||"").trim() && String(fin.target||"").trim() && String(fin.max||"").trim());
+}
+function settleTeamRunIfFinal(item){
+  if(!item || typeof hasCompleteAppraisalFinal!=="function" || !hasCompleteAppraisalFinal(item)) return item;
+  item.teamStatus="final";
+  item.teamRun={shabot:"ready", rybot:"ready", webot:"ready", drebot:"ready", tbot:"ready"};
+  if(typeof landTeamRunFromFile==="function") landTeamRunFromFile(item);
+  return item;
+}
 function landTeamRunFromFile(item){
   if(!item) return item;
   item.team=item.team||(typeof emptyTeam==="function"?emptyTeam():{});
@@ -8474,7 +8502,7 @@ function landTeamRunFromFile(item){
       }
     });
   }
-  if(typeof resolveAppraisalFinal==="function" && resolveAppraisalFinal(item)) item.teamStatus="final";
+  if(typeof hasCompleteAppraisalFinal==="function" && hasCompleteAppraisalFinal(item)) item.teamStatus="final";
   return item;
 }
 function clearTeamRunTimers(id){
@@ -8484,6 +8512,16 @@ function clearTeamRunTimers(id){
   APP._teamRunTimers[id]=[];
 }
 function startTeamRunProgress(id){
+  const cur=typeof getCenter==="function"?getCenter(id):null;
+  if(typeof hasCompleteAppraisalFinal==="function" && hasCompleteAppraisalFinal(cur)){
+    if(typeof settleTeamRunIfFinal==="function") settleTeamRunIfFinal(cur);
+    if(cur && APP.centerViewId===id){
+      if(typeof paintCenterTeam==="function") paintCenterTeam(cur);
+      if(typeof paintCenterRunTeam==="function") paintCenterRunTeam(cur);
+      if(typeof paintCenterFinalBox==="function") paintCenterFinalBox(cur);
+    }
+    return cur;
+  }
   if(typeof clearTeamRunTimers==="function") clearTeamRunTimers(id);
   const order=["shabot","rybot","webot","drebot","tbot"];
   function setRun(fn){
@@ -8510,7 +8548,7 @@ function startTeamRunProgress(id){
         if(i<order.length-1){
           const next=order[i+1];
           if(!x.teamRun[next] || x.teamRun[next]==="waiting") x.teamRun[next]="running";
-        } else if(typeof resolveAppraisalFinal==="function" && resolveAppraisalFinal(x)){
+        } else if(typeof hasCompleteAppraisalFinal==="function" && hasCompleteAppraisalFinal(x)){
           x.teamStatus="final";
         }
       });
@@ -8601,7 +8639,25 @@ function activateAppraisalTeam(id){
   try{ shareIncomingBestEffort(item); }catch(e){}
   try{ shareTeamWakeBestEffort(item); }catch(e){}
   try{ notifyTeamActivated(item); }catch(e){}
-  try{ if(typeof startTeamRunProgress==="function") startTeamRunProgress(id); }catch(e){}
+  try{
+    if(typeof hasCompleteAppraisalFinal==="function" && hasCompleteAppraisalFinal(item)){
+      if(typeof settleTeamRunIfFinal==="function") settleTeamRunIfFinal(item);
+    } else {
+      if(typeof startTeamRunProgress==="function") startTeamRunProgress(id);
+      if(typeof mergeIncomingShared==="function"){
+        [900, 2400, 5000].forEach(function(ms){
+          setTimeout(function(){
+            Promise.resolve(mergeIncomingShared()).then(function(){
+              const live=typeof getCenter==="function"?getCenter(id):null;
+              if(!live) return;
+              if(typeof settleTeamRunIfFinal==="function") settleTeamRunIfFinal(live);
+              if(APP.centerViewId===id && typeof paintCenterDetail==="function") paintCenterDetail();
+            });
+          }, ms);
+        });
+      }
+    }
+  }catch(e){}
   if(typeof paintCenterDetail==="function") paintCenterDetail();
   return item;
 }
@@ -8618,13 +8674,13 @@ function paintCenterRunTeam(item){
   }
   const on=isTeamActivated(item);
   const locked=typeof isCenterLocked==="function" && isCenterLocked(item);
-  const hasFinal=typeof resolveAppraisalFinal==="function" && !!resolveAppraisalFinal(item);
+  const complete=typeof hasCompleteAppraisalFinal==="function" && hasCompleteAppraisalFinal(item);
+  if(complete && typeof settleTeamRunIfFinal==="function") settleTeamRunIfFinal(item);
   btn.disabled=false;
-  btn.textContent=(on && !hasFinal)?"Running…":(on||hasFinal)?"Rerun Appraisal Team":"Run Appraisal Team";
+  btn.textContent=(on && !complete)?"Running…":(on||complete)?"Rerun Appraisal Team":"Run Appraisal Team";
   if(note){
-    if(hasFinal && item.teamStatus==="final") note.textContent="Appraisal team FINAL is on the file — tap to rerun Shabot plus the opinion panel.";
-    else if(on && !hasFinal) note.textContent="Appraisal team is running — Shabot FINAL plus Rybot, Webot, Drebot, and TBot. Numbers land here when Incoming has them. Staff can rerun.";
-    else if(on) note.textContent="Appraisal team is running — Shabot FINAL plus Rybot, Webot, Drebot, and TBot. Staff can rerun.";
+    if(complete) note.textContent="Appraisal team FINAL is on the file — tap to rerun Shabot plus the opinion panel.";
+    else if(on) note.textContent="Appraisal team is running — Shabot FINAL plus Rybot, Webot, Drebot, and TBot. Numbers land here when Incoming has them. Staff can rerun.";
     else note.textContent="Kick Shabot FINAL and the Rybot / Webot / Drebot / TBot opinion panel.";
   }
   btn.onclick=function(){
@@ -8639,8 +8695,10 @@ function paintCenterTeam(item){
   const host=$("centerTeam"); if(!host) return;
   host.innerHTML="";
   const team=item.team||emptyTeam();
-  const running=isTeamActivated(item);
-  const run=item.teamRun||{};
+  const complete=typeof hasCompleteAppraisalFinal==="function" && hasCompleteAppraisalFinal(item);
+  if(complete && typeof settleTeamRunIfFinal==="function") settleTeamRunIfFinal(item);
+  const running=isTeamActivated(item) && !complete;
+  const run=complete?{shabot:"ready", rybot:"ready", webot:"ready", drebot:"ready", tbot:"ready"}:(item.teamRun||{});
   host.classList.toggle("running", running);
   CENTER_TEAM.forEach(function(pair){
     const slot=teamSlot(team[pair[0]]);

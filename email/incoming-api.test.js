@@ -294,6 +294,56 @@ assert.equal(incoming.isPacketSend({
   assert.equal(unlocked.staffUnlocked, true);
   assert.equal(unlocked.lane, "history", "unlock keeps History");
   assert.equal(unlocked.docs.vauto.url, "https://example.com/walk.mp4", "unlock keeps docs.url");
+  assert.equal(unlocked.appraisalFinal.target, "24000", "unlock land does not wipe FINAL");
+
+  incoming.resetStore();
+  incoming.route("POST", {
+    kind: "land",
+    item: {
+      id: "cmu0avif7rslu",
+      sendId: "s1pvwj8g",
+      vin: "2T3B1RFVXRC466025",
+      ymmt: "2024 Toyota RAV4",
+      appraisalFinal: { min: "22800", target: "24000", max: "25000" },
+      team: { shabot: { min: "22800", target: "24000", max: "25000", note: "keep" } },
+      customer: { name: "Chris Cyr" }
+    }
+  });
+  incoming.route("POST", {
+    kind: "team",
+    sendId: "s1pvwj8g",
+    id: "cmu0avif7rslu",
+    vin: "2T3B1RFVXRC466025",
+    ymmt: "2024 Toyota RAV4"
+  });
+  assert.equal(incoming.listItems().length, 1);
+  assert.equal(incoming.listItems()[0].teamActivated, true, "kind:team persists teamActivated");
+  assert.equal(incoming.listItems()[0].appraisalFinal.target, "24000", "kind:team keeps RAV4 FINAL");
+  incoming.route("POST", {
+    kind: "land",
+    item: {
+      id: "cmu0avif7rslu",
+      sendId: "s1pvwj8g",
+      teamActivated: true,
+      teamStatus: "running",
+      customer: { name: "Chris Cyr" }
+    }
+  });
+  assert.equal(incoming.listItems()[0].appraisalFinal.min, "22800");
+  assert.equal(incoming.listItems()[0].appraisalFinal.target, "24000");
+  assert.equal(incoming.listItems()[0].appraisalFinal.max, "25000");
+
+  incoming.resetStore();
+  incoming.route("POST", {
+    kind: "team",
+    sendId: "sir78n6",
+    id: "cmu0kchd1rgc1",
+    vin: "1FTFW1E87PKE74233",
+    ymmt: "2023 Ford F-150"
+  });
+  assert.equal(incoming.listItems()[0].id, "cmu0kchd1rgc1");
+  assert.equal(incoming.listItems()[0].teamActivated, true);
+  assert.ok(!incoming.listItems()[0].appraisalFinal || !incoming.listItems()[0].appraisalFinal.target, "F-150 kind:team does not invent FINAL");
 
   console.log("incoming-api: ok");
 })().catch(function (err) {
