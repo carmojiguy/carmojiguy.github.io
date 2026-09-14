@@ -6,6 +6,8 @@
  *        → { ok:true, items:[ slimCenterItem, ... ] }
  *   GET  same URL?kind=users
  *        → { ok:true, kind:"users", users:[], teams:[], permissions:{}, updatedAt, via:"blob" }
+ *        Users roster lives in Vercel Blob (center-users-v1.json) so toggles
+ *        survive cold starts and other devices — not only /tmp or localStorage.
  *   POST same URL
  *        { kind:"land", item: slimCenterItem }
  *        → { ok:true, id }
@@ -28,6 +30,7 @@ const ALLOW = [
 ];
 const FILE = "/tmp/center-incoming-v1.json";
 const USERS_FILE = "/tmp/center-users-v1.json";
+const usersStore = require("./lib/users-store");
 const MAX = 80;
 const KEYS = [
   "id", "sendId", "vin", "year", "make", "model", "trim", "color", "km", "stock",
@@ -599,6 +602,32 @@ function slimUser(u) {
     emailEditable: !!u.emailEditable
   };
 }
+function slimPermissions(raw) {
+  const src = raw && typeof raw === "object" ? raw : {};
+  const out = {};
+  Object.keys(src).forEach(function (k) {
+    const e = String(k || "").trim().toLowerCase();
+    if (!e || e.indexOf("@") < 1) return;
+    const p = src[k] && typeof src[k] === "object" ? src[k] : {};
+    out[e] = {
+      trade: !!p.trade,
+      appraise: !!p.appraise,
+      website: !!p.website,
+      center: !!p.center,
+      admin: !!p.admin,
+      ca: !!p.ca
+    };
+  });
+  return out;
+}
+function buildUsersBlob(body) {
+  body = body && typeof body === "object" ? body : {};
+  const raw = Array.isArray(body.users) ? body.users : (Array.isArray(body.people) ? body.people : []);
+  const users = raw.map(slimUser).filter(Boolean);
+  const permissions = slimPermissions(body.permissions);
+  const teams = Array.isArray(body.teams) ? body.teams.map(function (t) { return String(t || ""); }).filter(Boolean) : [];
+  return { users: users, teams: teams, permissions: permissions, updatedAt: Date.now() };
+}
 function listUsers() {
   const blob = loadUsersFile();
   return {
@@ -612,14 +641,43 @@ function listUsers() {
   };
 }
 function persistUsers(body) {
-  body = body && typeof body === "object" ? body : {};
-  const raw = Array.isArray(body.users) ? body.users : (Array.isArray(body.people) ? body.people : []);
-  const users = raw.map(slimUser).filter(Boolean);
-  const permissions = body.permissions && typeof body.permissions === "object" ? body.permissions : {};
-  const teams = Array.isArray(body.teams) ? body.teams.map(function (t) { return String(t || ""); }).filter(Boolean) : [];
-  const next = { users: users, teams: teams, permissions: permissions, updatedAt: Date.now() };
+  const next = buildUsersBlob(body);
   saveUsersFile(next);
   return { status: 200, body: { ok: true, kind: "users", updatedAt: next.updatedAt, via: "blob" } };
+}
+async function hydrateUsersFromBlob(deps) {
+  try {
+    const loaded = await usersStore.loadUsers(deps);
+    if (loaded && usersStore.isPopulated(loaded)) {
+      saveUsersFile(loaded);
+      return loaded;
+    }
+    if (loaded && loaded.updatedAt) saveUsersFile(loaded);
+  } catch (e) {}
+  return loadUsersFile();
+}
+async function persistUsersDurable(body, deps) {
+  const existing = await hydrateUsersFromBlob(deps);
+  const next = buildUsersBlob(body);
+  if (!usersStore.isPopulated(next) && usersStore.isPopulated(existing)) {
+    return {
+      status: 200,
+      body: { ok: true, kind: "users", updatedAt: existing.updatedAt || 0, via: usersStore.via() || "blob", skipped: "empty" }
+    };
+  }
+  saveUsersFile(next);
+  let via = "blob";
+  try {
+    const saved = await usersStore.saveUsers(next, deps);
+    via = (saved && saved.via) || "blob";
+  } catch (e) {}
+  return { status: 200, body: { ok: true, kind: "users", updatedAt: next.updatedAt, via: via } };
+}
+async function listUsersDurable(deps) {
+  await hydrateUsersFromBlob(deps);
+  const body = listUsers();
+  try { body.via = usersStore.via() || body.via; } catch (e) {}
+  return body;
 }
 function requestKind(req, body, query) {
   if (query && query.kind) return String(query.kind);
@@ -689,6 +747,16 @@ async function fromRequest(req) {
       query.kind = u.searchParams.get("kind") || "";
     }
   } catch (e) {}
+  const kind = requestKind(req, body, query) || (query && query.kind) || "";
+  if (method === "GET" && kind === "users") {
+    const bodyOut = await listUsersDurable();
+    return { status: 200, body: bodyOut, origin: origin };
+  }
+  if (method === "POST" && body && body.kind === "users") {
+    const outUsers = await persistUsersDurable(body);
+    outUsers.origin = origin;
+    return outUsers;
+  }
   const out = route(method, body, query);
   out.origin = origin;
   return out;
@@ -713,17 +781,21 @@ module.exports.completeAppraisalFinal = completeAppraisalFinal;
 module.exports.resetStore = function resetStore() {
   globalThis.__CENTER_INCOMING = [];
   globalThis.__CENTER_USERS = emptyUsersBlob();
+  try { usersStore.reset(); } catch (e) {}
   try { require("fs").unlinkSync(FILE); } catch (e) {}
   try { require("fs").unlinkSync(USERS_FILE); } catch (e) {}
 };
 module.exports.listUsers = listUsers;
 module.exports.persistUsers = persistUsers;
+module.exports.persistUsersDurable = persistUsersDurable;
+module.exports.listUsersDurable = listUsersDurable;
+module.exports.hydrateUsersFromBlob = hydrateUsersFromBlob;
 
 module.exports.GET = async function GET(request) {
   const origin = request.headers.get("origin") || "";
   let kind = "";
   try { kind = new URL(request.url, "https://gnm-guest-mailer-shawn-6802.vercel.app").searchParams.get("kind") || ""; } catch (e) {}
-  if (kind === "users") return json(null, 200, listUsers(), origin);
+  if (kind === "users") return json(null, 200, await listUsersDurable(), origin);
   return json(null, 200, { ok: true, items: listItems() }, origin);
 };
 
@@ -736,6 +808,10 @@ module.exports.POST = async function POST(request) {
   const origin = request.headers.get("origin") || "";
   let body = {};
   try { body = await request.json(); } catch (e) { body = {}; }
+  if (body && body.kind === "users") {
+    const outUsers = await persistUsersDurable(body);
+    return json(null, outUsers.status, outUsers.body, origin);
+  }
   const out = route("POST", body);
   return json(null, out.status, out.body, origin);
 };

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-14 build d31a: pixel-faithful Acre GR Corolla desk (white hero|mid|market, not stone/teal); CA workbench redo — drop the verbal-only tag forever; What's the Story walks the car and talks; Walk-around photos only; keep Critical damage; salesperson CA has no packet-send card; Tracker mobile cards + current month; Canada Drives appointments: month list from Airtable Appointment Booked + GTA/Ottawa Tracker, Google Docs open (no preventDefault overlay), Acre-bright desk; website-post story-first year/make/model/trim/condition, no team select, original start not webdesk, pictures still relaunch/post; Acre GR Corolla desk lock — FIFO oldest home, left-rail Incoming/On-site/Needs docs/History pills, no hist KPI strip, Ask Maya, appraisal range/competing/ask; users GET/POST kind:users persist; 911 Acre team reads finalRationale.markdown + panel Rybot/Webot/Drebot/TBot + team.shabot note, hides boxes with no numbers; mailer keeps rich team/rationale on Center refresh; Trade-in start drops stray top History (rail History stays); 911 Incoming FINAL min+target+max clears Running and lands Appraisal Team numbers (Blazer s1af19al / F-150 sir78n6); Run Appraisal Team tap always fires (rerun + Unlocked History); kind:team wake; Incoming FINAL settles Running; schema 1.0 team + panel boxes; market pills append multiple files into shots[]; compact V Auto / Carfax / OpenLane / eBlock chips; same sendId/id Incoming POST; panel runs progress → existing FINAL; no invented solds; real Carfax http url opens the uploaded file; sample recreate only when no docs.carfax.url; Carfax square + huge card add/upload kind:file carfax; staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; Incoming keeps http docs.url; Incoming appends shots[]; status dropdown every lane; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples; hides generated From V Auto lane -->
+<!-- center-v3 + desk-home 2026-09-14 build d31a: pixel-faithful Acre GR Corolla desk (white hero|mid|market, not stone/teal); CA workbench redo — drop the verbal-only tag forever; What's the Story walks the car and talks; Walk-around photos only; keep Critical damage; salesperson CA has no packet-send card; Tracker mobile cards + current month; Canada Drives appointments: month list from Airtable Appointment Booked + GTA/Ottawa Tracker, Google Docs open (no preventDefault overlay), Acre-bright desk; website-post story-first year/make/model/trim/condition, no team select, original start not webdesk, pictures still relaunch/post; Acre GR Corolla desk lock — FIFO oldest home, left-rail Incoming/On-site/Needs docs/History pills, no hist KPI strip, Ask Maya, appraisal range/competing/ask; users GET/POST kind:users persist; 911 Acre team reads finalRationale.markdown + panel Rybot/Webot/Drebot/TBot + team.shabot note, hides boxes with no numbers; mailer keeps rich team/rationale on Center refresh; Trade-in start drops stray top History (rail History stays); 911 Incoming FINAL min+target+max clears Running and lands Appraisal Team numbers (Blazer s1af19al / F-150 sir78n6); Run Appraisal Team tap always fires (rerun + Unlocked History); kind:team wake; Incoming FINAL settles Running; schema 1.0 team + panel boxes; market pills append multiple files into shots[]; compact V Auto / Carfax / OpenLane / eBlock chips; same sendId/id Incoming POST; panel runs progress → existing FINAL; no invented solds; real Carfax http url opens the uploaded file; sample recreate only when no docs.carfax.url; Carfax square + huge card add/upload kind:file carfax; staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; Incoming keeps http docs.url; Incoming appends shots[]; status dropdown every lane; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples; hides generated From V Auto lane; users settings durable Vercel Blob center-users-v1.json; restore Josh LaFave josh@gmautosales.ca + Steve Summerall steve@gmautosales.ca website+center -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -4178,7 +4178,9 @@ function storeDel(k){
 const OPEN_STAFF = {
   "andrew@autocorp.ca":"Andrew",
   "wes@thetrucktown.com":"Wes",
-  "ryan@papered.com":"Ryan"
+  "ryan@papered.com":"Ryan",
+  "josh@gmautosales.ca":"Josh LaFave",
+  "steve@gmautosales.ca":"Steve Summerall"
 };
 const CENTER_STAFF = {
   "shawn@myloan.ca":"Shawn",
@@ -4187,7 +4189,9 @@ const CENTER_STAFF = {
   "andrew@autocorp.ca":"Andrew",
   "wes@thetrucktown.com":"Wes",
   "kyle@myloan.ca":"Kyle",
-  "shane@myloan.ca":"Shane"
+  "shane@myloan.ca":"Shane",
+  "josh@gmautosales.ca":"Josh LaFave",
+  "steve@gmautosales.ca":"Steve Summerall"
 };
 const CENTER_DENY="Appraisal Center is only for Shawn, Ryan, Andrew, Wes, Kyle, and Shane.";
 const DESK_TEAMS=["Team Flash","Team Retail","Team Evo","Team ABC","Team Saskatchewan","Team Fire","Team House","Team Consumer Acquisition","Team Trucktown Richmond","Team Trucktown Smith Falls","Team Trucktown Rockland"];
@@ -4225,7 +4229,9 @@ const SEED_NAMES={
   "lord.grande@myloan.ca":"Lord Grande",
   "tushar.gupta@myloan.ca":"Tushar Gupta",
   "ernest@myloan.ca":"Ernest",
-  "tony.wiebe@myloan.ca":"Tony Wiebe"
+  "tony.wiebe@myloan.ca":"Tony Wiebe",
+  "josh@gmautosales.ca":"Josh LaFave",
+  "steve@gmautosales.ca":"Steve Summerall"
 };
 function staffEmail(v){ return String(v||"").trim().toLowerCase(); }
 function shawnAlias(email){
@@ -4240,6 +4246,9 @@ function defaultPerms(email){
   if(e==="wes@thetrucktown.com") return allPermsOn();
   if(e==="ryan@papered.com" || e==="andrew@autocorp.ca" || e==="kyle@myloan.ca" || e==="shane@myloan.ca"){
     return {trade:false, appraise:true, website:false, center:true, admin:false};
+  }
+  if(e==="josh@gmautosales.ca" || e==="steve@gmautosales.ca"){
+    return {trade:false, appraise:false, website:true, center:true, admin:false, ca:false};
   }
   return {trade:false, appraise:false, website:false, center:false, admin:false};
 }
@@ -4299,7 +4308,9 @@ function applyUsersBlob(blob){
     });
   });
   store.people=Object.keys(by).map(function(k){ return by[k]; });
-  if(blob.permissions && typeof blob.permissions==="object") store.permissions=blob.permissions;
+  if(blob.permissions && typeof blob.permissions==="object" && Object.keys(blob.permissions).length){
+    store.permissions=blob.permissions;
+  }
   saveUsersStore(store, true);
   return true;
 }
@@ -4307,9 +4318,11 @@ function persistUsersRemote(store){
   try{
     if(typeof MAIL_HOST!=="string" || !MAIL_HOST) return Promise.resolve({ok:false});
     const payload=slimUsersBlob(store||loadUsersStore());
-    const req={method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(payload)};
-    const p=(typeof timedFetch==="function")?timedFetch(MAIL_HOST+"/api/incoming", req, 8000):fetch(MAIL_HOST+"/api/incoming", req);
-    return Promise.resolve(p).then(function(r){ return r && r.json ? r.json().catch(function(){ return {ok:!!(r&&r.ok)}; }) : {ok:false}; }).catch(function(){ return {ok:false}; });
+    if(!payload.users.length && !(payload.permissions && Object.keys(payload.permissions).length)){
+      return Promise.resolve({ok:false, skipped:"empty"});
+    }
+    const req={method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(payload), keepalive:true, cache:"no-store"};
+    return fetch(MAIL_HOST+"/api/incoming", req).then(function(r){ return r && r.json ? r.json().catch(function(){ return {ok:!!(r&&r.ok)}; }) : {ok:false}; }).catch(function(){ return {ok:false}; });
   }catch(e){ return Promise.resolve({ok:false}); }
 }
 function pullUsersRemote(){
@@ -4551,6 +4564,11 @@ function ensureRoster(skipRemote){
   if(by["elias.abdi@myloan.ca"]) by["elias.abdi@myloan.ca"].emailEditable=true;
   store.people=Object.keys(by).map(function(k){ return by[k]; }).sort(function(a,b){
     return String(a.name||a.email).localeCompare(String(b.name||b.email));
+  });
+  store.permissions=store.permissions||{};
+  [["josh@gmautosales.ca",{trade:false, appraise:false, website:true, center:true, admin:false, ca:false}],
+   ["steve@gmautosales.ca",{trade:false, appraise:false, website:true, center:true, admin:false, ca:false}]].forEach(function(pair){
+    if(!store.permissions[pair[0]]) store.permissions[pair[0]]=pair[1];
   });
   saveUsersStore(store, skipRemote!==false);
 }
@@ -5022,8 +5040,9 @@ function enterSession(role, user){
   if(role==="employee"){
     try{
       Promise.resolve(pullUsersRemote()).then(function(got){
-        if(got){
-          try{ ensureRoster(true); }catch(e){}
+        try{ ensureRoster(true); }catch(e){}
+        try{ persistUsersRemote(loadUsersStore()); }catch(e){}
+        if(got || APP.screen==="users"){
           if(APP.screen==="users" && typeof paintUsers==="function") paintUsers();
           if(typeof paintDockPerms==="function") paintDockPerms();
         }
@@ -13841,8 +13860,8 @@ const TEAM = [
   ["Kyle", "kyle@myloan.ca"],
   ["Isabella", "isabella.coffey@myloan.ca"],
   ["Lord", "lord.grande@myloan.ca"],
-  ["Josh", "josh@gmautosales.ca"],
-  ["Steve", "steve@gmautosales.ca"]
+  ["Josh LaFave", "josh@gmautosales.ca"],
+  ["Steve Summerall", "steve@gmautosales.ca"]
 ];
 function recKey(){ return isWeb() ? "inspect.emails.web" : "inspect.emails.appraise"; }
 function nameForEmail(email){
