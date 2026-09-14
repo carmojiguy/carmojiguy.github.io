@@ -171,6 +171,14 @@ function isCenterLocked(item) {
 }
 const MAIL_HOST = "https://gnm-guest-mailer-shawn-6802.vercel.app";
 
+function hasStoredFinalRationale(item) {
+  const r = item && item.finalRationale;
+  return !!(r && (r.markdown || r.title || (r.panel && Object.keys(r.panel).length) || (r.shabot && (r.shabot.note || r.shabot.target))));
+}
+const panelSlotOf = eval("(" + sliceFn("panelSlotOf", "botHasCompleteNumbers").replace("function panelSlotOf", "function") + ")");
+const botHasCompleteNumbers = eval("(" + sliceFn("botHasCompleteNumbers", "shabotHowWeGotHere").replace("function botHasCompleteNumbers", "function") + ")");
+const shabotHowWeGotHere = eval("(" + sliceFn("shabotHowWeGotHere", "hydrateTeamFromIncoming").replace("function shabotHowWeGotHere", "function") + ")");
+const hydrateTeamFromIncoming = eval("(" + sliceFn("hydrateTeamFromIncoming", "isOnsiteDeskItem").replace("function hydrateTeamFromIncoming", "function") + ")");
 const isTeamActivated = eval("(" + sliceFn("isTeamActivated", "hasCompleteAppraisalFinal").replace("function isTeamActivated", "function") + ")");
 const hasCompleteAppraisalFinal = eval("(" + sliceFn("hasCompleteAppraisalFinal", "settleTeamRunIfFinal").replace("function hasCompleteAppraisalFinal", "function") + ")");
 const settleTeamRunIfFinal = eval("(" + sliceFn("settleTeamRunIfFinal", "landTeamRunFromFile").replace("function settleTeamRunIfFinal", "function") + ")");
@@ -307,6 +315,40 @@ assert.strictEqual(ravLive.appraisalFinal.target, "24000");
 assert.strictEqual(ravLive.appraisalFinal.max, "25000");
 assert.strictEqual(ravLive.team.shabot.target, "24000", "RAV4 keeps existing FINAL");
 assert.strictEqual(ravLive.teamStatus, "final");
+
+const f150Incoming = {
+  id: "cmu0kchd1rgc1",
+  sendId: "sir78n6",
+  vin: "1FTFW1E87PKE74233",
+  ymmt: "2023 Ford F-150 Lariat",
+  teamActivated: true,
+  teamStatus: "final",
+  appraisalFinal: { min: "45200", target: "47000", max: "49000", path: "Retail" },
+  team: { shabot: { min: "45200", target: "47000", max: "49000", note: "Sided Wes direction" } },
+  finalRationale: {
+    schema_version: "1.0",
+    title: "HOW WE GOT HERE",
+    markdown: "# HOW WE GOT HERE — Shabot FINAL\n## 2023 Ford F-150 Lariat",
+    panel: {
+      Rybot: { min: 51000, target: 54000, max: 56000, why: "Exit too rich without photos" },
+      webot: { min: "44500", target: "46500", max: "48000", why: "Blind-packet exit" },
+      drebot: { min: "46500", target: "49500", max: "52000", why: "Shaved for zero photos" },
+      tbot: { min: "43000", target: "45500", max: "48000", why: "Slightly too bear" }
+    }
+  }
+};
+hydrateTeamFromIncoming(f150Incoming);
+assert.strictEqual(f150Incoming.team.shabot.target, "47000", "F-150 paints Incoming FINAL");
+assert.ok(/HOW WE GOT HERE/.test(f150Incoming.team.shabot.note), "Shabot note is Incoming markdown");
+assert.strictEqual(f150Incoming.team.rybot.target, "54000", "Rybot lands from panel even if key is Rybot");
+assert.strictEqual(f150Incoming.team.webot.target, "46500");
+assert.strictEqual(f150Incoming.team.drebot.target, "49500");
+assert.strictEqual(f150Incoming.team.tbot.max, "48000");
+assert.ok(botHasCompleteNumbers(f150Incoming.team.rybot));
+const emptyBoxes = { id: "c-blank", team: emptyTeam(), teamActivated: true, teamStatus: "final" };
+hydrateTeamFromIncoming(emptyBoxes);
+assert.ok(!botHasCompleteNumbers(emptyBoxes.team.rybot), "missing opinions stay hidden — not invented");
+assert.ok(!emptyBoxes.team.shabot.target, "empty file still does not invent Shabot");
 
 function paintCenter() {}
 const unlockCenterItem = eval("(" + sliceFn("unlockCenterItem", "slimSharedHttpUrl").replace("function unlockCenterItem", "function") + ")");

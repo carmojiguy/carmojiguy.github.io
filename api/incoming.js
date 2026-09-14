@@ -212,6 +212,13 @@ function slotHasNumbers(slot) {
   return !!(String(slot.min || "").trim() || String(slot.target || "").trim() || String(slot.max || "").trim() || String(slot.note || "").trim());
 }
 
+function rationaleRich(rat) {
+  if (!rat || typeof rat !== "object") return false;
+  if (String(rat.markdown || "").trim() || String(rat.title || "").trim()) return true;
+  if (rat.panel && typeof rat.panel === "object" && Object.keys(rat.panel).length) return true;
+  return !!(rat.shabot && (rat.shabot.min || rat.shabot.target || rat.shabot.max || rat.shabot.note));
+}
+
 function keepExistingFinal(prev, next) {
   if (!prev || !next) return next;
   if (completeAppraisalFinal(prev.appraisalFinal) && !completeAppraisalFinal(next.appraisalFinal)) {
@@ -219,7 +226,9 @@ function keepExistingFinal(prev, next) {
     ["finalMin", "finalTarget", "finalMax", "finalPath", "finalAt"].forEach(function (k) {
       if (prev[k] != null && prev[k] !== "") next[k] = prev[k];
     });
-    if (prev.finalRationale && !next.finalRationale) next.finalRationale = prev.finalRationale;
+  }
+  if (rationaleRich(prev.finalRationale) && !rationaleRich(next.finalRationale)) {
+    next.finalRationale = prev.finalRationale;
   }
   if (prev.team) {
     next.team = next.team || {};
