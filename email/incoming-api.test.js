@@ -233,8 +233,10 @@ assert.equal(incoming.isPacketSend({
   assert.equal(withUrl.docs.vauto.url, "https://example.com/vauto.mp4", "mailer keeps docs.url");
   assert.equal(withUrl.docs.vauto.preview, "https://example.com/vauto.jpg", "mailer keeps http preview");
   assert.equal(withUrl.docs.vauto.data, undefined, "mailer still strips base64 data");
-  assert.equal(withUrl.docs.vauto.shots.length, 1);
-  assert.equal(withUrl.docs.vauto.shots[0].url, "https://example.com/shot.jpg");
+  const shotUrls = withUrl.docs.vauto.shots.map(function (s) { return s.url; });
+  assert.ok(shotUrls.indexOf("https://example.com/shot.jpg") >= 0, "mailer keeps the extra shot url");
+  assert.ok(shotUrls.indexOf("https://example.com/vauto.mp4") >= 0, "mailer keeps the primary url in shots[]");
+  assert.equal(withUrl.docs.vauto.shots.length, 2, "primary url is appended into shots[]");
 
   incoming.resetStore();
   incoming.route("POST", {

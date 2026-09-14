@@ -33,7 +33,7 @@ must(/function speakVinField\(/, "dictate writes into the VIN field");
 must(/function writeRetailListing\(/, "retail-ready listing writer");
 must(/Write retail description/, "retail description button");
 must(/photographed and ready for retail/, "retail listing copy");
-must(/id="buildStamp">build d30q</, "build d30q stamp");
+must(/id="buildStamp">build d30t</, "build d30t stamp");
 must(/function finishGuest\(\)\{\s*finishThanks\(\);/, "Thank-you-only Send stays");
 must(/function revealMailOpen\(\)\{[\s\S]{0,80}hideMailOpen\(\)/, "Open Gmail stays hide-only");
 must(/function openNewApplicationDesk\(\)\{[\s\S]{0,500}show\("home"\)/, "My Loan create form stays on HOME");

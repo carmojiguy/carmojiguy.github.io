@@ -71,6 +71,27 @@ function saveFile(list) {
   } catch (e) {}
 }
 
+function shotUrl(s) {
+  const u = typeof s === "string" ? s : (s && (s.url || s.href)) || "";
+  return /^https?:\/\//i.test(u) ? String(u) : "";
+}
+
+function slimShots() {
+  const seen = {};
+  const shots = [];
+  for (let i = 0; i < arguments.length; i++) {
+    const raw = arguments[i];
+    const list = Array.isArray(raw) ? raw : (raw ? [raw] : []);
+    list.forEach(function (s) {
+      const u = shotUrl(s);
+      if (!u || seen[u]) return;
+      seen[u] = true;
+      shots.push({ url: u });
+    });
+  }
+  return shots;
+}
+
 function slimDocs(docs) {
   const src = docs && typeof docs === "object" ? docs : {};
   const out = {};
@@ -80,13 +101,8 @@ function slimDocs(docs) {
     if (/^https?:\/\//i.test(String(d.url || ""))) out[k].url = String(d.url);
     if (/^https?:\/\//i.test(String(d.extract || ""))) out[k].extract = String(d.extract);
     if (/^https?:\/\//i.test(String(d.preview || ""))) out[k].preview = String(d.preview);
-    if (Array.isArray(d.shots)) {
-      const shots = d.shots.map(function (s) {
-        const u = typeof s === "string" ? s : (s && (s.url || s.href)) || "";
-        return /^https?:\/\//i.test(u) ? { url: u } : null;
-      }).filter(Boolean);
-      if (shots.length) out[k].shots = shots;
-    }
+    const shots = slimShots(d.shots, d.url);
+    if (shots.length) out[k].shots = shots;
   });
   return out;
 }
@@ -149,6 +165,9 @@ function mergeDocsKeepUrls(prevDocs, nextDocs) {
     if (!/^https?:\/\//i.test(String(a.url || "")) && /^https?:\/\//i.test(String(b.url || ""))) {
       out[k].url = b.url;
     }
+    const shots = slimShots(b.shots, b.url, a.shots, a.url);
+    if (shots.length) out[k].shots = shots;
+    else delete out[k].shots;
   });
   return slimDocs(out);
 }
@@ -200,17 +219,20 @@ function persistFile(body) {
   const data = String(body.data || "");
   if (!data) return { status: 400, body: { ok: false, error: "data" } };
   const safe = name.replace(/[^A-Za-z0-9._-]+/g, "-").replace(/^-|-$/g, "") || key;
-  const url = "https://7codzfkcbtucfujs.public.blob.vercel-storage.com/docs/" + encodeURIComponent(sendId) + "/" + key + "/" + safe;
+  const stamp = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  const url = "https://7codzfkcbtucfujs.public.blob.vercel-storage.com/docs/" + encodeURIComponent(sendId) + "/" + key + "/" + stamp + "-" + safe;
   const list = loadFile();
   const idx = list.findIndex(function (x) { return x && x.sendId === sendId; });
   if (idx >= 0) {
     const item = list[idx];
     item.docs = item.docs || {};
-    item.docs[key] = { have: true, name: name, type: type, url: url };
+    const prev = item.docs[key] && typeof item.docs[key] === "object" ? item.docs[key] : {};
+    const shots = slimShots(prev.shots, prev.url, url);
+    item.docs[key] = { have: true, name: name, type: type, url: url, shots: shots };
     item.updatedAt = Date.now();
     saveFile(list);
   }
-  return { status: 200, body: { ok: true, url: url, sendId: sendId, key: key, name: name } };
+  return { status: 200, body: { ok: true, url: url, sendId: sendId, key: key, name: name, shots: idx >= 0 ? (list[idx].docs[key].shots || []) : [{ url: url }] } };
 }
 
 function isSampleItem(raw) {

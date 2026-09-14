@@ -24,8 +24,8 @@ function sliceFn(name, next) {
   return html.slice(start, end);
 }
 
-must(/id="buildStamp">build d30q</, "footer stamp is d30h");
-must(/<!--[\s\S]*build d30q[\s\S]*status dropdown/, "header stamp is d30h dropdown");
+must(/id="buildStamp">build d30t</, "footer stamp is d30h");
+must(/<!--[\s\S]*build d30t[\s\S]*status dropdown/, "header stamp is d30h dropdown");
 must(/function applyCenterLaneMove\(/, "lane move stays");
 must(/function moveCenterLane\(/, "tile action stays");
 must(/bindCenterLaneChip\(\$\("centerDetailBadge"\), item\)/, "detail dropdown stays bound");
