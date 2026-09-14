@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-14 build d30s: Run Appraisal Team tap always fires (rerun + Unlocked History); same sendId/id Incoming POST; panel runs progress → existing FINAL; no invented solds; real Carfax http url opens the uploaded file; sample recreate only when no docs.carfax.url; Carfax square + huge card add/upload kind:file carfax; staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; Incoming keeps http docs.url; status dropdown every lane; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples -->
+<!-- center-v3 + desk-home 2026-09-14 build d30s: Run Appraisal Team tap always fires (rerun + Unlocked History); kind:team wake; compact V Auto / Carfax / OpenLane / eBlock chips; same sendId/id Incoming POST; panel runs progress → existing FINAL; no invented solds; real Carfax http url opens the uploaded file; sample recreate only when no docs.carfax.url; Carfax square + huge card add/upload kind:file carfax; staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; Incoming keeps http docs.url; status dropdown every lane; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -295,22 +295,25 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
 }
 .research-tools, .research-adds, .research-derived, .desk-empty, .desk-lane { grid-column:1 / -1; }
 .research-desk { margin:2px 0 28px; }
-.research-tools { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:0 0 8px; }
-.desk-tool { display:flex; flex-direction:column; width:100%; padding:0; border:0; border-radius:20px; overflow:hidden; cursor:pointer; font:inherit; box-shadow:0 10px 24px rgba(17,14,26,.1); }
+.research-tools { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin:0 0 6px; }
+.desk-tool { display:flex; flex-direction:row; align-items:center; width:100%; min-height:32px; height:32px; padding:2px 8px 2px 2px; border:0; border-radius:999px; overflow:hidden; cursor:pointer; font:inherit; box-shadow:0 2px 6px rgba(17,14,26,.1); }
 .desk-tool.vauto-sq { background:#FF6A00; }
 .desk-tool.openlane-sq { background:#0B1B4A; }
 .desk-tool.eblock-sq { background:#0B0B0B; }
-.desk-tool.carfax-sq { background:#fff; }
-.desk-tool-art { display:block; aspect-ratio:1 / 1; min-height:110px; position:relative; overflow:hidden; }
+.desk-tool.carfax-sq { background:#fff; box-shadow:0 2px 6px rgba(17,14,26,.08); }
+.desk-tool-art { display:block; aspect-ratio:1 / 1; width:28px; height:28px; min-height:28px; flex:0 0 28px; position:relative; overflow:hidden; border-radius:999px; }
 .desk-tool-art img, .desk-tool-art svg { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; pointer-events:none; }
 .desk-tool.carfax-sq .desk-tool-art { background:#fff; }
 .desk-tool.carfax-sq .desk-tool-art img { object-fit:contain; object-position:center; }
-.desk-tool > b { display:block; padding:8px 6px 10px; background:#fff; color:var(--ink); font-size:12px; font-weight:800; letter-spacing:-.1px; }
-.research-adds { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin:0 0 8px; }
-.research-add { width:100%; min-height:68px; margin:0; padding:10px 8px; border-radius:18px; border:1.5px solid #D7EEF8; cursor:pointer; font:inherit; font-size:12px; font-weight:800; line-height:1.2; color:var(--ink); background:linear-gradient(180deg,#FFFFFF 0%, #EAF8FF 100%); box-shadow:0 8px 18px rgba(0,164,226,.1); }
+.desk-tool > b { display:block; padding:0 0 0 6px; background:transparent; color:#fff; font-size:11px; font-weight:800; letter-spacing:-.1px; line-height:1; }
+.desk-tool.carfax-sq > b { color:var(--ink); }
+.research-adds { display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; margin:0 0 6px; }
+.research-add { width:100%; min-height:32px; margin:0; padding:4px 8px; border-radius:999px; border:1px solid #D7EEF8; cursor:pointer; font:inherit; font-size:10px; font-weight:800; line-height:1.15; color:var(--ink); background:linear-gradient(180deg,#FFFFFF 0%, #EAF8FF 100%); box-shadow:0 2px 6px rgba(0,164,226,.08); }
 .research-add.on { border-color:transparent; background:linear-gradient(180deg,#7C5CFF 0%, #00A4E2 100%); color:#fff; }
 .research-add b { display:block; }
-.research-add span { display:block; margin-top:3px; font-size:11px; font-weight:700; opacity:.7; }
+.research-add span { display:block; margin-top:1px; font-size:9px; font-weight:700; opacity:.7; }
+#center .desk-tool, #center .research-add { min-height:32px; }
+#center .desk-tool-art { min-height:28px; max-height:28px; height:28px; }
 .desk-empty { margin:8px 0 0; padding:16px 16px 18px; border-radius:20px; background:linear-gradient(135deg,#E8F8FF 0%, #FFF8D8 58%, #F3ECFF 100%); color:#123; font-size:15px; font-weight:800; line-height:1.35; box-shadow:0 10px 24px rgba(124,92,255,.08); }
 .desk-empty span { display:block; margin-top:6px; font-size:13px; font-weight:700; color:#4A5A70; }
 .research-derived { display:flex; flex-direction:column; gap:14px; margin-top:10px; }
