@@ -210,6 +210,12 @@ label.k { display:block; color:#6e6e73; font-size:13px; margin:11px 0 5px; }
 }
 .appt-months button.on{background:#2563EB;border-color:#2563EB;color:#fff;box-shadow:0 8px 18px rgba(37,99,235,.24)}
 .appt-count{margin:0 2px 10px;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#6B7380}
+#apptCal{padding:0 2px 8px}
+#apptCal .pair{grid-template-columns:minmax(0,1fr);gap:10px;margin:0}
+#apptCal .f{min-width:0;max-width:100%}
+@media (min-width:520px){
+  #apptCal .pair{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+}
 @media (min-width:720px){
   .appt-rowbar{align-items:center}
   .appt-actions{width:auto;margin-left:auto}
