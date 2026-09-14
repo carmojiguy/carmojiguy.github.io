@@ -350,6 +350,69 @@ hydrateTeamFromIncoming(emptyBoxes);
 assert.ok(!botHasCompleteNumbers(emptyBoxes.team.rybot), "missing opinions stay hidden — not invented");
 assert.ok(!emptyBoxes.team.shabot.target, "empty file still does not invent Shabot");
 
+const f150EmptyTeamKeys = {
+  id: "cmu0kchd1rgc1",
+  sendId: "sir78n6",
+  appraisalFinal: { min: "45200", target: "47000", max: "49000" },
+  team: {
+    shabot: { min: "45200", target: "47000", max: "49000", note: "Sided Wes" },
+    rybot: { min: "", target: "", max: "", note: "" },
+    webot: { min: "", target: "", max: "", note: "" },
+    drebot: { min: "", target: "", max: "", note: "" },
+    tbot: { min: "", target: "", max: "", note: "" }
+  },
+  finalRationale: {
+    schema_version: "1.0",
+    markdown: "# HOW WE GOT HERE — Shabot FINAL",
+    panel: {
+      rybot: { min: "51000", target: "54000", max: "56000", why: "Exit too rich without photos" },
+      webot: { min: "44500", target: "46500", max: "48000", why: "Blind-packet exit" },
+      drebot: { min: "46500", target: "49500", max: "52000", why: "Shaved for zero photos" },
+      tbot: { min: "43000", target: "45500", max: "48000", why: "Slightly too bear" }
+    }
+  }
+};
+hydrateTeamFromIncoming(f150EmptyTeamKeys);
+assert.strictEqual(f150EmptyTeamKeys.team.rybot.target, "54000", "empty team.rybot does not hide panel Rybot");
+assert.strictEqual(f150EmptyTeamKeys.team.webot.note, "Blind-packet exit");
+
+const blazerIncoming = {
+  id: "cmu0a6138006k",
+  sendId: "s1af19al",
+  vin: "3GNKBHRS0LS577461",
+  ymmt: "2020 Chevrolet Blazer 2LT",
+  appraisalFinal: { min: "15500", target: "17000", max: "18000", path: "Retail" },
+  team: {
+    shabot: { min: "15500", target: "17000", max: "18000", note: "Sided Wes" },
+    rybot: { min: "17000", target: "19000", max: "20500", note: "Ryan fighter: TARGET $19k" },
+    webot: { min: "15500", target: "17000", max: "18000", note: "Wes analytical: TARGET $17k" },
+    drebot: { min: "14800", target: "16500", max: "17800", note: "Drew: TARGET $16.5k" },
+    tbot: { min: "14500", target: "16500", max: "18000", note: "Sean bear: TARGET $16.5k" }
+  },
+  finalRationale: {
+    schema_version: "1.0",
+    title: "HOW WE GOT HERE",
+    markdown: "# HOW WE GOT HERE — Shabot FINAL\n## 2020 Chevrolet Blazer 2LT",
+    panel: {
+      rybot: { min: "17000", target: "19000", max: "20500", why: "Exit too rich for blind packet" },
+      webot: { min: "15500", target: "17000", max: "18000", why: "Matched process math" },
+      drebot: { min: "14800", target: "16500", max: "17800", why: "Close; held Wes" },
+      tbot: { min: "14500", target: "16500", max: "18000", why: "Same $16.5k band" }
+    }
+  }
+};
+hydrateTeamFromIncoming(blazerIncoming);
+assert.strictEqual(blazerIncoming.sendId, "s1af19al");
+assert.strictEqual(blazerIncoming.team.shabot.target, "17000", "Blazer FINAL from schema 1.0 team.shabot");
+assert.ok(/HOW WE GOT HERE/.test(blazerIncoming.team.shabot.note), "Blazer Shabot uses markdown");
+assert.strictEqual(blazerIncoming.team.rybot.target, "19000", "Blazer Rybot from team.* note=thought process");
+assert.strictEqual(blazerIncoming.team.rybot.note, "Ryan fighter: TARGET $19k");
+assert.strictEqual(blazerIncoming.team.webot.target, "17000");
+assert.strictEqual(blazerIncoming.team.drebot.target, "16500");
+assert.strictEqual(blazerIncoming.team.tbot.min, "14500");
+assert.ok(botHasCompleteNumbers(blazerIncoming.team.webot));
+assert.ok(botHasCompleteNumbers(blazerIncoming.team.drebot));
+
 function paintCenter() {}
 const unlockCenterItem = eval("(" + sliceFn("unlockCenterItem", "slimSharedHttpUrl").replace("function unlockCenterItem", "function") + ")");
 store.items.push({

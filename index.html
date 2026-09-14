@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-14 build d30s: Run Appraisal Team tap always fires (rerun + Unlocked History); kind:team wake; Incoming FINAL settles Running; market pills append multiple files into shots[]; compact V Auto / Carfax / OpenLane / eBlock chips; same sendId/id Incoming POST; panel runs progress → existing FINAL; no invented solds; real Carfax http url opens the uploaded file; sample recreate only when no docs.carfax.url; Carfax square + huge card add/upload kind:file carfax; staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; Incoming keeps http docs.url; Incoming appends shots[]; status dropdown every lane; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples -->
+<!-- center-v3 + desk-home 2026-09-14 build d30s: Run Appraisal Team tap always fires (rerun + Unlocked History); kind:team wake; Incoming FINAL settles Running; schema 1.0 team + panel boxes; market pills append multiple files into shots[]; compact V Auto / Carfax / OpenLane / eBlock chips; same sendId/id Incoming POST; panel runs progress → existing FINAL; no invented solds; real Carfax http url opens the uploaded file; sample recreate only when no docs.carfax.url; Carfax square + huge card add/upload kind:file carfax; staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; Incoming keeps http docs.url; Incoming appends shots[]; status dropdown every lane; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -5914,13 +5914,15 @@ function hydrateTeamFromIncoming(item, remote){
   const remoteTeam=(src.team && typeof src.team==="object")?src.team:{};
   ["shabot","rybot","webot","drebot","tbot"].forEach(function(k){
     const keep=teamSlot(item.team[k]);
-    const fromTeam=remoteTeam[k] || panelSlotOf({panel:remoteTeam}, k);
-    const fromPanel=panelSlotOf(src.finalRationale, k);
-    const slot=fromTeam||fromPanel||{};
+    const fromTeam=remoteTeam[k] || panelSlotOf({panel:remoteTeam}, k) || {};
+    const fromPanel=panelSlotOf(src.finalRationale, k) || {};
+    const useTeam=typeof botHasCompleteNumbers==="function" && botHasCompleteNumbers(fromTeam);
+    const usePanel=typeof botHasCompleteNumbers==="function" && botHasCompleteNumbers(fromPanel);
+    const slot=useTeam?fromTeam:(usePanel?fromPanel:fromTeam);
     const min=keep.min||slot.min||"";
     const target=keep.target||slot.target||"";
     const max=keep.max||slot.max||"";
-    let note=keep.note||slot.note||slot.why||"";
+    let note=keep.note||fromTeam.note||fromPanel.note||fromPanel.why||slot.note||"";
     if(k==="shabot"){
       const how=shabotHowWeGotHere({team:{shabot:{note:note}}, finalRationale:item.finalRationale||src.finalRationale});
       if(how) note=how;

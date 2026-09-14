@@ -347,6 +347,39 @@ assert.equal(incoming.isPacketSend({
   assert.equal(incoming.listItems()[0].teamActivated, true);
   assert.ok(!incoming.listItems()[0].appraisalFinal || !incoming.listItems()[0].appraisalFinal.target, "F-150 kind:team does not invent FINAL");
 
+  incoming.resetStore();
+  incoming.route("POST", {
+    kind: "land",
+    item: {
+      id: "cmu0a6138006k",
+      sendId: "s1af19al",
+      vin: "3GNKBHRS0LS577461",
+      ymmt: "2020 Chevrolet Blazer 2LT",
+      appraisalFinal: { min: "15500", target: "17000", max: "18000" },
+      team: {
+        shabot: { min: "15500", target: "17000", max: "18000", note: "Sided Wes" },
+        rybot: { min: "17000", target: "19000", max: "20500", note: "Ryan fighter" },
+        webot: { min: "15500", target: "17000", max: "18000", note: "Wes analytical" },
+        drebot: { min: "14800", target: "16500", max: "17800", note: "Drew" },
+        tbot: { min: "14500", target: "16500", max: "18000", note: "Sean bear" }
+      },
+      finalRationale: {
+        schema_version: "1.0",
+        title: "HOW WE GOT HERE",
+        markdown: "# HOW WE GOT HERE — Shabot FINAL",
+        panel: { rybot: { min: "17000", target: "19000", max: "20500", why: "rich" } }
+      },
+      customer: { name: "larry laydown" }
+    }
+  });
+  const blazer = incoming.listItems()[0];
+  assert.equal(blazer.sendId, "s1af19al");
+  assert.equal(blazer.team.rybot.target, "19000", "mailer keeps schema 1.0 team.rybot");
+  assert.equal(blazer.team.rybot.note, "Ryan fighter");
+  assert.equal(blazer.finalRationale.schema_version, "1.0");
+  assert.ok(blazer.finalRationale.markdown.indexOf("HOW WE GOT HERE") >= 0);
+  assert.equal(blazer.finalRationale.panel.rybot.target, "19000");
+
   console.log("incoming-api: ok");
 })().catch(function (err) {
   console.error(err);
