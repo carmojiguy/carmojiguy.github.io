@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-14 build d31a: pixel-faithful Acre GR Corolla desk (white hero|mid|market, not stone/teal); CA workbench redo — drop the verbal-only tag forever; What's the Story walks the car and talks; Walk-around photos only; keep Critical damage; salesperson CA has no packet-send card; Tracker mobile cards + current month; website-post story-first year/make/model/trim/condition, no team select, original start not webdesk, pictures still relaunch/post; Acre GR Corolla desk lock — FIFO oldest home, left-rail Incoming/On-site/Needs docs/History pills, no hist KPI strip, Ask Maya, appraisal range/competing/ask; users GET/POST kind:users persist; 911 Acre team reads finalRationale.markdown + panel Rybot/Webot/Drebot/TBot + team.shabot note, hides boxes with no numbers; 911 Incoming FINAL min+target+max clears Running and lands Appraisal Team numbers (Blazer s1af19al / F-150 sir78n6); Run Appraisal Team tap always fires (rerun + Unlocked History); kind:team wake; Incoming FINAL settles Running; schema 1.0 team + panel boxes; market pills append multiple files into shots[]; compact V Auto / Carfax / OpenLane / eBlock chips; same sendId/id Incoming POST; panel runs progress → existing FINAL; no invented solds; real Carfax http url opens the uploaded file; sample recreate only when no docs.carfax.url; Carfax square + huge card add/upload kind:file carfax; staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; Incoming keeps http docs.url; Incoming appends shots[]; status dropdown every lane; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples; hides generated From V Auto lane -->
+<!-- center-v3 + desk-home 2026-09-14 build d31a: pixel-faithful Acre GR Corolla desk (white hero|mid|market, not stone/teal); CA workbench redo — drop the verbal-only tag forever; What's the Story walks the car and talks; Walk-around photos only; keep Critical damage; salesperson CA has no packet-send card; Tracker mobile cards + current month; website-post story-first year/make/model/trim/condition, no team select, original start not webdesk, pictures still relaunch/post; Acre GR Corolla desk lock — FIFO oldest home, left-rail Incoming/On-site/Needs docs/History pills, no hist KPI strip, Ask Maya, appraisal range/competing/ask; users GET/POST kind:users persist; 911 Acre team reads finalRationale.markdown + panel Rybot/Webot/Drebot/TBot + team.shabot note, hides boxes with no numbers; mailer keeps rich team/rationale on Center refresh; 911 Incoming FINAL min+target+max clears Running and lands Appraisal Team numbers (Blazer s1af19al / F-150 sir78n6); Run Appraisal Team tap always fires (rerun + Unlocked History); kind:team wake; Incoming FINAL settles Running; schema 1.0 team + panel boxes; market pills append multiple files into shots[]; compact V Auto / Carfax / OpenLane / eBlock chips; same sendId/id Incoming POST; panel runs progress → existing FINAL; no invented solds; real Carfax http url opens the uploaded file; sample recreate only when no docs.carfax.url; Carfax square + huge card add/upload kind:file carfax; staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; Incoming keeps http docs.url; Incoming appends shots[]; status dropdown every lane; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples; hides generated From V Auto lane -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -6244,7 +6244,7 @@ function hasStoredFinalRationale(item){
   if(!item || !item.finalRationale) return false;
   const r=item.finalRationale;
   if(String(r.markdown||"").trim() || String(r.title||"").trim()) return true;
-  if(r.panel && typeof r.panel==="object" && Object.keys(r.panel).length) return true;
+  if(r.panel && typeof r.panel==="object" && Object.keys(r.panel).some(function(k){ const s=r.panel[k]; return !!(s && typeof s==="object" && (String(s.min||"").trim() || String(s.target||"").trim() || String(s.max||"").trim() || String(s.why||s.note||"").trim())); })) return true;
   if(r.shabot && (r.shabot.target||r.shabot.min||r.shabot.max||r.shabot.note)) return true;
   const ev=r.marketEvidence||{};
   return ["vauto","openlane","eblock","carfax"].some(function(k){ return ev[k] && ev[k].length; });
@@ -6286,13 +6286,36 @@ function shabotHowWeGotHere(item){
 }
 function hydrateTeamFromIncoming(item, remote){
   if(!item) return item;
+  function longerNote(a, b){
+    const as=String(a||"").trim();
+    const bs=String(b||"").trim();
+    return bs.length>as.length ? b : (as ? a : b);
+  }
+  function score(r){
+    if(!r || typeof r!=="object") return 0;
+    let n=0;
+    if(String(r.schema_version||"")==="1.0") n+=20;
+    n+=String(r.markdown||"").trim().length;
+    n+=String(r.title||"").trim().length;
+    n+=String((r.shabot&&(r.shabot.note||r.shabot.why))||"").trim().length;
+    const p=r.panel;
+    if(p && typeof p==="object"){
+      Object.keys(p).forEach(function(k){
+        const s=p[k];
+        if(!s || typeof s!=="object") return;
+        if(s.min!=null && s.min!=="") n+=4;
+        if(s.target!=null && s.target!=="") n+=4;
+        if(s.max!=null && s.max!=="") n+=4;
+        n+=String(s.why||s.note||"").trim().length;
+      });
+    }
+    return n;
+  }
   const src=remote||item;
   if(src.finalRationale && typeof src.finalRationale==="object"){
-    const incomingRich=hasStoredFinalRationale(src);
-    const localRich=hasStoredFinalRationale(item);
-    if(incomingRich && (!localRich || (src.finalRationale.markdown && !(item.finalRationale&&item.finalRationale.markdown)))){
-      item.finalRationale=src.finalRationale;
-    } else if(!item.finalRationale && incomingRich){
+    const incomingScore=score(src.finalRationale);
+    const localScore=score(item.finalRationale);
+    if(incomingScore>localScore || (!item.finalRationale && incomingScore>0)){
       item.finalRationale=src.finalRationale;
     }
   }
@@ -6310,7 +6333,8 @@ function hydrateTeamFromIncoming(item, remote){
     const min=keep.min||slot.min||"";
     const target=keep.target||slot.target||"";
     const max=keep.max||slot.max||"";
-    let note=keep.note||fromTeam.note||fromPanel.note||String(rawPanel.why||rawPanel.note||rawTeam.note||"").trim()||"";
+    let note=fromTeam.note||fromPanel.note||String(rawPanel.why||rawPanel.note||rawTeam.note||"").trim()||"";
+    note=longerNote(keep.note, note);
     if(k==="shabot"){
       const how=shabotHowWeGotHere({team:{shabot:{note:note}}, finalRationale:item.finalRationale||src.finalRationale});
       if(how) note=how;
@@ -7520,7 +7544,7 @@ function slimSharedCenterItem(item){
       at:Number(af.at||(fin&&fin.at))||0,
       authors:Array.isArray(af.authors)?af.authors.slice():(fin&&Array.isArray(fin.authors)?fin.authors.slice():[])
     },
-    finalRationale:item.finalRationale&&typeof item.finalRationale==="object"?item.finalRationale:null,
+    finalRationale:item.finalRationale&&typeof item.finalRationale==="object"&&(typeof hasStoredFinalRationale!=="function"||hasStoredFinalRationale(item))?item.finalRationale:null,
     finalMin:item.finalMin||(fin&&fin.min)||"",
     finalTarget:item.finalTarget||(fin&&fin.target)||"",
     finalMax:item.finalMax||(fin&&fin.max)||""
