@@ -14,6 +14,7 @@
  *        { kind:"team", sendId, id, vin, ymmt, pdfUrl, docs, item }
  *        → persist teamActivated + notify-appraisal + APPRAISAL_TEAM_WEBHOOK
  *        Empty land never wipes a complete appraisalFinal (min+target+max).
+ *        Complete FINAL (min+target+max) settles teamStatus running → final.
  *
  * CORS: carmojiguy.github.io (+ github.io / vercel.app).
  * Slim only: no raw video. thumb / tiny photos + docs meta (have/name/type).
@@ -224,6 +225,14 @@ function rationaleRich(rat) {
   return !!(rat.shabot && (rat.shabot.min || rat.shabot.target || rat.shabot.max || rat.shabot.note));
 }
 
+function settleRunningIfFinal(item) {
+  if (!item) return item;
+  if (completeAppraisalFinal(item.appraisalFinal) && (item.teamActivated === true || item.teamStatus === "running")) {
+    item.teamStatus = "final";
+  }
+  return item;
+}
+
 function keepExistingFinal(prev, next) {
   if (!prev || !next) return next;
   if (completeAppraisalFinal(prev.appraisalFinal) && !completeAppraisalFinal(next.appraisalFinal)) {
@@ -312,11 +321,13 @@ function persistItem(raw) {
         phone: item.customer.phone || prev.customer.phone
       }
     })));
+    settleRunningIfFinal(next);
     list.splice(idx, 1);
     list.unshift(next);
     saveFile(list.slice(0, MAX));
     return next;
   }
+  settleRunningIfFinal(item);
   list.unshift(item);
   saveFile(list.slice(0, MAX));
   return item;

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-14 build d31w: website-post story-first year/make/model/trim/condition, no team select, original start not webdesk, pictures still relaunch/post; Acre GR Corolla desk lock — FIFO oldest home, left-rail Incoming/On-site/Needs docs/History pills, no hist KPI strip, Ask Maya, appraisal range/competing/ask; users GET/POST kind:users persist; Run Appraisal Team tap always fires (rerun + Unlocked History); kind:team wake; Incoming FINAL settles Running; schema 1.0 team + panel boxes; market pills append multiple files into shots[]; compact V Auto / Carfax / OpenLane / eBlock chips; same sendId/id Incoming POST; panel runs progress → existing FINAL; no invented solds; real Carfax http url opens the uploaded file; sample recreate only when no docs.carfax.url; Carfax square + huge card add/upload kind:file carfax; staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; Incoming keeps http docs.url; Incoming appends shots[]; status dropdown every lane; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples; hides generated From V Auto lane -->
+<!-- center-v3 + desk-home 2026-09-14 build d31w: website-post story-first year/make/model/trim/condition, no team select, original start not webdesk, pictures still relaunch/post; Acre GR Corolla desk lock — FIFO oldest home, left-rail Incoming/On-site/Needs docs/History pills, no hist KPI strip, Ask Maya, appraisal range/competing/ask; users GET/POST kind:users persist; 911 Incoming FINAL min+target+max clears Running and lands Appraisal Team numbers (Blazer s1af19al / F-150 sir78n6); Run Appraisal Team tap always fires (rerun + Unlocked History); kind:team wake; Incoming FINAL settles Running; schema 1.0 team + panel boxes; market pills append multiple files into shots[]; compact V Auto / Carfax / OpenLane / eBlock chips; same sendId/id Incoming POST; panel runs progress → existing FINAL; no invented solds; real Carfax http url opens the uploaded file; sample recreate only when no docs.carfax.url; Carfax square + huge card add/upload kind:file carfax; staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; Incoming keeps http docs.url; Incoming appends shots[]; status dropdown every lane; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples; hides generated From V Auto lane -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -7296,7 +7296,8 @@ function slimSharedCenterItem(item){
   }
   slim.teamActivated=item.teamActivated===true;
   if(item.teamActivatedAt!=null && item.teamActivatedAt!=="") slim.teamActivatedAt=Number(item.teamActivatedAt)||0;
-  slim.teamStatus=item.teamStatus||(slim.teamActivated?"running":"");
+  if(typeof hasCompleteAppraisalFinal==="function" && hasCompleteAppraisalFinal(item)) slim.teamStatus="final";
+  else slim.teamStatus=item.teamStatus||(slim.teamActivated?"running":"");
   if(item.teamRun && typeof item.teamRun==="object") slim.teamRun=item.teamRun;
   slim.locked=!!item.locked;
   slim.superseded=!!item.superseded;
@@ -7556,7 +7557,7 @@ function applySharedIncoming(item, remote){
     if(remote.centerLocked===true || remote.centerLocked===false) item.centerLocked=!!remote.centerLocked;
   }
   if(typeof enrichRav4OnsiteFinal==="function") enrichRav4OnsiteFinal(item);
-  if(typeof settleTeamRunIfFinal==="function") settleTeamRunIfFinal(item);
+  if(typeof settleTeamRunIfFinal==="function") settleTeamRunIfFinal(item, remote);
   if(item.photos && item.photos.length && typeof persistCenterMedia==="function"){
     try{
       const saved=persistCenterMedia(item.id, item.photos, item.docs||{});
@@ -7581,7 +7582,7 @@ function mergeIncomingShared(list){
       let item=findCenterMatch(store, {shared:true, sendId:remote.sendId||"", id:remote.id||"", customerName:name});
       if(item && !sharedRemoteBeats(remote, item)){
         if(typeof seedSharedIncomingFinal==="function") seedSharedIncomingFinal(item, remote);
-        if(typeof settleTeamRunIfFinal==="function") settleTeamRunIfFinal(item);
+        if(typeof settleTeamRunIfFinal==="function") settleTeamRunIfFinal(item, remote);
         if(typeof hasCompleteAppraisalFinal==="function" && hasCompleteAppraisalFinal(item)){
           saveCenterStore(store);
           changed=true;
@@ -7604,7 +7605,7 @@ function mergeIncomingShared(list){
         store.items.unshift(item);
       }
       applySharedIncoming(item, remote);
-      if(typeof settleTeamRunIfFinal==="function") settleTeamRunIfFinal(item);
+      if(typeof settleTeamRunIfFinal==="function") settleTeamRunIfFinal(item, remote);
       if(item.photos && item.photos.length && typeof persistCenterMedia==="function"){
         try{
           const saved=persistCenterMedia(item.id, item.photos, item.docs||{});
@@ -7635,9 +7636,9 @@ function mergeIncomingShared(list){
     return changed;
   }).catch(function(){ return false; });
 }
-function scheduleIncomingPull(){
+function scheduleIncomingPull(force){
   if(incomingPulling) return;
-  if(Date.now()-incomingPullAt<6000) return;
+  if(!force && Date.now()-incomingPullAt<6000) return;
   incomingPullAt=Date.now();
   incomingPulling=true;
   Promise.resolve(mergeIncomingShared()).then(function(){ incomingPulling=false; }, function(){ incomingPulling=false; });
@@ -7904,7 +7905,7 @@ function openCenter(){
   if(typeof closeCenterGallery==="function") closeCenterGallery();
   if($("centerSheet")) $("centerSheet").classList.remove("on");
   if($("centerSheetDim")) $("centerSheetDim").classList.remove("on");
-  try{ scheduleIncomingPull(); }catch(e){}
+  try{ scheduleIncomingPull(true); }catch(e){}
   const oldest=oldestReadyCenter();
   APP.centerViewId=oldest?oldest.id:"";
   show("center");
@@ -8880,11 +8881,19 @@ function isTeamActivated(item){
   return !!(item && (item.teamActivated===true || item.teamStatus==="running" || item.teamStatus==="final"));
 }
 function hasCompleteAppraisalFinal(item){
+  if(!item) return false;
+  const af=item.appraisalFinal&&typeof item.appraisalFinal==="object"?item.appraisalFinal:{};
+  if(String(af.min||"").trim() && String(af.target||"").trim() && String(af.max||"").trim()) return true;
   const fin=typeof resolveAppraisalFinal==="function"?resolveAppraisalFinal(item):null;
   return !!(fin && String(fin.min||"").trim() && String(fin.target||"").trim() && String(fin.max||"").trim());
 }
-function settleTeamRunIfFinal(item){
-  if(!item || typeof hasCompleteAppraisalFinal!=="function" || !hasCompleteAppraisalFinal(item)) return item;
+function settleTeamRunIfFinal(item, remote){
+  if(!item) return item;
+  if(remote && typeof seedSharedIncomingFinal==="function") seedSharedIncomingFinal(item, remote);
+  const srcAf=(remote && remote.appraisalFinal && typeof remote.appraisalFinal==="object")?remote.appraisalFinal:null;
+  const remoteComplete=!!(srcAf && String(srcAf.min||"").trim() && String(srcAf.target||"").trim() && String(srcAf.max||"").trim());
+  const has=(typeof hasCompleteAppraisalFinal==="function" && hasCompleteAppraisalFinal(item)) || remoteComplete;
+  if(!has) return item;
   item.teamStatus="final";
   item.teamRun={shabot:"ready", rybot:"ready", webot:"ready", drebot:"ready", tbot:"ready"};
   if(typeof landTeamRunFromFile==="function") landTeamRunFromFile(item);
@@ -8934,6 +8943,7 @@ function startTeamRunProgress(id){
   const cur=typeof getCenter==="function"?getCenter(id):null;
   if(typeof hasCompleteAppraisalFinal==="function" && hasCompleteAppraisalFinal(cur)){
     if(typeof settleTeamRunIfFinal==="function") settleTeamRunIfFinal(cur);
+    if(typeof clearTeamRunTimers==="function") clearTeamRunTimers(id);
     if(cur && APP.centerViewId===id){
       if(typeof paintCenterTeam==="function") paintCenterTeam(cur);
       if(typeof paintCenterRunTeam==="function") paintCenterRunTeam(cur);
@@ -8961,6 +8971,10 @@ function startTeamRunProgress(id){
     const bot=order[i];
     const t=setTimeout(function(){
       const item=setRun(function(x){
+        if(typeof hasCompleteAppraisalFinal==="function" && hasCompleteAppraisalFinal(x)){
+          if(typeof settleTeamRunIfFinal==="function") settleTeamRunIfFinal(x);
+          return;
+        }
         x.teamRun=x.teamRun||{};
         if(i===0 && typeof landTeamRunFromFile==="function") landTeamRunFromFile(x);
         x.teamRun[bot]="ready";
@@ -8971,6 +8985,9 @@ function startTeamRunProgress(id){
           x.teamStatus="final";
         }
       });
+      if(item && typeof hasCompleteAppraisalFinal==="function" && hasCompleteAppraisalFinal(item)){
+        if(typeof clearTeamRunTimers==="function") clearTeamRunTimers(id);
+      }
       if(i===order.length-1 && item){
         try{ shareIncomingBestEffort(item); }catch(e){}
       }
@@ -9329,6 +9346,7 @@ function paintCenterDetail(){
     paintCenterDetailEmpty();
     return;
   }
+  if(typeof settleTeamRunIfFinal==="function") settleTeamRunIfFinal(item);
   if(typeof enrichRav4OnsiteFinal==="function"){
     enrichRav4OnsiteFinal(item);
     try{ saveCenterStore(centerStore()); }catch(e){}
