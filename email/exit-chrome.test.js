@@ -71,7 +71,7 @@ must(/function finishGuest\(\)\{\s*finishThanks\(\);/, "finishGuest stays Thank-
 must(/function restoreSend\(\)/, "restoreSend stays");
 mustNot(/function pageHome\(\)\{[\s\S]{0,400}restoreSend/, "Home does not call restoreSend");
 
-must(/id="buildStamp">build d30e</, "build stamp");
+must(/id="buildStamp">build d30f</, "build stamp");
 must(/id="exitRefresh">Refresh/, "Refresh label is on the chrome");
 must(/location\.reload\(\)/, "Refresh reloads the live screen");
 must(/function syncExitChrome\(\)\{\s*const bar=\$\("exitChrome"\);\s*const show=!!APP\.screen;/, "chrome stays on every screen including login/start/thanks");
