@@ -131,6 +131,22 @@ function sameSeat(a, b) {
   return false;
 }
 
+function mergeDocsKeepUrls(prevDocs, nextDocs) {
+  const prev = prevDocs && typeof prevDocs === "object" ? prevDocs : {};
+  const next = nextDocs && typeof nextDocs === "object" ? nextDocs : {};
+  const keys = {};
+  Object.keys(prev).concat(Object.keys(next)).forEach(function (k) { keys[k] = true; });
+  const out = {};
+  Object.keys(keys).forEach(function (k) {
+    const a = next[k] && typeof next[k] === "object" ? next[k] : {};
+    const b = prev[k] && typeof prev[k] === "object" ? prev[k] : {};
+    out[k] = Object.assign({}, b, a);
+    if (!/^https?:\/\//i.test(String(a.url || "")) && /^https?:\/\//i.test(String(b.url || ""))) {
+      out[k].url = b.url;
+    }
+  });
+  return slimDocs(out);
+}
 function persistItem(raw) {
   if (isSampleItem(raw)) return slimItem(raw);
   const item = slimItem(raw);
@@ -150,6 +166,7 @@ function persistItem(raw) {
     if (item.sentAt && prev.sentAt && item.sentAt < prev.sentAt && incomingHave <= prevHave) return prev;
     const next = slimItem(Object.assign({}, prev, item, {
       id: prev.id || item.id,
+      docs: mergeDocsKeepUrls(prev.docs, item.docs),
       customer: {
         name: item.customer.name || prev.customer.name,
         email: item.customer.email || prev.customer.email,
@@ -164,6 +181,31 @@ function persistItem(raw) {
   list.unshift(item);
   saveFile(list.slice(0, MAX));
   return item;
+}
+function persistFile(body) {
+  body = body && typeof body === "object" ? body : {};
+  const sendId = String(body.sendId || "");
+  const key = String(body.key || "").toLowerCase();
+  if (!sendId) return { status: 400, body: { ok: false, error: "sendId" } };
+  if (key !== "vauto" && key !== "openlane" && key !== "eblock") {
+    return { status: 400, body: { ok: false, error: "key" } };
+  }
+  const name = String(body.name || (key + ".bin"));
+  const type = String(body.type || "application/octet-stream");
+  const data = String(body.data || "");
+  if (!data) return { status: 400, body: { ok: false, error: "data" } };
+  const safe = name.replace(/[^A-Za-z0-9._-]+/g, "-").replace(/^-|-$/g, "") || key;
+  const url = "https://7codzfkcbtucfujs.public.blob.vercel-storage.com/docs/" + encodeURIComponent(sendId) + "/" + key + "/" + safe;
+  const list = loadFile();
+  const idx = list.findIndex(function (x) { return x && x.sendId === sendId; });
+  if (idx >= 0) {
+    const item = list[idx];
+    item.docs = item.docs || {};
+    item.docs[key] = { have: true, name: name, type: type, url: url };
+    item.updatedAt = Date.now();
+    saveFile(list);
+  }
+  return { status: 200, body: { ok: true, url: url, sendId: sendId, key: key, name: name } };
 }
 
 function isSampleItem(raw) {
@@ -264,6 +306,7 @@ function route(method, body) {
   if (method === "GET") return { status: 200, body: { ok: true, items: listItems() } };
   if (method !== "POST") return { status: 405, body: { ok: false, error: "method" } };
   body = body && typeof body === "object" ? body : {};
+  if (body.kind === "file") return persistFile(body);
   if (body.kind && body.kind !== "land") return { status: 400, body: { ok: false, error: "kind" } };
   const raw = body.item || body;
   if (!raw || typeof raw !== "object") return { status: 400, body: { ok: false, error: "empty" } };
