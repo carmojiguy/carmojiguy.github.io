@@ -119,6 +119,17 @@ must(/function settleTeamRunIfFinal\(/, "FINAL still clears Running");
 must(/function finishGuest\(\)\{\s*finishThanks\(\);/, "Thank-you stays frozen");
 mustNot(/id="exitRefresh"/, "Refresh stays gone");
 mustNot(/openlane:\s*\[\{ask|sold:/, "do not invent OpenLane solds");
+must(/id="exitLanes"/, "mobile stage buttons sit beside Back/Home");
+must(/id="exitLaneInbox">Incoming</, "Incoming stage button");
+must(/id="exitLaneOnsite">On-site</, "On-site stage button");
+must(/id="exitLaneNeeds">Needs docs</, "Needs docs stage button");
+must(/id="exitLaneHistory">History</, "History stage button");
+must(/#centerLanes\.center-rail, #center \.center-lanes\.center-rail\{ display:none/, "mobile kills the left rail");
+must(/#startCenter::before \{[\s\S]*content:"Coming Soon"/, "Appraisal Center has a Coming Soon stamp");
+must(/\$\("startCenter"\)\.onclick = openCenter/, "Appraisal Center stays clickable");
+mustNot(/#startCenter\{[^}]*pointer-events:\s*none/, "Coming Soon stamp does not disable the Center button");
+mustNot(/id="startCenter"[^>]*\sdisabled/, "Center button is not disabled");
+mustNot(/id="startCenter"[^>]*class="[^"]*soon/, "Center does not use the pointer-events:none soon class");
 
 const share = slice("async function sharePacket(){", "\nfunction resetAll()");
 const kick = slice("function kickShare(){", "\nfunction packetSendId(");

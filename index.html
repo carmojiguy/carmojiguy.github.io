@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-14 build d31a: pixel-faithful Acre GR Corolla desk (white hero|mid|market, not stone/teal); HARD LOCK photo desk — packed mid (title, badges, MAYA/CLUTCH KILLER/VAUTO/PREDICTED 4-wide, recon/profit chips, range/compete/ask + Clutch source pills), notes under hero spanning the desk, MAYA strip, thumbs strip four CHUNKY landscape contain-fit tiles + 5th peek + chevron (3/4 front, side, rear-3/4, rear-other, rear peek — crops from 04-home-desk-exact.png, not cover-crop), sunset/dusk 3/4 GR hero crop from the lock PNG (car pixels only), Documents 7/7 fixture, OPENLANE|eBlock and CARFAX|MMR pairs, no invented OpenLane listing thumbs, blue Complete, Documents/VAUTO/BLACK BOOK/OPENLANE/eBlock/CARFAX/MMR cards; CA workbench redo — drop the verbal-only tag forever; What's the Story walks the car and talks; Walk-around photos only; keep Critical damage; salesperson CA has no packet-send card; Tracker mobile cards + current month; website-post story-first year/make/model/trim/condition, no team select, original start not webdesk, pictures still relaunch/post; Acre GR Corolla desk lock — FIFO oldest home, left-rail Incoming/On-site/Needs docs/History pills, no hist KPI strip, Ask Maya, appraisal range/competing/ask; users GET/POST kind:users persist; 911 Acre team reads finalRationale.markdown + panel Rybot/Webot/Drebot/TBot + team.shabot note, hides boxes with no numbers; mailer keeps rich team/rationale on Center refresh; Trade-in start drops stray top History (rail History stays); 911 Incoming FINAL min+target+max clears Running and lands Appraisal Team numbers (Blazer s1af19al / F-150 sir78n6); Run Appraisal Team tap always fires (rerun + Unlocked History); kind:team wake; Incoming FINAL settles Running; schema 1.0 team + panel boxes; market pills append multiple files into shots[]; compact V Auto / Carfax / OpenLane / eBlock chips; same sendId/id Incoming POST; panel runs progress → existing FINAL; no invented solds; real Carfax http url opens the uploaded file; sample recreate only when no docs.carfax.url; Carfax square + huge card add/upload kind:file carfax; staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; Incoming keeps http docs.url; Incoming appends shots[]; status dropdown every lane; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples; hides generated From V Auto lane -->
+<!-- center-v3 + desk-home 2026-09-14 build d31a: pixel-faithful Acre GR Corolla desk (white hero|mid|market, not stone/teal); HARD LOCK photo desk — packed mid (title, badges, MAYA/CLUTCH KILLER/VAUTO/PREDICTED 4-wide, recon/profit chips, range/compete/ask + Clutch source pills), notes under hero spanning the desk, MAYA strip, thumbs strip four CHUNKY landscape contain-fit tiles + 5th peek + chevron (3/4 front, side, rear-3/4, rear-other, rear peek — crops from 04-home-desk-exact.png, not cover-crop), sunset/dusk 3/4 GR hero crop from the lock PNG (car pixels only), Documents 7/7 fixture, OPENLANE|eBlock and CARFAX|MMR pairs, no invented OpenLane listing thumbs, blue Complete, Documents/VAUTO/BLACK BOOK/OPENLANE/eBlock/CARFAX/MMR cards; CA workbench redo — drop the verbal-only tag forever; What's the Story walks the car and talks; Walk-around photos only; keep Critical damage; salesperson CA has no packet-send card; Tracker mobile cards + current month; website-post story-first year/make/model/trim/condition, no team select, original start not webdesk, pictures still relaunch/post; Acre GR Corolla desk lock — FIFO oldest home, left-rail Incoming/On-site/Needs docs/History pills, no hist KPI strip, mobile kills the left sidebar and puts Incoming/On-site/Needs docs/History stage buttons beside Back/Home, Ask Maya, appraisal range/competing/ask; users GET/POST kind:users persist; 911 Acre team reads finalRationale.markdown + panel Rybot/Webot/Drebot/TBot + team.shabot note, hides boxes with no numbers; mailer keeps rich team/rationale on Center refresh; Trade-in start drops stray top History (rail History stays); 911 Incoming FINAL min+target+max clears Running and lands Appraisal Team numbers (Blazer s1af19al / F-150 sir78n6); Run Appraisal Team tap always fires (rerun + Unlocked History); kind:team wake; Incoming FINAL settles Running; schema 1.0 team + panel boxes; market pills append multiple files into shots[]; compact V Auto / Carfax / OpenLane / eBlock chips; same sendId/id Incoming POST; panel runs progress → existing FINAL; no invented solds; real Carfax http url opens the uploaded file; sample recreate only when no docs.carfax.url; Carfax square + huge card add/upload kind:file carfax; staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; Incoming keeps http docs.url; Incoming appends shots[]; status dropdown every lane; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples; hides generated From V Auto lane -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -60,14 +60,18 @@ body:has(#center.on.center-has-detail) .exit-chrome { display:none !important; }
   box-shadow:0 10px 24px rgba(124,92,255,.22);
   font-size:26px; font-weight:800; line-height:1; cursor:pointer;
 }
-.exit-back, .exit-home {
+.exit-back, .exit-home, .exit-lane {
   width:auto; min-width:0; min-height:24px; margin:0; padding:2px 7px;
   border:0; border-radius:999px; cursor:pointer;
   background:transparent; color:#9A96A8;
   font:inherit; font-size:11px; font-weight:500; letter-spacing:0;
   box-shadow:none; opacity:.7;
 }
-.exit-back:hover, .exit-home:hover { background:transparent; color:var(--muted); opacity:1; }
+.exit-back:hover, .exit-home:hover, .exit-lane:hover { background:transparent; color:var(--muted); opacity:1; }
+.exit-lanes { display:none; align-items:center; gap:2px; min-width:0; overflow-x:auto; scrollbar-width:none; }
+.exit-lanes::-webkit-scrollbar { display:none; }
+.exit-lane { flex:0 0 auto; white-space:nowrap; }
+.exit-lane.on { opacity:1; color:#6B6578; font-weight:700; }
 body.exit-on .screen:not(.start):not(.cam) { padding-top:calc(56px + env(safe-area-inset-top)); }
 body.exit-on .screen:not(.start):not(.cam) > .nav { padding-top:4px; }
 body.exit-on .screen > .nav > .round:first-of-type { visibility:hidden; pointer-events:none; }
@@ -80,6 +84,15 @@ body.exit-on #whoChip { top: calc(64px + env(safe-area-inset-top)); }
   body.exit-on #center.center-has-detail #centerDetailBody{
     top:calc(56px + env(safe-area-inset-top));
   }
+  body:has(#center.on) .exit-lanes { display:flex; }
+  body:has(#center.on.center-has-detail) .exit-chrome { display:grid !important; }
+  body:has(#center.on) .exit-chrome {
+    background:linear-gradient(180deg,#12141A 0%, rgba(18,20,26,.94) 58%, rgba(18,20,26,0));
+  }
+  body:has(#center.on) .exit-back,
+  body:has(#center.on) .exit-home,
+  body:has(#center.on) .exit-lane { color:#A8B0BA; }
+  body:has(#center.on) .exit-lane.on { opacity:1; color:#F3F5F7; font-weight:700; }
 }
 .nav-hist {
   height:36px; padding:0 14px; border:0; border-radius:999px;
@@ -559,7 +572,18 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
 .start-actions .pill.purple { background:var(--purple); color:#fff; border-color:var(--purple); }
 .start-actions .pill.cyan { background:var(--cyan); color:#fff; border-color:var(--cyan); }
 #startCenter {
+  position:relative; overflow:hidden;
   background:rgba(255,255,255,.94); color:var(--ink);
+}
+#startCenter::before {
+  content:"Coming Soon";
+  position:absolute; top:8px; right:-36px; z-index:2;
+  width:132px; padding:4px 0;
+  background:#C41E3A; color:#fff;
+  font-size:9px; font-weight:800; letter-spacing:.16em;
+  text-transform:uppercase; text-align:center;
+  transform:rotate(32deg);
+  box-shadow:0 2px 8px rgba(0,0,0,.28);
 }
 #startCenter.locked {
   background:rgba(250,249,252,.38);
@@ -1446,20 +1470,169 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
 .center-detail-empty b { display:block; font-size:28px; letter-spacing:-.6px; margin:0 0 8px; }
 .center-detail-empty p { color:var(--muted); font-size:16px; font-weight:600; margin:0; }
 @media (max-width:767px){
+  html:has(#center.on), body:has(#center.on){ background:#12141A; }
+  .phone:has(#center.on){ background:#12141A; }
+  .phone:has(#center.on) .accent{ display:none; }
+  #center.screen{
+    grid-template-columns:minmax(0,1fr);
+    grid-template-rows:minmax(0,1fr) auto;
+    background:#12141A;
+    --ink:#F3F5F7; --muted:#9AA3AF; --hair:#2A3038; --fill:#1A1E26;
+    --page:#12141A; --purple:#3B82F6; --purple-deep:#93C5FD;
+    --lavender:#1A1E26; --cyan:#38BDF8; --cyan-deep:#0EA5E9;
+  }
+  #center > .nav{ display:none !important; }
+  #centerLanes.center-rail, #center .center-lanes.center-rail{ display:none !important; }
+  #center #centerDetailBody{ grid-column:1; grid-row:1; }
+  #center #centerDock{ grid-column:1; grid-row:2; }
   #center.center-has-detail #centerDetailBody{
     position:relative; left:auto; right:auto; bottom:auto; top:auto;
     z-index:auto; width:auto; max-width:none;
     background:transparent; border-radius:0; box-shadow:none;
     padding:0 16px 12px;
+    display:flex; flex-direction:column; gap:8px;
+    color:#F3F5F7;
   }
+  #center.center-has-detail #centerDetailBody > * { order:20; }
+  #center #acreDesk{ display:contents; }
+  #center .acre-col-hero{ order:1; margin:0 -16px; }
+  #center .acre-notes-block{ order:2; }
+  #center .center-detail-bar{ order:3; }
+  #center .acre-desk-head{ order:4; }
+  #center .acre-col-mid{ order:5; }
+  #center .acre-col-market{ order:6; }
+  #center .acre-thumbs-row{ order:7; }
   #center.center-has-detail #centerDock{
     z-index:auto; width:auto; max-width:none; left:auto; transform:none;
   }
   #center.center-has-detail #centerSheetDim{ display:none; }
+  #center .center-detail-bar{
+    position:static; background:transparent; padding:0; min-height:0;
+  }
+  #center .center-detail-bar .center-close-x{ display:none; }
+  #center .center-desk-lane{
+    display:block !important; margin:0;
+    font-size:11px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:#9AA3AF;
+  }
+  #center .acre-desk-head{
+    display:flex; flex-direction:column; align-items:flex-start; gap:2px; margin:0;
+  }
+  #center .acre-desk-head strong{ color:#F8FAFC; font-size:22px; letter-spacing:-.4px; }
+  #center .acre-desk-head span{ color:#9AA3AF; font-size:12px; letter-spacing:.06em; }
+  #center .acre-desk-head .acre-doc-head{ display:none; }
+  #center #centerDetailTitle{ display:none; }
+  #center .acre-notes-block{
+    grid-template-columns:56px minmax(0,1fr); gap:4px 10px; margin:2px 0;
+  }
+  #center .acre-notes-block .block{ color:#9AA3AF; padding-top:4px; }
+  #center .acre-notes-block .note{
+    color:#E5E7EB; min-height:0; max-height:36px; overflow:hidden;
+    font-size:13px; line-height:1.35; white-space:nowrap; text-overflow:ellipsis;
+  }
+  #center .acre-maya-strip{ color:#E5E7EB; max-height:40px; font-size:13px; }
+  #center .center-hero{
+    margin:0; border-radius:0; min-height:200px; background:#0B0D12;
+  }
+  #center .center-hero img{
+    height:210px; object-fit:cover; object-position:center 58%; background:#0B0D12;
+  }
+  #center .center-hero .dots{ display:none; }
+  #center .center-hero .nav-hit{
+    width:36px; height:36px; background:rgba(255,255,255,.88); font-size:18px;
+  }
+  #center .center-hero .count{
+    right:12px; bottom:10px; background:rgba(0,0,0,.55);
+  }
+  #center .acre-tags i{
+    background:#1C2128; border-color:#2A3038; color:#E5E7EB;
+  }
+  #center .acre-tags i.tag-appraised, #center .acre-tags i.tag-clean{
+    background:#16351F; color:#4ADE80; border-color:#16351F;
+  }
+  #center .acre-who{ color:#86EFAC; }
+  #center .acre-who span{ color:#9AA3AF; }
+  #center .acre-score-row{
+    grid-template-columns:1fr 1fr 1fr; gap:10px; margin:8px 0 4px;
+  }
+  #center .acre-score-row .acre-score.clutch{ display:none; }
+  #center .acre-score-row .acre-score k{ color:#9AA3AF; }
+  #center .acre-score-row .acre-score b{ font-size:26px; }
+  #center .acre-rank-row i{
+    background:#1C2128; border-color:#2A3038; color:#D1D5DB;
+  }
+  #center .acre-vals{
+    display:flex; flex-direction:column; gap:10px; margin:10px 0 4px;
+  }
+  #center .acre-vals .acre-chip{
+    display:grid; grid-template-columns:118px minmax(0,1fr); align-items:center;
+    background:transparent; border:0; border-radius:0; padding:0; gap:8px;
+  }
+  #center .acre-vals .acre-chip k{ color:#9AA3AF; margin:0; font-size:11px; }
+  #center .acre-vals .acre-chip k em{
+    display:inline-block; margin-left:6px; padding:2px 8px;
+    border:1px solid #3F4752; border-radius:999px; color:#E5E7EB; font-style:normal; font-size:10px;
+  }
+  #center .acre-vals .acre-chip .f,
+  #center .acre-range-pair .f{
+    background:#1C2128; border:0; border-radius:14px; color:#F8FAFC;
+    min-height:44px; padding:10px 14px; font-size:18px; font-weight:800;
+  }
+  #center .acre-range-pair{ gap:8px; }
+  #center .acre-range-pair em{ color:#4B5563; }
+  #center #centerSources{ display:none !important; }
+  #center .acre-market{
+    display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin:8px 0 4px;
+  }
+  #center .acre-doc-pair{ display:contents; }
+  #center .acre-doc-card{
+    display:flex; flex-direction:column; align-items:flex-start; gap:8px;
+    background:#1C2128; border:0; border-radius:14px; padding:12px 10px 10px; min-height:92px;
+  }
+  #center .acre-doc-card k{ color:#9AA3AF; }
+  #center .acre-doc-card b{ color:#F8FAFC; font-size:14px; }
+  #center .acre-doc-card .acre-doc-thumb{
+    order:-1; width:40px; height:24px; object-fit:contain; background:#fff; border-radius:4px;
+  }
+  #center .acre-doc-card .acre-carfax-mark{ font-size:18px; letter-spacing:-.6px; }
+  #center .acre-doc-card.acre-eblock-card{
+    justify-content:center; background:#1C2128; padding:12px 10px !important;
+  }
+  #center .center-thumbs{
+    gap:6px; padding:0; height:auto; min-height:0;
+  }
+  #center .center-thumbs button{
+    flex:0 0 72px !important; width:72px !important; height:56px !important;
+    min-height:0; max-height:56px; aspect-ratio:auto; border-radius:8px; background:#0B0D12;
+  }
+  #center .center-thumbs button.on{ box-shadow:0 0 0 2px #3B82F6; }
+  #center .center-thumbs img{
+    object-fit:cover; transform:none; background:#0B0D12;
+  }
+  #center .acre-thumbs-prev, #center .acre-thumbs-next{ display:none; }
+  #center #centerDock.acre-dock{
+    background:#12141A; border-top:1px solid #232830;
+    padding:10px 16px calc(14px + env(safe-area-inset-bottom));
+  }
+  #center #centerDock.acre-dock .center-maya{
+    background:#1C2128; border-color:#1C2128; border-radius:999px;
+  }
+  #center #centerDock.acre-dock .center-maya input{ color:#F8FAFC; }
+  #center #centerDock.acre-dock #centerStageBtn{
+    background:#3B9BFF; border-color:#3B9BFF; border-radius:999px; min-width:112px;
+  }
+  #center #centerTeamHead,
+  #center #centerRunTeamWrap,
+  #center #centerTeam,
+  #center #centerCdWrap,
+  #center label.k,
+  #center #centerApproval { display:none !important; }
+  #center .center-detail-empty{ color:#E5E7EB; }
+  #center .center-detail-empty p{ color:#9AA3AF; }
 }
 
 /* Tablet: purpose-built desk + list rail (iPad portrait/landscape, ~768–1199) */
 @media (min-width:768px){
+  .exit-lanes{ display:none !important; }
   .phone:has(#center.on){ max-width:none; background:var(--page); }
   html:has(#center.on), body:has(#center.on){ background:#F5F6F8; }
   #center.screen{
@@ -1965,6 +2138,12 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
   <button class="exit-x" type="button" id="exitClose" aria-label="Close">✕</button>
   <button class="exit-back" type="button" id="exitBack">Back</button>
   <button class="exit-home" type="button" id="exitHome">Home</button>
+  <div class="exit-lanes" id="exitLanes">
+    <button class="exit-lane" type="button" data-lane="inbox" id="exitLaneInbox">Incoming</button>
+    <button class="exit-lane" type="button" data-lane="onsite" id="exitLaneOnsite">On-site</button>
+    <button class="exit-lane" type="button" data-lane="needsdocs" id="exitLaneNeeds">Needs docs</button>
+    <button class="exit-lane" type="button" data-lane="history" id="exitLaneHistory">History</button>
+  </div>
 </div>
 <div class="resume-layer" id="resumeLayer" role="dialog" aria-modal="true" aria-labelledby="resumeTitle">
   <div class="resume-card" id="resumeCard">
@@ -8798,6 +8977,9 @@ function paintCenterPops(){
       || (id==="centerNeedsBtn" && APP.centerLane==="needsdocs");
     b.classList.toggle("on", on);
   });
+  document.querySelectorAll(".exit-lane").forEach(function(b){
+    b.classList.toggle("on", (b.getAttribute("data-lane")||"")===APP.centerLane);
+  });
 }
 function acreRow(item){
   const when=centerWhen(item);
@@ -9120,7 +9302,7 @@ function paintCenterThumbs(shots, active){
   host.classList.remove("hide");
   host.scrollLeft=0;
   const lockItem=typeof getCenter==="function"?getCenter(APP.centerViewId):null;
-  const skipHero=typeof isPhotoLockItem==="function" && isPhotoLockItem(lockItem) && shots.length>1;
+  const skipHero=typeof isPhotoLockItem==="function" && isPhotoLockItem(lockItem) && shots.length>1 && !(window.matchMedia && window.matchMedia("(max-width:767px)").matches);
   const start=skipHero?1:0;
   shots.slice(start).forEach(function(shot, i){
     const n=start+i;
@@ -14919,6 +15101,11 @@ if(window.matchMedia){
 if($("centerInboxBtn")) $("centerInboxBtn").onclick = function(){ openCenterLane("inbox"); };
 if($("centerOnsiteBtn")) $("centerOnsiteBtn").onclick = function(){ openCenterLane("onsite"); };
 if($("centerNeedsBtn")) $("centerNeedsBtn").onclick = function(){ openCenterLane("needsdocs"); };
+if($("exitLanes")) $("exitLanes").addEventListener("click", function(e){
+  const b=e.target && e.target.closest ? e.target.closest(".exit-lane") : null;
+  if(!b) return;
+  openCenterLane(b.getAttribute("data-lane"));
+});
 if($("docsGateLeader")) $("docsGateLeader").onclick = sendToTeamLeader;
 if($("docsGateStay")) $("docsGateStay").onclick = function(){ closeDocsGate(); };
 if($("docsGate")) $("docsGate").addEventListener("click", function(e){
