@@ -37,7 +37,7 @@ mustNot(/8 on-site/, "no 8-on-site KPI copy");
 
 must(/id="acreDesk"/, "Acre desk wrapper");
 must(/class="acre-col-hero"/, "hero column");
-must(/class="acre-notes-block"/, "notes sit under the hero");
+must(/class="acre-notes-block"/, "notes sit on the photo desk");
 must(/class="acre-thumbs-row"/, "thumbs are a bottom strip");
 must(/class="acre-col-mid"/, "title / metrics / offers column");
 must(/class="acre-col-market"/, "right market cards column");

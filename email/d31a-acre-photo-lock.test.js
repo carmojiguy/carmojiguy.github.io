@@ -27,7 +27,7 @@ function sha(s) {
 
 must(/id="buildStamp">build d31a</, "footer stamp stays d31a");
 must(/<!--[\s\S]*HARD LOCK photo desk/, "header names the photo hard lock");
-must(/<!--[\s\S]*notes under hero/, "header names notes under hero");
+must(/<!--[\s\S]*notes in mid column/, "header names notes in the photo mid column");
 must(/<!--[\s\S]*thumbs strip/, "header names the thumbs strip");
 must(/<!--[\s\S]*blue Complete/, "header names blue Complete");
 must(/<!--[\s\S]*pixel-faithful Acre GR Corolla desk/, "pixel-faithful phrase stays");
@@ -42,7 +42,8 @@ must(/#centerNavHistBtn \{ display:none/, "top hist pills stay killed");
 
 must(/id="acreDesk"/, "Acre desk wrapper");
 must(/class="acre-col-hero"/, "hero column");
-must(/acre-notes-block/, "notes under hero");
+must(/acre-notes-block/, "notes block on the photo desk");
+must(/class="acre-col-mid"[\s\S]*acre-notes-block/, "notes sit in the mid column like the photo");
 must(/id="centerMayaStrip"/, "Maya strip under notes");
 must(/class="acre-col-mid"/, "mid column");
 must(/acre-score-row/, "Maya / Clutch / VAuto / Predicted row");
@@ -69,6 +70,7 @@ must(/#center #centerDocs \{ display:none/, "launch-tool overflow stays off the 
 must(/#center #centerWhyDocs/, "WHY slots stay off the photo desk");
 must(/function openCenterDetail\(id\)\{[\s\S]{0,420}APP\.centerLane="";/, "opening a car closes the list so the photo desk is full width");
 must(/class="acre-thumbs-row"/, "bottom thumbs strip");
+must(/#center \.center-thumbs button\{[^}]*height:140px/, "photo thumbs are large tiles, not tiny pills");
 must(/#center \.acre-desk\{[\s\S]{0,280}grid-template-areas:"hero mid market"/, "desktop is hero | mid | market");
 must(/#center\.screen \{[\s\S]{0,220}background:#F5F6F8/, "white Acre page");
 mustNot(/#center\.screen \{[\s\S]{0,280}--purple:#1F6B6A/, "teal accent stays gone");

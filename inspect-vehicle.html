@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-14 build d31a: pixel-faithful Acre GR Corolla desk (white hero|mid|market, not stone/teal); HARD LOCK photo desk — notes under hero, thumbs strip, blue Complete, Documents/VAUTO/BLACK BOOK/OPENLANE/eBlock/CARFAX/MMR cards; CA workbench redo — drop the verbal-only tag forever; What's the Story walks the car and talks; Walk-around photos only; keep Critical damage; salesperson CA has no packet-send card; Tracker mobile cards + current month; website-post story-first year/make/model/trim/condition, no team select, original start not webdesk, pictures still relaunch/post; Acre GR Corolla desk lock — FIFO oldest home, left-rail Incoming/On-site/Needs docs/History pills, no hist KPI strip, Ask Maya, appraisal range/competing/ask; users GET/POST kind:users persist; 911 Acre team reads finalRationale.markdown + panel Rybot/Webot/Drebot/TBot + team.shabot note, hides boxes with no numbers; mailer keeps rich team/rationale on Center refresh; Trade-in start drops stray top History (rail History stays); 911 Incoming FINAL min+target+max clears Running and lands Appraisal Team numbers (Blazer s1af19al / F-150 sir78n6); Run Appraisal Team tap always fires (rerun + Unlocked History); kind:team wake; Incoming FINAL settles Running; schema 1.0 team + panel boxes; market pills append multiple files into shots[]; compact V Auto / Carfax / OpenLane / eBlock chips; same sendId/id Incoming POST; panel runs progress → existing FINAL; no invented solds; real Carfax http url opens the uploaded file; sample recreate only when no docs.carfax.url; Carfax square + huge card add/upload kind:file carfax; staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; Incoming keeps http docs.url; Incoming appends shots[]; status dropdown every lane; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples; hides generated From V Auto lane -->
+<!-- center-v3 + desk-home 2026-09-14 build d31a: pixel-faithful Acre GR Corolla desk (white hero|mid|market, not stone/teal); HARD LOCK photo desk — notes in mid column, large thumbs strip, blue Complete, Documents/VAUTO/BLACK BOOK/OPENLANE/eBlock/CARFAX/MMR cards; CA workbench redo — drop the verbal-only tag forever; What's the Story walks the car and talks; Walk-around photos only; keep Critical damage; salesperson CA has no packet-send card; Tracker mobile cards + current month; website-post story-first year/make/model/trim/condition, no team select, original start not webdesk, pictures still relaunch/post; Acre GR Corolla desk lock — FIFO oldest home, left-rail Incoming/On-site/Needs docs/History pills, no hist KPI strip, Ask Maya, appraisal range/competing/ask; users GET/POST kind:users persist; 911 Acre team reads finalRationale.markdown + panel Rybot/Webot/Drebot/TBot + team.shabot note, hides boxes with no numbers; mailer keeps rich team/rationale on Center refresh; Trade-in start drops stray top History (rail History stays); 911 Incoming FINAL min+target+max clears Running and lands Appraisal Team numbers (Blazer s1af19al / F-150 sir78n6); Run Appraisal Team tap always fires (rerun + Unlocked History); kind:team wake; Incoming FINAL settles Running; schema 1.0 team + panel boxes; market pills append multiple files into shots[]; compact V Auto / Carfax / OpenLane / eBlock chips; same sendId/id Incoming POST; panel runs progress → existing FINAL; no invented solds; real Carfax http url opens the uploaded file; sample recreate only when no docs.carfax.url; Carfax square + huge card add/upload kind:file carfax; staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; Incoming keeps http docs.url; Incoming appends shots[]; status dropdown every lane; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples; hides generated From V Auto lane -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -1196,31 +1196,34 @@ body.center-gallery-on { overflow:hidden; }
 .acre-maya-strip:empty { display:none; }
 #center .center-desk-lane { display:none !important; }
 #center .center-detail-bar { padding:0 0 8px; background:#F5F6F8; }
-#center #centerDetailSub { display:none; }
+#center #centerDetailSub { display:block; margin:0 0 8px; font-size:12px; font-weight:700; color:#6B7380; letter-spacing:.02em; }
 #center .acre-doc-head {
+  display:flex; align-items:baseline; justify-content:space-between;
   font-size:11px; font-weight:800; letter-spacing:.1em; text-transform:uppercase;
-  color:#6B7380; margin:0 0 8px;
+  color:#6B7380; margin:0 0 4px; padding:0 0 8px; border-bottom:1px solid #E4E7EC;
 }
 #center .acre-doc-card {
   display:flex; align-items:center; justify-content:space-between; gap:10px;
-  width:100%; margin:0 0 6px; padding:9px 10px; border:1px solid #E4E7EC;
-  border-radius:8px; background:#fff; cursor:pointer; font:inherit; text-align:left;
+  width:100%; margin:0; padding:10px 0; border:0; border-bottom:1px solid #E4E7EC;
+  border-radius:0; background:transparent; cursor:pointer; font:inherit; text-align:left;
 }
 #center .acre-doc-card k {
   display:block; font-size:10px; font-weight:800; letter-spacing:.08em;
   text-transform:uppercase; color:#6B7380;
 }
-#center .acre-doc-card b { display:block; font-size:14px; font-weight:800; color:#111318; letter-spacing:-.2px; }
+#center .acre-doc-card b { display:block; font-size:16px; font-weight:800; color:#111318; letter-spacing:-.2px; }
+#center .acre-doc-pair { display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:8px 0; border-bottom:1px solid #E4E7EC; }
+#center .acre-doc-pair .acre-doc-card { border:1px solid #E4E7EC; border-radius:8px; padding:8px 10px; }
 #center .center-hero .dots { display:none; }
 #center #centerDocs { display:none !important; }
 #center #centerWhyDocs,
 #center #centerFacts { display:none !important; }
 .acre-score-row {
-  display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; margin:0 0 10px;
+  display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; margin:4px 0 8px;
 }
-.acre-score-row .acre-score { background:#fff; border:1px solid #E4E7EC; border-radius:12px; padding:8px 8px 7px; }
+.acre-score-row .acre-score { background:transparent; border:0; border-radius:0; padding:2px 0; }
 .acre-score-row .acre-score k { display:block; color:#6B7380; font-size:9px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
-.acre-score-row .acre-score b { display:block; font-size:20px; letter-spacing:-.4px; line-height:1.15; }
+.acre-score-row .acre-score b { display:block; font-size:26px; letter-spacing:-.6px; line-height:1.1; }
 .acre-score-row .acre-score.maya b { color:#16A34A; }
 .acre-score-row .acre-score.clutch b { color:#EA580C; }
 .acre-score-row .acre-score.vauto b { color:#D97706; }
@@ -1478,7 +1481,8 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
     border:0; background:transparent; padding:0; min-height:0; font-size:22px; font-weight:800;
   }
   #center .acre-market{ display:flex; flex-direction:column; gap:0; margin:0; }
-  #center .center-thumbs button{ flex-basis:72px; width:72px; height:56px; border-radius:6px; }
+  #center .center-thumbs{ gap:10px; }
+  #center .center-thumbs button{ flex-basis:220px; width:220px; height:140px; border-radius:8px; }
   #center.screen:has(#centerSheet.on) .center-sheet-dim{ display:none !important; }
   #center.screen:has(#centerSheet.on) .center-sheet{
     display:flex;
@@ -2046,12 +2050,6 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
     <div class="acre-desk" id="acreDesk">
       <div class="acre-col-hero">
         <div class="center-hero" id="centerHero"></div>
-        <div class="acre-notes-block">
-          <div class="block">Notes</div>
-          <p class="quote" id="centerStory">No story yet.</p>
-          <textarea class="note" id="centerNotes" placeholder="Anything the team should know"></textarea>
-          <div class="acre-maya-strip" id="centerMayaStrip"></div>
-        </div>
       </div>
       <div class="acre-col-mid">
         <h2 id="centerDetailTitle">Vehicle</h2>
@@ -2068,6 +2066,12 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
         <div class="acre-rank-row" id="centerRankRow"></div>
         <div class="acre-vals" id="centerValStrip"></div>
         <div class="acre-sources" id="centerSources"></div>
+        <div class="acre-notes-block">
+          <div class="block">Notes</div>
+          <p class="quote" id="centerStory">No story yet.</p>
+          <textarea class="note" id="centerNotes" placeholder="Anything the team should know"></textarea>
+          <div class="acre-maya-strip" id="centerMayaStrip"></div>
+        </div>
       </div>
       <div class="acre-col-market">
         <div class="acre-market" id="centerMarket"></div>
@@ -8917,9 +8921,9 @@ function paintCenterMetrics(item){
   host.innerHTML=CENTER_SCORES.map(function(pair){
     const v=String(vals[pair[0]]||"").trim();
     let shown=v||"—";
-    if(v && pair[0]==="predicted"){
+    if(v){
       const n=Number(String(v).replace(/[^0-9.]/g,""));
-      if(n>=1000) shown=moneyPretty(v);
+      if(n>=1000) shown=moneyShort(v);
     }
     return '<span class="acre-score '+pair[2]+'"><k>'+esc(pair[1])+'</k><b>'+esc(shown)+'</b></span>';
   }).join("");
@@ -9278,45 +9282,66 @@ function paintCenterVals(item){
   }
   paintCenterPhotoDocs(item);
 }
+function photoDocShown(vals, docs, row){
+  const valKey=row[3];
+  const raw=valKey ? String(vals[valKey]||"").trim() : "";
+  if(raw){
+    const n=Number(String(raw).replace(/[^0-9.]/g,""));
+    return n>=1000 ? moneyPretty(raw) : raw;
+  }
+  const slot=docs[row[2]]||docs[row[0]];
+  if(slot && (slot.have || slot.url || (slot.shots && slot.shots.length))){
+    if(row[0]==="carfax") return "On file";
+    return "On file";
+  }
+  return "—";
+}
+function photoDocCard(item, vals, docs, row){
+  const key=row[0], label=row[1], open=row[2];
+  const b=document.createElement("button");
+  b.type="button";
+  b.className="acre-doc-card";
+  b.innerHTML="<k>"+esc(label)+"</k><b>"+esc(photoDocShown(vals, docs, row))+"</b>";
+  b.onclick=function(){
+    if(open==="vauto" || open==="openlane" || open==="eblock" || open==="carfax"){
+      if(typeof openMarketSite==="function") openMarketSite(open, item);
+      return;
+    }
+    const slot=docs[open]||docs[key];
+    const url=slot && (slot.url || (slot.shots && slot.shots[0] && slot.shots[0].url));
+    if(url && typeof viewMarketDocUrl==="function"){
+      viewMarketDocUrl(url, slot.type||"", label);
+      return;
+    }
+    if(item && typeof openMarketDocSheet==="function"){
+      openMarketDocSheet(item, {id:open, label:label, pack:open});
+      return;
+    }
+    toast("No saved file yet.");
+  };
+  return b;
+}
 function paintCenterPhotoDocs(item){
   const host=$("centerMarket"); if(!host) return;
   const vals=(item&&item.values)||emptyVals();
   const docs=(item&&item.docs)||{};
   host.innerHTML="";
+  const have=CENTER_PHOTO_DOCS.filter(function(row){ return photoDocShown(vals, docs, row)!=="—"; }).length;
   const head=document.createElement("div");
   head.className="acre-doc-head";
-  head.textContent="Documents";
+  head.innerHTML="Documents<span>"+have+"/"+CENTER_PHOTO_DOCS.length+"</span>";
   host.appendChild(head);
-  CENTER_PHOTO_DOCS.forEach(function(row){
-    const key=row[0], label=row[1], open=row[2], valKey=row[3];
-    const raw=valKey ? String(vals[valKey]||"").trim() : "";
-    let shown="—";
-    if(raw){
-      const n=Number(String(raw).replace(/[^0-9.]/g,""));
-      shown=n>=1000 ? moneyPretty(raw) : raw;
+  CENTER_PHOTO_DOCS.forEach(function(row, i){
+    if(row[0]==="openlane"){
+      const pair=document.createElement("div");
+      pair.className="acre-doc-pair";
+      pair.appendChild(photoDocCard(item, vals, docs, row));
+      pair.appendChild(photoDocCard(item, vals, docs, CENTER_PHOTO_DOCS[i+1]));
+      host.appendChild(pair);
+      return;
     }
-    const b=document.createElement("button");
-    b.type="button";
-    b.className="acre-doc-card";
-    b.innerHTML="<div><k>"+esc(label)+"</k><b>"+esc(shown)+"</b></div>";
-    b.onclick=function(){
-      if(open==="vauto" || open==="openlane" || open==="eblock" || open==="carfax"){
-        if(typeof openMarketSite==="function") openMarketSite(open, item);
-        return;
-      }
-      const slot=docs[open]||docs[key];
-      const url=slot && (slot.url || (slot.shots && slot.shots[0] && slot.shots[0].url));
-      if(url && typeof viewMarketDocUrl==="function"){
-        viewMarketDocUrl(url, slot.type||"", label);
-        return;
-      }
-      if(item && typeof openMarketDocSheet==="function"){
-        openMarketDocSheet(item, {id:open, label:label, pack:open});
-        return;
-      }
-      toast("No saved file yet.");
-    };
-    host.appendChild(b);
+    if(row[0]==="eblock") return;
+    host.appendChild(photoDocCard(item, vals, docs, row));
   });
 }
 function isTeamActivated(item){
@@ -9687,12 +9712,6 @@ function ensureCenterDetailScaffold(){
     '<div class="acre-desk" id="acreDesk">'+
       '<div class="acre-col-hero">'+
         '<div class="center-hero" id="centerHero"></div>'+
-        '<div class="acre-notes-block">'+
-          '<div class="block">Notes</div>'+
-          '<p class="quote" id="centerStory">No story yet.</p>'+
-          '<textarea class="note" id="centerNotes" placeholder="Anything the team should know"></textarea>'+
-          '<div class="acre-maya-strip" id="centerMayaStrip"></div>'+
-        '</div>'+
       '</div>'+
       '<div class="acre-col-mid">'+
         '<h2 id="centerDetailTitle">Vehicle</h2>'+
@@ -9709,6 +9728,12 @@ function ensureCenterDetailScaffold(){
         '<div class="acre-rank-row" id="centerRankRow"></div>'+
         '<div class="acre-vals" id="centerValStrip"></div>'+
         '<div class="acre-sources" id="centerSources"></div>'+
+        '<div class="acre-notes-block">'+
+          '<div class="block">Notes</div>'+
+          '<p class="quote" id="centerStory">No story yet.</p>'+
+          '<textarea class="note" id="centerNotes" placeholder="Anything the team should know"></textarea>'+
+          '<div class="acre-maya-strip" id="centerMayaStrip"></div>'+
+        '</div>'+
       '</div>'+
       '<div class="acre-col-market">'+
         '<div class="acre-market" id="centerMarket"></div>'+
