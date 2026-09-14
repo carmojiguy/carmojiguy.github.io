@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-14 build d31a: pixel-faithful Acre GR Corolla desk (white hero|mid|market, not stone/teal); CA workbench redo — drop the verbal-only tag forever; What's the Story walks the car and talks; Walk-around photos only; keep Critical damage; salesperson CA has no packet-send card; Tracker mobile cards + current month; Canada Drives appointments: month list from Airtable Appointment Booked + GTA/Ottawa Tracker, Google Docs open (no preventDefault overlay), Acre-bright desk; website-post story-first year/make/model/trim/condition, no team select, original start not webdesk, pictures still relaunch/post; Acre GR Corolla desk lock — FIFO oldest home, left-rail Incoming/On-site/Needs docs/History pills, no hist KPI strip, Ask Maya, appraisal range/competing/ask; users GET/POST kind:users persist; 911 Acre team reads finalRationale.markdown + panel Rybot/Webot/Drebot/TBot + team.shabot note, hides boxes with no numbers; mailer keeps rich team/rationale on Center refresh; Trade-in start drops stray top History (rail History stays); 911 Incoming FINAL min+target+max clears Running and lands Appraisal Team numbers (Blazer s1af19al / F-150 sir78n6); Run Appraisal Team tap always fires (rerun + Unlocked History); kind:team wake; Incoming FINAL settles Running; schema 1.0 team + panel boxes; market pills append multiple files into shots[]; compact V Auto / Carfax / OpenLane / eBlock chips; same sendId/id Incoming POST; panel runs progress → existing FINAL; no invented solds; real Carfax http url opens the uploaded file; sample recreate only when no docs.carfax.url; Carfax square + huge card add/upload kind:file carfax; staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; Incoming keeps http docs.url; Incoming appends shots[]; status dropdown every lane; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples; hides generated From V Auto lane; users settings durable Vercel Blob center-users-v1.json; restore Josh LaFave josh@gmautosales.ca + Steve Summerall steve@gmautosales.ca website+center -->
+<!-- center-v3 + desk-home 2026-09-14 build d31a: pixel-faithful Acre GR Corolla desk (white hero|mid|market, not stone/teal); CA workbench redo — drop the verbal-only tag forever; What's the Story walks the car and talks; Walk-around photos only; keep Critical damage; salesperson CA has no packet-send card; Tracker mobile cards + current month; Canada Drives appointments: month list from Airtable Appointment Booked + GTA/Ottawa Tracker, Google Docs open (no preventDefault overlay), Acre-bright desk; website-post story-first year/make/model/trim/condition, no team select, original start not webdesk, pictures still relaunch/post; Acre GR Corolla desk lock — FIFO oldest home, left-rail Incoming/On-site/Needs docs/History pills, no hist KPI strip, Ask Maya, appraisal range/competing/ask; users GET/POST kind:users persist; 911 Acre team reads finalRationale.markdown + panel Rybot/Webot/Drebot/TBot + team.shabot note, hides boxes with no numbers; mailer keeps rich team/rationale on Center refresh; Trade-in start drops stray top History (rail History stays); 911 Incoming FINAL min+target+max clears Running and lands Appraisal Team numbers (Blazer s1af19al / F-150 sir78n6); Run Appraisal Team tap always fires (rerun + Unlocked History); kind:team wake; Incoming FINAL settles Running; schema 1.0 team + panel boxes; market pills append multiple files into shots[]; compact V Auto / Carfax / OpenLane / eBlock chips; same sendId/id Incoming POST; panel runs progress → existing FINAL; no invented solds; real Carfax http url opens the uploaded file; sample recreate only when no docs.carfax.url; Carfax square + huge card add/upload kind:file carfax; staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; Incoming keeps http docs.url; Incoming appends shots[]; status dropdown every lane; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples; hides generated From V Auto lane; users settings durable Vercel Blob center-users-v1.json; restore Josh Lefave josh.lefave@gmautosales.ca + Steve Summerall steve.summerall@gmautosales.ca website+center -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -829,7 +829,8 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
 .users-grid { display:flex; flex-direction:column; gap:10px; }
 .person-card { width:100%; border:0; background:#fff; border-radius:22px; padding:14px; text-align:left; cursor:pointer; box-shadow:0 12px 28px rgba(17,14,26,.06); display:flex; gap:12px; align-items:flex-start; font:inherit; color:inherit; }
 .person-card:hover { transform:translateY(-1px); box-shadow:0 16px 32px rgba(17,14,26,.1); }
-.person-ava { width:52px; height:52px; border-radius:18px; flex:0 0 52px; display:grid; place-items:center; color:#fff; font-size:16px; font-weight:800; letter-spacing:-.02em; }
+.person-ava { width:52px; height:52px; border-radius:18px; flex:0 0 52px; display:grid; place-items:center; color:#fff; font-size:16px; font-weight:800; letter-spacing:-.02em; position:relative; overflow:hidden; }
+.person-ava img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; }
 .person-meta { min-width:0; flex:1; }
 .person-meta b { display:block; font-size:17px; letter-spacing:-.3px; }
 .person-meta .em { color:var(--muted); font-size:13px; font-weight:600; margin:2px 0 8px; word-break:break-all; }
@@ -838,6 +839,7 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
 .tchip { background:#E8F7FF; color:#0077A8; }
 .tchip.un { background:#F3F0FA; color:var(--purple-deep); }
 .lchip { background:#FFF3D6; color:#8A5A00; }
+.ochip { background:#111; color:#fff; }
 .achip { background:var(--lavender); color:var(--purple-deep); }
 .locked-chip { background:#D8F5E5; color:#0F6B3C; }
 .users-add { margin-top:18px; background:rgba(255,255,255,.82); border-radius:24px; padding:16px; box-shadow:0 12px 28px rgba(17,14,26,.05); }
@@ -4179,9 +4181,13 @@ const OPEN_STAFF = {
   "andrew@autocorp.ca":"Andrew",
   "wes@thetrucktown.com":"Wes",
   "ryan@papered.com":"Ryan",
-  "josh@gmautosales.ca":"Josh LaFave",
-  "steve@gmautosales.ca":"Steve Summerall"
+  "josh.lefave@gmautosales.ca":"Josh Lefave",
+  "steve.summerall@gmautosales.ca":"Steve Summerall"
 };
+const RESTORE_STAFF=[
+  {id:"u-josh", email:"josh.lefave@gmautosales.ca", name:"Josh Lefave", photo:"/staff/josh.jpg", role:"owner"},
+  {id:"u-steve-s", email:"steve.summerall@gmautosales.ca", name:"Steve Summerall", photo:"/staff/steve-summerall.jpg", role:"owner"}
+];
 const CENTER_STAFF = {
   "shawn@myloan.ca":"Shawn",
   "shawn@gmautosales.ca":"Shawn",
@@ -4190,8 +4196,8 @@ const CENTER_STAFF = {
   "wes@thetrucktown.com":"Wes",
   "kyle@myloan.ca":"Kyle",
   "shane@myloan.ca":"Shane",
-  "josh@gmautosales.ca":"Josh LaFave",
-  "steve@gmautosales.ca":"Steve Summerall"
+  "josh.lefave@gmautosales.ca":"Josh Lefave",
+  "steve.summerall@gmautosales.ca":"Steve Summerall"
 };
 const CENTER_DENY="Appraisal Center is only for Shawn, Ryan, Andrew, Wes, Kyle, and Shane.";
 const DESK_TEAMS=["Team Flash","Team Retail","Team Evo","Team ABC","Team Saskatchewan","Team Fire","Team House","Team Consumer Acquisition","Team Trucktown Richmond","Team Trucktown Smith Falls","Team Trucktown Rockland"];
@@ -4230,13 +4236,15 @@ const SEED_NAMES={
   "tushar.gupta@myloan.ca":"Tushar Gupta",
   "ernest@myloan.ca":"Ernest",
   "tony.wiebe@myloan.ca":"Tony Wiebe",
-  "josh@gmautosales.ca":"Josh LaFave",
-  "steve@gmautosales.ca":"Steve Summerall"
+  "josh.lefave@gmautosales.ca":"Josh Lefave",
+  "steve.summerall@gmautosales.ca":"Steve Summerall"
 };
 function staffEmail(v){ return String(v||"").trim().toLowerCase(); }
 function shawnAlias(email){
   const e=staffEmail(email);
   if(e==="shawn@gmautosales.ca") return "shawn@myloan.ca";
+  if(e==="josh@gmautosales.ca") return "josh.lefave@gmautosales.ca";
+  if(e==="steve@gmautosales.ca") return "steve.summerall@gmautosales.ca";
   return e;
 }
 function allPermsOn(){ return {trade:true, appraise:true, website:true, center:true, admin:true, ca:true}; }
@@ -4247,7 +4255,7 @@ function defaultPerms(email){
   if(e==="ryan@papered.com" || e==="andrew@autocorp.ca" || e==="kyle@myloan.ca" || e==="shane@myloan.ca"){
     return {trade:false, appraise:true, website:false, center:true, admin:false};
   }
-  if(e==="josh@gmautosales.ca" || e==="steve@gmautosales.ca"){
+  if(e==="josh.lefave@gmautosales.ca" || e==="steve.summerall@gmautosales.ca"){
     return {trade:false, appraise:false, website:true, center:true, admin:false, ca:false};
   }
   return {trade:false, appraise:false, website:false, center:false, admin:false};
@@ -4274,6 +4282,9 @@ function slimUsersBlob(store){
     return {
       email:staffEmail(u.email),
       name:u.name||"",
+      id:u.id||"",
+      photo:u.photo||"",
+      role:u.role||"",
       teams:typeof normalizeTeams==="function"?normalizeTeams(u.teams):[].concat(u.teams||[]),
       leader:!!u.leader,
       notes:u.notes||"",
@@ -4299,12 +4310,15 @@ function applyUsersBlob(blob){
   people.forEach(function(u){
     if(!u || !u.email) return;
     const e=staffEmail(u.email);
-    by[e]=Object.assign({name:"", email:e, teams:[], leader:false, notes:"", phone:""}, u, {
+    by[e]=Object.assign({name:"", email:e, teams:[], leader:false, notes:"", phone:"", id:"", photo:"", role:""}, u, {
       email:e,
       teams:typeof normalizeTeams==="function"?normalizeTeams(u.teams!=null?u.teams:u.team):[].concat(u.teams||[]),
       leader:!!u.leader,
       notes:u.notes||"",
-      phone:u.phone||""
+      phone:u.phone||"",
+      id:u.id||"",
+      photo:u.photo||"",
+      role:u.role||""
     });
   });
   store.people=Object.keys(by).map(function(k){ return by[k]; });
@@ -4417,11 +4431,11 @@ function isStaffEmail(email){
   const e=staffEmail(email);
   if(!e || e.indexOf("@")<0) return false;
   if(e.endsWith("@myloan.ca")) return true;
-  if(OPEN_STAFF[e]) return true;
+  if(OPEN_STAFF[e] || OPEN_STAFF[shawnAlias(e)]) return true;
   return !!extraUser(e);
 }
 function enterStaff(email, name){
-  const e=staffEmail(email);
+  const e=shawnAlias(email);
   if(!isStaffEmail(e)){ loginFail(STAFF_DENY); return; }
   const extra=extraUser(e);
   enterSession("employee", {name: name || (extra && extra.name) || OPEN_STAFF[e] || e.split("@")[0], email:e});
@@ -4543,12 +4557,15 @@ function ensureRoster(skipRemote){
   (store.people||[]).forEach(function(u){
     if(!u || !u.email) return;
     const e=staffEmail(u.email);
-    by[e]=Object.assign({name:"", email:e, teams:[], leader:false, notes:""}, u, {
+    by[e]=Object.assign({name:"", email:e, teams:[], leader:false, notes:"", phone:"", id:"", photo:"", role:""}, u, {
       email:e,
       teams:normalizeTeams(u.teams!=null?u.teams:u.team),
       leader:!!u.leader,
       notes:u.notes||"",
-      phone:u.phone||""
+      phone:u.phone||"",
+      id:u.id||"",
+      photo:u.photo||"",
+      role:u.role||""
     });
   });
   function put(email, name){
@@ -4560,14 +4577,37 @@ function ensureRoster(skipRemote){
   SEED_STAFF.forEach(function(e){ put(e, SEED_NAMES[e]||titleFromEmail(e)); });
   namedStaff().forEach(function(p){ put(p[1], p[0]); });
   Object.keys(OPEN_STAFF).forEach(function(e){ put(e, OPEN_STAFF[e]); });
+  [["josh@gmautosales.ca","josh.lefave@gmautosales.ca"],["steve@gmautosales.ca","steve.summerall@gmautosales.ca"]].forEach(function(pair){
+    if(!by[pair[0]]) return;
+    const keep=by[pair[0]];
+    delete by[pair[0]];
+    keep.email=pair[1];
+    if(!by[pair[1]]) by[pair[1]]=keep;
+    else {
+      by[pair[1]]=Object.assign({}, keep, by[pair[1]], {email:pair[1]});
+    }
+    if(store.permissions && store.permissions[pair[0]] && !store.permissions[pair[1]]){
+      store.permissions[pair[1]]=store.permissions[pair[0]];
+      delete store.permissions[pair[0]];
+    }
+  });
+  RESTORE_STAFF.forEach(function(seed){
+    put(seed.email, seed.name);
+    const p=by[seed.email];
+    if(!p) return;
+    p.id=p.id||seed.id;
+    p.photo=p.photo||seed.photo;
+    p.role=p.role||seed.role;
+    p.name=seed.name;
+  });
   if(by["shawn@myloan.ca"]) by["shawn@myloan.ca"].leader=true;
   if(by["elias.abdi@myloan.ca"]) by["elias.abdi@myloan.ca"].emailEditable=true;
   store.people=Object.keys(by).map(function(k){ return by[k]; }).sort(function(a,b){
     return String(a.name||a.email).localeCompare(String(b.name||b.email));
   });
   store.permissions=store.permissions||{};
-  [["josh@gmautosales.ca",{trade:false, appraise:false, website:true, center:true, admin:false, ca:false}],
-   ["steve@gmautosales.ca",{trade:false, appraise:false, website:true, center:true, admin:false, ca:false}]].forEach(function(pair){
+  [["josh.lefave@gmautosales.ca",{trade:false, appraise:false, website:true, center:true, admin:false, ca:false}],
+   ["steve.summerall@gmautosales.ca",{trade:false, appraise:false, website:true, center:true, admin:false, ca:false}]].forEach(function(pair){
     if(!store.permissions[pair[0]]) store.permissions[pair[0]]=pair[1];
   });
   saveUsersStore(store, skipRemote!==false);
@@ -4659,15 +4699,22 @@ function paintUsers(){
     const hues=["#7C5CFF","#00A4E2","#E08A00","#12B886","#E23B7C","#4B35C8","#F76707","#1098AD"];
     const hue=hues[(email.charCodeAt(0)+email.length)%hues.length];
     const initials=(u.name||email).split(/\s+/).slice(0,2).map(function(p){ return p.charAt(0).toUpperCase(); }).join("")||"?";
+    const ava=u.photo
+      ? escHtml(initials)+'<img src="'+escHtml(u.photo)+'" alt="" onerror="this.remove()">'
+      : escHtml(initials);
+    const roleChip=u.role==="owner"
+      ? '<i class="ochip">Owner</i>'
+      : (u.leader?'<i class="lchip">Team Leader</i>':'<i class="achip">Salesperson</i>');
     const b=document.createElement("button");
     b.type="button";
     b.className="person-card";
+    b.setAttribute("data-user-id", u.id||"");
     b.innerHTML=
-      '<div class="person-ava" style="background:'+hue+'">'+escHtml(initials)+"</div>"+
+      '<div class="person-ava" style="background:'+hue+'">'+ava+"</div>"+
       '<div class="person-meta"><b>'+escHtml(u.name||titleFromEmail(email))+"</b>"+
       '<div class="em">'+escHtml(email||"Add an email")+"</div>"+
       '<div class="person-pills">'+
-        (u.leader?'<i class="lchip">Team Leader</i>':'<i class="achip">Salesperson</i>')+
+        roleChip+
         (teams.length?teams.map(function(t){ return '<i class="tchip">'+escHtml(t)+"</i>"; }).join(""):'<i class="tchip un">Unassigned</i>')+
       "</div></div>";
     b.onclick=function(){ openUserDetail(email); };
@@ -4681,7 +4728,7 @@ function openUserDetail(email){
   const can=canEditPerson(APP.userEdit);
   const shawn=isShawnActor();
   if($("userSheetTitle")) $("userSheetTitle").textContent=person.name||titleFromEmail(person.email);
-  if($("userSheetKicker")) $("userSheetKicker").textContent=person.leader?"Team Leader":"Salesperson";
+  if($("userSheetKicker")) $("userSheetKicker").textContent=person.role==="owner"?"Owner":(person.leader?"Team Leader":"Salesperson");
   if($("ud-name")){ $("ud-name").value=person.name||""; $("ud-name").disabled=!can; }
   if($("ud-email")){
     $("ud-email").value=person.email||"";
@@ -4785,6 +4832,9 @@ function saveUserDetail(){
     leader:leader,
     notes:notes,
     phone:phone,
+    id:cur.id||"",
+    photo:cur.photo||"",
+    role:cur.role||"",
     emailEditable:cur.emailEditable && nextEmail==="elias.abdi@myloan.ca"
   });
   if($("userSheet")) $("userSheet").classList.remove("on");
@@ -13860,8 +13910,8 @@ const TEAM = [
   ["Kyle", "kyle@myloan.ca"],
   ["Isabella", "isabella.coffey@myloan.ca"],
   ["Lord", "lord.grande@myloan.ca"],
-  ["Josh LaFave", "josh@gmautosales.ca"],
-  ["Steve Summerall", "steve@gmautosales.ca"]
+  ["Josh Lefave", "josh.lefave@gmautosales.ca"],
+  ["Steve Summerall", "steve.summerall@gmautosales.ca"]
 ];
 function recKey(){ return isWeb() ? "inspect.emails.web" : "inspect.emails.appraise"; }
 function nameForEmail(email){

@@ -595,6 +595,9 @@ function slimUser(u) {
   return {
     email: email,
     name: String(u.name || ""),
+    id: String(u.id || ""),
+    photo: String(u.photo || ""),
+    role: String(u.role || ""),
     teams: Array.isArray(u.teams) ? u.teams.filter(Boolean) : (u.team ? [u.team] : []),
     leader: !!u.leader,
     notes: String(u.notes || ""),

@@ -26,13 +26,17 @@ function sliceFn(name, next) {
 must(/function finishGuest\(\)\{\s*finishThanks\(\);/, "Thank-you stays frozen");
 must(/<!--[\s\S]*Thank-you frozen/, "Thank-you stays frozen in the stamp");
 must(/durable Vercel Blob center-users-v1\.json/, "stamp names the durable blob file");
-must(/josh@gmautosales\.ca/, "Josh email from TEAM roster history");
-must(/steve@gmautosales\.ca/, "Steve email from TEAM roster history");
-must(/Josh LaFave/, "Josh LaFave restored by name");
+must(/josh\.lefave@gmautosales\.ca/, "Josh seed email josh.lefave@gmautosales.ca");
+must(/steve\.summerall@gmautosales\.ca/, "Steve seed email steve.summerall@gmautosales.ca");
+must(/Josh Lefave/, "Josh Lefave restored with seed spelling");
 must(/Steve Summerall/, "Steve Summerall restored by name");
 must(/keepalive:true/, "Users POST uses keepalive so leaving the page still saves");
 must(/Object\.keys\(blob\.permissions\)\.length/, "empty remote permissions do not wipe local toggles");
-must(/e==="josh@gmautosales.ca" \|\| e==="steve@gmautosales.ca"/, "Josh/Steve defaultPerms are explicit");
+must(/e==="josh.lefave@gmautosales.ca" \|\| e==="steve.summerall@gmautosales.ca"/, "Josh/Steve defaultPerms are explicit");
+must(/id:"u-josh"/, "FixerBot seed id u-josh");
+must(/id:"u-steve-s"/, "FixerBot seed id u-steve-s");
+must(/\/staff\/josh\.jpg/, "Josh seed photo path");
+must(/\/staff\/steve-summerall\.jpg/, "Steve seed photo path");
 
 (function testDefaultPerms() {
   const m = html.match(/function defaultPerms\(email\)\{[\s\S]*?\n\}/);
@@ -44,8 +48,8 @@ must(/e==="josh@gmautosales.ca" \|\| e==="steve@gmautosales.ca"/, "Josh/Steve de
     return { trade: true, appraise: true, website: true, center: true, admin: true, ca: true };
   };
   const defaultPerms = eval("(" + m[0].replace("function defaultPerms", "function") + ")");
-  const josh = defaultPerms("josh@gmautosales.ca");
-  const steve = defaultPerms("steve@gmautosales.ca");
+  const josh = defaultPerms("josh.lefave@gmautosales.ca");
+  const steve = defaultPerms("steve.summerall@gmautosales.ca");
   assert.strictEqual(josh.website, true, "Josh has website photos");
   assert.strictEqual(josh.center, true, "Josh has Appraisal Center");
   assert.strictEqual(josh.admin, false, "Josh is not admin");
@@ -106,12 +110,12 @@ function mockBlob() {
   const saved = await incoming.persistUsersDurable({
     kind: "users",
     users: [
-      { email: "josh@gmautosales.ca", name: "Josh LaFave" },
-      { email: "steve@gmautosales.ca", name: "Steve Summerall" }
+      { email: "josh.lefave@gmautosales.ca", name: "Josh Lefave", id: "u-josh", photo: "/staff/josh.jpg", role: "owner" },
+      { email: "steve.summerall@gmautosales.ca", name: "Steve Summerall", id: "u-steve-s", photo: "/staff/steve-summerall.jpg", role: "owner" }
     ],
     permissions: {
-      "josh@gmautosales.ca": { website: true, center: true },
-      "steve@gmautosales.ca": { website: true, center: true }
+      "josh.lefave@gmautosales.ca": { website: true, center: true },
+      "steve.summerall@gmautosales.ca": { website: true, center: true }
     }
   }, { fetch: fetchImpl, env: env });
   assert.equal(saved.status, 200);
@@ -124,11 +128,13 @@ function mockBlob() {
   assert.equal(got.via, "blob", "new isolate loads from blob, not /tmp");
   assert.equal(got.users.length, 2);
   const emails = got.users.map(function (u) { return u.email; }).sort();
-  assert.deepStrictEqual(emails, ["josh@gmautosales.ca", "steve@gmautosales.ca"]);
-  assert.strictEqual(got.permissions["josh@gmautosales.ca"].center, true);
-  assert.strictEqual(got.permissions["josh@gmautosales.ca"].website, true);
-  assert.strictEqual(got.permissions["steve@gmautosales.ca"].center, true);
-  assert.strictEqual(got.permissions["steve@gmautosales.ca"].website, true);
+  assert.deepStrictEqual(emails, ["josh.lefave@gmautosales.ca", "steve.summerall@gmautosales.ca"]);
+  assert.strictEqual(got.users.find(function (u) { return u.id === "u-josh"; }).photo, "/staff/josh.jpg");
+  assert.strictEqual(got.users.find(function (u) { return u.id === "u-steve-s"; }).role, "owner");
+  assert.strictEqual(got.permissions["josh.lefave@gmautosales.ca"].center, true);
+  assert.strictEqual(got.permissions["josh.lefave@gmautosales.ca"].website, true);
+  assert.strictEqual(got.permissions["steve.summerall@gmautosales.ca"].center, true);
+  assert.strictEqual(got.permissions["steve.summerall@gmautosales.ca"].website, true);
 
   const skipped = await incoming.persistUsersDurable({ kind: "users", users: [], permissions: {} }, { fetch: fetchImpl, env: env });
   assert.equal(skipped.body.skipped, "empty", "empty POST does not wipe a populated blob");

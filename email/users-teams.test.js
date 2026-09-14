@@ -24,7 +24,7 @@ const emails = [
   "nick.bowley@myloan.ca","osato.om@myloan.ca","phil.frederic@myloan.ca",
   "puncham.girdhar@myloan.ca","sharan.harrison@myloan.ca","shayne.upper@myloan.ca",
   "tony.wiebe@myloan.ca","tushar.gupta@myloan.ca","shawn@myloan.ca","elias.abdi@myloan.ca",
-  "josh@gmautosales.ca","steve@gmautosales.ca"
+  "josh.lefave@gmautosales.ca","steve.summerall@gmautosales.ca"
 ];
 emails.forEach(function (e) {
   must(new RegExp(e.replace(/\./g, "\\.")), "seeds " + e);
@@ -43,9 +43,14 @@ must(/DESK_TEAMS=\[/, "desk team list");
 must(/"Team Trucktown Richmond"/, "Users + Appraise list Team Trucktown Richmond");
 must(/"Team Trucktown Smith Falls"/, "Users + Appraise list Team Trucktown Smith Falls");
 must(/"Team Trucktown Rockland"/, "Users + Appraise list Team Trucktown Rockland");
-must(/"josh@gmautosales.ca":"Josh LaFave"/, "restores Josh LaFave");
-must(/"steve@gmautosales.ca":"Steve Summerall"/, "restores Steve Summerall");
-must(/e==="josh@gmautosales.ca" \|\| e==="steve@gmautosales.ca"/, "Josh and Steve default to website + Center");
+must(/"josh.lefave@gmautosales.ca":"Josh Lefave"/, "restores Josh Lefave seed spelling");
+must(/"steve.summerall@gmautosales.ca":"Steve Summerall"/, "restores Steve Summerall");
+must(/e==="josh.lefave@gmautosales.ca" \|\| e==="steve.summerall@gmautosales.ca"/, "Josh and Steve default to website + Center");
+must(/id:"u-josh"/, "Josh seed id u-josh");
+must(/id:"u-steve-s"/, "Steve seed id u-steve-s");
+must(/photo:"\/staff\/josh.jpg"/, "Josh seed photo");
+must(/photo:"\/staff\/steve-summerall.jpg"/, "Steve seed photo");
+must(/role:"owner"/, "Josh and Steve seed role owner");
 must(/e\.endsWith\("@myloan\.ca"\)/, "Google allowlist still trusts @myloan.ca");
 must(/function sharePacket\(\)|async function sharePacket\(\)/, "packet send stays");
 mustNot(/ACCESS_LEVELS\s*=/, "rank list is gone");
