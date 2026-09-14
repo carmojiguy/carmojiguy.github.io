@@ -25,7 +25,8 @@ function sliceFn(name, next) {
 
 must(/function finishGuest\(\)\{\s*finishThanks\(\);/, "Thank-you stays frozen");
 must(/<!--[\s\S]*Thank-you frozen/, "Thank-you stays frozen in the stamp");
-must(/durable Vercel Blob center-users-v1\.json/, "stamp names the durable blob file");
+must(/durable Vercel Blob center-users/, "stamp names the durable blob file");
+must(/kind=users&at=/, "persist pull uses kind=users&at= after POST");
 must(/josh\.lefave@gmautosales\.ca/, "Josh seed email josh.lefave@gmautosales.ca");
 must(/steve\.summerall@gmautosales\.ca/, "Steve seed email steve.summerall@gmautosales.ca");
 must(/Josh Lefave/, "Josh Lefave restored with seed spelling");
@@ -139,6 +140,63 @@ must(/p\.role=seed\.role;/, "Josh/Steve seed role is pinned on restore");
   return persistUsersRemote({ people: [], permissions: { "rt1@example.com": { center: true } } }).then(function (r) {
     assert.equal(r.skipped, "empty-users", "empty-users payload is not posted when local has people");
     assert.equal(posted, 0, "fetch is not called");
+  });
+})().catch(function (err) {
+  console.error(err);
+  process.exit(1);
+});
+
+(function testPersistThenPullsAt() {
+  const src = sliceFn("slimUsersBlob", "saveUsersStore");
+  let stored = {
+    people: [{ email: "josh.lefave@gmautosales.ca", name: "Josh Lefave", id: "u-josh" }],
+    permissions: { "josh.lefave@gmautosales.ca": { website: true, center: true } },
+    updatedAt: 100
+  };
+  const fetches = [];
+  const MAIL_HOST = "https://mailer.test";
+  function loadUsersStore() { return stored; }
+  function saveUsersStore(next) { stored = next; }
+  function staffEmail(v) { return String(v || "").trim().toLowerCase(); }
+  function normalizeTeams(v) { return Array.isArray(v) ? v : []; }
+  const DESK_TEAMS = ["Team Flash"];
+  function fetch(url, opts) {
+    fetches.push({ url: String(url), method: String((opts && opts.method) || "GET").toUpperCase(), cache: opts && opts.cache });
+    if (String((opts && opts.method) || "GET").toUpperCase() === "POST") {
+      return Promise.resolve({
+        ok: true,
+        json: async function () { return { ok: true, kind: "users", updatedAt: 1789408000000, via: "blob" }; }
+      });
+    }
+    return Promise.resolve({
+      ok: true,
+      json: async function () {
+        return {
+          ok: true,
+          kind: "users",
+          users: [{ email: "josh.lefave@gmautosales.ca", name: "Josh Lefave", id: "u-josh" }],
+          permissions: { "josh.lefave@gmautosales.ca": { website: true, center: true, trade: true } },
+          updatedAt: 1789408000000
+        };
+      }
+    });
+  }
+  const factory = eval("(function(fetch){\n" + src + "\nreturn { persistUsersRemote: persistUsersRemote, pullUsersRemote: pullUsersRemote, applyUsersBlob: applyUsersBlob };\n})");
+  const fns = factory(fetch);
+  return fns.persistUsersRemote(stored).then(function (j) {
+    assert.equal(j.updatedAt, 1789408000000);
+    const post = fetches.find(function (f) { return f.method === "POST"; });
+    const get = fetches.find(function (f) { return f.method === "GET"; });
+    assert.ok(post, "POST kind:users was sent");
+    assert.ok(get, "GET after persist was sent");
+    assert.ok(get.url.indexOf("kind=users&at=1789408000000") >= 0, "GET uses kind=users&at=POST updatedAt");
+    assert.equal(get.cache, "no-store", "GET at= is cache no-store");
+    assert.strictEqual(stored.permissions["josh.lefave@gmautosales.ca"].trade, true, "applyUsersBlob applied the at= GET");
+    return fns.pullUsersRemote();
+  }).then(function () {
+    const plain = fetches.filter(function (f) { return f.method === "GET"; }).pop();
+    assert.ok(plain.url.indexOf("kind=users") >= 0);
+    assert.ok(plain.url.indexOf("&at=") < 0, "pullUsersRemote() without at does not append &at=");
   });
 })().catch(function (err) {
   console.error(err);
