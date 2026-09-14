@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-14 build d31a: CA workbench redo — drop the verbal-only tag forever; What's the Story walks the car and talks; Walk-around photos only; keep Critical damage; salesperson CA has no packet-send card; Tracker mobile cards + current month; website-post story-first year/make/model/trim/condition, no team select, original start not webdesk, pictures still relaunch/post; Acre GR Corolla desk lock — FIFO oldest home, left-rail Incoming/On-site/Needs docs/History pills, no hist KPI strip, Ask Maya, appraisal range/competing/ask; users GET/POST kind:users persist; 911 Acre team reads finalRationale.markdown + panel Rybot/Webot/Drebot/TBot + team.shabot note, hides boxes with no numbers; 911 Incoming FINAL min+target+max clears Running and lands Appraisal Team numbers (Blazer s1af19al / F-150 sir78n6); Run Appraisal Team tap always fires (rerun + Unlocked History); kind:team wake; Incoming FINAL settles Running; schema 1.0 team + panel boxes; market pills append multiple files into shots[]; compact V Auto / Carfax / OpenLane / eBlock chips; same sendId/id Incoming POST; panel runs progress → existing FINAL; no invented solds; real Carfax http url opens the uploaded file; sample recreate only when no docs.carfax.url; Carfax square + huge card add/upload kind:file carfax; staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; Incoming keeps http docs.url; Incoming appends shots[]; status dropdown every lane; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples; hides generated From V Auto lane -->
+<!-- center-v3 + desk-home 2026-09-14 build d31a: pixel-faithful Acre GR Corolla desk (white hero|mid|market, not stone/teal); CA workbench redo — drop the verbal-only tag forever; What's the Story walks the car and talks; Walk-around photos only; keep Critical damage; salesperson CA has no packet-send card; Tracker mobile cards + current month; website-post story-first year/make/model/trim/condition, no team select, original start not webdesk, pictures still relaunch/post; Acre GR Corolla desk lock — FIFO oldest home, left-rail Incoming/On-site/Needs docs/History pills, no hist KPI strip, Ask Maya, appraisal range/competing/ask; users GET/POST kind:users persist; 911 Acre team reads finalRationale.markdown + panel Rybot/Webot/Drebot/TBot + team.shabot note, hides boxes with no numbers; 911 Incoming FINAL min+target+max clears Running and lands Appraisal Team numbers (Blazer s1af19al / F-150 sir78n6); Run Appraisal Team tap always fires (rerun + Unlocked History); kind:team wake; Incoming FINAL settles Running; schema 1.0 team + panel boxes; market pills append multiple files into shots[]; compact V Auto / Carfax / OpenLane / eBlock chips; same sendId/id Incoming POST; panel runs progress → existing FINAL; no invented solds; real Carfax http url opens the uploaded file; sample recreate only when no docs.carfax.url; Carfax square + huge card add/upload kind:file carfax; staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; Incoming keeps http docs.url; Incoming appends shots[]; status dropdown every lane; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples; hides generated From V Auto lane -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -851,10 +851,10 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
   grid-template-rows:auto minmax(0,1fr) auto;
   min-height:100dvh;
   padding-bottom:0;
-  background:#F3F1EA;
-  --ink:#1A2330; --muted:#5C6B76; --hair:#D4D8DE; --fill:#EEF1F4;
-  --page:#F3F1EA; --purple:#1F6B6A; --purple-deep:#154B4A;
-  --lavender:#E4EEED; --cyan:#2A7A6E; --cyan-deep:#1A534B;
+  background:#F5F6F8;
+  --ink:#111318; --muted:#6B7380; --hair:#E4E7EC; --fill:#EEF0F3;
+  --page:#F5F6F8; --purple:#111318; --purple-deep:#111318;
+  --lavender:#EEF0F3; --cyan:#3B82F6; --cyan-deep:#1D4ED8;
 }
 #center.screen.on {
   display:grid;
@@ -871,7 +871,7 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
   grid-column:1;
   grid-row:2 / 4;
   width:76px;
-  background:#1A2330;
+  background:#16181D;
 }
 .lane-pill {
   border:0; cursor:pointer; text-align:center; color:#fff; font:inherit;
@@ -889,7 +889,7 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
 .lane-pill.onsite { background:linear-gradient(135deg,#7C5CFF,#4B35C8); }
 .lane-pill.needsdocs { background:linear-gradient(135deg,#FF8A3D,#FF4D8D); }
 .lane-pill.hist { background:#1A1630; }
-.lane-pill.on { box-shadow:0 0 0 2px #fff, 0 0 0 3px #1F6B6A; }
+.lane-pill.on { box-shadow:0 0 0 2px #fff, 0 0 0 3px #111318; }
 #center #centerDetailBody { grid-column:2; grid-row:2; min-height:0; overflow:auto; }
 #center #centerDock { grid-column:2; grid-row:3; position:relative; left:auto; right:auto; bottom:auto; transform:none; width:auto; max-width:none; }
 .lane-pill .nag {
@@ -1094,7 +1094,7 @@ body.center-locked #centerUnlock {
   font-style:normal; background:#fff; border:1.5px solid var(--hair);
   border-radius:999px; padding:8px 12px; font-size:13px; font-weight:700;
 }
-.center-hero { position:relative; margin:0 0 18px; border-radius:24px; overflow:hidden; background:#111; min-height:220px; touch-action:manipulation; user-select:none; -webkit-user-select:none; }
+.center-hero { position:relative; margin:0 0 10px; border-radius:16px; overflow:hidden; background:#111; min-height:220px; touch-action:manipulation; user-select:none; -webkit-user-select:none; }
 .center-hero img { width:100%; height:240px; object-fit:cover; display:block; background:#111; pointer-events:none; }
 .center-gallery {
   display:none; position:fixed; inset:0; z-index:95; background:#0b0b10;
@@ -1151,27 +1151,38 @@ body.center-gallery-on { overflow:hidden; }
   flex:0 0 56px; width:56px; height:44px; padding:0; border:0; border-radius:10px;
   overflow:hidden; background:#D8DEE4; cursor:pointer;
 }
-.center-thumbs button.on { box-shadow:0 0 0 2px #1F6B6A; }
+.center-thumbs button.on { box-shadow:0 0 0 2px #111318; }
 .center-thumbs img { width:100%; height:100%; object-fit:cover; display:block; }
 .center-metrics {
   display:flex; flex-wrap:wrap; gap:6px; margin:0 0 12px;
 }
 .center-metrics i {
-  font-style:normal; background:#E8EEEA; color:#1A2330;
-  border-radius:999px; padding:5px 10px; font-size:11px; font-weight:800;
+  font-style:normal; background:#fff; color:#111318; border:1px solid #E4E7EC;
+  border-radius:999px; padding:6px 11px; font-size:12px; font-weight:700;
 }
 .center-maya {
   display:flex; gap:8px; align-items:center;
-  margin:16px 0 8px; padding:8px 8px 8px 14px;
-  background:#fff; border:1.5px solid #C9D6D4; border-radius:18px;
+  margin:0; padding:8px 8px 8px 16px;
+  background:#fff; border:1px solid #E4E7EC; border-radius:16px;
 }
 .center-maya input {
-  flex:1; min-width:0; border:0; background:transparent; font:inherit; font-size:15px; font-weight:700;
+  flex:1; min-width:0; border:0; background:transparent; font:inherit; font-size:15px; font-weight:600;
   color:var(--ink); outline:none;
 }
 .center-maya button {
-  flex:0 0 auto; margin:0; min-height:40px; padding:8px 16px; border:0; border-radius:14px;
-  background:#1F6B6A; color:#fff; font:inherit; font-size:14px; font-weight:800; cursor:pointer;
+  flex:0 0 auto; margin:0; min-height:40px; padding:8px 16px; border:0; border-radius:12px;
+  background:#111318; color:#fff; font:inherit; font-size:14px; font-weight:800; cursor:pointer;
+}
+.acre-desk { display:flex; flex-direction:column; gap:12px; }
+#center #centerDock.acre-dock {
+  display:flex; align-items:center; gap:12px;
+  background:#fff; border-top:1px solid #E4E7EC;
+  padding:10px 16px calc(14px + env(safe-area-inset-bottom));
+}
+#center #centerDock.acre-dock .center-maya { flex:1; min-width:0; }
+#center #centerDock.acre-dock #centerStageBtn {
+  width:auto; min-width:132px; margin:0; border-radius:14px;
+  background:#111318; color:#fff; border-color:#111318;
 }
 .mkt-chip b { font-size:14px; }
 .center-docs, .center-why-docs { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:4px 0 8px; }
@@ -1333,7 +1344,7 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
 /* Tablet: purpose-built desk + list rail (iPad portrait/landscape, ~768–1199) */
 @media (min-width:768px){
   .phone:has(#center.on){ max-width:none; background:var(--page); }
-  html:has(#center.on), body:has(#center.on){ background:#120F1C; }
+  html:has(#center.on), body:has(#center.on){ background:#F5F6F8; }
   #center.screen{
     min-height:100dvh;
     padding-bottom:0;
@@ -1376,15 +1387,44 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
     width:auto;
     max-width:none;
     padding:8px 22px 18px;
-    background:linear-gradient(rgba(243,241,234,0), #F3F1EA 42%);
+    background:#fff;
     display:flex;
     justify-content:flex-end;
   }
+  #center.screen:has(#centerSheet.on) #centerDock.acre-dock{
+    justify-content:stretch;
+  }
   #center.screen:has(#centerSheet.on) #centerDock .pill{
     width:auto;
-    min-width:220px;
+    min-width:140px;
     margin:0;
   }
+  #center .acre-desk{
+    display:grid;
+    grid-template-columns:minmax(240px,1.05fr) minmax(280px,1.15fr) minmax(200px,.85fr);
+    grid-template-areas:"hero mid market";
+    gap:18px 22px;
+    align-items:start;
+  }
+  #center .acre-col-hero{ grid-area:hero; }
+  #center .acre-col-mid{ grid-area:mid; }
+  #center .acre-col-market{ grid-area:market; }
+  #center .acre-vals{
+    display:flex; flex-direction:column; gap:0; margin:8px 0 14px;
+  }
+  #center .acre-vals .acre-chip{
+    display:grid; grid-template-columns:148px minmax(0,1fr); align-items:center;
+    background:transparent; border:0; border-bottom:1px solid #E4E7EC; border-radius:0;
+    padding:12px 2px;
+  }
+  #center .acre-vals .acre-chip k{ margin:0; font-size:11px; letter-spacing:.06em; }
+  #center .acre-vals .acre-chip .f{
+    border:0; background:transparent; padding:0; min-height:0; font-size:22px; font-weight:800;
+  }
+  #center .acre-market{ grid-template-columns:1fr; gap:10px; }
+  #center .acre-col-market .center-docs,
+  #center .acre-col-market .center-why-docs{ grid-template-columns:1fr; }
+  #center .center-thumbs button{ flex-basis:72px; width:72px; height:56px; border-radius:8px; }
   #center.screen:has(#centerSheet.on) .center-sheet-dim{ display:none !important; }
   #center.screen:has(#centerSheet.on) .center-sheet{
     display:flex;
@@ -1949,32 +1989,40 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
     </div>
     <div class="center-supersede-mark hide" id="centerSupersedeMark">New appraisal submitted</div>
     <button class="pill wash hide" type="button" id="centerUnlock">Unlock</button>
-    <h2 id="centerDetailTitle">Vehicle</h2>
-    <p class="quote" id="centerDetailSub"></p>
-    <div id="centerFinalBox" class="hide"></div>
-    <div class="needs-banner hide" id="centerNeedsBanner"></div>
-    <div class="acre-tags" id="centerTags"></div>
-    <a class="packet-pdf hide" id="centerPacketPdf" href="#" target="_blank" rel="noopener noreferrer">
-      <em>Sales packet</em>
-      <b>Open packet PDF</b>
-      <span id="centerPacketPdfName"></span>
-    </a>
-    <div class="center-hero" id="centerHero"></div>
-    <div class="center-thumbs" id="centerThumbs"></div>
-    <div class="center-metrics" id="centerMetrics"></div>
-    <div class="acre-vals" id="centerValStrip"></div>
-    <div class="acre-market" id="centerMarket"></div>
+    <div class="acre-desk" id="acreDesk">
+      <div class="acre-col-hero">
+        <div class="center-hero" id="centerHero"></div>
+        <div class="center-thumbs" id="centerThumbs"></div>
+      </div>
+      <div class="acre-col-mid">
+        <h2 id="centerDetailTitle">Vehicle</h2>
+        <p class="quote" id="centerDetailSub"></p>
+        <div id="centerFinalBox" class="hide"></div>
+        <div class="needs-banner hide" id="centerNeedsBanner"></div>
+        <div class="acre-tags" id="centerTags"></div>
+        <a class="packet-pdf hide" id="centerPacketPdf" href="#" target="_blank" rel="noopener noreferrer">
+          <em>Sales packet</em>
+          <b>Open packet PDF</b>
+          <span id="centerPacketPdfName"></span>
+        </a>
+        <div class="center-metrics" id="centerMetrics"></div>
+        <div class="acre-vals" id="centerValStrip"></div>
+        <div class="block">Notes</div>
+        <p class="quote" id="centerStory">No story yet.</p>
+        <textarea class="note" id="centerNotes" placeholder="Anything the team should know"></textarea>
+      </div>
+      <div class="acre-col-market">
+        <div class="acre-market" id="centerMarket"></div>
+        <div class="docs-grid center-docs" id="centerDocs"></div>
+        <div class="center-why-docs" id="centerWhyDocs"></div>
+      </div>
+    </div>
     <div class="facts" id="centerFacts"></div>
-    <div class="block">Notes</div>
-    <p class="quote" id="centerStory">No story yet.</p>
-    <div class="block">Documents</div>
-    <div class="docs-grid center-docs" id="centerDocs"></div>
     <div class="block" id="centerTeamHead">Appraisal team</div>
     <div class="center-run-team hide" id="centerRunTeamWrap">
       <button type="button" class="pill center-run-team-btn" id="centerRunTeam">Run Appraisal Team</button>
       <p class="quote center-run-team-note" id="centerRunTeamNote">Kick Shabot FINAL and the Rybot / Webot / Drebot / TBot opinion panel.</p>
     </div>
-    <div class="center-why-docs" id="centerWhyDocs"></div>
     <div class="team-rail" id="centerTeam"></div>
     <div id="centerCdWrap" class="cd-field hide">
       <label class="k" for="centerCdApp">Canada Drives application number</label>
@@ -1983,14 +2031,12 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
     </div>
     <label class="k">Shawn approval / buy number</label>
     <input class="f" id="centerApproval" inputmode="decimal" placeholder="Enter the actual buy number" />
-    <label class="k">Desk notes</label>
-    <textarea class="note" id="centerNotes" placeholder="Anything the team should know"></textarea>
+  </div>
+  <div class="dock acre-dock" id="centerDock">
     <div class="center-maya" id="centerMayaBar">
       <input id="centerMayaAsk" type="text" placeholder="Ask Maya" autocomplete="off" />
       <button type="button" id="centerMayaGo">Ask</button>
     </div>
-  </div>
-  <div class="dock" id="centerDock">
     <button class="pill purple" type="button" id="centerStageBtn">Complete</button>
   </div>
   <div class="center-sheet-dim" id="centerSheetDim"></div>
@@ -9418,7 +9464,7 @@ function paintCenterDetailEmpty(){
 function ensureCenterDetailScaffold(){
   const body=$("centerDetailBody");
   if(!body) return;
-  if($("centerDetailTitle") && $("centerHero") && $("centerThumbs") && $("centerMetrics") && $("centerMayaBar") && $("centerTeam") && $("centerFinalBox") && $("centerSupersedeMark") && $("centerUnlock") && $("centerRunTeam")) return;
+  if($("centerDetailTitle") && $("centerHero") && $("centerThumbs") && $("centerMetrics") && $("acreDesk") && $("centerMayaBar") && $("centerTeam") && $("centerFinalBox") && $("centerSupersedeMark") && $("centerUnlock") && $("centerRunTeam")) return;
   body.innerHTML=
     '<div class="center-detail-bar">'+
       '<button class="round center-close-x" type="button" id="centerDetailClose" aria-label="Close vehicle">✕</button>'+
@@ -9436,32 +9482,40 @@ function ensureCenterDetailScaffold(){
     '</div>'+
     '<div class="center-supersede-mark hide" id="centerSupersedeMark">New appraisal submitted</div>'+
     '<button class="pill wash hide" type="button" id="centerUnlock">Unlock</button>'+
-    '<h2 id="centerDetailTitle">Vehicle</h2>'+
-    '<p class="quote" id="centerDetailSub"></p>'+
-    '<div id="centerFinalBox" class="hide"></div>'+
-    '<div class="needs-banner hide" id="centerNeedsBanner"></div>'+
-    '<div class="acre-tags" id="centerTags"></div>'+
-    '<a class="packet-pdf hide" id="centerPacketPdf" href="#" target="_blank" rel="noopener noreferrer">'+
-      '<em>Sales packet</em>'+
-      '<b>Open packet PDF</b>'+
-      '<span id="centerPacketPdfName"></span>'+
-    '</a>'+
-    '<div class="center-hero" id="centerHero"></div>'+
-    '<div class="center-thumbs" id="centerThumbs"></div>'+
-    '<div class="center-metrics" id="centerMetrics"></div>'+
-    '<div class="acre-vals" id="centerValStrip"></div>'+
-    '<div class="acre-market" id="centerMarket"></div>'+
+    '<div class="acre-desk" id="acreDesk">'+
+      '<div class="acre-col-hero">'+
+        '<div class="center-hero" id="centerHero"></div>'+
+        '<div class="center-thumbs" id="centerThumbs"></div>'+
+      '</div>'+
+      '<div class="acre-col-mid">'+
+        '<h2 id="centerDetailTitle">Vehicle</h2>'+
+        '<p class="quote" id="centerDetailSub"></p>'+
+        '<div id="centerFinalBox" class="hide"></div>'+
+        '<div class="needs-banner hide" id="centerNeedsBanner"></div>'+
+        '<div class="acre-tags" id="centerTags"></div>'+
+        '<a class="packet-pdf hide" id="centerPacketPdf" href="#" target="_blank" rel="noopener noreferrer">'+
+          '<em>Sales packet</em>'+
+          '<b>Open packet PDF</b>'+
+          '<span id="centerPacketPdfName"></span>'+
+        '</a>'+
+        '<div class="center-metrics" id="centerMetrics"></div>'+
+        '<div class="acre-vals" id="centerValStrip"></div>'+
+        '<div class="block">Notes</div>'+
+        '<p class="quote" id="centerStory">No story yet.</p>'+
+        '<textarea class="note" id="centerNotes" placeholder="Anything the team should know"></textarea>'+
+      '</div>'+
+      '<div class="acre-col-market">'+
+        '<div class="acre-market" id="centerMarket"></div>'+
+        '<div class="docs-grid center-docs" id="centerDocs"></div>'+
+        '<div class="center-why-docs" id="centerWhyDocs"></div>'+
+      '</div>'+
+    '</div>'+
     '<div class="facts" id="centerFacts"></div>'+
-    '<div class="block">Notes</div>'+
-    '<p class="quote" id="centerStory">No story yet.</p>'+
-    '<div class="block">Documents</div>'+
-    '<div class="docs-grid center-docs" id="centerDocs"></div>'+
     '<div class="block" id="centerTeamHead">Appraisal team</div>'+
     '<div class="center-run-team hide" id="centerRunTeamWrap">'+
       '<button type="button" class="pill center-run-team-btn" id="centerRunTeam">Run Appraisal Team</button>'+
       '<p class="quote center-run-team-note" id="centerRunTeamNote">Kick Shabot FINAL and the Rybot / Webot / Drebot / TBot opinion panel.</p>'+
     '</div>'+
-    '<div class="center-why-docs" id="centerWhyDocs"></div>'+
     '<div class="team-rail" id="centerTeam"></div>'+
     '<div id="centerCdWrap" class="cd-field hide">'+
       '<label class="k" for="centerCdApp">Canada Drives application number</label>'+
@@ -9469,13 +9523,15 @@ function ensureCenterDetailScaffold(){
       '<input class="f" id="centerCdApp" placeholder="Type the application number" autocomplete="off" />'+
     '</div>'+
     '<label class="k">Shawn approval / buy number</label>'+
-    '<input class="f" id="centerApproval" inputmode="decimal" placeholder="Enter the actual buy number" />'+
-    '<label class="k">Desk notes</label>'+
-    '<textarea class="note" id="centerNotes" placeholder="Anything the team should know"></textarea>'+
-    '<div class="center-maya" id="centerMayaBar">'+
-      '<input id="centerMayaAsk" type="text" placeholder="Ask Maya" autocomplete="off" />'+
-      '<button type="button" id="centerMayaGo">Ask</button>'+
-    '</div>';
+    '<input class="f" id="centerApproval" inputmode="decimal" placeholder="Enter the actual buy number" />';
+  if(!$("centerMayaBar") && $("centerDock")){
+    const maya=document.createElement("div");
+    maya.className="center-maya";
+    maya.id="centerMayaBar";
+    maya.innerHTML='<input id="centerMayaAsk" type="text" placeholder="Ask Maya" autocomplete="off" /><button type="button" id="centerMayaGo">Ask</button>';
+    $("centerDock").insertBefore(maya, $("centerDock").firstChild);
+    $("centerDock").classList.add("acre-dock");
+  }
   if($("centerNotes")){
     $("centerNotes").addEventListener("input", function(){
       const el=this;
@@ -12890,7 +12946,7 @@ function printCarfaxRecreatePdf(item){
     d.text(body, 36, y+32);
     d.setFillColor(27,107,58); d.rect(0,H-40,W,40,"F");
     d.setTextColor(255,255,255); d.setFont("helvetica","bold"); d.setFontSize(8);
-    d.text("NOT OFFICIAL CARFAX  ·  SAMPLE / PENDING  ·  carfax-sample  ·  build d31w", 36, H-18);
+    d.text("NOT OFFICIAL CARFAX  ·  SAMPLE / PENDING  ·  carfax-sample  ·  build d31a", 36, H-18);
     d.setProperties({title:"SAMPLE PENDING NOT OFFICIAL CARFAX — 2024 RAV4 LE AWD", author:"G&M Appraisal Center"});
     d.save("rav4-2T3B1RFVXRC466025-carfax-sample.pdf");
     storeRav4CarfaxDoc(item);
