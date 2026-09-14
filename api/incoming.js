@@ -110,12 +110,6 @@ function slimItem(raw) {
 function sameSeat(a, b) {
   if (a.sendId && b.sendId && a.sendId === b.sendId) return true;
   if (a.id && b.id && a.id === b.id) return true;
-  const av = String(a.vin || "").trim().toUpperCase();
-  const bv = String(b.vin || "").trim().toUpperCase();
-  if (av.length === 17 && av === bv) return true;
-  const an = String((a.customer && a.customer.name) || "").trim().toLowerCase();
-  const bn = String((b.customer && b.customer.name) || "").trim().toLowerCase();
-  if (an && an === bn) return true;
   return false;
 }
 

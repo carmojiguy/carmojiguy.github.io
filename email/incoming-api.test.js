@@ -133,10 +133,14 @@ assert.equal(incoming.isPacketSend({
     }
   });
   const rav4 = incoming.listItems();
-  assert.equal(rav4.length, 1, "VIN collapse stays one row");
-  assert.equal(rav4[0].docs.vauto.have, true, "empty stub does not wipe 3-pill docs");
-  assert.equal(rav4[0].sentAt, 1789339609336, "older stub does not win sentAt");
-  assert.equal(rav4[0].sendId, "s1ex074");
+  assert.equal(rav4.length, 2, "same VIN different sendId stays two remotes");
+  const newer = rav4.find(function (x) { return x.sendId === "s1ex074"; });
+  const older = rav4.find(function (x) { return x.sendId === "old-rav4"; });
+  assert.ok(newer && older, "both sendIds stay");
+  assert.equal(newer.docs.vauto.have, true, "empty stub does not wipe 3-pill docs");
+  assert.equal(newer.sentAt, 1789339609336, "older stub does not win sentAt");
+  assert.equal(newer.id, "cmu0avif7rslu", "newer remote keeps its own id");
+  assert.equal(older.id, "guest-chris-rav4-20260913", "older remote keeps its own id");
 
   console.log("incoming-api: ok");
 })().catch(function (err) {
