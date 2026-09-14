@@ -236,6 +236,52 @@ assert.equal(incoming.isPacketSend({
   assert.equal(withUrl.docs.vauto.shots.length, 1);
   assert.equal(withUrl.docs.vauto.shots[0].url, "https://example.com/shot.jpg");
 
+  incoming.resetStore();
+  incoming.route("POST", {
+    kind: "land",
+    item: {
+      id: "c-unlock-1",
+      sendId: "s-unlock-1",
+      vin: "2T3B1RFVXRC466025",
+      lane: "history",
+      archived: true,
+      locked: true,
+      superseded: true,
+      supersedeLock: true,
+      centerLocked: true,
+      customer: { name: "Chris Cyr" },
+      docs: { vauto: { have: true, name: "walk.mp4", type: "video/mp4", url: "https://example.com/walk.mp4" } },
+      appraisalFinal: { min: "22800", target: "24000", max: "25000" }
+    }
+  });
+  assert.equal(incoming.listItems()[0].locked, true, "mailer keeps locked");
+  assert.equal(incoming.listItems()[0].superseded, true, "mailer keeps superseded");
+  incoming.route("POST", {
+    kind: "land",
+    item: {
+      id: "c-unlock-1",
+      sendId: "s-unlock-1",
+      locked: false,
+      superseded: false,
+      supersedeLock: false,
+      centerLocked: false,
+      staffUnlocked: true,
+      lane: "history",
+      archived: true,
+      customer: { name: "Chris Cyr" },
+      docs: { vauto: { have: true, name: "walk.mp4", type: "video/mp4", url: "https://example.com/walk.mp4" } }
+    }
+  });
+  const unlocked = incoming.listItems()[0];
+  assert.equal(incoming.listItems().length, 1, "unlock land is the same sendId");
+  assert.equal(unlocked.locked, false, "unlock clears locked");
+  assert.equal(unlocked.superseded, false, "unlock clears superseded");
+  assert.equal(unlocked.supersedeLock, false);
+  assert.equal(unlocked.centerLocked, false);
+  assert.equal(unlocked.staffUnlocked, true);
+  assert.equal(unlocked.lane, "history", "unlock keeps History");
+  assert.equal(unlocked.docs.vauto.url, "https://example.com/walk.mp4", "unlock keeps docs.url");
+
   console.log("incoming-api: ok");
 })().catch(function (err) {
   console.error(err);

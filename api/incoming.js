@@ -121,6 +121,11 @@ function slimItem(raw) {
   if (raw.teamActivated === true || raw.teamActivated === false) item.teamActivated = !!raw.teamActivated;
   if (raw.teamActivatedAt != null && raw.teamActivatedAt !== "") item.teamActivatedAt = Number(raw.teamActivatedAt) || 0;
   if (raw.teamStatus) item.teamStatus = String(raw.teamStatus);
+  if (raw.locked === true || raw.locked === false) item.locked = !!raw.locked;
+  if (raw.superseded === true || raw.superseded === false) item.superseded = !!raw.superseded;
+  if (raw.supersedeLock === true || raw.supersedeLock === false) item.supersedeLock = !!raw.supersedeLock;
+  if (raw.centerLocked === true || raw.centerLocked === false) item.centerLocked = !!raw.centerLocked;
+  if (raw.staffUnlocked === true) item.staffUnlocked = true;
   if (!item.id) item.id = "c" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
   return item;
 }

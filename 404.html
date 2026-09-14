@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-14 build d30i: V Auto / OpenLane / eBlock pills open a doc sheet; kind:file blob url; Incoming keeps http docs.url; status dropdown every lane; Run Appraisal Team; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples -->
+<!-- center-v3 + desk-home 2026-09-14 build d30j: staff Unlock on locked cards; V Auto / OpenLane / eBlock pills open a doc sheet; kind:file blob url; Incoming keeps http docs.url; status dropdown every lane; Run Appraisal Team; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -908,6 +908,11 @@ body.center-locked #centerDetailBody textarea,
 body.center-locked #centerDock {
   pointer-events:none; opacity:.72;
 }
+#centerUnlock { margin:0 0 14px; }
+body.center-locked #centerUnlock {
+  pointer-events:auto; opacity:1;
+}
+.lane-dd-sel:disabled { pointer-events:none; opacity:.65; }
 .acre-row.on { box-shadow:0 0 0 2px var(--purple), 0 10px 28px rgba(92,63,224,.12); }
 .acre-thumb {
   width:86px; height:68px; border-radius:16px; overflow:hidden;
@@ -1822,6 +1827,7 @@ body.center-gallery-on { overflow:hidden; }
       </div>
     </div>
     <div class="center-supersede-mark hide" id="centerSupersedeMark">New appraisal submitted</div>
+    <button class="pill wash hide" type="button" id="centerUnlock">Unlock</button>
     <h2 id="centerDetailTitle">Vehicle</h2>
     <p class="quote" id="centerDetailSub"></p>
     <div id="centerFinalBox" class="hide"></div>
@@ -2016,7 +2022,7 @@ body.center-gallery-on { overflow:hidden; }
     <p class="quote" id="vinHint">Best: take a picture of the vehicle ownership (registration). You can also photograph the VIN on the dash or the sticker on the driver’s door. We’ll read the number from the photo.</p>
     <p class="vin-chip hide" id="vinChip"></p>
     </div>
-    <p class="build-stamp" id="buildStamp">build d30i</p>
+    <p class="build-stamp" id="buildStamp">build d30j</p>
   </div>
 </section>
 
@@ -2487,7 +2493,7 @@ body.center-gallery-on { overflow:hidden; }
   <div class="card">
     <button class="x" type="button" data-close="typeSheet">✕</button>
     <h3>Appraisal type</h3>
-    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d30i</span></p>
+    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d30j</span></p>
     <div id="typeChips" class="to-chips"></div>
     <div id="leadBox" class="lead-box hide">
       <p class="hint">Lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a New application — no appointment calendar.</p>
@@ -6763,6 +6769,7 @@ function isSupersededCenter(item){
 }
 function lockSupersededCard(item, remote){
   if(!item) return item;
+  if(item.staffUnlocked) return item;
   item.archived=true;
   item.superseded=true;
   item.locked=true;
@@ -6783,6 +6790,7 @@ function archiveOnsiteSameVin(store, remote){
     if(!item || isCenterSample(item)) return;
     if(String(item.vin||"").toUpperCase()!==vin) return;
     if(remoteSend && ((item.sendId && item.sendId===remoteSend) || (item.id && remote.id && item.id===remote.id))) return;
+    if(item.staffUnlocked) return;
     const localWhen=sharedItemStamp(item);
     if(remoteWhen && localWhen && remoteWhen<localWhen) return;
     lockSupersededCard(item, remote);
@@ -6794,6 +6802,47 @@ function persistCenterMedia(id, photos, docs){
   const payload={photos:photos||[], docs:docs||{}};
   try{ sessionStorage.setItem(centerMediaKey(id), JSON.stringify(payload)); }catch(e){}
   return idbPut(centerMediaKey(id), payload);
+}
+function isCenterLocked(item){
+  return !!(item && (item.superseded || item.locked || item.supersedeLock || item.centerLocked));
+}
+function unlockCenterItem(id){
+  if(APP.role==="guest") return null;
+  if(APP.role!=="employee") return null;
+  const cur=typeof getCenter==="function"?getCenter(id):null;
+  if(!cur || !isCenterLocked(cur)) return cur||null;
+  const keepLane=cur.lane||"";
+  const keepPick=cur.lanePick||"";
+  const keepArch=!!cur.archived;
+  const keepFinal=cur.appraisalFinal;
+  const keepRat=cur.finalRationale;
+  const keepDocs=cur.docs;
+  const keepPhotos=cur.photos;
+  const keepBy=cur.supersededBy;
+  const item=typeof patchCenter==="function"?patchCenter(id, function(x){
+    x.locked=false;
+    x.superseded=false;
+    x.supersedeLock=false;
+    x.centerLocked=false;
+    x.staffUnlocked=true;
+    x.unlockedAt=Date.now();
+    x.teamActivated=false;
+    if(x.teamStatus==="running") x.teamStatus="";
+    if(keepLane) x.lane=keepLane;
+    if(keepPick) x.lanePick=keepPick;
+    x.archived=keepArch;
+    if(keepFinal) x.appraisalFinal=keepFinal;
+    if(keepRat) x.finalRationale=keepRat;
+    if(keepDocs) x.docs=keepDocs;
+    if(keepPhotos) x.photos=keepPhotos;
+    if(keepBy) x.supersededBy=keepBy;
+  }):null;
+  if(!item) return null;
+  try{ shareIncomingBestEffort(item); }catch(e){}
+  if(typeof paintCenter==="function") paintCenter();
+  if(typeof paintCenterDetail==="function") paintCenterDetail();
+  toast("Unlocked.");
+  return item;
 }
 function slimSharedHttpUrl(v){
   const s=String(v||"").trim();
@@ -6965,6 +7014,11 @@ function slimSharedCenterItem(item){
     slim.teamActivatedAt=Number(item.teamActivatedAt)||0;
     slim.teamStatus=item.teamStatus||"running";
   }
+  slim.locked=!!item.locked;
+  slim.superseded=!!item.superseded;
+  slim.supersedeLock=!!item.supersedeLock;
+  slim.centerLocked=!!item.centerLocked;
+  if(item.staffUnlocked) slim.staffUnlocked=true;
   return slim;
 }
 function shareIncomingBestEffort(item){
@@ -7173,6 +7227,18 @@ function applySharedIncoming(item, remote){
     item.teamActivated=true;
     item.teamActivatedAt=Number(remote.teamActivatedAt)||item.teamActivatedAt||0;
     item.teamStatus=remote.teamStatus||item.teamStatus||"running";
+  }
+  if(remote.staffUnlocked===true){
+    item.staffUnlocked=true;
+    item.locked=false;
+    item.superseded=false;
+    item.supersedeLock=false;
+    item.centerLocked=false;
+  } else if(!item.staffUnlocked){
+    if(remote.locked===true || remote.locked===false) item.locked=!!remote.locked;
+    if(remote.superseded===true || remote.superseded===false) item.superseded=!!remote.superseded;
+    if(remote.supersedeLock===true || remote.supersedeLock===false) item.supersedeLock=!!remote.supersedeLock;
+    if(remote.centerLocked===true || remote.centerLocked===false) item.centerLocked=!!remote.centerLocked;
   }
   if(typeof enrichRav4OnsiteFinal==="function") enrichRav4OnsiteFinal(item);
   if(item.photos && item.photos.length && typeof persistCenterMedia==="function"){
@@ -7732,6 +7798,11 @@ function shareCenterLaneBestEffort(item){
   }catch(e){}
 }
 function moveCenterLane(id, lane){
+  const cur=typeof getCenter==="function"?getCenter(id):null;
+  if(typeof isCenterLocked==="function" && isCenterLocked(cur)){
+    toast("Unlock this appraisal first.");
+    return null;
+  }
   const item=typeof patchCenter==="function"?patchCenter(id, function(x){ applyCenterLaneMove(x, lane); }):null;
   if(!item) return null;
   try{ shareCenterLaneBestEffort(item); }catch(e){}
@@ -7764,9 +7835,17 @@ function bindCenterLaneChip(root, item){
     lab.addEventListener("click", stop);
     lab.addEventListener("mousedown", stop);
   }
+  const locked=typeof isCenterLocked==="function" && isCenterLocked(item);
+  sel.disabled=!!locked;
   sel.onchange=function(e){
     stop(e);
-    if(sel.value===centerLaneOf(item)) return;
+    const live=typeof getCenter==="function"?getCenter(item.id):item;
+    if(typeof isCenterLocked==="function" && isCenterLocked(live)){
+      toast("Unlock this appraisal first.");
+      sel.value=centerLaneOf(live||item);
+      return;
+    }
+    if(sel.value===centerLaneOf(live||item)) return;
     moveCenterLane(item.id, sel.value);
   };
 }
@@ -8205,7 +8284,14 @@ function openMarketDocSheet(item, spec){
     $("marketDocName").classList.toggle("hide", !(slot && (slot.name||url)));
   }
   if($("marketDocView")) $("marketDocView").classList.toggle("hide", !url);
-  if($("marketDocAdd")) $("marketDocAdd").textContent=url?"Replace file":"Add file";
+  const locked=typeof isCenterLocked==="function" && isCenterLocked(item);
+  if($("marketDocAdd")){
+    $("marketDocAdd").classList.toggle("hide", !!locked);
+    $("marketDocAdd").textContent=url?"Replace file":"Add file";
+  }
+  if(locked && $("marketDocHint")) $("marketDocHint").textContent=url
+    ? "This file is saved. Unlock the appraisal to replace it."
+    : "Unlock this appraisal to add a video, screenshot, or PDF.";
   if($("marketDocStatus")){ $("marketDocStatus").textContent=""; $("marketDocStatus").classList.add("hide"); }
   if($("marketDocSheet")) $("marketDocSheet").classList.add("on");
 }
@@ -8213,6 +8299,7 @@ function uploadMarketDocFile(file){
   const ctx=APP._marketDoc||{};
   const item=typeof getCenter==="function"?getCenter(ctx.itemId):null;
   if(!item || !ctx.key || !file){ toast("Couldn’t add that file."); return; }
+  if(typeof isCenterLocked==="function" && isCenterLocked(item)){ toast("Unlock this appraisal first."); return; }
   if(!item.sendId) item.sendId=APP.sendId||item.id||("s"+Date.now().toString(36));
   if($("marketDocStatus")){
     $("marketDocStatus").textContent="Saving…";
@@ -8342,6 +8429,8 @@ function notifyTeamActivated(item){
 }
 function activateAppraisalTeam(id){
   if(APP.role==="guest") return null;
+  const cur=typeof getCenter==="function"?getCenter(id):null;
+  if(typeof isCenterLocked==="function" && isCenterLocked(cur)) return null;
   const item=typeof patchCenter==="function"?patchCenter(id, function(x){
     x.teamActivated=true;
     x.teamActivatedAt=Date.now();
@@ -8365,7 +8454,7 @@ function paintCenterRunTeam(item){
     return;
   }
   const on=isTeamActivated(item);
-  const locked=typeof isSupersededCenter==="function" && isSupersededCenter(item);
+  const locked=typeof isCenterLocked==="function" && isCenterLocked(item);
   btn.disabled=on||locked;
   btn.textContent=on?"Running…":"Run Appraisal Team";
   if(note) note.textContent=on
@@ -8449,6 +8538,7 @@ function paintCenterTags(item){
 function paintCenterDetailEmpty(){
   document.body.classList.remove("center-locked");
   if($("centerSupersedeMark")) $("centerSupersedeMark").classList.add("hide");
+  if($("centerUnlock")) $("centerUnlock").classList.add("hide");
   const body=$("centerDetailBody");
   if(!body) return;
   body.innerHTML='<div class="center-detail-empty"><b>One car at a time</b><p>This desk is the workbench. Open <b>Incoming</b>, <b>On-site</b>, <b>Needs docs</b>, or <b>History</b> — tap a vehicle, and it lands here.</p></div>';
@@ -8459,7 +8549,7 @@ function paintCenterDetailEmpty(){
 function ensureCenterDetailScaffold(){
   const body=$("centerDetailBody");
   if(!body) return;
-  if($("centerDetailTitle") && $("centerHero") && $("centerTeam") && $("centerFinalBox") && $("centerSupersedeMark") && $("centerRunTeam")) return;
+  if($("centerDetailTitle") && $("centerHero") && $("centerTeam") && $("centerFinalBox") && $("centerSupersedeMark") && $("centerUnlock") && $("centerRunTeam")) return;
   body.innerHTML=
     '<div class="center-detail-bar">'+
       '<button class="round center-close-x" type="button" id="centerDetailClose" aria-label="Close vehicle">✕</button>'+
@@ -8476,6 +8566,7 @@ function ensureCenterDetailScaffold(){
       '</div>'+
     '</div>'+
     '<div class="center-supersede-mark hide" id="centerSupersedeMark">New appraisal submitted</div>'+
+    '<button class="pill wash hide" type="button" id="centerUnlock">Unlock</button>'+
     '<h2 id="centerDetailTitle">Vehicle</h2>'+
     '<p class="quote" id="centerDetailSub"></p>'+
     '<div id="centerFinalBox" class="hide"></div>'+
@@ -8564,11 +8655,17 @@ function paintCenterDetail(){
     try{ saveCenterStore(centerStore()); }catch(e){}
   }
   ensureCenterDetailScaffold();
-  const locked=typeof isSupersededCenter==="function" && isSupersededCenter(item);
+  const locked=typeof isCenterLocked==="function" && isCenterLocked(item);
+  const stamp=typeof isSupersededCenter==="function" && isSupersededCenter(item);
   document.body.classList.toggle("center-locked", !!locked);
   if($("centerSupersedeMark")){
     $("centerSupersedeMark").textContent="New appraisal submitted";
-    $("centerSupersedeMark").classList.toggle("hide", !locked);
+    $("centerSupersedeMark").classList.toggle("hide", !stamp);
+  }
+  if($("centerUnlock")){
+    const staff=APP.role==="employee";
+    $("centerUnlock").classList.toggle("hide", !(staff && locked));
+    $("centerUnlock").onclick=(staff && locked)?function(){ unlockCenterItem(item.id); }:null;
   }
   if($("centerStageBtn")) $("centerStageBtn").classList.remove("hide");
   if($("centerDock")) $("centerDock").classList.remove("hide");
@@ -11788,7 +11885,7 @@ function printCarfaxRecreatePdf(item){
     d.text(body, 36, y+32);
     d.setFillColor(27,107,58); d.rect(0,H-40,W,40,"F");
     d.setTextColor(255,255,255); d.setFont("helvetica","bold"); d.setFontSize(8);
-    d.text("NOT OFFICIAL CARFAX  ·  SAMPLE / PENDING  ·  carfax-sample  ·  build d30i", 36, H-18);
+    d.text("NOT OFFICIAL CARFAX  ·  SAMPLE / PENDING  ·  carfax-sample  ·  build d30j", 36, H-18);
     d.setProperties({title:"SAMPLE PENDING NOT OFFICIAL CARFAX — 2024 RAV4 LE AWD", author:"G&M Appraisal Center"});
     d.save("rav4-2T3B1RFVXRC466025-carfax-sample.pdf");
     storeRav4CarfaxDoc(item);
@@ -13303,8 +13400,8 @@ async function emailApprovalPacket(item, num){
 async function completeCenterFile(){
   const item=getCenter(APP.centerViewId);
   if(!item) return;
-  if(typeof isSupersededCenter==="function" && isSupersededCenter(item)){
-    toast("This appraisal is locked — a new one was submitted.");
+  if(typeof isCenterLocked==="function" && isCenterLocked(item)){
+    toast("This appraisal is locked — Unlock it first.");
     return;
   }
   if(!canUseCenter()){ denyCenter(); return; }
