@@ -35,6 +35,9 @@ mustNot(/id="exitRefresh"/, "Refresh stays gone");
 must(/min-height:24px/, "Back/Home are quieter");
 must(/font-size:11px; font-weight:500/, "Back/Home type is quieter");
 must(/function finishGuest\(\)\{\s*finishThanks\(\);/, "Thank-you stays frozen");
+must(/function persistMarketDocUrls\(/, "market docs host to a public url");
+must(/function slimSharedHttpUrl\(/, "slim docs keep only http(s) urls");
+mustNot(/openlane:\s*\[\{/, "do not invent OpenLane solds");
 
 const acre = sliceFn("acreRow", "paintCenter");
 assert.ok(/openCenterDetail/.test(acre), "Center tiles open the full desk");
@@ -70,6 +73,7 @@ function marketDocsComplete() { return true; }
 const centerLaneOf = eval("(" + html.match(/function centerLaneOf\(item\)\{[\s\S]*?\n\}/)[0].replace("function centerLaneOf", "function") + ")");
 const normalizeCenterLane = eval("(" + html.match(/function normalizeCenterLane\(lane\)\{[\s\S]*?\n\}/)[0].replace("function normalizeCenterLane", "function") + ")");
 const applyCenterLaneMove = eval("(" + html.match(/function applyCenterLaneMove\(item, lane\)\{[\s\S]*?\n\}/)[0].replace("function applyCenterLaneMove", "function") + ")");
+const slimSharedHttpUrl = eval("(" + html.match(/function slimSharedHttpUrl\(v\)\{[\s\S]*?\n\}/)[0].replace("function slimSharedHttpUrl", "function") + ")");
 const slimSharedDocs = eval("(" + html.match(/function slimSharedDocs\(docs\)\{[\s\S]*?\n\}/)[0].replace("function slimSharedDocs", "function") + ")");
 function laneFromMarketDocs(docs, prefer) {
   return { lane: prefer === "onsite" || !prefer ? "onsite" : (prefer || "onsite"), docsIncomplete: prefer === "needsdocs", missingDocs: [] };

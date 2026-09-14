@@ -1057,6 +1057,38 @@ assert.ok(/packetPdfHref\(item&&item\.pdfUrl\)/.test(html), "Open packet PDF use
 assert.ok(/item\.photos=remote\.photos\.map/.test(html), "applySharedIncoming assigns remote.photos");
 assert.ok(/photos:photos/.test(html), "slimSharedCenterItem includes photos");
 assert.ok(/pdfUrl:item\.pdfUrl/.test(html), "slimSharedCenterItem includes pdfUrl for the wire");
+assert.ok(/function slimSharedHttpUrl\(/.test(html), "shared slim keeps only http(s) doc urls");
+assert.ok(/function persistMarketDocUrls\(/.test(html), "Send/Incoming hosts market docs before the mailer POST");
+assert.ok(/Promise\.resolve\(persistMarketDocUrls\(item\)\)/.test(html), "doc url persist is best-effort before land");
+
+(function testSlimSharedDocsKeepsHttpUrlsNotBase64() {
+  const slimSharedDocs = eval("(" + html.match(/function slimSharedDocs\(docs\)\{[\s\S]*?\n\}/)[0].replace("function slimSharedDocs", "function") + ")");
+  const slimSharedHttpUrl = eval("(" + html.match(/function slimSharedHttpUrl\(v\)\{[\s\S]*?\n\}/)[0].replace("function slimSharedHttpUrl", "function") + ")");
+  assert.equal(slimSharedHttpUrl("https://blob.vercel-storage.com/vauto.mp4"), "https://blob.vercel-storage.com/vauto.mp4");
+  assert.equal(slimSharedHttpUrl("data:image/jpeg;base64,XXXX"), "", "data URLs are not kept");
+  const slim = slimSharedDocs({
+    vauto: {
+      have: true,
+      name: "vauto.mp4",
+      type: "video/mp4",
+      url: "https://example.com/vauto.mp4",
+      data: "data:video/mp4;base64,HUGE",
+      preview: "https://example.com/vauto.jpg",
+      extract: "javascript:alert(1)",
+      shots: ["https://example.com/shot.jpg", "data:image/jpeg;base64,NOPE", { url: "https://example.com/shot2.jpg" }]
+    },
+    openlane: { have: true, name: "ol.pdf", type: "pdf", data: "data:application/pdf;base64,NOPE" }
+  });
+  assert.equal(slim.vauto.have, true);
+  assert.equal(slim.vauto.url, "https://example.com/vauto.mp4");
+  assert.equal(slim.vauto.preview, "https://example.com/vauto.jpg");
+  assert.equal(slim.vauto.data, undefined, "base64 data stays off the wire");
+  assert.equal(slim.vauto.extract, undefined, "non-http extract is dropped");
+  assert.equal(slim.vauto.shots.length, 2);
+  assert.equal(slim.vauto.shots[0].url, "https://example.com/shot.jpg");
+  assert.equal(slim.openlane.url, undefined);
+  assert.equal(slim.openlane.data, undefined);
+})();
 assert.ok(/persistCenterMedia\(item\.id, item\.photos, item\.docs\|\|\{\}\)/.test(html), "shared land persists Center media");
 assert.ok(/item\.lanePick/.test(html), "Incoming pull honors lanePick");
 

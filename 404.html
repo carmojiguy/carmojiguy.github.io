@@ -6781,15 +6781,71 @@ function persistCenterMedia(id, photos, docs){
   try{ sessionStorage.setItem(centerMediaKey(id), JSON.stringify(payload)); }catch(e){}
   return idbPut(centerMediaKey(id), payload);
 }
+function slimSharedHttpUrl(v){
+  const s=String(v||"").trim();
+  return /^https?:\/\//i.test(s) ? s : "";
+}
 function slimSharedDocs(docs){
   const src=docs||{};
   const out={};
   Object.keys(src).forEach(function(k){
     const d=src[k];
-    const have=d===true||d===1||d==="true"||!!(d&&(d.have||d.data||d.extract||d.preview||(d.shots&&d.shots.length)));
-    out[k]={have:have, name:(d&&d.name)||"", type:(d&&d.type)||""};
+    const have=d===true||d===1||d==="true"||!!(d&&(d.have||d.data||d.extract||d.preview||d.url||(d.shots&&d.shots.length)));
+    const slot={have:have, name:(d&&d.name)||"", type:(d&&d.type)||""};
+    const url=slimSharedHttpUrl(d&&d.url);
+    if(url) slot.url=url;
+    const extract=slimSharedHttpUrl(d&&d.extract);
+    if(extract) slot.extract=extract;
+    const preview=slimSharedHttpUrl(d&&d.preview);
+    if(preview) slot.preview=preview;
+    if(d && Array.isArray(d.shots)){
+      const shots=[];
+      d.shots.forEach(function(s){
+        const u=slimSharedHttpUrl(typeof s==="string"?s:(s&&(s.url||s.href||"")));
+        if(u) shots.push({url:u});
+      });
+      if(shots.length) slot.shots=shots;
+    }
+    out[k]=slot;
   });
   return out;
+}
+function firstMarketDocPayload(d){
+  if(!d || typeof d!=="object") return null;
+  if(d.file||d.blob) return {blob:d.file||d.blob, name:d.name||"doc", mime:d.type||""};
+  const data=typeof d.data==="string"?d.data:"";
+  if(data.indexOf("data:")===0) return {data:data, name:d.name||"doc", mime:d.type||""};
+  const preview=typeof d.preview==="string"?d.preview:"";
+  if(preview.indexOf("data:")===0) return {data:preview, name:d.name||"preview.jpg", mime:d.type||"image/jpeg"};
+  if(Array.isArray(d.shots) && d.shots[0]){
+    const s=d.shots[0];
+    const shot=typeof s==="string"?s:(s&&s.data)||"";
+    if(String(shot).indexOf("data:")===0) return {data:shot, name:d.name||"shot.jpg", mime:"image/jpeg"};
+  }
+  return null;
+}
+function persistMarketDocUrls(item){
+  if(!item || !item.docs) return Promise.resolve(item);
+  const keys=Object.keys(item.docs);
+  let chain=Promise.resolve();
+  keys.forEach(function(k){
+    chain=chain.then(function(){
+      const d=item.docs[k];
+      if(!d || d===true || slimSharedHttpUrl(d.url)) return;
+      const payload=firstMarketDocPayload(d);
+      if(!payload) return;
+      const put=payload.blob && typeof hostBlob==="function"
+        ? hostBlob(payload.name, payload.mime, payload.blob)
+        : (typeof hostFile==="function" ? hostFile(payload.name, payload.mime||"application/octet-stream", payload.data) : Promise.resolve(""));
+      return Promise.resolve(put).then(function(url){
+        if(slimSharedHttpUrl(url)){
+          d.url=url;
+          d.have=true;
+        }
+      }).catch(function(){});
+    });
+  });
+  return chain.then(function(){ return item; }).catch(function(){ return item; });
 }
 function slimSharedCenterItem(item){
   item=item||{};
@@ -6872,13 +6928,20 @@ function slimSharedCenterItem(item){
 function shareIncomingBestEffort(item){
   try{
     if(!item || !item.id || isCenterSample(item)) return;
-    const payload={kind:"land", item:slimSharedCenterItem(item)};
-    const req=timedFetch(MAIL_HOST+"/api/incoming", {
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify(payload)
-    }, 8000);
-    if(req && typeof req.catch==="function") req.catch(function(){});
+    function post(){
+      const payload={kind:"land", item:slimSharedCenterItem(item)};
+      const req=timedFetch(MAIL_HOST+"/api/incoming", {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify(payload)
+      }, 8000);
+      if(req && typeof req.catch==="function") req.catch(function(){});
+    }
+    if(typeof persistMarketDocUrls==="function"){
+      Promise.resolve(persistMarketDocUrls(item)).then(post, post);
+    } else {
+      post();
+    }
   }catch(e){}
 }
 function centerPhotoDataBytes(photos){
@@ -7011,7 +7074,10 @@ function applySharedIncoming(item, remote){
       return !!(d && (d.data || d.extract || d.preview || (d.shots && d.shots.length)));
     });
     if(localFat && !remoteFat){
-      /* keep fat local docs — slim mailer echo must not strip preview/data */
+      Object.keys(incoming).forEach(function(k){
+        const slot=item.docs[k];
+        if(slot && incoming[k] && incoming[k].url && !slot.url) slot.url=incoming[k].url;
+      });
     } else if(!(sharedDocsHaveCount(incoming)===0 && sharedDocsHaveCount(item.docs)>0)){
       item.docs=incoming;
     }

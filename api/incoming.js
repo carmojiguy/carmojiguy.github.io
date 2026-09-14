@@ -77,6 +77,16 @@ function slimDocs(docs) {
   Object.keys(src).forEach(function (k) {
     const d = src[k] || {};
     out[k] = { have: !!d.have, name: String(d.name || ""), type: String(d.type || "") };
+    if (/^https?:\/\//i.test(String(d.url || ""))) out[k].url = String(d.url);
+    if (/^https?:\/\//i.test(String(d.extract || ""))) out[k].extract = String(d.extract);
+    if (/^https?:\/\//i.test(String(d.preview || ""))) out[k].preview = String(d.preview);
+    if (Array.isArray(d.shots)) {
+      const shots = d.shots.map(function (s) {
+        const u = typeof s === "string" ? s : (s && (s.url || s.href)) || "";
+        return /^https?:\/\//i.test(u) ? { url: u } : null;
+      }).filter(Boolean);
+      if (shots.length) out[k].shots = shots;
+    }
   });
   return out;
 }
