@@ -176,6 +176,38 @@ assert.equal(incoming.isPacketSend({
   assert.equal(incoming.listItems()[0].lane, "onsite", "mailer accepts On-site move");
   assert.equal(incoming.listItems()[0].archived, false, "On-site move clears archived");
 
+  incoming.resetStore();
+  incoming.route("POST", {
+    kind: "land",
+    item: {
+      id: "team-act-1",
+      sendId: "s-team-act",
+      vin: "2T3B1RFVXRC466025",
+      ymmt: "2024 Toyota RAV4",
+      lane: "onsite",
+      teamActivated: true,
+      teamActivatedAt: 1700000000000,
+      teamStatus: "running",
+      customer: { name: "Chris Cyr" }
+    }
+  });
+  const activated = incoming.listItems()[0];
+  assert.equal(activated.id, "team-act-1", "activate land keeps sendId/id");
+  assert.equal(activated.teamActivated, true, "mailer keeps teamActivated");
+  assert.equal(activated.teamStatus, "running", "mailer keeps teamStatus");
+  incoming.route("POST", {
+    kind: "land",
+    item: {
+      id: "team-act-1",
+      sendId: "s-team-act",
+      vin: "2T3B1RFVXRC466025",
+      story: "later",
+      customer: { name: "Chris Cyr" }
+    }
+  });
+  assert.equal(incoming.listItems().length, 1, "activate land does not create a new card");
+  assert.equal(incoming.listItems()[0].teamActivated, true, "later land does not wipe teamActivated");
+
   console.log("incoming-api: ok");
 })().catch(function (err) {
   console.error(err);

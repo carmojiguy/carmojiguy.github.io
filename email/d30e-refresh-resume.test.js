@@ -44,17 +44,16 @@ const SCREENS = [
 assert.equal(copy404, html, "404.html stays a byte-identical copy of index.html");
 assert.equal(inspect, html, "inspect-vehicle.html stays a byte-identical copy of index.html");
 
-must(/id="buildStamp">build d30f</, "home footer stamp is d30f");
-must(/<!--[\s\S]*build d30f[\s\S]*Thank-you frozen/, "file header stamp is d30f");
+must(/id="buildStamp">build d30g</, "home footer stamp is d30g");
+must(/<!--[\s\S]*build d30g[\s\S]*Thank-you frozen/, "file header stamp is d30g");
 
 must(/id="exitChrome"/, "global top chrome exists once");
 must(/id="exitBack">Back/, "Back is in the top chrome");
 must(/id="exitHome">Home/, "Home is in the top chrome");
-must(/id="exitRefresh">Refresh/, "Refresh is in the top chrome");
-must(/id="exitClose"[\s\S]*id="exitBack"[\s\S]*id="exitHome"[\s\S]*id="exitRefresh"/, "Close, Back, Home, Refresh share one row");
-must(/class="exit-refresh"/, "Refresh uses the same chrome family");
-must(/function pageRefresh\(\)\{\s*try\{ location\.reload\(\); \}/, "Refresh is a clean location.reload");
-must(/\$\("exitRefresh"\)\.onclick = function\(e\)\{[\s\S]*pageRefresh\(\); \}/, "Refresh button calls pageRefresh");
+mustNot(/id="exitRefresh"/, "Refresh button is gone");
+mustNot(/class="exit-refresh"/, "Refresh chrome class is gone");
+mustNot(/function pageRefresh\(/, "pageRefresh helper is gone");
+must(/id="exitClose"[\s\S]*id="exitBack"[\s\S]*id="exitHome"/, "Close, Back, Home share one row");
 
 SCREENS.forEach(function (id) {
   assert.ok(new RegExp('<section class="screen[^"]*" id="' + id + '"').test(html) || new RegExp('id="' + id + '"').test(html), id + " screen exists");

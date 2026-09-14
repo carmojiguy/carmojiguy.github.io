@@ -1025,7 +1025,7 @@ const paintCenterFinalBox = eval("(" + (function () {
 })();
 
 assert.ok(/scheduleIncomingPull\(\)/.test(html), "Center boot/paint schedules the Incoming pull");
-assert.ok(/build d30f/.test(html), "build stamp bumped to d30f");
+assert.ok(/build d30g/.test(html), "build stamp bumped to d30g");
 assert.ok(/function archiveOnsiteSameVin\(/.test(html), "new Send archives the prior On-site card");
 assert.ok(/enrichRav4OnsiteFinal/.test(html), "Incoming land seeds the RAV4 FINAL");
 assert.ok(/openCarfaxRecreate/.test(html), "Carfax recreate is wired");
@@ -1034,7 +1034,9 @@ assert.ok(/s1ex074-sales-final/.test(html), "sales-final PDF url is present");
 assert.ok(/carfax-sample/.test(html), "carfax-sample path is present");
 assert.ok(/openlane:\s*\[\]/.test(html), "OpenLane solds stay openlane:[]");
 assert.ok(/New appraisal submitted/.test(html), "superseded watermark copy is exact");
-assert.ok(/id="exitRefresh">Refresh/.test(html), "Refresh sits in exit chrome");
+assert.ok(/id="exitBack">Back/.test(html), "Back sits in exit chrome");
+assert.ok(/id="exitHome">Home/.test(html), "Home sits in exit chrome");
+assert.ok(!/id="exitRefresh"/.test(html), "Refresh is gone from exit chrome");
 assert.ok(/Continue abandoned session/.test(html), "abandoned Continue label");
 assert.ok(/Start a new one/.test(html), "abandoned Start a new one label");
 assert.ok(/shared && hint\.id/.test(html), "Incoming remotes also match by id");
