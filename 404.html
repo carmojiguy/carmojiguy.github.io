@@ -1264,9 +1264,9 @@ body.center-gallery-on { overflow:hidden; }
 #center .acre-doc-head {
   display:flex; align-items:baseline; justify-content:space-between; gap:10px;
   width:fit-content; margin:0 0 8px auto; padding:7px 14px; border:0; border-radius:999px;
-  background:#E8F1FF; color:#2F6BFF; font-size:11px; font-weight:800; letter-spacing:.06em; text-transform:uppercase;
+  background:#2F6BFF; color:#fff; font-size:11px; font-weight:800; letter-spacing:.06em; text-transform:uppercase;
 }
-#center .acre-doc-head span { color:#2F6BFF; opacity:.9; }
+#center .acre-doc-head span { color:#fff; opacity:.92; }
 #center .acre-doc-card {
   display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:10px;
   width:100%; margin:0; padding:8px 0; border:0; border-bottom:1px solid #E4E7EC;
@@ -1310,7 +1310,13 @@ body.center-gallery-on { overflow:hidden; }
 .acre-score-row .acre-score.maya b { color:#16A34A; }
 .acre-score-row .acre-score.clutch b { color:#EA580C; }
 .acre-score-row .acre-score.vauto b { color:#D97706; }
-.acre-score-row .acre-score.predicted b { color:#CA8A04; }
+.acre-score-row .acre-score.predicted b { color:#111318; }
+.acre-title-vin {
+  font-size:12px; font-weight:700; color:#6B7380; letter-spacing:.04em; margin-left:8px;
+}
+.acre-mmr-mark {
+  font-size:15px; font-weight:800; color:#C4A35A; letter-spacing:.02em; font-family:Georgia,"Times New Roman",serif;
+}
 .acre-rank-row { display:flex; flex-wrap:wrap; gap:4px; margin:0 0 4px; }
 .acre-rank-row i {
   font-style:normal; background:#fff; border:1px solid #E4E7EC; border-radius:999px;
@@ -1641,6 +1647,7 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
 @media (min-width:768px){
   .phone:has(#center.on){ max-width:none; background:var(--page); }
   html:has(#center.on), body:has(#center.on){ background:#F5F6F8; }
+  .phone:has(#center.on) .accent{ display:none; }
   #center.screen{
     height:100dvh;
     max-height:100dvh;
@@ -1711,11 +1718,11 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
   }
   #center .acre-desk{
     display:grid;
-    grid-template-columns:minmax(260px,1.12fr) minmax(280px,1.1fr) minmax(210px,.78fr);
-    grid-template-areas:"hero mid market" "notes notes notes" "thumbs thumbs thumbs";
-    grid-template-rows:auto auto minmax(26vh,1fr);
+    grid-template-columns:minmax(280px,1.18fr) minmax(300px,1.12fr) minmax(200px,.72fr);
+    grid-template-areas:"hero mid market" "notes mid market" "thumbs thumbs thumbs";
+    grid-template-rows:auto auto minmax(22vh,1fr);
     gap:6px 12px;
-    align-items:stretch;
+    align-items:start;
     min-height:100%;
     height:100%;
     overflow:hidden;
@@ -1726,35 +1733,62 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
   #center .acre-notes-block{ grid-area:notes; }
   #center .acre-thumbs-row{ grid-area:thumbs; }
   #center .acre-vals{
-    display:flex; flex-direction:column; gap:0; margin:0;
+    display:flex; flex-direction:column; gap:6px; margin:2px 0 4px;
   }
   #center .acre-vals .acre-chip{
-    display:grid; grid-template-columns:140px minmax(0,1fr); align-items:center;
-    background:transparent; border:0; border-bottom:1px solid #E4E7EC; border-radius:0;
-    padding:6px 2px;
+    display:grid; grid-template-columns:132px minmax(0,1fr); align-items:center;
+    background:transparent; border:0; border-radius:0;
+    padding:0;
   }
-  #center .acre-vals .acre-chip k{ margin:0; font-size:10px; letter-spacing:.06em; }
+  #center .acre-vals .acre-chip k{ margin:0; font-size:10px; letter-spacing:.08em; color:#6B7380; }
   #center .acre-vals .acre-chip .f{
-    border:0; background:transparent; padding:0; min-height:0; font-size:20px; font-weight:800;
+    border:0; background:#EEF0F3; border-radius:12px; padding:10px 14px; min-height:42px;
+    font-size:18px; font-weight:800; color:#111318;
   }
   #center .acre-range-pair{
-    display:grid; grid-template-columns:1fr auto 1fr; gap:10px; align-items:center;
+    display:grid; grid-template-columns:1fr 1fr; gap:6px; align-items:center;
   }
-  #center .acre-range-pair em{ font-style:normal; color:#9AA3AF; font-weight:800; }
-  #center .acre-market{ display:flex; flex-direction:column; gap:0; margin:0; }
+  #center .acre-range-pair em{ display:none; }
+  #center .acre-market{ display:flex; flex-direction:column; gap:8px; margin:0; }
+  #center .acre-doc-pair{
+    display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:0; border:0;
+  }
+  #center .acre-doc-pair .acre-doc-card,
+  #center .acre-doc-card{
+    display:flex; flex-direction:column; align-items:flex-start; justify-content:flex-start;
+    gap:4px; min-height:92px;
+    background:#fff; border:1px solid #E8EAEE; border-radius:12px;
+    padding:10px 10px 8px; box-shadow:none;
+  }
+  #center .acre-doc-card .acre-doc-thumb{
+    order:-1; width:auto; height:28px; max-width:84px; object-fit:contain;
+    background:transparent; border-radius:0;
+  }
+  #center .acre-doc-card k{ display:block; font-size:9px; color:#6B7380; margin:0; }
+  #center .acre-doc-card b{ font-size:14px; font-weight:800; color:#111318; letter-spacing:-.2px; }
+  #center .acre-doc-card.acre-carfax-card k{ display:block; }
+  #center .acre-doc-card .acre-carfax-mark{ font-size:22px; letter-spacing:-.8px; margin:0 0 2px; }
+  #center .acre-doc-card.acre-eblock-card{
+    justify-content:flex-start; background:#fff; padding:10px 10px 8px !important;
+  }
+  #center .acre-doc-card.acre-eblock-card k{ display:block; }
+  #center .acre-doc-card .acre-eblock-go{
+    background:#15803D; border-radius:8px; padding:6px 14px; font-size:15px;
+  }
+  #center .acre-doc-card .acre-mmr-mark{ margin:0 0 2px; }
   #center.screen.on,
   #center.center-has-detail{
     height:100dvh; max-height:100dvh; overflow:hidden;
   }
   #center .acre-thumbs-row{ position:relative; height:auto; min-height:0; }
   #center .center-thumbs{
-    display:flex; gap:10px; height:auto; min-height:0;
-    overflow-x:auto; scrollbar-width:none; padding:0 36px;
+    display:flex; gap:8px; height:auto; min-height:0;
+    overflow-x:auto; scrollbar-width:none; padding:0 36px 0 0;
   }
   #center .center-thumbs::-webkit-scrollbar{ display:none; }
   #center .center-thumbs button{
     flex:0 0 23.1% !important; width:23.1% !important;
-    height:auto !important; min-height:26vh; max-height:none;
+    height:auto !important; min-height:22vh; max-height:none;
     aspect-ratio:16 / 10;
     border-radius:10px; background:#fff; box-shadow:none; overflow:hidden;
   }
@@ -1762,12 +1796,14 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
   #center .center-thumbs img{ object-fit:contain; object-position:center; background:#fff; }
   #center .center-detail-bar{ display:none; }
   #center .packet-pdf{ display:none !important; }
+  #center .acre-desk-head{ display:none !important; }
   #center #centerTeamHead,
   #center #centerRunTeamWrap,
   #center #centerTeam,
   #center #centerCdWrap,
   #center label.k,
-  #center #centerApproval { margin-top:28px; }
+  #center #centerApproval,
+  #center #centerFinalBox { display:none !important; }
   #center.screen:has(#centerSheet.on) .center-sheet-dim{ display:none !important; }
   #center.screen:has(#centerSheet.on) .center-sheet{
     display:flex;
@@ -1802,46 +1838,43 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
     letter-spacing:-.3px; line-height:1.15; margin:0 0 6px; color:#111318;
   }
   #center .acre-col-mid{
-    align-self:stretch; display:flex; flex-direction:column; min-height:0;
+    display:flex; flex-direction:column; min-height:0;
   }
-  #center .acre-vals{ margin-top:auto; }
-  #center .acre-sources{ margin:0; padding-top:0; gap:5px; }
-  #center .acre-vals .acre-chip{ padding:3px 2px; }
-  #center .acre-vals .acre-chip:last-child{ border-bottom:0; padding-bottom:2px; }
+  #center .acre-sources{ margin:0; padding-top:2px; gap:5px; }
   #center .acre-col-hero{ display:flex; flex-direction:column; min-height:0; }
   #center .center-hero{ flex:0 0 auto; width:100%; aspect-ratio:493 / 410; height:auto; max-height:420px; min-height:0; margin:0; border-radius:10px; background:#fff; position:relative; }
-  #center .center-hero img{ position:absolute; inset:0; height:100%; width:100%; min-height:0; max-height:none; object-fit:cover; object-position:center 58%; background:#fff; }
+  #center .center-hero img{ position:absolute; inset:0; height:100%; width:100%; min-height:0; max-height:none; object-fit:fill; object-position:center; background:#fff; }
   #center .center-hero .dots{ display:none; }
   #center .center-hero .nav-hit{ width:36px; height:36px; font-size:18px; }
   #center .acre-vals .acre-chip k em{
     display:block; font-style:normal; font-size:9px; letter-spacing:.08em;
     text-transform:uppercase; color:#EA580C; font-weight:800; margin-top:2px;
+    border:1px solid #EA580C; border-radius:999px; padding:2px 8px; width:fit-content;
   }
   #center .acre-score-row{ gap:6px; margin:0 0 2px; }
   #center .acre-score-row .acre-score b{ font-size:26px; }
-  #center .acre-desk-head{ display:flex; align-items:baseline; margin:0 0 2px; width:100%; }
-  #center .acre-desk-head .acre-doc-head{ margin:0 0 0 auto; }
-  #center.center-has-detail .center-hero .count{ display:none !important; }
   #center .acre-thumbs-row, #center .center-thumbs{ height:auto; min-height:0; }
-  #center .center-thumbs{ gap:4px; padding:0 22px; }
-  #center .center-thumbs button{
-    min-height:0 !important; height:auto !important; max-height:220px;
-    aspect-ratio:17 / 10;
-  }
-  #center .center-thumbs img{
-    object-fit:cover; object-position:center; background:#fff;
-    transform:scale(1.2);
-  }
   #center .acre-thumbs-prev{ display:none; }
   #center .acre-thumbs-next{ width:36px; height:36px; right:6px; }
+  #center #centerDock.acre-dock,
+  #center.center-has-detail #centerDock.acre-dock{
+    left:auto; transform:none; width:auto; max-width:none;
+    justify-content:stretch; display:flex;
+    background:#fff; border-top:1px solid #E4E7EC;
+  }
+  body.exit-on #center.center-has-detail{ padding-top:32px; }
+  body:has(#center.on) .exit-chrome{
+    background:linear-gradient(180deg,#F5F6F8 0%, rgba(245,246,248,.94) 58%, rgba(245,246,248,0));
+  }
+  body:has(#center.on.center-has-detail) #exitClose{ visibility:hidden; }
   #center .center-docs, #center .center-why-docs, #center .docs-grid{ grid-template-columns:1fr 1fr; }
   #center .doc-slot, #center .doc-sq { min-height:196px; }
   #center .doc-slot b, #center .doc-sq b { font-size:20px; }
   #center .team-rail{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
   #center .team-card.final{ grid-column:1 / -1; }
   #center .facts{ grid-template-columns:repeat(3, 1fr); }
-  #center .acre-vals{ gap:0; }
-  #center .acre-market{ gap:0; }
+  #center .acre-vals{ gap:6px; }
+  #center .acre-market{ gap:8px; }
   .acre-thumb{ width:100px; height:78px; flex-basis:100px; }
   .center-detail-empty{ min-height:calc(100dvh - 180px); }
   .guest-story{
@@ -1884,7 +1917,7 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
   #centerLanes .lane-pill b{ font-size:12px; }
   #center h2{ font-size:22px; letter-spacing:-.3px; }
   #center .center-hero{ border-radius:10px; min-height:0; aspect-ratio:493 / 410; background:#fff; position:relative; }
-  #center .center-hero img{ position:absolute; inset:0; height:100%; min-height:0; max-height:none; object-fit:cover; object-position:center 62%; background:#fff; }
+  #center .center-hero img{ position:absolute; inset:0; height:100%; min-height:0; max-height:none; object-fit:fill; object-position:center; background:#fff; }
   #center .acre-chip{ padding:6px 4px; }
   #center .acre-chip b{ font-size:18px; }
   #center .facts{ grid-template-columns:repeat(4, 1fr); }
@@ -1892,6 +1925,9 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
 
 @media (min-width:980px){
   html, body { background:#120F1C; }
+  html:has(#center.on), body:has(#center.on) { background:#F5F6F8; }
+  .phone:has(#center.on){ background:#F5F6F8; }
+  .phone:has(#center.on) .accent{ display:none; }
   .phone { max-width:none; min-height:100dvh; background:var(--page); }
   .screen { padding-bottom: calc(120px + env(safe-area-inset-bottom)); }
   .screen:not(.start):not(.cam) .nav,
@@ -2418,7 +2454,6 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
     <div class="acre-desk-head" id="centerDeskHead">
       <strong id="centerDeskHeadTitle"></strong>
       <span id="centerDeskHeadVin"></span>
-      <div class="acre-doc-head" id="centerDocHead"></div>
     </div>
     <div class="acre-desk" id="acreDesk">
       <div class="acre-col-hero">
@@ -2442,6 +2477,7 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
         <div class="acre-sources" id="centerSources"></div>
       </div>
       <div class="acre-col-market">
+        <div class="acre-doc-head" id="centerDocHead"></div>
         <div class="acre-market" id="centerMarket"></div>
       </div>
       <div class="acre-notes-block">
@@ -6597,7 +6633,7 @@ const CENTER_PHOTO_DOCS=[
 ];
 const CENTER_PHOTO_DOC_THUMBS={
   vauto:"/docs/vauto.svg",
-  openlane:"/docs/openlane.jpg",
+  book:"/docs/blackbook.png",
   openlane:"/docs/openlane.jpg",
   eblock:"/docs/eblock.jpg",
   eblockLogo:"/docs/eblock.jpg",
@@ -7212,7 +7248,7 @@ function isLocalPhotoLockHost(){
   return h==="localhost" || h==="127.0.0.1" || h==="" || /\.github\.io$/.test(h);
 }
 function photoLockGrPack(){
-  const order=["01","02","03","04","05"];
+  const order=["01","02","03","04","05","06","07","08","09","10","11","12","13","14","15"];
   return ["/start-bgs/gr-corolla/hero.jpg"].concat(order.map(function(n){ return "/start-bgs/gr-corolla/"+n+".jpg"; }));
 }
 function seedPhotoLockGrCorolla(){
@@ -7229,7 +7265,7 @@ function seedPhotoLockGrCorolla(){
   item.id=id;
   item.ymmt="2023 Toyota GR Corolla Core";
   item.year="2023"; item.make="Toyota"; item.model="GR Corolla"; item.trim="Core";
-  item.color="White"; item.km="10500"; item.vin="JTNABAAE8PA003162";
+  item.color="White"; item.km="10500"; item.vin="JTNABAAE8PA083162";
   item.origin="Japan"; item.clean=true; item.noAccident=true; item.accident="none";
   item.tags=["Appraised","Not out of province","Not a US vehicle"];
   item.lane="onsite"; item.stage="Waiting";
@@ -9850,16 +9886,20 @@ function photoDocCard(item, vals, docs, row){
   const b=document.createElement("button");
   b.type="button";
   b.className="acre-doc-card";
-  let html="<span><k>"+esc(label)+"</k><b"+(key==="eblock"?' class="acre-eblock-go"':"")+">"+esc(shown)+"</b></span>";
+  let html="";
+  if(thumb && key!=="eblock" && key!=="carfax" && key!=="mmr") html+='<img class="acre-doc-thumb" src="'+thumb+'" alt="">';
   if(key==="eblock"){
     b.className="acre-doc-card acre-eblock-card";
-    html='<b class="acre-eblock-go">Block</b>';
+    html='<b class="acre-eblock-go">Block</b><k>EBLOCK</k><b>'+esc(shown==="Block"?"—":shown)+'</b>';
   } else if(key==="carfax"){
     b.className="acre-doc-card acre-carfax-card";
-    html='<span><k>'+esc(label)+'</k><b class="acre-carfax-mark">CARFAX</b></span>';
+    html='<b class="acre-carfax-mark">CARFAX</b><k>CARFAX</k><b>'+esc(shown)+'</b>';
+  } else if(key==="mmr"){
+    b.className="acre-doc-card acre-mmr-card";
+    html='<b class="acre-mmr-mark">Manheim</b><k>MMR</k><b>'+esc(shown)+'</b>';
+  } else {
+    html+="<k>"+esc(label)+"</k><b>"+esc(shown)+"</b>";
   }
-  if(key==="eblockLogo") html="";
-  if(thumb && key!=="eblock" && key!=="carfax") html+='<img class="acre-doc-thumb" src="'+thumb+'" alt="">';
   b.innerHTML=html;
   b.onclick=function(){
     if(open==="vauto" || open==="openlane" || open==="eblock" || open==="carfax"){
@@ -10317,7 +10357,6 @@ function ensureCenterDetailScaffold(){
     '<div class="acre-desk-head" id="centerDeskHead">'+
       '<strong id="centerDeskHeadTitle"></strong>'+
       '<span id="centerDeskHeadVin"></span>'+
-      '<div class="acre-doc-head" id="centerDocHead"></div>'+
     '</div>'+
     '<div class="acre-desk" id="acreDesk">'+
       '<div class="acre-col-hero">'+
@@ -10341,6 +10380,7 @@ function ensureCenterDetailScaffold(){
         '<div class="acre-sources" id="centerSources"></div>'+
       '</div>'+
       '<div class="acre-col-market">'+
+        '<div class="acre-doc-head" id="centerDocHead"></div>'+
         '<div class="acre-market" id="centerMarket"></div>'+
       '</div>'+
       '<div class="acre-notes-block">'+
@@ -10470,7 +10510,11 @@ function paintCenterDetail(){
     $("centerDetailBadge").innerHTML=centerLaneChipHtml(item);
     bindCenterLaneChip($("centerDetailBadge"), item);
   }
-  if($("centerDetailTitle")) $("centerDetailTitle").textContent=item.interest || item.ymmt || "Vehicle";
+  if($("centerDetailTitle")){
+    const t=item.interest || item.ymmt || "Vehicle";
+    const vin=String(item.vin||"").toUpperCase();
+    $("centerDetailTitle").innerHTML=esc(t)+(vin?' <span class="acre-title-vin">'+esc(vin)+'</span>':'');
+  }
   if($("centerDeskHeadTitle")) $("centerDeskHeadTitle").textContent=item.interest || item.ymmt || "Vehicle";
   if($("centerDeskHeadVin")) $("centerDeskHeadVin").textContent=String(item.vin||"").toUpperCase();
   if($("centerDeskHead")) $("centerDeskHead").classList.toggle("hide", !(item.ymmt || item.vin));

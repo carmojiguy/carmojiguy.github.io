@@ -44,7 +44,7 @@ must(/#centerNavHistBtn \{ display:none/, "top hist pills stay killed");
 must(/id="acreDesk"/, "Acre desk wrapper");
 must(/class="acre-col-hero"/, "hero column");
 must(/acre-notes-block/, "notes block on the photo desk");
-must(/class="acre-col-hero"[\s\S]*acre-col-mid[\s\S]*acre-notes-block/, "notes span under hero and mid like the lock");
+must(/class="acre-col-hero"[\s\S]*acre-col-mid[\s\S]*acre-notes-block/, "notes sit under the hero like the lock");
 must(/id="centerThumbsNext"/, "fifth-tile peek chevron");
 must(/id="centerThumbsPrev"/, "first-tile prev chevron");
 must(/id="centerMayaStrip"/, "Maya strip under notes");
@@ -101,7 +101,7 @@ must(/#center \.center-thumbs button\{[\s\S]*flex:0 0 23\.1%/, "photo thumbs are
 must(/#center \.center-thumbs button\{[\s\S]*aspect-ratio:16 \/ 10/, "walk-around tiles are landscape frames like the Sept 6 photo");
 must(/#center \.center-thumbs img\{ object-fit:contain/, "side shot is a full car, not a cover-crop");
 must(/#center \.acre-desk\{[\s\S]{0,360}grid-template-areas:"hero mid market"/, "desktop is hero | mid | market");
-must(/grid-template-areas:"hero mid market" "notes notes notes" "thumbs thumbs thumbs"/, "notes sit between the columns and the chunky tiles");
+must(/grid-template-areas:"hero mid market" "notes mid market" "thumbs thumbs thumbs"/, "notes sit under the hero while market continues beside them");
 must(/"01","02","03","04","05"/, "walk-around order is 3/4 front, side, rear-3/4, rear-other");
 must(/#center \.acre-col-mid\{ grid-area:mid; align-self:start/, "mid column packs instead of stretching airy");
 must(/#center\.screen \{[\s\S]{0,220}background:#F5F6F8/, "white Acre page");
