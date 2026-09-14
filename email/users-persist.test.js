@@ -108,11 +108,12 @@ must(/p\.role=seed\.role;/, "Josh/Steve seed role is pinned on restore");
 })();
 
 function mockBlob() {
-  const files = {};
-  return async function fetchImpl(url, opts) {
+  const files = { puts: [] };
+  async function fetchImpl(url, opts) {
     opts = opts || {};
     const u = String(url);
     if (String(opts.method || "GET").toUpperCase() === "PUT") {
+      files.puts.push({ url: u, headers: opts.headers || {} });
       files.body = String(opts.body || "");
       files.url = "https://blob.vercel-storage.com/" + usersStore.BLOB_NAME;
       return { ok: true, json: async function () { return { url: files.url }; } };
@@ -128,56 +129,123 @@ function mockBlob() {
     }
     if (!files.body) return { ok: false, json: async function () { return {}; } };
     return { ok: true, json: async function () { return JSON.parse(files.body); } };
+  }
+  fetchImpl.files = files;
+  return fetchImpl;
+}
+
+function failBlob() {
+  return async function () {
+    return { ok: false, status: 404, json: async function () { return {}; } };
   };
 }
 
-(async function testDurableBlobSurvivesIsolate() {
-  const fetchImpl = mockBlob();
-  const env = { BLOB_READ_WRITE_TOKEN: "test-token", USERS_STORE_PATH: "/tmp/users-persist-missing-" + Date.now() + ".json" };
+function clearIsolate(storePath) {
   incoming.resetStore();
   usersStore.reset();
-  const saved = await incoming.persistUsersDurable({
+  ["/tmp/center-users-v1.json", storePath].forEach(function (p) {
+    if (!p) return;
+    try { fs.unlinkSync(p); } catch (e) {}
+  });
+}
+
+(async function testPersistUsersBlobAndHonestVia() {
+  const fetchImpl = mockBlob();
+  const env = { BLOB_READ_WRITE_TOKEN: "test-token", USERS_STORE_PATH: "/tmp/users-persist-blob-" + Date.now() + ".json" };
+  clearIsolate(env.USERS_STORE_PATH);
+  const saved = await incoming.persistUsers({
     kind: "users",
     users: [
-      { email: "josh.lefave@gmautosales.ca", name: "Josh Lefave", id: "u-josh", photo: "/staff/josh.jpg", role: "owner" },
+      {
+        email: "josh.lefave@gmautosales.ca",
+        name: "Josh Lefave",
+        id: "u-josh",
+        photo: "/staff/josh.jpg",
+        role: "owner",
+        website: true,
+        appraisalCenter: true,
+        modules: ["center", "website"],
+        access: "owner"
+      },
       { email: "steve.summerall@gmautosales.ca", name: "Steve Summerall", id: "u-steve-s", photo: "/staff/steve-summerall.jpg", role: "owner" }
     ],
+    teams: ["Team Flash"],
     permissions: {
-      "josh.lefave@gmautosales.ca": { website: true, center: true },
+      "josh.lefave@gmautosales.ca": { website: true, center: true, appraisalCenter: true },
       "steve.summerall@gmautosales.ca": { website: true, center: true }
     }
   }, { fetch: fetchImpl, env: env });
   assert.equal(saved.status, 200);
   assert.equal(saved.body.ok, true);
   assert.equal(saved.body.via, "blob", "save writes Vercel Blob");
+  assert.ok(fetchImpl.files.puts.length, "PUT was awaited");
+  const put = fetchImpl.files.puts[0];
+  assert.ok(String(put.url).indexOf(usersStore.BLOB_NAME) >= 0, "PUT pathname center-users-v1.json");
+  assert.equal(put.headers.Authorization, "Bearer test-token");
+  assert.equal(put.headers["x-api-version"], "7");
+  assert.equal(put.headers["x-add-random-suffix"], "0");
+  assert.equal(put.headers["x-allow-overwrite"], "true");
 
-  incoming.resetStore();
-  usersStore.reset();
-  const got = await incoming.listUsersDurable({ fetch: fetchImpl, env: env });
+  clearIsolate(env.USERS_STORE_PATH);
+  const got = await incoming.listUsers({ fetch: fetchImpl, env: env });
   assert.equal(got.via, "blob", "new isolate loads from blob, not /tmp");
   assert.equal(got.users.length, 2);
   const emails = got.users.map(function (u) { return u.email; }).sort();
   assert.deepStrictEqual(emails, ["josh.lefave@gmautosales.ca", "steve.summerall@gmautosales.ca"]);
-  assert.strictEqual(got.users.find(function (u) { return u.id === "u-josh"; }).photo, "/staff/josh.jpg");
+  const josh = got.users.find(function (u) { return u.id === "u-josh"; });
+  assert.strictEqual(josh.photo, "/staff/josh.jpg");
+  assert.strictEqual(josh.website, true, "extra website flag is kept");
+  assert.strictEqual(josh.appraisalCenter, true, "extra Appraisal Center flag is kept");
+  assert.deepStrictEqual(josh.modules, ["center", "website"]);
+  assert.strictEqual(josh.access, "owner");
   assert.strictEqual(got.users.find(function (u) { return u.id === "u-steve-s"; }).role, "owner");
   assert.strictEqual(got.permissions["josh.lefave@gmautosales.ca"].center, true);
   assert.strictEqual(got.permissions["josh.lefave@gmautosales.ca"].website, true);
+  assert.strictEqual(got.permissions["josh.lefave@gmautosales.ca"].appraisalCenter, true);
   assert.strictEqual(got.permissions["steve.summerall@gmautosales.ca"].center, true);
   assert.strictEqual(got.permissions["steve.summerall@gmautosales.ca"].website, true);
 
-  const skipped = await incoming.persistUsersDurable({ kind: "users", users: [], permissions: {} }, { fetch: fetchImpl, env: env });
+  const skipped = await incoming.persistUsers({ kind: "users", users: [], permissions: {} }, { fetch: fetchImpl, env: env });
   assert.equal(skipped.body.skipped, "empty", "empty POST does not wipe a populated blob");
-  incoming.resetStore();
-  usersStore.reset();
-  const still = await incoming.listUsersDurable({ fetch: fetchImpl, env: env });
+  clearIsolate(env.USERS_STORE_PATH);
+  const still = await incoming.listUsers({ fetch: fetchImpl, env: env });
   assert.equal(still.users.length, 2, "Josh and Steve survive the empty POST");
+  assert.equal(still.via, "blob");
 
-  const tmp = "/tmp/center-users-v1.json";
-  try { fs.unlinkSync(tmp); } catch (e) {}
+  const routed = await incoming.route("GET", null, { kind: "users" }, { fetch: fetchImpl, env: env });
+  assert.equal(routed.status, 200);
+  assert.equal(routed.body.via, "blob");
+  assert.equal(routed.body.users.length, 2);
+
+  const missingEnv = { BLOB_READ_WRITE_TOKEN: "test-token", USERS_STORE_PATH: "/tmp/users-persist-tmp-" + Date.now() + ".json" };
+  clearIsolate(missingEnv.USERS_STORE_PATH);
+  const tmpSaved = await incoming.persistUsers({
+    kind: "users",
+    users: [{ email: "ernest@myloan.ca", name: "Ernest", photo: "/staff/ernest.jpg", modules: ["center"] }],
+    permissions: { "ernest@myloan.ca": { center: true, website: true } }
+  }, { fetch: failBlob(), env: missingEnv });
+  assert.equal(tmpSaved.body.via, "tmp", "Blob miss still writes tmp; via is not blob");
+  assert.notEqual(tmpSaved.body.via, "blob");
   incoming.resetStore();
   usersStore.reset();
-  const afterTmpGone = await incoming.listUsersDurable({ fetch: fetchImpl, env: env });
-  assert.equal(afterTmpGone.users.length, 2, "hard refresh / cold start still has Users settings");
+  try { fs.unlinkSync("/tmp/center-users-v1.json"); } catch (e) {}
+  const tmpGot = await incoming.listUsers({ fetch: failBlob(), env: missingEnv });
+  assert.equal(tmpGot.via, "tmp", "GET falls back to tmp when Blob is missing");
+  assert.equal(tmpGot.users.length, 1);
+  assert.equal(tmpGot.users[0].email, "ernest@myloan.ca");
+  assert.deepStrictEqual(tmpGot.users[0].modules, ["center"]);
+
+  const memEnv = { USERS_STORE_PATH: "/tmp/users-persist-no-write-" + Date.now() + "/nope.json" };
+  clearIsolate("/tmp/center-users-v1.json");
+  const memSaved = await incoming.persistUsers({
+    kind: "users",
+    users: [{ email: "adam@myloan.ca", name: "Adam" }]
+  }, { env: memEnv });
+  assert.notEqual(memSaved.body.via, "blob", "no token is never labeled blob");
+  assert.ok(memSaved.body.via === "tmp" || memSaved.body.via === "memory", "via is tmp or memory");
+
+  clearIsolate(env.USERS_STORE_PATH);
+  clearIsolate(missingEnv.USERS_STORE_PATH);
   console.log("users-persist: ok");
 })().catch(function (err) {
   console.error(err);
