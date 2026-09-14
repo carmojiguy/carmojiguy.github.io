@@ -1503,7 +1503,7 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
     display:grid;
     grid-template-columns:minmax(260px,1.12fr) minmax(280px,1.1fr) minmax(210px,.78fr);
     grid-template-areas:"hero mid market" "notes notes notes" "thumbs thumbs thumbs";
-    grid-template-rows:minmax(0,1fr) auto auto;
+    grid-template-rows:auto auto auto;
     gap:8px 14px;
     align-items:stretch;
     min-height:100%;
@@ -1588,8 +1588,8 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
   #centerLanes .lane-pill b{ font-size:12px; }
   #center h2{ font-size:20px; letter-spacing:-.3px; margin:0 0 4px; }
   #center .acre-col-hero{ display:flex; flex-direction:column; min-height:0; }
-  #center .center-hero{ flex:1; min-height:0; height:100%; margin:0; border-radius:10px; background:#fff; position:relative; }
-  #center .center-hero img{ position:absolute; inset:0; height:100%; width:100%; min-height:0; max-height:none; object-fit:cover; object-position:center 58%; background:#fff; }
+  #center .center-hero{ flex:0 0 auto; width:100%; aspect-ratio:4 / 3; height:auto; min-height:0; margin:0; border-radius:10px; background:#fff; position:relative; }
+  #center .center-hero img{ position:absolute; inset:0; height:100%; width:100%; min-height:0; max-height:none; object-fit:cover; object-position:center 62%; background:#fff; }
   #center .center-docs, #center .center-why-docs, #center .docs-grid{ grid-template-columns:1fr 1fr; }
   #center .doc-slot, #center .doc-sq { min-height:196px; }
   #center .doc-slot b, #center .doc-sq b { font-size:20px; }
@@ -1613,7 +1613,7 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
 }
 @media (min-width:768px) and (max-height:820px){
   #centerLanes .lane-pill{ min-height:46px; padding:7px 6px; }
-  #center .acre-desk{ grid-template-rows:minmax(0,1fr) auto auto; }
+  #center .acre-desk{ grid-template-rows:auto auto auto; }
   #center .acre-thumbs-row, #center .center-thumbs, #center .center-thumbs button{ min-height:0; }
   #center.screen:has(#centerSheet.on) > .nav{ padding:10px 18px 6px; }
 }
@@ -1639,8 +1639,8 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
   #centerLanes .lane-pill{ min-height:54px; padding:10px 8px; }
   #centerLanes .lane-pill b{ font-size:12px; }
   #center h2{ font-size:22px; letter-spacing:-.3px; }
-  #center .center-hero{ border-radius:10px; min-height:0; background:#fff; position:relative; }
-  #center .center-hero img{ position:absolute; inset:0; height:100%; min-height:0; max-height:none; object-fit:cover; object-position:center 58%; background:#fff; }
+  #center .center-hero{ border-radius:10px; min-height:0; aspect-ratio:4 / 3; background:#fff; position:relative; }
+  #center .center-hero img{ position:absolute; inset:0; height:100%; min-height:0; max-height:none; object-fit:cover; object-position:center 62%; background:#fff; }
   #center .acre-chip{ padding:6px 4px; }
   #center .acre-chip b{ font-size:18px; }
   #center .facts{ grid-template-columns:repeat(4, 1fr); }
