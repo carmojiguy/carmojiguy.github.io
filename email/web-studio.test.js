@@ -20,8 +20,12 @@ must(/id="webHistJump"/, "photos screen can open History");
 must(/Damage stays\. Dirt goes\./, "damage lock copy");
 must(/script src="web-studio\.js/, "studio script is not inlined keys");
 must(/Retouch & post/, "website send goes to studio");
+must(/id="btnSendAsIs">Send</, "photos dock has Send as-is");
 must(/if\(isWeb\(\) && APP\.role!=="guest" && window\.WebStudio\)/, "guest Send never enters studio");
 must(/function paintWebsitePhotosChrome\(/, "website chrome helper");
+must(/async function sendWebsitePacket\(/, "website packet helper");
+const wsSrc = fs.readFileSync(path.join(root, "web-studio.js"), "utf8");
+assert.ok(/sendWebsitePacket\(\)/.test(wsSrc), "studio Post to website sends the packet");
 must(/id="photosTitle"/, "photos title swaps for website");
 must(/id="wsPlateGrid"/, "background plate grid");
 

@@ -68,6 +68,23 @@ assert.ok(storyHelp.indexOf("(ca || web ? \"\"") >= 0, "website story skips owne
 
 must(/if\(isWeb\(\) && APP\.role!=="guest" && window\.WebStudio\)\{ WebStudio\.open\("studio"\); return; \}/, "pictures still relaunch/post through WebStudio");
 must(/\$\("btnSend"\)\.textContent = guest \? "Review my trade" : \(isWeb\(\) \? "Retouch & post" : "Send"\)/, "website photos keep Retouch & post");
+must(/id="btnSendAsIs">Send</, "website photos have a Send as-is choice");
+must(/\$\("btnSendAsIs"\)\.classList\.toggle\("hide", !web \|\| guest\)/, "Send as-is is website staff only");
+must(/async function sendWebsitePacket\(/, "website send has its own packet helper");
+must(/\$\("btnSendAsIs"\)\.onclick = function\(\)\{[\s\S]*sendWebsitePacket\(\);/, "Send as-is fires the website packet");
+
+const sendWeb = sliceFn("sendWebsitePacket", "applyMode");
+assert.ok(sendWeb.indexOf('disp:"attachment"') >= 0, "website JPEGs are attachments");
+assert.ok(sendWeb.indexOf('mime:"image/jpeg"') >= 0, "website send attaches JPEGs");
+assert.ok(sendWeb.indexOf('mime:"application/pdf"') >= 0, "website send attaches the listing PDF");
+assert.ok(sendWeb.indexOf("buildPdf()") >= 0, "website PDF reuses the listing builder");
+assert.ok(sendWeb.indexOf("websiteCopy()") >= 0, "packet body includes the retail description");
+assert.ok(sendWeb.indexOf("capturedFiles()") >= 0, "one file per photo in the set");
+assert.ok(sendWeb.indexOf("sendFromMe(") >= 0, "website send uses the existing mailer");
+assert.ok(sendWeb.indexOf("finishGuest()") >= 0, "website send still lands on frozen Thank-you");
+assert.ok(sendWeb.indexOf("cid:") < 0, "website JPEGs are not CID-inline");
+assert.ok(sendWeb.indexOf("sharePacket") < 0, "website send does not rewrite sharePacket");
+
 must(/function openWebdesk\(/, "website History desk stays for later");
 must(/id="webStudio"/, "relaunch studio screen stays");
 must(/id="wsPost">Post to website</, "studio still posts");

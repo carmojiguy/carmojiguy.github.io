@@ -1134,6 +1134,10 @@
     }
     applyApprovedToApp();
     persist("posted");
+    if (typeof root.sendWebsitePacket === "function") {
+      root.sendWebsitePacket();
+      return;
+    }
     if (typeof root.show === "function") root.show("submit");
     if (typeof root.toast === "function") root.toast(st.fromHistory ? "Ready to resend." : "Ready to post.");
   }

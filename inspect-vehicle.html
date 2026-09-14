@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-14 build d31a: pixel-faithful Acre GR Corolla desk (white hero|mid|market, not stone/teal); HARD LOCK photo desk — packed mid (title, badges, MAYA/CLUTCH KILLER/VAUTO/PREDICTED 4-wide, recon/profit chips, range/compete/ask + Clutch source pills), notes under hero spanning the desk, MAYA strip, thumbs strip four CHUNKY landscape contain-fit tiles + 5th peek + chevron (3/4 front, side, rear-3/4, rear-other, rear peek — crops from 04-home-desk-exact.png, not cover-crop), sunset/dusk 3/4 GR hero crop from the lock PNG (car pixels only), Documents 7/7 fixture, OPENLANE|eBlock and CARFAX|MMR pairs, no invented OpenLane listing thumbs, blue Complete, Documents/VAUTO/BLACK BOOK/OPENLANE/eBlock/CARFAX/MMR cards; CA workbench redo — drop the verbal-only tag forever; What's the Story walks the car and talks; Walk-around photos only; keep Critical damage; salesperson CA has no packet-send card; Tracker mobile cards + current month; website-post story-first year/make/model/trim/condition, no team select, original start not webdesk, pictures still relaunch/post; Acre GR Corolla desk lock — FIFO oldest home, left-rail Incoming/On-site/Needs docs/History pills, no hist KPI strip, mobile kills the left sidebar and puts Incoming/On-site/Needs docs/History stage buttons beside Back/Home, Ask Maya, appraisal range/competing/ask; users GET/POST kind:users persist; 911 Acre team reads finalRationale.markdown + panel Rybot/Webot/Drebot/TBot + team.shabot note, hides boxes with no numbers; mailer keeps rich team/rationale on Center refresh; Trade-in start drops stray top History (rail History stays); 911 Incoming FINAL min+target+max clears Running and lands Appraisal Team numbers (Blazer s1af19al / F-150 sir78n6); Run Appraisal Team tap always fires (rerun + Unlocked History); kind:team wake; Incoming FINAL settles Running; schema 1.0 team + panel boxes; market pills append multiple files into shots[]; compact V Auto / Carfax / OpenLane / eBlock chips; same sendId/id Incoming POST; panel runs progress → existing FINAL; no invented solds; real Carfax http url opens the uploaded file; sample recreate only when no docs.carfax.url; Carfax square + huge card add/upload kind:file carfax; staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; Incoming keeps http docs.url; Incoming appends shots[]; status dropdown every lane; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples; hides generated From V Auto lane -->
+<!-- center-v3 + desk-home 2026-09-14 build d31a: pixel-faithful Acre GR Corolla desk (white hero|mid|market, not stone/teal); HARD LOCK photo desk — packed mid (title, badges, MAYA/CLUTCH KILLER/VAUTO/PREDICTED 4-wide, recon/profit chips, range/compete/ask + Clutch source pills), notes under hero spanning the desk, MAYA strip, thumbs strip four CHUNKY landscape contain-fit tiles + 5th peek + chevron (3/4 front, side, rear-3/4, rear-other, rear peek — crops from 04-home-desk-exact.png, not cover-crop), sunset/dusk 3/4 GR hero crop from the lock PNG (car pixels only), Documents 7/7 fixture, OPENLANE|eBlock and CARFAX|MMR pairs, no invented OpenLane listing thumbs, blue Complete, Documents/VAUTO/BLACK BOOK/OPENLANE/eBlock/CARFAX/MMR cards; CA workbench redo — drop the verbal-only tag forever; What's the Story walks the car and talks; Walk-around photos only; keep Critical damage; salesperson CA has no packet-send card; Tracker mobile cards + current month; website-post story-first year/make/model/trim/condition, no team select, original start not webdesk, pictures still relaunch/post; Acre GR Corolla desk lock — FIFO oldest home, left-rail Incoming/On-site/Needs docs/History pills, no hist KPI strip, mobile kills the left sidebar and puts Incoming/On-site/Needs docs/History stage buttons beside Back/Home, Ask Maya, appraisal range/competing/ask; users GET/POST kind:users persist; 911 Acre team reads finalRationale.markdown + panel Rybot/Webot/Drebot/TBot + team.shabot note, hides boxes with no numbers; mailer keeps rich team/rationale on Center refresh; Trade-in start drops stray top History (rail History stays); 911 Incoming FINAL min+target+max clears Running and lands Appraisal Team numbers (Blazer s1af19al / F-150 sir78n6); Run Appraisal Team tap always fires (rerun + Unlocked History); kind:team wake; Incoming FINAL settles Running; schema 1.0 team + panel boxes; market pills append multiple files into shots[]; compact V Auto / Carfax / OpenLane / eBlock chips; same sendId/id Incoming POST; panel runs progress → existing FINAL; no invented solds; real Carfax http url opens the uploaded file; sample recreate only when no docs.carfax.url; Carfax square + huge card add/upload kind:file carfax; staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; Incoming keeps http docs.url; Incoming appends shots[]; status dropdown every lane; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples; hides generated From V Auto lane; website photos Retouch or Send as-is (listing PDF + one JPEG attachment per photo) -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -2125,6 +2125,9 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
 .ws-hist span, .ws-hist em{ display:block; color:var(--muted); font-size:12px; font-style:normal; font-weight:600; }
 .ws-dock{ display:flex; flex-direction:column; gap:8px; }
 #webStudio .dock .pill{ width:100%; margin:0; }
+#photos.screen { padding-bottom: calc(180px + env(safe-area-inset-bottom)); }
+#photos .dock { display:flex; flex-direction:column; gap:8px; }
+#photos .dock .pill { width:100%; margin:0; }
 @media (min-width:980px){
   #webStudio .ws-pad{ max-width:1180px; }
   .ws-layout{ display:grid; grid-template-columns:minmax(320px,420px) 1fr; gap:22px; align-items:start; }
@@ -2133,6 +2136,8 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
   .ws-dock{ flex-direction:row; justify-content:flex-end; }
   #webStudio .dock .pill{ width:auto; min-width:180px; }
   #webStudio h2{ font-size:44px; }
+  #photos .dock { justify-content:stretch; align-items:stretch; }
+  #photos .dock .pill { width:100%; min-width:0; }
 }
 
 /* Quiet chrome: stage filters live beside Back/Home, not as loud header pills */
@@ -2809,6 +2814,7 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
   </div>
   <div class="dock">
     <button class="pill purple" type="button" id="btnSend">Send</button>
+    <button class="pill hide" type="button" id="btnSendAsIs">Send</button>
   </div>
 </section>
 
@@ -4216,6 +4222,54 @@ function paintWebsitePhotosChrome(){
   if($("photosTitle")) $("photosTitle").textContent = web ? "Website photos" : "Multimedia";
   if($("webHistJump")) $("webHistJump").classList.toggle("hide", !web || guest);
   if($("btnSend") && !guest) $("btnSend").textContent = web ? "Retouch & post" : "Send";
+  if($("btnSendAsIs")) $("btnSendAsIs").classList.toggle("hide", !web || guest);
+}
+async function sendWebsitePacket(){
+  if(!isWeb() || APP.role==="guest") return;
+  const shots=capturedFiles();
+  if(!shots.length){ toast("Add photos first."); return; }
+  if(APP._sending){ toast("Still sending…"); return; }
+  APP._sending=true;
+  const dest=packetDest();
+  const extra={cc:dest.cc, bcc:dest.bcc};
+  const busy=$("btnSendAsIs") && !$("btnSendAsIs").classList.contains("hide") ? $("btnSendAsIs") : ($("wsPost") || $("btnSend"));
+  const prev=busy ? busy.textContent : "";
+  if(busy){ busy.disabled=true; busy.textContent="Sending…"; }
+  toast("Sending…");
+  let sentOk=false;
+  try{
+    const parts=[];
+    for(let i=0;i<shots.length;i++){
+      let data=shots[i].data;
+      try{ data=await withTimeout(compressDataUrl(data, 1100, 0.76), 3500, data); }catch(e){}
+      const b64=dataB64(data);
+      if(!b64) continue;
+      parts.push({disp:"attachment", mime:"image/jpeg", name:shots[i].name||("photo-"+String(i+1).padStart(2,"0")+".jpg"), b64:b64});
+    }
+    if(!parts.length){ toast("Add photos first."); return; }
+    let doc=null;
+    try{ doc=await withTimeout(buildPdf(), 8000, null); }catch(e){ doc=null; }
+    if(!doc){
+      try{ doc=await withTimeout(buildPdf(), 8000, null); }catch(e){ doc=null; }
+    }
+    if(!doc){ toast("Couldn’t build the listing PDF."); return; }
+    try{ parts.push({disp:"attachment", mime:"application/pdf", name:(folderName()||"vehicle")+".pdf", b64:bufB64(await doc.output("arraybuffer"))}); }
+    catch(e){ toast("Couldn’t build the listing PDF."); return; }
+    const listing=websiteCopy();
+    const body=packetMailText()+(listing ? "\n\nWebsite listing:\n"+listing : "");
+    const sent=await sendFromMe(dest.to, packetMailSubject(), body, "", parts, extra);
+    if(sent && sent.ok){
+      sentOk=true;
+      try{ finishGuest(); }catch(e){}
+    } else {
+      toast("Couldn’t send — try again");
+    }
+  }catch(e){
+    toast("Couldn’t send — try again");
+  }finally{
+    APP._sending=false;
+    if(busy && !sentOk){ busy.disabled=false; busy.textContent=prev||"Send"; }
+  }
 }
 function applyMode(){
   const web=isWeb();
@@ -15567,6 +15621,10 @@ $("btnSend").onclick = function(){
   killMediaNow();
   if(isWeb() && APP.role!=="guest" && window.WebStudio){ WebStudio.open("studio"); return; }
   show("submit");
+};
+if($("btnSendAsIs")) $("btnSendAsIs").onclick = function(){
+  killMediaNow();
+  sendWebsitePacket();
 };
 if($("btnSavePhotos")) $("btnSavePhotos").onclick = savePhotos;
 if($("thanksDone")) $("thanksDone").onclick = function(){ show("center"); };
