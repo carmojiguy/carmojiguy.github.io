@@ -804,7 +804,7 @@ const paintCenterFinalBox = eval("(" + takeFn("paintCenterFinalBox", "centerStor
 })();
 
 assert.ok(/scheduleIncomingPull\(\)/.test(html), "Center boot/paint schedules the Incoming pull");
-assert.ok(/build d30c/.test(html), "build stamp bumped to d30c");
+assert.ok(/build d31/.test(html), "build stamp bumped to d31");
 assert.ok(/function seedSharedIncomingFinal\(/.test(html), "Incoming FINAL seed helper exists");
 assert.ok(/seedSharedIncomingFinal\(item, remote\)/.test(html), "applySharedIncoming copies Incoming FINAL");
 assert.ok(/appraisalFinal:\{/.test(html), "slimSharedCenterItem includes appraisalFinal");
