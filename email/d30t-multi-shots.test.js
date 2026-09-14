@@ -25,9 +25,9 @@ function sliceFn(name, next) {
   return html.slice(start, end);
 }
 
-must(/id="buildStamp">build d31w</, "footer stamp is d31c");
-must(/<!--[\s\S]*build d31w[\s\S]*shots\[\]/, "header stamp keeps multi-file shots");
-must(/id="typeSheet"[\s\S]*build d31w/, "type sheet stamp is d31c");
+must(/id="buildStamp">build d31a</, "footer stamp is d31c");
+must(/<!--[\s\S]*build d31a[\s\S]*shots\[\]/, "header stamp keeps multi-file shots");
+must(/id="typeSheet"[\s\S]*build d31a/, "type sheet stamp is d31c");
 must(/id="marketDocFile"[^>]*multiple/, "sheet file input accepts multiple files");
 must(/accept="application\/pdf,image\/\*,video\/\*/, "sheet accepts PDF, screenshots, and video");
 must(/id="marketDocAdd">Add files</, "sheet add button is Add files");

@@ -25,9 +25,9 @@ function sliceFn(name, next) {
   return html.slice(start, end);
 }
 
-must(/id="buildStamp">build d31w</, "footer stamp is d30n");
-must(/<!--[\s\S]*build d31w[\s\S]*kind:file carfax/, "header stamp is d30n real Carfax");
-must(/id="typeSheet"[\s\S]*build d31w/, "type sheet stamp is d30n");
+must(/id="buildStamp">build d31a</, "footer stamp is d30n");
+must(/<!--[\s\S]*build d31a[\s\S]*kind:file carfax/, "header stamp is d30n real Carfax");
+must(/id="typeSheet"[\s\S]*build d31a/, "type sheet stamp is d30n");
 must(/function realCarfaxDoc\(/, "realCarfaxDoc helper");
 must(/function openCarfaxFile\(/, "openCarfaxFile helper");
 must(/function openCarfaxControl\(/, "openCarfaxControl helper");

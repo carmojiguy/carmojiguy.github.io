@@ -16,9 +16,9 @@ function mustNot(re, msg) {
   assert.ok(!re.test(html), msg);
 }
 
-must(/id="buildStamp">build d31w</, "footer stamp is build d31w");
-must(/<!--[\s\S]*build d31w[\s\S]*sales PDF packet stays; zero Center samples/, "HTML comment stamp is d30h and keeps the sales PDF / zero-sample lock");
-must(/id="typeSheet"[\s\S]*build d31w/, "type sheet stamp is build d31w");
+must(/id="buildStamp">build d31a</, "footer stamp is build d31a");
+must(/<!--[\s\S]*build d31a[\s\S]*sales PDF packet stays; zero Center samples/, "HTML comment stamp is d30h and keeps the sales PDF / zero-sample lock");
+must(/id="typeSheet"[\s\S]*build d31a/, "type sheet stamp is build d31a");
 must(/function enrichRav4OnsiteFinal\(/, "enrichRav4 seeds the On-site RAV4 FINAL");
 must(/function openCarfaxRecreate\(/, "openCarfaxRecreate desk path");
 must(/function printCarfaxRecreatePdf\(/, "printCarfaxRecreatePdf helper");
