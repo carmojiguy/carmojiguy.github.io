@@ -6926,7 +6926,7 @@ function seedPhotoLockGrCorolla(){
   item.origin="Japan"; item.clean=true; item.noAccident=true; item.accident="none";
   item.tags=["Appraised","Not out of province","Not a US vehicle"];
   item.lane="onsite"; item.stage="Waiting";
-  item.sentAt=Date.now();
+  item.sentAt=Date.now()-400*86400000;
   item.createdAt=item.createdAt||item.sentAt;
   item.notes="Selling as a trade. Already has a GR86 deposit down and needs a number today so they can release it. Expecting closer to $42,000 because of 10,500 km and the 6-speed. One owner, garage kept, never winter driven. CarGurus has similar.";
   item.story="";
@@ -9936,7 +9936,7 @@ function paintCenterWho(item){
   const host=$("centerWho"); if(!host) return;
   const who=String((item&& (item.salesperson||item.deskTeam))||"").trim();
   const when=item && typeof centerWhen==="function" ? centerWhen(item) : 0;
-  const days=when ? Math.max(0, Math.round((Date.now()-when)/86400000)) : 0;
+  const days=typeof isPhotoLockItem==="function" && isPhotoLockItem(item) ? 0 : (when ? Math.max(0, Math.round((Date.now()-when)/86400000)) : 0);
   if(!who && !when){ host.innerHTML=""; return; }
   host.innerHTML=(who?"<b>"+esc(who)+"</b>":"")+"<span>"+days+"d</span>";
 }

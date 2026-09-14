@@ -63,6 +63,8 @@ must(/LET IT GO - Clutch Killer 40\.1K/, "Maya strip matches the lock");
 must(/id="centerDeskHead"/, "title + VIN strip on the photo desk");
 must(/id="centerWho"/, "S. Cyr / 0d row under badges");
 must(/salesperson="S\. Cyr"/, "salesperson is S. Cyr");
+must(/400\*86400000/, "photo-lock stays FIFO oldest");
+must(/isPhotoLockItem\(item\) \? 0/, "photo-lock who-row shows 0d");
 must(/pair\.appendChild\(photoDocCard\(item, vals, docs, \["eblock"/, "OPENLANE pairs with eBlock");
 must(/pair\.appendChild\(photoDocCard\(item, vals, docs, \["mmr"/, "CARFAX pairs with MMR");
 mustNot(/#center \.acre-sources \{ display:none/, "source pills stay visible like the lock");
