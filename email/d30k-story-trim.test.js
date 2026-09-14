@@ -16,9 +16,9 @@ function mustNot(re, msg) {
   assert.ok(!re.test(html), msg);
 }
 
-must(/id="buildStamp">build d30q</, "home footer stamp is d30k");
-must(/<!--[\s\S]*build d30q[\s\S]*LE \/ XLE \/ Limited trim/, "header stamp is d30k story trim");
-must(/id="typeSheet"[\s\S]*build d30q/, "type sheet stamp is d30k");
+must(/id="buildStamp">build d30t</, "home footer stamp is d30k");
+must(/<!--[\s\S]*build d30t[\s\S]*LE \/ XLE \/ Limited trim/, "header stamp is d30k story trim");
+must(/id="typeSheet"[\s\S]*build d30t/, "type sheet stamp is d30k");
 must(/function parseStory\(/, "parseStory stays");
 must(/function normalizeSpoken\(/, "normalizeSpoken stays");
 must(/function applyStory\(/, "applyStory stays");
