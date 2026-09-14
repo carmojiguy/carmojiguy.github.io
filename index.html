@@ -1424,8 +1424,7 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
     padding-bottom:0;
     overflow:hidden;
   }
-  #center.center-has-detail > .nav .round{ visibility:hidden; }
-  #center.center-has-detail > .nav{ padding:10px 22px 6px; }
+  #center.center-has-detail > .nav{ display:none !important; }
   #center.screen:has(#centerSheet.on){
     display:grid;
     grid-template-columns:88px minmax(0,1fr) min(368px, 40vw);
@@ -1480,9 +1479,10 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
     display:grid;
     grid-template-columns:minmax(240px,1.05fr) minmax(280px,1.15fr) minmax(200px,.85fr);
     grid-template-areas:"hero mid market" "thumbs thumbs thumbs";
+    grid-template-rows:minmax(0,1fr) 260px;
     gap:12px 16px;
-    align-items:start;
-    min-height:0;
+    align-items:stretch;
+    min-height:100%;
   }
   #center .acre-col-hero{ grid-area:hero; }
   #center .acre-col-mid{ grid-area:mid; }
@@ -1510,12 +1510,15 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
     height:100dvh; max-height:100dvh; overflow:hidden;
   }
   #center .acre-thumbs-row{ position:relative; }
-  #center .center-thumbs{ gap:12px; height:210px; overflow-x:auto; scrollbar-width:none; padding:0 56px; }
+  #center .acre-thumbs-row{ height:260px; }
+  #center .center-thumbs{ gap:12px; height:260px; overflow-x:auto; scrollbar-width:none; padding:0 56px; }
   #center .center-thumbs::-webkit-scrollbar{ display:none; }
   #center .center-thumbs button{
-    flex:0 0 22.4%; width:22.4%;
-    height:210px; border-radius:10px; background:#fff;
+    flex:0 0 23%; width:23%;
+    height:260px; border-radius:10px; background:#fff;
+    box-shadow:0 0 0 1px #E4E7EC;
   }
+  #center .center-thumbs button.on{ box-shadow:0 0 0 1px #111318; }
   #center .center-thumbs img{ object-fit:contain; background:#fff; }
   #center .center-detail-bar{ display:none; }
   #center .packet-pdf{ display:none !important; }
@@ -1554,8 +1557,9 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
   #centerLanes .lane-pill{ min-height:52px; padding:9px 7px; border-radius:999px; }
   #centerLanes .lane-pill b{ font-size:12px; }
   #center h2{ font-size:22px; letter-spacing:-.3px; margin:0 0 8px; }
-  #center .center-hero{ min-height:240px; border-radius:8px; background:#fff; }
-  #center .center-hero img{ height:min(28vh, 280px); object-fit:contain; background:#fff; }
+  #center .acre-col-hero{ display:flex; flex-direction:column; min-height:0; }
+  #center .center-hero{ flex:1; min-height:280px; border-radius:8px; background:#fff; }
+  #center .center-hero img{ height:100%; min-height:280px; object-fit:contain; background:#fff; }
   #center .center-docs, #center .center-why-docs, #center .docs-grid{ grid-template-columns:1fr 1fr; }
   #center .doc-slot, #center .doc-sq { min-height:196px; }
   #center .doc-slot b, #center .doc-sq b { font-size:20px; }
@@ -1603,8 +1607,8 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
   #centerLanes .lane-pill{ min-height:54px; padding:10px 8px; }
   #centerLanes .lane-pill b{ font-size:12px; }
   #center h2{ font-size:24px; letter-spacing:-.3px; }
-  #center .center-hero{ border-radius:8px; min-height:260px; background:#fff; }
-  #center .center-hero img{ height:min(30vh, 300px); object-fit:contain; background:#fff; }
+  #center .center-hero{ border-radius:8px; min-height:320px; background:#fff; }
+  #center .center-hero img{ height:100%; min-height:320px; object-fit:contain; background:#fff; }
   #center .acre-chip{ padding:10px 4px; }
   #center .acre-chip b{ font-size:20px; }
   #center .facts{ grid-template-columns:repeat(4, 1fr); }

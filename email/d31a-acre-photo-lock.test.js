@@ -77,7 +77,7 @@ must(/#center #centerDocs \{ display:none/, "launch-tool overflow stays off the 
 must(/#center #centerWhyDocs/, "WHY slots stay off the photo desk");
 must(/function openCenterDetail\(id\)\{[\s\S]{0,420}APP\.centerLane="";/, "opening a car closes the list so the photo desk is full width");
 must(/class="acre-thumbs-row"/, "bottom thumbs strip");
-must(/#center \.center-thumbs button\{[\s\S]*height:210px/, "photo thumbs are four huge tiles plus a 5th peek");
+must(/#center \.center-thumbs button\{[\s\S]*height:260px/, "photo thumbs are four huge tiles plus a 5th peek");
 must(/#center \.acre-desk\{[\s\S]{0,280}grid-template-areas:"hero mid market"/, "desktop is hero | mid | market");
 must(/#center\.screen \{[\s\S]{0,220}background:#F5F6F8/, "white Acre page");
 mustNot(/#center\.screen \{[\s\S]{0,280}--purple:#1F6B6A/, "teal accent stays gone");
