@@ -1025,7 +1025,7 @@ const paintCenterFinalBox = eval("(" + (function () {
 })();
 
 assert.ok(/scheduleIncomingPull\(\)/.test(html), "Center boot/paint schedules the Incoming pull");
-assert.ok(/build d30g/.test(html), "build stamp bumped to d30g");
+assert.ok(/build d30h/.test(html), "build stamp bumped to d30h");
 assert.ok(/function archiveOnsiteSameVin\(/.test(html), "new Send archives the prior On-site card");
 assert.ok(/enrichRav4OnsiteFinal/.test(html), "Incoming land seeds the RAV4 FINAL");
 assert.ok(/openCarfaxRecreate/.test(html), "Carfax recreate is wired");
@@ -1056,7 +1056,73 @@ assert.ok(/function paintCenterPacketPdf\(/.test(html), "detail paint wires the 
 assert.ok(/packetPdfHref\(item&&item\.pdfUrl\)/.test(html), "Open packet PDF uses item.pdfUrl");
 assert.ok(/item\.photos=remote\.photos\.map/.test(html), "applySharedIncoming assigns remote.photos");
 assert.ok(/photos:photos/.test(html), "slimSharedCenterItem includes photos");
+assert.ok(/pdfUrl:item\.pdfUrl/.test(html), "slimSharedCenterItem includes pdfUrl for the wire");
 assert.ok(/persistCenterMedia\(item\.id, item\.photos, item\.docs\|\|\{\}\)/.test(html), "shared land persists Center media");
+assert.ok(/item\.lanePick/.test(html), "Incoming pull honors lanePick");
+
+(function testPullDoesNotOverwriteLanePickOrSlimFatPacket() {
+  persistedMedia.length = 0;
+  const fat = {
+    id: "fat-1",
+    sendId: "s-fat",
+    vin: "2T3B1RFVXRC466025",
+    ymmt: "2024 Toyota RAV4",
+    source: "guest",
+    lane: "onsite",
+    lanePick: "history",
+    stage: "Appraised",
+    archived: true,
+    photos: [{ title: "3/4 front", data: "data:image/jpeg;base64," + new Array(120010).join("F") }],
+    pdfUrl: "https://example.com/sales-final.pdf",
+    pdfName: "sales-final.pdf",
+    docs: { vauto: { have: true, preview: "data:image/jpeg,v" }, openlane: { have: true }, eblock: { have: true } },
+    appraisalFinal: { min: "22800", target: "24000", max: "25000" },
+    finalRationale: { shabot: { target: "24000" } },
+    team: { shabot: { min: "22800", target: "24000", max: "25000", note: "seed" } },
+    story: "Clean trade. One key.",
+    customer: { name: "Chris Cyr" }
+  };
+  const slimEcho = slimSharedCenterItem(fat);
+  slimEcho.lane = "history";
+  slimEcho.archived = true;
+  slimEcho.updatedAt = Date.now() + 5000;
+  const after = applySharedIncoming(Object.assign({}, fat), slimEcho);
+  assert.equal(after.lanePick, "history", "user lanePick is not overwritten");
+  assert.equal(after.archived, true, "History card stays archived");
+  assert.equal(after.lane, "history", "lanePick history sticks");
+  assert.equal(after.photos[0].data, fat.photos[0].data, "slim echo does not strip fat photos");
+  assert.equal(after.pdfUrl, "https://example.com/sales-final.pdf", "slim echo keeps pdfUrl");
+  assert.equal(after.docs.vauto.preview, "data:image/jpeg,v", "slim echo keeps fat docs");
+  assert.equal(after.appraisalFinal.target, "24000", "slim echo keeps FINAL");
+  assert.equal(after.story, "Clean trade. One key.", "slim echo keeps story");
+  assert.equal(after.team.shabot.target, "24000", "slim echo keeps team");
+  assert.ok(!after.superseded && !after.locked && !after.supersedeLock, "lane-move echo does not lock the current card");
+})();
+
+(function testPullDoesNotUnarchiveBecausePhotosWhenLanePickedHistory() {
+  const item = applySharedIncoming({
+    id: "hist-pick",
+    sendId: "s-pick",
+    archived: true,
+    stage: "Appraised",
+    lane: "history",
+    lanePick: "history",
+    photos: [{ title: "keep", data: "data:image/jpeg;base64,OLD" }],
+    docs: { vauto: { have: true }, openlane: { have: true }, eblock: { have: true } }
+  }, {
+    id: "hist-pick",
+    sendId: "s-pick",
+    lane: "onsite",
+    photos: [{ title: "keep", data: "data:image/jpeg;base64,OLD" }],
+    docs: { vauto: { have: true }, openlane: { have: true }, eblock: { have: true } },
+    photoCount: 8,
+    customer: { name: "Chris Cyr" }
+  });
+  assert.equal(item.lanePick, "history");
+  assert.equal(item.archived, true, "photos do not unarchive a History pick");
+  assert.equal(item.lane, "history");
+  assert.equal(centerLaneOf(item), "history");
+})();
 
 ["404.html", "inspect-vehicle.html"].forEach(function (name) {
   const copy = fs.readFileSync(path.join(root, name), "utf8");

@@ -34,9 +34,9 @@ function sha(s) {
 assert.equal(copy404, html, "404.html stays a byte-identical copy of index.html");
 assert.equal(inspect, html, "inspect-vehicle.html stays a byte-identical copy of index.html");
 
-must(/id="buildStamp">build d30g</, "home footer stamp is d30g");
-must(/<!--[\s\S]*build d30g[\s\S]*Run Appraisal Team/, "file header stamp is d30g activate");
-must(/id="typeSheet"[\s\S]*build d30g/, "type sheet stamp is d30g");
+must(/id="buildStamp">build d30h</, "home footer stamp is d30h");
+must(/<!--[\s\S]*build d30h[\s\S]*Run Appraisal Team/, "file header stamp is d30h activate");
+must(/id="typeSheet"[\s\S]*build d30h/, "type sheet stamp is d30h");
 must(/id="centerRunTeam"/, "staff activate button id");
 must(/id="centerRunTeamWrap"/, "staff activate wrap");
 must(/>Run Appraisal Team</, "button label is Run Appraisal Team");
@@ -85,8 +85,8 @@ must(/id="exitHome">Home/, "Home stays in chrome");
 mustNot(/id="exitRefresh"/, "Refresh button is gone");
 mustNot(/class="exit-refresh"/, "Refresh class is gone");
 mustNot(/function pageRefresh\(/, "pageRefresh helper is gone");
-must(/min-height:32px/, "Back/Home are quiet chrome");
-must(/font-size:12px; font-weight:600/, "Back/Home type is quiet");
+must(/min-height:24px/, "Back/Home are quieter chrome");
+must(/font-size:11px; font-weight:500/, "Back/Home type is quieter");
 
 const activateSrc = sliceFn("activateAppraisalTeam", "paintCenterRunTeam");
 const notifySrc = sliceFn("notifyTeamActivated", "activateAppraisalTeam");

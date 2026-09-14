@@ -26,7 +26,7 @@ must(/function expandCenterDocs\(/, "expandCenterDocs");
 must(/function applyCenterItemToApp\(/, "applyCenterItemToApp");
 must(/function parkAppraisalToHistory\(/, "parkAppraisalToHistory");
 must(/function reopenHistoryAppraisal\(/, "reopenHistoryAppraisal");
-must(/id="buildStamp">build d30g</, "build stamp is d30g");
+must(/id="buildStamp">build d30h</, "build stamp is d30h");
 must(/History — open a file to keep working/, "History jump says open to keep working");
 must(/Tap a file to keep working/, "History lead says tap to keep working");
 
@@ -42,9 +42,8 @@ assert.ok(row.indexOf("reopenHistoryAppraisal") >= 0, "History rows reopen the a
 assert.ok(row.indexOf("isWebsiteItem") >= 0, "website History stays on its own path");
 
 const acre = sliceFn("acreRow");
-assert.ok(acre.indexOf('lane==="history"') >= 0, "Center History rows reopen");
-assert.ok(acre.indexOf("reopenHistoryAppraisal") >= 0, "Center History calls reopen");
-assert.ok(acre.indexOf("openCenterDetail") >= 0, "Incoming and On-site still open the desk");
+assert.ok(acre.indexOf("openCenterDetail") >= 0, "Center History / Incoming / On-site open the full desk");
+assert.ok(acre.indexOf("reopenHistoryAppraisal") < 0, "Center History does not dump into the photo studio");
 
 const park = sliceFn("parkAppraisalToHistory");
 assert.ok(park.indexOf('APP.role==="guest"') >= 0, "guests are not parked into staff History");
@@ -68,9 +67,10 @@ assert.ok(apply.indexOf("kickShare") < 0, "hydrate does not Send");
 assert.ok(apply.indexOf("sharePacket") < 0, "hydrate does not sharePacket");
 
 const reopen = sliceFn("reopenHistoryAppraisal");
-assert.ok(reopen.indexOf("applyCenterItemToApp") >= 0, "reopen hydrates the job");
-assert.ok(/show\("photos"\)/.test(reopen), "photos reopen on the photos screen");
-assert.ok(/show\("home"\)/.test(reopen), "story-only files reopen on Appraise home");
+assert.ok(reopen.indexOf("openCenterDetail") >= 0, "staff History opens the full Center sheet");
+assert.ok(reopen.indexOf("applyCenterItemToApp") >= 0, "guest fallback still hydrates the job");
+assert.ok(/show\("photos"\)/.test(reopen), "guest fallback can still open photos");
+assert.ok(/show\("home"\)/.test(reopen), "guest fallback can still open Appraise home");
 assert.ok(reopen.indexOf("paintDocs") >= 0, "docs stay editable");
 assert.ok(reopen.indexOf("paintLists") >= 0, "photos stay editable");
 assert.ok(reopen.indexOf("openCenterDetail") >= 0, "website files stay on Center");

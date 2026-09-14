@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-14 build d30g: staff Run Appraisal Team activates Shabot + opinion panel; Refresh chrome gone; quiet Back/Home; on-tile status dropdown stays; Center store + mailer Incoming POST; Thank-you frozen; sales PDF packet stays; zero Center samples -->
+<!-- center-v3 + desk-home 2026-09-14 build d30h: History↔On-site keeps fat sheet; status dropdown every lane; Incoming pull never slims or unarchives; Run Appraisal Team; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -60,13 +60,13 @@ body { font-family:Manrope,system-ui,sans-serif; color:var(--ink); }
   font-size:26px; font-weight:800; line-height:1; cursor:pointer;
 }
 .exit-back, .exit-home {
-  width:auto; min-width:0; min-height:32px; margin:0; padding:5px 10px;
-  border:1px solid var(--hair); border-radius:999px; cursor:pointer;
-  background:transparent; color:var(--muted);
-  font:inherit; font-size:12px; font-weight:600; letter-spacing:0;
-  box-shadow:none;
+  width:auto; min-width:0; min-height:24px; margin:0; padding:2px 7px;
+  border:0; border-radius:999px; cursor:pointer;
+  background:transparent; color:#9A96A8;
+  font:inherit; font-size:11px; font-weight:500; letter-spacing:0;
+  box-shadow:none; opacity:.7;
 }
-.exit-back:hover, .exit-home:hover { background:rgba(255,255,255,.7); color:var(--ink); }
+.exit-back:hover, .exit-home:hover { background:transparent; color:var(--muted); opacity:1; }
 body.exit-on .screen:not(.start):not(.cam) { padding-top:calc(56px + env(safe-area-inset-top)); }
 body.exit-on .screen:not(.start):not(.cam) > .nav { padding-top:4px; }
 body.exit-on .screen > .nav > .round:first-of-type { visibility:hidden; pointer-events:none; }
@@ -2016,7 +2016,7 @@ body.center-gallery-on { overflow:hidden; }
     <p class="quote" id="vinHint">Best: take a picture of the vehicle ownership (registration). You can also photograph the VIN on the dash or the sticker on the driver’s door. We’ll read the number from the photo.</p>
     <p class="vin-chip hide" id="vinChip"></p>
     </div>
-    <p class="build-stamp" id="buildStamp">build d30g</p>
+    <p class="build-stamp" id="buildStamp">build d30h</p>
   </div>
 </section>
 
@@ -2475,7 +2475,7 @@ body.center-gallery-on { overflow:hidden; }
   <div class="card">
     <button class="x" type="button" data-close="typeSheet">✕</button>
     <h3>Appraisal type</h3>
-    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d30g</span></p>
+    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d30h</span></p>
     <div id="typeChips" class="to-chips"></div>
     <div id="leadBox" class="lead-box hide">
       <p class="hint">Lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a New application — no appointment calendar.</p>
@@ -6474,6 +6474,12 @@ function parkAppraisalToHistory(){
 function reopenHistoryAppraisal(id){
   const item=typeof getCenter==="function" ? getCenter(id) : null;
   if(!item){ toast("Couldn’t open that file."); return; }
+  if(typeof canUseCenter==="function" && canUseCenter() && typeof openCenterDetail==="function"){
+    if(typeof closeStaffHist==="function") closeStaffHist();
+    if(typeof closeTradeLane==="function") closeTradeLane();
+    openCenterDetail(id);
+    return;
+  }
   if(typeof isSupersededCenter==="function" && isSupersededCenter(item)){
     if(typeof openCenterDetail==="function") openCenterDetail(id);
     return;
@@ -6837,6 +6843,8 @@ function slimSharedCenterItem(item){
     sentAt:item.sentAt||Date.now(),
     updatedAt:item.updatedAt||Date.now(),
     docs:docs,
+    pdfUrl:item.pdfUrl||"",
+    pdfName:item.pdfName||"",
     inviteUnit:item.inviteUnit||APP.inviteUnit||item.interest||"",
     appraisalFinal:{
       min:af.min||(fin&&fin.min)||"",
@@ -6872,6 +6880,29 @@ function shareIncomingBestEffort(item){
     }, 8000);
     if(req && typeof req.catch==="function") req.catch(function(){});
   }catch(e){}
+}
+function centerPhotoDataBytes(photos){
+  if(!Array.isArray(photos)) return 0;
+  let n=0;
+  for(let i=0;i<photos.length;i++) n+=String((photos[i]&&photos[i].data)||"").length;
+  return n;
+}
+function shouldAdoptRemotePhotos(item, remote){
+  if(!remote || !Array.isArray(remote.photos) || !remote.photos.length) return false;
+  const local=item && Array.isArray(item.photos) ? item.photos : [];
+  if(!local.length) return true;
+  const remBytes=centerPhotoDataBytes(remote.photos);
+  const locBytes=centerPhotoDataBytes(local);
+  if(remBytes>locBytes) return true;
+  if(remote.photos.length>local.length && remBytes>=locBytes) return true;
+  return false;
+}
+function centerDocsAreFat(docs){
+  docs=docs||{};
+  return Object.keys(docs).some(function(k){
+    const d=docs[k];
+    return !!(d && (d.data || d.extract || d.preview || (d.shots && d.shots.length)));
+  });
 }
 function seedSharedIncomingFinal(item, remote){
   if(!item || !remote) return item;
@@ -6913,6 +6944,10 @@ function applySharedIncoming(item, remote){
   const prev=item.customer||{};
   const remoteWhen=sharedItemStamp(remote);
   const localWhen=sharedItemStamp(item);
+  const keepStory=item.story||"";
+  const keepTeam=item.team;
+  const keepFinal=item.appraisalFinal;
+  const keepRationale=item.finalRationale;
   item.source="guest";
   item.linkSent=false;
   item.sendId=remote.sendId||item.sendId||"";
@@ -6928,20 +6963,32 @@ function applySharedIncoming(item, remote){
   item.purpose=remote.purpose||item.purpose||"";
   item.dealType=remote.dealType||item.dealType||"";
   item.leadSource=remote.leadSource||item.leadSource||"";
-  item.story=remote.story||item.story||"";
+  item.story=remote.story||keepStory||"";
   item.webcopy=remote.webcopy||item.webcopy||"";
   item.pdfUrl=remote.pdfUrl||item.pdfUrl||"";
   item.pdfName=remote.pdfName||item.pdfName||"";
-  if(Array.isArray(remote.photos) && remote.photos.length){
+  (function adoptPhotos(){
+    const rem=Array.isArray(remote.photos)?remote.photos:[];
+    if(!rem.length){
+      item.photoCount=Number(item.photoCount|| (item.photos&&item.photos.length) || remote.photoCount || 0);
+      return;
+    }
+    const local=Array.isArray(item.photos)?item.photos:[];
+    let remBytes=0, locBytes=0;
+    for(let i=0;i<rem.length;i++) remBytes+=String((rem[i]&&rem[i].data)||"").length;
+    for(let j=0;j<local.length;j++) locBytes+=String((local[j]&&local[j].data)||"").length;
+    const adopt=!local.length || remBytes>locBytes || (rem.length>local.length && remBytes>=locBytes);
+    if(!adopt){
+      item.photoCount=Number(item.photoCount||local.length||remote.photoCount||0);
+      return;
+    }
     item.photos=remote.photos.map(function(p){
       p=p||{};
       return {title:p.title||"", data:p.data||"", name:p.name||"", url:p.url||"", cap:p.cap||""};
     });
     item.photoCount=Number(remote.photoCount!=null?remote.photoCount:item.photos.length);
-  } else {
-    item.photoCount=Number(remote.photoCount!=null?remote.photoCount:item.photoCount||0);
-  }
-  if(remote.thumb) item.thumb=remote.thumb;
+  })();
+  if(remote.thumb && (!item.thumb || String(remote.thumb).length>String(item.thumb).length)) item.thumb=remote.thumb;
   item.customer={
     name:cust.name||prev.name||"",
     email:cust.email||prev.email||"",
@@ -6955,20 +7002,58 @@ function applySharedIncoming(item, remote){
   item.inviteUnit=remote.inviteUnit||item.inviteUnit||item.interest||"";
   if(remote.docs){
     const incoming=slimSharedDocs(remote.docs);
-    if(!(sharedDocsHaveCount(incoming)===0 && sharedDocsHaveCount(item.docs)>0)) item.docs=incoming;
+    const localFat=item.docs && Object.keys(item.docs).some(function(k){
+      const d=item.docs[k];
+      return !!(d && (d.data || d.extract || d.preview || (d.shots && d.shots.length)));
+    });
+    const remoteFat=remote.docs && Object.keys(remote.docs).some(function(k){
+      const d=remote.docs[k];
+      return !!(d && (d.data || d.extract || d.preview || (d.shots && d.shots.length)));
+    });
+    if(localFat && !remoteFat){
+      /* keep fat local docs — slim mailer echo must not strip preview/data */
+    } else if(!(sharedDocsHaveCount(incoming)===0 && sharedDocsHaveCount(item.docs)>0)){
+      item.docs=incoming;
+    }
   }
   if(!item.docs) item.docs={};
+  if(keepTeam && !item.team) item.team=keepTeam;
+  if(keepFinal && !item.appraisalFinal) item.appraisalFinal=keepFinal;
+  if(keepRationale && !item.finalRationale) item.finalRationale=keepRationale;
   if(remoteWhen && (!localWhen || remoteWhen>=localWhen)){
     item.sentAt=remote.sentAt||item.sentAt||Date.now();
     item.updatedAt=remote.updatedAt||Date.now();
   } else {
     item.updatedAt=Date.now();
   }
-  if(!item.archived && item.stage!=="Appraised") item.stage=remote.stage||item.stage||"Waiting";
-  const routed=laneFromMarketDocs(item.docs, remote.lane);
-  item.lane=routed.lane;
-  item.docsIncomplete=routed.docsIncomplete;
-  item.missingDocs=routed.missingDocs;
+  if(!item.lanePick && (remote.lanePick==="inbox"||remote.lanePick==="onsite"||remote.lanePick==="needsdocs"||remote.lanePick==="history")){
+    item.lanePick=remote.lanePick;
+  }
+  const pick=item.lanePick;
+  if(pick==="inbox"||pick==="onsite"||pick==="needsdocs"||pick==="history"){
+    item.lane=pick;
+    if(pick==="history"){
+      item.archived=true;
+    } else {
+      item.archived=false;
+      if(item.stage==="Appraised") item.stage="Waiting";
+      item.docsIncomplete=pick==="needsdocs";
+    }
+  } else if(item.archived || item.stage==="Appraised"){
+    item.archived=true;
+    item.lane="history";
+  } else {
+    if(!item.archived && item.stage!=="Appraised") item.stage=remote.stage||item.stage||"Waiting";
+    if(remote.lane==="history" || remote.archived){
+      item.archived=true;
+      item.lane="history";
+    } else {
+      const routed=laneFromMarketDocs(item.docs, remote.lane);
+      item.lane=remote.lane==="inbox" && routed.lane!=="needsdocs" ? "inbox" : routed.lane;
+      item.docsIncomplete=routed.docsIncomplete;
+      item.missingDocs=routed.missingDocs;
+    }
+  }
   seedSharedIncomingFinal(item, remote);
   if(remote.teamActivated===true){
     item.teamActivated=true;
@@ -7508,9 +7593,12 @@ function slimCenterLaneItem(item){
   const slim=typeof slimSharedCenterItem==="function"?slimSharedCenterItem(item):{id:item&&item.id};
   const lane=item.lanePick||item.lane||slim.lane||"inbox";
   slim.lane=lane;
+  slim.lanePick=item.lanePick||lane;
   slim.archived=!!item.archived;
   slim.stage=item.stage||slim.stage||"Waiting";
   slim.updatedAt=item.updatedAt||Date.now();
+  if(item.pdfUrl) slim.pdfUrl=item.pdfUrl;
+  if(item.pdfName) slim.pdfName=item.pdfName;
   if(lane==="history"){
     slim.archived=true;
     slim.stage="Appraised";
@@ -7636,11 +7724,6 @@ function acreRow(item){
       '<div class="acre-flags">'+flags+'</div></div>'+mark;
   }
   btn.onclick=function(){
-    if(locked){ openCenterDetail(item.id); return; }
-    if(lane==="history" && typeof reopenHistoryAppraisal==="function"){
-      reopenHistoryAppraisal(item.id);
-      return;
-    }
     openCenterDetail(item.id);
   };
   bindCenterLaneChip(btn, item);
@@ -11488,7 +11571,7 @@ function printCarfaxRecreatePdf(item){
     d.text(body, 36, y+32);
     d.setFillColor(27,107,58); d.rect(0,H-40,W,40,"F");
     d.setTextColor(255,255,255); d.setFont("helvetica","bold"); d.setFontSize(8);
-    d.text("NOT OFFICIAL CARFAX  ·  SAMPLE / PENDING  ·  carfax-sample  ·  build d30g", 36, H-18);
+    d.text("NOT OFFICIAL CARFAX  ·  SAMPLE / PENDING  ·  carfax-sample  ·  build d30h", 36, H-18);
     d.setProperties({title:"SAMPLE PENDING NOT OFFICIAL CARFAX — 2024 RAV4 LE AWD", author:"G&M Appraisal Center"});
     d.save("rav4-2T3B1RFVXRC466025-carfax-sample.pdf");
     storeRav4CarfaxDoc(item);
