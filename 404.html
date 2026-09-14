@@ -858,6 +858,9 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
 }
 #center.screen.on {
   display:grid;
+  height:100dvh;
+  max-height:100dvh;
+  overflow:hidden;
 }
 #center > .nav { grid-column:1 / -1; }
 #centerNavHistBtn { display:none !important; }
@@ -1153,7 +1156,7 @@ body.center-gallery-on { overflow:hidden; }
   overflow:hidden; background:#D8DEE4; cursor:pointer;
 }
 .center-thumbs button.on { box-shadow:0 0 0 2px #111318; }
-.center-thumbs img { width:100%; height:100%; object-fit:cover; display:block; }
+.center-thumbs img { width:100%; height:100%; object-fit:contain; display:block; background:#fff; }
 .center-metrics {
   display:flex; flex-wrap:wrap; gap:6px; margin:0 0 12px;
 }
@@ -1415,9 +1418,14 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
   .phone:has(#center.on){ max-width:none; background:var(--page); }
   html:has(#center.on), body:has(#center.on){ background:#F5F6F8; }
   #center.screen{
+    height:100dvh;
+    max-height:100dvh;
     min-height:100dvh;
     padding-bottom:0;
+    overflow:hidden;
   }
+  #center.center-has-detail > .nav .round{ visibility:hidden; }
+  #center.center-has-detail > .nav{ padding:10px 22px 6px; }
   #center.screen:has(#centerSheet.on){
     display:grid;
     grid-template-columns:88px minmax(0,1fr) min(368px, 40vw);
@@ -1497,13 +1505,18 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
   }
   #center .acre-range-pair em{ font-style:normal; color:#9AA3AF; font-weight:800; }
   #center .acre-market{ display:flex; flex-direction:column; gap:0; margin:0; }
+  #center.screen.on,
+  #center.center-has-detail{
+    height:100dvh; max-height:100dvh; overflow:hidden;
+  }
   #center .acre-thumbs-row{ position:relative; }
-  #center .center-thumbs{ gap:12px; overflow-x:auto; scrollbar-width:none; padding:0 52px 0 44px; }
+  #center .center-thumbs{ gap:12px; height:210px; overflow-x:auto; scrollbar-width:none; padding:0 56px; }
   #center .center-thumbs::-webkit-scrollbar{ display:none; }
   #center .center-thumbs button{
-    flex:0 0 calc((100% - 48px) / 4.22); width:calc((100% - 48px) / 4.22);
-    height:210px; border-radius:10px;
+    flex:0 0 22.4%; width:22.4%;
+    height:210px; border-radius:10px; background:#fff;
   }
+  #center .center-thumbs img{ object-fit:contain; background:#fff; }
   #center .center-detail-bar{ display:none; }
   #center .packet-pdf{ display:none !important; }
   #center #centerTeamHead,
