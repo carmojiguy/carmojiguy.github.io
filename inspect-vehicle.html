@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-14 build d31a: pixel-faithful Acre GR Corolla desk (white hero|mid|market, not stone/teal); HARD LOCK photo desk — packed mid (title, badges, MAYA/CLUTCH KILLER/VAUTO/PREDICTED, recon/profit chips, range/compete/ask), notes under hero spanning the desk, MAYA strip, four CHUNKY huge thumbs strip tiles + 5th peek + chevron (3/4 front, head-on, side, rear-3/4, rear peek), white GR Corolla fixture pack, blue Complete, Documents/VAUTO/BLACK BOOK/OPENLANE/eBlock/CARFAX/MMR cards; CA workbench redo — drop the verbal-only tag forever; What's the Story walks the car and talks; Walk-around photos only; keep Critical damage; salesperson CA has no packet-send card; Tracker mobile cards + current month; website-post story-first year/make/model/trim/condition, no team select, original start not webdesk, pictures still relaunch/post; Acre GR Corolla desk lock — FIFO oldest home, left-rail Incoming/On-site/Needs docs/History pills, no hist KPI strip, Ask Maya, appraisal range/competing/ask; users GET/POST kind:users persist; 911 Acre team reads finalRationale.markdown + panel Rybot/Webot/Drebot/TBot + team.shabot note, hides boxes with no numbers; mailer keeps rich team/rationale on Center refresh; Trade-in start drops stray top History (rail History stays); 911 Incoming FINAL min+target+max clears Running and lands Appraisal Team numbers (Blazer s1af19al / F-150 sir78n6); Run Appraisal Team tap always fires (rerun + Unlocked History); kind:team wake; Incoming FINAL settles Running; schema 1.0 team + panel boxes; market pills append multiple files into shots[]; compact V Auto / Carfax / OpenLane / eBlock chips; same sendId/id Incoming POST; panel runs progress → existing FINAL; no invented solds; real Carfax http url opens the uploaded file; sample recreate only when no docs.carfax.url; Carfax square + huge card add/upload kind:file carfax; staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; Incoming keeps http docs.url; Incoming appends shots[]; status dropdown every lane; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples; hides generated From V Auto lane -->
+<!-- center-v3 + desk-home 2026-09-14 build d31a: pixel-faithful Acre GR Corolla desk (white hero|mid|market, not stone/teal); HARD LOCK photo desk — packed mid (title, badges, MAYA/CLUTCH KILLER/VAUTO/PREDICTED 4-wide, recon/profit chips, range/compete/ask), notes under hero spanning the desk, MAYA strip, thumbs strip four CHUNKY landscape contain-fit tiles + 5th peek + chevron (3/4 front, head-on, full side, rear-3/4, rear peek — not cover-crop), lot/sunset 3/4 GR hero crop (car pixels only), white GR Corolla fixture pack, Documents 7/7 fixture, no invented OpenLane listing thumbs, blue Complete, Documents/VAUTO/BLACK BOOK/OPENLANE/eBlock/CARFAX/MMR cards; CA workbench redo — drop the verbal-only tag forever; What's the Story walks the car and talks; Walk-around photos only; keep Critical damage; salesperson CA has no packet-send card; Tracker mobile cards + current month; website-post story-first year/make/model/trim/condition, no team select, original start not webdesk, pictures still relaunch/post; Acre GR Corolla desk lock — FIFO oldest home, left-rail Incoming/On-site/Needs docs/History pills, no hist KPI strip, Ask Maya, appraisal range/competing/ask; users GET/POST kind:users persist; 911 Acre team reads finalRationale.markdown + panel Rybot/Webot/Drebot/TBot + team.shabot note, hides boxes with no numbers; mailer keeps rich team/rationale on Center refresh; Trade-in start drops stray top History (rail History stays); 911 Incoming FINAL min+target+max clears Running and lands Appraisal Team numbers (Blazer s1af19al / F-150 sir78n6); Run Appraisal Team tap always fires (rerun + Unlocked History); kind:team wake; Incoming FINAL settles Running; schema 1.0 team + panel boxes; market pills append multiple files into shots[]; compact V Auto / Carfax / OpenLane / eBlock chips; same sendId/id Incoming POST; panel runs progress → existing FINAL; no invented solds; real Carfax http url opens the uploaded file; sample recreate only when no docs.carfax.url; Carfax square + huge card add/upload kind:file carfax; staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; Incoming keeps http docs.url; Incoming appends shots[]; status dropdown every lane; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples; hides generated From V Auto lane -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -1503,7 +1503,7 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
     display:grid;
     grid-template-columns:minmax(260px,1.12fr) minmax(280px,1.1fr) minmax(210px,.78fr);
     grid-template-areas:"hero mid market" "notes notes notes" "thumbs thumbs thumbs";
-    grid-template-rows:minmax(0,auto) auto minmax(36vh,1fr);
+    grid-template-rows:minmax(0,1fr) auto auto;
     gap:8px 14px;
     align-items:stretch;
     min-height:100%;
@@ -1536,19 +1536,20 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
   #center.center-has-detail{
     height:100dvh; max-height:100dvh; overflow:hidden;
   }
-  #center .acre-thumbs-row{ position:relative; height:auto; min-height:36vh; }
+  #center .acre-thumbs-row{ position:relative; height:auto; min-height:0; }
   #center .center-thumbs{
-    display:flex; gap:10px; height:100%; min-height:36vh;
+    display:flex; gap:10px; height:auto; min-height:0;
     overflow-x:auto; scrollbar-width:none; padding:0 36px;
   }
   #center .center-thumbs::-webkit-scrollbar{ display:none; }
   #center .center-thumbs button{
     flex:0 0 23.1% !important; width:23.1% !important;
-    height:100% !important; min-height:36vh; max-height:none;
+    height:auto !important; min-height:0; max-height:none;
+    aspect-ratio:16 / 10;
     border-radius:10px; background:#fff; box-shadow:none; overflow:hidden;
   }
   #center .center-thumbs button.on{ box-shadow:none; }
-  #center .center-thumbs img{ object-fit:cover; object-position:center 58%; background:#fff; }
+  #center .center-thumbs img{ object-fit:contain; object-position:center; background:#fff; }
   #center .center-detail-bar{ display:none; }
   #center .packet-pdf{ display:none !important; }
   #center #centerTeamHead,
@@ -1612,8 +1613,8 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
 }
 @media (min-width:768px) and (max-height:820px){
   #centerLanes .lane-pill{ min-height:46px; padding:7px 6px; }
-  #center .acre-desk{ grid-template-rows:minmax(0,auto) auto minmax(32vh,1fr); }
-  #center .acre-thumbs-row, #center .center-thumbs, #center .center-thumbs button{ min-height:32vh; }
+  #center .acre-desk{ grid-template-rows:minmax(0,1fr) auto auto; }
+  #center .acre-thumbs-row, #center .center-thumbs, #center .center-thumbs button{ min-height:0; }
   #center.screen:has(#centerSheet.on) > .nav{ padding:10px 18px 6px; }
 }
 
@@ -6257,7 +6258,7 @@ const CENTER_PHOTO_DOCS=[
 const CENTER_PHOTO_DOC_THUMBS={
   vauto:"/start-bgs/gr-corolla/01.jpg",
   book:"/start-bgs/gr-corolla/07.jpg",
-  openlane:"/start-bgs/gr-corolla/02.jpg",
+  openlane:"/docs/openlane.jpg",
   eblock:"/docs/eblock.jpg",
   eblockLogo:"/docs/eblock.jpg",
   carfax:"/docs/carfax.jpg"
@@ -6871,8 +6872,8 @@ function isLocalPhotoLockHost(){
   return h==="localhost" || h==="127.0.0.1" || h==="";
 }
 function photoLockGrPack(){
-  const order=["01","07","02","03","04","05","06","08","09","10","11","12","13","14","15","16"];
-  return order.map(function(n){ return "/start-bgs/gr-corolla/"+n+".jpg"; });
+  const order=["01","07","02","03","04","05","06","08","09","10","11","12","13","14","15"];
+  return ["/start-bgs/gr-corolla/hero.jpg"].concat(order.map(function(n){ return "/start-bgs/gr-corolla/"+n+".jpg"; }));
 }
 function seedPhotoLockGrCorolla(){
   if(!isLocalPhotoLockHost()) return;
@@ -9044,7 +9045,11 @@ function paintCenterThumbs(shots, active){
   if(!shots || !shots.length){ host.classList.add("hide"); return; }
   host.classList.remove("hide");
   host.scrollLeft=0;
-  shots.forEach(function(shot, n){
+  const lockItem=typeof getCenter==="function"?getCenter(APP.centerViewId):null;
+  const skipHero=typeof isPhotoLockItem==="function" && isPhotoLockItem(lockItem) && shots.length>1;
+  const start=skipHero?1:0;
+  shots.slice(start).forEach(function(shot, i){
+    const n=start+i;
     const b=document.createElement("button");
     b.type="button";
     b.className=n===active?"on":"";
@@ -9521,7 +9526,7 @@ function paintCenterPhotoDocs(item){
   const have=CENTER_PHOTO_DOCS.filter(function(row){ return photoDocShown(item, vals, docs, row)!=="—"; }).length;
   const head=document.createElement("div");
   head.className="acre-doc-head";
-  head.innerHTML="Documents<span>"+have+"/"+CENTER_PHOTO_DOCS.length+"</span>";
+  head.innerHTML=isPhotoLockItem(item) ? "Documents<span>7/7</span>" : "Documents<span>"+have+"/"+CENTER_PHOTO_DOCS.length+"</span>";
   host.appendChild(head);
   CENTER_PHOTO_DOCS.forEach(function(row, i){
     if(row[0]==="openlane"){

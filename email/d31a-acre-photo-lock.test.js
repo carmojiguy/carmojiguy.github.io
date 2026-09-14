@@ -49,7 +49,12 @@ must(/id="centerThumbsNext"/, "fifth-tile peek chevron");
 must(/id="centerThumbsPrev"/, "first-tile prev chevron");
 must(/id="centerMayaStrip"/, "Maya strip under notes");
 must(/function seedPhotoLockGrCorolla\(/, "local white GR fixture seeder");
+must(/start-bgs\/gr-corolla\/hero\.jpg/, "lot/sunset hero crop is the fixture hero");
 must(/start-bgs\/gr-corolla/, "fixture URLs point at the white GR pack");
+must(/openlane:"\/docs\/openlane\.jpg"/, "OpenLane uses the logo, not invented listing thumbs");
+mustNot(/openlane:"\/start-bgs\/gr-corolla/, "OpenLane does not use GR walk-around listing thumbs");
+must(/Documents<span>7\/7<\/span>/, "photo-lock Documents badge is the 7/7 fixture label");
+must(/grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/, "scores stay 4-wide MAYA / CLUTCH KILLER / VAUTO / PREDICTED");
 must(/isPhotoLockItem\(item\)/, "photo-lock fixture never POSTs to the live mailer");
 must(/acre-range-pair/, "appraisal range stays two boxes");
 must(/class="acre-col-mid"/, "mid column");
@@ -77,8 +82,9 @@ must(/#center #centerDocs \{ display:none/, "launch-tool overflow stays off the 
 must(/#center #centerWhyDocs/, "WHY slots stay off the photo desk");
 must(/function openCenterDetail\(id\)\{[\s\S]{0,420}APP\.centerLane="";/, "opening a car closes the list so the photo desk is full width");
 must(/class="acre-thumbs-row"/, "bottom thumbs strip");
-must(/#center \.center-thumbs button\{[\s\S]*min-height:36vh/, "photo thumbs are four chunky huge tiles plus a 5th peek");
-must(/#center \.center-thumbs img\{ object-fit:cover/, "walk-around tiles fill the tall GR frames like the Sept 6 photo");
+must(/#center \.center-thumbs button\{[\s\S]*flex:0 0 23\.1%/, "photo thumbs are four chunky tiles plus a 5th peek");
+must(/#center \.center-thumbs button\{[\s\S]*aspect-ratio:16 \/ 10/, "walk-around tiles are landscape frames like the Sept 6 photo");
+must(/#center \.center-thumbs img\{ object-fit:contain/, "side shot is a full car, not a cover-crop");
 must(/#center \.acre-desk\{[\s\S]{0,360}grid-template-areas:"hero mid market"/, "desktop is hero | mid | market");
 must(/grid-template-areas:"hero mid market" "notes notes notes" "thumbs thumbs thumbs"/, "notes sit between the columns and the chunky tiles");
 must(/"01","07","02","03","04"/, "walk-around order is 3/4 front, head-on, side, rear-3/4");
@@ -111,6 +117,7 @@ assert.equal(sha(send), "a87ba1cb730ce79683938a05a22d839878d60319f35418efb408cab
   assert.equal(copy, html, name + " must stay in sync with index.html");
 });
 
+assert.ok(fs.existsSync(path.join(root, "start-bgs/gr-corolla/hero.jpg")), "lot/sunset hero crop exists");
 for (let i = 1; i <= 16; i++) {
   const shot = path.join(root, "start-bgs/gr-corolla/" + String(i).padStart(2, "0") + ".jpg");
   assert.ok(fs.existsSync(shot), "white GR pack " + path.basename(shot));
