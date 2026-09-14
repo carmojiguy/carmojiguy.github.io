@@ -41,6 +41,8 @@ must(/class="acre-notes-block"/, "notes sit under the hero");
 must(/class="acre-thumbs-row"/, "thumbs are a bottom strip");
 must(/class="acre-col-mid"/, "title / metrics / offers column");
 must(/class="acre-col-market"/, "right market cards column");
+must(/CENTER_PHOTO_DOCS/, "photo card list");
+must(/Documents\/VAUTO\/BLACK BOOK/, "header names the photo cards");
 must(/id="centerSources"/, "source pills");
 must(/id="centerMayaStrip"/, "Maya note strip under notes");
 must(/id="centerHero"/, "hero photo");
