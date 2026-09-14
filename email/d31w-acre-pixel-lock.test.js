@@ -25,7 +25,7 @@ function sha(s) {
   return crypto.createHash("sha256").update(s).digest("hex");
 }
 
-must(/id="buildStamp">build d31w</, "footer stamp stays d31w");
+must(/id="buildStamp">build d31a</, "footer stamp stays d31a");
 must(/<!--[\s\S]*pixel-faithful Acre GR Corolla desk/, "header names the pixel lock");
 must(/<!--[\s\S]*white hero\|mid\|market/, "header names the screenshot columns");
 must(/function oldestReadyCenter\(/, "FIFO oldest home stays");

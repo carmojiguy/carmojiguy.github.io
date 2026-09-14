@@ -35,14 +35,14 @@ function sha(s) {
   return crypto.createHash("sha256").update(s).digest("hex");
 }
 
-must(/id="buildStamp">build d31w</, "footer stamp is d31w");
-must(/<!--[\s\S]*build d31w[\s\S]*FIFO oldest home/, "header stamp is d31w FIFO");
-must(/<!--[\s\S]*build d31w[\s\S]*911 Incoming FINAL/, "header stamp keeps the 911 FINAL fold-in");
-must(/<!--[\s\S]*build d31w[\s\S]*911 Acre team reads finalRationale\.markdown/, "header stamp keeps panel how-we-got-here");
-must(/<!--[\s\S]*build d31w[\s\S]*left-rail Incoming\/On-site\/Needs docs\/History/, "header stamp names rail pills");
-must(/<!--[\s\S]*build d31w[\s\S]*kind:users persist/, "header stamp names users persist");
-must(/<!--[\s\S]*build d31w[\s\S]*Thank-you frozen/, "Thank-you stays frozen in the stamp");
-must(/id="typeSheet"[\s\S]*build d31w/, "type sheet stamp is d31w");
+must(/id="buildStamp">build d31a</, "footer stamp is d31w");
+must(/<!--[\s\S]*build d31a[\s\S]*FIFO oldest home/, "header stamp is d31w FIFO");
+must(/<!--[\s\S]*build d31a[\s\S]*911 Incoming FINAL/, "header stamp keeps the 911 FINAL fold-in");
+must(/<!--[\s\S]*build d31a[\s\S]*911 Acre team reads finalRationale\.markdown/, "header stamp keeps panel how-we-got-here");
+must(/<!--[\s\S]*build d31a[\s\S]*left-rail Incoming\/On-site\/Needs docs\/History/, "header stamp names rail pills");
+must(/<!--[\s\S]*build d31a[\s\S]*kind:users persist/, "header stamp names users persist");
+must(/<!--[\s\S]*build d31a[\s\S]*Thank-you frozen/, "Thank-you stays frozen in the stamp");
+must(/id="typeSheet"[\s\S]*build d31a/, "type sheet stamp is d31w");
 
 must(/id="centerLanes"[^>]*center-rail|class="center-lanes center-rail"/, "Center lanes are a left rail");
 must(/#centerLanes\.center-rail[\s\S]{0,180}flex-direction:column/, "rail pills stack top to bottom");

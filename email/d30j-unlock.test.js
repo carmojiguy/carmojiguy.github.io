@@ -29,8 +29,8 @@ function sha(s) {
   return crypto.createHash("sha256").update(s).digest("hex");
 }
 
-must(/id="buildStamp">build d31w</, "footer stamp is d30j");
-must(/<!--[\s\S]*build d31w[\s\S]*staff Unlock/, "header stamp is d30j Unlock");
+must(/id="buildStamp">build d31a</, "footer stamp is d30j");
+must(/<!--[\s\S]*build d31a[\s\S]*staff Unlock/, "header stamp is d30j Unlock");
 must(/id="centerUnlock">Unlock</, "Unlock control exists");
 must(/function isCenterLocked\(/, "lock helper exists");
 must(/function unlockCenterItem\(/, "unlock helper exists");

@@ -176,6 +176,156 @@ async function allRecords(sourceName) {
   return { live: true, records: out };
 }
 
+const TRACKER = {
+  GTA: { id: "1DXKFHK_k1cC_upbxzBIVTLbMKpOIv0u5MB2NbKq5XhM", via: "gta-tracker" },
+  Ottawa: { id: "1QRmPSMX_-nksYs4ucJxZUfTQcvrMlfbnylJgTL0ckNU", via: "ottawa-tracker" }
+};
+const TRACKER_MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+function trackerCurrentMonth(now) {
+  const d = now instanceof Date ? now : new Date();
+  return TRACKER_MONTHS[d.getMonth()] || "January";
+}
+
+function excelSerialDate(v) {
+  const n = Number(v);
+  if (!n || n < 20000) {
+    const s = String(v || "").trim();
+    if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0, 10);
+    const t = Date.parse(s);
+    return t ? new Date(t).toISOString().slice(0, 10) : "";
+  }
+  const d = new Date(Date.UTC(1899, 11, 30) + Math.round(n) * 86400000);
+  return d.toISOString().slice(0, 10);
+}
+
+function headerKey(v) {
+  return String(v || "").toLowerCase().replace(/\s+/g, " ").trim();
+}
+
+function colOf(headers, names) {
+  const want = names.map(headerKey);
+  for (let i = 0; i < headers.length; i++) {
+    const h = headerKey(headers[i]);
+    if (want.some(function (n) { return h === n || h.indexOf(n) >= 0; })) return i;
+  }
+  return -1;
+}
+
+function parseTrackerMatrix(values, region, via) {
+  const rows = Array.isArray(values) ? values : [];
+  let headerIdx = -1;
+  for (let i = 0; i < Math.min(rows.length, 8); i++) {
+    const line = (rows[i] || []).join(" ").toLowerCase();
+    if (line.indexOf("app-number") >= 0 || line.indexOf("app number") >= 0 || /\bapp\s*#/.test(line)) {
+      headerIdx = i;
+      break;
+    }
+  }
+  if (headerIdx < 0) return [];
+  const headers = rows[headerIdx] || [];
+  const appI = colOf(headers, ["app-number", "app number", "app #", "application"]);
+  const ymmI = colOf(headers, ["year make model trim", "ymm", "vehicle"]);
+  const sellerI = colOf(headers, ["seller name", "seller"]);
+  const dateI = colOf(headers, ["appt. date", "appt date", "appointment date"]);
+  const vinI = colOf(headers, ["vin"]);
+  const cityI = colOf(headers, ["seller city", "city"]);
+  const phoneI = colOf(headers, ["seller phone", "phone"]);
+  const statusI = colOf(headers, ["appointment status", "status"]);
+  const out = [];
+  for (let r = headerIdx + 1; r < rows.length; r++) {
+    const row = rows[r] || [];
+    const appNo = String(row[appI] || "").trim();
+    if (!appNo || !/app/i.test(appNo)) continue;
+    const ymm = String(row[ymmI] || "").replace(/\s+/g, " ").trim();
+    out.push({
+      id: (region === "Ottawa" ? "ott-" : "gta-") + appNo.toUpperCase().replace(/[^A-Z0-9]/g, ""),
+      appNo: appNo,
+      ymm: ymm,
+      seller: String(row[sellerI] || "").trim(),
+      vin: String(row[vinI] || "").replace(/\s+/g, "").toUpperCase(),
+      date: excelSerialDate(row[dateI]),
+      city: String(row[cityI] || "").trim(),
+      phone: String(row[phoneI] || "").trim(),
+      status: String(row[statusI] || "").trim(),
+      region: region,
+      location: region,
+      source: "Canada Drives",
+      stage: /on[-\s]?site/i.test(String(row[statusI] || "")) ? "on-site" : "booked",
+      via: via
+    });
+  }
+  return out;
+}
+
+function needleOf(q) {
+  return String(q || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+}
+
+function matchApp(row, needle) {
+  if (!needle) return false;
+  const app = String((row && (row.appNo || row.cdApp)) || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+  return !!(app && (app.indexOf(needle) >= 0 || needle.indexOf(app) >= 0));
+}
+
+async function sheetsAccess() {
+  const direct = process.env.GOOGLE_SHEETS_TOKEN || "";
+  if (direct) return direct;
+  const key = process.env.GOOGLE_API_KEY || "";
+  if (key) return { key: key };
+  return "";
+}
+
+async function fetchSheetValues(spreadsheetId, sheetName) {
+  const auth = await sheetsAccess();
+  const range = encodeURIComponent(sheetName + "!A1:Z400");
+  const base = "https://sheets.googleapis.com/v4/spreadsheets/" + spreadsheetId + "/values/" + range;
+  const url = auth && auth.key ? (base + "?key=" + encodeURIComponent(auth.key)) : base;
+  const headers = typeof auth === "string" && auth ? { Authorization: "Bearer " + auth } : {};
+  const r = await fetch(url, { headers: headers, cache: "no-store" });
+  const j = await r.json().catch(function () { return {}; });
+  if (!r.ok) return { ok: false, values: [], reason: "Sheets said " + r.status };
+  return { ok: true, values: j.values || [] };
+}
+
+async function fetchSheetBatch(spreadsheetId, sheetNames) {
+  const auth = await sheetsAccess();
+  const q = new URLSearchParams();
+  sheetNames.forEach(function (name) { q.append("ranges", name + "!A1:Z400"); });
+  if (auth && auth.key) q.set("key", auth.key);
+  const url = "https://sheets.googleapis.com/v4/spreadsheets/" + spreadsheetId + "/values:batchGet?" + q.toString();
+  const headers = typeof auth === "string" && auth ? { Authorization: "Bearer " + auth } : {};
+  const r = await fetch(url, { headers: headers, cache: "no-store" });
+  const j = await r.json().catch(function () { return {}; });
+  if (!r.ok) return { ok: false, valueRanges: [], reason: "Sheets said " + r.status };
+  return { ok: true, valueRanges: j.valueRanges || [] };
+}
+
+async function trackerMonthRows(region, month) {
+  const spec = TRACKER[region] || TRACKER.GTA;
+  const pulled = await fetchSheetValues(spec.id, month);
+  if (!pulled.ok) return pulled;
+  return { ok: true, items: parseTrackerMatrix(pulled.values, region, spec.via) };
+}
+
+async function searchTrackerSheets(q) {
+  const needle = needleOf(q);
+  if (!needle) return { ok: true, items: [] };
+  const out = [];
+  const regions = ["GTA", "Ottawa"];
+  for (let r = 0; r < regions.length; r++) {
+    const spec = TRACKER[regions[r]];
+    const pulled = await fetchSheetBatch(spec.id, TRACKER_MONTHS);
+    if (!pulled.ok) continue;
+    pulled.valueRanges.forEach(function (block) {
+      parseTrackerMatrix(block.values || [], regions[r], spec.via).forEach(function (row) {
+        if (matchApp(row, needle)) out.push(row);
+      });
+    });
+  }
+  return { ok: true, items: out };
+}
+
 async function handle(req, res) {
   const origin = (req.headers && (req.headers.origin || req.headers.Origin)) || "";
   const method = req.method || "GET";
@@ -184,8 +334,32 @@ async function handle(req, res) {
   try {
     const url = req.url ? new URL(req.url, "https://gnm-guest-mailer-shawn-6802.vercel.app") : null;
     const sourceName = (url && url.searchParams.get("source")) || "Canada Drives";
+    const typed = url ? String(url.searchParams.get("q") || "").trim() : "";
+    const view = url ? String(url.searchParams.get("view") || "").trim() : "";
+    const month = url ? String(url.searchParams.get("month") || "").trim() : "";
+    const regionRaw = url ? String(url.searchParams.get("region") || "").trim() : "";
+    const region = /ottawa/i.test(regionRaw) ? "Ottawa" : "GTA";
+    if (view === "tracker") {
+      const useMonth = month || trackerCurrentMonth();
+      const pulled = await trackerMonthRows(region, useMonth);
+      if (!pulled.ok) {
+        return json(res, 200, { ok: true, live: false, view: "tracker", month: useMonth, region: region, items: [], reason: pulled.reason }, origin);
+      }
+      return json(res, 200, { ok: true, live: true, view: "tracker", month: useMonth, region: region, items: pulled.items }, origin);
+    }
     if (!usesAppointmentsSource(sourceName)) {
       return json(res, 200, { ok: true, live: true, items: [], appointments: false, reason: "Appointments are Canada Drives only. Use New application." }, origin);
+    }
+    if (typed) {
+      const found = await searchTrackerSheets(typed);
+      if (found.items && found.items.length) {
+        return json(res, 200, { ok: true, live: true, items: found.items, count: found.items.length, source: sourceName }, origin);
+      }
+      const slim = await allRecords(sourceName);
+      const air = (slim.live ? slim.records.map(mapRecord) : []).filter(function (row) {
+        return matchApp(row, needleOf(typed));
+      });
+      return json(res, 200, { ok: true, live: true, items: air, count: air.length, source: sourceName }, origin);
     }
     const pulled = await allRecords(sourceName);
     if (!pulled.live) {
@@ -209,3 +383,8 @@ module.exports.formula = formula;
 module.exports.usesAppointmentsSource = usesAppointmentsSource;
 module.exports.STAGE_BOOKED = STAGE_BOOKED;
 module.exports.STAGE_ONSITE = STAGE_ONSITE;
+module.exports.trackerCurrentMonth = trackerCurrentMonth;
+module.exports.parseTrackerMatrix = parseTrackerMatrix;
+module.exports.excelSerialDate = excelSerialDate;
+module.exports.matchApp = matchApp;
+module.exports.needleOf = needleOf;

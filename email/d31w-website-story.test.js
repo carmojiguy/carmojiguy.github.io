@@ -24,14 +24,14 @@ function sliceFn(name, next) {
   return html.slice(start, end);
 }
 
-must(/id="buildStamp">build d31w</, "home footer stamp is d31w");
-must(/<!--[\s\S]*build d31w[\s\S]*website-post story-first/, "header stamp is d31w website-post");
-must(/<!--[\s\S]*build d31w[\s\S]*no team select/, "header stamp names no team select");
-must(/<!--[\s\S]*build d31w[\s\S]*original start not webdesk/, "header stamp restores original start");
-must(/<!--[\s\S]*build d31w[\s\S]*pictures still relaunch\/post/, "header stamp keeps relaunch/post");
-must(/<!--[\s\S]*build d31w[\s\S]*Thank-you frozen/, "Thank-you stays frozen in the stamp");
-must(/<!--[\s\S]*build d31w[\s\S]*no invented solds/, "no invented solds stays in the stamp");
-must(/id="typeSheet"[\s\S]*build d31w/, "type sheet stamp is d31w");
+must(/id="buildStamp">build d31a</, "home footer stamp is d31w");
+must(/<!--[\s\S]*build d31a[\s\S]*website-post story-first/, "header stamp is d31w website-post");
+must(/<!--[\s\S]*build d31a[\s\S]*no team select/, "header stamp names no team select");
+must(/<!--[\s\S]*build d31a[\s\S]*original start not webdesk/, "header stamp restores original start");
+must(/<!--[\s\S]*build d31a[\s\S]*pictures still relaunch\/post/, "header stamp keeps relaunch/post");
+must(/<!--[\s\S]*build d31a[\s\S]*Thank-you frozen/, "Thank-you stays frozen in the stamp");
+must(/<!--[\s\S]*build d31a[\s\S]*no invented solds/, "no invented solds stays in the stamp");
+must(/id="typeSheet"[\s\S]*build d31a/, "type sheet stamp is d31w");
 
 must(/id="startWebsite">Post vehicle to website</, "start pill label stays");
 must(/id="storySheet"/, "What's the Story sheet stays");
