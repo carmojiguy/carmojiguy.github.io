@@ -1025,7 +1025,7 @@ const paintCenterFinalBox = eval("(" + (function () {
 })();
 
 assert.ok(/scheduleIncomingPull\(\)/.test(html), "Center boot/paint schedules the Incoming pull");
-assert.ok(/build d31c/.test(html), "build stamp bumped to d30h");
+assert.ok(/build d31w/.test(html), "build stamp bumped to d30h");
 assert.ok(/function archiveOnsiteSameVin\(/.test(html), "new Send archives the prior On-site card");
 assert.ok(/enrichRav4OnsiteFinal/.test(html), "Incoming land seeds the RAV4 FINAL");
 assert.ok(/openCarfaxRecreate/.test(html), "Carfax recreate is wired");

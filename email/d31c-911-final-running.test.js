@@ -35,8 +35,8 @@ function sha(s) {
   return crypto.createHash("sha256").update(s).digest("hex");
 }
 
-must(/id="buildStamp">build d31c</, "footer stamp stays d31c");
-must(/<!--[\s\S]*build d31c[\s\S]*911 Incoming FINAL/, "header names the 911 FINAL fold-in");
+must(/id="buildStamp">build d31w</, "footer stamp stays d31w");
+must(/<!--[\s\S]*build d31w[\s\S]*911 Incoming FINAL/, "header names the 911 FINAL fold-in");
 must(/<!--[\s\S]*s1af19al[\s\S]*sir78n6|<!--[\s\S]*sir78n6[\s\S]*s1af19al/, "header names Blazer and F-150 sendIds");
 must(/function oldestReadyCenter\(/, "FIFO oldest home stays");
 must(/id="centerLanes"[^>]*center-rail|class="center-lanes center-rail"/, "Acre left rail stays");
