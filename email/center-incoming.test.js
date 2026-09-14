@@ -93,6 +93,7 @@ const sharedRemoteBeats = eval("(" + takeFn("sharedRemoteBeats", "reviveSharedCe
 const reviveSharedCenterItem = eval("(" + takeFn("reviveSharedCenterItem", "collapseSharedRemotes") + ")");
 const collapseSharedRemotes = eval("(" + takeFn("collapseSharedRemotes", "collapseCenterVinDupes") + ")");
 const collapseCenterVinDupes = eval("(" + takeFn("collapseCenterVinDupes", "findCenterMatch") + ")");
+const archiveOnsiteSameVin = eval("(" + takeFn("archiveOnsiteSameVin", "persistCenterMedia") + ")");
 const APP = { sendId: "", centerId: "open-other", vin: "", inviteName: "" };
 const persistedMedia = [];
 function persistCenterMedia(id, photos, docs) {
@@ -293,7 +294,7 @@ function slimSharedDocs(docs) {
 })();
 
 (function testThreePillFlagsAreOnsite() {
-  const item = applySharedIncoming({ id: "pills-1", lane: "inbox", archived: true, stage: "Appraised", sentAt: 1757792340000, docs: {} }, {
+  const item = applySharedIncoming({ id: "pills-1", lane: "inbox", archived: false, stage: "Waiting", sentAt: 1757792340000, docs: {} }, {
     id: "cmu0avif7rslu",
     sendId: "s1ex074",
     vin: "2T3B1RFVXRC466025",
@@ -302,8 +303,8 @@ function slimSharedDocs(docs) {
     docs: { vauto: { have: true }, openlane: { have: true }, eblock: { have: true } },
     customer: { name: "Chris Cyr" }
   });
-  assert.equal(item.archived, false, "newer complete pull un-archives");
-  assert.equal(item.stage, "Waiting", "false Appraised from a stale date is cleared");
+  assert.equal(item.archived, false, "live same-sendId apply stays live");
+  assert.equal(item.stage, "Waiting");
   assert.equal(item.lane, "onsite", "V Auto + OpenLane + eBlock land On-site");
   assert.equal(item.sentAt, 1789339609336, "newer sentAt wins");
   assert.equal(centerLaneOf(item), "onsite");
@@ -318,12 +319,16 @@ function slimSharedDocs(docs) {
       vin: "2T3B1RFVXRC466025",
       ymmt: "2024 Toyota RAV4",
       source: "guest",
-      lane: "inbox",
-      stage: "Appraised",
-      archived: true,
+      lane: "onsite",
+      stage: "Waiting",
+      archived: false,
       sentAt: 1757792340000,
       updatedAt: 1757792340000,
-      docs: {},
+      photos: [{ title: "keep", data: "data:image/jpeg;base64,OLD" }],
+      pdfUrl: "https://example.com/old-final.pdf",
+      pdfName: "old-final.pdf",
+      appraisalFinal: { min: "22800", target: "24000", max: "25000" },
+      docs: { vauto: { have: true }, openlane: { have: true }, eblock: { have: true } },
       customer: { name: "Chris Cyr" }
     }]
   };
@@ -339,6 +344,7 @@ function slimSharedDocs(docs) {
       sentAt: 1789339609336,
       updatedAt: 1789339999999,
       source: "appraise",
+      lane: "onsite",
       docs: { vauto: { have: true }, openlane: { have: true }, eblock: { have: true }, summary: { have: true } },
       customer: { name: "Chris Cyr" },
       photoCount: 13
@@ -354,14 +360,22 @@ function slimSharedDocs(docs) {
     }
   ]);
   assert.equal(changed, true);
-  assert.equal(store.items.length, 1, "one live row per VIN");
-  const row = store.items[0];
-  assert.equal(row.archived, false, "stale archive is cleared");
-  assert.equal(row.lane, "onsite", "complete 3-pill file is On-site");
-  assert.equal(row.sentAt, 1789339609336, "older stub does not win sentAt");
-  assert.equal(row.docs.vauto.have, true, "empty stub does not wipe pills");
-  assert.equal(row.sendId, "s1ex074", "newer sendId stays");
-  assert.equal(centerLaneOf(row), "onsite");
+  assert.equal(store.items.length, 2, "same VIN different sendId stays two cards");
+  const old = store.items.find(function (x) { return x.id === "guest-chris-rav4-20260913"; });
+  const neu = store.items.find(function (x) { return x.sendId === "s1ex074"; });
+  assert.ok(old && neu, "old tile and new Send both exist");
+  assert.equal(old.sendId, "old-rav4", "pull does not overwrite the old card sendId");
+  assert.equal(old.archived, true, "older On-site moves to History");
+  assert.equal(centerLaneOf(old), "history");
+  assert.equal(old.photos[0].data, "data:image/jpeg;base64,OLD", "History keeps photos");
+  assert.equal(old.pdfUrl, "https://example.com/old-final.pdf", "History keeps PDF");
+  assert.equal(old.appraisalFinal.target, "24000", "History keeps FINAL");
+  assert.equal(neu.id, "cmu0avif7rslu");
+  assert.notEqual(neu.id, old.id, "new Send is a separate card");
+  assert.equal(neu.archived, false);
+  assert.equal(neu.lane, "onsite", "new Send stays On-site");
+  assert.equal(centerLaneOf(neu), "onsite");
+  assert.equal(neu.sentAt, 1789339609336);
 })();
 
 (function testSlimSharedSendsTwoHomeLane() {
@@ -388,8 +402,8 @@ function slimSharedDocs(docs) {
   const item = applySharedIncoming({
     id: "cmu0avif7rslu",
     lane: "inbox",
-    archived: true,
-    stage: "Appraised",
+    archived: false,
+    stage: "Waiting",
     sentAt: 1757792340000,
     docs: {}
   }, {
@@ -410,8 +424,8 @@ function slimSharedDocs(docs) {
   assert.equal(item.photos[1].name, "driver.jpg");
   assert.equal(item.photoCount, 13, "photoCount prefers remote.photoCount");
   assert.equal(item.thumb, "data:image/jpeg;base64,THUMB");
-  assert.equal(item.archived, false, "fresh photo land unarchives");
-  assert.equal(item.stage, "Waiting", "fresh photo land clears Appraised");
+  assert.equal(item.archived, false, "live same-sendId photo land stays live");
+  assert.equal(item.stage, "Waiting");
   assert.equal(item.lane, "onsite");
   assert.ok(persistedMedia.length >= 1, "apply persists Center media");
   assert.equal(persistedMedia[0].id, "cmu0avif7rslu");
@@ -423,8 +437,8 @@ function slimSharedDocs(docs) {
   const item = applySharedIncoming({
     id: "cmu0avif7rslu",
     lane: "inbox",
-    archived: true,
-    stage: "Appraised",
+    archived: false,
+    stage: "Waiting",
     sentAt: 1757792340000,
     docs: {},
     photos: [{ title: "keep", data: "data:image/jpeg;base64,OLD", name: "old.jpg", url: "", cap: "" }]
@@ -444,7 +458,7 @@ function slimSharedDocs(docs) {
   assert.equal(item.pdfUrl, "https://7codzfkcbtucfujs.public.blob.vercel-storage.com/incoming/s1ex074-sales-final.pdf");
   assert.equal(item.pdfName, "s1ex074-sales-final.pdf");
   assert.equal(item.photos.length, 1, "pdf copy does not drop remote.photos");
-  assert.equal(item.archived, false, "pdf land still unarchives");
+  assert.equal(item.archived, false, "live same-sendId pdf land stays live");
   assert.ok(persistedMedia.length >= 1, "pdf land still persistCenterMedia");
   const keep = applySharedIncoming({
     id: "keep-pdf",
@@ -803,8 +817,156 @@ const paintCenterFinalBox = eval("(" + takeFn("paintCenterFinalBox", "centerStor
   assert.equal(landed.finalRationale.shabot.note, "Keep me");
 })();
 
+(function testTwoRemotesSameVinStayTwoCards() {
+  const store = { seq: 1000, items: [] };
+  function centerStore() { return store; }
+  function saveCenterStore() {}
+  const mergeIncomingShared = eval("(" + mergeSrc + ")");
+  mergeIncomingShared([
+    {
+      id: "send-a",
+      sendId: "s-a",
+      vin: "2T3B1RFVXRC466025",
+      ymmt: "2024 TOYOTA RAV4",
+      sentAt: 1000,
+      lane: "onsite",
+      docs: { vauto: { have: true }, openlane: { have: true }, eblock: { have: true } },
+      customer: { name: "Chris Cyr" }
+    },
+    {
+      id: "send-b",
+      sendId: "s-b",
+      vin: "2T3B1RFVXRC466025",
+      ymmt: "2024 TOYOTA RAV4",
+      sentAt: 2000,
+      lane: "onsite",
+      docs: { vauto: { have: true }, openlane: { have: true }, eblock: { have: true } },
+      customer: { name: "Chris Cyr" }
+    }
+  ]);
+  assert.equal(store.items.length, 2, "two remotes same VIN different sendId stay two cards");
+  const older = store.items.find(function (x) { return x.sendId === "s-a"; });
+  const newer = store.items.find(function (x) { return x.sendId === "s-b"; });
+  assert.ok(older && newer);
+  assert.notEqual(older.id, newer.id);
+  assert.equal(older.archived, true, "older On-site moves to History");
+  assert.equal(centerLaneOf(older), "history");
+  assert.equal(newer.archived, false, "newer Send stays On-site");
+  assert.equal(centerLaneOf(newer), "onsite");
+})();
+
+(function testFindCenterMatchSharedNeverUsesVin() {
+  const store = {
+    items: [{
+      id: "onsite-old",
+      sendId: "s-old",
+      vin: "2T3B1RFVXRC466025",
+      lane: "onsite",
+      source: "guest",
+      customer: { name: "Chris Cyr" }
+    }]
+  };
+  const hit = findCenterMatch(store, { shared: true, sendId: "s-new", vin: "2T3B1RFVXRC466025", customerName: "Chris Cyr" });
+  assert.equal(hit, null, "Incoming remotes never match by VIN alone");
+  const bySend = findCenterMatch(store, { shared: true, sendId: "s-old", vin: "2T3B1RFVXRC466025" });
+  assert.equal(bySend && bySend.id, "onsite-old", "same sendId still matches");
+  const byId = findCenterMatch(store, { shared: true, sendId: "s-missing", id: "onsite-old" });
+  assert.equal(byId && byId.id, "onsite-old", "same id still matches");
+})();
+
+(function testCollapseVinDupesIsDisabled() {
+  const store = {
+    items: [
+      { id: "a", sendId: "s-a", vin: "2T3B1RFVXRC466025", lane: "onsite", sentAt: 1 },
+      { id: "b", sendId: "s-b", vin: "2T3B1RFVXRC466025", lane: "onsite", sentAt: 2 }
+    ]
+  };
+  assert.equal(collapseCenterVinDupes(store), false);
+  assert.equal(store.items.length, 2, "VIN collapse does not drop cards");
+})();
+
+(function testPullDoesNotUnarchiveHistoryWithPhotos() {
+  const store = {
+    seq: 1000,
+    items: [{
+      id: "hist-1",
+      sendId: "s-hist",
+      vin: "2T3B1RFVXRC466025",
+      ymmt: "2024 Toyota RAV4",
+      source: "guest",
+      lane: "onsite",
+      stage: "Appraised",
+      archived: true,
+      photos: [{ title: "keep", data: "data:image/jpeg;base64,OLD" }],
+      pdfUrl: "https://example.com/final.pdf",
+      docs: { vauto: { have: true }, openlane: { have: true }, eblock: { have: true } },
+      appraisalFinal: { min: "22800", target: "24000", max: "25000" },
+      customer: { name: "Chris Cyr" }
+    }]
+  };
+  function centerStore() { return store; }
+  function saveCenterStore() {}
+  const mergeIncomingShared = eval("(" + mergeSrc + ")");
+  mergeIncomingShared([{
+    id: "hist-1",
+    sendId: "s-hist",
+    vin: "2T3B1RFVXRC466025",
+    photos: [{ title: "keep", data: "data:image/jpeg;base64,OLD" }],
+    docs: { vauto: { have: true }, openlane: { have: true }, eblock: { have: true } },
+    customer: { name: "Chris Cyr" },
+    photoCount: 8
+  }]);
+  assert.equal(store.items.length, 1, "same sendId does not create a second card");
+  assert.equal(store.items[0].archived, true, "Incoming pull does not unarchive History");
+  assert.equal(store.items[0].stage, "Appraised", "History stage stays until Reactivate");
+  assert.equal(centerLaneOf(store.items[0]), "history");
+  assert.equal(store.items[0].photos[0].data, "data:image/jpeg;base64,OLD");
+  assert.equal(store.items[0].pdfUrl, "https://example.com/final.pdf");
+})();
+
+(function testNewSendLeavesHistoryCardAndCreatesOnsite() {
+  const store = {
+    seq: 1000,
+    items: [{
+      id: "hist-old",
+      sendId: "s-old-final",
+      vin: "2T3B1RFVXRC466025",
+      ymmt: "2024 Toyota RAV4",
+      source: "guest",
+      lane: "onsite",
+      archived: true,
+      photos: [{ title: "keep", data: "data:image/jpeg;base64,OLD" }],
+      docs: { vauto: { have: true }, openlane: { have: true }, eblock: { have: true } },
+      customer: { name: "Chris Cyr" }
+    }]
+  };
+  function centerStore() { return store; }
+  function saveCenterStore() {}
+  const mergeIncomingShared = eval("(" + mergeSrc + ")");
+  mergeIncomingShared([{
+    id: "new-send",
+    sendId: "s-new",
+    vin: "2T3B1RFVXRC466025",
+    ymmt: "2024 TOYOTA RAV4",
+    lane: "onsite",
+    sentAt: Date.now(),
+    docs: { vauto: { have: true }, openlane: { have: true }, eblock: { have: true } },
+    customer: { name: "Chris Cyr" }
+  }]);
+  assert.equal(store.items.length, 2);
+  const hist = store.items.find(function (x) { return x.id === "hist-old"; });
+  const neu = store.items.find(function (x) { return x.sendId === "s-new"; });
+  assert.equal(hist.archived, true, "History card is not yanked back On-site");
+  assert.equal(hist.photos[0].data, "data:image/jpeg;base64,OLD");
+  assert.equal(neu.id, "new-send");
+  assert.equal(neu.archived, false);
+  assert.equal(centerLaneOf(neu), "onsite");
+})();
+
 assert.ok(/scheduleIncomingPull\(\)/.test(html), "Center boot/paint schedules the Incoming pull");
-assert.ok(/build d30c/.test(html), "build stamp bumped to d30c");
+assert.ok(/build d30d/.test(html), "build stamp bumped to d30d");
+assert.ok(/function archiveOnsiteSameVin\(/.test(html), "new Send archives the prior On-site card");
+assert.ok(/shared && hint\.id/.test(html), "Incoming remotes also match by id");
 assert.ok(/function seedSharedIncomingFinal\(/.test(html), "Incoming FINAL seed helper exists");
 assert.ok(/seedSharedIncomingFinal\(item, remote\)/.test(html), "applySharedIncoming copies Incoming FINAL");
 assert.ok(/appraisalFinal:\{/.test(html), "slimSharedCenterItem includes appraisalFinal");

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-13 build d30c: Incoming FINAL seed paints the Shabot box; applySharedIncoming copies appraisalFinal; slimSharedCenterItem keeps FINAL on re-land; Thank-you frozen; sales PDF packet stays; zero Center samples -->
+<!-- center-v3 + desk-home 2026-09-13 build d30d: never overwrite Center tiles; new Send = new On-site card; VIN collapse off; Incoming pull does not unarchive; Thank-you frozen; sales PDF packet stays; zero Center samples -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -1901,7 +1901,7 @@ body.center-gallery-on { overflow:hidden; }
     <p class="quote" id="vinHint">Best: take a picture of the vehicle ownership (registration). You can also photograph the VIN on the dash or the sticker on the driver’s door. We’ll read the number from the photo.</p>
     <p class="vin-chip hide" id="vinChip"></p>
     </div>
-    <p class="build-stamp" id="buildStamp">build d30c</p>
+    <p class="build-stamp" id="buildStamp">build d30d</p>
   </div>
 </section>
 
@@ -2360,7 +2360,7 @@ body.center-gallery-on { overflow:hidden; }
   <div class="card">
     <button class="x" type="button" data-close="typeSheet">✕</button>
     <h3>Appraisal type</h3>
-    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d30c</span></p>
+    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d30d</span></p>
     <div id="typeChips" class="to-chips"></div>
     <div id="leadBox" class="lead-box hide">
       <p class="hint">Lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a New application — no appointment calendar.</p>
@@ -6379,14 +6379,13 @@ function collapseSharedRemotes(rows){
   const list=[];
   (rows||[]).forEach(function(remote){
     if(!remote || typeof remote!=="object" || isCenterSample(remote)) return;
-    const vin=String(remote.vin||"").trim().toUpperCase();
     const sendId=remote.sendId||"";
+    const id=remote.id||"";
     let hit=-1;
     for(let i=0;i<list.length;i++){
       const cur=list[i];
-      const cv=String(cur.vin||"").trim().toUpperCase();
       if(sendId && cur.sendId && sendId===cur.sendId){ hit=i; break; }
-      if(vin.length===17 && cv===vin){ hit=i; break; }
+      if(id && cur.id && id===cur.id){ hit=i; break; }
     }
     if(hit<0) list.push(remote);
     else if(sharedRemoteBeats(remote, list[hit])) list[hit]=remote;
@@ -6394,26 +6393,7 @@ function collapseSharedRemotes(rows){
   return list;
 }
 function collapseCenterVinDupes(store){
-  if(!store || !Array.isArray(store.items)) return false;
-  const drop={};
-  const keep={};
-  store.items.forEach(function(item, i){
-    if(!item || isCenterSample(item)) return;
-    const vin=String(item.vin||"").trim().toUpperCase();
-    if(vin.length!==17) return;
-    if(keep[vin]==null){ keep[vin]=i; return; }
-    const prev=store.items[keep[vin]];
-    if(sharedRemoteBeats(item, prev)){
-      drop[keep[vin]]=true;
-      keep[vin]=i;
-    } else {
-      drop[i]=true;
-    }
-  });
-  const idx=Object.keys(drop);
-  if(!idx.length) return false;
-  store.items=store.items.filter(function(_,i){ return !drop[i]; });
-  return true;
+  return false;
 }
 function findCenterMatch(store, hint){
   hint=hint||{};
@@ -6427,20 +6407,26 @@ function findCenterMatch(store, hint){
     const bySend=store.items.find(function(x){ return x && !x.sample && x.sendId && x.sendId===sendId; });
     if(bySend) return bySend;
   }
+  if(shared && hint.id){
+    const byRemoteId=store.items.find(function(x){ return x && !x.sample && x.id && x.id===hint.id; });
+    if(byRemoteId) return byRemoteId;
+  }
   if(!shared && APP.centerId){
     const open=store.items.find(function(x){ return x.id===APP.centerId; });
     if(open) return open;
   }
-  const vin=String(hint.vin || (shared?"":APP.vin) || "").trim().toUpperCase();
-  if(vin.length===17){
-    const hits=store.items.filter(function(x){ return x && !x.sample && String(x.vin||"").toUpperCase()===vin; });
-    if(hits.length){
-      if(sendId){
-        const bySendVin=hits.find(function(x){ return x.sendId && x.sendId===sendId; });
-        if(bySendVin) return bySendVin;
+  if(!shared){
+    const vin=String(hint.vin || APP.vin || "").trim().toUpperCase();
+    if(vin.length===17){
+      const hits=store.items.filter(function(x){ return x && !x.sample && String(x.vin||"").toUpperCase()===vin; });
+      if(hits.length){
+        if(sendId){
+          const bySendVin=hits.find(function(x){ return x.sendId && x.sendId===sendId; });
+          if(bySendVin) return bySendVin;
+        }
+        hits.sort(function(a,b){ return sharedItemStamp(b)-sharedItemStamp(a); });
+        return hits[0];
       }
-      hits.sort(function(a,b){ return sharedItemStamp(b)-sharedItemStamp(a); });
-      return hits[0];
     }
   }
   const name=String(hint.customerName || (shared?"":APP.inviteName) || "").trim().toLowerCase();
@@ -6451,6 +6437,24 @@ function findCenterMatch(store, hint){
     if(byName) return byName;
   }
   return null;
+}
+function archiveOnsiteSameVin(store, remote){
+  if(!store || !Array.isArray(store.items)) return false;
+  const vin=String((remote && remote.vin) || "").trim().toUpperCase();
+  if(vin.length!==17) return false;
+  const remoteWhen=sharedItemStamp(remote);
+  let changed=false;
+  store.items.forEach(function(item){
+    if(!item || isCenterSample(item) || item.archived) return;
+    if(String(item.vin||"").toUpperCase()!==vin) return;
+    const onsite=(typeof centerLaneOf==="function" && centerLaneOf(item)==="onsite") || item.lane==="onsite";
+    if(!onsite) return;
+    const localWhen=sharedItemStamp(item);
+    if(remoteWhen && localWhen && remoteWhen<localWhen) return;
+    item.archived=true;
+    changed=true;
+  });
+  return changed;
 }
 function persistCenterMedia(id, photos, docs){
   const payload={photos:photos||[], docs:docs||{}};
@@ -6641,12 +6645,7 @@ function applySharedIncoming(item, remote){
   } else {
     item.updatedAt=Date.now();
   }
-  reviveSharedCenterItem(item);
-  if(item.stage!=="Appraised") item.stage=remote.stage||item.stage||"Waiting";
-  if((item.archived || item.stage==="Appraised") && ((item.photos&&item.photos.length) || sharedDocsHaveCount(item.docs)>0 || sharedDocsHaveCount(remote.docs)>0)){
-    item.archived=false;
-    item.stage="Waiting";
-  }
+  if(!item.archived && item.stage!=="Appraised") item.stage=remote.stage||item.stage||"Waiting";
   const routed=laneFromMarketDocs(item.docs, remote.lane);
   item.lane=routed.lane;
   item.docsIncomplete=routed.docsIncomplete;
@@ -6668,29 +6667,20 @@ function mergeIncomingShared(list){
     if(!rows || !rows.length) return false;
     const store=centerStore();
     let changed=false;
-    collapseSharedRemotes(rows).forEach(function(remote){
+    collapseSharedRemotes(rows).slice().sort(function(a,b){
+      return sharedItemStamp(a)-sharedItemStamp(b);
+    }).forEach(function(remote){
       if(!remote || typeof remote!=="object" || isCenterSample(remote)) return;
       const name=remote.customer && remote.customer.name || "";
-      let item=findCenterMatch(store, {shared:true, sendId:remote.sendId||"", vin:remote.vin||"", customerName:name});
-      if(item && !sharedRemoteBeats(remote, item)){
-        if(sharedDocsHaveCount(item.docs)>0){
-          const wasStuck=!!(item.archived || item.stage==="Appraised");
-          reviveSharedCenterItem(item);
-          const routed=laneFromMarketDocs(item.docs, remote.lane||item.lane);
-          if(wasStuck || item.lane!==routed.lane || item.docsIncomplete!==routed.docsIncomplete){
-            item.lane=routed.lane;
-            item.docsIncomplete=routed.docsIncomplete;
-            item.missingDocs=routed.missingDocs;
-            changed=true;
-          }
-        }
-        return;
-      }
+      let item=findCenterMatch(store, {shared:true, sendId:remote.sendId||"", id:remote.id||"", customerName:name});
+      if(item && !sharedRemoteBeats(remote, item)) return;
       if(!item){
+        if(typeof archiveOnsiteSameVin==="function" && archiveOnsiteSameVin(store, remote)) changed=true;
         item={
           id:remote.id||("c"+Date.now().toString(36)+Math.random().toString(36).slice(2,6)),
           appNo:nextAppNo(store),
           stage:"Waiting",
+          archived:false,
           team:emptyTeam(),
           values:emptyVals(),
           notes:"",

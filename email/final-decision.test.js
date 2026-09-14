@@ -13,9 +13,9 @@ function must(re, msg) {
   assert.ok(re.test(html), msg);
 }
 
-must(/id="buildStamp">build d30c</, "footer stamp is build d30c");
-must(/<!--[\s\S]*build d30c[\s\S]*sales PDF packet stays; zero Center samples/, "HTML comment stamp is d30c and keeps the sales PDF / zero-sample lock");
-must(/id="typeSheet"[\s\S]*build d30c/, "type sheet stamp is build d30c");
+must(/id="buildStamp">build d30d</, "footer stamp is build d30d");
+must(/<!--[\s\S]*build d30d[\s\S]*sales PDF packet stays; zero Center samples/, "HTML comment stamp is d30d and keeps the sales PDF / zero-sample lock");
+must(/id="typeSheet"[\s\S]*build d30d/, "type sheet stamp is build d30d");
 
 must(/item\.appraisalFinal/, "durable appraisalFinal shape");
 must(/item\.finalRationale/, "durable finalRationale shape");
