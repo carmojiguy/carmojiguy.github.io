@@ -473,10 +473,41 @@ function renderDestChipsHtml(apply) {
   }).join("");
 }
 
+/** Live OCR-review dest pills (BOOKS-S1-001 / AUTO PARTS SUPPLY CO., 2026-09-14). */
+var LIVE_OCR_REVIEW_DEST_LABELS = ["Parts shelf", "A stock number", "Krown supplies", "Overhead"];
+
+/**
+ * Post-OCR Vendor bill dest row. This is the full-PASS gap: live Jt has no
+ * Work Order. Same BILL_DESTS as the rest of the form — photo/OCR is not a
+ * second picker.
+ */
+function ocrReviewScreen(scan) {
+  var apply = (scan && scan.apply) || "wo";
+  var dest = BILL_DESTS.find(function (d) {
+    return d.id === apply;
+  }) || BILL_DESTS[0];
+  return {
+    vendor: (scan && scan.vendor) || "",
+    invoiceNo: (scan && scan.invoiceNo) || "",
+    invoiceDate: (scan && scan.invoiceDate) || "",
+    gl: BILL_GL[apply],
+    dests: BILL_DESTS,
+    destLabels: destLabels(BILL_DESTS),
+    apply: apply,
+    hint: dest.hint,
+    woPicker: apply === "wo",
+    net: scan && scan.net,
+    tax: scan && scan.tax,
+    total: round2(Number((scan && scan.net) || 0) + Number((scan && scan.tax) || 0)),
+    postLabel: "Post bill",
+  };
+}
+
 module.exports = {
   BILL_DESTS: BILL_DESTS,
   BILL_GL: BILL_GL,
   LIVE_BILL_DESTS: LIVE_BILL_DESTS,
+  LIVE_OCR_REVIEW_DEST_LABELS: LIVE_OCR_REVIEW_DEST_LABELS,
   LIVE_POST_BILL_GATES_DESTS_ON_PHOTO: LIVE_POST_BILL_GATES_DESTS_ON_PHOTO,
   RECEIVE_DESTS: RECEIVE_DESTS,
   applyFromScanText: applyFromScanText,
@@ -486,6 +517,7 @@ module.exports = {
   hasWorkOrderDest: hasWorkOrderDest,
   journalFromVendorBill: journalFromVendorBill,
   livePostBillScreen: livePostBillScreen,
+  ocrReviewScreen: ocrReviewScreen,
   postBillScreen: postBillScreen,
   postVendorBill: postVendorBill,
   renderDestChipsHtml: renderDestChipsHtml,

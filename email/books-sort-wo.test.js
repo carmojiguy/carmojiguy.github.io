@@ -86,6 +86,42 @@ assert.equal(emptyPost.canSubmit, false, "still no journal without a photo");
 assert.ok(Bill.renderDestChipsHtml("wo").indexOf("data-dest=\"wo\"") >= 0);
 assert.ok(Bill.renderDestChipsHtml("wo").indexOf("Work Order") >= 0);
 
+assert.deepEqual(
+  Bill.LIVE_OCR_REVIEW_DEST_LABELS,
+  ["Parts shelf", "A stock number", "Krown supplies", "Overhead"],
+  "live OCR-review dest pills (BOOKS-S1-001) have no Work Order"
+);
+const s1Scan = {
+  vendor: "AUTO PARTS SUPPLY CO.",
+  invoiceNo: "BOOKS-S1-001",
+  invoiceDate: "2026-09-06",
+  net: 177.49,
+  tax: 23.07,
+  apply: "parts",
+  gl: "1200",
+  source: { name: "books-s1.jpg", mime: "image/jpeg", dataUrl: PNG },
+};
+const liveOcr = Bill.ocrReviewScreen(s1Scan);
+assert.ok(liveOcr.destLabels.indexOf("Work Order") >= 0, "patched OCR dest row includes Work Order");
+assert.equal(liveOcr.destLabels[0], "Work Order");
+
+const s1Posted = Bill.postVendorBill(seedState(), {
+  vendor: s1Scan.vendor,
+  invoiceNo: s1Scan.invoiceNo,
+  invoiceDate: s1Scan.invoiceDate,
+  apply: "wo",
+  woId: "wo-1043",
+  net: s1Scan.net,
+  tax: s1Scan.tax,
+  source: s1Scan.source,
+}, { date: "2026-09-06", user: "u-christine" });
+assert.equal(s1Posted.ok, true, "BOOKS-S1-001 posts to WO");
+assert.equal(s1Posted.invoice.woId, "wo-1043");
+assert.equal(s1Posted.invoice.apply, "wo");
+assert.equal(s1Posted.workOrder.parts.slice(-1)[0].cost, 177.49, "bill net lands on WO-1043");
+assert.ok(s1Posted.journal.memo.indexOf("WO-1043") >= 0);
+assert.ok(s1Posted.journal.memo.indexOf("BOOKS-S1-001") >= 0);
+
 const source = { name: "napa.jpg", mime: "image/jpeg", dataUrl: PNG };
 const billInput = {
   vendor: "NAPA Autopro",

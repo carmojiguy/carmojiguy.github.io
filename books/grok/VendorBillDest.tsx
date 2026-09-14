@@ -1,12 +1,11 @@
 /**
  * Drop-in dest picker for src/routes/_app/accounting.tsx Vendor bill form (Yt).
  *
- * LIVE BUG: dest chips are inside `source && (…)` so
- * /accounting?view=post&job=bill is Camera/Upload only. After a scan, Jt is
- * still parts|stock|krown|overhead — no Work Order.
+ * LIVE BUG after OCR (BOOKS-S1-001): dest pills are
+ *   Parts shelf | A stock number | Krown supplies | Overhead
+ * No Work Order. Replace that Jt row with this picker (Work Order first).
  *
- * Render <VendorBillDestPicker /> on the card ABOVE Camera/Upload, not inside
- * the photo/OCR branch. Photo is still required to post (no image, no journal).
+ * Also fine to render it above Camera/Upload. Photo still required to post.
  *
  * HOLD Deliver / BOOKS-004. STOP before Publish. Do not touch PR #73.
  */

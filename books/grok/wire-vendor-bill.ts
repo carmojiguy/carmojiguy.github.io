@@ -10,8 +10,11 @@
  *
  * src/routes/_app/accounting.tsx  Vendor bill form (Yt)
  *
- * LIVE FAIL (ShawnBot + CoS, job=bill): dest chips are inside `source && (…)`
- * so Camera/Upload is the whole card. Move dests OUT of that gate:
+ * LIVE FAIL after OCR (BOOKS-S1-001 / AUTO PARTS SUPPLY CO.): dest pills are
+ *   Parts shelf | A stock number | Krown supplies | Overhead
+ * No Work Order. Replace Jt in that OCR-review fragment with BILL_DESTS
+ * (Work Order first). Render <VendorBillDestPicker /> in that pill row.
+ * When apply === "wo", pass woId into postVendorBill so cost lands on the WO.
  *
  *   <p>Vendor bill</p>
  *   <p>Never type an invoice. Photo or PDF first — then review what the scan read. No image, no journal.</p>
