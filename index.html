@@ -1256,10 +1256,11 @@ body.center-gallery-on { overflow:hidden; }
 #center .acre-doc-card.acre-carfax-card k { display:none; }
 #center .acre-doc-card.acre-carfax-card b,
 #center .acre-doc-card .acre-carfax-mark {
-  font-size:26px; font-weight:900; color:#E11D2E; letter-spacing:-1px; line-height:1;
+  font-size:32px; font-weight:900; color:#E11D2E; letter-spacing:-1.2px; line-height:1;
 }
 #center .acre-doc-card.acre-eblock-card {
-  justify-items:start; grid-template-columns:1fr;
+  justify-items:start; grid-template-columns:1fr; border:0 !important;
+  background:transparent; padding:4px 0 !important;
 }
 #center .acre-doc-card.acre-eblock-card k { display:none; }
 #center .acre-doc-pair { display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:6px 0; border-bottom:1px solid #E4E7EC; }
@@ -1622,8 +1623,9 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
     letter-spacing:-.3px; line-height:1.15; margin:0 0 6px; color:#111318;
   }
   #center .acre-col-mid{ align-self:start; }
-  #center .acre-sources{ margin-top:2px; padding-top:0; }
+  #center .acre-sources{ margin:0; padding-top:0; gap:5px; }
   #center .acre-vals .acre-chip{ padding:3px 2px; }
+  #center .acre-vals .acre-chip:last-child{ border-bottom:0; padding-bottom:2px; }
   #center .acre-col-hero{ display:flex; flex-direction:column; min-height:0; }
   #center .center-hero{ flex:0 0 auto; width:100%; aspect-ratio:493 / 410; height:auto; min-height:0; margin:0; border-radius:10px; background:#fff; position:relative; }
   #center .center-hero img{ position:absolute; inset:0; height:100%; width:100%; min-height:0; max-height:none; object-fit:cover; object-position:center 58%; background:#fff; }
@@ -1639,12 +1641,15 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
   #center .acre-desk-head .acre-doc-head{ margin:0 0 0 auto; }
   #center.center-has-detail .center-hero .count{ display:none !important; }
   #center .acre-thumbs-row, #center .center-thumbs{ height:auto; min-height:0; }
-  #center .center-thumbs{ gap:6px; padding:0 24px; }
+  #center .center-thumbs{ gap:4px; padding:0 22px; }
   #center .center-thumbs button{
     min-height:0 !important; height:auto !important; max-height:220px;
     aspect-ratio:17 / 10;
   }
-  #center .center-thumbs img{ object-fit:cover; object-position:center; background:#fff; }
+  #center .center-thumbs img{
+    object-fit:cover; object-position:center; background:#fff;
+    transform:scale(1.16);
+  }
   #center .acre-thumbs-prev{ display:none; }
   #center .acre-thumbs-next{ width:36px; height:36px; right:6px; }
   #center .center-docs, #center .center-why-docs, #center .docs-grid{ grid-template-columns:1fr 1fr; }
