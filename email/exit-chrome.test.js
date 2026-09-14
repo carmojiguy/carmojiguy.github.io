@@ -72,7 +72,7 @@ must(/function finishGuest\(\)\{\s*finishThanks\(\);/, "finishGuest stays Thank-
 must(/function restoreSend\(\)/, "restoreSend stays");
 mustNot(/function pageHome\(\)\{[\s\S]{0,400}restoreSend/, "Home does not call restoreSend");
 
-must(/id="buildStamp">build d30n</, "build stamp");
+must(/id="buildStamp">build d30q</, "build stamp");
 mustNot(/id="exitRefresh">Refresh/, "Refresh label is gone");
 mustNot(/function pageRefresh\(\)/, "no Refresh reload helper");
 must(/id="exitBack">Back/, "Back stays");
