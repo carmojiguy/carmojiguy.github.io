@@ -18,7 +18,15 @@ const {
 } = require("../store/inventory-layout");
 const { formatDeskDay } = require("../store/desk-date");
 const { normalizeVehicle, normalizeLotVehicles } = require("../store/vehicle-seed-guard");
-const { UNIT_DETAIL_HOOKS, unitDetail, paintUnitFacts } = require("../store/unit-detail");
+const { UNIT_DETAIL_HOOKS, unitDetail, paintUnitFacts, paintUnitRoute } = require("../store/unit-detail");
+const { isRenderableType } = require("../store/safe-element");
+const {
+  resolveRouteExport,
+  paintLazyRoute,
+  buggyLazyRoutePaint,
+  inventoryIdLayout,
+} = require("../store/lazy-route");
+const { bindLotIcons, lucideOrFallback, LotStar } = require("../store/lot-icons");
 
 const SIBLINGS = [
   {
@@ -255,5 +263,107 @@ assert.equal(noFloorUnit.facts.hasFloor, false);
 assert.deepEqual(floorUnit.hooks, noFloorUnit.hooks);
 assert.equal(noFloorUnit.facts.photos, 25);
 assert.equal(floorUnit.facts.photos, 2);
+
+function createElement(type, props) {
+  if (type == null || (typeof type !== "function" && typeof type !== "string")) {
+    const err = new Error("Minified React error #300");
+    err.code = "INVALID_ELEMENT";
+    throw err;
+  }
+  return { type, props: props || null };
+}
+
+function UnitDetail() {
+  return { view: "detail" };
+}
+function Outlet() {
+  return null;
+}
+
+assert.equal(resolveRouteExport({ component: undefined }), null);
+assert.equal(resolveRouteExport({}), null);
+assert.equal(resolveRouteExport({ component: UnitDetail }), UnitDetail);
+
+assert.throws(
+  () => buggyLazyRoutePaint({ component: undefined }, createElement, { id: "v-g3709" }),
+  /#300/,
+  "live lazyRouteComponent createElement(undefined) on cold first open",
+);
+
+const coldLazy = paintLazyRoute({ component: undefined }, createElement, { id: "v-g3709" });
+assert.equal(coldLazy.status, "pending");
+assert.equal(coldLazy.element, null);
+
+const warmLazy = paintLazyRoute({ component: UnitDetail }, createElement, { id: "v-g3709" });
+assert.equal(warmLazy.status, "ready");
+assert.equal(warmLazy.element.type, UnitDetail);
+
+assert.doesNotThrow(() => inventoryIdLayout(undefined, createElement));
+assert.equal(inventoryIdLayout(Outlet, createElement).type, Outlet);
+
+const coldBarrel = {
+  Outlet: undefined,
+  Page: undefined,
+  Header: undefined,
+  StatusBadge: undefined,
+  LotCost: undefined,
+  ChevronLeft: undefined,
+  ChevronRight: undefined,
+  Plus: undefined,
+  X: undefined,
+  Star: undefined,
+  createLucideIcon: undefined,
+};
+assert.equal(typeof lucideOrFallback(undefined, "star", LotStar), "function");
+assert.equal(bindLotIcons(coldBarrel).Plus.displayName, "plus");
+
+const FIRST_OPEN = ["/inventory/v-g3709", ...siblingPaths];
+FIRST_OPEN.forEach((pathname) => {
+  const id = pathname.slice("/inventory/".length);
+  const row = vehicles.find((v) => v.id === id);
+  const cold = paintUnitRoute(row, coldBarrel);
+  assert.equal(cold.ok, true, `cold first paint ${pathname} must not jsx undefined`);
+  cold.types.forEach((type) => {
+    assert.ok(isRenderableType(type), `${pathname} type not renderable`);
+    assert.doesNotThrow(() => createElement(type, null));
+  });
+  assert.doesNotThrow(() => {
+    const layout = inventoryLayout(pathname, layoutHooks);
+    assert.equal(layout.view, "outlet");
+    inventoryIdLayout(coldBarrel.Outlet, createElement);
+    paintLazyRoute({ component: undefined }, createElement);
+    paintLazyRoute({ component: UnitDetail }, createElement, { id });
+  });
+});
+
+const warmBarrel = {
+  Outlet,
+  Page: function Page() {},
+  Header: function Header() {},
+  StatusBadge: function StatusBadge() {},
+  LotCost: function LotCost() {},
+  ChevronLeft: function ChevronLeft() {},
+  ChevronRight: function ChevronRight() {},
+  Plus: function Plus() {},
+  X: function X() {},
+  Star: function Star() {},
+};
+const returnNav = [
+  "/inventory",
+  "/inventory/v-g3709",
+  "/inventory",
+  "/inventory/v-g3698a",
+  "/inventory/v-g3710",
+];
+const returnSteps = softNav(returnNav, inventoryLayout, layoutHooks);
+assert.doesNotThrow(() => assertStableHookCounts(returnSteps, INVENTORY_LAYOUT_HOOKS));
+returnNav.forEach((pathname) => {
+  if (pathname === "/inventory") return;
+  const id = pathname.slice("/inventory/".length);
+  const row = vehicles.find((v) => v.id === id);
+  const painted = paintUnitRoute(row, warmBarrel);
+  assert.equal(painted.ok, true);
+  assert.doesNotThrow(() => inventoryIdLayout(warmBarrel.Outlet, createElement));
+});
 
 console.log("lot-detail-react-300: ok");

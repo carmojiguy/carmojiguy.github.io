@@ -14,10 +14,12 @@
  *
  * Navigating /inventory → /inventory/v-g3709 keeps this parent mounted
  * (TanStack layout) but skips the later hooks. React 19 minified error #300
- * is "Rendered fewer hooks than expected." The overlay is transient because
- * the error boundary remounts; the child detail then paints.
+ * is "Rendered fewer hooks than expected." Overlay + recover also matches
+ * a first-paint lazy race (`createElement(undefined)` when `mod.component`
+ * or a lucide/Outlet barrel export is still undefined). Desktop NO_REPRO
+ * after hard reload is the warm-cache path.
  *
- * Always call the same hooks, then Outlet.
+ * Always call the same hooks, then a defined Outlet.
  */
 
 function isInventoryChildPath(pathname) {

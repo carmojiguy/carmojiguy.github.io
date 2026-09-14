@@ -2,6 +2,8 @@
 
 const { formatDeskDay } = require("./desk-date");
 const { normalizeVehicle } = require("./vehicle-seed-guard");
+const { isRenderableType, safeType } = require("./safe-element");
+const { bindLotIcons } = require("./lot-icons");
 
 /**
  * Child unit detail (`inventory._id.index`, live Te()).
@@ -58,8 +60,44 @@ function paintUnitFacts(vehicle) {
   };
 }
 
+function FallbackPage() {
+  return null;
+}
+
+function FallbackHeader() {
+  return null;
+}
+
+/**
+ * First paint of unit detail. Barrel / lucide imports may still be
+ * undefined; every type we would pass to jsx() must stay renderable.
+ */
+function paintUnitRoute(vehicle, imports) {
+  const src = imports && typeof imports === "object" ? imports : {};
+  const icons = bindLotIcons(src);
+  const Page = safeType(src.Page, FallbackPage);
+  const Header = safeType(src.Header, FallbackHeader);
+  const StatusBadge = safeType(src.StatusBadge, "span");
+  const LotCost = safeType(src.LotCost, FallbackPage);
+  const types = [Page, Header, StatusBadge, LotCost, icons.Plus, icons.Star];
+  if (vehicle && Array.isArray(vehicle.photos) && vehicle.photos.length) {
+    types.push(icons.ChevronLeft, icons.ChevronRight, icons.X);
+  }
+  const facts = vehicle ? paintUnitFacts(vehicle) : null;
+  return {
+    view: vehicle ? "detail" : "not-found",
+    facts,
+    icons,
+    types,
+    ok: types.every(isRenderableType),
+  };
+}
+
 module.exports = {
   UNIT_DETAIL_HOOKS,
   unitDetail,
   paintUnitFacts,
+  paintUnitRoute,
+  FallbackPage,
+  FallbackHeader,
 };
