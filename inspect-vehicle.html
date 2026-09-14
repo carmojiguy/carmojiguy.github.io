@@ -71,7 +71,15 @@ body:has(#center.on.center-has-detail) .exit-chrome { display:none !important; }
 .exit-lanes { display:none; align-items:center; gap:2px; min-width:0; overflow-x:auto; scrollbar-width:none; }
 .exit-lanes::-webkit-scrollbar { display:none; }
 .exit-lane { flex:0 0 auto; white-space:nowrap; }
+.exit-lane span { font:inherit; font-weight:inherit; letter-spacing:inherit; opacity:inherit; }
 .exit-lane.on { opacity:1; color:#6B6578; font-weight:700; }
+#inviteHistBtn, #usersHistBtn, #webdeskHistBtn, #centerSheetHistBtn, #photosHistBtn { display:none !important; }
+#tradeLanes, #webLanes { display:none !important; }
+body:has(#invite.on) .exit-lanes-trade,
+body:has(#center.on) .exit-lanes-center,
+body:has(#webdesk.on) .exit-lanes-web,
+body:has(#users.on) .exit-lanes-users { display:flex; }
+body:has(#center.on.center-has-detail) .exit-chrome { display:grid !important; }
 body.exit-on .screen:not(.start):not(.cam) { padding-top:calc(56px + env(safe-area-inset-top)); }
 body.exit-on .screen:not(.start):not(.cam) > .nav { padding-top:4px; }
 body.exit-on .screen > .nav > .round:first-of-type { visibility:hidden; pointer-events:none; }
@@ -84,7 +92,6 @@ body.exit-on #whoChip { top: calc(64px + env(safe-area-inset-top)); }
   body.exit-on #center.center-has-detail #centerDetailBody{
     top:calc(56px + env(safe-area-inset-top));
   }
-  body:has(#center.on) .exit-lanes { display:flex; }
   body:has(#center.on.center-has-detail) .exit-chrome { display:grid !important; }
   body:has(#center.on) .exit-chrome {
     background:linear-gradient(180deg,#12141A 0%, rgba(18,20,26,.94) 58%, rgba(18,20,26,0));
@@ -1632,7 +1639,6 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
 
 /* Tablet: purpose-built desk + list rail (iPad portrait/landscape, ~768–1199) */
 @media (min-width:768px){
-  .exit-lanes{ display:none !important; }
   .phone:has(#center.on){ max-width:none; background:var(--page); }
   html:has(#center.on), body:has(#center.on){ background:#F5F6F8; }
   #center.screen{
@@ -2129,6 +2135,24 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
   #webStudio h2{ font-size:44px; }
 }
 
+/* Quiet chrome: stage filters live beside Back/Home, not as loud header pills */
+#centerLanes.center-rail, #center .center-lanes.center-rail { display:none !important; }
+#center.screen { grid-template-columns:minmax(0,1fr); }
+#center #centerDetailBody, #center #centerDock { grid-column:1; }
+@media (min-width:768px){
+  #center.screen:has(#centerSheet.on){
+    grid-template-columns:minmax(0,1fr) min(368px, 40vw);
+  }
+  #center.screen:has(#centerSheet.on) #centerDetailBody,
+  #center.screen:has(#centerSheet.on) #centerDock { grid-column:1; }
+  #center.screen:has(#centerSheet.on) .center-sheet { grid-column:2; }
+}
+@media (min-width:1200px){
+  #center.screen:has(#centerSheet.on){
+    grid-template-columns:minmax(0,1fr) min(440px, 30vw);
+  }
+}
+
 </style>
 </head>
 <body class="exit-on">
@@ -2138,11 +2162,23 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
   <button class="exit-x" type="button" id="exitClose" aria-label="Close">✕</button>
   <button class="exit-back" type="button" id="exitBack">Back</button>
   <button class="exit-home" type="button" id="exitHome">Home</button>
-  <div class="exit-lanes" id="exitLanes">
+  <div class="exit-lanes exit-lanes-center" id="exitLanes">
     <button class="exit-lane" type="button" data-lane="inbox" id="exitLaneInbox">Incoming</button>
     <button class="exit-lane" type="button" data-lane="onsite" id="exitLaneOnsite">On-site</button>
     <button class="exit-lane" type="button" data-lane="needsdocs" id="exitLaneNeeds">Needs docs</button>
     <button class="exit-lane" type="button" data-lane="history" id="exitLaneHistory">History</button>
+  </div>
+  <div class="exit-lanes exit-lanes-trade" id="exitTradeLanes">
+    <button class="exit-lane" type="button" data-trade="sent" id="exitTradeSent">Sent <span id="exitTradeSentCount">0</span></button>
+    <button class="exit-lane" type="button" data-trade="wait" id="exitTradeWait">Waiting <span id="exitTradeWaitCount">0</span></button>
+    <button class="exit-lane" type="button" data-trade="history" id="exitTradeHist">History <span id="exitTradeHistCount">0</span></button>
+  </div>
+  <div class="exit-lanes exit-lanes-web" id="exitWebLanes">
+    <button class="exit-lane" type="button" id="exitWebActive">Active <span id="exitWebActiveCount">0</span></button>
+    <button class="exit-lane" type="button" id="exitWebHist">History <span id="exitWebHistCount">0</span></button>
+  </div>
+  <div class="exit-lanes exit-lanes-users" id="exitUsersLanes">
+    <button class="exit-lane" type="button" id="exitUsersHist">History</button>
   </div>
 </div>
 <div class="resume-layer" id="resumeLayer" role="dialog" aria-modal="true" aria-labelledby="resumeTitle">
@@ -7525,6 +7561,12 @@ function paintTradeLanes(){
   if($("tradeSentCount")) $("tradeSentCount").textContent=String(all.length);
   if($("tradeWaitCount")) $("tradeWaitCount").textContent=String(waiting.length);
   if($("tradeHistCount")) $("tradeHistCount").textContent=String(all.length);
+  if($("exitTradeSentCount")) $("exitTradeSentCount").textContent=String(all.length);
+  if($("exitTradeWaitCount")) $("exitTradeWaitCount").textContent=String(waiting.length);
+  if($("exitTradeHistCount")) $("exitTradeHistCount").textContent=String(all.length);
+  document.querySelectorAll("#exitTradeLanes .exit-lane").forEach(function(b){
+    b.classList.toggle("on", (b.getAttribute("data-trade")||"")===APP.tradeLane);
+  });
 }
 function openTradeLane(lane){
   APP.tradeLane=lane==="wait"||lane==="history"||lane==="sent"?lane:"wait";
@@ -7553,6 +7595,8 @@ function paintWebLanes(){
   const hist=websiteItems(true);
   if($("webActiveCount")) $("webActiveCount").textContent=String(active.length);
   if($("webHistCount")) $("webHistCount").textContent=String(hist.length);
+  if($("exitWebActiveCount")) $("exitWebActiveCount").textContent=String(active.length);
+  if($("exitWebHistCount")) $("exitWebHistCount").textContent=String(hist.length);
 }
 function openWebdesk(){
   if(!requirePerm("website")) return;
@@ -15106,6 +15150,14 @@ if($("exitLanes")) $("exitLanes").addEventListener("click", function(e){
   if(!b) return;
   openCenterLane(b.getAttribute("data-lane"));
 });
+if($("exitTradeLanes")) $("exitTradeLanes").addEventListener("click", function(e){
+  const b=e.target && e.target.closest ? e.target.closest(".exit-lane") : null;
+  if(!b) return;
+  openTradeLane(b.getAttribute("data-trade"));
+});
+if($("exitWebActive")) $("exitWebActive").onclick = function(){ openStaffHistory("website"); };
+if($("exitWebHist")) $("exitWebHist").onclick = function(){ if(window.WebStudio){ WebStudio.open("history"); return; } openStaffHistory("website"); };
+if($("exitUsersHist")) $("exitUsersHist").onclick = function(){ openStaffHistory("users"); };
 if($("docsGateLeader")) $("docsGateLeader").onclick = sendToTeamLeader;
 if($("docsGateStay")) $("docsGateStay").onclick = function(){ closeDocsGate(); };
 if($("docsGate")) $("docsGate").addEventListener("click", function(e){
