@@ -9822,7 +9822,7 @@ function paintCenterDetail(){
       $("centerStageBtn").disabled=!!missNow.length;
     } else {
       $("centerStageBtn").disabled=false;
-      $("centerStageBtn").textContent=item.stage==="Appraised"?"Return to desk lane":"Complete";
+      $("centerStageBtn").textContent="Complete";
     }
   }
   const onsiteDesk=typeof centerLaneOf==="function" && centerLaneOf(item)==="onsite";
