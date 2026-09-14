@@ -156,50 +156,63 @@ mustNot(/openlane:\s*\[\{ask|sold:/, "do not invent OpenLane solds");
 })();
 
 incoming.resetStore();
-const emptyUsers = incoming.route("GET", null, { kind: "users" });
-assert.equal(emptyUsers.status, 200);
-assert.equal(emptyUsers.body.kind, "users");
-assert.deepStrictEqual(emptyUsers.body.users, [], "mailer users blob starts empty — do not invent");
-assert.equal(emptyUsers.body.via, "blob");
+(async function testUsersRouteAsync() {
+  const emptyUsers = await incoming.route("GET", null, { kind: "users" });
+  assert.equal(emptyUsers.status, 200);
+  assert.equal(emptyUsers.body.kind, "users");
+  assert.deepStrictEqual(emptyUsers.body.users, [], "mailer users blob starts empty — do not invent");
+  assert.notEqual(emptyUsers.body.via, "blob", "empty isolate is not a Blob serve");
+  assert.ok(emptyUsers.body.via === "memory" || emptyUsers.body.via === "tmp", "via is memory or tmp");
 
-const saved = incoming.route("POST", {
-  kind: "users",
-  users: [{ email: "ernest@myloan.ca", name: "Ernest", teams: ["Team Flash"], leader: true, phone: "6135550100" }],
-  teams: ["Team Flash"],
-  permissions: { "ernest@myloan.ca": { center: true, admin: false } }
+  const saved = await incoming.route("POST", {
+    kind: "users",
+    users: [{ email: "ernest@myloan.ca", name: "Ernest", teams: ["Team Flash"], leader: true, phone: "6135550100", photo: "/staff/ernest.jpg", appraisalCenter: true }],
+    teams: ["Team Flash"],
+    permissions: { "ernest@myloan.ca": { center: true, admin: false, website: true } }
+  });
+  assert.equal(saved.status, 200);
+  assert.equal(saved.body.ok, true);
+  assert.equal(saved.body.kind, "users");
+  assert.notEqual(saved.body.via, "blob", "no Blob token is not labeled blob");
+
+  const got = await incoming.route("GET", { kind: "users" });
+  assert.equal(got.body.users.length, 1, "POST users persists");
+  assert.equal(got.body.users[0].email, "ernest@myloan.ca");
+  assert.equal(got.body.users[0].leader, true);
+  assert.equal(got.body.users[0].phone, "6135550100");
+  assert.equal(got.body.users[0].photo, "/staff/ernest.jpg");
+  assert.equal(got.body.users[0].appraisalCenter, true);
+  assert.deepStrictEqual(got.body.users[0].teams, ["Team Flash"]);
+  assert.equal(got.body.permissions["ernest@myloan.ca"].center, true);
+  assert.equal(got.body.permissions["ernest@myloan.ca"].website, true);
+
+  const skipped = await incoming.route("POST", { kind: "users", users: [], permissions: {} });
+  assert.equal(skipped.body.skipped, "empty", "empty POST does not wipe the live roster");
+  const afterEmpty = await incoming.route("GET", null, { kind: "users" });
+  assert.equal(afterEmpty.body.users.length, 1, "Ernest survives the empty POST");
+  assert.equal(afterEmpty.body.users[0].email, "ernest@myloan.ca");
+
+  const itemsStill = incoming.route("GET");
+  assert.ok(Array.isArray(itemsStill.body.items), "GET without kind:users still lists Incoming items");
+
+  const paint = sliceFn("paintPacketDocs", "paintDerivedMarket");
+  assert.ok(/if\(host\.id==="centerDocs"\) return;/.test(paint), "Center vehicle detail returns before generated lane");
+  assert.ok(paint.indexOf('if(host.id==="centerDocs") return;') < paint.indexOf("paintDerivedMarket(host, store, readOnly)"), "Center skip is before the generated append");
+
+  const share = slice("async function sharePacket(){", "\nfunction resetAll()");
+  const kick = slice("function kickShare(){", "\nfunction packetSendId(");
+  const send = slice("async function sendFromMe(", "\nfunction openEml(");
+  assert.equal(sha(share), "89ddee81289962020d2a4277f941f60a93d110d42312da85ad94eaeaf8cdb170", "sharePacket is byte-identical to d25s");
+  assert.equal(sha(kick), "8916eec5374600903af5f69dff305cbc33a4fc168f420d3cc7267e8bb4be9b5f", "kickShare is byte-identical to d25s");
+  assert.equal(sha(send), "a87ba1cb730ce79683938a05a22d839878d60319f35418efb408cabdcf9a9b49", "sendFromMe is byte-identical to d25s");
+
+  ["404.html", "inspect-vehicle.html"].forEach(function (name) {
+    const copy = fs.readFileSync(path.join(root, name), "utf8");
+    assert.equal(copy, html, name + " must stay in sync with index.html");
+  });
+
+  console.log("d31c-acre-fifo-users: ok");
+})().catch(function (err) {
+  console.error(err);
+  process.exit(1);
 });
-assert.equal(saved.status, 200);
-assert.equal(saved.body.ok, true);
-assert.equal(saved.body.kind, "users");
-
-const got = incoming.route("GET", { kind: "users" });
-assert.equal(got.body.users.length, 1, "POST users persists");
-assert.equal(got.body.users[0].email, "ernest@myloan.ca");
-assert.equal(got.body.users[0].leader, true);
-assert.equal(got.body.users[0].phone, "6135550100");
-assert.deepStrictEqual(got.body.users[0].teams, ["Team Flash"]);
-assert.equal(got.body.permissions["ernest@myloan.ca"].center, true);
-
-incoming.route("POST", { kind: "users", users: [], permissions: {} });
-assert.deepStrictEqual(incoming.route("GET", null, { kind: "users" }).body.users, [], "empty save stays empty — no invented roster");
-
-const itemsStill = incoming.route("GET");
-assert.ok(Array.isArray(itemsStill.body.items), "GET without kind:users still lists Incoming items");
-
-const paint = sliceFn("paintPacketDocs", "paintDerivedMarket");
-assert.ok(/if\(host\.id==="centerDocs"\) return;/.test(paint), "Center vehicle detail returns before generated lane");
-assert.ok(paint.indexOf('if(host.id==="centerDocs") return;') < paint.indexOf("paintDerivedMarket(host, store, readOnly)"), "Center skip is before the generated append");
-
-const share = slice("async function sharePacket(){", "\nfunction resetAll()");
-const kick = slice("function kickShare(){", "\nfunction packetSendId(");
-const send = slice("async function sendFromMe(", "\nfunction openEml(");
-assert.equal(sha(share), "89ddee81289962020d2a4277f941f60a93d110d42312da85ad94eaeaf8cdb170", "sharePacket is byte-identical to d25s");
-assert.equal(sha(kick), "8916eec5374600903af5f69dff305cbc33a4fc168f420d3cc7267e8bb4be9b5f", "kickShare is byte-identical to d25s");
-assert.equal(sha(send), "a87ba1cb730ce79683938a05a22d839878d60319f35418efb408cabdcf9a9b49", "sendFromMe is byte-identical to d25s");
-
-["404.html", "inspect-vehicle.html"].forEach(function (name) {
-  const copy = fs.readFileSync(path.join(root, name), "utf8");
-  assert.equal(copy, html, name + " must stay in sync with index.html");
-});
-
-console.log("d31c-acre-fifo-users: ok");

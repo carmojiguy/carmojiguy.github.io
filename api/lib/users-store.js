@@ -136,7 +136,7 @@ async function loadUsers(deps) {
   const file = readFileStore(env);
   if (file) {
     memory = file;
-    lastVia = "file";
+    lastVia = "tmp";
     return file;
   }
   lastVia = "memory";
@@ -156,8 +156,8 @@ async function saveUsers(blob, deps) {
   memory = payload;
   const env = deps.env || process.env;
   const wroteBlob = await writeBlob(payload, env, deps.fetch);
-  writeFileStore(payload, env);
-  lastVia = wroteBlob ? "blob" : "file";
+  const wroteFile = writeFileStore(payload, env);
+  lastVia = wroteBlob ? "blob" : (wroteFile ? "tmp" : "memory");
   return { ok: true, via: lastVia, blob: payload };
 }
 

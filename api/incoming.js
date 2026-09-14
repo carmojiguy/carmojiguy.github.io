@@ -5,14 +5,16 @@
  *   GET  https://gnm-guest-mailer-shawn-6802.vercel.app/api/incoming
  *        → { ok:true, items:[ slimCenterItem, ... ] }
  *   GET  same URL?kind=users
- *        → { ok:true, kind:"users", users:[], teams:[], permissions:{}, updatedAt, via:"blob" }
- *        Users roster lives in Vercel Blob (center-users-v1.json) so toggles
- *        survive cold starts and other devices — not only /tmp or localStorage.
+ *        → { ok:true, kind:"users", users:[], teams:[], permissions:{}, updatedAt, via }
+ *        via is "blob" only when Vercel Blob actually served the roster;
+ *        otherwise "tmp" (/tmp/center-users-v1.json) or "memory".
+ *        Users roster PUT/GET pathname center-users-v1.json (same Blob headers
+ *        as api/lib/notify-store.js) so toggles survive cold starts.
  *   POST same URL
  *        { kind:"land", item: slimCenterItem }
  *        → { ok:true, id }
  *        { kind:"users", users:[], teams:[], permissions:{} }
- *        → { ok:true, kind:"users", updatedAt, via:"blob" }
+ *        → { ok:true, kind:"users", updatedAt, via }  (via honest; Blob awaited)
  *        { kind:"team", sendId, id, vin, ymmt, pdfUrl, docs, item }
  *        → persist teamActivated + notify-appraisal + APPRAISAL_TEAM_WEBHOOK
  *        Empty land never wipes a complete appraisalFinal (min+target+max).
@@ -592,18 +594,19 @@ function slimUser(u) {
   if (!u || !u.email) return null;
   const email = String(u.email || "").trim().toLowerCase();
   if (!email || email.indexOf("@") < 1) return null;
-  return {
-    email: email,
-    name: String(u.name || ""),
-    id: String(u.id || ""),
-    photo: String(u.photo || ""),
-    role: String(u.role || ""),
-    teams: Array.isArray(u.teams) ? u.teams.filter(Boolean) : (u.team ? [u.team] : []),
-    leader: !!u.leader,
-    notes: String(u.notes || ""),
-    phone: String(u.phone || ""),
-    emailEditable: !!u.emailEditable
-  };
+  const out = Object.assign({}, u);
+  out.email = email;
+  out.name = String(u.name || "");
+  out.id = String(u.id || "");
+  out.photo = String(u.photo || "");
+  out.role = String(u.role || "");
+  out.teams = Array.isArray(u.teams) ? u.teams.filter(Boolean) : (u.team ? [u.team] : []);
+  out.leader = !!u.leader;
+  out.notes = String(u.notes || "");
+  out.phone = String(u.phone || "");
+  out.emailEditable = !!u.emailEditable;
+  delete out.team;
+  return out;
 }
 function slimPermissions(raw) {
   const src = raw && typeof raw === "object" ? raw : {};
@@ -612,14 +615,14 @@ function slimPermissions(raw) {
     const e = String(k || "").trim().toLowerCase();
     if (!e || e.indexOf("@") < 1) return;
     const p = src[k] && typeof src[k] === "object" ? src[k] : {};
-    out[e] = {
-      trade: !!p.trade,
-      appraise: !!p.appraise,
-      website: !!p.website,
-      center: !!p.center,
-      admin: !!p.admin,
-      ca: !!p.ca
-    };
+    const next = Object.assign({}, p);
+    next.trade = !!p.trade;
+    next.appraise = !!p.appraise;
+    next.website = !!p.website;
+    next.center = !!p.center;
+    next.admin = !!p.admin;
+    next.ca = !!p.ca;
+    out[e] = next;
   });
   return out;
 }
@@ -631,8 +634,22 @@ function buildUsersBlob(body) {
   const teams = Array.isArray(body.teams) ? body.teams.map(function (t) { return String(t || ""); }).filter(Boolean) : [];
   return { users: users, teams: teams, permissions: permissions, updatedAt: Date.now() };
 }
-function listUsers() {
-  const blob = loadUsersFile();
+function honestVia(v) {
+  v = String(v || "");
+  if (v === "blob") return "blob";
+  if (v === "tmp" || v === "file") return "tmp";
+  return "memory";
+}
+async function hydrateUsersFromBlob(deps) {
+  try {
+    const loaded = await usersStore.loadUsers(deps);
+    saveUsersFile(loaded || emptyUsersBlob());
+    return loaded || loadUsersFile();
+  } catch (e) {}
+  return loadUsersFile();
+}
+async function listUsers(deps) {
+  const blob = await hydrateUsersFromBlob(deps);
   return {
     ok: true,
     kind: "users",
@@ -640,48 +657,36 @@ function listUsers() {
     teams: blob.teams || [],
     permissions: blob.permissions || {},
     updatedAt: blob.updatedAt || 0,
-    via: "blob"
+    via: honestVia(usersStore.via())
   };
 }
-function persistUsers(body) {
-  const next = buildUsersBlob(body);
-  saveUsersFile(next);
-  return { status: 200, body: { ok: true, kind: "users", updatedAt: next.updatedAt, via: "blob" } };
-}
-async function hydrateUsersFromBlob(deps) {
-  try {
-    const loaded = await usersStore.loadUsers(deps);
-    if (loaded && usersStore.isPopulated(loaded)) {
-      saveUsersFile(loaded);
-      return loaded;
-    }
-    if (loaded && loaded.updatedAt) saveUsersFile(loaded);
-  } catch (e) {}
-  return loadUsersFile();
-}
-async function persistUsersDurable(body, deps) {
+async function persistUsers(body, deps) {
   const existing = await hydrateUsersFromBlob(deps);
   const next = buildUsersBlob(body);
   if (!usersStore.isPopulated(next) && usersStore.isPopulated(existing)) {
     return {
       status: 200,
-      body: { ok: true, kind: "users", updatedAt: existing.updatedAt || 0, via: usersStore.via() || "blob", skipped: "empty" }
+      body: {
+        ok: true,
+        kind: "users",
+        updatedAt: existing.updatedAt || 0,
+        via: honestVia(usersStore.via()),
+        skipped: "empty"
+      }
     };
   }
   saveUsersFile(next);
-  let via = "blob";
+  let via = "tmp";
   try {
     const saved = await usersStore.saveUsers(next, deps);
-    via = (saved && saved.via) || "blob";
-  } catch (e) {}
+    via = honestVia((saved && saved.via) || "tmp");
+  } catch (e) {
+    via = "tmp";
+  }
   return { status: 200, body: { ok: true, kind: "users", updatedAt: next.updatedAt, via: via } };
 }
-async function listUsersDurable(deps) {
-  await hydrateUsersFromBlob(deps);
-  const body = listUsers();
-  try { body.via = usersStore.via() || body.via; } catch (e) {}
-  return body;
-}
+const persistUsersDurable = persistUsers;
+const listUsersDurable = listUsers;
 function requestKind(req, body, query) {
   if (query && query.kind) return String(query.kind);
   if (body && body.kind) return String(body.kind);
@@ -695,17 +700,13 @@ function requestKind(req, body, query) {
   return "";
 }
 
-function route(method, body, query) {
+function routeIncoming(method, body, query) {
   method = String(method || "GET").toUpperCase();
   query = query || {};
   if (method === "OPTIONS") return { status: 204, body: { ok: true } };
-  if (method === "GET") {
-    if (String(query.kind || (body && body.kind) || "") === "users") return { status: 200, body: listUsers() };
-    return { status: 200, body: { ok: true, items: listItems() } };
-  }
+  if (method === "GET") return { status: 200, body: { ok: true, items: listItems() } };
   if (method !== "POST") return { status: 405, body: { ok: false, error: "method" } };
   body = body && typeof body === "object" ? body : {};
-  if (body.kind === "users") return persistUsers(body);
   if (body.kind === "file") return persistFile(body);
   if (body.kind === "team") {
     const raw = (body.item && typeof body.item === "object") ? Object.assign({}, body.item, body) : body;
@@ -725,6 +726,32 @@ function route(method, body, query) {
   if (!has) return { status: 400, body: { ok: false, error: "empty" } };
   const item = persistItem(raw);
   return { status: 200, body: { ok: true, id: item.id } };
+}
+
+async function route(method, body, query, deps) {
+  method = String(method || "GET").toUpperCase();
+  query = query || {};
+  if (method === "OPTIONS") return { status: 204, body: { ok: true } };
+  if (method === "GET") {
+    if (String(query.kind || (body && body.kind) || "") === "users") {
+      return { status: 200, body: await listUsers(deps) };
+    }
+    return { status: 200, body: { ok: true, items: listItems() } };
+  }
+  if (method !== "POST") return { status: 405, body: { ok: false, error: "method" } };
+  body = body && typeof body === "object" ? body : {};
+  if (body.kind === "users") return persistUsers(body, deps);
+  return routeIncoming(method, body, query);
+}
+
+function routeExport(method, body, query, deps) {
+  method = String(method || "GET").toUpperCase();
+  query = query || {};
+  const kind = String(query.kind || (body && body.kind) || "");
+  if ((method === "GET" && kind === "users") || (method === "POST" && body && body.kind === "users")) {
+    return route(method, body, query, deps);
+  }
+  return routeIncoming(method, body, query);
 }
 
 async function fromRequest(req) {
@@ -752,15 +779,15 @@ async function fromRequest(req) {
   } catch (e) {}
   const kind = requestKind(req, body, query) || (query && query.kind) || "";
   if (method === "GET" && kind === "users") {
-    const bodyOut = await listUsersDurable();
+    const bodyOut = await listUsers();
     return { status: 200, body: bodyOut, origin: origin };
   }
   if (method === "POST" && body && body.kind === "users") {
-    const outUsers = await persistUsersDurable(body);
+    const outUsers = await persistUsers(body);
     outUsers.origin = origin;
     return outUsers;
   }
-  const out = route(method, body, query);
+  const out = await route(method, body, query);
   out.origin = origin;
   return out;
 }
@@ -772,7 +799,7 @@ async function handler(req, res) {
 
 module.exports = handler;
 module.exports.default = handler;
-module.exports.route = route;
+module.exports.route = routeExport;
 module.exports.persistItem = persistItem;
 module.exports.listItems = listItems;
 module.exports.slimItem = slimItem;
@@ -798,7 +825,7 @@ module.exports.GET = async function GET(request) {
   const origin = request.headers.get("origin") || "";
   let kind = "";
   try { kind = new URL(request.url, "https://gnm-guest-mailer-shawn-6802.vercel.app").searchParams.get("kind") || ""; } catch (e) {}
-  if (kind === "users") return json(null, 200, await listUsersDurable(), origin);
+  if (kind === "users") return json(null, 200, await listUsers(), origin);
   return json(null, 200, { ok: true, items: listItems() }, origin);
 };
 
@@ -812,9 +839,9 @@ module.exports.POST = async function POST(request) {
   let body = {};
   try { body = await request.json(); } catch (e) { body = {}; }
   if (body && body.kind === "users") {
-    const outUsers = await persistUsersDurable(body);
+    const outUsers = await persistUsers(body);
     return json(null, outUsers.status, outUsers.body, origin);
   }
-  const out = route("POST", body);
+  const out = await route("POST", body);
   return json(null, out.status, out.body, origin);
 };
