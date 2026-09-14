@@ -34,8 +34,8 @@ function sha(s) {
   return crypto.createHash("sha256").update(s).digest("hex");
 }
 
-must(/id="buildStamp">build d31w</, "footer stamp stays d31w");
-must(/<!--[\s\S]*build d31w[\s\S]*911 Acre team reads finalRationale\.markdown/, "header names markdown how-we-got-here");
+must(/id="buildStamp">build d31a</, "footer stamp stays d31w");
+must(/<!--[\s\S]*build d31a[\s\S]*911 Acre team reads finalRationale\.markdown/, "header names markdown how-we-got-here");
 must(/<!--[\s\S]*panel Rybot\/Webot\/Drebot\/TBot/, "header names capitalized panel keys");
 must(/<!--[\s\S]*team\.shabot note/, "header names team.shabot note");
 must(/<!--[\s\S]*hides boxes with no numbers/, "header hides empty boxes");

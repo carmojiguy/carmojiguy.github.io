@@ -34,9 +34,9 @@ function sha(s) {
   return crypto.createHash("sha256").update(s).digest("hex");
 }
 
-must(/id="buildStamp">build d31w</, "footer stamp is d30q");
-must(/<!--[\s\S]*build d31w[\s\S]*compact V Auto \/ Carfax \/ OpenLane \/ eBlock chips/, "header stamp is d30q compact chips");
-must(/id="typeSheet"[\s\S]*build d31w/, "type sheet stamp is d30q");
+must(/id="buildStamp">build d31a</, "footer stamp is d30q");
+must(/<!--[\s\S]*build d31a[\s\S]*compact V Auto \/ Carfax \/ OpenLane \/ eBlock chips/, "header stamp is d30q compact chips");
+must(/id="typeSheet"[\s\S]*build d31a/, "type sheet stamp is d30q");
 
 must(/\.research-tools \{ display:grid; grid-template-columns:1fr 1fr/, "launch chips stay 2 across");
 must(/\.research-adds \{ display:grid; grid-template-columns:1fr 1fr 1fr/, "three add pills stay one row");
