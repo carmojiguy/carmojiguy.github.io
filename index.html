@@ -1232,10 +1232,10 @@ body.center-gallery-on { overflow:hidden; }
 #center #centerDetailSub { display:none; }
 #center .acre-doc-head {
   display:flex; align-items:baseline; justify-content:space-between; gap:10px;
-  width:fit-content; margin:0 0 8px auto; padding:7px 12px; border:0; border-radius:10px;
-  background:#2F6BFF; color:#fff; font-size:11px; font-weight:800; letter-spacing:.06em; text-transform:uppercase;
+  width:fit-content; margin:0 0 8px auto; padding:7px 14px; border:0; border-radius:999px;
+  background:#E8F1FF; color:#2F6BFF; font-size:11px; font-weight:800; letter-spacing:.06em; text-transform:uppercase;
 }
-#center .acre-doc-head span { color:#fff; opacity:.9; }
+#center .acre-doc-head span { color:#2F6BFF; opacity:.9; }
 #center .acre-doc-card {
   display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:10px;
   width:100%; margin:0; padding:8px 0; border:0; border-bottom:1px solid #E4E7EC;
@@ -1608,7 +1608,7 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
   #centerLanes .lane-pill b{ font-size:12px; }
   #center h2{ font-size:18px; letter-spacing:-.3px; margin:0 0 2px; }
   #center .acre-col-hero{ display:flex; flex-direction:column; min-height:0; }
-  #center .center-hero{ flex:0 0 auto; width:100%; aspect-ratio:4 / 3; height:auto; min-height:0; margin:0; border-radius:10px; background:#fff; position:relative; }
+  #center .center-hero{ flex:0 0 auto; width:100%; aspect-ratio:493 / 410; height:auto; min-height:0; margin:0; border-radius:10px; background:#fff; position:relative; }
   #center .center-hero img{ position:absolute; inset:0; height:100%; width:100%; min-height:0; max-height:none; object-fit:cover; object-position:center 58%; background:#fff; }
   #center .center-hero .dots{ display:none; }
   #center .acre-vals .acre-chip k em{
@@ -1617,7 +1617,15 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
   }
   #center .acre-score-row{ gap:6px; margin:0 0 2px; }
   #center .acre-score-row .acre-score b{ font-size:26px; }
-  #center .acre-desk-head{ display:flex; margin:0 0 2px; }
+  #center .acre-desk-head{ display:flex; align-items:baseline; margin:0 0 2px; width:100%; }
+  #center .acre-desk-head .acre-doc-head{ margin:0 0 0 auto; }
+  #center .acre-col-mid > h2{ display:block; visibility:visible; }
+  #center.center-has-detail .center-hero .count{ display:none !important; }
+  #center .center-thumbs button{
+    min-height:0 !important; height:190px !important; max-height:190px;
+  }
+  #center .acre-thumbs-prev{ display:none; }
+  #center .acre-thumbs-next{ width:36px; height:36px; right:6px; }
   #center .center-docs, #center .center-why-docs, #center .docs-grid{ grid-template-columns:1fr 1fr; }
   #center .doc-slot, #center .doc-sq { min-height:196px; }
   #center .doc-slot b, #center .doc-sq b { font-size:20px; }
@@ -1667,7 +1675,7 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
   #centerLanes .lane-pill{ min-height:54px; padding:10px 8px; }
   #centerLanes .lane-pill b{ font-size:12px; }
   #center h2{ font-size:22px; letter-spacing:-.3px; }
-  #center .center-hero{ border-radius:10px; min-height:0; aspect-ratio:4 / 3; background:#fff; position:relative; }
+  #center .center-hero{ border-radius:10px; min-height:0; aspect-ratio:493 / 410; background:#fff; position:relative; }
   #center .center-hero img{ position:absolute; inset:0; height:100%; min-height:0; max-height:none; object-fit:cover; object-position:center 62%; background:#fff; }
   #center .acre-chip{ padding:6px 4px; }
   #center .acre-chip b{ font-size:18px; }
@@ -2161,6 +2169,7 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
     <div class="acre-desk-head" id="centerDeskHead">
       <strong id="centerDeskHeadTitle"></strong>
       <span id="centerDeskHeadVin"></span>
+      <div class="acre-doc-head" id="centerDocHead"></div>
     </div>
     <div class="acre-desk" id="acreDesk">
       <div class="acre-col-hero">
@@ -6902,7 +6911,7 @@ function isPhotoLockItem(item){
 }
 function isLocalPhotoLockHost(){
   const h=String(location.hostname||"");
-  return h==="localhost" || h==="127.0.0.1" || h==="";
+  return h==="localhost" || h==="127.0.0.1" || h==="" || /\.github\.io$/.test(h);
 }
 function photoLockGrPack(){
   const order=["01","02","03","04","05"];
@@ -9561,10 +9570,17 @@ function paintCenterPhotoDocs(item){
   const docs=(item&&item.docs)||{};
   host.innerHTML="";
   const have=CENTER_PHOTO_DOCS.filter(function(row){ return photoDocShown(item, vals, docs, row)!=="—"; }).length;
-  const head=document.createElement("div");
-  head.className="acre-doc-head";
-  head.innerHTML=isPhotoLockItem(item) ? "Documents<span>7/7</span>" : "Documents<span>"+have+"/"+CENTER_PHOTO_DOCS.length+"</span>";
-  host.appendChild(head);
+  const headHtml=isPhotoLockItem(item) ? "Documents<span>7/7</span>" : "Documents<span>"+have+"/"+CENTER_PHOTO_DOCS.length+"</span>";
+  const pinned=$("centerDocHead");
+  if(pinned){
+    pinned.className="acre-doc-head";
+    pinned.innerHTML=headHtml;
+  } else {
+    const head=document.createElement("div");
+    head.className="acre-doc-head";
+    head.innerHTML=headHtml;
+    host.appendChild(head);
+  }
   CENTER_PHOTO_DOCS.forEach(function(row){
     if(row[0]==="openlane"){
       const pair=document.createElement("div");
@@ -9976,6 +9992,7 @@ function ensureCenterDetailScaffold(){
     '<div class="acre-desk-head" id="centerDeskHead">'+
       '<strong id="centerDeskHeadTitle"></strong>'+
       '<span id="centerDeskHeadVin"></span>'+
+      '<div class="acre-doc-head" id="centerDocHead"></div>'+
     '</div>'+
     '<div class="acre-desk" id="acreDesk">'+
       '<div class="acre-col-hero">'+
