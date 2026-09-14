@@ -63,6 +63,7 @@ must(/\["carfax","CARFAX"/, "CARFAX card");
 must(/\["mmr","MMR"/, "MMR card");
 must(/acre-doc-head/, "Documents heading");
 must(/function normalizeCenterPhoto\(/, "string photo URLs become hero shots");
+must(/parts\.length===1/, "appraisal range is not smashed into one dollar amount");
 must(/#center \.center-desk-lane \{ display:none/, "desk HISTORY chip stays off the photo");
 must(/#center #centerDocs \{ display:none/, "launch-tool overflow stays off the photo column");
 must(/#center #centerWhyDocs/, "WHY slots stay off the photo desk");

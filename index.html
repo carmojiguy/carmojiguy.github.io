@@ -9269,9 +9269,9 @@ function paintCenterVals(item){
       chip.className="acre-chip";
       chip.innerHTML="<k>"+esc(pair[1])+"</k><input class=\"f\" inputmode=\"decimal\" placeholder=\"$\" />";
       const inp=chip.querySelector("input");
-      const raw=vals[pair[0]]||"";
-      const n=Number(String(raw).replace(/[^0-9.]/g,""));
-      inp.value=(raw && n && !/[–-]/.test(raw)) ? moneyPretty(raw) : raw;
+      const raw=String(vals[pair[0]]||"").trim();
+      const parts=raw.match(/\d[\d,]*(?:\.\d+)?/g)||[];
+      inp.value=(parts.length===1 && Number(parts[0].replace(/,/g,""))>=1000) ? moneyPretty(raw) : raw;
       bindValInput(item, pair[0], inp);
       strip.appendChild(chip);
     });
