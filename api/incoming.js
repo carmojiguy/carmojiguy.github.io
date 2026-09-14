@@ -8,15 +8,17 @@
  *        → { ok:true, kind:"users", users:[], teams:[], permissions:{}, updatedAt, via }
  *        via is "blob" only when Vercel Blob actually served the roster;
  *        otherwise "tmp" (/tmp/center-users-v1.json) or "memory".
- *        Users roster PUT/GET pathname center-users-v1.json
- *        (addRandomSuffix false, allowOverwrite true, cacheControlMaxAge 0).
- *        List prefix center-users-v1 picks newest updatedAt; never overwrite
- *        a non-empty users[] with empty; via is "blob" only after read-back.
+ *        Users roster PUT/GET pathname center-users-v1.json via @vercel/blob
+ *        put(allowOverwrite, cacheControlMaxAge:0, access public) and
+ *        get(pathname, {access:"public", useCache:false}) so verify hits origin.
+ *        via is "blob" only after origin verify (backoff 0/200/400/800ms);
+ *        otherwise tmp/memory and blobErr. Never overwrite a non-empty users[]
+ *        with empty.
  *   POST same URL
  *        { kind:"land", item: slimCenterItem }
  *        → { ok:true, id }
  *        { kind:"users", users:[], teams:[], permissions:{} }
- *        → { ok:true, kind:"users", updatedAt, via }  (via honest; read-back)
+ *        → { ok:true, kind:"users", updatedAt, via, blobErr? }
  *        { kind:"team", sendId, id, vin, ymmt, pdfUrl, docs, item }
  *        → persist teamActivated + notify-appraisal + APPRAISAL_TEAM_WEBHOOK
  *        Empty land never wipes a complete appraisalFinal (min+target+max).
@@ -691,13 +693,18 @@ async function persistUsers(body, deps) {
   }
   saveUsersFile(next);
   let via = "tmp";
+  let blobErr = "";
   try {
     const saved = await usersStore.saveUsers(next, deps);
     via = honestVia((saved && saved.via) || "tmp");
+    blobErr = (saved && saved.blobErr) || "";
   } catch (e) {
     via = "tmp";
+    blobErr = String((e && e.message) || e || "blob");
   }
-  return { status: 200, body: { ok: true, kind: "users", updatedAt: next.updatedAt, via: via } };
+  const out = { ok: true, kind: "users", updatedAt: next.updatedAt, via: via };
+  if (via !== "blob" && blobErr) out.blobErr = blobErr;
+  return { status: 200, body: out };
 }
 const persistUsersDurable = persistUsers;
 const listUsersDurable = listUsers;
