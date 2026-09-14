@@ -28,8 +28,8 @@ function mustNot(re, msg) {
 
 assert.equal(html, copy404, "404.html matches index.html");
 assert.equal(html, inspect, "inspect-vehicle.html matches index.html");
-must(/id="buildStamp">build d30c</, "home footer stamp is d30c");
-must(/id="typeSheet"[\s\S]*build d30c/, "type sheet stamp is d30c");
+must(/id="buildStamp">build d31</, "home footer stamp is d31");
+must(/id="typeSheet"[\s\S]*build d31/, "type sheet stamp is d31");
 must(/sales PDF packet stays/, "file header keeps the sales PDF packet");
 
 must(/function liveDamageCaption\(/, "live caption helper exists");

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-13 build d30c: Incoming FINAL seed paints the Shabot box; applySharedIncoming copies appraisalFinal; slimSharedCenterItem keeps FINAL on re-land; Thank-you frozen; sales PDF packet stays; zero Center samples -->
+<!-- center-v3 + desk-home 2026-09-14 build d31: Refresh on every page + abandoned Continue/Start; Thank-you frozen; sales PDF packet stays; zero Center samples -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -44,8 +44,8 @@ body { font-family:Manrope,system-ui,sans-serif; color:var(--ink); }
 .nav { display:grid; grid-template-columns:36px 1fr auto; align-items:center; padding:12px 16px 8px; gap:10px; }
 .nav h1 { margin:0; text-align:center; font-size:15px; font-weight:800; }
 .exit-chrome {
-  display:none; position:fixed; top:0; left:0; right:0; z-index:110;
-  grid-template-columns:56px minmax(92px,1fr) minmax(92px,1fr);
+  display:none; position:fixed; top:0; left:0; right:0; z-index:200;
+  grid-template-columns:56px minmax(68px,1fr) minmax(68px,1fr) minmax(68px,1fr);
   gap:8px; align-items:center;
   padding:calc(10px + env(safe-area-inset-top)) 12px 12px;
   background:linear-gradient(180deg,#FAF9FC 0%, rgba(250,249,252,.96) 58%, rgba(250,249,252,0));
@@ -59,17 +59,21 @@ body { font-family:Manrope,system-ui,sans-serif; color:var(--ink); }
   box-shadow:0 10px 24px rgba(124,92,255,.22);
   font-size:26px; font-weight:800; line-height:1; cursor:pointer;
 }
-.exit-back, .exit-home {
+.exit-back, .exit-home, .exit-refresh {
   min-height:56px; border:0; border-radius:18px; cursor:pointer;
-  font:inherit; font-size:17px; font-weight:800;
+  font:inherit; font-size:16px; font-weight:800;
 }
 .exit-back { background:#fff; color:var(--purple-deep); border:1.5px solid #D4C8F5; box-shadow:0 8px 22px rgba(124,92,255,.14); }
 .exit-home { background:linear-gradient(135deg,#7C5CFF,#00A4E2); color:#fff; box-shadow:0 10px 24px rgba(0,164,226,.28); }
+.exit-refresh { background:#fff; color:var(--purple-deep); border:1.5px solid #D4C8F5; box-shadow:0 8px 22px rgba(124,92,255,.14); }
 body.exit-on .screen:not(.start):not(.cam) { padding-top:calc(72px + env(safe-area-inset-top)); }
 body.exit-on .screen:not(.start):not(.cam) > .nav { padding-top:4px; }
 body.exit-on .screen > .nav > .round:first-of-type { visibility:hidden; pointer-events:none; }
 body.exit-on .screen.cam > .nav { padding-top:calc(72px + env(safe-area-inset-top)); }
 body.exit-on .center-sheet { top:max(10vh, calc(72px + env(safe-area-inset-top))); }
+body.exit-on .login-hero { top: calc(80px + env(safe-area-inset-top)); }
+body.exit-on .start-x { visibility:hidden; pointer-events:none; }
+body.exit-on #whoChip { top: calc(80px + env(safe-area-inset-top)); }
 @media (max-width:767px){
   body.exit-on #center.center-has-detail #centerDetailBody{
     top:calc(72px + env(safe-area-inset-top));
@@ -550,19 +554,29 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
 .guest-story .pill { width:100%; margin:14px 0 0; padding:15px 20px; position:sticky; bottom:0; }
 .guest-story .link { display:block; width:100%; margin:10px 0 0; color:var(--purple-deep); text-align:center; }
 .guest-story p { color:var(--muted); text-shadow:none; font-size:14px; line-height:1.5; margin:0 0 10px; font-weight:600; }
+.resume-layer {
+  display:none; position:fixed; inset:0; z-index:150;
+  align-items:flex-end; justify-content:center;
+  padding:calc(88px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom));
+  background:rgba(18,15,28,.52);
+  backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+}
+.resume-layer.on { display:flex; }
 .resume-card {
-  position:absolute; left:16px; right:16px;
-  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
-  z-index:8;
-  background:rgba(250,249,252,.97); backdrop-filter:blur(22px); -webkit-backdrop-filter:blur(22px);
-  border-radius:26px; padding:22px 18px 16px;
+  position:relative; left:auto; right:auto; bottom:auto;
+  width:min(440px, 100%);
+  z-index:1;
+  background:rgba(250,249,252,.98); backdrop-filter:blur(22px); -webkit-backdrop-filter:blur(22px);
+  border-radius:26px; padding:24px 20px 18px;
   box-shadow:0 18px 50px rgba(0,0,0,.28);
 }
 .resume-card.hide { display:none; }
-.resume-card h2 { margin:0 0 8px; font-size:26px; letter-spacing:-.5px; }
-.resume-card .quote { margin:0 0 16px; }
-.resume-card .pill { margin:0 0 8px; }
+.resume-card h2 { margin:0 0 8px; font-size:28px; letter-spacing:-.5px; }
+.resume-card .quote { margin:0 0 18px; }
+.resume-card .pill { margin:0 0 10px; min-height:64px; font-size:18px; }
+.resume-card .pill:last-child { margin-bottom:0; }
 #start.has-resume .guest-story { visibility:hidden; pointer-events:none; }
+#start.has-resume .start-dock { visibility:hidden; pointer-events:none; }
 .guest-steps { display:flex; gap:6px; margin:4px 0 0; }
 .guest-steps span { flex:1; text-align:center; background:var(--fill); color:var(--purple-deep); border-radius:999px; padding:7px 4px; font-size:11px; font-weight:800; letter-spacing:.02em; }
 .start-x { position:absolute; top: calc(12px + env(safe-area-inset-top)); left:16px; z-index:2; }
@@ -1214,8 +1228,9 @@ body.center-gallery-on { overflow:hidden; }
     left:50%; right:auto; top:50%; transform:translate(-50%, -50%);
     width:min(520px, 72vw); max-width:520px; bottom:auto;
   }
+  .resume-layer{ align-items:center; }
   .resume-card{
-    left:50%; right:auto; top:50%; bottom:auto; transform:translate(-50%, -50%);
+    left:auto; right:auto; top:auto; bottom:auto; transform:none;
     width:min(460px, 72vw); max-width:460px;
     padding:26px 22px 18px;
   }
@@ -1307,7 +1322,7 @@ body.center-gallery-on { overflow:hidden; }
   .exit-chrome {
     left:0; right:0; max-width:none;
     padding:calc(12px + env(safe-area-inset-top)) 40px 14px;
-    grid-template-columns:56px 180px 180px;
+    grid-template-columns:56px 160px 160px 160px;
     justify-content:start;
   }
   .sheet { display:none; align-items:center; justify-content:center; padding:calc(88px + env(safe-area-inset-top)) 24px 48px; background:rgba(18,15,28,.46); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); }
@@ -1332,8 +1347,9 @@ body.center-gallery-on { overflow:hidden; }
     left:50%; right:auto; top:50%; transform:translate(-50%, -50%);
     width:min(520px, 46vw); max-width:520px;
   }
+  .resume-layer{ align-items:center; }
   .resume-card {
-    left:50%; right:auto; top:50%; bottom:auto; transform:translate(-50%, -50%);
+    left:auto; right:auto; top:auto; bottom:auto; transform:none;
     width:min(480px, 42vw); max-width:480px;
   }
   .thanks-hero-frame {
@@ -1488,13 +1504,23 @@ body.center-gallery-on { overflow:hidden; }
 
 </style>
 </head>
-<body>
+<body class="exit-on">
 <div class="phone">
 <div class="accent"></div>
-<div class="exit-chrome" id="exitChrome">
+<div class="exit-chrome on" id="exitChrome">
   <button class="exit-x" type="button" id="exitClose" aria-label="Close">✕</button>
   <button class="exit-back" type="button" id="exitBack">Back</button>
   <button class="exit-home" type="button" id="exitHome">Home</button>
+  <button class="exit-refresh" type="button" id="exitRefresh">Refresh</button>
+</div>
+<div class="resume-layer" id="resumeLayer" role="dialog" aria-modal="true" aria-labelledby="resumeTitle">
+  <div class="resume-card" id="resumeCard">
+    <p class="login-kicker">Abandoned session</p>
+    <h2 id="resumeTitle">Continue abandoned session?</h2>
+    <p class="quote" id="resumeLead">We still have your story, photos, and anything you already typed.</p>
+    <button class="pill purple" type="button" id="resumeContinue">Continue abandoned session</button>
+    <button class="pill wash" type="button" id="resumeFresh">Start a new one</button>
+  </div>
 </div>
 
 <section class="screen on start" id="login">
@@ -1550,13 +1576,6 @@ body.center-gallery-on { overflow:hidden; }
     </div>
     <button class="pill cyan" type="button" id="startStory">Start by clicking here!</button>
     <button class="link" type="button" id="guestType">Type instead</button>
-  </div>
-  <div class="resume-card hide" id="resumeCard">
-    <p class="login-kicker">Saved trade-in</p>
-    <h2>Pick up where you left off?</h2>
-    <p class="quote" id="resumeLead">We still have your story, photos, and anything you already typed.</p>
-    <button class="pill purple" type="button" id="resumeContinue">Continue</button>
-    <button class="pill wash" type="button" id="resumeFresh">Start over</button>
   </div>
 </section>
 
@@ -1901,7 +1920,7 @@ body.center-gallery-on { overflow:hidden; }
     <p class="quote" id="vinHint">Best: take a picture of the vehicle ownership (registration). You can also photograph the VIN on the dash or the sticker on the driver’s door. We’ll read the number from the photo.</p>
     <p class="vin-chip hide" id="vinChip"></p>
     </div>
-    <p class="build-stamp" id="buildStamp">build d30c</p>
+    <p class="build-stamp" id="buildStamp">build d31</p>
   </div>
 </section>
 
@@ -2360,7 +2379,7 @@ body.center-gallery-on { overflow:hidden; }
   <div class="card">
     <button class="x" type="button" data-close="typeSheet">✕</button>
     <h3>Appraisal type</h3>
-    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d30c</span></p>
+    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d31</span></p>
     <div id="typeChips" class="to-chips"></div>
     <div id="leadBox" class="lead-box hide">
       <p class="hint">Lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a New application — no appointment calendar.</p>
@@ -3499,10 +3518,10 @@ function armAppBack(){
 }
 function syncExitChrome(){
   const bar=$("exitChrome");
-  const hide=!APP.screen || APP.screen==="start" || APP.screen==="login" || APP.screen==="thanks";
-  if(bar) bar.classList.toggle("on", !hide);
-  document.body.classList.toggle("exit-on", !hide);
-  if(!hide) armAppBack();
+  const show=!!APP.screen;
+  if(bar) bar.classList.toggle("on", show);
+  document.body.classList.toggle("exit-on", show);
+  if(show) armAppBack();
   else APP._backArmed=false;
 }
 function closeNamedSheet(id){
@@ -3537,7 +3556,14 @@ function dismissOpenLayer(){
   if(APP.screen==="center" && APP.centerLane){ closeCenterLane(); return true; }
   return false;
 }
+function pageRefresh(){
+  try{ location.reload(); }catch(e){ location.href=location.href; }
+}
 function pageHome(){
+  if(APP.screen==="login" && APP.role!=="guest" && APP.role!=="employee"){
+    show("login");
+    return;
+  }
   APP._centerFromPop=true;
   try{
     closeAllOverlays();
@@ -5440,6 +5466,7 @@ function timeAgo(ts){
 function hideResume(){
   APP._resumeOpen=false;
   APP._resumeSnap=null;
+  if($("resumeLayer")) $("resumeLayer").classList.remove("on");
   if($("resumeCard")) $("resumeCard").classList.add("hide");
   if($("start")) $("start").classList.remove("has-resume");
 }
@@ -5455,6 +5482,7 @@ function paintResume(snap){
   bits.push("saved "+timeAgo(snap.at));
   if($("resumeLead")) $("resumeLead").textContent=bits.join(" · ");
   if($("resumeCard")) $("resumeCard").classList.remove("hide");
+  if($("resumeLayer")) $("resumeLayer").classList.add("on");
   if($("start")) $("start").classList.add("has-resume");
   APP._resumeOpen=true;
   APP._resumeSnap=snap;
@@ -5466,19 +5494,38 @@ function loadDraftSnap(){
     return readDraftLocal();
   });
 }
+function loadAbandonedSnap(){
+  return loadDraftSnap().then(function(draft){
+    return idbGet("pending").then(function(pending){
+      const cands=[];
+      if(draft && draftHasWork(draft.app)) cands.push(draft);
+      if(pending && draftHasWork(pending.app)) cands.push(pending);
+      if(!cands.length) return null;
+      cands.sort(function(a,b){ return (Number(b.at)||0)-(Number(a.at)||0); });
+      return cands[0];
+    }, function(){ return draft && draftHasWork(draft.app) ? draft : null; });
+  });
+}
 function offerResume(){
-  if(APP.role!=="guest") return;
-  if(APP._resumeOpen) return;
-  if(liveJobProgress()) return;
-  if(!$("start") || !$("start").classList.contains("on")) return;
-  loadDraftSnap().then(function(snap){
-    if(!snap || !draftHasWork(snap.app)) return;
-    if(snap.at && Date.now()-snap.at > 21*24*60*60*1000){ clearDraft(); return; }
-    if($("start") && $("start").classList.contains("on") && !liveJobProgress()) paintResume(snap);
+  if(APP._resumeOpen || APP._resumeAsked) return;
+  if(APP._sending) return;
+  loadAbandonedSnap().then(function(snap){
+    if(APP._resumeOpen || APP._resumeAsked) return;
+    if(snap && snap.at && Date.now()-snap.at > 21*24*60*60*1000){
+      clearDraft();
+      try{ idbDel("pending"); }catch(e){}
+      snap=null;
+    }
+    if(snap && draftHasWork(snap.app)){ paintResume(snap); return; }
+    if(liveJobProgress()) paintResume({app:collectDraft().app, screen:APP.screen||"home", at:Date.now()});
+  }).catch(function(){
+    if(APP._resumeOpen || APP._resumeAsked) return;
+    if(liveJobProgress()) paintResume({app:collectDraft().app, screen:APP.screen||"home", at:Date.now()});
   });
 }
 function continueDraft(){
   const snap=APP._resumeSnap;
+  APP._resumeAsked=true;
   hideResume();
   if(!snap) return;
   applySnapshot(snap);
@@ -5494,8 +5541,13 @@ function continueDraft(){
   show("home");
 }
 function startFresh(){
+  APP._resumeAsked=true;
   hideResume();
   clearDraft();
+  if(!APP._sending){
+    try{ sessionStorage.removeItem("inspect.pendingSend"); }catch(e){}
+    try{ idbDel("pending"); }catch(e){}
+  }
   wipeJob(false);
   applyRole();
   show("start");
@@ -12186,6 +12238,7 @@ document.querySelectorAll(".sheet").forEach(function(sheet){
 if($("exitClose")) $("exitClose").onclick = function(e){ if(e){ e.preventDefault(); e.stopPropagation(); } pageClose(); };
 if($("exitBack")) $("exitBack").onclick = function(e){ if(e){ e.preventDefault(); e.stopPropagation(); } pageBack(); };
 if($("exitHome")) $("exitHome").onclick = function(e){ if(e){ e.preventDefault(); e.stopPropagation(); } pageHome(); };
+if($("exitRefresh")) $("exitRefresh").onclick = function(e){ if(e){ e.preventDefault(); e.stopPropagation(); } pageRefresh(); };
 $("startAppraise").onclick = function(){
   if(!requirePerm("appraise")) return;
   setPurpose("appraise");

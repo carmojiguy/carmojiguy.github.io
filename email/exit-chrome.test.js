@@ -22,20 +22,22 @@ function sliceFn(name) {
 }
 
 must(/id="exitChrome"/, "exit chrome exists");
-must(/id="exitClose"[\s\S]*id="exitBack"[\s\S]*id="exitHome"/, "Close, Back, and Home are together");
+must(/id="exitClose"[\s\S]*id="exitBack"[\s\S]*id="exitHome"[\s\S]*id="exitRefresh"/, "Close, Back, Home, and Refresh are together");
 must(/class="exit-x"/, "Close is the bright X");
 must(/class="exit-back"/, "Back is a big tap target");
 must(/class="exit-home"/, "Home is a big tap target");
+must(/class="exit-refresh"/, "Refresh is a big tap target");
 must(/function pageClose\(/, "pageClose");
 must(/function pageBack\(/, "pageBack");
 must(/function pageHome\(/, "pageHome");
+must(/function pageRefresh\(/, "pageRefresh");
 must(/function dismissOpenLayer\(/, "dismissOpenLayer");
 must(/function closeAllOverlays\(/, "closeAllOverlays");
 must(/function syncExitChrome\(/, "syncExitChrome");
 must(/function armAppBack\(/, "history trap for device Back");
 must(/\.sheet\.on/, "sheet closer still targets .sheet.on");
 must(/e\.target===sheet/, "backdrop tap closes sheets");
-must(/z-index:110/, "chrome is above sheets at z-index 40");
+must(/z-index:200/, "chrome is above sheets and Thank you at z-index 200");
 must(/min-height:56px/, "Back/Home are 56px tap targets");
 must(/width:56px; height:56px/, "Close X is 56px");
 must(/width:48px; height:48px/, "sheet card X is 48px, not 28px");
@@ -69,5 +71,8 @@ must(/function finishGuest\(\)\{\s*finishThanks\(\);/, "finishGuest stays Thank-
 must(/function restoreSend\(\)/, "restoreSend stays");
 mustNot(/function pageHome\(\)\{[\s\S]{0,400}restoreSend/, "Home does not call restoreSend");
 
-must(/id="buildStamp">build d30c</, "build stamp");
+must(/id="buildStamp">build d31</, "build stamp");
+must(/id="exitRefresh">Refresh/, "Refresh label is on the chrome");
+must(/location\.reload\(\)/, "Refresh reloads the live screen");
+must(/function syncExitChrome\(\)\{\s*const bar=\$\("exitChrome"\);\s*const show=!!APP\.screen;/, "chrome stays on every screen including login/start/thanks");
 console.log("exit-chrome tests ok");
