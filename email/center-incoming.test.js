@@ -1062,8 +1062,9 @@ assert.ok(/function persistMarketDocUrls\(/.test(html), "Send/Incoming hosts mar
 assert.ok(/Promise\.resolve\(persistMarketDocUrls\(item\)\)/.test(html), "doc url persist is best-effort before land");
 
 (function testSlimSharedDocsKeepsHttpUrlsNotBase64() {
-  const slimSharedDocs = eval("(" + html.match(/function slimSharedDocs\(docs\)\{[\s\S]*?\n\}/)[0].replace("function slimSharedDocs", "function") + ")");
   const slimSharedHttpUrl = eval("(" + html.match(/function slimSharedHttpUrl\(v\)\{[\s\S]*?\n\}/)[0].replace("function slimSharedHttpUrl", "function") + ")");
+  const appendMarketDocShots = eval("(" + html.slice(html.indexOf("function appendMarketDocShots("), html.indexOf("\nfunction slimSharedDocs(")).replace("function appendMarketDocShots", "function") + ")");
+  const slimSharedDocs = eval("(" + html.slice(html.indexOf("function slimSharedDocs("), html.indexOf("\nfunction firstMarketDocPayload(")).replace("function slimSharedDocs", "function") + ")");
   assert.equal(slimSharedHttpUrl("https://blob.vercel-storage.com/vauto.mp4"), "https://blob.vercel-storage.com/vauto.mp4");
   assert.equal(slimSharedHttpUrl("data:image/jpeg;base64,XXXX"), "", "data URLs are not kept");
   const slim = slimSharedDocs({
@@ -1084,8 +1085,11 @@ assert.ok(/Promise\.resolve\(persistMarketDocUrls\(item\)\)/.test(html), "doc ur
   assert.equal(slim.vauto.preview, "https://example.com/vauto.jpg");
   assert.equal(slim.vauto.data, undefined, "base64 data stays off the wire");
   assert.equal(slim.vauto.extract, undefined, "non-http extract is dropped");
-  assert.equal(slim.vauto.shots.length, 2);
-  assert.equal(slim.vauto.shots[0].url, "https://example.com/shot.jpg");
+  const shotUrls = slim.vauto.shots.map(function (s) { return s.url; });
+  assert.ok(shotUrls.indexOf("https://example.com/shot.jpg") >= 0);
+  assert.ok(shotUrls.indexOf("https://example.com/shot2.jpg") >= 0);
+  assert.ok(shotUrls.indexOf("https://example.com/vauto.mp4") >= 0, "primary url is kept in shots[]");
+  assert.equal(slim.vauto.shots.length, 3);
   assert.equal(slim.openlane.url, undefined);
   assert.equal(slim.openlane.data, undefined);
 })();

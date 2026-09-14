@@ -207,6 +207,19 @@ assert.equal(incoming.isPacketSend({
   });
   assert.equal(incoming.listItems().length, 1, "activate land does not create a new card");
   assert.equal(incoming.listItems()[0].teamActivated, true, "later land does not wipe teamActivated");
+  incoming.route("POST", {
+    kind: "land",
+    item: {
+      id: "team-act-1",
+      sendId: "s-team-act",
+      vin: "2T3B1RFVXRC466025",
+      teamActivated: false,
+      teamStatus: "",
+      customer: { name: "Chris Cyr" }
+    }
+  });
+  assert.equal(incoming.listItems().length, 1, "false activate is the same card");
+  assert.equal(incoming.listItems()[0].teamActivated, false, "mailer persists teamActivated false");
 
   incoming.resetStore();
   incoming.route("POST", {
@@ -233,8 +246,10 @@ assert.equal(incoming.isPacketSend({
   assert.equal(withUrl.docs.vauto.url, "https://example.com/vauto.mp4", "mailer keeps docs.url");
   assert.equal(withUrl.docs.vauto.preview, "https://example.com/vauto.jpg", "mailer keeps http preview");
   assert.equal(withUrl.docs.vauto.data, undefined, "mailer still strips base64 data");
-  assert.equal(withUrl.docs.vauto.shots.length, 1);
-  assert.equal(withUrl.docs.vauto.shots[0].url, "https://example.com/shot.jpg");
+  const shotUrls = withUrl.docs.vauto.shots.map(function (s) { return s.url; });
+  assert.ok(shotUrls.indexOf("https://example.com/shot.jpg") >= 0, "mailer keeps the extra shot url");
+  assert.ok(shotUrls.indexOf("https://example.com/vauto.mp4") >= 0, "mailer keeps the primary url in shots[]");
+  assert.equal(withUrl.docs.vauto.shots.length, 2, "primary url is appended into shots[]");
 
   incoming.resetStore();
   incoming.route("POST", {
@@ -281,6 +296,89 @@ assert.equal(incoming.isPacketSend({
   assert.equal(unlocked.staffUnlocked, true);
   assert.equal(unlocked.lane, "history", "unlock keeps History");
   assert.equal(unlocked.docs.vauto.url, "https://example.com/walk.mp4", "unlock keeps docs.url");
+  assert.equal(unlocked.appraisalFinal.target, "24000", "unlock land does not wipe FINAL");
+
+  incoming.resetStore();
+  incoming.route("POST", {
+    kind: "land",
+    item: {
+      id: "cmu0avif7rslu",
+      sendId: "s1pvwj8g",
+      vin: "2T3B1RFVXRC466025",
+      ymmt: "2024 Toyota RAV4",
+      appraisalFinal: { min: "22800", target: "24000", max: "25000" },
+      team: { shabot: { min: "22800", target: "24000", max: "25000", note: "keep" } },
+      customer: { name: "Chris Cyr" }
+    }
+  });
+  incoming.route("POST", {
+    kind: "team",
+    sendId: "s1pvwj8g",
+    id: "cmu0avif7rslu",
+    vin: "2T3B1RFVXRC466025",
+    ymmt: "2024 Toyota RAV4"
+  });
+  assert.equal(incoming.listItems().length, 1);
+  assert.equal(incoming.listItems()[0].teamActivated, true, "kind:team persists teamActivated");
+  assert.equal(incoming.listItems()[0].appraisalFinal.target, "24000", "kind:team keeps RAV4 FINAL");
+  incoming.route("POST", {
+    kind: "land",
+    item: {
+      id: "cmu0avif7rslu",
+      sendId: "s1pvwj8g",
+      teamActivated: true,
+      teamStatus: "running",
+      customer: { name: "Chris Cyr" }
+    }
+  });
+  assert.equal(incoming.listItems()[0].appraisalFinal.min, "22800");
+  assert.equal(incoming.listItems()[0].appraisalFinal.target, "24000");
+  assert.equal(incoming.listItems()[0].appraisalFinal.max, "25000");
+
+  incoming.resetStore();
+  incoming.route("POST", {
+    kind: "team",
+    sendId: "sir78n6",
+    id: "cmu0kchd1rgc1",
+    vin: "1FTFW1E87PKE74233",
+    ymmt: "2023 Ford F-150"
+  });
+  assert.equal(incoming.listItems()[0].id, "cmu0kchd1rgc1");
+  assert.equal(incoming.listItems()[0].teamActivated, true);
+  assert.ok(!incoming.listItems()[0].appraisalFinal || !incoming.listItems()[0].appraisalFinal.target, "F-150 kind:team does not invent FINAL");
+
+  incoming.resetStore();
+  incoming.route("POST", {
+    kind: "land",
+    item: {
+      id: "cmu0a6138006k",
+      sendId: "s1af19al",
+      vin: "3GNKBHRS0LS577461",
+      ymmt: "2020 Chevrolet Blazer 2LT",
+      appraisalFinal: { min: "15500", target: "17000", max: "18000" },
+      team: {
+        shabot: { min: "15500", target: "17000", max: "18000", note: "Sided Wes" },
+        rybot: { min: "17000", target: "19000", max: "20500", note: "Ryan fighter" },
+        webot: { min: "15500", target: "17000", max: "18000", note: "Wes analytical" },
+        drebot: { min: "14800", target: "16500", max: "17800", note: "Drew" },
+        tbot: { min: "14500", target: "16500", max: "18000", note: "Sean bear" }
+      },
+      finalRationale: {
+        schema_version: "1.0",
+        title: "HOW WE GOT HERE",
+        markdown: "# HOW WE GOT HERE — Shabot FINAL",
+        panel: { rybot: { min: "17000", target: "19000", max: "20500", why: "rich" } }
+      },
+      customer: { name: "larry laydown" }
+    }
+  });
+  const blazer = incoming.listItems()[0];
+  assert.equal(blazer.sendId, "s1af19al");
+  assert.equal(blazer.team.rybot.target, "19000", "mailer keeps schema 1.0 team.rybot");
+  assert.equal(blazer.team.rybot.note, "Ryan fighter");
+  assert.equal(blazer.finalRationale.schema_version, "1.0");
+  assert.ok(blazer.finalRationale.markdown.indexOf("HOW WE GOT HERE") >= 0);
+  assert.equal(blazer.finalRationale.panel.rybot.target, "19000");
 
   console.log("incoming-api: ok");
 })().catch(function (err) {

@@ -28,8 +28,8 @@ function sliceFn(name, next) {
 must(/id="buildStamp">build d31c</, "footer stamp is d30i");
 must(/<!--[\s\S]*build d31c[\s\S]*kind:file/, "header stamp is d30i file pills");
 must(/id="marketDocSheet"/, "per-doc sheet exists");
-must(/id="marketDocView">View</, "sheet has View");
-must(/id="marketDocAdd">Add file</, "sheet has Add file");
+must(/id="marketDocView">View/, "sheet has View");
+must(/id="marketDocAdd">Add files</, "sheet has Add files");
 must(/id="marketDocFile"/, "sheet has a file input");
 must(/function openMarketDocSheet\(/, "pill opens the per-doc sheet");
 must(/function uploadMarketDocFile\(/, "sheet uploads the file");
@@ -57,7 +57,8 @@ assert.ok(!/uploadMarketDocFile/.test(kick), "Send does not run the pill uploade
 assert.ok(!/openMarketDocSheet/.test(kick), "Send does not open the doc sheet");
 
 const slimSharedHttpUrl = eval("(" + html.match(/function slimSharedHttpUrl\(v\)\{[\s\S]*?\n\}/)[0].replace("function slimSharedHttpUrl", "function") + ")");
-const slimSharedDocs = eval("(" + html.match(/function slimSharedDocs\(docs\)\{[\s\S]*?\n\}/)[0].replace("function slimSharedDocs", "function") + ")");
+const appendMarketDocShots = eval("(" + html.slice(html.indexOf("function appendMarketDocShots("), html.indexOf("\nfunction slimSharedDocs(")).replace("function appendMarketDocShots", "function") + ")");
+const slimSharedDocs = eval("(" + html.slice(html.indexOf("function slimSharedDocs("), html.indexOf("\nfunction firstMarketDocPayload(")).replace("function slimSharedDocs", "function") + ")");
 const slim = slimSharedDocs({
   vauto: {
     have: true,
