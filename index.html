@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-14 build d31a: pixel-faithful Acre GR Corolla desk (white hero|mid|market, not stone/teal); HARD LOCK photo desk — notes under hero, MAYA strip, four huge thumbs strip + 5th peek, white GR Corolla fixture pack, blue Complete, Documents/VAUTO/BLACK BOOK/OPENLANE/eBlock/CARFAX/MMR cards; CA workbench redo — drop the verbal-only tag forever; What's the Story walks the car and talks; Walk-around photos only; keep Critical damage; salesperson CA has no packet-send card; Tracker mobile cards + current month; website-post story-first year/make/model/trim/condition, no team select, original start not webdesk, pictures still relaunch/post; Acre GR Corolla desk lock — FIFO oldest home, left-rail Incoming/On-site/Needs docs/History pills, no hist KPI strip, Ask Maya, appraisal range/competing/ask; users GET/POST kind:users persist; 911 Acre team reads finalRationale.markdown + panel Rybot/Webot/Drebot/TBot + team.shabot note, hides boxes with no numbers; mailer keeps rich team/rationale on Center refresh; Trade-in start drops stray top History (rail History stays); 911 Incoming FINAL min+target+max clears Running and lands Appraisal Team numbers (Blazer s1af19al / F-150 sir78n6); Run Appraisal Team tap always fires (rerun + Unlocked History); kind:team wake; Incoming FINAL settles Running; schema 1.0 team + panel boxes; market pills append multiple files into shots[]; compact V Auto / Carfax / OpenLane / eBlock chips; same sendId/id Incoming POST; panel runs progress → existing FINAL; no invented solds; real Carfax http url opens the uploaded file; sample recreate only when no docs.carfax.url; Carfax square + huge card add/upload kind:file carfax; staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; Incoming keeps http docs.url; Incoming appends shots[]; status dropdown every lane; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples; hides generated From V Auto lane -->
+<!-- center-v3 + desk-home 2026-09-14 build d31a: pixel-faithful Acre GR Corolla desk (white hero|mid|market, not stone/teal); HARD LOCK photo desk — notes under hero, MAYA strip, four huge thumbs strip + 5th peek (3/4 front, side, rear-3/4, rear-3/4 other, dead-rear peek), white GR Corolla fixture pack, blue Complete, Documents/VAUTO/BLACK BOOK/OPENLANE/eBlock/CARFAX/MMR cards; CA workbench redo — drop the verbal-only tag forever; What's the Story walks the car and talks; Walk-around photos only; keep Critical damage; salesperson CA has no packet-send card; Tracker mobile cards + current month; website-post story-first year/make/model/trim/condition, no team select, original start not webdesk, pictures still relaunch/post; Acre GR Corolla desk lock — FIFO oldest home, left-rail Incoming/On-site/Needs docs/History pills, no hist KPI strip, Ask Maya, appraisal range/competing/ask; users GET/POST kind:users persist; 911 Acre team reads finalRationale.markdown + panel Rybot/Webot/Drebot/TBot + team.shabot note, hides boxes with no numbers; mailer keeps rich team/rationale on Center refresh; Trade-in start drops stray top History (rail History stays); 911 Incoming FINAL min+target+max clears Running and lands Appraisal Team numbers (Blazer s1af19al / F-150 sir78n6); Run Appraisal Team tap always fires (rerun + Unlocked History); kind:team wake; Incoming FINAL settles Running; schema 1.0 team + panel boxes; market pills append multiple files into shots[]; compact V Auto / Carfax / OpenLane / eBlock chips; same sendId/id Incoming POST; panel runs progress → existing FINAL; no invented solds; real Carfax http url opens the uploaded file; sample recreate only when no docs.carfax.url; Carfax square + huge card add/upload kind:file carfax; staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; Incoming keeps http docs.url; Incoming appends shots[]; status dropdown every lane; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples; hides generated From V Auto lane -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -1480,7 +1480,7 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
     display:grid;
     grid-template-columns:minmax(240px,1.05fr) minmax(280px,1.15fr) minmax(200px,.85fr);
     grid-template-areas:"hero mid market" "thumbs thumbs thumbs";
-    grid-template-rows:minmax(0,1fr) 200px;
+    grid-template-rows:minmax(0,1fr) minmax(300px,340px);
     gap:12px 16px;
     align-items:stretch;
     min-height:100%;
@@ -1511,16 +1511,19 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
     height:100dvh; max-height:100dvh; overflow:hidden;
   }
   #center .acre-thumbs-row{ position:relative; }
-  #center .acre-thumbs-row{ height:200px; }
-  #center .center-thumbs{ gap:12px; height:200px; overflow-x:auto; scrollbar-width:none; padding:0 56px; }
+  #center .acre-thumbs-row{ height:38vh; min-height:300px; max-height:340px; }
+  #center .center-thumbs{
+    gap:10px; height:38vh; min-height:300px; max-height:340px;
+    overflow-x:auto; scrollbar-width:none; padding:0 48px;
+  }
   #center .center-thumbs::-webkit-scrollbar{ display:none; }
   #center .center-thumbs button{
-    flex:0 0 23.2%; width:23.2%;
-    height:200px; border-radius:10px; background:#fff;
-    box-shadow:0 0 0 1px #E4E7EC;
+    flex:0 0 calc((100% - 30px) / 4.12); width:calc((100% - 30px) / 4.12);
+    height:38vh; min-height:300px; max-height:340px; border-radius:8px; background:#fff;
+    box-shadow:none;
   }
-  #center .center-thumbs button.on{ box-shadow:0 0 0 1px #111318; }
-  #center .center-thumbs img{ object-fit:contain; background:#fff; }
+  #center .center-thumbs button.on{ box-shadow:none; }
+  #center .center-thumbs img{ object-fit:cover; object-position:center 58%; background:#fff; }
   #center .center-detail-bar{ display:none; }
   #center .packet-pdf{ display:none !important; }
   #center #centerTeamHead,
