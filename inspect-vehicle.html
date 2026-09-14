@@ -9582,6 +9582,15 @@ function paintCenterPhotoDocs(item){
     host.appendChild(head);
   }
   CENTER_PHOTO_DOCS.forEach(function(row){
+    if(row[0]==="vauto"){
+      const pair=document.createElement("div");
+      pair.className="acre-doc-pair";
+      pair.appendChild(photoDocCard(item, vals, docs, row));
+      pair.appendChild(photoDocCard(item, vals, docs, ["book","BLACK BOOK","blackbook","book"]));
+      host.appendChild(pair);
+      return;
+    }
+    if(row[0]==="book") return;
     if(row[0]==="openlane"){
       const pair=document.createElement("div");
       pair.className="acre-doc-pair";
