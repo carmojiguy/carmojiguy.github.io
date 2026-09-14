@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-14 build d30l: staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; kind:file blob url; Incoming keeps http docs.url; status dropdown every lane; Run Appraisal Team; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples -->
+<!-- center-v3 + desk-home 2026-09-14 build d30o: Center hides generated From V Auto lane; metrics grid is Appraisal Team / VAuto / Predicted / Black Book / MMR / % Market / OpenLane split / eBlock from extracts only; keep V Auto / OpenLane / eBlock pills and Carfax viewer; staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; kind:file blob url; Incoming keeps http docs.url; status dropdown every lane; Run Appraisal Team; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -1062,7 +1062,9 @@ body.center-gallery-on { overflow:hidden; }
 }
 .acre-chip k, .mkt-chip k { display:block; color:var(--muted); font-size:10px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; margin:0 0 4px; }
 .acre-chip b, .mkt-chip b { display:block; font-size:18px; letter-spacing:-.4px; }
-.acre-market { display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; margin:0 0 18px; }
+.acre-chip span, .mkt-chip span { display:block; margin-top:4px; font-size:11px; font-weight:700; color:var(--muted); line-height:1.3; }
+.acre-chip.empty b, .mkt-chip.empty b { color:var(--muted); font-weight:700; }
+.acre-market { display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin:0 0 18px; }
 .mkt-chip b { font-size:14px; }
 .center-docs, .center-why-docs { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:4px 0 8px; }
 .doc-slot {
@@ -2022,7 +2024,7 @@ body.center-gallery-on { overflow:hidden; }
     <p class="quote" id="vinHint">Best: take a picture of the vehicle ownership (registration). You can also photograph the VIN on the dash or the sticker on the driver’s door. We’ll read the number from the photo.</p>
     <p class="vin-chip hide" id="vinChip"></p>
     </div>
-    <p class="build-stamp" id="buildStamp">build d30l</p>
+    <p class="build-stamp" id="buildStamp">build d30o</p>
   </div>
 </section>
 
@@ -2493,7 +2495,7 @@ body.center-gallery-on { overflow:hidden; }
   <div class="card">
     <button class="x" type="button" data-close="typeSheet">✕</button>
     <h3>Appraisal type</h3>
-    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d30l</span></p>
+    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d30o</span></p>
     <div id="typeChips" class="to-chips"></div>
     <div id="leadBox" class="lead-box hide">
       <p class="hint">Lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a New application — no appointment calendar.</p>
@@ -5692,16 +5694,19 @@ const CENTER_DOCS=PACKET_DOCS.map(function(d){
   return [d.id, d.label, d.hint||d.label, d.kind==="launch"?"Open":"Extract"];
 });
 const CENTER_VALS=[
-  ["maya","MAYA"],
-  ["vauto","vAuto"],
+  ["team","Appraisal Team"],
+  ["vauto","VAuto"],
   ["predicted","Predicted"]
 ];
 const CENTER_MARKET=[
   ["book","Black Book"],
   ["mmr","MMR"],
-  ["pct","% market"],
-  ["afc","AFC"]
+  ["pct","% Market"],
+  ["olforecast","OpenLane"],
+  ["olavg","OpenLane avg"],
+  ["eblock","eBlock"]
 ];
+const USD_CAD_MMR=1.35;
 function emptyTeam(){
   const o={};
   CENTER_TEAM.forEach(function(t){ o[t[0]]={min:"",target:"",max:"",note:""}; });
@@ -8375,32 +8380,186 @@ function bindValInput(item, key, inp){
     });
   });
 }
-function paintCenterVals(item){
+function metricBlank(){ return {value:"—", note:""}; }
+function extractIsUsable(extract){
+  if(!extract || typeof extract!=="object") return false;
+  if(extract.live || extract.parsed || extract.fromFile) return true;
+  const m=extract.market;
+  return !!(m && typeof m==="object" && (m.live || m.parsed || m.fromFile || (m.parsedFields && Object.keys(m.parsedFields).length)));
+}
+function extractFact(extract, names){
+  const facts=(extract && extract.facts)||[];
+  const want=(names||[]).map(function(n){ return String(n).toLowerCase(); });
+  for(let i=0;i<facts.length;i++){
+    const row=facts[i];
+    const k=String((row && (row[0]||row.k))||"").toLowerCase();
+    if(!k) continue;
+    for(let j=0;j<want.length;j++){
+      if(k===want[j] || (want[j].length>4 && k.indexOf(want[j])>=0)) return row[1]||row.v||"";
+    }
+  }
+  return "";
+}
+function parsedField(m, key){
+  if(!m || typeof m!=="object") return false;
+  if(m.live) return true;
+  return !!(m.parsedFields && m.parsedFields[key]);
+}
+function pickUsableExtract(docs, keys){
+  docs=docs||{};
+  for(let i=0;i<keys.length;i++){
+    const slot=docs[keys[i]];
+    if(!slot || typeof slot!=="object") continue;
+    if(extractIsUsable(slot.extract)) return slot.extract;
+    if(slot.market && extractIsUsable({market:slot.market, live:!!slot.market.live, parsed:!!slot.market.parsed})){
+      return {market:slot.market, live:!!slot.market.live, parsed:!!slot.market.parsed, facts:slot.facts||[]};
+    }
+  }
+  return null;
+}
+function listingsAvg(list){
+  if(!Array.isArray(list) || !list.length) return null;
+  let price=0, km=0, pc=0, kc=0;
+  for(let i=0;i<list.length;i++){
+    const row=list[i]||{};
+    const who=String(row.who||row.source||"");
+    if(/Nearby\s+\d|OpenLane\s+\d|eBlock\s+\d/i.test(who)) return null;
+    const p=moneyNum(row.price);
+    const k=moneyNum(row.km);
+    if(p>=800 && p<=250000){ price+=p; pc++; }
+    if(k>=1000 && k<=400000){ km+=k; kc++; }
+  }
+  if(!pc) return null;
+  return {price:round50(price/pc), km:kc?Math.round(km/kc):0};
+}
+function usdToCadMmr(n){
+  return round50(moneyNum(n)*USD_CAD_MMR);
+}
+function labeledMoney(extract, names){
+  const v=extractFact(extract, names);
+  if(/km\s*$/i.test(String(v||""))) return 0;
+  const n=moneyNum(v);
+  return n>=800 && n<=250000 ? n : 0;
+}
+function labeledKm(extract, names){
+  const n=moneyNum(extractFact(extract, names));
+  return n>=1000 && n<=400000 ? n : 0;
+}
+function canadaDrivesPredictedOffer(item, docs){
+  if(!isCanadaDrives(item)) return 0;
+  const ex=pickUsableExtract(docs, ["cd","canadadrives","cd_offer","predicted","cdpredicted"]);
+  let n=ex ? labeledMoney(ex, ["canada drives predicted","predicted offer","predicted","offer"]) : 0;
+  if(!n && ex && ex.market) n=moneyNum(ex.market.cdOffer||ex.market.predicted||ex.market.offer);
+  if(!n) n=moneyNum(item && (item.cdOffer||item.cdPredicted||item.predictedOffer));
+  return n>=800 && n<=250000 ? n : 0;
+}
+function centerMetricsView(item, media){
+  item=item||{};
+  const docs=Object.assign({}, item.docs||{}, (media && media.docs)||{});
+  const pretty=typeof moneyPretty==="function"?moneyPretty:function(v){ return String(v||"—"); };
+  const out={
+    team:metricBlank(), vauto:metricBlank(), predicted:metricBlank(),
+    book:metricBlank(), mmr:metricBlank(), pct:metricBlank(),
+    olforecast:metricBlank(), olavg:metricBlank(), eblock:metricBlank()
+  };
+  const fin=typeof resolveAppraisalFinal==="function" ? resolveAppraisalFinal(item) : null;
+  if(fin && hasAppraisalFinalNumbers(fin.min, fin.target, fin.max)){
+    const main=fin.target||fin.max||fin.min;
+    const note=[];
+    if(fin.min && fin.max && (fin.target||fin.min!==fin.max)) note.push("MIN "+pretty(fin.min)+" · MAX "+pretty(fin.max));
+    if(fin.path) note.push(fin.path);
+    out.team={value:pretty(main), note:note.join(" · ")};
+  }
+  const vautoEx=pickUsableExtract(docs, ["vauto","vauto_docs","summary","vauto_summary","mmr","blackbook","vauto_book"]);
+  const vm=vautoEx && vautoEx.market && typeof vautoEx.market==="object" ? vautoEx.market : {};
+  let market=0;
+  if(vautoEx){
+    const facts=(vautoEx.facts)||[];
+    for(let i=0;i<facts.length && !market;i++){
+      const k=String((facts[i] && (facts[i][0]||facts[i].k))||"").toLowerCase();
+      if(k==="market" || k==="v auto market" || k==="vauto market") market=moneyNum(facts[i][1]||facts[i].v);
+    }
+    if(!market && (vautoEx.live || parsedField(vm,"market"))) market=moneyNum(vm.market);
+  }
+  if(market>=800){
+    const pctOf=typeof vautoBuyFromMarket==="function" ? vautoBuyFromMarket(market).pctOf : round50(market*0.95);
+    out.vauto={value:pretty(pctOf), note:"95% of market"};
+    out.pct={value:"95%", note:""};
+  }
+  if(isCanadaDrives(item)){
+    const cd=canadaDrivesPredictedOffer(item, docs);
+    if(cd) out.predicted={value:pretty(cd), note:"Canada Drives"};
+  }
+  let book=vautoEx ? labeledMoney(vautoEx, ["average before km","average before kilometre","average before kilometer","average before"]) : 0;
+  if(!book && (vautoEx && (vautoEx.live || parsedField(vm,"average")))) book=moneyNum(vm.average);
+  if(book>=800) out.book={value:pretty(book), note:"Average before km"};
+  let mmr=vautoEx ? labeledMoney(vautoEx, ["mmr"]) : 0;
+  if(!mmr && vautoEx && (vautoEx.live || parsedField(vm,"mmr"))) mmr=moneyNum(vm.mmr);
+  if(mmr>=800){
+    const cur=String((vautoEx && vautoEx.currency)||vm.mmrCurrency||vm.currency||"").toUpperCase();
+    const cad=(cur==="CAD"||cur==="CDN") ? round50(mmr) : usdToCadMmr(mmr);
+    out.mmr={value:pretty(cad), note:(cur==="CAD"||cur==="CDN")?"CAD":"USD → CAD"};
+  }
+  const olEx=pickUsableExtract(docs, ["openlane","openlane_docs","olforecast","olguide","ol_offer"]);
+  const om=olEx && olEx.market && typeof olEx.market==="object" ? olEx.market : {};
+  let olOffer=olEx ? labeledMoney(olEx, ["predicted offer","openlane predicted","forecast"]) : 0;
+  if(!olOffer && olEx && (olEx.live || parsedField(om,"olOffer"))) olOffer=moneyNum(om.olOffer);
+  if(olOffer>=800) out.olforecast={value:pretty(olOffer), note:"Forecast"};
+  let olAvg=olEx ? labeledMoney(olEx, ["average price","avg price","avg selling"]) : 0;
+  if(!olAvg && olEx && (olEx.live || parsedField(om,"olAvgPrice"))) olAvg=moneyNum(om.olAvgPrice);
+  let olKm=olEx ? labeledKm(olEx, ["average km","avg km"]) : 0;
+  if(!olKm && olEx && (olEx.live || parsedField(om,"olKm"))) olKm=moneyNum(om.olKm);
+  const olList=listingsAvg(om.olComps||om.listings||(olEx && olEx.listings));
+  if(olList){
+    if(!olAvg) olAvg=olList.price;
+    if(!olKm) olKm=olList.km;
+  }
+  if(olAvg>=800 || olKm>=1000){
+    out.olavg={
+      value:olAvg>=800?pretty(olAvg):"—",
+      note:olKm>=1000?kmFmt(olKm):""
+    };
+  }
+  const ebEx=pickUsableExtract(docs, ["eblock","eblock_docs","ebguide","eb_avg"]);
+  const em=ebEx && ebEx.market && typeof ebEx.market==="object" ? ebEx.market : {};
+  let ebAvg=ebEx ? labeledMoney(ebEx, ["average of vehicles","average price","avg selling","avg price","selling price"]) : 0;
+  if(!ebAvg && ebEx && (ebEx.live || parsedField(em,"ebAvg"))) ebAvg=moneyNum(em.ebAvg);
+  let ebKm=ebEx ? labeledKm(ebEx, ["average km","avg km"]) : 0;
+  if(!ebKm && ebEx && (ebEx.live || parsedField(em,"ebKm"))) ebKm=moneyNum(em.ebKm);
+  const ebList=listingsAvg(em.ebListings||em.listings||(ebEx && ebEx.listings));
+  if(ebList){
+    if(!ebAvg) ebAvg=ebList.price;
+    if(!ebKm) ebKm=ebList.km;
+  }
+  if(ebAvg>=800 || ebKm>=1000){
+    out.eblock={
+      value:ebAvg>=800?pretty(ebAvg):"—",
+      note:ebKm>=1000?kmFmt(ebKm):""
+    };
+  }
+  return out;
+}
+function paintMetricChip(cls, label, row){
+  const chip=document.createElement("div");
+  const empty=!row || !row.value || row.value==="—";
+  chip.className=cls+(empty?" empty":"");
+  chip.innerHTML="<k>"+esc(label)+"</k><b>"+esc((row && row.value)||"—")+"</b>"+(row && row.note?"<span>"+esc(row.note)+"</span>":"");
+  return chip;
+}
+function paintCenterVals(item, media){
   const strip=$("centerValStrip");
   const market=$("centerMarket");
-  const vals=item.values||emptyVals();
+  const metrics=centerMetricsView(item, media);
   if(strip){
     strip.innerHTML="";
     CENTER_VALS.forEach(function(pair){
-      const chip=document.createElement("label");
-      chip.className="acre-chip";
-      chip.innerHTML="<k>"+esc(pair[1])+"</k><input class=\"f\" inputmode=\"decimal\" placeholder=\"—\" />";
-      const inp=chip.querySelector("input");
-      inp.value=vals[pair[0]]||"";
-      bindValInput(item, pair[0], inp);
-      strip.appendChild(chip);
+      strip.appendChild(paintMetricChip("acre-chip", pair[1], metrics[pair[0]]));
     });
   }
   if(market){
     market.innerHTML="";
     CENTER_MARKET.forEach(function(pair){
-      const chip=document.createElement("label");
-      chip.className="mkt-chip";
-      chip.innerHTML="<k>"+esc(pair[1])+"</k><input class=\"f\" inputmode=\"decimal\" placeholder=\"—\" />";
-      const inp=chip.querySelector("input");
-      inp.value=vals[pair[0]]||"";
-      bindValInput(item, pair[0], inp);
-      market.appendChild(chip);
+      market.appendChild(paintMetricChip("mkt-chip", pair[1], metrics[pair[0]]));
     });
   }
 }
@@ -8763,6 +8922,7 @@ function paintCenterDetail(){
     if(APP.centerViewId!==item.id) return;
     paintCenterHero((media.photos||[]).length ? media.photos : starter);
     paintCenterDocs(item, media);
+    if(!needs) paintCenterVals(item, media);
     if(needs && $("centerNeedsBanner")){
       const live=missingMarketDocs(Object.assign({}, item.docs||{}, (media&&media.docs)||{}));
       $("centerNeedsBanner").innerHTML=live.length
@@ -11251,6 +11411,10 @@ function pullMoneyFromText(text){
   const nums=String(text||"").match(/\$[\s]*[0-9][0-9,]{2,}/g) || [];
   return nums.map(function(s){ return moneyNum(s); }).filter(function(n){ return n>=800 && n<=250000; });
 }
+function pullKmFromText(text){
+  const nums=String(text||"").match(/[0-9][0-9,]{2,5}\s*(?:km|kms|kilometers|kilometres)\b/gi) || [];
+  return nums.map(function(s){ return moneyNum(s); }).filter(function(n){ return n>=1000 && n<=400000; });
+}
 async function refineMarketFromFiles(id, doc){
   if(!doc) return;
   let text="";
@@ -11261,11 +11425,17 @@ async function refineMarketFromFiles(id, doc){
   if(found.length<2) return;
   const seed=Object.assign({}, APP.docs._market||seedMarketNumbers());
   const sorted=found.slice().sort(function(a,b){ return a-b; });
+  const kms=pullKmFromText(text);
+  const parsedFields=Object.assign({}, seed.parsedFields||{});
   if(id==="vauto_docs"){
     seed.average=round50(sorted[Math.min(1, sorted.length-1)]);
     seed.rough=round50(sorted[0]);
     seed.clean=round50(sorted[Math.min(2, sorted.length-1)]);
     seed.extraClean=round50(sorted[sorted.length-1]);
+    parsedFields.average=true;
+    parsedFields.rough=true;
+    parsedFields.clean=true;
+    parsedFields.extraClean=true;
     seed.mmr=round50(seed.average*0.97);
     seed.market=round50(seed.average*1.06);
     const bought=vautoBuyFromMarket(seed.market);
@@ -11275,11 +11445,27 @@ async function refineMarketFromFiles(id, doc){
     applyVautoDerived(seed, doc);
   } else if(id==="openlane_docs"){
     seed.olOffer=round50(sorted[Math.floor(sorted.length/2)]);
+    parsedFields.olOffer=true;
+    if(sorted.length>=2){
+      seed.olAvgPrice=round50(sorted.reduce(function(a,b){ return a+b; },0)/sorted.length);
+      parsedFields.olAvgPrice=true;
+    }
+    if(kms.length){
+      seed.olKm=Math.round(kms.reduce(function(a,b){ return a+b; },0)/kms.length);
+      parsedFields.olKm=true;
+    }
     applyOpenlaneDerived(seed, doc);
   } else if(id==="eblock_docs"){
     seed.ebAvg=round50(sorted.reduce(function(a,b){ return a+b; },0)/sorted.length);
+    parsedFields.ebAvg=true;
+    if(kms.length){
+      seed.ebKm=Math.round(kms.reduce(function(a,b){ return a+b; },0)/kms.length);
+      parsedFields.ebKm=true;
+    }
     applyEblockDerived(seed, doc);
   }
+  seed.parsed=true;
+  seed.parsedFields=parsedFields;
   APP.docs._market=Object.assign({}, APP.docs._market||{}, seed);
   paintDocs();
 }
@@ -11456,6 +11642,7 @@ function paintPacketDocs(host, opts){
     adds.appendChild(el);
   });
   host.appendChild(adds);
+  if(host.id==="centerDocs") return;
   paintDerivedMarket(host, store, readOnly);
 }
 function paintDerivedMarket(host, store, readOnly){
@@ -11938,7 +12125,7 @@ function printCarfaxRecreatePdf(item){
     d.text(body, 36, y+32);
     d.setFillColor(27,107,58); d.rect(0,H-40,W,40,"F");
     d.setTextColor(255,255,255); d.setFont("helvetica","bold"); d.setFontSize(8);
-    d.text("NOT OFFICIAL CARFAX  ·  SAMPLE / PENDING  ·  carfax-sample  ·  build d30l", 36, H-18);
+    d.text("NOT OFFICIAL CARFAX  ·  SAMPLE / PENDING  ·  carfax-sample  ·  build d30o", 36, H-18);
     d.setProperties({title:"SAMPLE PENDING NOT OFFICIAL CARFAX — 2024 RAV4 LE AWD", author:"G&M Appraisal Center"});
     d.save("rav4-2T3B1RFVXRC466025-carfax-sample.pdf");
     storeRav4CarfaxDoc(item);
