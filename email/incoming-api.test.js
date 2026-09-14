@@ -380,6 +380,88 @@ assert.equal(incoming.isPacketSend({
   assert.ok(blazer.finalRationale.markdown.indexOf("HOW WE GOT HERE") >= 0);
   assert.equal(blazer.finalRationale.panel.rybot.target, "19000");
 
+  incoming.resetStore();
+  incoming.route("POST", {
+    kind: "land",
+    item: {
+      id: "cmu0kchd1rgc1",
+      sendId: "sir78n6",
+      vin: "1FTFW1E87PKE74233",
+      ymmt: "2023 Ford F-150 Lariat",
+      appraisalFinal: { min: "45200", target: "47000", max: "49000" },
+      team: {
+        shabot: { min: "45200", target: "47000", max: "49000", note: "Sided Wes direction; overruled Ryan high exit; photo-blind cap" },
+        rybot: { min: "51000", target: "54000", max: "56000", note: "Exit too rich without photos" },
+        webot: { min: "44500", target: "46500", max: "48000", note: "Blind-packet exit" },
+        drebot: { min: "46500", target: "49500", max: "52000", note: "Shaved for zero photos" },
+        tbot: { min: "43000", target: "45500", max: "48000", note: "Slightly too bear" }
+      },
+      finalRationale: {
+        schema_version: "1.0",
+        title: "HOW WE GOT HERE",
+        markdown: "# HOW WE GOT HERE — Shabot FINAL\n## 2023 Ford F-150 Lariat · VIN 1FTFW1E87PKE74233",
+        panel: {
+          Rybot: { min: 51000, target: 54000, max: 56000, why: "Exit too rich without photos" },
+          Webot: { min: 44500, target: 46500, max: 48000, why: "Blind-packet exit" },
+          Drebot: { min: 46500, target: 49500, max: 52000, why: "Shaved for zero photos" },
+          TBot: { min: 43000, target: 45500, max: 48000, why: "Slightly too bear" }
+        }
+      },
+      customer: { name: "F-150" }
+    }
+  });
+  incoming.route("POST", {
+    kind: "land",
+    item: {
+      id: "cmu0kchd1rgc1",
+      sendId: "sir78n6",
+      teamActivated: true,
+      teamStatus: "running",
+      team: { shabot: { min: "45200", target: "47000", max: "49000", note: "" } },
+      customer: { name: "F-150" }
+    }
+  });
+  const f150Keep = incoming.listItems()[0];
+  assert.equal(f150Keep.team.rybot.target, "54000", "shabot-only Center land keeps Rybot numbers");
+  assert.equal(f150Keep.team.rybot.note, "Exit too rich without photos", "shabot-only Center land keeps Rybot note");
+  assert.equal(f150Keep.team.webot.note, "Blind-packet exit");
+  assert.equal(f150Keep.team.drebot.target, "49500");
+  assert.equal(f150Keep.team.tbot.max, "48000");
+  assert.equal(f150Keep.finalRationale.schema_version, "1.0");
+  assert.ok(f150Keep.finalRationale.markdown.indexOf("HOW WE GOT HERE — Shabot FINAL") >= 0, "markdown survives shabot-only land");
+  incoming.route("POST", {
+    kind: "land",
+    item: {
+      id: "cmu0kchd1rgc1",
+      sendId: "sir78n6",
+      team: {
+        shabot: { min: "45200", target: "47000", max: "49000", note: "" },
+        rybot: { min: "51000", target: "54000", max: "56000", note: "" }
+      },
+      finalRationale: { schema_version: "1.0" },
+      customer: { name: "F-150" }
+    }
+  });
+  const f150Stub = incoming.listItems()[0];
+  assert.equal(f150Stub.team.rybot.note, "Exit too rich without photos", "empty next note does not wipe Incoming Rybot note");
+  assert.ok(f150Stub.finalRationale.markdown.indexOf("HOW WE GOT HERE") >= 0, "schema_version stub does not wipe markdown");
+  assert.equal(f150Stub.finalRationale.panel.Rybot.why, "Exit too rich without photos");
+
+  incoming.resetStore();
+  incoming.route("POST", {
+    kind: "land",
+    item: {
+      id: "c-empty-keep",
+      sendId: "s-empty-keep",
+      vin: "1FTEW1EP6PFA00001",
+      ymmt: "Empty file",
+      customer: { name: "Empty" }
+    }
+  });
+  const emptyKeep = incoming.listItems()[0];
+  assert.ok(!emptyKeep.appraisalFinal || !emptyKeep.appraisalFinal.target, "empty file does not invent FINAL");
+  assert.ok(!emptyKeep.team || !emptyKeep.team.rybot || !emptyKeep.team.rybot.target, "empty file does not invent Rybot");
+
   console.log("incoming-api: ok");
 })().catch(function (err) {
   console.error(err);

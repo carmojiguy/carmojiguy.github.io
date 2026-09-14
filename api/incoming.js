@@ -156,7 +156,7 @@ function slimItem(raw) {
         min: String(s.min || ""),
         target: String(s.target || ""),
         max: String(s.max || ""),
-        note: String(s.note || "")
+        note: String(s.note || s.why || "")
       };
     });
   }
@@ -221,8 +221,116 @@ function slotHasNumbers(slot) {
 function rationaleRich(rat) {
   if (!rat || typeof rat !== "object") return false;
   if (String(rat.markdown || "").trim() || String(rat.title || "").trim()) return true;
-  if (rat.panel && typeof rat.panel === "object" && Object.keys(rat.panel).length) return true;
+  if (rat.panel && typeof rat.panel === "object") {
+    var keys = Object.keys(rat.panel);
+    for (var i = 0; i < keys.length; i++) {
+      var s = rat.panel[keys[i]];
+      if (!s || typeof s !== "object") continue;
+      if (String(s.min || "").trim() || String(s.target || "").trim() || String(s.max || "").trim() || String(s.why || s.note || "").trim()) return true;
+    }
+  }
   return !!(rat.shabot && (rat.shabot.min || rat.shabot.target || rat.shabot.max || rat.shabot.note));
+}
+
+function rationaleScore(r) {
+  if (!r || typeof r !== "object") return 0;
+  var n = 0;
+  if (String(r.schema_version || "") === "1.0") n += 20;
+  n += String(r.markdown || "").trim().length;
+  n += String(r.title || "").trim().length;
+  n += String(r.shabot && (r.shabot.note || r.shabot.why) || "").trim().length;
+  var p = r.panel;
+  if (p && typeof p === "object") {
+    Object.keys(p).forEach(function (k) {
+      var s = p[k];
+      if (!s || typeof s !== "object") return;
+      if (s.min != null && s.min !== "") n += 4;
+      if (s.target != null && s.target !== "") n += 4;
+      if (s.max != null && s.max !== "") n += 4;
+      n += String(s.why || s.note || "").trim().length;
+    });
+  }
+  return n;
+}
+
+function mergeFinalRationale(prev, next) {
+  var pr = prev && prev.finalRationale;
+  var nr = next && next.finalRationale;
+  var ps = rationaleScore(pr);
+  var ns = rationaleScore(nr);
+  if (ps > ns) {
+    next.finalRationale = pr;
+    return;
+  }
+  if (!nr || typeof nr !== "object") {
+    if (pr) next.finalRationale = pr;
+    return;
+  }
+  if (!pr || typeof pr !== "object") return;
+  var merged = Object.assign({}, pr, nr);
+  if (!String(nr.markdown || "").trim() && String(pr.markdown || "").trim()) merged.markdown = pr.markdown;
+  if (!String(nr.title || "").trim() && String(pr.title || "").trim()) merged.title = pr.title;
+  if (nr.shabot && typeof nr.shabot === "object" && pr.shabot && typeof pr.shabot === "object") {
+    var sh = Object.assign({}, pr.shabot, nr.shabot);
+    if (!String(nr.shabot.note || nr.shabot.why || "").trim() && String(pr.shabot.note || pr.shabot.why || "").trim()) {
+      sh.note = pr.shabot.note || pr.shabot.why;
+    }
+    merged.shabot = sh;
+  } else if (!nr.shabot && pr.shabot) {
+    merged.shabot = pr.shabot;
+  }
+  if (String(pr.schema_version || "") === "1.0" && String(nr.schema_version || "") !== "1.0") {
+    merged.schema_version = pr.schema_version;
+  }
+  var pp = pr.panel && typeof pr.panel === "object" ? pr.panel : {};
+  var np = nr.panel && typeof nr.panel === "object" ? nr.panel : {};
+  var panel = Object.assign({}, pp, np);
+  Object.keys(pp).forEach(function (k) {
+    var pslot = pp[k];
+    var nslot = np[k];
+    if (!pslot || typeof pslot !== "object") return;
+    if (!nslot || typeof nslot !== "object") {
+      panel[k] = pslot;
+      return;
+    }
+    var m = Object.assign({}, pslot, nslot);
+    if (!String(nslot.why || nslot.note || "").trim()) {
+      if (pslot.why) m.why = pslot.why;
+      if (pslot.note && !String(m.note || "").trim()) m.note = pslot.note;
+    } else if (String(pslot.why || pslot.note || "").trim().length > String(nslot.why || nslot.note || "").trim().length) {
+      if (pslot.why) m.why = pslot.why;
+      if (pslot.note) m.note = pslot.note;
+    }
+    ["min", "target", "max"].forEach(function (f) {
+      if ((nslot[f] == null || nslot[f] === "") && pslot[f] != null && pslot[f] !== "") m[f] = pslot[f];
+    });
+    panel[k] = m;
+  });
+  if (Object.keys(pp).length) merged.panel = panel;
+  if (rationaleScore(merged) >= ns) next.finalRationale = merged;
+}
+
+function mergeTeamSlots(prev, next) {
+  var pt = (prev && prev.team && typeof prev.team === "object") ? prev.team : {};
+  var nt = (next && next.team && typeof next.team === "object") ? next.team : {};
+  var out = Object.assign({}, pt, nt);
+  ["shabot", "rybot", "webot", "drebot", "tbot"].forEach(function (k) {
+    var p = pt[k];
+    var n = nt[k];
+    if (n && typeof n === "object" && p && typeof p === "object") {
+      var m = Object.assign({}, p, n);
+      var pn = String(p.note || "").trim();
+      var nn = String(n.note || "").trim();
+      if (pn.length > nn.length) m.note = p.note;
+      ["min", "target", "max"].forEach(function (f) {
+        if ((n[f] == null || n[f] === "") && p[f] != null && p[f] !== "") m[f] = p[f];
+      });
+      out[k] = m;
+    } else if (p && !n) {
+      out[k] = p;
+    }
+  });
+  if (Object.keys(out).length) next.team = out;
 }
 
 function settleRunningIfFinal(item) {
@@ -241,15 +349,11 @@ function keepExistingFinal(prev, next) {
       if (prev[k] != null && prev[k] !== "") next[k] = prev[k];
     });
   }
-  if (rationaleRich(prev.finalRationale) && !rationaleRich(next.finalRationale)) {
-    next.finalRationale = prev.finalRationale;
-  }
-  if (prev.team) {
-    next.team = next.team || {};
-    ["shabot", "rybot", "webot", "drebot", "tbot"].forEach(function (k) {
-      if (slotHasNumbers(prev.team[k]) && !slotHasNumbers(next.team[k])) next.team[k] = prev.team[k];
-    });
-  }
+  // Empty/thin Center land (shabot-only refresh, schema_version stub, empty panel)
+  // never wipes Incoming team.{rybot,webot,drebot,tbot,shabot} notes or
+  // finalRationale schema_version 1.0 markdown + panel.
+  mergeFinalRationale(prev, next);
+  mergeTeamSlots(prev, next);
   return next;
 }
 
