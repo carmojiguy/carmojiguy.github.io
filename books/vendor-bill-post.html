@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Post · Vendor bill</title>
+  <style>
+    :root { font-family: ui-sans-serif, system-ui, sans-serif; }
+    body { margin: 0; background: #ececec; color: #111; }
+    .wrap { max-width: 720px; margin: 24px auto; padding: 0 16px; }
+    .card {
+      background: #fff; border-radius: 16px; padding: 18px 18px 22px;
+      box-shadow: 0 0 0 1px rgba(0,0,0,.06);
+    }
+    h1 { font-size: 15px; font-weight: 600; margin: 0 0 4px; }
+    .lede { font-size: 12px; color: #6b7280; margin: 0 0 14px; }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 8px; }
+    .chip {
+      border: 0; border-radius: 999px; padding: 7px 12px; font-size: 12px;
+    }
+    .chip.on { background: #111; color: #fff; }
+    .chip.off { background: #f3f4f6; color: #6b7280; }
+    .hint { font-size: 12px; color: #6b7280; margin: 0 0 12px; }
+    label { display: block; font-size: 13px; font-weight: 500; margin: 0 0 6px; }
+    select {
+      width: 100%; height: 44px; border: 0; border-radius: 12px;
+      background: #f7f7f8; padding: 0 12px; font-size: 14px; margin-bottom: 14px;
+    }
+    .drop {
+      border: 1px dashed #d1d5db; border-radius: 16px; background: #fafafa;
+      text-align: center; padding: 28px 12px 24px;
+    }
+    .drop p { margin: 0 0 6px; font-size: 14px; font-weight: 600; }
+    .drop .sub { font-size: 12px; color: #6b7280; font-weight: 400; margin-bottom: 14px; }
+    .row { display: flex; gap: 8px; justify-content: center; }
+    .btn {
+      border: 0; background: #f3f4f6; border-radius: 12px; height: 40px;
+      padding: 0 14px; font-size: 13px; font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card" data-job="bill">
+      <h1>Vendor bill</h1>
+      <p class="lede">Never type an invoice. Photo or PDF first — then review what the scan read. No image, no journal.</p>
+      <div class="chips" id="chips" aria-label="Destination"></div>
+      <p class="hint" id="hint"></p>
+      <div id="woBlock">
+        <label for="wo">Work order</label>
+        <select id="wo">
+          <option value="wo-1043">WO-1043 · Check engine on — P0171 system too lean bank 1</option>
+        </select>
+      </div>
+      <div class="drop">
+        <p>Photograph or drop the invoice</p>
+        <p class="sub">Camera, PDF, or a photo from the roll</p>
+        <div class="row">
+          <button class="btn" type="button">Camera</button>
+          <button class="btn" type="button">Upload</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    var dests = [
+      { id: "wo", label: "Work Order", hint: "Dr 1200 · cost on the RO until invoiced" },
+      { id: "parts", label: "Parts shelf", hint: "Dr 1200 · sits until a RO uses it" },
+      { id: "stock", label: "A stock number", hint: "Recon on the VIN · Dr 1100" },
+      { id: "krown", label: "Krown supplies", hint: "Dr 5700" },
+      { id: "overhead", label: "Overhead", hint: "Rent, hydro, phones · Dr 5300" },
+    ];
+    var chips = document.getElementById("chips");
+    dests.forEach(function (d, i) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "chip " + (i === 0 ? "on" : "off");
+      b.setAttribute("data-dest", d.id);
+      b.textContent = d.label;
+      chips.appendChild(b);
+    });
+    document.getElementById("hint").textContent = dests[0].hint;
+  </script>
+</body>
+</html>

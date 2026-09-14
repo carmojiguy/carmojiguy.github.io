@@ -412,10 +412,72 @@ function applyFromScanText(text, vendor) {
   return "parts";
 }
 
+/**
+ * Live Yt form (accounting-CymDpuHW.js): dest chips live inside `source && …`.
+ * `/accounting?view=post&job=bill` therefore shows Camera/Upload only —
+ * ShawnBot + CoS 2026-09-14 full FAIL. Receive→WO is a different screen.
+ */
+var LIVE_POST_BILL_GATES_DESTS_ON_PHOTO = true;
+
+function livePostBillScreen() {
+  return {
+    url: "/accounting?view=post&job=bill",
+    destsVisible: false,
+    dests: [],
+    camera: true,
+    upload: true,
+    reason: "dest chips gated on photo/PDF source",
+  };
+}
+
+/**
+ * Patched Post → Vendor bill screen. Dest picker is on the card with
+ * Camera/Upload — not hidden until a scan. Photo is still required to post.
+ */
+function postBillScreen(opts) {
+  var apply = (opts && opts.apply) || "wo";
+  var source = opts && opts.source;
+  var workOrders = ((opts && opts.workOrders) || []).filter(function (wo) {
+    return wo.status !== "closed";
+  });
+  var woId = (opts && opts.woId) || (workOrders[0] && workOrders[0].id) || "";
+  return {
+    url: "/accounting?view=post&job=bill",
+    title: "Vendor bill",
+    destsVisible: true,
+    dests: BILL_DESTS,
+    destLabels: destLabels(BILL_DESTS),
+    apply: apply,
+    woPicker: apply === "wo",
+    woId: woId,
+    openWorkOrders: workOrders,
+    camera: true,
+    upload: true,
+    canSubmit: !!(source && source.dataUrl),
+  };
+}
+
+function renderDestChipsHtml(apply) {
+  var current = apply || "wo";
+  return BILL_DESTS.map(function (d) {
+    var on = d.id === current;
+    return (
+      '<button type="button" data-dest="' +
+      d.id +
+      '" class="chip ' +
+      (on ? "on" : "off") +
+      '">' +
+      d.label +
+      "</button>"
+    );
+  }).join("");
+}
+
 module.exports = {
   BILL_DESTS: BILL_DESTS,
   BILL_GL: BILL_GL,
   LIVE_BILL_DESTS: LIVE_BILL_DESTS,
+  LIVE_POST_BILL_GATES_DESTS_ON_PHOTO: LIVE_POST_BILL_GATES_DESTS_ON_PHOTO,
   RECEIVE_DESTS: RECEIVE_DESTS,
   applyFromScanText: applyFromScanText,
   destDesk: destDesk,
@@ -423,7 +485,10 @@ module.exports = {
   findWorkOrder: findWorkOrder,
   hasWorkOrderDest: hasWorkOrderDest,
   journalFromVendorBill: journalFromVendorBill,
+  livePostBillScreen: livePostBillScreen,
+  postBillScreen: postBillScreen,
   postVendorBill: postVendorBill,
+  renderDestChipsHtml: renderDestChipsHtml,
   setPartDestination: setPartDestination,
   validateVendorBill: validateVendorBill,
   woCostLine: woCostLine,

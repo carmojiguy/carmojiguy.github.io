@@ -68,6 +68,24 @@ assert.deepEqual(
   "Parts Receive dests stay WO | Stock | Department"
 );
 
+assert.equal(Bill.LIVE_POST_BILL_GATES_DESTS_ON_PHOTO, true, "live job=bill hides dests until a photo");
+const liveScreen = Bill.livePostBillScreen();
+assert.equal(liveScreen.destsVisible, false, "ShawnBot URL: Camera/Upload only, no dest picker");
+assert.equal(liveScreen.camera, true);
+assert.equal(liveScreen.upload, true);
+
+const emptyPost = Bill.postBillScreen({
+  source: null,
+  apply: "wo",
+  workOrders: [JSON.parse(JSON.stringify(WO1043))],
+});
+assert.equal(emptyPost.destsVisible, true, "patched job=bill shows dests with Camera/Upload");
+assert.ok(emptyPost.destLabels.indexOf("Work Order") === 0, "Work Order is a dest on the empty Post bill card");
+assert.equal(emptyPost.woPicker, true);
+assert.equal(emptyPost.canSubmit, false, "still no journal without a photo");
+assert.ok(Bill.renderDestChipsHtml("wo").indexOf("data-dest=\"wo\"") >= 0);
+assert.ok(Bill.renderDestChipsHtml("wo").indexOf("Work Order") >= 0);
+
 const source = { name: "napa.jpg", mime: "image/jpeg", dataUrl: PNG };
 const billInput = {
   vendor: "NAPA Autopro",
