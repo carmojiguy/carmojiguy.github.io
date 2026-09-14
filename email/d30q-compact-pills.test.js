@@ -24,6 +24,12 @@ function sliceFn(name, next) {
   assert.ok(end > start, name + " end found");
   return html.slice(start, end);
 }
+function slice(start, endMarker) {
+  const a = html.indexOf(start);
+  const b = html.indexOf(endMarker, a);
+  assert.ok(a > 0 && b > a, "slice not found: " + start);
+  return html.slice(a, b);
+}
 function sha(s) {
   return crypto.createHash("sha256").update(s).digest("hex");
 }
@@ -64,9 +70,9 @@ assert.ok(/openMarketDocSheet/.test(paint), "Center add pills still open the she
 assert.ok(/openMarketSite/.test(paint), "launch chips still open sites / Carfax control");
 assert.ok(/pickPhotoLibrary/.test(paint), "Appraise home still picks files when no Center item");
 
-const share = sliceFn("sharePacket", "resetAll");
-const kick = sliceFn("kickShare", "packetSendId");
-const send = sliceFn("sendFromMe", "openEml");
+const share = slice("async function sharePacket(){", "\nfunction resetAll()");
+const kick = slice("function kickShare(){", "\nfunction packetSendId(");
+const send = slice("async function sendFromMe(", "\nfunction openEml(");
 assert.equal(sha(share), "89ddee81289962020d2a4277f941f60a93d110d42312da85ad94eaeaf8cdb170", "sharePacket is byte-identical to d25s");
 assert.equal(sha(kick), "8916eec5374600903af5f69dff305cbc33a4fc168f420d3cc7267e8bb4be9b5f", "kickShare is byte-identical to d25s");
 assert.equal(sha(send), "a87ba1cb730ce79683938a05a22d839878d60319f35418efb408cabdcf9a9b49", "sendFromMe is byte-identical to d25s");
