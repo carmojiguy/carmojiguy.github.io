@@ -142,6 +142,40 @@ assert.equal(incoming.isPacketSend({
   assert.equal(newer.id, "cmu0avif7rslu", "newer remote keeps its own id");
   assert.equal(older.id, "guest-chris-rav4-20260913", "older remote keeps its own id");
 
+  incoming.resetStore();
+  incoming.route("POST", {
+    kind: "land",
+    item: {
+      id: "lane-hist-1",
+      sendId: "s-hist",
+      vin: "2T3B1RFVXRC466025",
+      ymmt: "2024 Toyota RAV4",
+      lane: "history",
+      archived: true,
+      stage: "Appraised",
+      customer: { name: "Chris Cyr" }
+    }
+  });
+  const hist = incoming.listItems()[0];
+  assert.equal(hist.lane, "history", "mailer keeps History lane");
+  assert.equal(hist.archived, true, "mailer keeps archived true");
+  assert.equal(hist.stage, "Appraised", "History land is Appraised");
+  incoming.route("POST", {
+    kind: "land",
+    item: {
+      id: "lane-hist-1",
+      sendId: "s-hist",
+      vin: "2T3B1RFVXRC466025",
+      lane: "onsite",
+      archived: false,
+      stage: "Waiting",
+      sentAt: Date.now(),
+      customer: { name: "Chris Cyr" }
+    }
+  });
+  assert.equal(incoming.listItems()[0].lane, "onsite", "mailer accepts On-site move");
+  assert.equal(incoming.listItems()[0].archived, false, "On-site move clears archived");
+
   console.log("incoming-api: ok");
 })().catch(function (err) {
   console.error(err);

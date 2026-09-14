@@ -24,7 +24,7 @@ const KEYS = [
   "id", "sendId", "vin", "year", "make", "model", "trim", "color", "km", "stock",
   "ymmt", "purpose", "dealType", "leadSource", "source", "lane", "stage", "story",
   "webcopy", "photoCount", "thumb", "requestedBy", "requestedByName", "sentBy",
-  "salesperson", "interest", "sentAt", "updatedAt", "inviteUnit"
+  "salesperson", "interest", "sentAt", "updatedAt", "inviteUnit", "archived"
 ];
 
 function cors(origin) {
@@ -98,8 +98,13 @@ function slimItem(raw) {
   item.sentAt = Number(raw.sentAt || Date.now());
   item.updatedAt = Number(raw.updatedAt || Date.now());
   item.source = raw.source || "guest";
-  item.lane = (raw.lane === "needsdocs" || raw.lane === "onsite") ? raw.lane : (raw.lane || "inbox");
+  item.lane = (raw.lane === "needsdocs" || raw.lane === "onsite" || raw.lane === "history" || raw.lane === "inbox") ? raw.lane : (raw.lane || "inbox");
+  item.archived = !!raw.archived;
   item.stage = raw.stage || "Waiting";
+  if (item.lane === "history") {
+    item.archived = true;
+    item.stage = raw.stage || "Appraised";
+  }
   item.customer = slimCustomer(raw.customer);
   item.docs = slimDocs(raw.docs);
   item.thumb = String(raw.thumb || "").slice(0, 180000);

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-14 build d30e: never VIN-collapse; new Send = new On-site card; lock superseded with New appraisal submitted; Refresh + abandoned Continue/Start; RAV4 $24k + Carfax stay; Thank-you frozen; sales PDF packet stays; zero Center samples -->
+<!-- center-v3 + desk-home 2026-09-14 build d30f: on-tile status dropdown moves Incoming / On-site / Needs docs / History; Center store + mailer Incoming POST; Thank-you frozen; sales PDF packet stays; zero Center samples -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -930,6 +930,30 @@ body.center-locked #centerDock {
 .stage-tag.wait { background:#FFF3D6; color:#8A5A00; }
 .stage-tag.done { background:#D8F5E5; color:#0F6B3C; }
 .stage-tag.docs { background:#FFE0F0; color:#B01050; }
+.lane-dd {
+  position:relative; display:inline-flex; align-items:center; vertical-align:middle;
+  z-index:5;
+}
+.lane-dd-chip {
+  display:inline-flex; align-items:center; margin:0; padding:5px 22px 5px 10px;
+  pointer-events:none;
+}
+.lane-dd-chip:after {
+  content:""; position:absolute; right:8px; top:50%;
+  border-left:4px solid transparent; border-right:4px solid transparent;
+  border-top:5px solid currentColor; transform:translateY(-40%); opacity:.65;
+}
+.lane-dd-sel {
+  position:absolute; inset:0; opacity:0; cursor:pointer;
+  width:100%; height:100%; margin:0; border:0; background:transparent;
+  font-size:16px; appearance:none; -webkit-appearance:none;
+}
+.lane-dd.inbox .lane-dd-chip { background:#E8F7FF; color:#0077A8; }
+.lane-dd.onsite .lane-dd-chip { background:#D8F5E5; color:#0F6B3C; }
+.lane-dd.needsdocs .lane-dd-chip { background:#FFE0F0; color:#B01050; }
+.lane-dd.history .lane-dd-chip { background:#EFE8FF; color:#5B3FE0; }
+.center-desk-lane { display:inline-flex; margin:0; }
+.center-desk-lane .lane-dd-chip { font-size:12px; letter-spacing:.04em; text-transform:uppercase; padding:6px 24px 6px 12px; }
 .docs-gate {
   display:none; position:fixed; inset:0; z-index:90; padding:20px 16px;
   background:rgba(17,14,26,.42); align-items:flex-end; justify-content:center;
@@ -1770,7 +1794,17 @@ body.center-gallery-on { overflow:hidden; }
   <div class="pad center-desk" id="centerDetailBody">
     <div class="center-detail-bar">
       <button class="round center-close-x" type="button" id="centerDetailClose" aria-label="Close vehicle">✕</button>
-      <div class="badge" id="centerDetailBadge">Waiting</div>
+      <div class="center-desk-lane" id="centerDetailBadge">
+        <label class="lane-dd inbox">
+          <em class="lane-dd-chip stage-tag">Incoming</em>
+          <select class="lane-dd-sel" aria-label="Move to lane">
+            <option value="inbox" selected>Incoming</option>
+            <option value="onsite">On-site</option>
+            <option value="needsdocs">Needs docs</option>
+            <option value="history">History</option>
+          </select>
+        </label>
+      </div>
     </div>
     <div class="center-supersede-mark hide" id="centerSupersedeMark">New appraisal submitted</div>
     <h2 id="centerDetailTitle">Vehicle</h2>
@@ -1963,7 +1997,7 @@ body.center-gallery-on { overflow:hidden; }
     <p class="quote" id="vinHint">Best: take a picture of the vehicle ownership (registration). You can also photograph the VIN on the dash or the sticker on the driver’s door. We’ll read the number from the photo.</p>
     <p class="vin-chip hide" id="vinChip"></p>
     </div>
-    <p class="build-stamp" id="buildStamp">build d30e</p>
+    <p class="build-stamp" id="buildStamp">build d30f</p>
   </div>
 </section>
 
@@ -2422,7 +2456,7 @@ body.center-gallery-on { overflow:hidden; }
   <div class="card">
     <button class="x" type="button" data-close="typeSheet">✕</button>
     <h3>Appraisal type</h3>
-    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d30e</span></p>
+    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d30f</span></p>
     <div id="typeChips" class="to-chips"></div>
     <div id="leadBox" class="lead-box hide">
       <p class="hint">Lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a New application — no appointment calendar.</p>
@@ -6198,20 +6232,25 @@ function closeStaffHist(){
 }
 function staffHistRow(item, extra){
   extra=extra||{};
-  const btn=document.createElement("button");
-  btn.type="button";
+  const btn=document.createElement("div");
+  btn.setAttribute("role","button");
+  btn.tabIndex=0;
   const locked=typeof isSupersededCenter==="function" && isSupersededCenter(item);
   btn.className="acre-row"+(locked?" superseded":"");
   const when=typeof centerWhen==="function"?centerWhen(item):0;
   const status=staffStatusLabel(item);
   const thumb=item.thumb ? '<img src="'+item.thumb+'" alt="">' : esc((item.ymmt||item.interest||"?").slice(0,3).toUpperCase());
-  const flags='<em class="stage-tag '+(status==="Completed"?"done":status==="Waiting on customer"?"waitcust":"sent")+'">'+esc(status==="Waiting on customer"?"Waiting":status)+'</em>'+(item.sample?'<i class="sample-badge">Sample</i>':'');
+  const centerFile=!!(item && !extra.remind && (item.lane || item.archived || item.stage==="Appraised") && typeof centerLaneChipHtml==="function");
+  const flags=centerFile
+    ? centerLaneChipHtml(item)+(item.sample?'<i class="sample-badge">Sample</i>':'')
+    : '<em class="stage-tag '+(status==="Completed"?"done":status==="Waiting on customer"?"waitcust":"sent")+'">'+esc(status==="Waiting on customer"?"Waiting":status)+'</em>'+(item.sample?'<i class="sample-badge">Sample</i>':'');
   const mark=locked?'<span class="acre-watermark">New appraisal submitted</span>':"";
   btn.innerHTML='<div class="acre-thumb">'+thumb+'</div><div class="acre-meta"><p class="name">'+esc(item.ymmt||item.interest||"Vehicle")+'</p><p class="sentby">'+esc((item.customer&&item.customer.name)||item.salesperson||"Staff")+(when?" · "+esc(timeAgo(when)):"")+'</p><div class="acre-flags">'+flags+'</div>'+(extra.remind?'<button class="remind-btn" type="button">Send reminder</button>':"")+'</div>'+mark;
   if(extra.remind){
     const r=btn.querySelector(".remind-btn");
     r.onclick=function(e){ e.preventDefault(); e.stopPropagation(); sendTradeReminder(item); };
   }
+  if(centerFile) bindCenterLaneChip(btn, item);
   btn.onclick=function(){
     closeStaffHist();
     closeTradeLane();
@@ -7386,6 +7425,7 @@ function isNeedsDocsItem(item){
 }
 function centerLaneOf(item){
   if(!item) return "onsite";
+  if(item.lanePick==="inbox"||item.lanePick==="onsite"||item.lanePick==="needsdocs"||item.lanePick==="history") return item.lanePick;
   if(isCenterArchived(item)) return "history";
   if(isNeedsDocsItem(item)) return "needsdocs";
   if(isLandedCenterPacket(item) && marketDocsComplete(item.docs) && (item.lane==="inbox" || item.lane==="needsdocs" || !item.lane)) return "onsite";
@@ -7397,7 +7437,7 @@ function purgeDocsLaneDrift(){
   const store=centerStore();
   let changed=false;
   store.items.forEach(function(item){
-    if(!item || isCenterSample(item) || isCenterArchived(item)) return;
+    if(!item || isCenterSample(item) || isCenterArchived(item) || item.lanePick) return;
     if(!isLandedCenterPacket(item)) return;
     const routed=laneFromMarketDocs(item.docs, item.lane);
     if(item.lane!==routed.lane || item.docsIncomplete!==routed.docsIncomplete){
@@ -7412,6 +7452,95 @@ function purgeDocsLaneDrift(){
 }
 function centerLaneLabel(lane){
   return ({inbox:"Incoming", onsite:"On-site", history:"History", needsdocs:"Needs docs"})[lane] || "Incoming";
+}
+const CENTER_LANE_OPTS=[["inbox","Incoming"],["onsite","On-site"],["needsdocs","Needs docs"],["history","History"]];
+function normalizeCenterLane(lane){
+  const k=String(lane||"").toLowerCase().replace(/\s+/g,"");
+  if(k==="inbox"||k==="incoming") return "inbox";
+  if(k==="onsite"||k==="on-site") return "onsite";
+  if(k==="needsdocs"||k==="needs-docs") return "needsdocs";
+  if(k==="history") return "history";
+  return "";
+}
+function applyCenterLaneMove(item, lane){
+  const want=normalizeCenterLane(lane);
+  if(!item || !want) return item;
+  item.lanePick=want;
+  item.lane=want;
+  item.updatedAt=Date.now();
+  if(want==="history"){
+    item.archived=true;
+    item.stage="Appraised";
+  } else {
+    item.archived=false;
+    if(item.stage==="Appraised") item.stage="Waiting";
+    item.docsIncomplete=want==="needsdocs";
+  }
+  return item;
+}
+function slimCenterLaneItem(item){
+  const slim=typeof slimSharedCenterItem==="function"?slimSharedCenterItem(item):{id:item&&item.id};
+  const lane=item.lanePick||item.lane||slim.lane||"inbox";
+  slim.lane=lane;
+  slim.archived=!!item.archived;
+  slim.stage=item.stage||slim.stage||"Waiting";
+  slim.updatedAt=item.updatedAt||Date.now();
+  if(lane==="history"){
+    slim.archived=true;
+    slim.stage="Appraised";
+  }
+  return slim;
+}
+function shareCenterLaneBestEffort(item){
+  try{
+    if(!item || !item.id || (typeof isCenterSample==="function" && isCenterSample(item))) return;
+    const payload={kind:"land", item:slimCenterLaneItem(item)};
+    const req=timedFetch(MAIL_HOST+"/api/incoming", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify(payload)
+    }, 8000);
+    if(req && typeof req.catch==="function") req.catch(function(){});
+  }catch(e){}
+}
+function moveCenterLane(id, lane){
+  const item=typeof patchCenter==="function"?patchCenter(id, function(x){ applyCenterLaneMove(x, lane); }):null;
+  if(!item) return null;
+  try{ shareCenterLaneBestEffort(item); }catch(e){}
+  if(typeof paintCenter==="function") paintCenter();
+  if(typeof paintCenterDetail==="function") paintCenterDetail();
+  if(APP.staffHistKind && typeof paintStaffHistory==="function") paintStaffHistory(APP.staffHistKind);
+  return item;
+}
+function centerLaneChipHtml(item){
+  const lane=centerLaneOf(item);
+  const opts=CENTER_LANE_OPTS.map(function(pair){
+    return '<option value="'+pair[0]+'"'+(pair[0]===lane?" selected":"")+'>'+pair[1]+'</option>';
+  }).join("");
+  return '<label class="lane-dd '+lane+'">'+
+    '<em class="lane-dd-chip stage-tag">'+esc(centerLaneLabel(lane))+'</em>'+
+    '<select class="lane-dd-sel" aria-label="Move to lane">'+opts+'</select>'+
+  '</label>';
+}
+function bindCenterLaneChip(root, item){
+  if(!root || !item) return;
+  const sel=root.querySelector(".lane-dd-sel");
+  if(!sel) return;
+  function stop(e){ if(e) e.stopPropagation(); }
+  sel.addEventListener("click", stop);
+  sel.addEventListener("mousedown", stop);
+  sel.addEventListener("pointerdown", stop);
+  sel.addEventListener("touchstart", stop);
+  const lab=root.querySelector(".lane-dd");
+  if(lab){
+    lab.addEventListener("click", stop);
+    lab.addEventListener("mousedown", stop);
+  }
+  sel.onchange=function(e){
+    stop(e);
+    if(sel.value===centerLaneOf(item)) return;
+    moveCenterLane(item.id, sel.value);
+  };
 }
 function centerLaneCounts(){
   seedCenterSamples();
@@ -7444,7 +7573,6 @@ function acreRow(item){
   const when=centerWhen(item);
   const sent=when ? timeAgo(when) : "";
   const lane=centerLaneOf(item);
-  const status=centerStatus(item);
   const aged=isCenterAged(item);
   const thumb=item.thumb
     ? '<img src="'+item.thumb+'" alt="">'
@@ -7452,14 +7580,15 @@ function acreRow(item){
   const fin=(lane==="onsite" && !isNeedsDocsItem(item)) ? resolveAppraisalFinal(item) : null;
   const flags=
     (item.sample?'<i class="sample-badge">Sample</i>':'')+
-    '<em class="stage-tag '+(status==="Done"?"done":(isNeedsDocsItem(item)?"docs":"wait"))+'">'+esc(isNeedsDocsItem(item)?"Needs docs":(lane==="inbox" && !item.photoCount ? "Incomplete" : status))+'</em>'+
+    centerLaneChipHtml(item)+
     (item.deskTeam?'<i class="acre-team">'+esc(item.deskTeam)+'</i>':'')+
     (aged?'<i class="arch-tag">90-day archive</i>':'')+
     (fin && fin.target ? '<i class="final-chip">TARGET '+esc(moneyShort(fin.target))+'</i>':'');
   const locked=typeof isSupersededCenter==="function" && isSupersededCenter(item);
   const mark=locked?'<span class="acre-watermark">New appraisal submitted</span>':"";
-  const btn=document.createElement("button");
-  btn.type="button";
+  const btn=document.createElement("div");
+  btn.setAttribute("role","button");
+  btn.tabIndex=0;
   btn.className="acre-row"+(lane==="inbox"?" inbox":"")+(APP.centerViewId===item.id?" on":"")+(locked?" superseded":"");
   if(lane==="inbox"){
     const phone=(item.customer && item.customer.phone) || "";
@@ -7488,6 +7617,7 @@ function acreRow(item){
     }
     openCenterDetail(item.id);
   };
+  bindCenterLaneChip(btn, item);
   return btn;
 }
 function paintCenter(){
@@ -7950,7 +8080,17 @@ function ensureCenterDetailScaffold(){
   body.innerHTML=
     '<div class="center-detail-bar">'+
       '<button class="round center-close-x" type="button" id="centerDetailClose" aria-label="Close vehicle">✕</button>'+
-      '<div class="badge" id="centerDetailBadge">Waiting</div>'+
+      '<div class="center-desk-lane" id="centerDetailBadge">'+
+        '<label class="lane-dd inbox">'+
+          '<em class="lane-dd-chip stage-tag">Incoming</em>'+
+          '<select class="lane-dd-sel" aria-label="Move to lane">'+
+            '<option value="inbox" selected>Incoming</option>'+
+            '<option value="onsite">On-site</option>'+
+            '<option value="needsdocs">Needs docs</option>'+
+            '<option value="history">History</option>'+
+          '</select>'+
+        '</label>'+
+      '</div>'+
     '</div>'+
     '<div class="center-supersede-mark hide" id="centerSupersedeMark">New appraisal submitted</div>'+
     '<h2 id="centerDetailTitle">Vehicle</h2>'+
@@ -8046,7 +8186,11 @@ function paintCenterDetail(){
   if($("centerStageBtn")) $("centerStageBtn").classList.remove("hide");
   if($("centerDock")) $("centerDock").classList.remove("hide");
   if($("centerDetailHead")) $("centerDetailHead").textContent=item.sample ? "Sample file" : "File";
-  if($("centerDetailBadge")) $("centerDetailBadge").textContent=centerLaneLabel(centerLaneOf(item));
+  if($("centerDetailBadge")){
+    $("centerDetailBadge").className="center-desk-lane";
+    $("centerDetailBadge").innerHTML=centerLaneChipHtml(item);
+    bindCenterLaneChip($("centerDetailBadge"), item);
+  }
   if($("centerDetailTitle")) $("centerDetailTitle").textContent=item.interest || item.ymmt || "Vehicle";
   const bits=[];
   if(item.interest && item.ymmt && item.ymmt!==item.interest) bits.push("Trade "+item.ymmt);
@@ -11251,7 +11395,7 @@ function printCarfaxRecreatePdf(item){
     d.text(body, 36, y+32);
     d.setFillColor(27,107,58); d.rect(0,H-40,W,40,"F");
     d.setTextColor(255,255,255); d.setFont("helvetica","bold"); d.setFontSize(8);
-    d.text("NOT OFFICIAL CARFAX  ·  SAMPLE / PENDING  ·  carfax-sample  ·  build d30e", 36, H-18);
+    d.text("NOT OFFICIAL CARFAX  ·  SAMPLE / PENDING  ·  carfax-sample  ·  build d30f", 36, H-18);
     d.setProperties({title:"SAMPLE PENDING NOT OFFICIAL CARFAX — 2024 RAV4 LE AWD", author:"G&M Appraisal Center"});
     d.save("rav4-2T3B1RFVXRC466025-carfax-sample.pdf");
     storeRav4CarfaxDoc(item);
