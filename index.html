@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-14 build d30l: staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; kind:file blob url; Incoming keeps http docs.url; status dropdown every lane; Run Appraisal Team; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples -->
+<!-- center-v3 + desk-home 2026-09-14 build d30n: real Carfax http url opens the uploaded file; sample recreate only when no docs.carfax.url; Carfax square + huge card add/upload kind:file carfax; staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; Incoming keeps http docs.url; status dropdown every lane; Run Appraisal Team; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -2022,7 +2022,7 @@ body.center-gallery-on { overflow:hidden; }
     <p class="quote" id="vinHint">Best: take a picture of the vehicle ownership (registration). You can also photograph the VIN on the dash or the sticker on the driver’s door. We’ll read the number from the photo.</p>
     <p class="vin-chip hide" id="vinChip"></p>
     </div>
-    <p class="build-stamp" id="buildStamp">build d30l</p>
+    <p class="build-stamp" id="buildStamp">build d30n</p>
   </div>
 </section>
 
@@ -2493,7 +2493,7 @@ body.center-gallery-on { overflow:hidden; }
   <div class="card">
     <button class="x" type="button" data-close="typeSheet">✕</button>
     <h3>Appraisal type</h3>
-    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d30l</span></p>
+    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d30n</span></p>
     <div id="typeChips" class="to-chips"></div>
     <div id="leadBox" class="lead-box hide">
       <p class="hint">Lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a New application — no appointment calendar.</p>
@@ -6156,12 +6156,17 @@ function enrichRav4OnsiteFinal(item){
   }
   item.docs=item.docs||{};
   const cf=item.docs.carfax||{};
-  item.docs.carfax={
-    have:true,
-    url:cf.url||RAV4_CARFAX_SAMPLE,
-    sample:true,
-    pending:true
-  };
+  const realCf=typeof slimSharedHttpUrl==="function"?slimSharedHttpUrl(cf.url):(/^https?:\/\//i.test(String(cf.url||""))?String(cf.url):"");
+  if(realCf){
+    item.docs.carfax=Object.assign({}, cf, {have:true, url:realCf, sample:false, pending:false});
+  } else {
+    item.docs.carfax={
+      have:true,
+      url:cf.url||RAV4_CARFAX_SAMPLE,
+      sample:true,
+      pending:true
+    };
+  }
   item.team=item.team||{};
   const sh=item.team.shabot||{};
   if(!hasAppraisalFinalNumbers(sh.min, sh.target, sh.max)){
@@ -6892,6 +6897,7 @@ function marketDocKey(id){
   if(k==="vauto"||k==="vauto_docs"||k==="vauto_summary"||k==="summary") return "vauto";
   if(k==="openlane"||k==="openlane_docs"||k==="olguide"||k==="olforecast") return "openlane";
   if(k==="eblock"||k==="eblock_docs"||k==="ebguide") return "eblock";
+  if(k==="carfax"||k==="carfax_docs"||k==="carfax_pdf") return "carfax";
   return "";
 }
 function marketDocSlot(docs, key){
@@ -8253,6 +8259,10 @@ function applyMarketDocToItem(item, key, slot){
     preview:slot.preview||"",
     shots:Array.isArray(slot.shots)?slot.shots:[]
   };
+  if(key==="carfax"){
+    item.docs[key].sample=false;
+    item.docs[key].pending=false;
+  }
   const addId=key+"_docs";
   if(typeof APP!=="undefined"){
     APP.docs=APP.docs||{};
@@ -8275,15 +8285,20 @@ function openMarketDocSheet(item, spec){
   const docs=Object.assign({}, item.docs||{}, APP.docs||{});
   const slot=marketDocSlot(docs, key);
   const url=marketDocUrlOf(docs, key);
+  const sampleCarfax=key==="carfax" && !url && (typeof isRav4OnsiteDemo==="function" && (isRav4OnsiteDemo(item) || (docs.carfax&&(docs.carfax.sample||docs.carfax.pending))));
   if($("marketDocTitle")) $("marketDocTitle").textContent=(spec.label||key).replace(/ documents$/i,"");
   if($("marketDocHint")) $("marketDocHint").textContent=url
     ? "This file is saved. View it, or replace it with a new video, screenshot, or PDF."
-    : "Add a video, screenshot, or PDF for this document only. It saves to the file.";
+    : (key==="carfax"
+      ? (sampleCarfax
+        ? "Official Carfax is pending. Add the real PDF or image. Sample is OK until then."
+        : "Add the official Carfax PDF or image. It saves to the file.")
+      : "Add a video, screenshot, or PDF for this document only. It saves to the file.");
   if($("marketDocName")){
     $("marketDocName").textContent=slot && (slot.name||url) ? (slot.name||url) : "";
     $("marketDocName").classList.toggle("hide", !(slot && (slot.name||url)));
   }
-  if($("marketDocView")) $("marketDocView").classList.toggle("hide", !url);
+  if($("marketDocView")) $("marketDocView").classList.toggle("hide", !url && !sampleCarfax);
   const locked=typeof isCenterLocked==="function" && isCenterLocked(item);
   if($("marketDocAdd")){
     $("marketDocAdd").classList.toggle("hide", !!locked);
@@ -11558,8 +11573,8 @@ function carfaxCard(m, store, readOnly){
   el.innerHTML='<em>Carfax</em><b class="big">'+escHtml(cf.title||"Clean")+' title</b><span>'+escHtml(String(cf.owners))+' owner · '+escHtml(cf.accidents)+' · generated from V Auto</span>';
   el.onclick=function(){
     const live= (typeof getCenter==="function" && APP.centerViewId) ? getCenter(APP.centerViewId) : null;
-    if(typeof openCarfaxRecreate==="function" && (isRav4OnsiteDemo(live) || (store.carfax&&(store.carfax.sample||store.carfax.pending)))){
-      openCarfaxRecreate(live);
+    if(typeof openCarfaxControl==="function"){
+      openCarfaxControl(live, store);
       return;
     }
     openMarketDoc("Carfax", store.carfax, m, "carfax");
@@ -11772,10 +11787,12 @@ function openMarketTab(url){
 }
 function openMarketSite(kind, item, e){
   if(e){ e.preventDefault(); e.stopPropagation(); }
-  if(kind==="carfax" && typeof openCarfaxRecreate==="function" && (isRav4OnsiteDemo(item) || isRav4OnsiteDemo({vin:typeof currentVin==="function"?currentVin():""}))){
+  if(kind==="carfax"){
     if(item && item.vin) APP.vin=APP.vin||String(item.vin).toUpperCase();
-    openCarfaxRecreate(item);
-    return;
+    if(typeof openCarfaxControl==="function"){
+      openCarfaxControl(item, (item&&item.docs)||APP.docs, e);
+      return;
+    }
   }
   const label=kind==="vauto"?"V Auto":kind==="carfax"?"Carfax":kind==="openlane"?"OpenLane":"eBlock";
   const vin=String((item && item.vin) || currentVin() || "").trim().toUpperCase();
@@ -11830,8 +11847,54 @@ function openBrand(url){
   a.remove();
   if(vin) copyVin();
 }
+function realCarfaxDoc(docs){
+  const d=(docs && docs.carfax) || {};
+  const url=typeof slimSharedHttpUrl==="function"?slimSharedHttpUrl(d.url):(/^https?:\/\//i.test(String(d.url||""))?String(d.url):"");
+  if(!url) return null;
+  if(!(d.have || url)) return null;
+  return {have:true, url:url, type:d.type||"", name:d.name||"Carfax"};
+}
+function gatherCarfaxDocs(item, store){
+  return Object.assign({}, store||{}, (typeof APP!=="undefined" && APP.docs)||{}, (item&&item.docs)||{});
+}
+function openCarfaxFile(item, store){
+  const real=realCarfaxDoc(gatherCarfaxDocs(item, store));
+  if(!real) return false;
+  if(typeof viewMarketDocUrl==="function"){
+    viewMarketDocUrl(real.url, real.type, real.name);
+    return true;
+  }
+  try{ window.open(real.url, "_blank", "noopener"); }catch(e){}
+  return true;
+}
+function openCarfaxAdd(item){
+  if(item && item.id && typeof openMarketDocSheet==="function"){
+    openMarketDocSheet(item, {id:"carfax", pack:"carfax", label:"Carfax"});
+    return true;
+  }
+  return false;
+}
+function openCarfaxControl(item, store, e){
+  if(e){ e.preventDefault(); e.stopPropagation(); }
+  if(openCarfaxFile(item, store)) return;
+  const rav4=typeof isRav4OnsiteDemo==="function" && (isRav4OnsiteDemo(item) || isRav4OnsiteDemo({vin:typeof currentVin==="function"?currentVin():""}));
+  const sample=store && store.carfax && (store.carfax.sample || store.carfax.pending);
+  if(typeof openCarfaxRecreate==="function" && (rav4 || sample)){
+    openCarfaxRecreate(item);
+    return;
+  }
+  if(openCarfaxAdd(item)) return;
+  const vin=String((item && item.vin) || (typeof currentVin==="function"?currentVin():"") || "").trim().toUpperCase();
+  if(vin){
+    if(typeof APP!=="undefined") APP.vin=APP.vin||vin;
+    if(typeof copyVin==="function") copyVin(vin);
+  }
+  if(typeof openMarketTab==="function") openMarketTab("https://www.carfax.ca/");
+  else try{ window.open("https://www.carfax.ca/", "_blank", "noopener"); }catch(err){}
+}
 function openCarfaxPaste(){
   const live=(typeof getCenter==="function" && APP.centerViewId) ? getCenter(APP.centerViewId) : null;
+  if(typeof openCarfaxFile==="function" && openCarfaxFile(live, APP.docs)) return;
   if(typeof openCarfaxRecreate==="function" && (isRav4OnsiteDemo(live) || isRav4OnsiteDemo({vin:typeof currentVin==="function"?currentVin():""}))){
     openCarfaxRecreate(live);
     return;
@@ -11864,6 +11927,7 @@ function buildCarfaxRecreateHtml(item){
   h+='<p class="empty">PENDING — official Carfax is not on this file. Label stays SAMPLE / PENDING / NOT OFFICIAL CARFAX.</p>';
   h+='<div class="cfx-actions">';
   h+='<button type="button" class="pill purple" id="carfaxRecreatePrint">Print sample PDF</button>';
+  h+='<button type="button" class="pill wash" id="carfaxRecreateAdd">Add official Carfax</button>';
   h+='<a class="pill wash" href="https://www.carfax.ca/" target="_blank" rel="noopener">Open carfax.ca</a>';
   h+='<a class="pill wash" href="'+finalEsc(RAV4_CARFAX_SAMPLE)+'" target="_blank" rel="noopener">Open sample PDF</a>';
   h+="</div>";
@@ -11872,6 +11936,10 @@ function buildCarfaxRecreateHtml(item){
   return h;
 }
 function storeRav4CarfaxDoc(item){
+  const prevApp=(APP.docs&&APP.docs.carfax)||{};
+  const prevItem=(item&&item.docs&&item.docs.carfax)||{};
+  if(realCarfaxDoc({carfax:prevItem})) return prevItem;
+  if(realCarfaxDoc({carfax:prevApp})) return prevApp;
   const doc={have:true, url:RAV4_CARFAX_SAMPLE, sample:true, pending:true};
   try{
     APP.docs=APP.docs||{};
@@ -11888,11 +11956,14 @@ function storeRav4CarfaxDoc(item){
 }
 function openCarfaxRecreate(item){
   item=item||((typeof getCenter==="function" && APP.centerViewId)?getCenter(APP.centerViewId):null)||{vin:RAV4_ONSITE_VIN, ymmt:"2024 Toyota RAV4 LE AWD", stock:"t7162", km:"86000", color:"Grey", customer:{name:"Chris Cyr"}};
+  if(typeof openCarfaxFile==="function" && openCarfaxFile(item, APP.docs)) return;
   if(typeof enrichRav4OnsiteFinal==="function") enrichRav4OnsiteFinal(item);
   storeRav4CarfaxDoc(item);
   openViewer("packet", buildCarfaxRecreateHtml(item), "Carfax · SAMPLE");
   const btn=$("carfaxRecreatePrint");
   if(btn) btn.onclick=function(){ printCarfaxRecreatePdf(item); };
+  const add=$("carfaxRecreateAdd");
+  if(add) add.onclick=function(){ openCarfaxAdd(item); };
 }
 function printCarfaxRecreatePdf(item){
   const ready=window.jspdf ? Promise.resolve() : loadScript("https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js");
@@ -11938,7 +12009,7 @@ function printCarfaxRecreatePdf(item){
     d.text(body, 36, y+32);
     d.setFillColor(27,107,58); d.rect(0,H-40,W,40,"F");
     d.setTextColor(255,255,255); d.setFont("helvetica","bold"); d.setFontSize(8);
-    d.text("NOT OFFICIAL CARFAX  ·  SAMPLE / PENDING  ·  carfax-sample  ·  build d30l", 36, H-18);
+    d.text("NOT OFFICIAL CARFAX  ·  SAMPLE / PENDING  ·  carfax-sample  ·  build d30n", 36, H-18);
     d.setProperties({title:"SAMPLE PENDING NOT OFFICIAL CARFAX — 2024 RAV4 LE AWD", author:"G&M Appraisal Center"});
     d.save("rav4-2T3B1RFVXRC466025-carfax-sample.pdf");
     storeRav4CarfaxDoc(item);
@@ -13658,6 +13729,10 @@ if($("marketDocView")) $("marketDocView").onclick = function(){
   const ctx=APP._marketDoc||{};
   const item=typeof getCenter==="function"?getCenter(ctx.itemId):null;
   const docs=Object.assign({}, (item&&item.docs)||{}, APP.docs||{});
+  if(ctx.key==="carfax"){
+    if(typeof openCarfaxFile==="function" && openCarfaxFile(item, docs)) return;
+    if(typeof openCarfaxRecreate==="function"){ openCarfaxRecreate(item); return; }
+  }
   viewMarketDocUrl(marketDocUrlOf(docs, ctx.key), (marketDocSlot(docs, ctx.key)||{}).type, ctx.label);
 };
 if($("marketDocAdd")) $("marketDocAdd").onclick = function(){
