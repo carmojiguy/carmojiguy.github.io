@@ -52,6 +52,7 @@ body { font-family:Manrope,system-ui,sans-serif; color:var(--ink); }
   pointer-events:none;
 }
 .exit-chrome.on { display:grid; }
+body:has(#center.on.center-has-detail) .exit-chrome { display:none !important; }
 .exit-chrome button { pointer-events:auto; -webkit-tap-highlight-color:transparent; }
 .exit-x {
   width:56px; height:56px; min-width:56px; border-radius:50%;
@@ -1479,7 +1480,7 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
     display:grid;
     grid-template-columns:minmax(240px,1.05fr) minmax(280px,1.15fr) minmax(200px,.85fr);
     grid-template-areas:"hero mid market" "thumbs thumbs thumbs";
-    grid-template-rows:minmax(0,1fr) 260px;
+    grid-template-rows:minmax(0,1fr) 200px;
     gap:12px 16px;
     align-items:stretch;
     min-height:100%;
@@ -1510,12 +1511,12 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
     height:100dvh; max-height:100dvh; overflow:hidden;
   }
   #center .acre-thumbs-row{ position:relative; }
-  #center .acre-thumbs-row{ height:260px; }
-  #center .center-thumbs{ gap:12px; height:260px; overflow-x:auto; scrollbar-width:none; padding:0 56px; }
+  #center .acre-thumbs-row{ height:200px; }
+  #center .center-thumbs{ gap:12px; height:200px; overflow-x:auto; scrollbar-width:none; padding:0 56px; }
   #center .center-thumbs::-webkit-scrollbar{ display:none; }
   #center .center-thumbs button{
-    flex:0 0 23%; width:23%;
-    height:260px; border-radius:10px; background:#fff;
+    flex:0 0 23.2%; width:23.2%;
+    height:200px; border-radius:10px; background:#fff;
     box-shadow:0 0 0 1px #E4E7EC;
   }
   #center .center-thumbs button.on{ box-shadow:0 0 0 1px #111318; }
