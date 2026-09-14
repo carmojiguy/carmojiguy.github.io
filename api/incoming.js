@@ -7,6 +7,9 @@
  *   POST same URL
  *        { kind:"land", item: slimCenterItem }
  *        → { ok:true, id }
+ *        { kind:"team", sendId, id, vin, ymmt, pdfUrl, docs, item }
+ *        → persist teamActivated + notify-appraisal + APPRAISAL_TEAM_WEBHOOK
+ *        Empty land never wipes a complete appraisalFinal (min+target+max).
  *
  * CORS: carmojiguy.github.io (+ github.io / vercel.app).
  * Slim only: no raw video. thumb / tiny photos + docs meta (have/name/type).
@@ -136,7 +139,36 @@ function slimItem(raw) {
   item.thumb = String(raw.thumb || "").slice(0, 180000);
   if (raw.teamActivated === true || raw.teamActivated === false) item.teamActivated = !!raw.teamActivated;
   if (raw.teamActivatedAt != null && raw.teamActivatedAt !== "") item.teamActivatedAt = Number(raw.teamActivatedAt) || 0;
-  if (raw.teamStatus) item.teamStatus = String(raw.teamStatus);
+  if (raw.teamStatus != null) item.teamStatus = String(raw.teamStatus);
+  if (raw.teamRun && typeof raw.teamRun === "object") item.teamRun = raw.teamRun;
+  if (raw.team && typeof raw.team === "object") {
+    item.team = {};
+    ["shabot", "rybot", "webot", "drebot", "tbot"].forEach(function (k) {
+      const s = raw.team[k];
+      if (!s || typeof s !== "object") return;
+      item.team[k] = {
+        min: String(s.min || ""),
+        target: String(s.target || ""),
+        max: String(s.max || ""),
+        note: String(s.note || "")
+      };
+    });
+  }
+  if (raw.appraisalFinal && typeof raw.appraisalFinal === "object") {
+    item.appraisalFinal = {
+      min: String(raw.appraisalFinal.min || ""),
+      target: String(raw.appraisalFinal.target || ""),
+      max: String(raw.appraisalFinal.max || ""),
+      path: String(raw.appraisalFinal.path || ""),
+      at: Number(raw.appraisalFinal.at) || 0,
+      authors: Array.isArray(raw.appraisalFinal.authors) ? raw.appraisalFinal.authors.map(String) : []
+    };
+  }
+  if (raw.finalRationale && typeof raw.finalRationale === "object") item.finalRationale = raw.finalRationale;
+  ["finalMin", "finalTarget", "finalMax", "finalPath"].forEach(function (k) {
+    if (raw[k] != null && raw[k] !== "") item[k] = String(raw[k]);
+  });
+  if (raw.finalAt != null && raw.finalAt !== "") item.finalAt = Number(raw.finalAt) || 0;
   if (raw.locked === true || raw.locked === false) item.locked = !!raw.locked;
   if (raw.superseded === true || raw.superseded === false) item.superseded = !!raw.superseded;
   if (raw.supersedeLock === true || raw.supersedeLock === false) item.supersedeLock = !!raw.supersedeLock;
@@ -171,6 +203,82 @@ function mergeDocsKeepUrls(prevDocs, nextDocs) {
   });
   return slimDocs(out);
 }
+function completeAppraisalFinal(af) {
+  return !!(af && String(af.min || "").trim() && String(af.target || "").trim() && String(af.max || "").trim());
+}
+
+function slotHasNumbers(slot) {
+  slot = slot || {};
+  return !!(String(slot.min || "").trim() || String(slot.target || "").trim() || String(slot.max || "").trim() || String(slot.note || "").trim());
+}
+
+function rationaleRich(rat) {
+  if (!rat || typeof rat !== "object") return false;
+  if (String(rat.markdown || "").trim() || String(rat.title || "").trim()) return true;
+  if (rat.panel && typeof rat.panel === "object" && Object.keys(rat.panel).length) return true;
+  return !!(rat.shabot && (rat.shabot.min || rat.shabot.target || rat.shabot.max || rat.shabot.note));
+}
+
+function keepExistingFinal(prev, next) {
+  if (!prev || !next) return next;
+  if (completeAppraisalFinal(prev.appraisalFinal) && !completeAppraisalFinal(next.appraisalFinal)) {
+    next.appraisalFinal = prev.appraisalFinal;
+    ["finalMin", "finalTarget", "finalMax", "finalPath", "finalAt"].forEach(function (k) {
+      if (prev[k] != null && prev[k] !== "") next[k] = prev[k];
+    });
+  }
+  if (rationaleRich(prev.finalRationale) && !rationaleRich(next.finalRationale)) {
+    next.finalRationale = prev.finalRationale;
+  }
+  if (prev.team) {
+    next.team = next.team || {};
+    ["shabot", "rybot", "webot", "drebot", "tbot"].forEach(function (k) {
+      if (slotHasNumbers(prev.team[k]) && !slotHasNumbers(next.team[k])) next.team[k] = prev.team[k];
+    });
+  }
+  return next;
+}
+
+function wakeAppraisalTeam(item) {
+  const payload = {
+    kind: "team",
+    sendId: (item && item.sendId) || "",
+    id: (item && item.id) || "",
+    vin: (item && item.vin) || "",
+    ymmt: (item && item.ymmt) || "",
+    pdfUrl: (item && item.pdfUrl) || "",
+    docs: (item && item.docs) || {},
+    teamActivated: true
+  };
+  try {
+    const notify = require("./notify-appraisal");
+    const wake = {
+      kind: "upsert",
+      lane: "onsite-attention",
+      id: payload.id,
+      email: "shawn@myloan.ca",
+      emails: ["shawn@myloan.ca"],
+      vehicle: payload.ymmt || "",
+      vin: payload.vin || "",
+      missing: ["Appraisal Team activated"]
+    };
+    if (notify && typeof notify.route === "function") {
+      Promise.resolve(notify.route(wake)).catch(function () {});
+    }
+  } catch (e) {}
+  const hook = String((process.env && (process.env.APPRAISAL_TEAM_WEBHOOK || process.env.SLACK_WEBHOOK_URL)) || "").trim();
+  if (hook && /^https?:\/\//i.test(hook) && typeof fetch === "function") {
+    try {
+      Promise.resolve(fetch(hook, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      })).catch(function () {});
+    } catch (e) {}
+  }
+  return payload;
+}
+
 function persistItem(raw) {
   if (isSampleItem(raw)) return slimItem(raw);
   const item = slimItem(raw);
@@ -187,8 +295,10 @@ function persistItem(raw) {
     const sameSend = !!(item.sendId && prev.sendId && item.sendId === prev.sendId);
     const sameId = !!(item.id && prev.id && item.id === prev.id);
     if (!sameSend && !sameId && incomingHave === 0 && prevHave > 0) return prev;
-    if (item.sentAt && prev.sentAt && item.sentAt < prev.sentAt && incomingHave <= prevHave) return prev;
-    const next = slimItem(Object.assign({}, prev, item, {
+    const flagLand = item.locked === true || item.locked === false || item.staffUnlocked === true
+      || item.teamActivated === true || item.teamActivated === false;
+    if (item.sentAt && prev.sentAt && item.sentAt < prev.sentAt && incomingHave <= prevHave && !flagLand) return prev;
+    const next = keepExistingFinal(prev, slimItem(Object.assign({}, prev, item, {
       id: prev.id || item.id,
       docs: mergeDocsKeepUrls(prev.docs, item.docs),
       customer: {
@@ -196,7 +306,7 @@ function persistItem(raw) {
         email: item.customer.email || prev.customer.email,
         phone: item.customer.phone || prev.customer.phone
       }
-    }));
+    })));
     list.splice(idx, 1);
     list.unshift(next);
     saveFile(list.slice(0, MAX));
@@ -334,6 +444,17 @@ function route(method, body) {
   if (method !== "POST") return { status: 405, body: { ok: false, error: "method" } };
   body = body && typeof body === "object" ? body : {};
   if (body.kind === "file") return persistFile(body);
+  if (body.kind === "team") {
+    const raw = (body.item && typeof body.item === "object") ? Object.assign({}, body.item, body) : body;
+    raw.teamActivated = true;
+    raw.teamActivatedAt = raw.teamActivatedAt || Date.now();
+    raw.teamStatus = raw.teamStatus || "running";
+    const has = raw.sendId || raw.vin || raw.id || raw.ymmt || (raw.customer && raw.customer.name);
+    if (!has) return { status: 400, body: { ok: false, error: "empty" } };
+    const item = persistItem(raw);
+    try { wakeAppraisalTeam(item); } catch (e) {}
+    return { status: 200, body: { ok: true, id: item.id, kind: "team", teamActivated: true } };
+  }
   if (body.kind && body.kind !== "land") return { status: 400, body: { ok: false, error: "kind" } };
   const raw = body.item || body;
   if (!raw || typeof raw !== "object") return { status: 400, body: { ok: false, error: "empty" } };
@@ -376,6 +497,9 @@ module.exports.listItems = listItems;
 module.exports.slimItem = slimItem;
 module.exports.persistFromSend = persistFromSend;
 module.exports.isPacketSend = isPacketSend;
+module.exports.wakeAppraisalTeam = wakeAppraisalTeam;
+module.exports.keepExistingFinal = keepExistingFinal;
+module.exports.completeAppraisalFinal = completeAppraisalFinal;
 module.exports.resetStore = function resetStore() {
   globalThis.__CENTER_INCOMING = [];
   try { require("fs").unlinkSync(FILE); } catch (e) {}

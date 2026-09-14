@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-14 build d30t: market pills append multiple videos/screenshots/PDFs into shots[]; compact V Auto / Carfax / OpenLane / eBlock chips; real Carfax http url opens the uploaded file; sample recreate only when no docs.carfax.url; Carfax square + huge card add/upload kind:file carfax; staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; Incoming keeps http docs.url; Incoming appends shots[]; status dropdown every lane; Run Appraisal Team; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples -->
+<!-- center-v3 + desk-home 2026-09-14 build d30s: Run Appraisal Team tap always fires (rerun + Unlocked History); kind:team wake; Incoming FINAL settles Running; market pills append multiple files into shots[]; compact V Auto / Carfax / OpenLane / eBlock chips; same sendId/id Incoming POST; panel runs progress → existing FINAL; no invented solds; real Carfax http url opens the uploaded file; sample recreate only when no docs.carfax.url; Carfax square + huge card add/upload kind:file carfax; staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; Incoming keeps http docs.url; Incoming appends shots[]; status dropdown every lane; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -1115,6 +1115,8 @@ body.center-gallery-on { overflow:hidden; }
   box-shadow:0 12px 28px rgba(124,92,255,.28);
 }
 .center-run-team-btn:disabled { opacity:.72; cursor:default; box-shadow:none; transform:none; }
+body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { pointer-events:auto; opacity:1; }
+.team-card .team-wait.ready { color:#0F6B3C; background:#D8F5E5; }
 .center-run-team-note { margin:0; font-size:14px; }
 .final-decision-box {
   display:block; width:100%; border:0; cursor:pointer; text-align:left; font:inherit;
@@ -2029,7 +2031,7 @@ body.center-gallery-on { overflow:hidden; }
     <p class="quote" id="vinHint">Best: take a picture of the vehicle ownership (registration). You can also photograph the VIN on the dash or the sticker on the driver’s door. We’ll read the number from the photo.</p>
     <p class="vin-chip hide" id="vinChip"></p>
     </div>
-    <p class="build-stamp" id="buildStamp">build d30t</p>
+    <p class="build-stamp" id="buildStamp">build d30s</p>
   </div>
 </section>
 
@@ -2501,7 +2503,7 @@ body.center-gallery-on { overflow:hidden; }
   <div class="card">
     <button class="x" type="button" data-close="typeSheet">✕</button>
     <h3>Appraisal type</h3>
-    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d30t</span></p>
+    <p class="hint">Pick one. Consumer Acquisition then needs a lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a new application. <span class="build-stamp">build d30s</span></p>
     <div id="typeChips" class="to-chips"></div>
     <div id="leadBox" class="lead-box hide">
       <p class="hint">Lead source. Canada Drives opens appointments. My Loan, My Auto, and Carla start a New application — no appointment calendar.</p>
@@ -5866,9 +5868,68 @@ function syncAppraisalFinalFromTeam(item){
 function hasStoredFinalRationale(item){
   if(!item || !item.finalRationale) return false;
   const r=item.finalRationale;
+  if(String(r.markdown||"").trim() || String(r.title||"").trim()) return true;
+  if(r.panel && typeof r.panel==="object" && Object.keys(r.panel).length) return true;
   if(r.shabot && (r.shabot.target||r.shabot.min||r.shabot.max||r.shabot.note)) return true;
   const ev=r.marketEvidence||{};
   return ["vauto","openlane","eblock","carfax"].some(function(k){ return ev[k] && ev[k].length; });
+}
+function panelSlotOf(rat, botId){
+  const panel=rat && rat.panel;
+  if(!panel || typeof panel!=="object") return null;
+  if(panel[botId]) return panel[botId];
+  const want=String(botId||"").toLowerCase();
+  const keys=Object.keys(panel);
+  for(let i=0;i<keys.length;i++){
+    if(String(keys[i]).toLowerCase()===want) return panel[keys[i]];
+  }
+  return null;
+}
+function botHasCompleteNumbers(slot){
+  slot=slot||{};
+  return !!(String(slot.min||"").trim() && String(slot.target||"").trim() && String(slot.max||"").trim());
+}
+function shabotHowWeGotHere(item){
+  const rat=(item&&item.finalRationale)||{};
+  const md=String(rat.markdown||"").trim();
+  if(md) return md;
+  const title=String(rat.title||"").trim();
+  const note=String((item&&item.team&&item.team.shabot&&item.team.shabot.note)||(rat.shabot&&rat.shabot.note)||"").trim();
+  if(title && note && note.indexOf(title)<0) return title+"\n\n"+note;
+  return note||title;
+}
+function hydrateTeamFromIncoming(item, remote){
+  if(!item) return item;
+  const src=remote||item;
+  if(src.finalRationale && typeof src.finalRationale==="object"){
+    const incomingRich=hasStoredFinalRationale(src);
+    const localRich=hasStoredFinalRationale(item);
+    if(incomingRich && (!localRich || (src.finalRationale.markdown && !(item.finalRationale&&item.finalRationale.markdown)))){
+      item.finalRationale=src.finalRationale;
+    } else if(!item.finalRationale && incomingRich){
+      item.finalRationale=src.finalRationale;
+    }
+  }
+  item.team=item.team||(typeof emptyTeam==="function"?emptyTeam():{});
+  const remoteTeam=(src.team && typeof src.team==="object")?src.team:{};
+  ["shabot","rybot","webot","drebot","tbot"].forEach(function(k){
+    const keep=teamSlot(item.team[k]);
+    const fromTeam=remoteTeam[k] || panelSlotOf({panel:remoteTeam}, k);
+    const fromPanel=panelSlotOf(src.finalRationale, k);
+    const slot=fromTeam||fromPanel||{};
+    const min=keep.min||slot.min||"";
+    const target=keep.target||slot.target||"";
+    const max=keep.max||slot.max||"";
+    let note=keep.note||slot.note||slot.why||"";
+    if(k==="shabot"){
+      const how=shabotHowWeGotHere({team:{shabot:{note:note}}, finalRationale:item.finalRationale||src.finalRationale});
+      if(how) note=how;
+    }
+    if((typeof hasAppraisalFinalNumbers==="function" && hasAppraisalFinalNumbers(min, target, max)) || String(note||"").trim()){
+      item.team[k]={min:String(min||""), target:String(target||""), max:String(max||""), note:String(note||"")};
+    }
+  });
+  return item;
 }
 function isOnsiteDeskItem(item){
   if(!item) return false;
@@ -6843,7 +6904,8 @@ function unlockCenterItem(id){
     x.staffUnlocked=true;
     x.unlockedAt=Date.now();
     x.teamActivated=false;
-    if(x.teamStatus==="running") x.teamStatus="";
+    if(x.teamStatus==="running" || x.teamStatus==="final") x.teamStatus="";
+    x.teamRun=null;
     if(keepLane) x.lane=keepLane;
     if(keepPick) x.lanePick=keepPick;
     x.archived=keepArch;
@@ -7066,14 +7128,23 @@ function slimSharedCenterItem(item){
     finalTarget:item.finalTarget||(fin&&fin.target)||"",
     finalMax:item.finalMax||(fin&&fin.max)||""
   };
-  if(item.team && item.team.shabot){
-    slim.team={shabot:teamSlot(item.team.shabot)};
+  if(item.team){
+    const team={};
+    if(item.team && item.team.shabot) team.shabot=teamSlot(item.team.shabot);
+    const bots=(typeof CENTER_TEAM!=="undefined" && CENTER_TEAM)?CENTER_TEAM:[["rybot"],["webot"],["drebot"],["tbot"]];
+    bots.forEach(function(pair){
+      if(pair[0]==="shabot") return;
+      const slot=teamSlot(item.team[pair[0]]);
+      if((typeof hasAppraisalFinalNumbers==="function" && hasAppraisalFinalNumbers(slot.min, slot.target, slot.max)) || slot.note){
+        team[pair[0]]=slot;
+      }
+    });
+    if(team.shabot || Object.keys(team).length) slim.team=team;
   }
-  if(item.teamActivated===true){
-    slim.teamActivated=true;
-    slim.teamActivatedAt=Number(item.teamActivatedAt)||0;
-    slim.teamStatus=item.teamStatus||"running";
-  }
+  slim.teamActivated=item.teamActivated===true;
+  if(item.teamActivatedAt!=null && item.teamActivatedAt!=="") slim.teamActivatedAt=Number(item.teamActivatedAt)||0;
+  slim.teamStatus=item.teamStatus||(slim.teamActivated?"running":"");
+  if(item.teamRun && typeof item.teamRun==="object") slim.teamRun=item.teamRun;
   slim.locked=!!item.locked;
   slim.superseded=!!item.superseded;
   slim.supersedeLock=!!item.supersedeLock;
@@ -7131,6 +7202,14 @@ function seedSharedIncomingFinal(item, remote){
   const fromRat=(!seed && ratSlot && hasAppraisalFinalNumbers(ratSlot.min, ratSlot.target, ratSlot.max))
     ? {min:ratSlot.min||"", target:ratSlot.target||"", max:ratSlot.max||"", path:ratSlot.path||"", at:Number(rat.timestamp)||0, authors:Array.isArray(rat.authors)?rat.authors.slice():[]}
     : seed;
+  const remoteComplete=!!(fromRat && String(fromRat.min||"").trim() && String(fromRat.target||"").trim() && String(fromRat.max||"").trim());
+  if(!remoteComplete){
+    if(typeof hasStoredFinalRationale==="function" && hasStoredFinalRationale(remote)){
+      item.finalRationale=remote.finalRationale;
+    }
+    if(typeof hydrateTeamFromIncoming==="function") hydrateTeamFromIncoming(item, remote);
+    return item;
+  }
   if(fromRat){
     const prev=item.appraisalFinal||emptyAppraisalFinal();
     item.appraisalFinal={
@@ -7148,7 +7227,7 @@ function seedSharedIncomingFinal(item, remote){
     const keep=teamSlot((item.team||{}).shabot);
     if(remote.team && remote.team.shabot){
       const slot=teamSlot(remote.team.shabot);
-      item.team.shabot={min:slot.min||keep.min||"", target:slot.target||keep.target||"", max:slot.max||keep.max||"", note:slot.note||keep.note||""};
+      item.team.shabot={min:slot.min||fromRat.min||keep.min||"", target:slot.target||fromRat.target||keep.target||"", max:slot.max||fromRat.max||keep.max||"", note:slot.note||keep.note||""};
     } else if(hasAppraisalFinalNumbers(fromRat.min, fromRat.target, fromRat.max)){
       item.team.shabot={min:fromRat.min||keep.min||"", target:fromRat.target||keep.target||"", max:fromRat.max||keep.max||"", note:keep.note||""};
     }
@@ -7156,6 +7235,7 @@ function seedSharedIncomingFinal(item, remote){
   if(typeof hasStoredFinalRationale==="function" && hasStoredFinalRationale(remote)){
     item.finalRationale=remote.finalRationale;
   }
+  if(typeof hydrateTeamFromIncoming==="function") hydrateTeamFromIncoming(item, remote);
   return item;
 }
 function applySharedIncoming(item, remote){
@@ -7298,11 +7378,18 @@ function applySharedIncoming(item, remote){
     }
   }
   seedSharedIncomingFinal(item, remote);
-  if(remote.teamActivated===true){
-    item.teamActivated=true;
-    item.teamActivatedAt=Number(remote.teamActivatedAt)||item.teamActivatedAt||0;
-    item.teamStatus=remote.teamStatus||item.teamStatus||"running";
+  if(remote.teamActivated===true || remote.teamActivated===false){
+    item.teamActivated=!!remote.teamActivated;
+    if(item.teamActivated){
+      item.teamActivatedAt=Number(remote.teamActivatedAt)||item.teamActivatedAt||0;
+      item.teamStatus=remote.teamStatus||item.teamStatus||"running";
+    } else if(remote.teamStatus!=null){
+      item.teamStatus=String(remote.teamStatus||"");
+    } else if(item.teamStatus==="running" || item.teamStatus==="final"){
+      item.teamStatus="";
+    }
   }
+  if(remote.teamRun && typeof remote.teamRun==="object") item.teamRun=remote.teamRun;
   if(remote.staffUnlocked===true){
     item.staffUnlocked=true;
     item.locked=false;
@@ -7316,6 +7403,7 @@ function applySharedIncoming(item, remote){
     if(remote.centerLocked===true || remote.centerLocked===false) item.centerLocked=!!remote.centerLocked;
   }
   if(typeof enrichRav4OnsiteFinal==="function") enrichRav4OnsiteFinal(item);
+  if(typeof settleTeamRunIfFinal==="function") settleTeamRunIfFinal(item);
   if(item.photos && item.photos.length && typeof persistCenterMedia==="function"){
     try{
       const saved=persistCenterMedia(item.id, item.photos, item.docs||{});
@@ -7338,7 +7426,15 @@ function mergeIncomingShared(list){
       if(!remote || typeof remote!=="object" || isCenterSample(remote)) return;
       const name=remote.customer && remote.customer.name || "";
       let item=findCenterMatch(store, {shared:true, sendId:remote.sendId||"", id:remote.id||"", customerName:name});
-      if(item && !sharedRemoteBeats(remote, item)) return;
+      if(item && !sharedRemoteBeats(remote, item)){
+        if(typeof seedSharedIncomingFinal==="function") seedSharedIncomingFinal(item, remote);
+        if(typeof settleTeamRunIfFinal==="function") settleTeamRunIfFinal(item);
+        if(typeof hasCompleteAppraisalFinal==="function" && hasCompleteAppraisalFinal(item)){
+          saveCenterStore(store);
+          changed=true;
+        }
+        return;
+      }
       if(!item){
         if(typeof archiveOnsiteSameVin==="function" && archiveOnsiteSameVin(store, remote)) changed=true;
         item={
@@ -7355,6 +7451,7 @@ function mergeIncomingShared(list){
         store.items.unshift(item);
       }
       applySharedIncoming(item, remote);
+      if(typeof settleTeamRunIfFinal==="function") settleTeamRunIfFinal(item);
       if(item.photos && item.photos.length && typeof persistCenterMedia==="function"){
         try{
           const saved=persistCenterMedia(item.id, item.photos, item.docs||{});
@@ -7784,7 +7881,7 @@ function isCenterAged(item){
 function isNeedsDocsItem(item){
   if(!item) return false;
   if(isCenterArchived(item)) return false;
-  if(item.lane==="onsite" || marketDocsComplete(item.docs)) return false;
+  if(item.lanePick==="onsite" || item.lane==="onsite" || marketDocsComplete(item.docs)) return false;
   if(item.docsIncomplete || item.lane==="needsdocs") return true;
   if(!isLandedCenterPacket(item)) return false;
   return missingMarketDocs(item.docs).length>0;
@@ -8476,8 +8573,11 @@ function uploadMarketDocFiles(files){
 }
 function teamWhyHtml(item, botId){
   const pair=CENTER_TEAM.find(function(t){ return t[0]===botId; }) || [botId, botId, "Opinion"];
+  if(typeof hydrateTeamFromIncoming==="function") hydrateTeamFromIncoming(item);
   const slot=teamSlot((item.team||{})[botId]);
-  const why=String(slot.note||"").trim() || "No thought process written yet.";
+  const why=botId==="shabot"
+    ? (shabotHowWeGotHere(item) || String(slot.note||"").trim() || "No thought process written yet.")
+    : (String(slot.note||"").trim() || "No thought process written yet.");
   let h='<div class="badge">'+esc(pair[2])+'</div>';
   h+='<h2>'+esc(pair[1])+' — why this number</h2>';
   h+='<p class="quote">'+esc(item.interest||item.ymmt||"Vehicle")+'</p>';
@@ -8551,7 +8651,107 @@ function paintCenterVals(item){
   }
 }
 function isTeamActivated(item){
-  return !!(item && (item.teamActivated===true || item.teamStatus==="running"));
+  return !!(item && (item.teamActivated===true || item.teamStatus==="running" || item.teamStatus==="final"));
+}
+function hasCompleteAppraisalFinal(item){
+  const fin=typeof resolveAppraisalFinal==="function"?resolveAppraisalFinal(item):null;
+  return !!(fin && String(fin.min||"").trim() && String(fin.target||"").trim() && String(fin.max||"").trim());
+}
+function settleTeamRunIfFinal(item){
+  if(!item || typeof hasCompleteAppraisalFinal!=="function" || !hasCompleteAppraisalFinal(item)) return item;
+  item.teamStatus="final";
+  item.teamRun={shabot:"ready", rybot:"ready", webot:"ready", drebot:"ready", tbot:"ready"};
+  if(typeof landTeamRunFromFile==="function") landTeamRunFromFile(item);
+  return item;
+}
+function landTeamRunFromFile(item){
+  if(!item) return item;
+  if(typeof hydrateTeamFromIncoming==="function") hydrateTeamFromIncoming(item);
+  item.team=item.team||(typeof emptyTeam==="function"?emptyTeam():{});
+  const fin=typeof resolveAppraisalFinal==="function"?resolveAppraisalFinal(item):null;
+  if(fin && typeof hasAppraisalFinalNumbers==="function" && hasAppraisalFinalNumbers(fin.min, fin.target, fin.max)){
+    const keep=teamSlot(item.team.shabot);
+    const ratNote=item.finalRationale&&item.finalRationale.shabot&&item.finalRationale.shabot.note;
+    item.team.shabot={
+      min:keep.min||fin.min||"",
+      target:keep.target||fin.target||"",
+      max:keep.max||fin.max||"",
+      note:keep.note||ratNote||""
+    };
+    if(typeof syncAppraisalFinalFromTeam==="function") syncAppraisalFinalFromTeam(item);
+  }
+  const panel=item.finalRationale&&item.finalRationale.panel;
+  if(panel){
+    ["rybot","webot","drebot","tbot"].forEach(function(k){
+      const p=panel[k];
+      if(!p) return;
+      const keep=teamSlot(item.team[k]);
+      const min=keep.min||p.min||"";
+      const target=keep.target||p.target||"";
+      const max=keep.max||p.max||"";
+      const note=keep.note||p.why||p.note||"";
+      if((typeof hasAppraisalFinalNumbers==="function" && hasAppraisalFinalNumbers(min, target, max)) || note){
+        item.team[k]={min:min, target:target, max:max, note:note};
+      }
+    });
+  }
+  if(typeof hasCompleteAppraisalFinal==="function" && hasCompleteAppraisalFinal(item)) item.teamStatus="final";
+  return item;
+}
+function clearTeamRunTimers(id){
+  APP._teamRunTimers=APP._teamRunTimers||{};
+  const list=APP._teamRunTimers[id]||[];
+  list.forEach(function(t){ try{ clearTimeout(t); }catch(e){} });
+  APP._teamRunTimers[id]=[];
+}
+function startTeamRunProgress(id){
+  const cur=typeof getCenter==="function"?getCenter(id):null;
+  if(typeof hasCompleteAppraisalFinal==="function" && hasCompleteAppraisalFinal(cur)){
+    if(typeof settleTeamRunIfFinal==="function") settleTeamRunIfFinal(cur);
+    if(cur && APP.centerViewId===id){
+      if(typeof paintCenterTeam==="function") paintCenterTeam(cur);
+      if(typeof paintCenterRunTeam==="function") paintCenterRunTeam(cur);
+      if(typeof paintCenterFinalBox==="function") paintCenterFinalBox(cur);
+    }
+    return cur;
+  }
+  if(typeof clearTeamRunTimers==="function") clearTeamRunTimers(id);
+  const order=["shabot","rybot","webot","drebot","tbot"];
+  function setRun(fn){
+    const item=typeof patchCenter==="function"?patchCenter(id, fn):null;
+    if(item && APP.centerViewId===id){
+      if(typeof paintCenterTeam==="function") paintCenterTeam(item);
+      if(typeof paintCenterRunTeam==="function") paintCenterRunTeam(item);
+      if(typeof paintCenterFinalBox==="function") paintCenterFinalBox(item);
+    }
+    return item;
+  }
+  setRun(function(x){
+    x.teamRun={shabot:"running", rybot:"waiting", webot:"waiting", drebot:"waiting", tbot:"waiting"};
+    x.teamStatus="running";
+  });
+  const delays=[350, 700, 1050, 1400, 1750];
+  delays.forEach(function(ms, i){
+    const bot=order[i];
+    const t=setTimeout(function(){
+      const item=setRun(function(x){
+        x.teamRun=x.teamRun||{};
+        if(i===0 && typeof landTeamRunFromFile==="function") landTeamRunFromFile(x);
+        x.teamRun[bot]="ready";
+        if(i<order.length-1){
+          const next=order[i+1];
+          if(!x.teamRun[next] || x.teamRun[next]==="waiting") x.teamRun[next]="running";
+        } else if(typeof hasCompleteAppraisalFinal==="function" && hasCompleteAppraisalFinal(x)){
+          x.teamStatus="final";
+        }
+      });
+      if(i===order.length-1 && item){
+        try{ shareIncomingBestEffort(item); }catch(e){}
+      }
+    }, ms);
+    APP._teamRunTimers=APP._teamRunTimers||{};
+    (APP._teamRunTimers[id]=APP._teamRunTimers[id]||[]).push(t);
+  });
 }
 function notifyTeamActivated(item){
   try{
@@ -8572,19 +8772,85 @@ function notifyTeamActivated(item){
     const p=(typeof timedFetch==="function")?timedFetch(url, req, 8000):fetch(url, req);
     if(p && typeof p.catch==="function") p.catch(function(){});
   }catch(e){}
+  try{
+    if(typeof notifyAppraisal==="function"){
+      notifyAppraisal({
+        kind:"upsert",
+        lane:"onsite-attention",
+        id:item.id,
+        email:"shawn@myloan.ca",
+        emails:["shawn@myloan.ca"],
+        customer:(item.customer&&item.customer.name)||"",
+        vehicle:item.ymmt||item.interest||"On-site vehicle",
+        vin:item.vin||"",
+        salesperson:item.salesperson||"",
+        missing:["Appraisal Team activated"],
+        dealType:item.dealType||""
+      });
+    }
+  }catch(e){}
+}
+function shareTeamWakeBestEffort(item){
+  try{
+    if(!item || !item.id || (typeof isCenterSample==="function" && isCenterSample(item))) return;
+    if(typeof MAIL_HOST!=="string" || !MAIL_HOST) return;
+    const slim=typeof slimSharedCenterItem==="function"?slimSharedCenterItem(item):item;
+    const payload={
+      kind:"team",
+      sendId:item.sendId||slim.sendId||"",
+      id:item.id,
+      vin:item.vin||"",
+      ymmt:item.ymmt||item.interest||"",
+      pdfUrl:item.pdfUrl||"",
+      docs:slim.docs||{},
+      teamActivated:true,
+      teamStatus:item.teamStatus||"running",
+      item:slim
+    };
+    const req=timedFetch(MAIL_HOST+"/api/incoming", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify(payload)
+    }, 8000);
+    if(req && typeof req.catch==="function") req.catch(function(){});
+  }catch(e){}
 }
 function activateAppraisalTeam(id){
   if(APP.role==="guest") return null;
   const cur=typeof getCenter==="function"?getCenter(id):null;
-  if(typeof isCenterLocked==="function" && isCenterLocked(cur)) return null;
+  if(typeof isCenterLocked==="function" && isCenterLocked(cur)){
+    if(typeof toast==="function") toast("Unlock this appraisal first.");
+    return null;
+  }
   const item=typeof patchCenter==="function"?patchCenter(id, function(x){
     x.teamActivated=true;
     x.teamActivatedAt=Date.now();
     x.teamStatus="running";
+    x.teamRun={shabot:"running", rybot:"waiting", webot:"waiting", drebot:"waiting", tbot:"waiting"};
   }):null;
   if(!item) return null;
   try{ shareIncomingBestEffort(item); }catch(e){}
+  try{ shareTeamWakeBestEffort(item); }catch(e){}
   try{ notifyTeamActivated(item); }catch(e){}
+  try{
+    if(typeof hasCompleteAppraisalFinal==="function" && hasCompleteAppraisalFinal(item)){
+      if(typeof settleTeamRunIfFinal==="function") settleTeamRunIfFinal(item);
+    } else {
+      if(typeof startTeamRunProgress==="function") startTeamRunProgress(id);
+      if(typeof mergeIncomingShared==="function"){
+        [900, 2400, 5000].forEach(function(ms){
+          setTimeout(function(){
+            Promise.resolve(mergeIncomingShared()).then(function(){
+              const live=typeof getCenter==="function"?getCenter(id):null;
+              if(!live) return;
+              if(typeof settleTeamRunIfFinal==="function") settleTeamRunIfFinal(live);
+              if(APP.centerViewId===id && typeof paintCenterDetail==="function") paintCenterDetail();
+            });
+          }, ms);
+        });
+      }
+    }
+  }catch(e){}
   if(typeof paintCenterDetail==="function") paintCenterDetail();
   return item;
 }
@@ -8601,24 +8867,44 @@ function paintCenterRunTeam(item){
   }
   const on=isTeamActivated(item);
   const locked=typeof isCenterLocked==="function" && isCenterLocked(item);
-  btn.disabled=on||locked;
-  btn.textContent=on?"Running…":"Run Appraisal Team";
-  if(note) note.textContent=on
-    ? "Appraisal team is running — Shabot FINAL plus Rybot, Webot, Drebot, and TBot waiting."
-    : "Kick Shabot FINAL and the Rybot / Webot / Drebot / TBot opinion panel.";
-  btn.onclick=(!on && !locked)?function(){ activateAppraisalTeam(item.id); }:null;
+  const complete=typeof hasCompleteAppraisalFinal==="function" && hasCompleteAppraisalFinal(item);
+  if(complete && typeof settleTeamRunIfFinal==="function") settleTeamRunIfFinal(item);
+  btn.disabled=false;
+  btn.textContent=(on && !complete)?"Running…":(on||complete)?"Rerun Appraisal Team":"Run Appraisal Team";
+  if(note){
+    if(complete) note.textContent="Appraisal team FINAL is on the file — tap to rerun Shabot plus the opinion panel.";
+    else if(on) note.textContent="Appraisal team is running — Shabot FINAL plus Rybot, Webot, Drebot, and TBot. Numbers land here when Incoming has them. Staff can rerun.";
+    else note.textContent="Kick Shabot FINAL and the Rybot / Webot / Drebot / TBot opinion panel.";
+  }
+  btn.onclick=function(){
+    if(locked){
+      if(typeof toast==="function") toast("Unlock this appraisal first.");
+      return;
+    }
+    activateAppraisalTeam(item.id);
+  };
 }
 function paintCenterTeam(item){
   const host=$("centerTeam"); if(!host) return;
   host.innerHTML="";
+  if(typeof hydrateTeamFromIncoming==="function") hydrateTeamFromIncoming(item);
   const team=item.team||emptyTeam();
-  const running=isTeamActivated(item);
+  const complete=typeof hasCompleteAppraisalFinal==="function" && hasCompleteAppraisalFinal(item);
+  if(complete && typeof settleTeamRunIfFinal==="function") settleTeamRunIfFinal(item);
+  const running=isTeamActivated(item) && !complete;
+  const run=complete?{shabot:"ready", rybot:"ready", webot:"ready", drebot:"ready", tbot:"ready"}:(item.teamRun||{});
   host.classList.toggle("running", running);
   CENTER_TEAM.forEach(function(pair){
     const slot=teamSlot(team[pair[0]]);
+    if(typeof botHasCompleteNumbers==="function" && !botHasCompleteNumbers(slot)){
+      const any=CENTER_TEAM.some(function(p){ return botHasCompleteNumbers(teamSlot(team[p[0]])); });
+      if(!running || any) return;
+    }
     const card=document.createElement("div");
-    card.className="team-card"+(pair[2]==="FINAL"?" final":"")+(running?" running":"");
-    const wait=running?'<em class="team-wait">'+(pair[2]==="FINAL"?"Running":"Waiting")+"</em>":"";
+    const state=run[pair[0]]||(running?(pair[2]==="FINAL"?"running":"waiting"):"");
+    card.className="team-card"+(pair[2]==="FINAL"?" final":"")+(running?" running":"")+(state?" "+state:"");
+    const waitLabel=state==="running"?"Running":state==="waiting"?"Waiting":state==="ready"?"In":"";
+    const wait=waitLabel?'<em class="team-wait '+state+'">'+waitLabel+"</em>":"";
     const hint=running
       ? (pair[2]==="FINAL"?"Shabot is running the FINAL — numbers land here when ready":"Opinion waiting — numbers land here when ready")
       : (pair[2]==="FINAL"?"Final number and why — this becomes the openable thought-process doc":"Opinion and how you got there");
@@ -8892,19 +9178,21 @@ function paintCenterDetail(){
       $("centerStageBtn").textContent=item.stage==="Appraised"?"Return to desk lane":"Complete";
     }
   }
-  ["centerValStrip","centerMarket","centerWhyDocs","centerTeam","centerTeamHead","centerFinalBox","centerRunTeamWrap"].forEach(function(id){
-    if($(id)) $(id).classList.toggle("hide", needs);
+  const onsiteDesk=typeof centerLaneOf==="function" && centerLaneOf(item)==="onsite";
+  ["centerValStrip","centerMarket","centerWhyDocs","centerTeam","centerTeamHead","centerFinalBox"].forEach(function(id){
+    if($(id)) $(id).classList.toggle("hide", needs && !onsiteDesk);
   });
+  if($("centerRunTeamWrap")) $("centerRunTeamWrap").classList.toggle("hide", (needs && !onsiteDesk) || APP.role!=="employee");
   const starter=(item.photos && item.photos.length) ? item.photos : (item.thumb ? [{data:item.thumb, title:item.ymmt}] : []);
   paintCenterHero(starter);
   paintCenterDocs(item, {docs:item.docs});
   paintCenterFinalBox(item);
-  if(!needs){
+  if(!needs || onsiteDesk){
     paintCenterWhyDocs(item);
     paintCenterVals(item);
     paintCenterTeam(item);
-    paintCenterRunTeam(item);
   }
+  paintCenterRunTeam(item);
   loadCenterMedia(item.id).then(function(media){
     if(APP.centerViewId!==item.id) return;
     paintCenterHero((media.photos||[]).length ? media.photos : starter);
@@ -12141,7 +12429,7 @@ function printCarfaxRecreatePdf(item){
     d.text(body, 36, y+32);
     d.setFillColor(27,107,58); d.rect(0,H-40,W,40,"F");
     d.setTextColor(255,255,255); d.setFont("helvetica","bold"); d.setFontSize(8);
-    d.text("NOT OFFICIAL CARFAX  ·  SAMPLE / PENDING  ·  carfax-sample  ·  build d30q", 36, H-18);
+    d.text("NOT OFFICIAL CARFAX  ·  SAMPLE / PENDING  ·  carfax-sample  ·  build d30s", 36, H-18);
     d.setProperties({title:"SAMPLE PENDING NOT OFFICIAL CARFAX — 2024 RAV4 LE AWD", author:"G&M Appraisal Center"});
     d.save("rav4-2T3B1RFVXRC466025-carfax-sample.pdf");
     storeRav4CarfaxDoc(item);
