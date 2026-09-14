@@ -1622,12 +1622,15 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
     display:block !important; font-size:22px !important; font-weight:800;
     letter-spacing:-.3px; line-height:1.15; margin:0 0 6px; color:#111318;
   }
-  #center .acre-col-mid{ align-self:start; }
+  #center .acre-col-mid{
+    align-self:stretch; display:flex; flex-direction:column; min-height:0;
+  }
+  #center .acre-vals{ margin-top:auto; }
   #center .acre-sources{ margin:0; padding-top:0; gap:5px; }
   #center .acre-vals .acre-chip{ padding:3px 2px; }
   #center .acre-vals .acre-chip:last-child{ border-bottom:0; padding-bottom:2px; }
   #center .acre-col-hero{ display:flex; flex-direction:column; min-height:0; }
-  #center .center-hero{ flex:0 0 auto; width:100%; aspect-ratio:493 / 410; height:auto; min-height:0; margin:0; border-radius:10px; background:#fff; position:relative; }
+  #center .center-hero{ flex:0 0 auto; width:100%; aspect-ratio:493 / 410; height:auto; max-height:420px; min-height:0; margin:0; border-radius:10px; background:#fff; position:relative; }
   #center .center-hero img{ position:absolute; inset:0; height:100%; width:100%; min-height:0; max-height:none; object-fit:cover; object-position:center 58%; background:#fff; }
   #center .center-hero .dots{ display:none; }
   #center .center-hero .nav-hit{ width:36px; height:36px; font-size:18px; }
@@ -1648,7 +1651,7 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
   }
   #center .center-thumbs img{
     object-fit:cover; object-position:center; background:#fff;
-    transform:scale(1.16);
+    transform:scale(1.2);
   }
   #center .acre-thumbs-prev{ display:none; }
   #center .acre-thumbs-next{ width:36px; height:36px; right:6px; }
