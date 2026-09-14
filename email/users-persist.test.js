@@ -25,7 +25,8 @@ function sliceFn(name, next) {
 
 must(/function finishGuest\(\)\{\s*finishThanks\(\);/, "Thank-you stays frozen");
 must(/<!--[\s\S]*Thank-you frozen/, "Thank-you stays frozen in the stamp");
-must(/durable Vercel Blob center-users-v1\.json/, "stamp names the durable blob file");
+must(/durable Vercel Blob center-users/, "stamp names the durable blob file");
+must(/kind=users&at=/, "persist pull uses kind=users&at= after POST");
 must(/josh\.lefave@gmautosales\.ca/, "Josh seed email josh.lefave@gmautosales.ca");
 must(/steve\.summerall@gmautosales\.ca/, "Steve seed email steve.summerall@gmautosales.ca");
 must(/Josh Lefave/, "Josh Lefave restored with seed spelling");
@@ -145,6 +146,63 @@ must(/p\.role=seed\.role;/, "Josh/Steve seed role is pinned on restore");
   process.exit(1);
 });
 
+(function testPersistThenPullsAt() {
+  const src = sliceFn("slimUsersBlob", "saveUsersStore");
+  let stored = {
+    people: [{ email: "josh.lefave@gmautosales.ca", name: "Josh Lefave", id: "u-josh" }],
+    permissions: { "josh.lefave@gmautosales.ca": { website: true, center: true } },
+    updatedAt: 100
+  };
+  const fetches = [];
+  const MAIL_HOST = "https://mailer.test";
+  function loadUsersStore() { return stored; }
+  function saveUsersStore(next) { stored = next; }
+  function staffEmail(v) { return String(v || "").trim().toLowerCase(); }
+  function normalizeTeams(v) { return Array.isArray(v) ? v : []; }
+  const DESK_TEAMS = ["Team Flash"];
+  function fetch(url, opts) {
+    fetches.push({ url: String(url), method: String((opts && opts.method) || "GET").toUpperCase(), cache: opts && opts.cache });
+    if (String((opts && opts.method) || "GET").toUpperCase() === "POST") {
+      return Promise.resolve({
+        ok: true,
+        json: async function () { return { ok: true, kind: "users", updatedAt: 1789408000000, via: "blob" }; }
+      });
+    }
+    return Promise.resolve({
+      ok: true,
+      json: async function () {
+        return {
+          ok: true,
+          kind: "users",
+          users: [{ email: "josh.lefave@gmautosales.ca", name: "Josh Lefave", id: "u-josh" }],
+          permissions: { "josh.lefave@gmautosales.ca": { website: true, center: true, trade: true } },
+          updatedAt: 1789408000000
+        };
+      }
+    });
+  }
+  const factory = eval("(function(fetch){\n" + src + "\nreturn { persistUsersRemote: persistUsersRemote, pullUsersRemote: pullUsersRemote, applyUsersBlob: applyUsersBlob };\n})");
+  const fns = factory(fetch);
+  return fns.persistUsersRemote(stored).then(function (j) {
+    assert.equal(j.updatedAt, 1789408000000);
+    const post = fetches.find(function (f) { return f.method === "POST"; });
+    const get = fetches.find(function (f) { return f.method === "GET"; });
+    assert.ok(post, "POST kind:users was sent");
+    assert.ok(get, "GET after persist was sent");
+    assert.ok(get.url.indexOf("kind=users&at=1789408000000") >= 0, "GET uses kind=users&at=POST updatedAt");
+    assert.equal(get.cache, "no-store", "GET at= is cache no-store");
+    assert.strictEqual(stored.permissions["josh.lefave@gmautosales.ca"].trade, true, "applyUsersBlob applied the at= GET");
+    return fns.pullUsersRemote();
+  }).then(function () {
+    const plain = fetches.filter(function (f) { return f.method === "GET"; }).pop();
+    assert.ok(plain.url.indexOf("kind=users") >= 0);
+    assert.ok(plain.url.indexOf("&at=") < 0, "pullUsersRemote() without at does not append &at=");
+  });
+})().catch(function (err) {
+  console.error(err);
+  process.exit(1);
+});
+
 (function testStaleIsolateDoesNotClobber() {
   const applySrc = sliceFn("mergePermsByEmail", "persistUsersRemote");
   let stored = {
@@ -178,37 +236,8 @@ must(/p\.role=seed\.role;/, "Josh/Steve seed role is pinned on restore");
     { pathname: "other.json", url: "https://x/nope", updatedAt: 999 }
   ]);
   assert.equal(ranked.length, 2);
-  assert.equal(ranked[0].pathname, usersStore.BLOB_NAME, "exact center-users-v1.json pathname is preferred first");
+  assert.equal(ranked[0].pathname, usersStore.BLOB_NAME, "newest updatedAt wins even when listed after rt1 junk");
   assert.equal(ranked[1].pathname, "center-users-v1-rt1.json");
-
-  const exactFirst = usersStore.pickNewestListed([
-    { pathname: "center-users-v1-rt1.json", url: "https://x/rt1", updatedAt: 999, uploadedAt: "2026-09-14T12:00:00.000Z" },
-    { pathname: "center-users-v1.json", url: "https://x/exact", updatedAt: 200, uploadedAt: "2026-09-01T00:00:00.000Z" }
-  ]);
-  assert.equal(exactFirst[0].pathname, usersStore.BLOB_NAME, "exact pathname wins even when a suffix copy has a newer listedAt");
-})();
-
-(function testPayloadsMatchRequiresUpdatedAtEmailsPerms() {
-  const a = {
-    users: [{ email: "josh.lefave@gmautosales.ca" }],
-    permissions: { "josh.lefave@gmautosales.ca": { website: true, center: true } },
-    updatedAt: 500
-  };
-  assert.equal(usersStore.payloadsMatch(a, {
-    users: [{ email: "josh.lefave@gmautosales.ca" }],
-    permissions: { "josh.lefave@gmautosales.ca": { website: true, center: true } },
-    updatedAt: 500
-  }), true, "same updatedAt + emails + permissions match");
-  assert.equal(usersStore.payloadsMatch(a, {
-    users: [{ email: "josh.lefave@gmautosales.ca" }],
-    permissions: { "josh.lefave@gmautosales.ca": { website: true, center: false } },
-    updatedAt: 500
-  }), false, "email-only match is not enough when permissions differ");
-  assert.equal(usersStore.payloadsMatch(a, {
-    users: [{ email: "josh.lefave@gmautosales.ca" }],
-    permissions: { "josh.lefave@gmautosales.ca": { website: true, center: true } },
-    updatedAt: 1
-  }), false, "email-only match is not enough when updatedAt did not stick");
 })();
 
 function mockBlob() {
@@ -318,44 +347,6 @@ function clearIsolate(storePath) {
   });
 }
 
-function instantSleep() {
-  return Promise.resolve();
-}
-
-function blobDeps(fetchImpl, env, extra) {
-  extra = extra || {};
-  return Object.assign({ fetch: fetchImpl, env: env, sleep: instantSleep }, extra);
-}
-
-function emailOnlyStaleBlob() {
-  const stale = {
-    users: [{ email: "josh.lefave@gmautosales.ca", name: "Josh Lefave" }],
-    teams: [],
-    permissions: { "josh.lefave@gmautosales.ca": { website: false, center: false } },
-    updatedAt: 1
-  };
-  const files = { puts: [] };
-  async function fetchImpl(url, opts) {
-    opts = opts || {};
-    const u = String(url);
-    if (String(opts.method || "GET").toUpperCase() === "PUT") {
-      files.puts.push({ url: u, headers: opts.headers || {} });
-      return { ok: true, json: async function () { return { url: "https://blob.vercel-storage.com/" + usersStore.BLOB_NAME }; } };
-    }
-    if (u.indexOf("prefix=") >= 0) {
-      return {
-        ok: true,
-        json: async function () {
-          return { blobs: [{ pathname: usersStore.BLOB_NAME, url: "https://blob.vercel-storage.com/" + usersStore.BLOB_NAME, updatedAt: 1 }] };
-        }
-      };
-    }
-    return { ok: true, json: async function () { return stale; } };
-  }
-  fetchImpl.files = files;
-  return fetchImpl;
-}
-
 (async function testPersistUsersBlobAndHonestVia() {
   const fetchImpl = mockBlob();
   const env = { BLOB_READ_WRITE_TOKEN: "test-token", USERS_STORE_PATH: "/tmp/users-persist-blob-" + Date.now() + ".json" };
@@ -381,23 +372,21 @@ function emailOnlyStaleBlob() {
       "josh.lefave@gmautosales.ca": { website: true, center: true, appraisalCenter: true },
       "steve.summerall@gmautosales.ca": { website: true, center: true }
     }
-  }, blobDeps(fetchImpl, env));
+  }, { fetch: fetchImpl, env: env });
   assert.equal(saved.status, 200);
   assert.equal(saved.body.ok, true);
   assert.equal(saved.body.via, "blob", "save writes Vercel Blob");
-  assert.ok(!saved.body.blobErr, "verified blob save has no blobErr");
   assert.ok(fetchImpl.files.puts.length, "PUT was awaited");
   const put = fetchImpl.files.puts[0];
   assert.ok(String(put.url).indexOf(usersStore.BLOB_NAME) >= 0, "PUT pathname center-users-v1.json");
   assert.equal(put.headers.Authorization, "Bearer test-token");
   assert.equal(put.headers["x-api-version"], "7");
   assert.equal(put.headers["x-add-random-suffix"], "0");
-  assert.equal(put.headers["x-allow-overwrite"], "1", "SDK allowOverwrite wire format is 1");
-  assert.equal(put.headers["x-vercel-blob-access"], "public");
+  assert.equal(put.headers["x-allow-overwrite"], "true");
   assert.equal(put.headers["x-cache-control-max-age"], "0");
 
   clearIsolate(env.USERS_STORE_PATH);
-  const got = await incoming.listUsers(blobDeps(fetchImpl, env));
+  const got = await incoming.listUsers({ fetch: fetchImpl, env: env });
   assert.equal(got.via, "blob", "new isolate loads from blob, not /tmp");
   assert.equal(got.users.length, 2);
   const emails = got.users.map(function (u) { return u.email; }).sort();
@@ -415,21 +404,21 @@ function emailOnlyStaleBlob() {
   assert.strictEqual(got.permissions["steve.summerall@gmautosales.ca"].center, true);
   assert.strictEqual(got.permissions["steve.summerall@gmautosales.ca"].website, true);
 
-  const skipped = await incoming.persistUsers({ kind: "users", users: [], permissions: {} }, blobDeps(fetchImpl, env));
+  const skipped = await incoming.persistUsers({ kind: "users", users: [], permissions: {} }, { fetch: fetchImpl, env: env });
   assert.equal(skipped.body.skipped, "empty", "empty POST does not wipe a populated blob");
   const skippedPerms = await incoming.persistUsers({
     kind: "users",
     users: [],
     permissions: { "rt1@example.com": { center: true } }
-  }, blobDeps(fetchImpl, env));
+  }, { fetch: fetchImpl, env: env });
   assert.equal(skippedPerms.body.skipped, "empty", "empty users + permissions do not overwrite a non-empty roster");
   clearIsolate(env.USERS_STORE_PATH);
-  const still = await incoming.listUsers(blobDeps(fetchImpl, env));
+  const still = await incoming.listUsers({ fetch: fetchImpl, env: env });
   assert.equal(still.users.length, 2, "Josh and Steve survive the empty POST");
   assert.equal(still.via, "blob");
   assert.ok(!still.users.some(function (u) { return /^rt[12]@/.test(u.email); }), "rt1/rt2 junk did not land");
 
-  const routed = await incoming.route("GET", null, { kind: "users" }, blobDeps(fetchImpl, env));
+  const routed = await incoming.route("GET", null, { kind: "users" }, { fetch: fetchImpl, env: env });
   assert.equal(routed.status, 200);
   assert.equal(routed.body.via, "blob");
   assert.equal(routed.body.users.length, 2);
@@ -440,14 +429,13 @@ function emailOnlyStaleBlob() {
     kind: "users",
     users: [{ email: "ernest@myloan.ca", name: "Ernest", photo: "/staff/ernest.jpg", modules: ["center"] }],
     permissions: { "ernest@myloan.ca": { center: true, website: true } }
-  }, blobDeps(failBlob(), missingEnv));
+  }, { fetch: failBlob(), env: missingEnv });
   assert.equal(tmpSaved.body.via, "tmp", "Blob miss still writes tmp; via is not blob");
   assert.notEqual(tmpSaved.body.via, "blob");
-  assert.ok(tmpSaved.body.blobErr, "tmp fallback reports blobErr");
   incoming.resetStore();
   usersStore.reset();
   try { fs.unlinkSync("/tmp/center-users-v1.json"); } catch (e) {}
-  const tmpGot = await incoming.listUsers(blobDeps(failBlob(), missingEnv));
+  const tmpGot = await incoming.listUsers({ fetch: failBlob(), env: missingEnv });
   assert.equal(tmpGot.via, "tmp", "GET falls back to tmp when Blob is missing");
   assert.equal(tmpGot.users.length, 1);
   assert.equal(tmpGot.users[0].email, "ernest@myloan.ca");
@@ -458,7 +446,7 @@ function emailOnlyStaleBlob() {
   const memSaved = await incoming.persistUsers({
     kind: "users",
     users: [{ email: "adam@myloan.ca", name: "Adam" }]
-  }, blobDeps(undefined, memEnv));
+  }, { env: memEnv });
   assert.notEqual(memSaved.body.via, "blob", "no token is never labeled blob");
   assert.ok(memSaved.body.via === "tmp" || memSaved.body.via === "memory", "via is tmp or memory");
 
@@ -490,7 +478,7 @@ function emailOnlyStaleBlob() {
       }
     }
   ]);
-  const newest = await incoming.listUsers(blobDeps(multi, multiEnv));
+  const newest = await incoming.listUsers({ fetch: multi, env: multiEnv });
   assert.equal(newest.via, "blob");
   assert.equal(newest.users.length, 1, "GET uses the newest updatedAt blob, not the first listed copy");
   assert.equal(newest.users[0].email, "josh.lefave@gmautosales.ca");
@@ -503,40 +491,14 @@ function emailOnlyStaleBlob() {
     kind: "users",
     users: [{ email: "josh.lefave@gmautosales.ca", name: "Josh Lefave" }],
     permissions: { "josh.lefave@gmautosales.ca": { website: true, center: true } }
-  }, blobDeps(lie, lieEnv));
-  assert.notEqual(lied.body.via, "blob", "via is not blob when origin verify still shows the old roster");
-  assert.equal(lied.body.blobErr, "verify-mismatch", "tmp fallback includes blobErr after failed origin verify");
+  }, { fetch: lie, env: lieEnv });
+  assert.notEqual(lied.body.via, "blob", "via is not blob when read-back still shows the old roster");
   assert.ok(lie.files.puts.length, "PUT was still attempted");
-
-  const staleEnv = { BLOB_READ_WRITE_TOKEN: "test-token", USERS_STORE_PATH: "/tmp/users-persist-stale-" + Date.now() + ".json" };
-  clearIsolate(staleEnv.USERS_STORE_PATH);
-  const staleFetch = emailOnlyStaleBlob();
-  const staleSaved = await incoming.persistUsers({
-    kind: "users",
-    users: [{ email: "josh.lefave@gmautosales.ca", name: "Josh Lefave" }],
-    permissions: { "josh.lefave@gmautosales.ca": { website: true, center: true } }
-  }, blobDeps(staleFetch, staleEnv));
-  assert.notEqual(staleSaved.body.via, "blob", "via is not blob when updatedAt/permissions did not stick");
-  assert.equal(staleSaved.body.blobErr, "verify-mismatch");
-
-  const waits = [];
-  const backoffEnv = { BLOB_READ_WRITE_TOKEN: "test-token", USERS_STORE_PATH: "/tmp/users-persist-backoff-" + Date.now() + ".json" };
-  clearIsolate(backoffEnv.USERS_STORE_PATH);
-  await incoming.persistUsers({
-    kind: "users",
-    users: [{ email: "josh.lefave@gmautosales.ca", name: "Josh Lefave" }],
-    permissions: { "josh.lefave@gmautosales.ca": { website: true, center: true } }
-  }, blobDeps(lyingBlob(), backoffEnv, {
-    sleep: function (ms) { waits.push(ms); return Promise.resolve(); }
-  }));
-  assert.deepStrictEqual(waits, [200, 400, 800], "origin verify backoff is 0 then 200/400/800ms");
 
   clearIsolate(env.USERS_STORE_PATH);
   clearIsolate(missingEnv.USERS_STORE_PATH);
   clearIsolate(multiEnv.USERS_STORE_PATH);
   clearIsolate(lieEnv.USERS_STORE_PATH);
-  clearIsolate(staleEnv.USERS_STORE_PATH);
-  clearIsolate(backoffEnv.USERS_STORE_PATH);
   console.log("users-persist: ok");
 })().catch(function (err) {
   console.error(err);

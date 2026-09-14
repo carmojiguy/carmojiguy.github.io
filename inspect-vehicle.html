@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-14 build d31a: pixel-faithful Acre GR Corolla desk (white hero|mid|market, not stone/teal); CA workbench redo — drop the verbal-only tag forever; What's the Story walks the car and talks; Walk-around photos only; keep Critical damage; salesperson CA has no packet-send card; Tracker mobile cards + current month; Canada Drives appointments: month list from Airtable Appointment Booked + GTA/Ottawa Tracker, Google Docs open (no preventDefault overlay), Acre-bright desk; website-post story-first year/make/model/trim/condition, no team select, original start not webdesk, pictures still relaunch/post; Acre GR Corolla desk lock — FIFO oldest home, left-rail Incoming/On-site/Needs docs/History pills, no hist KPI strip, Ask Maya, appraisal range/competing/ask; users GET/POST kind:users persist; 911 Acre team reads finalRationale.markdown + panel Rybot/Webot/Drebot/TBot + team.shabot note, hides boxes with no numbers; mailer keeps rich team/rationale on Center refresh; Trade-in start drops stray top History (rail History stays); 911 Incoming FINAL min+target+max clears Running and lands Appraisal Team numbers (Blazer s1af19al / F-150 sir78n6); Run Appraisal Team tap always fires (rerun + Unlocked History); kind:team wake; Incoming FINAL settles Running; schema 1.0 team + panel boxes; market pills append multiple files into shots[]; compact V Auto / Carfax / OpenLane / eBlock chips; same sendId/id Incoming POST; panel runs progress → existing FINAL; no invented solds; real Carfax http url opens the uploaded file; sample recreate only when no docs.carfax.url; Carfax square + huge card add/upload kind:file carfax; staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; Incoming keeps http docs.url; Incoming appends shots[]; status dropdown every lane; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples; hides generated From V Auto lane; users settings durable Vercel Blob center-users-v1.json; empty remote users never wipe local people; merge permissions by email; restore Josh Lefave josh.lefave@gmautosales.ca + Steve Summerall steve.summerall@gmautosales.ca website+center -->
+<!-- center-v3 + desk-home 2026-09-14 build d31a: pixel-faithful Acre GR Corolla desk (white hero|mid|market, not stone/teal); CA workbench redo — drop the verbal-only tag forever; What's the Story walks the car and talks; Walk-around photos only; keep Critical damage; salesperson CA has no packet-send card; Tracker mobile cards + current month; Canada Drives appointments: month list from Airtable Appointment Booked + GTA/Ottawa Tracker, Google Docs open (no preventDefault overlay), Acre-bright desk; website-post story-first year/make/model/trim/condition, no team select, original start not webdesk, pictures still relaunch/post; Acre GR Corolla desk lock — FIFO oldest home, left-rail Incoming/On-site/Needs docs/History pills, no hist KPI strip, Ask Maya, appraisal range/competing/ask; users GET/POST kind:users persist; 911 Acre team reads finalRationale.markdown + panel Rybot/Webot/Drebot/TBot + team.shabot note, hides boxes with no numbers; mailer keeps rich team/rationale on Center refresh; Trade-in start drops stray top History (rail History stays); 911 Incoming FINAL min+target+max clears Running and lands Appraisal Team numbers (Blazer s1af19al / F-150 sir78n6); Run Appraisal Team tap always fires (rerun + Unlocked History); kind:team wake; Incoming FINAL settles Running; schema 1.0 team + panel boxes; market pills append multiple files into shots[]; compact V Auto / Carfax / OpenLane / eBlock chips; same sendId/id Incoming POST; panel runs progress → existing FINAL; no invented solds; real Carfax http url opens the uploaded file; sample recreate only when no docs.carfax.url; Carfax square + huge card add/upload kind:file carfax; staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; Incoming keeps http docs.url; Incoming appends shots[]; status dropdown every lane; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples; hides generated From V Auto lane; users settings durable Vercel Blob center-users/{at}.json + __latest; pull kind=users&at= after persist; empty remote users never wipe local people; merge permissions by email; restore Josh Lefave josh.lefave@gmautosales.ca + Steve Summerall steve.summerall@gmautosales.ca website+center -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -4371,13 +4371,23 @@ function persistUsersRemote(store){
       return Promise.resolve({ok:false, skipped:"empty"});
     }
     const req={method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(payload), keepalive:true, cache:"no-store"};
-    return fetch(MAIL_HOST+"/api/incoming", req).then(function(r){ return r && r.json ? r.json().catch(function(){ return {ok:!!(r&&r.ok)}; }) : {ok:false}; }).catch(function(){ return {ok:false}; });
+    return fetch(MAIL_HOST+"/api/incoming", req).then(function(r){ return r && r.json ? r.json().catch(function(){ return {ok:!!(r&&r.ok)}; }) : {ok:false}; }).then(function(j){
+      const at=Number(j && j.updatedAt);
+      if(j && j.ok!==false && at){
+        return Promise.resolve(pullUsersRemote(at)).then(function(){ return j; });
+      }
+      return j||{ok:false};
+    }).catch(function(){ return {ok:false}; });
   }catch(e){ return Promise.resolve({ok:false}); }
 }
-function pullUsersRemote(){
+function pullUsersRemote(at){
   try{
     if(typeof MAIL_HOST!=="string" || !MAIL_HOST) return Promise.resolve(false);
-    const p=(typeof timedFetch==="function")?timedFetch(MAIL_HOST+"/api/incoming?kind=users", {cache:"no-store"}, 8000):fetch(MAIL_HOST+"/api/incoming?kind=users", {cache:"no-store"});
+    const n=Number(at||0);
+    const url=n
+      ? (MAIL_HOST+"/api/incoming?kind=users&at="+encodeURIComponent(String(n)))
+      : (MAIL_HOST+"/api/incoming?kind=users");
+    const p=(typeof timedFetch==="function")?timedFetch(url, {cache:"no-store"}, 8000):fetch(url, {cache:"no-store"});
     return Promise.resolve(p).then(function(r){ return r && r.json ? r.json() : {}; }).then(function(j){
       return applyUsersBlob(j);
     }).catch(function(){ return false; });
