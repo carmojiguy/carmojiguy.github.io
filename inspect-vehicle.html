@@ -4261,21 +4261,21 @@ function defaultPerms(email){
   return {trade:false, appraise:false, website:false, center:false, admin:false};
 }
 function usersKey(){ return "inspect.users"; }
-function emptyUsersStore(){ return {people:[], permissions:{}}; }
+function emptyUsersStore(){ return {people:[], permissions:{}, updatedAt:0}; }
 function loadUsersStore(){
   function read(raw){
     if(!raw) return null;
     const data=JSON.parse(raw);
-    if(Array.isArray(data)) return {people:data.filter(function(u){ return u && u.email; }), permissions:{}};
+    if(Array.isArray(data)) return {people:data.filter(function(u){ return u && u.email; }), permissions:{}, updatedAt:0};
     if(data && typeof data==="object"){
       const people=Array.isArray(data.people)?data.people:(Array.isArray(data.users)?data.users:[]);
-      return {people:people.filter(function(u){ return u && u.email; }), permissions:(data.permissions && typeof data.permissions==="object")?data.permissions:{}};
+      return {people:people.filter(function(u){ return u && u.email; }), permissions:(data.permissions && typeof data.permissions==="object")?data.permissions:{}, updatedAt:Number(data.updatedAt||0)};
     }
     return null;
   }
   try{ const s=read(localStorage.getItem(usersKey())); if(s) return s; }catch(e){}
   try{ const s=read(sessionStorage.getItem(usersKey())); if(s) return s; }catch(e){}
-  return {people:Array.isArray(APP.extraUsers)?APP.extraUsers:[], permissions:APP.userPerms||{}};
+  return {people:Array.isArray(APP.extraUsers)?APP.extraUsers:[], permissions:APP.userPerms||{}, updatedAt:0};
 }
 function slimUsersBlob(store){
   const people=((store && store.people)||[]).filter(function(u){ return u && u.email; }).map(function(u){
@@ -4297,7 +4297,8 @@ function slimUsersBlob(store){
     users:people,
     people:people,
     teams:(typeof DESK_TEAMS!=="undefined"?DESK_TEAMS.slice():[]),
-    permissions:(store && store.permissions)||{}
+    permissions:(store && store.permissions)||{},
+    updatedAt:Number((store && store.updatedAt) || Date.now())
   };
 }
 function applyUsersBlob(blob){
@@ -4306,6 +4307,10 @@ function applyUsersBlob(blob){
   if(!people) return false;
   if(!people.length && !(blob.permissions && Object.keys(blob.permissions).length)) return false;
   const store=loadUsersStore();
+  const remoteAt=Number(blob.updatedAt||0);
+  const localAt=Number(store.updatedAt||0);
+  const localCount=((store.people)||[]).length;
+  if(remoteAt && localAt && remoteAt<localAt && localCount>people.length) return false;
   const by={};
   people.forEach(function(u){
     if(!u || !u.email) return;
@@ -4325,6 +4330,7 @@ function applyUsersBlob(blob){
   if(blob.permissions && typeof blob.permissions==="object" && Object.keys(blob.permissions).length){
     store.permissions=blob.permissions;
   }
+  if(remoteAt) store.updatedAt=remoteAt;
   saveUsersStore(store, true);
   return true;
 }
@@ -4349,7 +4355,8 @@ function pullUsersRemote(){
   }catch(e){ return Promise.resolve(false); }
 }
 function saveUsersStore(store, skipRemote){
-  const next={people:(store && store.people)||[], permissions:(store && store.permissions)||{}};
+  const next={people:(store && store.people)||[], permissions:(store && store.permissions)||{}, updatedAt:Number((store && store.updatedAt) || Date.now())};
+  if(!skipRemote) next.updatedAt=Date.now();
   APP.extraUsers=next.people;
   APP.userPerms=next.permissions;
   try{ localStorage.setItem(usersKey(), JSON.stringify(next)); }catch(e){}
@@ -4595,9 +4602,9 @@ function ensureRoster(skipRemote){
     put(seed.email, seed.name);
     const p=by[seed.email];
     if(!p) return;
-    p.id=p.id||seed.id;
-    p.photo=p.photo||seed.photo;
-    p.role=p.role||seed.role;
+    p.id=seed.id;
+    p.photo=seed.photo;
+    p.role=seed.role;
     p.name=seed.name;
   });
   if(by["shawn@myloan.ca"]) by["shawn@myloan.ca"].leader=true;

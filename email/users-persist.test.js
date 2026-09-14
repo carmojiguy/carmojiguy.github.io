@@ -37,6 +37,9 @@ must(/id:"u-josh"/, "FixerBot seed id u-josh");
 must(/id:"u-steve-s"/, "FixerBot seed id u-steve-s");
 must(/\/staff\/josh\.jpg/, "Josh seed photo path");
 must(/\/staff\/steve-summerall\.jpg/, "Steve seed photo path");
+must(/p\.id=seed\.id;/, "Josh/Steve seed id is pinned on restore");
+must(/p\.photo=seed\.photo;/, "Josh/Steve seed photo is pinned on restore");
+must(/p\.role=seed\.role;/, "Josh/Steve seed role is pinned on restore");
 
 (function testDefaultPerms() {
   const m = html.match(/function defaultPerms\(email\)\{[\s\S]*?\n\}/);
@@ -76,6 +79,32 @@ must(/\/staff\/steve-summerall\.jpg/, "Steve seed photo path");
     permissions: {}
   }), true, "people-only blob still applies roster");
   assert.strictEqual(stored.permissions["local@myloan.ca"].center, true, "empty remote permissions keep local toggles");
+})();
+
+(function testStaleIsolateDoesNotClobber() {
+  const applySrc = sliceFn("applyUsersBlob", "persistUsersRemote");
+  let stored = {
+    people: [
+      { email: "josh.lefave@gmautosales.ca", name: "Josh Lefave", id: "u-josh" },
+      { email: "steve.summerall@gmautosales.ca", name: "Steve Summerall", id: "u-steve-s" },
+      { email: "adam@myloan.ca", name: "Adam" }
+    ],
+    permissions: { "adam@myloan.ca": { center: false } },
+    updatedAt: 200
+  };
+  function loadUsersStore() { return stored; }
+  function saveUsersStore(next) { stored = next; }
+  function staffEmail(v) { return String(v || "").trim().toLowerCase(); }
+  function normalizeTeams(v) { return Array.isArray(v) ? v : []; }
+  const applyUsersBlob = eval("(" + applySrc.replace("function applyUsersBlob", "function") + ")");
+  assert.strictEqual(applyUsersBlob({
+    ok: true,
+    users: [{ email: "persist-probe@example.com", name: "Probe" }],
+    permissions: {},
+    updatedAt: 100
+  }), false, "stale thinner isolate snapshot is ignored");
+  assert.strictEqual(stored.people.length, 3, "Josh/Steve/Adam stay local");
+  assert.strictEqual(stored.permissions["adam@myloan.ca"].center, false, "toggle survives stale GET");
 })();
 
 function mockBlob() {
