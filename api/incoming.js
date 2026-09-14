@@ -4,9 +4,13 @@
  * Live host (FixerBot — deploy this file on gnm-guest-mailer):
  *   GET  https://gnm-guest-mailer-shawn-6802.vercel.app/api/incoming
  *        → { ok:true, items:[ slimCenterItem, ... ] }
+ *   GET  same URL?kind=users
+ *        → { ok:true, kind:"users", users:[], teams:[], permissions:{}, updatedAt, via:"blob" }
  *   POST same URL
  *        { kind:"land", item: slimCenterItem }
  *        → { ok:true, id }
+ *        { kind:"users", users:[], teams:[], permissions:{} }
+ *        → { ok:true, kind:"users", updatedAt, via:"blob" }
  *
  * CORS: carmojiguy.github.io (+ github.io / vercel.app).
  * Slim only: no raw video. thumb / tiny photos + docs meta (have/name/type).
@@ -19,6 +23,7 @@ const ALLOW = [
   "https://gnm-guest-mailer-shawn-6802.vercel.app"
 ];
 const FILE = "/tmp/center-incoming-v1.json";
+const USERS_FILE = "/tmp/center-users-v1.json";
 const MAX = 80;
 const KEYS = [
   "id", "sendId", "vin", "year", "make", "model", "trim", "color", "km", "stock",
@@ -305,12 +310,94 @@ async function persistFromSend(body, sent) {
   }
 }
 
-function route(method, body) {
+function emptyUsersBlob() {
+  return { users: [], teams: [], permissions: {}, updatedAt: 0 };
+}
+function usersMem() {
+  if (!globalThis.__CENTER_USERS) globalThis.__CENTER_USERS = emptyUsersBlob();
+  return globalThis.__CENTER_USERS;
+}
+function loadUsersFile() {
+  try {
+    const fs = require("fs");
+    const raw = JSON.parse(fs.readFileSync(USERS_FILE, "utf8"));
+    if (raw && typeof raw === "object") {
+      globalThis.__CENTER_USERS = {
+        users: Array.isArray(raw.users) ? raw.users : (Array.isArray(raw.people) ? raw.people : []),
+        teams: Array.isArray(raw.teams) ? raw.teams : [],
+        permissions: raw.permissions && typeof raw.permissions === "object" ? raw.permissions : {},
+        updatedAt: Number(raw.updatedAt || 0)
+      };
+    }
+  } catch (e) {}
+  return usersMem();
+}
+function saveUsersFile(blob) {
+  globalThis.__CENTER_USERS = blob;
+  try {
+    require("fs").writeFileSync(USERS_FILE, JSON.stringify(blob));
+  } catch (e) {}
+}
+function slimUser(u) {
+  if (!u || !u.email) return null;
+  const email = String(u.email || "").trim().toLowerCase();
+  if (!email || email.indexOf("@") < 1) return null;
+  return {
+    email: email,
+    name: String(u.name || ""),
+    teams: Array.isArray(u.teams) ? u.teams.filter(Boolean) : (u.team ? [u.team] : []),
+    leader: !!u.leader,
+    notes: String(u.notes || ""),
+    phone: String(u.phone || ""),
+    emailEditable: !!u.emailEditable
+  };
+}
+function listUsers() {
+  const blob = loadUsersFile();
+  return {
+    ok: true,
+    kind: "users",
+    users: blob.users || [],
+    teams: blob.teams || [],
+    permissions: blob.permissions || {},
+    updatedAt: blob.updatedAt || 0,
+    via: "blob"
+  };
+}
+function persistUsers(body) {
+  body = body && typeof body === "object" ? body : {};
+  const raw = Array.isArray(body.users) ? body.users : (Array.isArray(body.people) ? body.people : []);
+  const users = raw.map(slimUser).filter(Boolean);
+  const permissions = body.permissions && typeof body.permissions === "object" ? body.permissions : {};
+  const teams = Array.isArray(body.teams) ? body.teams.map(function (t) { return String(t || ""); }).filter(Boolean) : [];
+  const next = { users: users, teams: teams, permissions: permissions, updatedAt: Date.now() };
+  saveUsersFile(next);
+  return { status: 200, body: { ok: true, kind: "users", updatedAt: next.updatedAt, via: "blob" } };
+}
+function requestKind(req, body, query) {
+  if (query && query.kind) return String(query.kind);
+  if (body && body.kind) return String(body.kind);
+  try {
+    const raw = req && (req.url || "");
+    if (raw) {
+      const u = new URL(raw, "https://gnm-guest-mailer-shawn-6802.vercel.app");
+      return u.searchParams.get("kind") || "";
+    }
+  } catch (e) {}
+  return "";
+}
+
+function route(method, body, query) {
   method = String(method || "GET").toUpperCase();
+  query = query || {};
   if (method === "OPTIONS") return { status: 204, body: { ok: true } };
-  if (method === "GET") return { status: 200, body: { ok: true, items: listItems() } };
+  if (method === "GET") {
+    if (String(query.kind || (body && body.kind) || "") === "users") return { status: 200, body: listUsers() };
+    return { status: 200, body: { ok: true, items: listItems() } };
+  }
   if (method !== "POST") return { status: 405, body: { ok: false, error: "method" } };
   body = body && typeof body === "object" ? body : {};
+  if (body.kind === "users") return persistUsers(body);
   if (body.kind === "file") return persistFile(body);
   if (body.kind && body.kind !== "land") return { status: 400, body: { ok: false, error: "kind" } };
   const raw = body.item || body;
@@ -336,7 +423,15 @@ async function fromRequest(req) {
       body = {};
     }
   }
-  const out = route(method, body);
+  let query = {};
+  try {
+    const raw = req && (req.url || (req.headers && (req.headers["x-url"] || req.headers["X-Url"])));
+    if (req && req.url) {
+      const u = new URL(req.url, "https://gnm-guest-mailer-shawn-6802.vercel.app");
+      query.kind = u.searchParams.get("kind") || "";
+    }
+  } catch (e) {}
+  const out = route(method, body, query);
   out.origin = origin;
   return out;
 }
@@ -356,11 +451,18 @@ module.exports.persistFromSend = persistFromSend;
 module.exports.isPacketSend = isPacketSend;
 module.exports.resetStore = function resetStore() {
   globalThis.__CENTER_INCOMING = [];
+  globalThis.__CENTER_USERS = emptyUsersBlob();
   try { require("fs").unlinkSync(FILE); } catch (e) {}
+  try { require("fs").unlinkSync(USERS_FILE); } catch (e) {}
 };
+module.exports.listUsers = listUsers;
+module.exports.persistUsers = persistUsers;
 
 module.exports.GET = async function GET(request) {
   const origin = request.headers.get("origin") || "";
+  let kind = "";
+  try { kind = new URL(request.url, "https://gnm-guest-mailer-shawn-6802.vercel.app").searchParams.get("kind") || ""; } catch (e) {}
+  if (kind === "users") return json(null, 200, listUsers(), origin);
   return json(null, 200, { ok: true, items: listItems() }, origin);
 };
 
