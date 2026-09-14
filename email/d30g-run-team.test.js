@@ -34,9 +34,9 @@ function sha(s) {
 assert.equal(copy404, html, "404.html stays a byte-identical copy of index.html");
 assert.equal(inspect, html, "inspect-vehicle.html stays a byte-identical copy of index.html");
 
-must(/id="buildStamp">build d30i</, "home footer stamp is d30h");
-must(/<!--[\s\S]*build d30i[\s\S]*Run Appraisal Team/, "file header stamp is d30h activate");
-must(/id="typeSheet"[\s\S]*build d30i/, "type sheet stamp is d30h");
+must(/id="buildStamp">build d30k</, "home footer stamp is d30h");
+must(/<!--[\s\S]*build d30k[\s\S]*Run Appraisal Team/, "file header stamp is d30h activate");
+must(/id="typeSheet"[\s\S]*build d30k/, "type sheet stamp is d30h");
 must(/id="centerRunTeam"/, "staff activate button id");
 must(/id="centerRunTeamWrap"/, "staff activate wrap");
 must(/>Run Appraisal Team</, "button label is Run Appraisal Team");

@@ -26,7 +26,7 @@ function sha(s) {
   return crypto.createHash("sha256").update(s).digest("hex");
 }
 
-must(/id="buildStamp">build d30i</, "footer stamp is build d30i");
+must(/id="buildStamp">build d30k</, "footer stamp is build d30k");
 must(/id="typeSheet"[\s\S]*build d30/, "type sheet stamp is build d30");
 must(/PACKET_LAUNCH/, "research tool launchers");
 must(/PACKET_ADDS/, "three add-doc pills");
