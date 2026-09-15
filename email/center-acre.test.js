@@ -280,7 +280,8 @@ must(/requirePerm\("trade"\)/, "Send trade-in link is a permission, not an Appra
 must(/requirePerm\("website"\)/, "Website photos stay on their own start-dock path");
 mustNot(/startTrade[\s\S]{0,160}requireAppraiseType/, "trade-in link is not behind the appraisal-type gate");
 mustNot(/DEAL_TYPES = \[[^\]]*Website/, "Website is not an Appraise type");
-must(/id="apptWrap"/, "appointments picker sits on the Consumer Acquisition workbench");
+must(/id="apptWrap"/, "appointments picker stays");
+must(/id="caDrawer"/, "Canada Drives list is a far-left Center drawer");
 must(/id="workbench"/, "Consumer Acquisition has its own workbench");
 must(/LEAD_SOURCES = \[/, "lead sources are Canada Drives, My Loan, My Auto, Carla");
 must(/id:"Carla"/, "Carla is a lead source");
