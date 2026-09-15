@@ -71,21 +71,23 @@ assert.strictEqual(api.normalizeKm(18420), "18420", "Airtable Kms number stays d
 assert.strictEqual(api.normalizeKm("18,420 km"), "18420", "sheet kilometres with unit strip to digits");
 assert.strictEqual(api.normalizeKm(""), "", "blank kilometres stay blank");
 
-const rav4 = api.mapRecord({
-  id: "reczHq07lyeSxqFWT",
+const corvette = api.mapRecord({
+  id: "recl6gS2ME7cm2Mlf",
   fields: {
-    flds1XRKp8DKl6zaS: "APP-0006483345",
-    fld7T0bVJ3z6ndPbi: "2022 Toyota Rav4 LE",
-    fldFLTbpXZAQ5RiOr: "2T3Z1RFV9NW231154",
-    fldCHTFWNcYeF9MIT: "Sample Seller",
-    fld1ReQkIiObeuXr9: 50500
+    flds1XRKp8DKl6zaS: "APP-0003349834",
+    fld7T0bVJ3z6ndPbi: "2017 Chevrolet Corvette Stingray",
+    fldFLTbpXZAQ5RiOr: "1G1YD2D7XH5119806",
+    fldCHTFWNcYeF9MIT: "Mohit Sehjal",
+    fld1ReQkIiObeuXr9: 53700
   }
 });
-assert.strictEqual(rav4.ymm, "2022 Toyota Rav4 LE", "mapRecord keeps year make model");
-assert.strictEqual(rav4.km, "50500", "mapRecord reads Airtable Kms fld1ReQkIiObeuXr9");
+assert.strictEqual(corvette.ymm, "2017 Chevrolet Corvette Stingray", "Today GTA Corvette keeps YMM");
+assert.strictEqual(corvette.km, "53700", "Today GTA Corvette reads Airtable Kms 53700");
 
 must(/function apptKmText\(/, "appointment tiles format kilometres");
 must(/function apptTileHtml\(/, "appointment tile HTML is one helper");
+must(/class="appt-km"/, "Canada Drives list tiles render a kilometres line");
+must(/\.appt-row \.appt-body \.appt-km/, "list-tile kilometres are styled under YMM");
 must(/if\(a\.km\) APP\.km=a\.km/, "tapping a booked vehicle prefills Appraise km");
 must(/kmTxt/, "CA desk hero chips include kilometres");
 must(/fld1ReQkIiObeuXr9/, "mailer requests Airtable Kms");
@@ -99,30 +101,33 @@ must(/function finishGuest\(\)\{\s*finishThanks\(\);/, "Thank-you stays frozen")
   const apptKmText = eval("(" + kmM[0].replace(/^function apptKmText/, "function") + ")");
   const apptTileHtml = eval("(" + tileM[0].replace(/^function apptTileHtml/, "function") + ")");
   const htmlOut = apptTileHtml({
-    id: "rav4",
-    date: "2026-03-06",
+    id: "corvette",
+    date: "2026-09-14",
     stage: "booked",
-    ymm: "2022 Toyota Rav4 LE",
-    km: "50500",
-    appNo: "APP-0006483345",
-    seller: "Sample Seller",
-    vin: "2T3Z1RFV9NW231154"
+    ymm: "2017 Chevrolet Corvette Stingray",
+    km: "53700",
+    appNo: "APP-0003349834",
+    seller: "Mohit Sehjal",
+    vin: "1G1YD2D7XH5119806"
   });
-  assert.ok(htmlOut.indexOf("2022 Toyota Rav4 LE") >= 0, "tile HTML includes year make model");
-  assert.ok(/50,?500 km/.test(htmlOut), "tile HTML includes kilometres for a row with odometer data");
-  assert.strictEqual(apptKmText({ km: 50500 }), Number(50500).toLocaleString("en-CA") + " km", "50,500 km formats with en-CA grouping");
-  const envista = apptTileHtml({
-    ymm: "2025 Buick Envista Avenir",
-    km: "18420",
-    appNo: "APP-0003339075",
-    seller: "Ahmed Omer",
-    vin: "KL47LCE21SB053454",
-    date: "2026-09-01",
+  assert.ok(htmlOut.indexOf("2017 Chevrolet Corvette Stingray") >= 0, "list tile title keeps year make model");
+  assert.ok(/class="appt-km"/.test(htmlOut), "list tile has a dedicated kilometres line");
+  assert.ok(/53,?700 km/.test(htmlOut), "list tile HTML includes kilometres for a booked row with Airtable Kms");
+  assert.ok(htmlOut.indexOf("2017 Chevrolet Corvette Stingray") < htmlOut.indexOf("appt-km"), "YMM stays the title; km sits under it");
+  assert.strictEqual(apptKmText({ km: 53700 }), Number(53700).toLocaleString("en-CA") + " km", "53,700 km formats with en-CA grouping");
+  const mustang = apptTileHtml({
+    ymm: "2018 Ford Mustang Eco",
+    km: "14000",
+    appNo: "APP-0003346310",
+    seller: "Navjot singh Sandhu",
+    date: "2026-09-14",
     stage: "booked"
   });
-  assert.ok(envista.indexOf("2025 Buick Envista Avenir") >= 0, "Envista tile still shows YMM");
-  assert.ok(/18,?420 km/.test(envista), "Envista tile shows km when Kms is present");
-  assert.ok(apptTileHtml({ ymm: "2025 Buick Envista Avenir", km: "" }).indexOf(" km") < 0, "blank Kms does not invent a km line");
+  assert.ok(mustang.indexOf("2018 Ford Mustang Eco") >= 0, "Mustang list tile keeps YMM");
+  assert.ok(/14,?000 km/.test(mustang), "Mustang list tile shows Airtable Kms 14000");
+  const mazda = apptTileHtml({ ymm: "2015 Mazda CX-9 GS", km: "", date: "2026-09-14", stage: "booked" });
+  assert.ok(mazda.indexOf("2015 Mazda CX-9 GS") >= 0, "Mazda list tile still shows YMM when Kms is empty");
+  assert.ok(mazda.indexOf("appt-km") < 0, "blank Kms does not invent a km line on the list tile");
 })();
 
 const sept = [

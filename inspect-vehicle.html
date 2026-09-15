@@ -182,7 +182,8 @@ label.k { display:block; color:#6e6e73; font-size:13px; margin:11px 0 5px; }
 .appt-row .appt-when b{display:block;font-size:20px;letter-spacing:-.4px;line-height:1}
 .appt-row .appt-when i{display:block;font-size:10px;font-weight:800;font-style:normal;letter-spacing:.08em;text-transform:uppercase;margin-top:4px}
 .appt-row .appt-body{min-width:0}
-.appt-row .appt-body b{display:block;font-size:16px;letter-spacing:-.3px;line-height:1.2;margin:0 0 4px}
+.appt-row .appt-body b{display:block;font-size:16px;letter-spacing:-.3px;line-height:1.2;margin:0 0 2px}
+.appt-row .appt-body .appt-km{display:block;font-size:14px;font-weight:800;font-style:normal;color:#111318;margin:0 0 4px;letter-spacing:-.1px}
 .appt-row .appt-body span{display:block;color:#6B7380;font-size:13px;line-height:1.4;font-weight:600}
 .appt-stage{display:inline-block;border-radius:999px;padding:2px 8px;margin:0 6px 0 0;font-size:11px;font-weight:800;letter-spacing:.02em;font-style:normal;vertical-align:1px}
 .appt-stage.booked{background:#E8F1FF;color:#1D4ED8}
@@ -3312,7 +3313,7 @@ function apptTileHtml(row){
   const stageLbl=row && row.stage==="on-site"?"On-site":"Booked";
   const stageCls=row && row.stage==="on-site"?"onsite":"booked";
   const km=apptKmText(row);
-  return '<span class="appt-when"><b>'+escHtml(day)+"</b><i>"+escHtml(mon)+'</i></span><span class="appt-body"><b>'+escHtml((row && row.ymm)||"Vehicle")+"</b><span><i class=\"appt-stage "+stageCls+"\">"+escHtml(stageLbl)+"</i>"+(km?escHtml(km)+" · ":"")+escHtml((row && row.appNo)||"Application")+" · "+escHtml((row && row.seller)||"Seller")+((row && row.vin && row.vin!=="TBD")?" · "+escHtml(row.vin):"")+" · "+escHtml(when)+"</span></span>";
+  return '<span class="appt-when"><b>'+escHtml(day)+"</b><i>"+escHtml(mon)+'</i></span><span class="appt-body"><b>'+escHtml((row && row.ymm)||"Vehicle")+"</b>"+(km?'<i class="appt-km">'+escHtml(km)+"</i>":"")+'<span><i class="appt-stage '+stageCls+'">'+escHtml(stageLbl)+"</i>"+escHtml((row && row.appNo)||"Application")+" · "+escHtml((row && row.seller)||"Seller")+((row && row.vin && row.vin!=="TBD")?" · "+escHtml(row.vin):"")+" · "+escHtml(when)+"</span></span>";
 }
 function normalizeAppt(row){
   if(!row) return null;
