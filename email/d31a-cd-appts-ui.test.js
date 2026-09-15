@@ -177,6 +177,8 @@ assert.deepStrictEqual(
 must(/id="acqDrawerToggle"/, "Acquisitions toggle sits beside Canada Drives");
 must(/id="acqDrawerBody"/, "Acquisitions kanban uses the same left drawer");
 must(/function toggleAcqDrawer\(/, "Acquisitions opens and closes like Canada Drives");
+must(/#center\.screen\.ca-on\.acq-on/, "Acquisitions expands the same left Center drawer");
+must(/#center\.screen\.ca-on\.acq-on:has\(#centerSheet\.on\)/, "lane sheet does not squash the Kanban back to the booked-list width");
 must(/function paintAcqBoard\(/, "Acquisitions paints a Kanban board");
 must(/Showing the last 30 days — search to find older records/, "30-day header note");
 must(/Pending Decision/, "Pending Decision column");
