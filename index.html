@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-14 build d31a: pixel-faithful Acre GR Corolla desk (white hero|mid|market, not stone/teal); CA workbench redo — drop the verbal-only tag forever; What's the Story walks the car and talks; Walk-around photos only; keep Critical damage; salesperson CA has no packet-send card; Tracker mobile cards + current month; Canada Drives appointments: month list from Airtable Appointment Booked + GTA/Ottawa Tracker, Google Docs open (no preventDefault overlay), Acre-bright desk; website-post story-first year/make/model/trim/condition, no team select, original start not webdesk, pictures still relaunch/post; Acre GR Corolla desk lock — FIFO oldest home, left-rail Incoming/On-site/Needs docs/History pills, no hist KPI strip, Ask Maya, appraisal range/competing/ask; users GET/POST kind:users persist; GET kind=users&at= after save; 911 Acre team reads finalRationale.markdown + panel Rybot/Webot/Drebot/TBot + team.shabot note, hides boxes with no numbers; mailer keeps rich team/rationale on Center refresh; Trade-in start drops stray top History (rail History stays); 911 Incoming FINAL min+target+max clears Running and lands Appraisal Team numbers (Blazer s1af19al / F-150 sir78n6); Run Appraisal Team tap always fires (rerun + Unlocked History); kind:team wake; Incoming FINAL settles Running; schema 1.0 team + panel boxes; market pills append multiple files into shots[]; compact V Auto / Carfax / OpenLane / eBlock chips; same sendId/id Incoming POST; panel runs progress → existing FINAL; no invented solds; real Carfax http url opens the uploaded file; sample recreate only when no docs.carfax.url; Carfax square + huge card add/upload kind:file carfax; staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; Incoming keeps http docs.url; Incoming appends shots[]; status dropdown every lane; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples; hides generated From V Auto lane; users settings durable Vercel Blob center-users-v1.json; empty remote users never wipe local people; merge permissions by email; restore Josh Lefave josh.lefave@gmautosales.ca + Steve Summerall steve.summerall@gmautosales.ca; Users UI cream/slate Control chrome; staff defaultPerms all sections On except admin/Users; Shawn HOME dock: login cinematic overlay + 29-sold cream/slate/terracotta, full-bleed faded car, no blue footer bar, mobile pills overlay the hero, desktop login-style card; login CSS frozen; HOLD #33/#46; Off Acre #73 photo lock remix -->
+<!-- center-v3 + desk-home 2026-09-14 build d31a: pixel-faithful Acre GR Corolla desk (white hero|mid|market, not stone/teal); CA workbench redo — drop the verbal-only tag forever; What's the Story walks the car and talks; Walk-around photos only; keep Critical damage; salesperson CA has no packet-send card; Tracker mobile cards + current month; Canada Drives appointments: month list from Airtable Appointment Booked + GTA/Ottawa Tracker, Google Docs open (no preventDefault overlay), Acre-bright desk; website-post story-first year/make/model/trim/condition, no team select, original start not webdesk, pictures still relaunch/post; Acre GR Corolla desk lock — FIFO oldest home, left-rail Incoming/On-site/Needs docs/History pills, no hist KPI strip, Ask Maya, appraisal range/competing/ask; users GET/POST kind:users persist; GET kind=users&at= after save; 911 Acre team reads finalRationale.markdown + panel Rybot/Webot/Drebot/TBot + team.shabot note, hides boxes with no numbers; mailer keeps rich team/rationale on Center refresh; Trade-in start drops stray top History (rail History stays); 911 Incoming FINAL min+target+max clears Running and lands Appraisal Team numbers (Blazer s1af19al / F-150 sir78n6); Run Appraisal Team tap always fires (rerun + Unlocked History); kind:team wake; Incoming FINAL settles Running; schema 1.0 team + panel boxes; market pills append multiple files into shots[]; compact V Auto / Carfax / OpenLane / eBlock chips; same sendId/id Incoming POST; panel runs progress → existing FINAL; no invented solds; real Carfax http url opens the uploaded file; sample recreate only when no docs.carfax.url; Carfax square + huge card add/upload kind:file carfax; staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; Incoming keeps http docs.url; Incoming appends shots[]; status dropdown every lane; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples; hides generated From V Auto lane; users settings durable Vercel Blob center-users-v1.json; empty remote users never wipe local people; merge permissions by email; restore Josh Lefave josh.lefave@gmautosales.ca + Steve Summerall steve.summerall@gmautosales.ca; Users UI cream/slate Control chrome; staff defaultPerms all sections On except admin/Users; Shawn HOME dock: login cinematic overlay + 29-sold cream/slate/terracotta, full-bleed faded car, no blue footer bar, mobile pills overlay the hero, desktop login-style card; login CSS frozen; HOLD #33/#46; Off Acre #73 photo lock remix; 911 Center click/nav: #start hides when not .on so startDock cannot cover Center; CA drawer desktop-only collapsed by default -->
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
@@ -39,6 +39,7 @@ body { font-family:Manrope,system-ui,sans-serif; color:var(--ink); }
 .accent { height:4px; background:linear-gradient(90deg,var(--cyan),var(--purple)); }
 .screen { display:none; min-height:100dvh; padding:0 0 calc(160px + env(safe-area-inset-bottom)); }
 .screen.on { display:block; }
+.screen:not(.on) { display:none !important; }
 .screen.start { padding:0 !important; min-height:100svh; height:100svh; overflow:hidden; }
 .nav { display:grid; grid-template-columns:36px 1fr auto; align-items:center; padding:12px 16px 8px; gap:10px; }
 .nav h1 { margin:0; text-align:center; font-size:15px; font-weight:800; }
@@ -597,6 +598,12 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
   background:rgba(255,255,255,.92); color:#1C1B19;
   box-shadow:0 8px 18px rgba(28,27,25,.16);
 }
+#start:not(.on) .start-dock,
+#start:not(.on) .start-actions,
+#start:not(.on) .start-more {
+  pointer-events:none !important;
+  visibility:hidden;
+}
 .start-dock {
   position:absolute; inset:0; z-index:24;
   display:block; pointer-events:none;
@@ -1053,24 +1060,19 @@ html:has(#users.on), body:has(#users.on) { background:#F5F3ED; }
 .acq-card .acq-vin{ display:block; font-size:11px; font-weight:700; color:#9CA3AF; letter-spacing:.02em; }
 .acq-card .acq-meta{ display:flex; justify-content:space-between; gap:8px; margin-top:8px; font-size:12px; font-weight:700; color:#6B7280; }
 @media (max-width:767px){
+  /* #88 CA drawer is desktop-only. Never a full-bleed hit layer on the phone desk. */
   #center.screen.ca-on{ grid-template-columns:76px minmax(0,1fr); }
   #center.screen.ca-on #centerLanes.center-rail{ grid-column:1; }
   #center.screen.ca-on #centerDetailBody, #center.screen.ca-on #centerDock{ grid-column:2; }
-  #center.screen.ca-on .ca-drawer{
-    position:fixed; left:0; top:0; bottom:0; width:min(360px,90vw);
-    grid-column:auto; grid-row:auto; padding-top:env(safe-area-inset-top);
-    box-shadow:16px 0 40px rgba(17,19,24,.18);
+  #center .ca-drawer,
+  #center.screen.ca-on .ca-drawer,
+  #center.screen.ca-on.ca-collapsed .ca-drawer,
+  #center.screen.ca-on.acq-on .ca-drawer{
+    display:none !important;
+    pointer-events:none !important;
+    position:absolute; inset:auto; width:0 !important; height:0 !important;
+    overflow:hidden; box-shadow:none; border:0; padding:0;
   }
-  #center.screen.ca-on.acq-on .ca-drawer{ width:min(100vw,100%); }
-  #center.screen.ca-on.ca-collapsed .ca-drawer{
-    left:76px; top:calc(52px + env(safe-area-inset-top)); width:auto; height:auto; bottom:auto;
-    background:transparent; border:0; box-shadow:none; padding-top:0;
-  }
-  #center.screen.ca-on.ca-collapsed .ca-drawer-head{
-    background:#111318; border-radius:0 12px 12px 0; padding:8px;
-  }
-  #center.screen.ca-on.ca-collapsed .ca-drawer-toggle{ background:#111318; }
-  #center.screen.ca-on.ca-collapsed .acq-drawer-toggle{ background:#fff; color:#111318; }
 }
 .lane-pill .nag {
   position:absolute; top:8px; right:8px; min-width:18px; height:18px; padding:0 5px;
@@ -1847,10 +1849,13 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
   #verify .pad { max-width:760px; }
   .pair { grid-template-columns:1fr 1fr; gap:14px; }
 
-  #start.screen.start {
+  #start.screen.start.on {
     display:block;
     background:#0b0b10;
     height:100dvh; min-height:100dvh;
+  }
+  #start.screen.start:not(.on) {
+    display:none !important;
   }
   #start .start-bg,
   #start .start-veil {
@@ -4066,6 +4071,7 @@ function caDrawerWanted(){
 }
 function leftRailWanted(){
   if(APP.role==="guest" || (typeof isWeb==="function" && isWeb())) return false;
+  if(typeof centerSplitLayout==="function" && !centerSplitLayout()) return false;
   if(APP.screen==="center") return true;
   return caDrawerWanted();
 }
