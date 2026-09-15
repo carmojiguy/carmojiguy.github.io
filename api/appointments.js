@@ -14,6 +14,8 @@
  * Optional query: source=Canada Drives (only). Other CA sources use New application.
  *                 region=GTA|Ottawa  range=today|tomorrow|month|lastMonth
  *                 from=YYYY-MM-DD  to=YYYY-MM-DD
+ *                 view=board  Consumer Acquisition Kanban (Pending Decision → Archived)
+ *                 view=board&q=  search older than 30 days by app # / VIN / YMM
  *
  * Filters (fixed):
  *   Stage = Appointment Booked (selqqamHvfGvK4CmK)
@@ -41,6 +43,7 @@ const F = {
   make: "fld1c2w8nYxMcZdlo",
   model: "fldm6HZP0gRt6cOlc",
   trim: "flduWS4Ja0Ghj7Dho",
+  km: "fld1ReQkIiObeuXr9",
   location: "fld7VUCC2ML89bMME",
   stage: "fldTyRUrsJS9ffZ3Z",
   source: "fldPIGZz38Fd4X5I8"
@@ -76,6 +79,14 @@ function cellName(v) {
   return String(v).trim();
 }
 
+function normalizeKm(v) {
+  if (v == null || v === "") return "";
+  const raw = typeof v === "object" ? cellName(v) : String(v);
+  const n = Number(raw.replace(/,/g, "").replace(/\s*k(m|ilomet(?:er|re)s?)\.?$/i, "").trim());
+  if (!n || !isFinite(n)) return "";
+  return String(Math.round(n));
+}
+
 function apptRegion(v) {
   const s = cellName(v).toUpperCase();
   if (s.indexOf("GTA") >= 0) return "GTA";
@@ -108,6 +119,7 @@ function mapRecord(rec) {
     trim: cellName(f[F.trim]),
     seller: cellName(f[F.seller]),
     vin: cellName(f[F.vin]),
+    km: normalizeKm(f[F.km] != null ? f[F.km] : (f.km || f.kms)),
     date: pickDate(f),
     region: apptRegion(f[F.location]),
     source: cellName(f[F.source]),
@@ -136,20 +148,23 @@ function formula(sourceName) {
   return "AND(OR({Stage}='Appointment Booked',{Stage}='On-Site Visit'),{Consumer Acquisition Source}='" + src.replace(/'/g, "\\'") + "')";
 }
 
-async function airtablePage(offset, sourceName) {
+async function airtablePage(offset, sourceName, mode) {
   const token = process.env.AIRTABLE_TOKEN || "";
   if (!token) return { live: false, records: [], reason: "AIRTABLE_TOKEN is not set on the mailer host." };
+  const board = mode === "board";
   const src = airtableSourceName(sourceName);
-  if (!usesAppointmentsSource(src)) {
+  if (!board && !usesAppointmentsSource(src)) {
     return { live: true, records: [], appointments: false, reason: "Appointments are Canada Drives only. Use New application." };
   }
   const q = new URLSearchParams();
-  q.set("filterByFormula", formula(src));
+  if (!board) q.set("filterByFormula", formula(src));
   q.set("pageSize", "100");
-  [
-    F.appNo, F.apptDate, F.bookedAt, F.seller, F.vin, F.ymm, F.ymmFormula,
-    F.year, F.make, F.model, F.trim, F.location, F.stage
-  ].forEach(function (id) { q.append("fields[]", id); });
+  if (!board) {
+    [
+      F.appNo, F.apptDate, F.bookedAt, F.seller, F.vin, F.ymm, F.ymmFormula,
+      F.year, F.make, F.model, F.trim, F.km, F.location, F.stage
+    ].forEach(function (id) { q.append("fields[]", id); });
+  }
   if (offset) q.set("offset", offset);
   const r = await fetch("https://api.airtable.com/v0/" + BASE + "/" + TABLE + "?" + q.toString(), {
     headers: { Authorization: "Bearer " + token }
@@ -161,12 +176,12 @@ async function airtablePage(offset, sourceName) {
   return { live: true, records: body.records || [], offset: body.offset || "" };
 }
 
-async function allRecords(sourceName) {
+async function allRecords(sourceName, mode) {
   const out = [];
   let offset = "";
   let pages = 0;
   while (pages < 8) {
-    const page = await airtablePage(offset, sourceName);
+    const page = await airtablePage(offset, sourceName, mode);
     if (!page.live) return page;
     page.records.forEach(function (rec) { out.push(rec); });
     if (!page.offset) return { live: true, records: out };
@@ -174,6 +189,92 @@ async function allRecords(sourceName) {
     pages += 1;
   }
   return { live: true, records: out };
+}
+
+const BOARD_COLUMNS = [
+  { id: "pending-decision", label: "Pending Decision", color: "#22C55E", target: 23 },
+  { id: "follow-up", label: "Follow-up", color: "#F97316", target: 2 },
+  { id: "purchased", label: "Purchased", color: "#A855F7", target: 0 },
+  { id: "pending-close", label: "Pending Close Out", color: "#EF4444", target: 1 },
+  { id: "closed-out", label: "Closed Out", color: "#B45309", target: 0 },
+  { id: "stocked-in", label: "Stocked In", color: "#16A34A", target: 5 },
+  { id: "payment", label: "Payment Complete", color: "#15803D", target: 27 },
+  { id: "archived", label: "Archived", color: "#6B7280", target: 22 }
+];
+
+function mapBoardColumn(stage) {
+  const s = cellName(stage).toLowerCase().replace(/[_/]+/g, " ").replace(/\s+/g, " ").trim();
+  if (!s) return "";
+  if (/archiv/.test(s)) return "archived";
+  if (/payment/.test(s)) return "payment";
+  if (/stocked/.test(s)) return "stocked-in";
+  if (/closed\s*out/.test(s) || s === "closed") return "closed-out";
+  if (/pending\s*close|close\s*out/.test(s)) return "pending-close";
+  if (/purchased|bought/.test(s)) return "purchased";
+  if (/follow/.test(s)) return "follow-up";
+  if (/pending\s*decision|\bdecision\b/.test(s)) return "pending-decision";
+  return "";
+}
+
+function collaboratorName(v) {
+  if (v == null || v === "") return "";
+  if (Array.isArray(v)) return collaboratorName(v[0]);
+  if (typeof v === "object") {
+    const email = String(v.email || "").trim();
+    if (email.indexOf("@") >= 0) return email.split("@")[0];
+    return String(v.name || v.id || "").trim();
+  }
+  const s = String(v).trim();
+  if (s.indexOf("@") >= 0) return s.split("@")[0];
+  return s;
+}
+
+function assigneeOf(f) {
+  if (!f) return "";
+  const keys = Object.keys(f);
+  const prefer = ["assignee", "agent", "buyer", "owner", "claimed by", "claimed", "salesperson", "assigned to", "assigned", "acq owner"];
+  for (let i = 0; i < keys.length; i++) {
+    const k = String(keys[i] || "").toLowerCase();
+    if (prefer.some(function (p) { return k === p || k.indexOf(p) >= 0; })) {
+      const name = collaboratorName(f[keys[i]]);
+      if (name) return name;
+    }
+  }
+  return "";
+}
+
+function ageDays(iso, now) {
+  const t = Date.parse(iso);
+  if (!t) return 0;
+  const n = now instanceof Date ? now.getTime() : (now || Date.now());
+  return Math.max(0, Math.floor((n - t) / 86400000));
+}
+
+function inLast30Days(iso, now) {
+  const t = Date.parse(iso);
+  if (!t) return false;
+  const n = now instanceof Date ? now.getTime() : (now || Date.now());
+  return (n - t) <= 30 * 24 * 60 * 60 * 1000 + 86400000;
+}
+
+function mapBoardRecord(rec) {
+  const f = rec && (rec.fields || rec.cellValuesByFieldId) || {};
+  const stageRaw = f[F.stage] != null ? f[F.stage] : f.Stage;
+  const ymm = (cellName(f[F.ymm]) || cellName(f[F.ymmFormula]) || cellName(f["Year Make Model Trim"])).replace(/\s+/g, " ").trim();
+  const created = rec && rec.createdTime || "";
+  const when = pickDate(f) || created;
+  return {
+    id: rec && rec.id || "",
+    appNo: cellName(f[F.appNo]) || cellName(f["App-Number"]) || cellName(f["App Number"]) || cellName(f["Application #"]),
+    ymm: ymm,
+    vin: (cellName(f[F.vin]) || cellName(f.VIN)).replace(/\s+/g, "").toUpperCase(),
+    assignee: assigneeOf(f) || "Unclaimed",
+    stage: cellName(stageRaw),
+    column: mapBoardColumn(stageRaw),
+    date: String(when).slice(0, 10),
+    createdTime: created,
+    ageDays: ageDays(when || created)
+  };
 }
 
 const TRACKER = {
@@ -229,6 +330,7 @@ function parseTrackerMatrix(values, region, via) {
   const sellerI = colOf(headers, ["seller name", "seller"]);
   const dateI = colOf(headers, ["appt. date", "appt date", "appointment date"]);
   const vinI = colOf(headers, ["vin"]);
+  const kmI = colOf(headers, ["kms", "kilometres", "kilometers", "odometer", "odometre", "mileage", "km"]);
   const cityI = colOf(headers, ["seller city", "city"]);
   const phoneI = colOf(headers, ["seller phone", "phone"]);
   const statusI = colOf(headers, ["appointment status", "status"]);
@@ -244,6 +346,7 @@ function parseTrackerMatrix(values, region, via) {
       ymm: ymm,
       seller: String(row[sellerI] || "").trim(),
       vin: String(row[vinI] || "").replace(/\s+/g, "").toUpperCase(),
+      km: kmI >= 0 ? normalizeKm(row[kmI]) : "",
       date: excelSerialDate(row[dateI]),
       city: String(row[cityI] || "").trim(),
       phone: String(row[phoneI] || "").trim(),
@@ -288,8 +391,11 @@ function mergeAppointmentRows(a, b) {
         out[i] = Object.assign({}, cur, {
           vin: row.vin,
           ymm: cur.ymm || row.ymm,
-          seller: cur.seller || row.seller
+          seller: cur.seller || row.seller,
+          km: cur.km || row.km
         });
+      } else if (!cur.km && row.km) {
+        out[i] = Object.assign({}, cur, { km: row.km });
       }
       return;
     }
@@ -378,6 +484,27 @@ async function handle(req, res) {
     const month = url ? String(url.searchParams.get("month") || "").trim() : "";
     const regionRaw = url ? String(url.searchParams.get("region") || "").trim() : "";
     const region = /ottawa/i.test(regionRaw) ? "Ottawa" : "GTA";
+    if (view === "board") {
+      const pulled = await allRecords("Canada Drives", "board");
+      const mapped = (pulled.live ? pulled.records.map(mapBoardRecord) : []).filter(function (row) {
+        return !!row.column;
+      });
+      const needle = needleOf(typed);
+      const items = mapped.filter(function (row) {
+        if (needle) {
+          return matchApp(row, needle) || needleOf(row.vin).indexOf(needle) >= 0 || needleOf(row.ymm).indexOf(needle) >= 0 || needleOf(row.assignee).indexOf(needle) >= 0;
+        }
+        return inLast30Days(row.date || row.createdTime);
+      });
+      return json(res, 200, {
+        ok: true,
+        live: !!pulled.live,
+        view: "board",
+        items: items,
+        columns: BOARD_COLUMNS,
+        reason: pulled.live ? "" : (pulled.reason || "Couldn’t load Acquisitions.")
+      }, origin);
+    }
     if (view === "tracker") {
       const useMonth = TRACKER_MONTHS.indexOf(month) >= 0 ? month : trackerCurrentMonth();
       const pulled = await trackerMonthRows(region, useMonth);
@@ -443,3 +570,10 @@ module.exports.needleOf = needleOf;
 module.exports.isoMonthName = isoMonthName;
 module.exports.inTrackerRegion = inTrackerRegion;
 module.exports.mergeAppointmentRows = mergeAppointmentRows;
+module.exports.mapRecord = mapRecord;
+module.exports.normalizeKm = normalizeKm;
+module.exports.BOARD_COLUMNS = BOARD_COLUMNS;
+module.exports.mapBoardColumn = mapBoardColumn;
+module.exports.mapBoardRecord = mapBoardRecord;
+module.exports.ageDays = ageDays;
+module.exports.inLast30Days = inLast30Days;

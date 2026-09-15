@@ -130,6 +130,14 @@ assert.strictEqual(parsed[0].date, "2026-09-01", "appt date");
 assert.strictEqual(parsed[0].via, "gta-tracker", "via stays tracker — no invented sold");
 assert.ok(api.matchApp(parsed[0], api.needleOf("APP-0003341090")), "q= still matches tracker app #");
 
+const parsedKm = api.parseTrackerMatrix([
+  ["September Appointments"],
+  ["Lead Date", "Agent", "Offer Response", "Appointment Status", "App-Number", "Appt. Date", "Seller Name", "Seller City", "Seller Phone", "Year Make Model Trim", "VIN", "Kms"],
+  ["", "", "", "Confirmed", "APP-0006483345", "46266", "Sample Seller", "Brampton", "(647) 000-0000", "2022 Toyota Rav4 LE", "2T3Z1RFV9NW231154", "50,500"]
+], "GTA", "gta-tracker");
+assert.strictEqual(parsedKm[0].km, "50500", "Tracker Kms column becomes appointment km");
+assert.strictEqual(parsedKm[0].ymm, "2022 Toyota Rav4 LE", "Tracker YMM stays");
+
 must(/function finishGuest\(\)\{\s*finishThanks\(\);/, "Thank-you stays frozen");
 must(/id="workbench"/, "CA workbench stays");
 must(/#workbench \.wb-pick-desk/, "desktop workbench is a real two-column desk");

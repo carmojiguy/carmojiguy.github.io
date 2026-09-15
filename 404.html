@@ -182,7 +182,8 @@ label.k { display:block; color:#6e6e73; font-size:13px; margin:11px 0 5px; }
 .appt-row .appt-when b{display:block;font-size:20px;letter-spacing:-.4px;line-height:1}
 .appt-row .appt-when i{display:block;font-size:10px;font-weight:800;font-style:normal;letter-spacing:.08em;text-transform:uppercase;margin-top:4px}
 .appt-row .appt-body{min-width:0}
-.appt-row .appt-body b{display:block;font-size:16px;letter-spacing:-.3px;line-height:1.2;margin:0 0 4px}
+.appt-row .appt-body b{display:block;font-size:16px;letter-spacing:-.3px;line-height:1.2;margin:0 0 2px}
+.appt-row .appt-body .appt-km{display:block;font-size:14px;font-weight:800;font-style:normal;color:#111318;margin:0 0 4px;letter-spacing:-.1px}
 .appt-row .appt-body span{display:block;color:#6B7380;font-size:13px;line-height:1.4;font-weight:600}
 .appt-stage{display:inline-block;border-radius:999px;padding:2px 8px;margin:0 6px 0 0;font-size:11px;font-weight:800;letter-spacing:.02em;font-style:normal;vertical-align:1px}
 .appt-stage.booked{background:#E8F1FF;color:#1D4ED8}
@@ -941,6 +942,91 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
 .lane-pill.on { box-shadow:0 0 0 2px #fff, 0 0 0 3px #111318; }
 #center #centerDetailBody { grid-column:2; grid-row:2; min-height:0; overflow:auto; }
 #center #centerDock { grid-column:2; grid-row:3; position:relative; left:auto; right:auto; bottom:auto; transform:none; width:auto; max-width:none; }
+.ca-drawer{
+  display:none; flex-direction:column; min-width:0; min-height:0; overflow:hidden;
+  background:#F5F6F8; border-right:1px solid #E4E7EC; z-index:5;
+}
+#center.screen.ca-on{ grid-template-columns:minmax(280px,340px) 76px minmax(0,1fr); }
+#center.screen.ca-on.ca-collapsed{ grid-template-columns:48px 76px minmax(0,1fr); }
+#center.screen.ca-on.acq-on,
+#center.screen.ca-on.acq-on:has(#centerSheet.on){ grid-template-columns:minmax(0,1fr) 76px minmax(220px,32vw); }
+#center.screen.ca-on .ca-drawer{ display:flex; grid-column:1; grid-row:2 / 4; }
+#center.screen.ca-on #centerLanes.center-rail, #center.screen.ca-on .center-lanes.center-rail{ grid-column:2; }
+#center.screen.ca-on #centerDetailBody, #center.screen.ca-on #centerDock{ grid-column:3; }
+.ca-drawer-head{ display:flex; align-items:center; gap:8px; padding:10px 10px 8px; flex:0 0 auto; }
+.ca-drawer-toggle{
+  width:36px; height:36px; min-width:36px; border:0; border-radius:12px; cursor:pointer;
+  background:#111318; color:#fff; font-size:18px; font-weight:800; line-height:1;
+}
+.acq-drawer-toggle{
+  width:auto; min-width:36px; height:36px; padding:0 10px; margin:0;
+  border:1px solid #D0D5DD; border-radius:12px; cursor:pointer;
+  background:#fff; color:#344054; font-size:11px; font-weight:800; letter-spacing:.02em;
+  box-shadow:none;
+}
+.acq-drawer-toggle.on{ background:#111318; color:#fff; border-color:#111318; }
+.ca-drawer-title{ min-width:0; flex:1; }
+.ca-drawer-title .wb-kicker{ margin:0; font-size:10px; letter-spacing:.12em; }
+.ca-drawer-title b{ display:block; font-size:15px; letter-spacing:-.3px; color:#111318; }
+.ca-drawer-body{ flex:1; min-height:0; overflow:auto; padding:0 10px 16px; -webkit-overflow-scrolling:touch; }
+#center.screen.ca-collapsed .ca-drawer-body, #center.screen.ca-collapsed .ca-drawer-title{ display:none; }
+#center.screen.ca-collapsed .ca-drawer-head{ flex-direction:column; justify-content:flex-start; padding:10px 6px; gap:8px; }
+#center.screen.ca-collapsed .acq-drawer-toggle{
+  width:36px; height:auto; min-height:64px; padding:8px 4px;
+  writing-mode:vertical-rl; text-orientation:mixed; font-size:10px; letter-spacing:.08em;
+}
+.ca-drawer .appt-toolbar{ padding:10px; margin:0 0 10px; border-radius:16px; gap:8px; }
+.ca-drawer .appt-search input{ min-height:44px; font-size:15px; }
+.ca-drawer .appt-row{ min-height:76px; margin:0 0 8px; }
+.ca-drawer .wb-pick-desk .wb-hero, .ca-drawer .wb-hero{ display:none; }
+.acq-note{ margin:0 0 12px; color:#6B7380; font-size:12px; font-weight:600; }
+.acq-search{ width:100%; min-height:40px; border:1px solid #E4E7EC; border-radius:12px; padding:8px 12px; font-size:14px; font-weight:700; background:#fff; color:#111318; margin:0 0 12px; }
+.acq-board{ display:flex; gap:12px; align-items:stretch; min-height:0; overflow:auto; padding-bottom:8px; }
+.acq-col{ flex:0 0 220px; min-width:200px; display:flex; flex-direction:column; min-height:0; }
+.acq-col-head{ display:flex; align-items:center; gap:8px; padding:0 2px 8px; border-bottom:2px solid #E4E7EC; margin:0 0 10px; }
+.acq-col-head i{ width:8px; height:8px; border-radius:50%; flex:0 0 8px; }
+.acq-col-head b{ flex:1; font-size:13px; font-weight:800; color:#4B5563; letter-spacing:-.1px; }
+.acq-col-head span{ font-size:13px; font-weight:800; color:#6B7280; }
+.acq-col[data-acq-col="pending-decision"] .acq-col-head{ border-bottom-color:#22C55E; }
+.acq-col[data-acq-col="follow-up"] .acq-col-head{ border-bottom-color:#F97316; }
+.acq-col[data-acq-col="purchased"] .acq-col-head{ border-bottom-color:#A855F7; }
+.acq-col[data-acq-col="pending-close"] .acq-col-head{ border-bottom-color:#EF4444; }
+.acq-col[data-acq-col="closed-out"] .acq-col-head{ border-bottom-color:#B45309; }
+.acq-col[data-acq-col="stocked-in"] .acq-col-head{ border-bottom-color:#16A34A; }
+.acq-col[data-acq-col="payment"] .acq-col-head{ border-bottom-color:#15803D; }
+.acq-col[data-acq-col="archived"] .acq-col-head{ border-bottom-color:#6B7280; }
+.acq-empty{ color:#9CA3AF; font-size:13px; font-weight:600; padding:8px 4px; }
+.acq-card{
+  display:block; width:100%; text-align:left; border:1px solid #EEF0F3; border-radius:14px;
+  background:#fff; padding:10px 12px 10px 14px; margin:0 0 8px; cursor:pointer;
+  box-shadow:0 1px 2px rgba(17,19,24,.04); position:relative; overflow:hidden;
+  font:inherit; color:#111318;
+}
+.acq-card::before{ content:""; position:absolute; left:0; top:0; bottom:0; width:4px; background:currentColor; }
+.acq-card .acq-app{ display:block; font-size:11px; font-weight:700; color:#9CA3AF; margin:0 0 2px; }
+.acq-card .acq-ymm{ display:block; font-size:14px; font-weight:800; letter-spacing:-.2px; line-height:1.25; margin:0 0 4px; }
+.acq-card .acq-vin{ display:block; font-size:11px; font-weight:700; color:#9CA3AF; letter-spacing:.02em; }
+.acq-card .acq-meta{ display:flex; justify-content:space-between; gap:8px; margin-top:8px; font-size:12px; font-weight:700; color:#6B7280; }
+@media (max-width:767px){
+  #center.screen.ca-on{ grid-template-columns:76px minmax(0,1fr); }
+  #center.screen.ca-on #centerLanes.center-rail{ grid-column:1; }
+  #center.screen.ca-on #centerDetailBody, #center.screen.ca-on #centerDock{ grid-column:2; }
+  #center.screen.ca-on .ca-drawer{
+    position:fixed; left:0; top:0; bottom:0; width:min(360px,90vw);
+    grid-column:auto; grid-row:auto; padding-top:env(safe-area-inset-top);
+    box-shadow:16px 0 40px rgba(17,19,24,.18);
+  }
+  #center.screen.ca-on.acq-on .ca-drawer{ width:min(100vw,100%); }
+  #center.screen.ca-on.ca-collapsed .ca-drawer{
+    left:76px; top:calc(52px + env(safe-area-inset-top)); width:auto; height:auto; bottom:auto;
+    background:transparent; border:0; box-shadow:none; padding-top:0;
+  }
+  #center.screen.ca-on.ca-collapsed .ca-drawer-head{
+    background:#111318; border-radius:0 12px 12px 0; padding:8px;
+  }
+  #center.screen.ca-on.ca-collapsed .ca-drawer-toggle{ background:#111318; }
+  #center.screen.ca-on.ca-collapsed .acq-drawer-toggle{ background:#fff; color:#111318; }
+}
 .lane-pill .nag {
   position:absolute; top:8px; right:8px; min-width:18px; height:18px; padding:0 5px;
   border-radius:999px; background:#fff; color:#C2185B; font-size:11px; font-weight:800;
@@ -1493,6 +1579,35 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
     overflow:hidden;
     padding-bottom:0;
   }
+  #center.screen.ca-on{
+    grid-template-columns:minmax(280px,340px) 88px minmax(0,1fr);
+  }
+  #center.screen.ca-on.ca-collapsed{
+    grid-template-columns:48px 88px minmax(0,1fr);
+  }
+  #center.screen.ca-on:has(#centerSheet.on){
+    grid-template-columns:minmax(260px,320px) 88px minmax(0,1fr) min(340px, 32vw);
+  }
+  #center.screen.ca-on.ca-collapsed:has(#centerSheet.on){
+    grid-template-columns:48px 88px minmax(0,1fr) min(368px, 40vw);
+  }
+  #center.screen.ca-on:has(#centerSheet.on) #centerLanes{
+    grid-column:2;
+  }
+  #center.screen.ca-on:has(#centerSheet.on) #centerDetailBody,
+  #center.screen.ca-on:has(#centerSheet.on) #centerDock{
+    grid-column:3;
+  }
+  #center.screen.ca-on:has(#centerSheet.on) .center-sheet{
+    grid-column:4;
+  }
+  #center.screen.ca-on.acq-on,
+  #center.screen.ca-on.acq-on:has(#centerSheet.on){
+    grid-template-columns:minmax(0,1fr) 88px minmax(280px,34vw);
+  }
+  #center.screen.ca-on.acq-on:has(#centerSheet.on) .center-sheet{
+    display:none;
+  }
   #center.screen:has(#centerSheet.on) .center-sheet .pad{
     overflow:auto;
     flex:1;
@@ -1537,6 +1652,21 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
     grid-template-columns:96px minmax(0,1fr) min(440px, 30vw);
     max-width:1440px;
     margin:0 auto;
+  }
+  #center.screen.ca-on:has(#centerSheet.on){
+    grid-template-columns:minmax(280px,340px) 96px minmax(0,1fr) min(400px, 26vw);
+    max-width:1600px;
+  }
+  #center.screen.ca-on.ca-collapsed:has(#centerSheet.on){
+    grid-template-columns:48px 96px minmax(0,1fr) min(440px, 30vw);
+  }
+  #center.screen.ca-on.acq-on,
+  #center.screen.ca-on.acq-on:has(#centerSheet.on){
+    grid-template-columns:minmax(0,1fr) 96px minmax(300px,32vw);
+    max-width:none;
+  }
+  #center.screen.ca-on.acq-on:has(#centerSheet.on) .center-sheet{
+    display:none;
   }
   #center > .nav{
     max-width:1440px;
@@ -2002,6 +2132,69 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
     <h1>Appraisal Center</h1>
     <button class="nav-hist hide" type="button" id="centerNavHistBtn">History</button>
   </div>
+  <aside id="caDrawer" class="ca-drawer hide" aria-label="Canada Drives appointments">
+    <div class="ca-drawer-head">
+      <button type="button" class="ca-drawer-toggle" id="caDrawerToggle" aria-expanded="false" aria-controls="caDrawerBody" title="Open Canada Drives appointments">›</button>
+      <button type="button" class="acq-drawer-toggle" id="acqDrawerToggle" aria-expanded="false" aria-controls="acqDrawerBody" title="Open Acquisitions">Acquisitions</button>
+      <div class="ca-drawer-title" id="caDrawerTitle">
+        <p class="wb-kicker" id="wbPickKicker">Canada Drives</p>
+        <b id="caDrawerTitleLabel">Booked vehicles</b>
+      </div>
+    </div>
+    <div class="ca-drawer-body hide" id="caDrawerBody">
+      <div id="apptWrap" class="appt-wrap">
+        <div class="appt-toolbar" id="apptToolbar">
+          <label class="appt-search" for="apptSearch">
+            <span class="appt-search-lbl">Application #</span>
+            <input id="apptSearch" type="search" inputmode="search" autocomplete="off" placeholder="APP-… or Canada Drives app #" />
+          </label>
+          <div class="appt-rowbar">
+            <div class="appt-tabs" id="apptTabs">
+              <button type="button" data-appt-region="GTA">GTA</button>
+              <button type="button" data-appt-region="Ottawa">Ottawa</button>
+              <div class="appt-dates" id="apptDates">
+                <button type="button" id="apptDateBtn">This month</button>
+                <div class="date-menu" id="apptDateMenu">
+                  <button type="button" data-appt-range="today">Today</button>
+                  <button type="button" data-appt-range="tomorrow">Tomorrow</button>
+                  <button type="button" data-appt-range="month">This month</button>
+                  <button type="button" data-appt-range="lastMonth">Last month</button>
+                  <button type="button" data-appt-range="calendar">Calendar</button>
+                </div>
+              </div>
+            </div>
+            <div class="appt-actions">
+              <a class="appt-tracker" id="apptTrackerGta" href="https://docs.google.com/spreadsheets/d/1DXKFHK_k1cC_upbxzBIVTLbMKpOIv0u5MB2NbKq5XhM/edit?usp=sharing" target="_blank" rel="noreferrer">GTA Tracker</a>
+              <a class="appt-tracker" id="apptTrackerOttawa" href="https://docs.google.com/spreadsheets/d/1QRmPSMX_-nksYs4ucJxZUfTQcvrMlfbnylJgTL0ckNU/edit?usp=sharing" target="_blank" rel="noreferrer">Ottawa Tracker</a>
+              <button type="button" class="appt-new" id="apptNewApp">New application</button>
+            </div>
+          </div>
+          <div class="appt-months" id="apptMonths"></div>
+        </div>
+        <div id="apptCal" class="hide">
+          <div class="pair">
+            <div>
+              <label class="k" for="apptFrom">From</label>
+              <input class="f" id="apptFrom" type="date" />
+            </div>
+            <div>
+              <label class="k" for="apptTo">To</label>
+              <input class="f" id="apptTo" type="date" />
+            </div>
+          </div>
+        </div>
+        <p class="appt-count" id="apptCount"></p>
+        <p class="need hide" id="apptLiveNote"></p>
+        <div id="apptList"></div>
+      </div>
+    </div>
+    <div class="ca-drawer-body hide" id="acqDrawerBody">
+      <p class="acq-note" id="acqNote">Showing the last 30 days — search to find older records.</p>
+      <input class="acq-search" id="acqSearch" type="search" inputmode="search" autocomplete="off" placeholder="Search app #, VIN, vehicle, or assignee" />
+      <p class="need hide" id="acqLiveNote"></p>
+      <div class="acq-board" id="acqBoard"></div>
+    </div>
+  </aside>
   <div class="center-lanes center-rail" id="centerLanes">
     <button class="lane-pill inbox" type="button" id="centerInboxBtn">
       <b>Incoming</b>
@@ -2258,54 +2451,9 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
     <button class="hist-jump" type="button" id="wbHistBtn">History — completed CA files</button>
     <div id="wbPick" class="wb-pick-desk">
       <div class="wb-hero">
-        <p class="wb-kicker" id="wbPickKicker">Canada Drives</p>
+        <p class="wb-kicker" id="wbNewKicker">Consumer Acquisition</p>
         <h2 id="wbPickTitle">Who’s coming in</h2>
         <p id="wbPickLead">Booked appointments from the GTA and Ottawa Tracker sheets. Tap a month, tap a vehicle — Appraise opens already filled.</p>
-      </div>
-      <div id="apptWrap" class="appt-wrap">
-        <div class="appt-toolbar" id="apptToolbar">
-          <label class="appt-search" for="apptSearch">
-            <span class="appt-search-lbl">Application #</span>
-            <input id="apptSearch" type="search" inputmode="search" autocomplete="off" placeholder="APP-… or Canada Drives app #" />
-          </label>
-          <div class="appt-rowbar">
-            <div class="appt-tabs" id="apptTabs">
-              <button type="button" data-appt-region="GTA">GTA</button>
-              <button type="button" data-appt-region="Ottawa">Ottawa</button>
-              <div class="appt-dates" id="apptDates">
-                <button type="button" id="apptDateBtn">This month</button>
-                <div class="date-menu" id="apptDateMenu">
-                  <button type="button" data-appt-range="today">Today</button>
-                  <button type="button" data-appt-range="tomorrow">Tomorrow</button>
-                  <button type="button" data-appt-range="month">This month</button>
-                  <button type="button" data-appt-range="lastMonth">Last month</button>
-                  <button type="button" data-appt-range="calendar">Calendar</button>
-                </div>
-              </div>
-            </div>
-            <div class="appt-actions">
-              <a class="appt-tracker" id="apptTrackerGta" href="https://docs.google.com/spreadsheets/d/1DXKFHK_k1cC_upbxzBIVTLbMKpOIv0u5MB2NbKq5XhM/edit?usp=sharing" target="_blank" rel="noreferrer">GTA Tracker</a>
-              <a class="appt-tracker" id="apptTrackerOttawa" href="https://docs.google.com/spreadsheets/d/1QRmPSMX_-nksYs4ucJxZUfTQcvrMlfbnylJgTL0ckNU/edit?usp=sharing" target="_blank" rel="noreferrer">Ottawa Tracker</a>
-              <button type="button" class="appt-new" id="apptNewApp">New application</button>
-            </div>
-          </div>
-          <div class="appt-months" id="apptMonths"></div>
-        </div>
-        <div id="apptCal" class="hide">
-          <div class="pair">
-            <div>
-              <label class="k" for="apptFrom">From</label>
-              <input class="f" id="apptFrom" type="date" />
-            </div>
-            <div>
-              <label class="k" for="apptTo">To</label>
-              <input class="f" id="apptTo" type="date" />
-            </div>
-          </div>
-        </div>
-        <p class="appt-count" id="apptCount"></p>
-        <p class="need hide" id="apptLiveNote"></p>
-        <div id="apptList"></div>
       </div>
     </div>
     <div id="wbJob" class="hide wb-job-desk">
@@ -2940,7 +3088,7 @@ window.APP = {
   centerHistory:false, centerLane:"", centerQuery:"", centerRange:"all", centerYear:new Date().getFullYear(),
   centerShots:[], centerGalleryOn:false, lockedFromAirtable:false, deskTeam:"", userFilter:"all", userEdit:"",
   apptId:"", apptSeller:"", apptRegion:"GTA", apptRange:"month", apptMonth:"", apptItems:[],
-  apptSearch:"", newApplication:false, newAppOpen:false
+  apptSearch:"", newApplication:false, newAppOpen:false, caDrawerCollapsed:true, caPane:"none", acqItems:[], acqSearch:"", acqLive:false
 };
 
 function $(id){ return document.getElementById(id); }
@@ -3321,10 +3469,28 @@ function apptWhen(row){
   const t=Date.parse(raw.length<=10 ? raw+"T12:00:00" : raw);
   return t||0;
 }
+function apptKmText(row){
+  const raw=row && (row.km || row.kms || "");
+  if(raw==null || raw==="") return "";
+  const n=Number(String(raw).replace(/,/g,""));
+  if(!n) return "";
+  return n.toLocaleString("en-CA")+" km";
+}
+function apptTileHtml(row){
+  const dt=row && row.date ? new Date(row.date+"T12:00:00") : null;
+  const day=dt ? String(dt.getDate()) : "—";
+  const mon=dt ? dt.toLocaleDateString("en-CA",{month:"short"}) : "TBA";
+  const when=dt ? dt.toLocaleDateString("en-CA",{month:"short",day:"numeric",year:"numeric"}) : "Date TBA";
+  const stageLbl=row && row.stage==="on-site"?"On-site":"Booked";
+  const stageCls=row && row.stage==="on-site"?"onsite":"booked";
+  const km=apptKmText(row);
+  return '<span class="appt-when"><b>'+escHtml(day)+"</b><i>"+escHtml(mon)+'</i></span><span class="appt-body"><b>'+escHtml((row && row.ymm)||"Vehicle")+"</b>"+(km?'<i class="appt-km">'+escHtml(km)+"</i>":"")+'<span><i class="appt-stage '+stageCls+'">'+escHtml(stageLbl)+"</i>"+escHtml((row && row.appNo)||"Application")+" · "+escHtml((row && row.seller)||"Seller")+((row && row.vin && row.vin!=="TBD")?" · "+escHtml(row.vin):"")+" · "+escHtml(when)+"</span></span>";
+}
 function normalizeAppt(row){
   if(!row) return null;
   const ymm=String(row.ymm||[row.year,row.make,row.model,row.trim].filter(Boolean).join(" ")).replace(/\s+/g," ").trim();
   const bits=ymm.split(" ");
+  const kmN=Number(String(row.km||row.kms||"").replace(/,/g,""));
   return {
     id:String(row.id||""),
     appNo:String(row.appNo||row.cdApp||"").trim(),
@@ -3335,6 +3501,7 @@ function normalizeAppt(row){
     trim:String(row.trim||""),
     seller:String(row.seller||"").trim(),
     vin:String(row.vin||"").replace(/\s+/g,"").toUpperCase(),
+    km: kmN ? String(Math.round(kmN)) : "",
     date:String(row.date||"").slice(0,10),
     city:String(row.city||row.sellerCity||"").trim(),
     phone:String(row.phone||row.sellerPhone||"").trim(),
@@ -3355,6 +3522,7 @@ const APPTS_AIRTABLE={
   stage:"selqqamHvfGvK4CmK",
   onsite:"selaCJ91ZmmGKF7i1",
   source:"sel90QtMNs2kN0MbE",
+  km:"fld1ReQkIiObeuXr9",
   path:"/api/appointments"
 };
 // Human schedule sheets (MyCar.ca). Month list is Airtable Appointment Booked + Tracker.
@@ -3480,7 +3648,8 @@ function paintTrackerSheet(){
     mobile.innerHTML=rows.map(function(row){
       const when=row.date?new Date(row.date+"T12:00:00").toLocaleDateString("en-CA",{month:"short",day:"numeric"}):"Date TBA";
       const status=row.status||row.stage||"";
-      return '<button type="button" class="tracker-row" data-tracker-id="'+escHtml(row.id||"")+'"><i>'+escHtml(status||"Booked")+"</i><i>"+escHtml(when)+"</i><b>"+escHtml(row.ymm||"Vehicle")+"</b><span>"+escHtml(row.appNo||"Application")+" · "+escHtml(row.seller||"Seller")+(row.city?" · "+escHtml(row.city):"")+(row.phone?" · "+escHtml(row.phone):"")+"</span></button>";
+      const km=apptKmText(row);
+      return '<button type="button" class="tracker-row" data-tracker-id="'+escHtml(row.id||"")+'"><i>'+escHtml(status||"Booked")+"</i><i>"+escHtml(when)+"</i><b>"+escHtml(row.ymm||"Vehicle")+"</b><span>"+(km?escHtml(km)+" · ":"")+escHtml(row.appNo||"Application")+" · "+escHtml(row.seller||"Seller")+(row.city?" · "+escHtml(row.city):"")+(row.phone?" · "+escHtml(row.phone):"")+"</span></button>";
     }).join("");
     mobile.querySelectorAll("[data-tracker-id]").forEach(function(b){
       b.onclick=function(){ applyTrackerRow(b.getAttribute("data-tracker-id")); };
@@ -3489,9 +3658,10 @@ function paintTrackerSheet(){
   if(desk){
     if(!rows.length){ desk.innerHTML=""; }
     else {
-      desk.innerHTML="<table><thead><tr><th>App #</th><th>Status</th><th>Date</th><th>Seller</th><th>Vehicle</th><th>City</th><th>Phone</th></tr></thead><tbody>"+rows.map(function(row){
+      desk.innerHTML="<table><thead><tr><th>App #</th><th>Status</th><th>Date</th><th>Seller</th><th>Vehicle</th><th>Km</th><th>City</th><th>Phone</th></tr></thead><tbody>"+rows.map(function(row){
         const when=row.date?new Date(row.date+"T12:00:00").toLocaleDateString("en-CA",{month:"short",day:"numeric"}):"TBA";
-        return '<tr data-tracker-id="'+escHtml(row.id||"")+'"><td>'+escHtml(row.appNo||"")+"</td><td>"+escHtml(row.status||row.stage||"")+"</td><td>"+escHtml(when)+"</td><td>"+escHtml(row.seller||"")+"</td><td>"+escHtml(row.ymm||"")+"</td><td>"+escHtml(row.city||"")+"</td><td>"+escHtml(row.phone||"")+"</td></tr>";
+        const km=apptKmText(row);
+        return '<tr data-tracker-id="'+escHtml(row.id||"")+'"><td>'+escHtml(row.appNo||"")+"</td><td>"+escHtml(row.status||row.stage||"")+"</td><td>"+escHtml(when)+"</td><td>"+escHtml(row.seller||"")+"</td><td>"+escHtml(row.ymm||"")+"</td><td>"+escHtml(km)+"</td><td>"+escHtml(row.city||"")+"</td><td>"+escHtml(row.phone||"")+"</td></tr>";
       }).join("")+"</tbody></table>";
       desk.querySelectorAll("[data-tracker-id]").forEach(function(tr){
         tr.onclick=function(){ applyTrackerRow(tr.getAttribute("data-tracker-id")); };
@@ -3735,6 +3905,7 @@ function paintAppointments(){
   if(!APP.apptMonth) APP.apptMonth=trackerCurrentMonth();
   const show=APP.role!=="guest" && !isWeb() && isConsumerAcquisition() && usesCaAppointments() && !APP.newAppOpen;
   wrap.classList.toggle("hide", !show);
+  if(typeof syncCaDrawer==="function") syncCaDrawer();
   bindTrackerLinks();
   paintApptMonths();
   if($("wbPickKicker")) $("wbPickKicker").textContent = (APP.leadSource||"Canada Drives");
@@ -3784,23 +3955,205 @@ function paintAppointments(){
     const b=document.createElement("button");
     b.type="button";
     b.className="appt-row"+(APP.apptId===row.id?" on":"");
-    const dt=row.date ? new Date(row.date+"T12:00:00") : null;
-    const day=dt ? String(dt.getDate()) : "—";
-    const mon=dt ? dt.toLocaleDateString("en-CA",{month:"short"}) : "TBA";
-    const when=dt ? dt.toLocaleDateString("en-CA",{month:"short",day:"numeric",year:"numeric"}) : "Date TBA";
-    const stageLbl=row.stage==="on-site"?"On-site":"Booked";
-    const stageCls=row.stage==="on-site"?"onsite":"booked";
-    b.innerHTML='<span class="appt-when"><b>'+escHtml(day)+"</b><i>"+escHtml(mon)+'</i></span><span class="appt-body"><b>'+escHtml(row.ymm||"Vehicle")+"</b><span><i class=\"appt-stage "+stageCls+"\">"+escHtml(stageLbl)+"</i>"+escHtml(row.appNo||"Application")+" · "+escHtml(row.seller||"Seller")+(row.vin && row.vin!=="TBD"?" · "+escHtml(row.vin):"")+" · "+escHtml(when)+"</span></span>";
+    b.innerHTML=apptTileHtml(row);
     b.onclick=function(){ applyAppointment(row); };
     host.appendChild(b);
   });
 }
+function caDrawerWanted(){
+  return APP.role!=="guest" && !isWeb() && isConsumerAcquisition() && usesCaAppointments() && !APP.newAppOpen;
+}
+function leftRailWanted(){
+  if(APP.role==="guest" || (typeof isWeb==="function" && isWeb())) return false;
+  if(APP.screen==="center") return true;
+  return caDrawerWanted();
+}
+function caPane(){
+  return APP.caPane || (APP.caDrawerCollapsed ? "none" : "cd");
+}
+function syncCaDrawer(){
+  const drawer=$("caDrawer"), center=$("center");
+  const rail=leftRailWanted() && APP.screen==="center";
+  const pane=rail ? caPane() : "none";
+  const cd=pane==="cd";
+  const acq=pane==="acq";
+  const collapsed=pane==="none";
+  if(drawer) drawer.classList.toggle("hide", !rail);
+  if(center){
+    center.classList.toggle("ca-on", rail);
+    center.classList.toggle("ca-collapsed", rail && collapsed);
+    center.classList.toggle("acq-on", rail && acq);
+  }
+  const tog=$("caDrawerToggle");
+  if(tog){
+    tog.setAttribute("aria-expanded", cd?"true":"false");
+    tog.textContent=cd?"‹":"›";
+    tog.title=cd?"Collapse booked list":"Open Canada Drives appointments";
+  }
+  const acqBtn=$("acqDrawerToggle");
+  if(acqBtn){
+    acqBtn.classList.toggle("on", acq);
+    acqBtn.setAttribute("aria-expanded", acq?"true":"false");
+    acqBtn.title=acq?"Close Acquisitions":"Open Acquisitions";
+  }
+  if($("caDrawerBody")) $("caDrawerBody").classList.toggle("hide", !cd);
+  if($("acqDrawerBody")) $("acqDrawerBody").classList.toggle("hide", !acq);
+  if($("caDrawerTitle")) $("caDrawerTitle").classList.toggle("hide", collapsed);
+  if($("caDrawerTitleLabel")) $("caDrawerTitleLabel").textContent=acq?"Kanban":"Booked vehicles";
+  if($("wbPickKicker") && $("wbPickKicker")!==document.activeElement){
+    $("wbPickKicker").textContent=acq?"Consumer Acquisition":(APP.leadSource||"Canada Drives");
+  }
+  APP.caDrawerCollapsed=!cd;
+  if(cd && typeof paintAppointments==="function") paintAppointments();
+  if(acq && typeof paintAcqBoard==="function") paintAcqBoard();
+}
+function toggleCaDrawer(){
+  APP.caPane=caPane()==="cd"?"none":"cd";
+  APP.caDrawerCollapsed=APP.caPane!=="cd";
+  if(APP.caPane==="cd"){
+    APP.dealType=APP.dealType||"Consumer Acquisition";
+    if(!APP.leadSource) APP.leadSource="Canada Drives";
+    if(!APP.apptItems || !APP.apptItems.length) queueLoadAppointments(true);
+  }
+  syncCaDrawer();
+}
+function toggleAcqDrawer(){
+  APP.caPane=caPane()==="acq"?"none":"acq";
+  APP.caDrawerCollapsed=true;
+  if(APP.caPane==="acq") queueLoadAcqBoard();
+  syncCaDrawer();
+}
+function closeAcqDrawer(){
+  if(caPane()==="acq") APP.caPane="none";
+  syncCaDrawer();
+}
+const ACQ_COLUMNS=[
+  { id:"pending-decision", label:"Pending Decision", color:"#22C55E", target:23 },
+  { id:"follow-up", label:"Follow-up", color:"#F97316", target:2 },
+  { id:"purchased", label:"Purchased", color:"#A855F7", target:0 },
+  { id:"pending-close", label:"Pending Close Out", color:"#EF4444", target:1 },
+  { id:"closed-out", label:"Closed Out", color:"#B45309", target:0 },
+  { id:"stocked-in", label:"Stocked In", color:"#16A34A", target:5 },
+  { id:"payment", label:"Payment Complete", color:"#15803D", target:27 },
+  { id:"archived", label:"Archived", color:"#6B7280", target:22 }
+];
+function acqColumnOf(stage){
+  const s=String(stage||"").toLowerCase().replace(/[_/]+/g," ").replace(/\s+/g," ").trim();
+  if(!s) return "";
+  if(/archiv/.test(s)) return "archived";
+  if(/payment/.test(s)) return "payment";
+  if(/stocked/.test(s)) return "stocked-in";
+  if(/closed\s*out/.test(s) || s==="closed") return "closed-out";
+  if(/pending\s*close|close\s*out/.test(s)) return "pending-close";
+  if(/purchased|bought/.test(s)) return "purchased";
+  if(/follow/.test(s)) return "follow-up";
+  if(/pending\s*decision|\bdecision\b/.test(s)) return "pending-decision";
+  return "";
+}
+function acqAgeText(days){
+  const n=Math.max(0, Number(days)||0);
+  return n+"d";
+}
+function acqCardHtml(row){
+  const col=ACQ_COLUMNS.filter(function(c){ return c.id===row.column; })[0];
+  const color=(col && col.color)||"#6B7280";
+  return '<button type="button" class="acq-card" data-acq-id="'+escHtml(row.id||"")+'" style="color:'+color+'"><span class="acq-app">'+escHtml(row.appNo||"Application")+'</span><b class="acq-ymm">'+escHtml(row.ymm||"Vehicle")+"</b><span class=\"acq-vin\">"+escHtml(row.vin||"")+'</span><span class="acq-meta"><i>'+escHtml(row.assignee||"Unclaimed")+"</i><i>"+escHtml(acqAgeText(row.ageDays))+"</i></span></button>";
+}
+function paintAcqBoard(){
+  const host=$("acqBoard");
+  if(!host) return;
+  if($("acqSearch") && $("acqSearch")!==document.activeElement) $("acqSearch").value=APP.acqSearch||"";
+  const note=$("acqLiveNote");
+  if(note){
+    note.textContent=APP.acqLive?"":(APP.acqLiveNote||"");
+    note.classList.toggle("hide", !note.textContent);
+  }
+  const q=String(($("acqSearch") && $("acqSearch").value) || APP.acqSearch || "").trim().toUpperCase().replace(/[^A-Z0-9]/g,"");
+  const items=(APP.acqItems||[]).filter(function(row){
+    if(!q) return true;
+    const blob=[row.appNo,row.vin,row.ymm,row.assignee].join(" ").toUpperCase().replace(/[^A-Z0-9]/g,"");
+    return blob.indexOf(q)>=0;
+  });
+  const anyLive=!!(APP.acqLive && (APP.acqItems||[]).length);
+  host.innerHTML=ACQ_COLUMNS.map(function(col){
+    const rows=items.filter(function(r){ return r.column===col.id; });
+    const count=anyLive?rows.length:col.target;
+    const cards=rows.length
+      ? rows.map(acqCardHtml).join("")
+      : '<p class="acq-empty">Empty</p>';
+    return '<div class="acq-col" data-acq-col="'+col.id+'"><div class="acq-col-head"><i style="background:'+col.color+'"></i><b>'+escHtml(col.label)+"</b><span>"+count+"</span></div>"+cards+"</div>";
+  }).join("");
+  host.querySelectorAll("[data-acq-id]").forEach(function(b){
+    b.onclick=function(){ openAcqCard(b.getAttribute("data-acq-id")); };
+  });
+}
+function openAcqCard(id){
+  const row=(APP.acqItems||[]).filter(function(r){ return r.id===id; })[0];
+  if(!row) return;
+  if(row.appNo) APP.cdApp=row.appNo;
+  if(row.vin) APP.vin=row.vin;
+  if(typeof fillUnit==="function") fillUnit();
+  const hit=typeof findCenterForAppt==="function" ? findCenterForAppt(row) : null;
+  if(hit && typeof openCenterDetail==="function") openCenterDetail(hit.id);
+  else toast((row.ymm||"Vehicle")+" · "+(row.appNo||""));
+}
+var _acqLoadSeq=0,_acqLoadTimer=0;
+function queueLoadAcqBoard(){
+  if(_acqLoadTimer){ clearTimeout(_acqLoadTimer); _acqLoadTimer=0; }
+  _acqLoadTimer=setTimeout(function(){
+    _acqLoadTimer=0;
+    const seq=++_acqLoadSeq;
+    const q=String(($("acqSearch") && $("acqSearch").value) || APP.acqSearch || "").trim();
+    let path=(typeof MAIL_HOST==="string"?MAIL_HOST:"")+APPTS_AIRTABLE.path+"?view=board";
+    if(q) path+="&q="+encodeURIComponent(q);
+    fetch(path, {cache:"no-store"}).then(function(r){ return r && r.ok ? r.json() : null; }).then(function(j){
+      if(seq!==_acqLoadSeq) return;
+      if(j && j.ok && j.view==="board" && Array.isArray(j.items)){
+        APP.acqLive=!!j.live;
+        APP.acqLiveNote=j.live?"":(j.reason||"");
+        APP.acqItems=j.items;
+      } else {
+        APP.acqLive=false;
+        APP.acqLiveNote="";
+        APP.acqItems=[];
+      }
+      paintAcqBoard();
+    }).catch(function(){
+      if(seq!==_acqLoadSeq) return;
+      APP.acqLive=false;
+      APP.acqLiveNote="";
+      APP.acqItems=APP.acqItems||[];
+      paintAcqBoard();
+    });
+  }, 80);
+}
+function findCenterForAppt(a){
+  if(!a || typeof loadCenter!=="function") return null;
+  const vin=String(a.vin||"").replace(/\s+/g,"").toUpperCase();
+  const app=String(a.appNo||a.cdApp||"").toUpperCase().replace(/[^A-Z0-9]/g,"");
+  const all=loadCenter();
+  let hit=null;
+  if(vin && vin!=="TBD") hit=all.filter(function(x){ return String(x.vin||"").replace(/\s+/g,"").toUpperCase()===vin; })[0];
+  if(!hit && app) hit=all.filter(function(x){ return String((x.cdApp||x.appNo)||"").toUpperCase().replace(/[^A-Z0-9]/g,"")===app; })[0];
+  return hit||null;
+}
 function openAppointments(){
   if(!usesCaAppointments()){ openNewApplicationDesk(); return; }
   APP.newAppOpen=false;
+  APP.caDrawerCollapsed=false;
+  APP.caPane="cd";
   if($("typeSheet")) $("typeSheet").classList.remove("on");
   if($("apptWrap")) $("apptWrap").classList.remove("hide");
-  show("workbench");
+  if(typeof canUseCenter==="function" && canUseCenter()){
+    if(APP.screen!=="center"){
+      APP.centerHistory=false;
+      if($("centerSheetDim")) $("centerSheetDim").classList.remove("on");
+      show("center");
+    }
+    syncCaDrawer();
+  } else {
+    show("workbench");
+  }
   const q=String(($("apptSearch") && $("apptSearch").value) || APP.apptSearch || "").trim();
   if(q){
     paintAppointments();
@@ -3812,6 +4165,7 @@ function openAppointments(){
     paintWorkbench();
   }
   paintAppraiseGate();
+  syncCaDrawer();
 }
 function applyAppointment(row){
   const a=normalizeAppt(row);
@@ -3828,6 +4182,7 @@ function applyAppointment(row){
   if(a.make) APP.make=a.make;
   if(a.model) APP.model=a.model;
   if(a.trim) APP.trim=a.trim;
+  if(a.km) APP.km=a.km;
   if(a.seller){
     APP.inviteName=a.seller;
     const parts=a.seller.split(/\s+/);
@@ -3838,6 +4193,15 @@ function applyAppointment(row){
   paintDealType();
   paintAppointments();
   paintWorkbench();
+  if(typeof canUseCenter==="function" && canUseCenter()){
+    if(APP.screen!=="center") show("center");
+    if(!centerSplitLayout()){ APP.caDrawerCollapsed=true; APP.caPane="none"; }
+    syncCaDrawer();
+    const hit=findCenterForAppt(a);
+    if(hit && typeof openCenterDetail==="function") openCenterDetail(hit.id);
+    toast((a.ymm||"Vehicle")+(apptKmText(a)?" · "+apptKmText(a):"")+" is filled — Appraisal Center is the desk.");
+    return;
+  }
   show("workbench");
   toast("Workbench is open — "+(a.ymm||"the vehicle")+" is already filled.");
 }
@@ -3860,14 +4224,17 @@ function paintWorkbench(){
   const ymm=[APP.year,APP.make,APP.model,APP.trim].filter(Boolean).join(" ") || (APP.newApplication || APP.apptId==="new" ? "New application" : "Vehicle");
   if($("wbKicker")) $("wbKicker").textContent="Consumer Acquisition · "+(APP.leadSource||"");
   if($("wbYmm")) $("wbYmm").textContent=ymm;
-  if($("wbSeller")) $("wbSeller").textContent=(APP.apptSeller||APP.inviteName||"Seller")+(APP.cdApp?" · "+APP.cdApp:"");
+  const picked=(APP.apptItems||[]).filter(function(r){ return r.id===APP.apptId; })[0];
+  const kmTxt=apptKmText({ km: APP.km || (picked && picked.km) || "" });
+  if($("wbSeller")) $("wbSeller").textContent=(APP.apptSeller||APP.inviteName||"Seller")+(APP.cdApp?" · "+APP.cdApp:"")+(kmTxt?" · "+kmTxt:"");
   const chips=$("wbChips");
   if(chips){
     const bits=[
+      kmTxt,
       APP.vin && APP.vin.length>=8 ? "VIN "+APP.vin : "",
       APP.cdApp ? "App "+APP.cdApp : "",
       APP.apptRegion||"",
-      (APP.apptItems||[]).filter(function(r){ return r.id===APP.apptId; })[0] && (APP.apptItems||[]).filter(function(r){ return r.id===APP.apptId; })[0].date
+      picked && picked.date
     ].filter(Boolean);
     chips.innerHTML=bits.map(function(b){ return '<span class="wb-chip">'+escHtml(b)+"</span>"; }).join("");
   }
@@ -4043,7 +4410,7 @@ function show(id){
   if(id==="camera") startPreview("shotCam");
   if(id==="submit") paintSubmit();
   if(id==="users") paintUsers();
-  if(id==="center"){ paintCenter(); paintCenterDetail(); }
+  if(id==="center"){ paintCenter(); paintCenterDetail(); if(typeof syncCaDrawer==="function") syncCaDrawer(); }
   else if(typeof closeCenterGallery==="function") closeCenterGallery();
   if(id!=="login" && id!=="thanks" && id!=="start") scheduleDraftSave();
   if(typeof syncExitChrome==="function") syncExitChrome();
@@ -4101,6 +4468,7 @@ function dismissOpenLayer(){
   if($("tradeSheet") && $("tradeSheet").classList.contains("on")){ closeTradeLane(); return true; }
   if(APP.screen==="center" && APP.centerViewId){ closeCenterDetail(); return true; }
   if(APP.screen==="center" && APP.centerLane){ closeCenterLane(); return true; }
+  if(APP.screen==="center" && typeof caPane==="function" && caPane()==="acq"){ closeAcqDrawer(); return true; }
   return false;
 }
 function pageHome(){
@@ -8389,6 +8757,7 @@ function syncCenterLayers(){
   if($("centerSheet")) $("centerSheet").classList.toggle("on", !!APP.centerLane);
   if($("centerSheetDim")) $("centerSheetDim").classList.toggle("on", dimOn);
   bindCenterDetailClose();
+  if(typeof syncCaDrawer==="function") syncCaDrawer();
 }
 function closeCenterOverlay(){
   if(APP.centerGalleryOn){ closeCenterGallery(); return; }
@@ -14700,6 +15069,13 @@ if(window.matchMedia){
   if(deskMq.addEventListener) deskMq.addEventListener("change", onDeskMq);
   else if(deskMq.addListener) deskMq.addListener(onDeskMq);
 }
+if($("caDrawerToggle")) $("caDrawerToggle").onclick = toggleCaDrawer;
+if($("acqDrawerToggle")) $("acqDrawerToggle").onclick = toggleAcqDrawer;
+if($("acqSearch")) $("acqSearch").addEventListener("input", function(){
+  APP.acqSearch=this.value||"";
+  paintAcqBoard();
+  queueLoadAcqBoard();
+});
 if($("centerInboxBtn")) $("centerInboxBtn").onclick = function(){ openCenterLane("inbox"); };
 if($("centerOnsiteBtn")) $("centerOnsiteBtn").onclick = function(){ openCenterLane("onsite"); };
 if($("centerNeedsBtn")) $("centerNeedsBtn").onclick = function(){ openCenterLane("needsdocs"); };
