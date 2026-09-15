@@ -39,6 +39,14 @@ mustNot(/#start\.screen\.start \{\s*display:block/, "Home display:block no longe
 
 must(/function leftRailWanted\(\)\{[\s\S]{0,220}centerSplitLayout/, "CA left rail is desktop split only");
 must(/caDrawerCollapsed:true, caPane:"none"/, "CA drawer starts collapsed");
+must(/#center\.screen\.ca-on \.ca-drawer:not\(\.hide\)\{ display:flex/, "visible CA drawer is :not(.hide), not a blanket display:flex");
+must(/#center\.screen\.ca-on \.ca-drawer\.hide[\s\S]{0,120}display:none !important/, "ca-on display:flex cannot beat .hide");
+must(/#center\.screen\.ca-on \.ca-drawer\.hide[\s\S]{0,160}pointer-events:none !important/, "hidden CA drawer is not a hit layer");
+must(/#center\.screen\.ca-on\.ca-collapsed \.ca-drawer:not\(\.hide\)\{ pointer-events:none; \}/, "collapsed drawer is not a transparent hit sheet");
+must(/#center\.screen\.ca-on\.ca-collapsed \.ca-drawer-toggle[\s\S]{0,80}pointer-events:auto/, "collapsed toggle still taps");
+must(/class="appt-km"/, "booked rows still show kilometres");
+must(/\.appt-row \.appt-body \.appt-km/, "km sits under YMM on booked tiles");
+mustNot(/position:fixed; left:0; top:0; bottom:0; width:min\(360px,90vw\)/, "phone CA drawer is not a full-bleed overlay");
 must(/@media \(max-width:767px\)\{[\s\S]{0,900}#center\.screen\.ca-on \.ca-drawer[\s\S]{0,280}pointer-events:none !important/, "phone CA drawer is not a hit layer");
 must(/#center\.screen \{[\s\S]{0,220}background:#F5F6F8/, "Acre desk page color is unchanged");
 must(/#center \.acre-desk\{[\s\S]{0,220}grid-template-areas:"hero mid market"/, "Acre columns stay locked");
