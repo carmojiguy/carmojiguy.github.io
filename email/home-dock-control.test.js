@@ -25,7 +25,7 @@ function sha(s) {
   return crypto.createHash("sha256").update(s).digest("hex");
 }
 
-must(/<!--[\s\S]*Shawn HOME dock: Control 29-sold/, "stamp names the Control home dock");
+must(/<!--[\s\S]*Shawn HOME dock: login cinematic overlay \+ 29-sold/, "stamp names the login-aligned home dock");
 must(/<!--[\s\S]*HOLD #33\/#46/, "HOLD #33/#46 stays");
 must(/<!--[\s\S]*Off Acre #73 photo lock remix/, "Acre desk photo lock is off-limits");
 must(/<!--[\s\S]*Thank-you frozen/, "Thank-you stays frozen in the stamp");
@@ -46,10 +46,9 @@ mustNot(/border-top:1px solid rgba\(0,164,226/, "no cyan/blue dock strip");
 mustNot(/#07101c/, "no navy footer bar");
 mustNot(/linear-gradient\(180deg, rgba\(7,16,32,\.96\)/, "no dark blue dock wash");
 
-must(/#start \.start-veil \{[\s\S]{0,80}rgba\(245,243,237/, "home fades the car with a cream overlay");
+must(/#start \.start-veil \{[\s\S]{0,120}rgba\(245,243,237/, "home fades the car with a cream/slate overlay");
 must(/#start\.start \{[\s\S]{0,180}--home-slate:#3E5C54/, "home slate green token");
 must(/#start\.start \{[\s\S]{0,220}--home-terra:#B45C3C/, "home terracotta token");
-must(/#start\.start \{[\s\S]{0,280}background:#F5F3ED/, "home cream canvas");
 must(/\.start-actions \.pill\.purple \{ background:#3E5C54/, "Appraise is slate green, not loud purple");
 must(/\.start-actions \.pill\.cyan \{ background:#B45C3C/, "Website is terracotta, not loud cyan");
 
@@ -59,13 +58,21 @@ must(/#startWebsite \{ bottom: calc\(env\(safe-area-inset-bottom, 0px\) \+ 1\.55
 must(/\.start-more \{[\s\S]{0,180}bottom: calc\(16px \+ env\(safe-area-inset-bottom/, "mobile Trade/Users sit on the hero");
 must(/z-index:24/, "dock still layers over the hero");
 
-must(/#start\.screen\.start \{[\s\S]{0,220}grid-template-columns:minmax\(0,1fr\) minmax\(380px, 440px\)/, "desktop is photo | dashboard card, not a stretched phone");
-must(/#start \.start-dock \{[\s\S]{0,420}background:#fff/, "desktop dock is a white Control card");
-must(/html:has\(#start\.on\), body:has\(#start\.on\) \{ background:#F5F3ED/, "desktop page around home is cream");
+must(/#start \.start-brand \{[\s\S]{0,220}left:8%/, "desktop brand sits like login-hero");
+must(/#start \.start-dock \{[\s\S]{0,280}right:7%/, "desktop dock floats like the login card");
+must(/#start \.start-dock \{[\s\S]{0,520}background:rgba\(255,255,255,\.94\)/, "desktop dock is a frosted login-style card");
 
 must(/\.start-veil \{ position:absolute; inset:0; background:linear-gradient\(180deg,rgba\(8,6,16,\.40\)/, "login veil stays the original dark wash");
 must(/\.login-hero \.login-kicker \{ color:#7EE8F2/, "login kicker stays cyan");
+must(/\.login-hero h1 \{ margin:0 0 10px; font-size:34px; letter-spacing:-.7px; line-height:1.08; color:#fff/, "login title stays white on the car");
+must(/\.login-card \{ position:absolute; left:16px; right:16px; bottom:calc\(16px \+ env\(safe-area-inset-bottom\)\)/, "login card stays bottom-anchored");
 must(/id="btnGuest">Continue as guest</, "guest login button stays");
+must(/class="pill cyan" type="button" id="btnGuest"/, "guest CTA stays cyan");
+must(/\.login-hero \{[\s\S]{0,80}left:8%; right:auto; top:50%/, "desktop login hero stays cinematic");
+must(/\.login-card \{[\s\S]{0,80}left:auto; right:7%; bottom:auto; top:50%/, "desktop login card stays on the right");
+
+const loginChrome = slice(".login-hero {\n  position:absolute; left:22px;", ".gbtn {");
+assert.equal(sha(loginChrome), "dd45835ca4c2dd2758f17ce79401708ad0b45ce63b6aa4166ba9a5d50405215c", "login-hero + login-card CSS is frozen");
 must(/id="btnGoogle"/, "Google staff login stays");
 must(/function enterStaff\(/, "staff email login stays");
 must(/const STAFF_PASS="dietcoke"/, "staff password login stays");
