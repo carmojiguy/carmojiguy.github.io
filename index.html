@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-14 build d31a: pixel-faithful Acre GR Corolla desk (white hero|mid|market, not stone/teal); CA workbench redo — drop the verbal-only tag forever; What's the Story walks the car and talks; Walk-around photos only; keep Critical damage; salesperson CA has no packet-send card; Tracker mobile cards + current month; Canada Drives appointments: month list from Airtable Appointment Booked + GTA/Ottawa Tracker, Google Docs open (no preventDefault overlay), Acre-bright desk; website-post story-first year/make/model/trim/condition, no team select, original start not webdesk, pictures still relaunch/post; Acre GR Corolla desk lock — FIFO oldest home, left-rail Incoming/On-site/Needs docs/History pills, no hist KPI strip, Ask Maya, appraisal range/competing/ask; users GET/POST kind:users persist; GET kind=users&at= after save; 911 Acre team reads finalRationale.markdown + panel Rybot/Webot/Drebot/TBot + team.shabot note, hides boxes with no numbers; mailer keeps rich team/rationale on Center refresh; Trade-in start drops stray top History (rail History stays); 911 Incoming FINAL min+target+max clears Running and lands Appraisal Team numbers (Blazer s1af19al / F-150 sir78n6); Run Appraisal Team tap always fires (rerun + Unlocked History); kind:team wake; Incoming FINAL settles Running; schema 1.0 team + panel boxes; market pills append multiple files into shots[]; compact V Auto / Carfax / OpenLane / eBlock chips; same sendId/id Incoming POST; panel runs progress → existing FINAL; no invented solds; real Carfax http url opens the uploaded file; sample recreate only when no docs.carfax.url; Carfax square + huge card add/upload kind:file carfax; staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; Incoming keeps http docs.url; Incoming appends shots[]; status dropdown every lane; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples; hides generated From V Auto lane; users settings durable Vercel Blob center-users-v1.json; empty remote users never wipe local people; merge permissions by email; restore Josh Lefave josh.lefave@gmautosales.ca + Steve Summerall steve.summerall@gmautosales.ca website+center --><html lang="en">
+<!-- center-v3 + desk-home 2026-09-14 build d31a: pixel-faithful Acre GR Corolla desk (white hero|mid|market, not stone/teal); CA workbench redo — drop the verbal-only tag forever; What's the Story walks the car and talks; Walk-around photos only; keep Critical damage; salesperson CA has no packet-send card; Tracker mobile cards + current month; Canada Drives appointments: month list from Airtable Appointment Booked + GTA/Ottawa Tracker, Google Docs open (no preventDefault overlay), Acre-bright desk; website-post story-first year/make/model/trim/condition, no team select, original start not webdesk, pictures still relaunch/post; Acre GR Corolla desk lock — FIFO oldest home, left-rail Incoming/On-site/Needs docs/History pills, no hist KPI strip, Ask Maya, appraisal range/competing/ask; users GET/POST kind:users persist; GET kind=users&at= after save; 911 Acre team reads finalRationale.markdown + panel Rybot/Webot/Drebot/TBot + team.shabot note, hides boxes with no numbers; mailer keeps rich team/rationale on Center refresh; Trade-in start drops stray top History (rail History stays); 911 Incoming FINAL min+target+max clears Running and lands Appraisal Team numbers (Blazer s1af19al / F-150 sir78n6); Run Appraisal Team tap always fires (rerun + Unlocked History); kind:team wake; Incoming FINAL settles Running; schema 1.0 team + panel boxes; market pills append multiple files into shots[]; compact V Auto / Carfax / OpenLane / eBlock chips; same sendId/id Incoming POST; panel runs progress → existing FINAL; no invented solds; real Carfax http url opens the uploaded file; sample recreate only when no docs.carfax.url; Carfax square + huge card add/upload kind:file carfax; staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; Incoming keeps http docs.url; Incoming appends shots[]; status dropdown every lane; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples; hides generated From V Auto lane; users settings durable Vercel Blob center-users-v1.json; empty remote users never wipe local people; merge permissions by email; restore Josh Lefave josh.lefave@gmautosales.ca + Steve Summerall steve.summerall@gmautosales.ca; Users UI quiet CA chrome; staff defaultPerms all sections On except admin/Users --><html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
@@ -815,42 +815,67 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
 .user-row button.remove { border:0; background:var(--fill); border-radius:999px; padding:8px 12px; font-size:13px; font-weight:700; cursor:pointer; }
 .perm-toggles { display:flex; flex-wrap:wrap; gap:6px; }
 .perm-tog { border:1.5px solid var(--hair); background:#fff; border-radius:999px; padding:7px 10px; font-size:12px; font-weight:800; cursor:pointer; color:var(--ink); }
-.perm-tog.on { background:var(--lavender); border-color:var(--purple); color:var(--purple-deep); }
-.perm-tog.off { opacity:.55; }
+.perm-tog.on { background:#111318; border-color:#111318; color:#fff; }
+.perm-tog.off { background:#F5F6F8; color:#6B7380; opacity:1; }
 .perm-tog[disabled] { cursor:default; }
-#users { background:linear-gradient(180deg,#FFF8E8 0%,#F3FBFF 28%,#FAF9FC 100%); }
-#users .users-hero { margin:4px 0 18px; }
-#users .users-kicker { font-size:11px; font-weight:800; letter-spacing:.16em; text-transform:uppercase; color:#E08A00; margin:0 0 6px; }
-#users h2 { margin:0 0 8px; }
+#users {
+  background:#F5F6F8;
+  --ink:#111318; --muted:#6B7380; --hair:#E4E7EC; --fill:#EEF0F3;
+  --page:#F5F6F8; --purple:#111318; --purple-deep:#111318;
+  --lavender:#EEF0F3; --cyan:#3B82F6; --cyan-deep:#1D4ED8;
+}
+#users .users-hero {
+  margin:4px 0 18px; padding:20px 18px 18px; border-radius:24px; color:#111318;
+  background:#fff; border:1px solid #E4E7EC; box-shadow:0 10px 28px rgba(17,19,24,.06);
+}
+#users .users-kicker, #userSheet .users-kicker {
+  font-size:11px; font-weight:800; letter-spacing:.16em; text-transform:uppercase; color:#1D4ED8; margin:0 0 6px;
+}
+#users h2 { margin:0 0 8px; color:#111318; }
+#users .nav-hist, #users .hist-jump {
+  background:#111318; color:#fff; box-shadow:0 10px 24px rgba(17,19,24,.12);
+}
+#users .users-chip {
+  background:#fff; color:#111318; border:1px solid #E4E7EC; box-shadow:0 8px 20px rgba(17,19,24,.04);
+}
+#users .users-chip.on { background:#111318; border-color:#111318; color:#fff; box-shadow:none; }
 .users-filters { display:flex; gap:8px; overflow-x:auto; -webkit-overflow-scrolling:touch; padding:2px 0 14px; }
 .users-chip { flex:0 0 auto; border:0; border-radius:999px; padding:9px 14px; font-size:13px; font-weight:800; cursor:pointer; background:#fff; color:var(--ink); box-shadow:0 8px 20px rgba(17,14,26,.06); }
 .users-chip.on { background:linear-gradient(135deg,#7C5CFF,#00A4E2); color:#fff; }
 .users-grid { display:flex; flex-direction:column; gap:10px; }
-.person-card { width:100%; border:0; background:#fff; border-radius:22px; padding:14px; text-align:left; cursor:pointer; box-shadow:0 12px 28px rgba(17,14,26,.06); display:flex; gap:12px; align-items:flex-start; font:inherit; color:inherit; }
-.person-card:hover { transform:translateY(-1px); box-shadow:0 16px 32px rgba(17,14,26,.1); }
-.person-ava { width:52px; height:52px; border-radius:18px; flex:0 0 52px; display:grid; place-items:center; color:#fff; font-size:16px; font-weight:800; letter-spacing:-.02em; position:relative; overflow:hidden; }
+.person-card { width:100%; border:1px solid #E4E7EC; background:#fff; border-radius:22px; padding:14px; text-align:left; cursor:pointer; box-shadow:0 10px 24px rgba(17,19,24,.05); display:flex; gap:12px; align-items:flex-start; font:inherit; color:#111318; }
+.person-card:hover { transform:translateY(-1px); box-shadow:0 16px 32px rgba(17,19,24,.08); }
+.person-ava { width:52px; height:52px; border-radius:18px; flex:0 0 52px; display:grid; place-items:center; color:#fff; font-size:16px; font-weight:800; letter-spacing:-.02em; position:relative; overflow:hidden; background:#111318; }
 .person-ava img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; }
 .person-meta { min-width:0; flex:1; }
 .person-meta b { display:block; font-size:17px; letter-spacing:-.3px; }
-.person-meta .em { color:var(--muted); font-size:13px; font-weight:600; margin:2px 0 8px; word-break:break-all; }
+.person-meta .em { color:#6B7380; font-size:13px; font-weight:600; margin:2px 0 8px; word-break:break-all; }
 .person-pills { display:flex; flex-wrap:wrap; gap:6px; }
-.tchip, .achip, .lchip, .locked-chip { display:inline-block; border-radius:999px; padding:5px 10px; font-size:11px; font-weight:800; }
-.tchip { background:#E8F7FF; color:#0077A8; }
-.tchip.un { background:#F3F0FA; color:var(--purple-deep); }
-.lchip { background:#FFF3D6; color:#8A5A00; }
-.ochip { background:#111; color:#fff; }
-.achip { background:var(--lavender); color:var(--purple-deep); }
-.locked-chip { background:#D8F5E5; color:#0F6B3C; }
-.users-add { margin-top:18px; background:rgba(255,255,255,.82); border-radius:24px; padding:16px; box-shadow:0 12px 28px rgba(17,14,26,.05); }
+.tchip, .achip, .lchip, .locked-chip, .ochip { display:inline-block; border-radius:999px; padding:5px 10px; font-size:11px; font-weight:800; font-style:normal; }
+.tchip, .achip, .lchip, .locked-chip { background:#EEF0F3; color:#111318; }
+.tchip.un { background:#F5F6F8; color:#6B7380; border:1px solid #E4E7EC; }
+.ochip { background:#111318; color:#fff; }
+.users-add { margin-top:18px; background:#fff; border:1px solid #E4E7EC; border-radius:24px; padding:16px; box-shadow:0 10px 24px rgba(17,19,24,.05); }
 .role-tog { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:8px 0 14px; }
-.role-tog button { border:1.5px solid var(--hair); background:#fff; border-radius:16px; padding:12px 10px; font-size:14px; font-weight:800; cursor:pointer; }
-.role-tog button.on { background:#111; color:#fff; border-color:#111; }
+.role-tog button { border:1.5px solid #E4E7EC; background:#fff; border-radius:16px; padding:12px 10px; font-size:14px; font-weight:800; cursor:pointer; color:#111318; }
+.role-tog button.on { background:#111318; color:#fff; border-color:#111318; }
 .team-picks { display:flex; flex-wrap:wrap; gap:8px; }
-.team-pick-btn { border:1.5px solid var(--hair); background:#fff; border-radius:999px; padding:8px 12px; font-size:13px; font-weight:800; cursor:pointer; }
-.team-pick-btn.on { background:linear-gradient(135deg,#7C5CFF,#00A4E2); color:#fff; border-color:transparent; }
+.team-pick-btn { border:1.5px solid #E4E7EC; background:#fff; border-radius:999px; padding:8px 12px; font-size:13px; font-weight:800; cursor:pointer; color:#111318; }
+.team-pick-btn.on { background:#111318; color:#fff; border-color:#111318; }
 .team-pick-btn[disabled] { opacity:.45; cursor:default; }
 .always-row { display:flex; flex-wrap:wrap; gap:8px; margin:0 0 14px; }
-.ca-lock { background:#FFF6E8; border-radius:16px; padding:12px 14px; font-size:13px; font-weight:700; color:#8A5A00; margin:8px 0 12px; }
+.ca-lock { background:#F7FAFF; border-radius:16px; padding:12px 14px; font-size:13px; font-weight:700; color:#1D4ED8; margin:8px 0 12px; }
+#userSheet, #userAddSheet {
+  --ink:#111318; --muted:#6B7380; --hair:#E4E7EC; --fill:#EEF0F3;
+  --purple:#111318; --purple-deep:#111318; --lavender:#EEF0F3;
+}
+#userSheet .card, #userAddSheet .card {
+  max-height:min(88vh, 820px); overflow:auto;
+  box-shadow:0 18px 50px rgba(17,19,24,.12);
+}
+#userSheet .card .x, #userAddSheet .card .x {
+  border-color:#E4E7EC; color:#111318; box-shadow:0 8px 22px rgba(17,19,24,.08);
+}
 .desk-team { position:relative; margin:0 0 8px; }
 .desk-team .team-pick { margin:0; }
 .desk-team.empty .team-pick { border-color:#F5B942; box-shadow:0 0 0 3px rgba(245,185,66,.22); }
@@ -859,7 +884,6 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
 .desk-team-menu button { width:100%; margin:0; border:0; background:transparent; border-radius:14px; padding:14px; font-size:16px; font-weight:700; text-align:left; cursor:pointer; }
 .desk-team-menu button:hover, .desk-team-menu button.on { background:var(--lavender); color:var(--purple-deep); }
 .acre-team { display:inline-block; background:#E8F7FF; color:#0077A8; border-radius:999px; padding:5px 10px; font-size:11px; font-weight:800; }
-#userSheet .card, #userAddSheet .card { max-height:min(88vh, 820px); overflow:auto; }
 .start-dock .pill.locked, .start-more .pill.locked {
   background:rgba(250,249,252,.38) !important;
   color:rgba(36,27,51,.42) !important;
@@ -4247,17 +4271,11 @@ function shawnAlias(email){
   return e;
 }
 function allPermsOn(){ return {trade:true, appraise:true, website:true, center:true, admin:true, ca:true}; }
+function staffPerms(){ return {trade:true, appraise:true, website:true, center:true, admin:false, ca:true}; }
 function defaultPerms(email){
   const e=shawnAlias(email);
   if(e==="shawn@myloan.ca") return allPermsOn();
-  if(e==="wes@thetrucktown.com") return allPermsOn();
-  if(e==="ryan@papered.com" || e==="andrew@autocorp.ca" || e==="kyle@myloan.ca" || e==="shane@myloan.ca"){
-    return {trade:false, appraise:true, website:false, center:true, admin:false};
-  }
-  if(e==="josh.lefave@gmautosales.ca" || e==="steve.summerall@gmautosales.ca"){
-    return {trade:false, appraise:false, website:true, center:true, admin:false, ca:false};
-  }
-  return {trade:false, appraise:false, website:false, center:false, admin:false};
+  return staffPerms();
 }
 function usersKey(){ return "inspect.users"; }
 function emptyUsersStore(){ return {people:[], permissions:{}, updatedAt:0, lastRemoteUpdatedAt:0}; }
@@ -4685,8 +4703,8 @@ function ensureRoster(skipRemote){
     return String(a.name||a.email).localeCompare(String(b.name||b.email));
   });
   store.permissions=store.permissions||{};
-  [["josh.lefave@gmautosales.ca",{trade:false, appraise:false, website:true, center:true, admin:false, ca:false}],
-   ["steve.summerall@gmautosales.ca",{trade:false, appraise:false, website:true, center:true, admin:false, ca:false}]].forEach(function(pair){
+  [["josh.lefave@gmautosales.ca", staffPerms()],
+   ["steve.summerall@gmautosales.ca", staffPerms()]].forEach(function(pair){
     if(!store.permissions[pair[0]]) store.permissions[pair[0]]=pair[1];
   });
   saveUsersStore(store, skipRemote!==false);
@@ -4775,8 +4793,7 @@ function paintUsers(){
   list.forEach(function(u){
     const email=staffEmail(u.email);
     const teams=normalizeTeams(u.teams);
-    const hues=["#7C5CFF","#00A4E2","#E08A00","#12B886","#E23B7C","#4B35C8","#F76707","#1098AD"];
-    const hue=hues[(email.charCodeAt(0)+email.length)%hues.length];
+    const hue="#111318";
     const initials=(u.name||email).split(/\s+/).slice(0,2).map(function(p){ return p.charAt(0).toUpperCase(); }).join("")||"?";
     const ava=u.photo
       ? escHtml(initials)+'<img src="'+escHtml(u.photo)+'" alt="" onerror="this.remove()">'
