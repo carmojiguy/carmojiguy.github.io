@@ -3297,10 +3297,28 @@ function apptWhen(row){
   const t=Date.parse(raw.length<=10 ? raw+"T12:00:00" : raw);
   return t||0;
 }
+function apptKmText(row){
+  const raw=row && (row.km || row.kms || "");
+  if(raw==null || raw==="") return "";
+  const n=Number(String(raw).replace(/,/g,""));
+  if(!n) return "";
+  return n.toLocaleString("en-CA")+" km";
+}
+function apptTileHtml(row){
+  const dt=row && row.date ? new Date(row.date+"T12:00:00") : null;
+  const day=dt ? String(dt.getDate()) : "—";
+  const mon=dt ? dt.toLocaleDateString("en-CA",{month:"short"}) : "TBA";
+  const when=dt ? dt.toLocaleDateString("en-CA",{month:"short",day:"numeric",year:"numeric"}) : "Date TBA";
+  const stageLbl=row && row.stage==="on-site"?"On-site":"Booked";
+  const stageCls=row && row.stage==="on-site"?"onsite":"booked";
+  const km=apptKmText(row);
+  return '<span class="appt-when"><b>'+escHtml(day)+"</b><i>"+escHtml(mon)+'</i></span><span class="appt-body"><b>'+escHtml((row && row.ymm)||"Vehicle")+"</b><span><i class=\"appt-stage "+stageCls+"\">"+escHtml(stageLbl)+"</i>"+(km?escHtml(km)+" · ":"")+escHtml((row && row.appNo)||"Application")+" · "+escHtml((row && row.seller)||"Seller")+((row && row.vin && row.vin!=="TBD")?" · "+escHtml(row.vin):"")+" · "+escHtml(when)+"</span></span>";
+}
 function normalizeAppt(row){
   if(!row) return null;
   const ymm=String(row.ymm||[row.year,row.make,row.model,row.trim].filter(Boolean).join(" ")).replace(/\s+/g," ").trim();
   const bits=ymm.split(" ");
+  const kmN=Number(String(row.km||row.kms||"").replace(/,/g,""));
   return {
     id:String(row.id||""),
     appNo:String(row.appNo||row.cdApp||"").trim(),
@@ -3311,6 +3329,7 @@ function normalizeAppt(row){
     trim:String(row.trim||""),
     seller:String(row.seller||"").trim(),
     vin:String(row.vin||"").replace(/\s+/g,"").toUpperCase(),
+    km: kmN ? String(Math.round(kmN)) : "",
     date:String(row.date||"").slice(0,10),
     city:String(row.city||row.sellerCity||"").trim(),
     phone:String(row.phone||row.sellerPhone||"").trim(),
@@ -3331,6 +3350,7 @@ const APPTS_AIRTABLE={
   stage:"selqqamHvfGvK4CmK",
   onsite:"selaCJ91ZmmGKF7i1",
   source:"sel90QtMNs2kN0MbE",
+  km:"fld1ReQkIiObeuXr9",
   path:"/api/appointments"
 };
 // Human schedule sheets (MyCar.ca). Month list is Airtable Appointment Booked + Tracker.
@@ -3456,7 +3476,8 @@ function paintTrackerSheet(){
     mobile.innerHTML=rows.map(function(row){
       const when=row.date?new Date(row.date+"T12:00:00").toLocaleDateString("en-CA",{month:"short",day:"numeric"}):"Date TBA";
       const status=row.status||row.stage||"";
-      return '<button type="button" class="tracker-row" data-tracker-id="'+escHtml(row.id||"")+'"><i>'+escHtml(status||"Booked")+"</i><i>"+escHtml(when)+"</i><b>"+escHtml(row.ymm||"Vehicle")+"</b><span>"+escHtml(row.appNo||"Application")+" · "+escHtml(row.seller||"Seller")+(row.city?" · "+escHtml(row.city):"")+(row.phone?" · "+escHtml(row.phone):"")+"</span></button>";
+      const km=apptKmText(row);
+      return '<button type="button" class="tracker-row" data-tracker-id="'+escHtml(row.id||"")+'"><i>'+escHtml(status||"Booked")+"</i><i>"+escHtml(when)+"</i><b>"+escHtml(row.ymm||"Vehicle")+"</b><span>"+(km?escHtml(km)+" · ":"")+escHtml(row.appNo||"Application")+" · "+escHtml(row.seller||"Seller")+(row.city?" · "+escHtml(row.city):"")+(row.phone?" · "+escHtml(row.phone):"")+"</span></button>";
     }).join("");
     mobile.querySelectorAll("[data-tracker-id]").forEach(function(b){
       b.onclick=function(){ applyTrackerRow(b.getAttribute("data-tracker-id")); };
@@ -3465,9 +3486,10 @@ function paintTrackerSheet(){
   if(desk){
     if(!rows.length){ desk.innerHTML=""; }
     else {
-      desk.innerHTML="<table><thead><tr><th>App #</th><th>Status</th><th>Date</th><th>Seller</th><th>Vehicle</th><th>City</th><th>Phone</th></tr></thead><tbody>"+rows.map(function(row){
+      desk.innerHTML="<table><thead><tr><th>App #</th><th>Status</th><th>Date</th><th>Seller</th><th>Vehicle</th><th>Km</th><th>City</th><th>Phone</th></tr></thead><tbody>"+rows.map(function(row){
         const when=row.date?new Date(row.date+"T12:00:00").toLocaleDateString("en-CA",{month:"short",day:"numeric"}):"TBA";
-        return '<tr data-tracker-id="'+escHtml(row.id||"")+'"><td>'+escHtml(row.appNo||"")+"</td><td>"+escHtml(row.status||row.stage||"")+"</td><td>"+escHtml(when)+"</td><td>"+escHtml(row.seller||"")+"</td><td>"+escHtml(row.ymm||"")+"</td><td>"+escHtml(row.city||"")+"</td><td>"+escHtml(row.phone||"")+"</td></tr>";
+        const km=apptKmText(row);
+        return '<tr data-tracker-id="'+escHtml(row.id||"")+'"><td>'+escHtml(row.appNo||"")+"</td><td>"+escHtml(row.status||row.stage||"")+"</td><td>"+escHtml(when)+"</td><td>"+escHtml(row.seller||"")+"</td><td>"+escHtml(row.ymm||"")+"</td><td>"+escHtml(km)+"</td><td>"+escHtml(row.city||"")+"</td><td>"+escHtml(row.phone||"")+"</td></tr>";
       }).join("")+"</tbody></table>";
       desk.querySelectorAll("[data-tracker-id]").forEach(function(tr){
         tr.onclick=function(){ applyTrackerRow(tr.getAttribute("data-tracker-id")); };
@@ -3760,13 +3782,7 @@ function paintAppointments(){
     const b=document.createElement("button");
     b.type="button";
     b.className="appt-row"+(APP.apptId===row.id?" on":"");
-    const dt=row.date ? new Date(row.date+"T12:00:00") : null;
-    const day=dt ? String(dt.getDate()) : "—";
-    const mon=dt ? dt.toLocaleDateString("en-CA",{month:"short"}) : "TBA";
-    const when=dt ? dt.toLocaleDateString("en-CA",{month:"short",day:"numeric",year:"numeric"}) : "Date TBA";
-    const stageLbl=row.stage==="on-site"?"On-site":"Booked";
-    const stageCls=row.stage==="on-site"?"onsite":"booked";
-    b.innerHTML='<span class="appt-when"><b>'+escHtml(day)+"</b><i>"+escHtml(mon)+'</i></span><span class="appt-body"><b>'+escHtml(row.ymm||"Vehicle")+"</b><span><i class=\"appt-stage "+stageCls+"\">"+escHtml(stageLbl)+"</i>"+escHtml(row.appNo||"Application")+" · "+escHtml(row.seller||"Seller")+(row.vin && row.vin!=="TBD"?" · "+escHtml(row.vin):"")+" · "+escHtml(when)+"</span></span>";
+    b.innerHTML=apptTileHtml(row);
     b.onclick=function(){ applyAppointment(row); };
     host.appendChild(b);
   });
@@ -3804,6 +3820,7 @@ function applyAppointment(row){
   if(a.make) APP.make=a.make;
   if(a.model) APP.model=a.model;
   if(a.trim) APP.trim=a.trim;
+  if(a.km) APP.km=a.km;
   if(a.seller){
     APP.inviteName=a.seller;
     const parts=a.seller.split(/\s+/);
@@ -3836,14 +3853,17 @@ function paintWorkbench(){
   const ymm=[APP.year,APP.make,APP.model,APP.trim].filter(Boolean).join(" ") || (APP.newApplication || APP.apptId==="new" ? "New application" : "Vehicle");
   if($("wbKicker")) $("wbKicker").textContent="Consumer Acquisition · "+(APP.leadSource||"");
   if($("wbYmm")) $("wbYmm").textContent=ymm;
-  if($("wbSeller")) $("wbSeller").textContent=(APP.apptSeller||APP.inviteName||"Seller")+(APP.cdApp?" · "+APP.cdApp:"");
+  const picked=(APP.apptItems||[]).filter(function(r){ return r.id===APP.apptId; })[0];
+  const kmTxt=apptKmText({ km: APP.km || (picked && picked.km) || "" });
+  if($("wbSeller")) $("wbSeller").textContent=(APP.apptSeller||APP.inviteName||"Seller")+(APP.cdApp?" · "+APP.cdApp:"")+(kmTxt?" · "+kmTxt:"");
   const chips=$("wbChips");
   if(chips){
     const bits=[
+      kmTxt,
       APP.vin && APP.vin.length>=8 ? "VIN "+APP.vin : "",
       APP.cdApp ? "App "+APP.cdApp : "",
       APP.apptRegion||"",
-      (APP.apptItems||[]).filter(function(r){ return r.id===APP.apptId; })[0] && (APP.apptItems||[]).filter(function(r){ return r.id===APP.apptId; })[0].date
+      picked && picked.date
     ].filter(Boolean);
     chips.innerHTML=bits.map(function(b){ return '<span class="wb-chip">'+escHtml(b)+"</span>"; }).join("");
   }

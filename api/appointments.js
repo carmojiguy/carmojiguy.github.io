@@ -41,6 +41,7 @@ const F = {
   make: "fld1c2w8nYxMcZdlo",
   model: "fldm6HZP0gRt6cOlc",
   trim: "flduWS4Ja0Ghj7Dho",
+  km: "fld1ReQkIiObeuXr9",
   location: "fld7VUCC2ML89bMME",
   stage: "fldTyRUrsJS9ffZ3Z",
   source: "fldPIGZz38Fd4X5I8"
@@ -76,6 +77,14 @@ function cellName(v) {
   return String(v).trim();
 }
 
+function normalizeKm(v) {
+  if (v == null || v === "") return "";
+  const raw = typeof v === "object" ? cellName(v) : String(v);
+  const n = Number(raw.replace(/,/g, "").replace(/\s*k(m|ilomet(?:er|re)s?)\.?$/i, "").trim());
+  if (!n || !isFinite(n)) return "";
+  return String(Math.round(n));
+}
+
 function apptRegion(v) {
   const s = cellName(v).toUpperCase();
   if (s.indexOf("GTA") >= 0) return "GTA";
@@ -108,6 +117,7 @@ function mapRecord(rec) {
     trim: cellName(f[F.trim]),
     seller: cellName(f[F.seller]),
     vin: cellName(f[F.vin]),
+    km: normalizeKm(f[F.km] != null ? f[F.km] : (f.km || f.kms)),
     date: pickDate(f),
     region: apptRegion(f[F.location]),
     source: cellName(f[F.source]),
@@ -148,7 +158,7 @@ async function airtablePage(offset, sourceName) {
   q.set("pageSize", "100");
   [
     F.appNo, F.apptDate, F.bookedAt, F.seller, F.vin, F.ymm, F.ymmFormula,
-    F.year, F.make, F.model, F.trim, F.location, F.stage
+    F.year, F.make, F.model, F.trim, F.km, F.location, F.stage
   ].forEach(function (id) { q.append("fields[]", id); });
   if (offset) q.set("offset", offset);
   const r = await fetch("https://api.airtable.com/v0/" + BASE + "/" + TABLE + "?" + q.toString(), {
@@ -229,6 +239,7 @@ function parseTrackerMatrix(values, region, via) {
   const sellerI = colOf(headers, ["seller name", "seller"]);
   const dateI = colOf(headers, ["appt. date", "appt date", "appointment date"]);
   const vinI = colOf(headers, ["vin"]);
+  const kmI = colOf(headers, ["kms", "kilometres", "kilometers", "odometer", "odometre", "mileage", "km"]);
   const cityI = colOf(headers, ["seller city", "city"]);
   const phoneI = colOf(headers, ["seller phone", "phone"]);
   const statusI = colOf(headers, ["appointment status", "status"]);
@@ -244,6 +255,7 @@ function parseTrackerMatrix(values, region, via) {
       ymm: ymm,
       seller: String(row[sellerI] || "").trim(),
       vin: String(row[vinI] || "").replace(/\s+/g, "").toUpperCase(),
+      km: kmI >= 0 ? normalizeKm(row[kmI]) : "",
       date: excelSerialDate(row[dateI]),
       city: String(row[cityI] || "").trim(),
       phone: String(row[phoneI] || "").trim(),
@@ -288,8 +300,11 @@ function mergeAppointmentRows(a, b) {
         out[i] = Object.assign({}, cur, {
           vin: row.vin,
           ymm: cur.ymm || row.ymm,
-          seller: cur.seller || row.seller
+          seller: cur.seller || row.seller,
+          km: cur.km || row.km
         });
+      } else if (!cur.km && row.km) {
+        out[i] = Object.assign({}, cur, { km: row.km });
       }
       return;
     }
@@ -443,3 +458,5 @@ module.exports.needleOf = needleOf;
 module.exports.isoMonthName = isoMonthName;
 module.exports.inTrackerRegion = inTrackerRegion;
 module.exports.mergeAppointmentRows = mergeAppointmentRows;
+module.exports.mapRecord = mapRecord;
+module.exports.normalizeKm = normalizeKm;
