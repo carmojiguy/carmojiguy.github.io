@@ -26,21 +26,27 @@ function sliceFn(name, next) {
 
 must(/function finishGuest\(\)\{\s*finishThanks\(\);/, "Thank-you stays frozen");
 must(/<!--[\s\S]*Thank-you frozen/, "Thank-you stays frozen in the stamp");
-must(/<!--[\s\S]*Users UI quiet CA chrome/, "stamp names Users quiet chrome");
+must(/<!--[\s\S]*Users UI cream\/slate Control chrome/, "stamp names Users cream/slate chrome");
+must(/<!--[\s\S]*HOLD #33\/#46/, "HOLD #33/#46 stays");
 must(/<!--[\s\S]*staff defaultPerms all sections On except admin\/Users/, "stamp names staff defaultPerms");
 must(/id:"admin", label:"Admin", deny:"Only Shawn or an admin can open Users\."/, "Users maps to PERM_KEYS id admin");
 must(/lockDockBtn\("startUsers", canOpenUsers\(\), "admin"\)/, "Users dock button is gated by admin");
 must(/function canOpenUsers\(\)\{\s*return APP\.role==="employee" && \(canPerm\("admin"\) \|\| isTeamLeader\(\)\);/, "opening Users reads admin (or team leader)");
 must(/function staffPerms\(\)\{ return \{trade:true, appraise:true, website:true, center:true, admin:false, ca:true\}; \}/, "staffPerms is every section On except Users/admin");
 must(/function defaultPerms\(email\)\{\s*const e=shawnAlias\(email\);\s*if\(e==="shawn@myloan.ca"\) return allPermsOn\(\);\s*return staffPerms\(\);\s*\}/, "unspecified people use staffPerms");
-must(/#users \{\s*background:#F5F6F8;/, "Users page is Center-bright gray, not cream");
-must(/#users \.users-chip\.on \{ background:#111318;/, "Users filter chips are quiet ink, not loud gradient pills");
-must(/#users \.users-kicker, #userSheet \.users-kicker \{[\s\S]*?color:#1D4ED8/, "Users kicker matches CA blue");
-must(/\.perm-tog\.on \{ background:#111318;/, "section toggles On are quiet chrome");
-must(/\.team-pick-btn\.on \{ background:#111318;/, "team picks On are quiet chrome");
-must(/const hue="#111318";/, "person avatars are charcoal, not rainbow");
+must(/#users \{\s*background:#F5F3ED;/, "Users page is Control cream, not Center gray");
+must(/#users \{[\s\S]{0,180}--ink:#1C1B19; --muted:#6B655C/, "Users tokens match Control charcoal/muted");
+must(/#users \.users-chip\.on \{ background:#3E5C54;/, "Users filter chips are slate, not ink black");
+must(/#users \.users-kicker, #userSheet \.users-kicker, #userAddSheet \.users-kicker \{[\s\S]*?color:#3E5C54/, "Users kicker matches Control slate");
+must(/\.perm-tog\.on \{ background:#3E5C54;/, "section toggles On are slate");
+must(/\.team-pick-btn\.on \{ background:#3E5C54;/, "team picks On are slate");
+must(/\.role-tog button\.on \{ background:#3E5C54;/, "role picks On are slate");
+must(/const hue="#3E5C54";/, "person avatars are slate, not rainbow");
+must(/\.person-ava \{[\s\S]{0,220}background:#3E5C54/, "avatar fallback paint is slate");
 mustNot(/#users \{ background:linear-gradient\(180deg,#FFF8E8/, "Users muddy cream gradient is gone");
-mustNot(/#users \.users-kicker \{[\s\S]{0,160}color:#E08A00/, "Users orange kicker is gone");
+mustNot(/#users \.users-kicker[\s\S]{0,80}color:#E08A00/, "Users orange kicker is gone");
+mustNot(/#users \.users-chip\.on \{ background:#111318;/, "Users selected chips are not ink black");
+mustNot(/#users \{[\s\S]{0,80}background:#F5F6F8/, "Users is not Center-bright gray");
 must(/#center\.screen \{[\s\S]{0,220}background:#F5F6F8/, "Acre Center page color is unchanged");
 must(/\.users-chip\.on \{ background:linear-gradient\(135deg,#7C5CFF,#00A4E2\); color:#fff; \}/, "Center team chips keep their existing selected paint");
 
