@@ -174,6 +174,78 @@ assert.deepStrictEqual(
   );
 })();
 
+must(/id="acqDrawerToggle"/, "Acquisitions toggle sits beside Canada Drives");
+must(/id="acqDrawerBody"/, "Acquisitions kanban uses the same left drawer");
+must(/function toggleAcqDrawer\(/, "Acquisitions opens and closes like Canada Drives");
+must(/function paintAcqBoard\(/, "Acquisitions paints a Kanban board");
+must(/Showing the last 30 days — search to find older records/, "30-day header note");
+must(/Pending Decision/, "Pending Decision column");
+must(/Follow-up/, "Follow-up column");
+must(/Purchased/, "Purchased column");
+must(/Pending Close Out/, "Pending Close Out column");
+must(/Closed Out/, "Closed Out column");
+must(/Stocked In/, "Stocked In column");
+must(/Payment Complete/, "Payment Complete column");
+must(/Archived/, "Archived column");
+must(/view=board/, "mailer board view for live acquisition stages");
+must(/class="acq-drawer-toggle"/, "Acquisitions control is a quiet drawer button, not a loud pill");
+mustNot(/id="acqDrawerToggle"[^>]*class="[^"]*pill/, "Acquisitions toggle is not a colored pill");
+must(/#center \.acre-desk\{[\s\S]{0,220}grid-template-areas:"hero mid market"/, "Acre desk stays hero|mid|market");
+must(/function finishGuest\(\)\{\s*finishThanks\(\);/, "Thank-you stays frozen");
+
+assert.strictEqual(api.mapBoardColumn("Pending Decision"), "pending-decision", "Pending Decision maps");
+assert.strictEqual(api.mapBoardColumn("Follow-up"), "follow-up", "Follow-up maps");
+assert.strictEqual(api.mapBoardColumn("Purchased"), "purchased", "Purchased maps");
+assert.strictEqual(api.mapBoardColumn("Pending Close Out"), "pending-close", "Pending Close Out maps");
+assert.strictEqual(api.mapBoardColumn("Closed Out"), "closed-out", "Closed Out maps");
+assert.strictEqual(api.mapBoardColumn("Stocked In"), "stocked-in", "Stocked In maps");
+assert.strictEqual(api.mapBoardColumn("Payment Complete"), "payment", "Payment Complete maps");
+assert.strictEqual(api.mapBoardColumn("Archived"), "archived", "Archived maps");
+assert.strictEqual(api.mapBoardColumn("Appointment Booked"), "", "booked appointments stay off the Kanban");
+assert.strictEqual(api.BOARD_COLUMNS.length, 8, "eight Kanban columns");
+assert.deepStrictEqual(api.BOARD_COLUMNS.map(function (c) { return c.target; }), [23, 2, 0, 1, 0, 5, 27, 22], "Shawn target counts");
+const atlas = api.mapBoardRecord({
+  id: "rec-atlas",
+  createdTime: "2026-09-15T12:00:00.000Z",
+  fields: {
+    flds1XRKp8DKl6zaS: "APP-0003349831",
+    fld7T0bVJ3z6ndPbi: "2024 Volkswagen Atlas Cross Sport Comfortline",
+    fldFLTbpXZAQ5RiOr: "1V2AT2CA6RC255025",
+    fldTyRUrsJS9ffZ3Z: { name: "Pending Decision" },
+    Agent: { email: "shayne.upper@example.com", name: "Shayne Upper" }
+  }
+});
+assert.strictEqual(atlas.column, "pending-decision", "Atlas lands in Pending Decision");
+assert.strictEqual(atlas.appNo, "APP-0003349831", "board card keeps APP id");
+assert.strictEqual(atlas.ymm, "2024 Volkswagen Atlas Cross Sport Comfortline", "board card keeps YMM");
+assert.strictEqual(atlas.vin, "1V2AT2CA6RC255025", "board card keeps VIN");
+assert.strictEqual(atlas.assignee, "shayne.upper", "collaborator email becomes assignee handle");
+
+(function testAcqCardHtml() {
+  const fn = html.match(/function acqCardHtml\(row\)\{[\s\S]*?\n\}/);
+  assert.ok(fn, "acq card helper extractable");
+  function escHtml(s) { return String(s == null ? "" : s); }
+  const ACQ_COLUMNS = [
+    { id: "pending-decision", label: "Pending Decision", color: "#22C55E", target: 23 }
+  ];
+  const acqAgeText = function (days) { return (Number(days) || 0) + "d"; };
+  const acqCardHtml = eval("(" + fn[0].replace(/^function acqCardHtml/, "function") + ")");
+  const card = acqCardHtml({
+    id: "rec-atlas",
+    column: "pending-decision",
+    appNo: "APP-0003349831",
+    ymm: "2024 Volkswagen Atlas Cross Sport Comfortline",
+    vin: "1V2AT2CA6RC255025",
+    assignee: "Shayne.upper",
+    ageDays: 0
+  });
+  assert.ok(card.indexOf("APP-0003349831") >= 0, "card shows APP id");
+  assert.ok(card.indexOf("2024 Volkswagen Atlas Cross Sport Comfortline") >= 0, "card shows YMM bold");
+  assert.ok(card.indexOf("1V2AT2CA6RC255025") >= 0, "card shows VIN");
+  assert.ok(card.indexOf("Shayne.upper") >= 0, "card shows assignee");
+  assert.ok(/0d/.test(card), "card shows age in days");
+})();
+
 const share = slice("async function sharePacket(){", "\nfunction resetAll()");
 const kick = slice("function kickShare(){", "\nfunction packetSendId(");
 const send = slice("async function sendFromMe(", "\nfunction openEml(");

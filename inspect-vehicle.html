@@ -924,6 +924,7 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
 }
 #center.screen.ca-on{ grid-template-columns:minmax(280px,340px) 76px minmax(0,1fr); }
 #center.screen.ca-on.ca-collapsed{ grid-template-columns:48px 76px minmax(0,1fr); }
+#center.screen.ca-on.acq-on{ grid-template-columns:minmax(0,1fr) 76px minmax(220px,30vw); }
 #center.screen.ca-on .ca-drawer{ display:flex; grid-column:1; grid-row:2 / 4; }
 #center.screen.ca-on #centerLanes.center-rail, #center.screen.ca-on .center-lanes.center-rail{ grid-column:2; }
 #center.screen.ca-on #centerDetailBody, #center.screen.ca-on #centerDock{ grid-column:3; }
@@ -932,16 +933,55 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
   width:36px; height:36px; min-width:36px; border:0; border-radius:12px; cursor:pointer;
   background:#111318; color:#fff; font-size:18px; font-weight:800; line-height:1;
 }
+.acq-drawer-toggle{
+  width:auto; min-width:36px; height:36px; padding:0 10px; margin:0;
+  border:1px solid #D0D5DD; border-radius:12px; cursor:pointer;
+  background:#fff; color:#344054; font-size:11px; font-weight:800; letter-spacing:.02em;
+  box-shadow:none;
+}
+.acq-drawer-toggle.on{ background:#111318; color:#fff; border-color:#111318; }
 .ca-drawer-title{ min-width:0; flex:1; }
 .ca-drawer-title .wb-kicker{ margin:0; font-size:10px; letter-spacing:.12em; }
 .ca-drawer-title b{ display:block; font-size:15px; letter-spacing:-.3px; color:#111318; }
 .ca-drawer-body{ flex:1; min-height:0; overflow:auto; padding:0 10px 16px; -webkit-overflow-scrolling:touch; }
 #center.screen.ca-collapsed .ca-drawer-body, #center.screen.ca-collapsed .ca-drawer-title{ display:none; }
-#center.screen.ca-collapsed .ca-drawer-head{ justify-content:center; padding:10px 6px; }
+#center.screen.ca-collapsed .ca-drawer-head{ flex-direction:column; justify-content:flex-start; padding:10px 6px; gap:8px; }
+#center.screen.ca-collapsed .acq-drawer-toggle{
+  width:36px; height:auto; min-height:64px; padding:8px 4px;
+  writing-mode:vertical-rl; text-orientation:mixed; font-size:10px; letter-spacing:.08em;
+}
 .ca-drawer .appt-toolbar{ padding:10px; margin:0 0 10px; border-radius:16px; gap:8px; }
 .ca-drawer .appt-search input{ min-height:44px; font-size:15px; }
 .ca-drawer .appt-row{ min-height:76px; margin:0 0 8px; }
 .ca-drawer .wb-pick-desk .wb-hero, .ca-drawer .wb-hero{ display:none; }
+.acq-note{ margin:0 0 12px; color:#6B7380; font-size:12px; font-weight:600; }
+.acq-search{ width:100%; min-height:40px; border:1px solid #E4E7EC; border-radius:12px; padding:8px 12px; font-size:14px; font-weight:700; background:#fff; color:#111318; margin:0 0 12px; }
+.acq-board{ display:flex; gap:12px; align-items:stretch; min-height:0; overflow:auto; padding-bottom:8px; }
+.acq-col{ flex:0 0 220px; min-width:200px; display:flex; flex-direction:column; min-height:0; }
+.acq-col-head{ display:flex; align-items:center; gap:8px; padding:0 2px 8px; border-bottom:2px solid #E4E7EC; margin:0 0 10px; }
+.acq-col-head i{ width:8px; height:8px; border-radius:50%; flex:0 0 8px; }
+.acq-col-head b{ flex:1; font-size:13px; font-weight:800; color:#4B5563; letter-spacing:-.1px; }
+.acq-col-head span{ font-size:13px; font-weight:800; color:#6B7280; }
+.acq-col[data-acq-col="pending-decision"] .acq-col-head{ border-bottom-color:#22C55E; }
+.acq-col[data-acq-col="follow-up"] .acq-col-head{ border-bottom-color:#F97316; }
+.acq-col[data-acq-col="purchased"] .acq-col-head{ border-bottom-color:#A855F7; }
+.acq-col[data-acq-col="pending-close"] .acq-col-head{ border-bottom-color:#EF4444; }
+.acq-col[data-acq-col="closed-out"] .acq-col-head{ border-bottom-color:#B45309; }
+.acq-col[data-acq-col="stocked-in"] .acq-col-head{ border-bottom-color:#16A34A; }
+.acq-col[data-acq-col="payment"] .acq-col-head{ border-bottom-color:#15803D; }
+.acq-col[data-acq-col="archived"] .acq-col-head{ border-bottom-color:#6B7280; }
+.acq-empty{ color:#9CA3AF; font-size:13px; font-weight:600; padding:8px 4px; }
+.acq-card{
+  display:block; width:100%; text-align:left; border:1px solid #EEF0F3; border-radius:14px;
+  background:#fff; padding:10px 12px 10px 14px; margin:0 0 8px; cursor:pointer;
+  box-shadow:0 1px 2px rgba(17,19,24,.04); position:relative; overflow:hidden;
+  font:inherit; color:#111318;
+}
+.acq-card::before{ content:""; position:absolute; left:0; top:0; bottom:0; width:4px; background:currentColor; }
+.acq-card .acq-app{ display:block; font-size:11px; font-weight:700; color:#9CA3AF; margin:0 0 2px; }
+.acq-card .acq-ymm{ display:block; font-size:14px; font-weight:800; letter-spacing:-.2px; line-height:1.25; margin:0 0 4px; }
+.acq-card .acq-vin{ display:block; font-size:11px; font-weight:700; color:#9CA3AF; letter-spacing:.02em; }
+.acq-card .acq-meta{ display:flex; justify-content:space-between; gap:8px; margin-top:8px; font-size:12px; font-weight:700; color:#6B7280; }
 @media (max-width:767px){
   #center.screen.ca-on{ grid-template-columns:76px minmax(0,1fr); }
   #center.screen.ca-on #centerLanes.center-rail{ grid-column:1; }
@@ -951,6 +991,7 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
     grid-column:auto; grid-row:auto; padding-top:env(safe-area-inset-top);
     box-shadow:16px 0 40px rgba(17,19,24,.18);
   }
+  #center.screen.ca-on.acq-on .ca-drawer{ width:min(100vw,100%); }
   #center.screen.ca-on.ca-collapsed .ca-drawer{
     left:76px; top:calc(52px + env(safe-area-inset-top)); width:auto; height:auto; bottom:auto;
     background:transparent; border:0; box-shadow:none; padding-top:0;
@@ -959,6 +1000,7 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
     background:#111318; border-radius:0 12px 12px 0; padding:8px;
   }
   #center.screen.ca-on.ca-collapsed .ca-drawer-toggle{ background:#111318; }
+  #center.screen.ca-on.ca-collapsed .acq-drawer-toggle{ background:#fff; color:#111318; }
 }
 .lane-pill .nag {
   position:absolute; top:8px; right:8px; min-width:18px; height:18px; padding:0 5px;
@@ -2052,13 +2094,14 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
   </div>
   <aside id="caDrawer" class="ca-drawer hide" aria-label="Canada Drives appointments">
     <div class="ca-drawer-head">
-      <button type="button" class="ca-drawer-toggle" id="caDrawerToggle" aria-expanded="true" aria-controls="caDrawerBody" title="Collapse booked list">‹</button>
-      <div class="ca-drawer-title">
+      <button type="button" class="ca-drawer-toggle" id="caDrawerToggle" aria-expanded="false" aria-controls="caDrawerBody" title="Open Canada Drives appointments">›</button>
+      <button type="button" class="acq-drawer-toggle" id="acqDrawerToggle" aria-expanded="false" aria-controls="acqDrawerBody" title="Open Acquisitions">Acquisitions</button>
+      <div class="ca-drawer-title" id="caDrawerTitle">
         <p class="wb-kicker" id="wbPickKicker">Canada Drives</p>
-        <b>Booked vehicles</b>
+        <b id="caDrawerTitleLabel">Booked vehicles</b>
       </div>
     </div>
-    <div class="ca-drawer-body" id="caDrawerBody">
+    <div class="ca-drawer-body hide" id="caDrawerBody">
       <div id="apptWrap" class="appt-wrap">
         <div class="appt-toolbar" id="apptToolbar">
           <label class="appt-search" for="apptSearch">
@@ -2104,6 +2147,12 @@ body.center-locked #centerRunTeam, body.center-locked #centerRunTeamWrap { point
         <p class="need hide" id="apptLiveNote"></p>
         <div id="apptList"></div>
       </div>
+    </div>
+    <div class="ca-drawer-body hide" id="acqDrawerBody">
+      <p class="acq-note" id="acqNote">Showing the last 30 days — search to find older records.</p>
+      <input class="acq-search" id="acqSearch" type="search" inputmode="search" autocomplete="off" placeholder="Search app #, VIN, vehicle, or assignee" />
+      <p class="need hide" id="acqLiveNote"></p>
+      <div class="acq-board" id="acqBoard"></div>
     </div>
   </aside>
   <div class="center-lanes center-rail" id="centerLanes">
@@ -2999,7 +3048,7 @@ window.APP = {
   centerHistory:false, centerLane:"", centerQuery:"", centerRange:"all", centerYear:new Date().getFullYear(),
   centerShots:[], centerGalleryOn:false, lockedFromAirtable:false, deskTeam:"", userFilter:"all", userEdit:"",
   apptId:"", apptSeller:"", apptRegion:"GTA", apptRange:"month", apptMonth:"", apptItems:[],
-  apptSearch:"", newApplication:false, newAppOpen:false, caDrawerCollapsed:false
+  apptSearch:"", newApplication:false, newAppOpen:false, caDrawerCollapsed:true, caPane:"none", acqItems:[], acqSearch:"", acqLive:false
 };
 
 function $(id){ return document.getElementById(id); }
@@ -3874,25 +3923,169 @@ function paintAppointments(){
 function caDrawerWanted(){
   return APP.role!=="guest" && !isWeb() && isConsumerAcquisition() && usesCaAppointments() && !APP.newAppOpen;
 }
+function leftRailWanted(){
+  if(APP.role==="guest" || (typeof isWeb==="function" && isWeb())) return false;
+  if(APP.screen==="center") return true;
+  return caDrawerWanted();
+}
+function caPane(){
+  return APP.caPane || (APP.caDrawerCollapsed ? "none" : "cd");
+}
 function syncCaDrawer(){
   const drawer=$("caDrawer"), center=$("center");
-  const on=caDrawerWanted();
-  const collapsed=!!APP.caDrawerCollapsed;
-  if(drawer) drawer.classList.toggle("hide", !on);
+  const rail=leftRailWanted() && APP.screen==="center";
+  const pane=rail ? caPane() : "none";
+  const cd=pane==="cd";
+  const acq=pane==="acq";
+  const collapsed=pane==="none";
+  if(drawer) drawer.classList.toggle("hide", !rail);
   if(center){
-    center.classList.toggle("ca-on", on && APP.screen==="center");
-    center.classList.toggle("ca-collapsed", on && APP.screen==="center" && collapsed);
+    center.classList.toggle("ca-on", rail);
+    center.classList.toggle("ca-collapsed", rail && collapsed);
+    center.classList.toggle("acq-on", rail && acq);
   }
   const tog=$("caDrawerToggle");
   if(tog){
-    tog.setAttribute("aria-expanded", on && !collapsed ? "true" : "false");
-    tog.textContent=collapsed?"›":"‹";
-    tog.title=collapsed?"Open booked list":"Collapse booked list";
+    tog.setAttribute("aria-expanded", cd?"true":"false");
+    tog.textContent=cd?"‹":"›";
+    tog.title=cd?"Collapse booked list":"Open Canada Drives appointments";
   }
+  const acqBtn=$("acqDrawerToggle");
+  if(acqBtn){
+    acqBtn.classList.toggle("on", acq);
+    acqBtn.setAttribute("aria-expanded", acq?"true":"false");
+    acqBtn.title=acq?"Close Acquisitions":"Open Acquisitions";
+  }
+  if($("caDrawerBody")) $("caDrawerBody").classList.toggle("hide", !cd);
+  if($("acqDrawerBody")) $("acqDrawerBody").classList.toggle("hide", !acq);
+  if($("caDrawerTitle")) $("caDrawerTitle").classList.toggle("hide", collapsed);
+  if($("caDrawerTitleLabel")) $("caDrawerTitleLabel").textContent=acq?"Kanban":"Booked vehicles";
+  if($("wbPickKicker") && $("wbPickKicker")!==document.activeElement){
+    $("wbPickKicker").textContent=acq?"Consumer Acquisition":(APP.leadSource||"Canada Drives");
+  }
+  APP.caDrawerCollapsed=!cd;
+  if(cd && typeof paintAppointments==="function") paintAppointments();
+  if(acq && typeof paintAcqBoard==="function") paintAcqBoard();
 }
 function toggleCaDrawer(){
-  APP.caDrawerCollapsed=!APP.caDrawerCollapsed;
+  APP.caPane=caPane()==="cd"?"none":"cd";
+  APP.caDrawerCollapsed=APP.caPane!=="cd";
+  if(APP.caPane==="cd"){
+    APP.dealType=APP.dealType||"Consumer Acquisition";
+    if(!APP.leadSource) APP.leadSource="Canada Drives";
+    if(!APP.apptItems || !APP.apptItems.length) queueLoadAppointments(true);
+  }
   syncCaDrawer();
+}
+function toggleAcqDrawer(){
+  APP.caPane=caPane()==="acq"?"none":"acq";
+  APP.caDrawerCollapsed=true;
+  if(APP.caPane==="acq") queueLoadAcqBoard();
+  syncCaDrawer();
+}
+function closeAcqDrawer(){
+  if(caPane()==="acq") APP.caPane="none";
+  syncCaDrawer();
+}
+const ACQ_COLUMNS=[
+  { id:"pending-decision", label:"Pending Decision", color:"#22C55E", target:23 },
+  { id:"follow-up", label:"Follow-up", color:"#F97316", target:2 },
+  { id:"purchased", label:"Purchased", color:"#A855F7", target:0 },
+  { id:"pending-close", label:"Pending Close Out", color:"#EF4444", target:1 },
+  { id:"closed-out", label:"Closed Out", color:"#B45309", target:0 },
+  { id:"stocked-in", label:"Stocked In", color:"#16A34A", target:5 },
+  { id:"payment", label:"Payment Complete", color:"#15803D", target:27 },
+  { id:"archived", label:"Archived", color:"#6B7280", target:22 }
+];
+function acqColumnOf(stage){
+  const s=String(stage||"").toLowerCase().replace(/[_/]+/g," ").replace(/\s+/g," ").trim();
+  if(!s) return "";
+  if(/archiv/.test(s)) return "archived";
+  if(/payment/.test(s)) return "payment";
+  if(/stocked/.test(s)) return "stocked-in";
+  if(/closed\s*out/.test(s) || s==="closed") return "closed-out";
+  if(/pending\s*close|close\s*out/.test(s)) return "pending-close";
+  if(/purchased|bought/.test(s)) return "purchased";
+  if(/follow/.test(s)) return "follow-up";
+  if(/pending\s*decision|\bdecision\b/.test(s)) return "pending-decision";
+  return "";
+}
+function acqAgeText(days){
+  const n=Math.max(0, Number(days)||0);
+  return n+"d";
+}
+function acqCardHtml(row){
+  const col=ACQ_COLUMNS.filter(function(c){ return c.id===row.column; })[0];
+  const color=(col && col.color)||"#6B7280";
+  return '<button type="button" class="acq-card" data-acq-id="'+escHtml(row.id||"")+'" style="color:'+color+'"><span class="acq-app">'+escHtml(row.appNo||"Application")+'</span><b class="acq-ymm">'+escHtml(row.ymm||"Vehicle")+"</b><span class=\"acq-vin\">"+escHtml(row.vin||"")+'</span><span class="acq-meta"><i>'+escHtml(row.assignee||"Unclaimed")+"</i><i>"+escHtml(acqAgeText(row.ageDays))+"</i></span></button>";
+}
+function paintAcqBoard(){
+  const host=$("acqBoard");
+  if(!host) return;
+  if($("acqSearch") && $("acqSearch")!==document.activeElement) $("acqSearch").value=APP.acqSearch||"";
+  const note=$("acqLiveNote");
+  if(note){
+    note.textContent=APP.acqLive?"":(APP.acqLiveNote||"");
+    note.classList.toggle("hide", !note.textContent);
+  }
+  const q=String(($("acqSearch") && $("acqSearch").value) || APP.acqSearch || "").trim().toUpperCase().replace(/[^A-Z0-9]/g,"");
+  const items=(APP.acqItems||[]).filter(function(row){
+    if(!q) return true;
+    const blob=[row.appNo,row.vin,row.ymm,row.assignee].join(" ").toUpperCase().replace(/[^A-Z0-9]/g,"");
+    return blob.indexOf(q)>=0;
+  });
+  const anyLive=!!(APP.acqLive && (APP.acqItems||[]).length);
+  host.innerHTML=ACQ_COLUMNS.map(function(col){
+    const rows=items.filter(function(r){ return r.column===col.id; });
+    const count=anyLive?rows.length:col.target;
+    const cards=rows.length
+      ? rows.map(acqCardHtml).join("")
+      : '<p class="acq-empty">Empty</p>';
+    return '<div class="acq-col" data-acq-col="'+col.id+'"><div class="acq-col-head"><i style="background:'+col.color+'"></i><b>'+escHtml(col.label)+"</b><span>"+count+"</span></div>"+cards+"</div>";
+  }).join("");
+  host.querySelectorAll("[data-acq-id]").forEach(function(b){
+    b.onclick=function(){ openAcqCard(b.getAttribute("data-acq-id")); };
+  });
+}
+function openAcqCard(id){
+  const row=(APP.acqItems||[]).filter(function(r){ return r.id===id; })[0];
+  if(!row) return;
+  if(row.appNo) APP.cdApp=row.appNo;
+  if(row.vin) APP.vin=row.vin;
+  if(typeof fillUnit==="function") fillUnit();
+  const hit=typeof findCenterForAppt==="function" ? findCenterForAppt(row) : null;
+  if(hit && typeof openCenterDetail==="function") openCenterDetail(hit.id);
+  else toast((row.ymm||"Vehicle")+" · "+(row.appNo||""));
+}
+var _acqLoadSeq=0,_acqLoadTimer=0;
+function queueLoadAcqBoard(){
+  if(_acqLoadTimer){ clearTimeout(_acqLoadTimer); _acqLoadTimer=0; }
+  _acqLoadTimer=setTimeout(function(){
+    _acqLoadTimer=0;
+    const seq=++_acqLoadSeq;
+    const q=String(($("acqSearch") && $("acqSearch").value) || APP.acqSearch || "").trim();
+    let path=(typeof MAIL_HOST==="string"?MAIL_HOST:"")+APPTS_AIRTABLE.path+"?view=board";
+    if(q) path+="&q="+encodeURIComponent(q);
+    fetch(path, {cache:"no-store"}).then(function(r){ return r && r.ok ? r.json() : null; }).then(function(j){
+      if(seq!==_acqLoadSeq) return;
+      if(j && j.ok && j.view==="board" && Array.isArray(j.items)){
+        APP.acqLive=!!j.live;
+        APP.acqLiveNote=j.live?"":(j.reason||"");
+        APP.acqItems=j.items;
+      } else {
+        APP.acqLive=false;
+        APP.acqLiveNote=(j && j.reason)||"Couldn’t load Acquisitions.";
+        APP.acqItems=APP.acqItems||[];
+      }
+      paintAcqBoard();
+    }).catch(function(){
+      if(seq!==_acqLoadSeq) return;
+      APP.acqLive=false;
+      APP.acqLiveNote="Couldn’t load Acquisitions.";
+      APP.acqItems=APP.acqItems||[];
+      paintAcqBoard();
+    });
+  }, 80);
 }
 function findCenterForAppt(a){
   if(!a || typeof loadCenter!=="function") return null;
@@ -3908,6 +4101,7 @@ function openAppointments(){
   if(!usesCaAppointments()){ openNewApplicationDesk(); return; }
   APP.newAppOpen=false;
   APP.caDrawerCollapsed=false;
+  APP.caPane="cd";
   if($("typeSheet")) $("typeSheet").classList.remove("on");
   if($("apptWrap")) $("apptWrap").classList.remove("hide");
   if(typeof canUseCenter==="function" && canUseCenter()){
@@ -3961,7 +4155,7 @@ function applyAppointment(row){
   paintWorkbench();
   if(typeof canUseCenter==="function" && canUseCenter()){
     if(APP.screen!=="center") show("center");
-    if(!centerSplitLayout()) APP.caDrawerCollapsed=true;
+    if(!centerSplitLayout()){ APP.caDrawerCollapsed=true; APP.caPane="none"; }
     syncCaDrawer();
     const hit=findCenterForAppt(a);
     if(hit && typeof openCenterDetail==="function") openCenterDetail(hit.id);
@@ -4176,7 +4370,7 @@ function show(id){
   if(id==="camera") startPreview("shotCam");
   if(id==="submit") paintSubmit();
   if(id==="users") paintUsers();
-  if(id==="center"){ paintCenter(); paintCenterDetail(); }
+  if(id==="center"){ paintCenter(); paintCenterDetail(); if(typeof syncCaDrawer==="function") syncCaDrawer(); }
   else if(typeof closeCenterGallery==="function") closeCenterGallery();
   if(id!=="login" && id!=="thanks" && id!=="start") scheduleDraftSave();
   if(typeof syncExitChrome==="function") syncExitChrome();
@@ -4234,6 +4428,7 @@ function dismissOpenLayer(){
   if($("tradeSheet") && $("tradeSheet").classList.contains("on")){ closeTradeLane(); return true; }
   if(APP.screen==="center" && APP.centerViewId){ closeCenterDetail(); return true; }
   if(APP.screen==="center" && APP.centerLane){ closeCenterLane(); return true; }
+  if(APP.screen==="center" && typeof caPane==="function" && caPane()==="acq"){ closeAcqDrawer(); return true; }
   return false;
 }
 function pageHome(){
@@ -14842,6 +15037,12 @@ if(window.matchMedia){
   else if(deskMq.addListener) deskMq.addListener(onDeskMq);
 }
 if($("caDrawerToggle")) $("caDrawerToggle").onclick = toggleCaDrawer;
+if($("acqDrawerToggle")) $("acqDrawerToggle").onclick = toggleAcqDrawer;
+if($("acqSearch")) $("acqSearch").addEventListener("input", function(){
+  APP.acqSearch=this.value||"";
+  paintAcqBoard();
+  queueLoadAcqBoard();
+});
 if($("centerInboxBtn")) $("centerInboxBtn").onclick = function(){ openCenterLane("inbox"); };
 if($("centerOnsiteBtn")) $("centerOnsiteBtn").onclick = function(){ openCenterLane("onsite"); };
 if($("centerNeedsBtn")) $("centerNeedsBtn").onclick = function(){ openCenterLane("needsdocs"); };
