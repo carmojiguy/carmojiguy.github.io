@@ -4090,14 +4090,14 @@ function queueLoadAcqBoard(){
         APP.acqItems=j.items;
       } else {
         APP.acqLive=false;
-        APP.acqLiveNote=(j && j.reason)||"Couldn’t load Acquisitions.";
-        APP.acqItems=APP.acqItems||[];
+        APP.acqLiveNote="";
+        APP.acqItems=[];
       }
       paintAcqBoard();
     }).catch(function(){
       if(seq!==_acqLoadSeq) return;
       APP.acqLive=false;
-      APP.acqLiveNote="Couldn’t load Acquisitions.";
+      APP.acqLiveNote="";
       APP.acqItems=APP.acqItems||[];
       paintAcqBoard();
     });
