@@ -40,7 +40,8 @@ must(/if\(!people\.length\)[\s\S]{0,220}localPeople\.length/, "empty remote user
 must(/Object\.keys\(blob\.permissions\)\.length/, "empty remote permissions do not wipe local toggles");
 must(/function mergePermsByEmail\(/, "permissions merge by email");
 must(/skipped:"empty-users"/, "empty-users persist is refused when local has people");
-must(/e==="josh.lefave@gmautosales.ca" \|\| e==="steve.summerall@gmautosales.ca"/, "Josh/Steve defaultPerms are explicit");
+must(/function staffPerms\(\)/, "staff defaultPerms helper exists");
+must(/admin:false, ca:true/, "staff default turns Users/admin off and CA on");
 must(/id:"u-josh"/, "FixerBot seed id u-josh");
 must(/id:"u-steve-s"/, "FixerBot seed id u-steve-s");
 must(/\/staff\/josh\.jpg/, "Josh seed photo path");
@@ -58,16 +59,23 @@ must(/p\.role=seed\.role;/, "Josh/Steve seed role is pinned on restore");
   const allPermsOn = function () {
     return { trade: true, appraise: true, website: true, center: true, admin: true, ca: true };
   };
+  const staffPerms = function () {
+    return { trade: true, appraise: true, website: true, center: true, admin: false, ca: true };
+  };
   const defaultPerms = eval("(" + m[0].replace("function defaultPerms", "function") + ")");
   const josh = defaultPerms("josh.lefave@gmautosales.ca");
   const steve = defaultPerms("steve.summerall@gmautosales.ca");
   assert.strictEqual(josh.website, true, "Josh has website photos");
   assert.strictEqual(josh.center, true, "Josh has Appraisal Center");
   assert.strictEqual(josh.admin, false, "Josh is not admin");
-  assert.strictEqual(josh.appraise, false, "Josh does not get Appraise by default");
+  assert.strictEqual(josh.appraise, true, "Josh gets Appraise by default");
+  assert.strictEqual(josh.ca, true, "Josh gets Consumer Acquisition by default");
+  assert.strictEqual(josh.trade, true, "Josh gets Send trade-in link by default");
   assert.strictEqual(steve.website, true, "Steve has website photos");
   assert.strictEqual(steve.center, true, "Steve has Appraisal Center");
   assert.strictEqual(steve.admin, false, "Steve is not admin");
+  assert.strictEqual(steve.appraise, true, "Steve gets Appraise by default");
+  assert.strictEqual(steve.ca, true, "Steve gets Consumer Acquisition by default");
 })();
 
 (function testApplyDoesNotWipeOnEmptyPerms() {

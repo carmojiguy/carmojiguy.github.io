@@ -599,13 +599,17 @@ must(/inbox:"Incoming"/, "Center lanes stay Incoming / On-site / History");
   const shawnAlias = function (email) {
     return email === "shawn@gmautosales.ca" ? "shawn@myloan.ca" : email;
   };
-  const allPermsOn = function () { return { trade: true, appraise: true, website: true, center: true, admin: true }; };
+  const allPermsOn = function () { return { trade: true, appraise: true, website: true, center: true, admin: true, ca: true }; };
+  const staffPerms = function () { return { trade: true, appraise: true, website: true, center: true, admin: false, ca: true }; };
   const defaultPerms = eval("(" + m[0].replace("function defaultPerms", "function") + ")");
   assert.strictEqual(defaultPerms("shawn@myloan.ca").admin, true, "Shawn is admin");
   assert.strictEqual(defaultPerms("wes@thetrucktown.com").trade, true, "Wes has all dock buttons");
+  assert.strictEqual(defaultPerms("wes@thetrucktown.com").admin, false, "Wes does not get Users/admin by default");
   assert.strictEqual(defaultPerms("ryan@papered.com").center, true, "Ryan keeps Center");
   assert.strictEqual(defaultPerms("ryan@papered.com").appraise, true, "Ryan keeps Appraise");
-  assert.strictEqual(defaultPerms("someone@myloan.ca").center, false, "others start grayed");
+  assert.strictEqual(defaultPerms("ryan@papered.com").admin, false, "Ryan does not get Users by default");
+  assert.strictEqual(defaultPerms("someone@myloan.ca").center, true, "unspecified staff get Center");
+  assert.strictEqual(defaultPerms("someone@myloan.ca").admin, false, "unspecified staff do not get Users");
 })();
 
 assert.ok(fs.existsSync(path.join(root, "api/appointments.js")), "appointments live-wire API exists");

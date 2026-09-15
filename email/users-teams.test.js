@@ -45,7 +45,7 @@ must(/"Team Trucktown Smith Falls"/, "Users + Appraise list Team Trucktown Smith
 must(/"Team Trucktown Rockland"/, "Users + Appraise list Team Trucktown Rockland");
 must(/"josh.lefave@gmautosales.ca":"Josh Lefave"/, "restores Josh Lefave seed spelling");
 must(/"steve.summerall@gmautosales.ca":"Steve Summerall"/, "restores Steve Summerall");
-must(/e==="josh.lefave@gmautosales.ca" \|\| e==="steve.summerall@gmautosales.ca"/, "Josh and Steve default to website + Center");
+must(/function staffPerms\(\)/, "staff default is all sections On except Users/admin");
 must(/id:"u-josh"/, "Josh seed id u-josh");
 must(/id:"u-steve-s"/, "Steve seed id u-steve-s");
 must(/photo:"\/staff\/josh.jpg"/, "Josh seed photo");
