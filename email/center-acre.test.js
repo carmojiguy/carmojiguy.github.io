@@ -15,15 +15,17 @@ function mustNot(re, msg) {
   assert.ok(!re.test(html), msg);
 }
 
-must(/id="startDock"/, "staff start has a bottom dock");
+must(/id="startDock"/, "staff start has a dock");
 must(/id="startAppraise"/, "keeps Appraise vehicle");
 must(/id="startCenter"/, "keeps Appraisal Center");
 must(/id="startWebsite"/, "keeps Post vehicle to website");
 must(/id="startTrade"/, "keeps Send trade-in link");
 must(/id="startUsers"/, "keeps Users");
-must(/#startAppraise, #startCenter, #startWebsite \{ top:auto/, "start pills are not mid-photo");
+must(/#startAppraise \{ top: calc\(env\(safe-area-inset-top/, "mobile Appraise sits on the hero");
+must(/#startCenter \{[\s\S]{0,160}top:50%/, "mobile Center sits mid-photo");
+must(/#startWebsite \{ bottom: calc\(env\(safe-area-inset-bottom/, "mobile Website sits on the hero");
 must(/class="start-dock"/, "start dock wrapper present");
-must(/#start:has\(#startDock:not\(\.hide\)\) \.start-bg/, "staff start photo ends above the thumb dock");
+mustNot(/#start:has\(#startDock:not\(\.hide\)\) \.start-bg/, "staff start photo is no longer cropped above a footer dock");
 must(/z-index:24/, "start thumb dock sits above the hero");
 must(/rel="apple-touch-icon"/, "apple-touch-icon linked");
 must(/ac-v3-apple-180\.png\?v=20260913c/, "apple-touch-icon uses cache-busted brand mark");
