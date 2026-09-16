@@ -25,7 +25,7 @@ function sha(s) {
   return crypto.createHash("sha256").update(s).digest("hex");
 }
 
-must(/<!--[\s\S]*Quiet Studio cool stone #F4F5F7 \+ sage #3D5A4C/, "stamp names Quiet Studio");
+must(/<!--[\s\S]*Snow Signal Lot Desk cutting-edge canvas #F7F8FA \+ steel #2F5B8A/, "stamp names Snow Signal Lot Desk");
 must(/<!--[\s\S]*Paper Desk abandoned/, "Paper Desk abandoned");
 must(/<!--[\s\S]*911 Center click\/nav: #start hides when not \.on/, "start.on guard stays named");
 must(/<!--[\s\S]*Thank-you frozen/, "Thank-you frozen");
@@ -38,14 +38,14 @@ must(/#start\.screen\.start:not\(\.on\) \{[\s\S]{0,80}display:none !important/, 
 must(/#start:not\(\.on\) \.start-dock/, "startDock cannot receive taps when Home is off");
 mustNot(/#start\.screen\.start \{\s*display:block/, "never display:block Home without .on");
 
-must(/#start\.start \{[\s\S]*?background:#F4F5F7/, "Home canvas");
-must(/#center\.screen \{[\s\S]{0,220}background:#F4F5F7/, "Center canvas");
-must(/#users \{\s*background:#F4F5F7;/, "Users canvas");
-must(/\.start-actions \.pill\.purple \{ background:#3D5A4C/, "Appraise sage");
-must(/#center #centerDock\.acre-dock #centerStageBtn \{[\s\S]*?background:#3D5A4C/, "Complete sage");
-must(/#centerLanes \.lane-pill\.inbox \{ background:#EEF0F3/, "Incoming muted status");
-must(/#centerLanes \.lane-pill\.onsite \{ background:#E8F0EB/, "On-site muted status");
-must(/#start \.start-bg,\s*#start \.start-veil \{ display:none !important/, "no car-hero wallpaper on staff Home");
+must(/--qs-canvas:#F7F8FA/, "Home/overlay snow canvas");
+must(/#center\.screen \{[\s\S]{0,220}background:#F7F8FA/, "Center canvas");
+must(/#users \{\s*background:#F7F8FA;/, "Users canvas");
+must(/\.start-actions \.pill\.purple \{ background:#2F5B8A/, "Appraise steel");
+must(/#center #centerDock\.acre-dock #centerStageBtn \{[\s\S]*?background:#2F5B8A/, "Complete steel");
+must(/#centerLanes \.lane-pill\.on,/, "active lane rule");
+must(/background:#2F5B8A!important;color:#fff!important/, "active lane is steel fill");
+must(/#start \.start-bg,#start \.start-veil\{[\s\S]{0,80}opacity:1!important/, "staff Home shows faded car");
 
 mustNot(/--home-cream:#F5F3ED/, "no Paper Desk cream");
 mustNot(/#users \{\s*background:#F5F3ED;/, "Users is not Paper Desk cream");
@@ -72,12 +72,16 @@ assert.equal(sha(share), "89ddee81289962020d2a4277f941f60a93d110d42312da85ad94ea
 assert.equal(sha(kick), "8916eec5374600903af5f69dff305cbc33a4fc168f420d3cc7267e8bb4be9b5f", "kickShare frozen");
 assert.equal(sha(send), "a87ba1cb730ce79683938a05a22d839878d60319f35418efb408cabdcf9a9b49", "sendFromMe frozen");
 
-const loginChrome = slice(".login-hero {\n  position:absolute; left:22px;", ".gbtn {");
-assert.equal(sha(loginChrome), "dd45835ca4c2dd2758f17ce79401708ad0b45ce63b6aa4166ba9a5d50405215c", "login CSS frozen");
+must(/#login \.login-card\{[\s\S]*?backdrop-filter:blur\(22px\)/, "login card is frosted glass");
+must(/#login \.start-bg img\{[\s\S]{0,80}opacity:\.50/, "login car is faded ~50%");
+must(/#login #btnGoogle,#login \.gbtn\{[\s\S]{0,80}background:#2F5B8A/, "Google is steel primary");
+mustNot(/#3D5A4C/, "Quiet Studio sage is gone");
+mustNot(/One car at a time/, "no workbench essay");
+mustNot(/This desk is the workbench/, "no workbench essay copy");
 
 ["404.html", "inspect-vehicle.html"].forEach(function (name) {
   const copy = fs.readFileSync(path.join(root, name), "utf8");
   assert.equal(copy, html, name + " must stay in sync with index.html");
 });
 
-console.log("quiet-studio: ok");
+console.log("snow-signal: ok");

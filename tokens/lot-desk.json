@@ -1,0 +1,118 @@
+{
+  "name": "Snow Signal",
+  "structure": "Lot Desk",
+  "version": "2.1.0",
+  "status": "COLOUR LOCKED \u00b7 CUTTING-EDGE \u00b7 READY for FixerBot",
+  "picked": "Shawn PICKED Snow Signal 2026-09-15 ~10:18pm ET; steered \u201cmake it cutting edge\u201d",
+  "supersedes": [
+    "Lot Desk warm stone (#F3F1EC / #3A4A52 / olive #4A5540)",
+    "Quiet Studio",
+    "Quiet Cream",
+    "concept-a"
+  ],
+  "rejected": {
+    "Quiet Studio": "Shawn HARD REJECT 2026-09-15 ~10:12pm ET \u2014 sparse login no cars; Center empty workbench fluff prose wasted space",
+    "Lot Desk warm stone": "Superseded by Shawn pick Snow Signal ~10:18pm ET \u2014 cool snow canvas + steel blue accent"
+  },
+  "intent": "Lot Desk structure + Snow Signal colour, cutting-edge 2026 ops tool: frosted glass login/home, steel-blue accent only on primary CTA + active lane, dense FIFO Center, no fluff.",
+  "palette": {
+    "canvas": {
+      "hex": "#F7F8FA",
+      "role": "Cool snow page background"
+    },
+    "canvas-deep": {
+      "hex": "#EEF0F3",
+      "role": "Soft alternate canvas / empty grid"
+    },
+    "surface": {
+      "hex": "#FFFFFF",
+      "role": "Card / panel"
+    },
+    "surface-soft": {
+      "hex": "#F9FAFB",
+      "role": "Cool elevated soft surface"
+    },
+    "chrome": {
+      "hex": "#EBEEF2",
+      "role": "Soft pill track / muted chrome"
+    },
+    "border": {
+      "hex": "#E2E6EC",
+      "role": "Card border"
+    },
+    "border-soft": {
+      "hex": "#EBEEF2",
+      "role": "Soft divider"
+    },
+    "ink": {
+      "hex": "#12141A",
+      "role": "Primary text"
+    },
+    "ink-2": {
+      "hex": "#5C6370",
+      "role": "Secondary text"
+    },
+    "ink-3": {
+      "hex": "#8B929E",
+      "role": "Muted / labels"
+    },
+    "accent": {
+      "hex": "#2F5B8A",
+      "role": "Steel blue brand (ONLY accent \u2014 not purple/cyan)"
+    },
+    "accent-soft": {
+      "hex": "#E8F0F7",
+      "role": "Accent wash on pills/chips"
+    },
+    "accent-fg": {
+      "hex": "#FFFFFF",
+      "role": "Text on accent"
+    },
+    "secondary": {
+      "hex": "#2F5B8A",
+      "role": "Secondary CTA = same steel blue (olive BANNED)"
+    },
+    "success": {
+      "hex": "#2F6B4F",
+      "role": "Success muted"
+    },
+    "warn": {
+      "hex": "#9A6B2F",
+      "role": "Needs docs / warn muted"
+    },
+    "danger": {
+      "hex": "#9B3D3D",
+      "role": "Danger muted"
+    },
+    "scrim": {
+      "hex": "rgba(18,20,26,0.50)",
+      "role": "Dark gradient scrim over faded car"
+    },
+    "hero-fade": {
+      "opacity": "0.48",
+      "role": "Faded car hero ~40\u201355%"
+    }
+  },
+  "typography": {
+    "font": "Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif",
+    "radius": "12px",
+    "shadow": "0 1px 2px rgba(18,20,26,0.04), 0 8px 24px rgba(18,20,26,0.07)"
+  },
+  "banned": [
+    "#F3F1EC",
+    "#3A4A52",
+    "olive #4A5540",
+    "Quiet Studio sage #3D5A4C",
+    "purple/cyan",
+    "muddy warm stone",
+    "essay copy like One car at a time / This desk is the workbench"
+  ],
+  "compsPath": "/workspace/ui-reboot/lot-desk/",
+  "cuttingEdge": {
+    "loginHome": "Full-bleed faded car (~50%) + soft dark scrim; floating frosted glass panels (backdrop-filter blur, hairline border, semi-transparent white)",
+    "accentRule": "Accent #2F5B8A ONLY for primary CTAs + active lane; secondary = ink outline / wash pills",
+    "center": "Dense FIFO: hero+thumbs, market metrics, ask, notes, Ask Maya, Complete; upcoming stack; lane pills WITH counts",
+    "empty": "Pills at 0 + one short line + muted empty slots / History tiles \u2014 never workbench prose",
+    "type": "Inter, tight tracking on labels, radius \u226412px, soft shadow under working cards only"
+  }
+}

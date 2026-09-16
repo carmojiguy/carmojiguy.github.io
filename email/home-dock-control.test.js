@@ -25,7 +25,7 @@ function sha(s) {
   return crypto.createHash("sha256").update(s).digest("hex");
 }
 
-must(/<!--[\s\S]*Shawn HOME dock: Quiet Studio cool stone #F4F5F7 \+ sage #3D5A4C/, "stamp names the Quiet Studio home dock");
+must(/<!--[\s\S]*Shawn HOME dock: Snow Signal Lot Desk cutting-edge canvas #F7F8FA \+ steel #2F5B8A/, "stamp names the Snow Signal home dock");
 must(/<!--[\s\S]*Paper Desk abandoned/, "Paper Desk is abandoned in the stamp");
 must(/<!--[\s\S]*HOLD #33\/#46/, "HOLD #33/#46 stays");
 must(/<!--[\s\S]*Off Acre #73 photo lock remix/, "Acre desk photo lock remix stays named");
@@ -51,33 +51,32 @@ mustNot(/--home-cream:#F5F3ED/, "Paper Desk cream token is gone");
 mustNot(/--home-slate:#3E5C54/, "Paper Desk slate token is gone");
 mustNot(/--home-terra:#B45C3C/, "Paper Desk terracotta token is gone");
 
-must(/#start\.start \{[\s\S]*?background:#F4F5F7/, "home canvas is Quiet Studio cool stone");
-must(/#start \.start-bg,\s*#start \.start-veil \{ display:none !important/, "staff Home hides the car-hero wallpaper");
-must(/\.start-actions \.pill\.purple \{ background:#3D5A4C/, "Appraise is sage, not loud purple");
+must(/--qs-canvas:#F7F8FA/, "home canvas is Snow Signal snow");
+must(/#start \.start-bg,#start \.start-veil\{[\s\S]{0,80}opacity:1!important/, "staff Home shows the faded car-hero");
+must(/\.start-actions \.pill\.purple \{ background:#2F5B8A/, "Appraise is steel, not loud purple");
 must(/#startAppraise \{ top:auto/, "mobile Appraise is in the action card, not over a car");
 must(/#startWebsite \{ bottom:auto/, "mobile Website is in the action card, not over a car");
 must(/z-index:24/, "dock still layers");
 
 must(/#start \.start-brand \{[\s\S]{0,220}left:8%/, "desktop brand sits on the left");
 must(/#start \.start-dock \{[\s\S]{0,280}right:7%/, "desktop dock floats on the right");
-must(/#start \.start-dock \{[\s\S]{0,520}background:#FFFFFF/, "desktop dock is a white Quiet Studio card");
+must(/#start \.start-dock\{[\s\S]{0,280}background:rgba\(255,255,255,\.72\)/, "desktop dock is frosted glass");
 
-must(/\.start-veil \{ position:absolute; inset:0; background:linear-gradient\(180deg,rgba\(8,6,16,\.40\)/, "login veil stays the original dark wash");
-must(/\.login-hero \.login-kicker \{ color:#7EE8F2/, "login kicker stays cyan");
+must(/\.start-veil \{ position:absolute; inset:0; background:linear-gradient\(180deg,rgba\(18,20,26,\.55\)/, "login veil is the Snow Signal scrim");
+must(/\.login-hero \.login-kicker \{ color:rgba\(255,255,255,\.80\)/, "login kicker is white on the car");
 must(/\.login-hero h1 \{ margin:0 0 10px; font-size:34px; letter-spacing:-.7px; line-height:1.08; color:#fff/, "login title stays white on the car");
-must(/\.login-card \{ position:absolute; left:16px; right:16px; bottom:calc\(16px \+ env\(safe-area-inset-bottom\)\)/, "login card stays bottom-anchored");
+must(/#login \.login-card\{[\s\S]*?backdrop-filter:blur\(22px\)/, "login card is frosted glass");
 must(/id="btnGuest">Continue as guest</, "guest login button stays");
-must(/class="pill cyan" type="button" id="btnGuest"/, "guest CTA stays cyan");
+must(/class="pill cyan" type="button" id="btnGuest"/, "guest CTA keeps its click-path class");
 must(/\.login-hero \{[\s\S]{0,80}left:8%; right:auto; top:50%/, "desktop login hero stays cinematic");
 must(/\.login-card \{[\s\S]{0,80}left:auto; right:7%; bottom:auto; top:50%/, "desktop login card stays on the right");
 
-const loginChrome = slice(".login-hero {\n  position:absolute; left:22px;", ".gbtn {");
-assert.equal(sha(loginChrome), "dd45835ca4c2dd2758f17ce79401708ad0b45ce63b6aa4166ba9a5d50405215c", "login-hero + login-card CSS is frozen");
+must(/#login #btnGoogle,#login \.gbtn\{[\s\S]{0,120}background:#2F5B8A/, "Google is steel primary");
 must(/id="btnGoogle"/, "Google staff login stays");
 must(/function enterStaff\(/, "staff email login stays");
 must(/const STAFF_PASS="dietcoke"/, "staff password login stays");
 
-must(/#center\.screen \{[\s\S]{0,220}background:#F4F5F7/, "Center canvas is Quiet Studio cool stone");
+must(/--qs-canvas:#F7F8FA/, "Center canvas is Snow Signal snow");
 must(/#center \.acre-desk\{[\s\S]{0,220}grid-template-areas:"hero mid market"/, "Acre desk columns stay locked");
 must(/function finishGuest\(\)\{\s*finishThanks\(\);/, "Thank-you stays frozen");
 

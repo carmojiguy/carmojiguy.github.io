@@ -85,7 +85,7 @@ must(/acre-col-hero/, "hero column");
 must(/acre-col-mid/, "metrics / offers / notes column");
 must(/acre-col-market/, "right market cards column");
 must(/id="centerDock"[^>]*acre-dock|class="dock acre-dock"/, "Ask Maya and Complete share the Acre dock");
-must(/#center\.screen \{[\s\S]{0,220}background:#F4F5F7/, "desk page is Quiet Studio cool stone");
+must(/--qs-canvas:#F7F8FA/, "desk page is Snow Signal snow");
 mustNot(/#center\.screen \{[\s\S]{0,220}background:#F3F1EA/, "stone palette is reverted");
 must(/id="centerStageBtn">Complete</, "Complete stays");
 must(/id="centerRunTeam">Run Appraisal Team</, "Run Appraisal Team stays on the desk");

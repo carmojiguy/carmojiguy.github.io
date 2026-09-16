@@ -26,7 +26,7 @@ function sliceFn(name, next) {
 
 must(/function finishGuest\(\)\{\s*finishThanks\(\);/, "Thank-you stays frozen");
 must(/<!--[\s\S]*Thank-you frozen/, "Thank-you stays frozen in the stamp");
-must(/<!--[\s\S]*Users UI Quiet Studio cool stone \+ sage chrome/, "stamp names Users Quiet Studio chrome");
+must(/<!--[\s\S]*Users UI Snow Signal cool snow \+ steel chrome/, "stamp names Users Snow Signal chrome");
 must(/<!--[\s\S]*HOLD #33\/#46/, "HOLD #33/#46 stays");
 must(/<!--[\s\S]*staff defaultPerms all sections On except admin\/Users/, "stamp names staff defaultPerms");
 must(/id:"admin", label:"Admin", deny:"Only Shawn or an admin can open Users\."/, "Users maps to PERM_KEYS id admin");
@@ -34,21 +34,20 @@ must(/lockDockBtn\("startUsers", canOpenUsers\(\), "admin"\)/, "Users dock butto
 must(/function canOpenUsers\(\)\{\s*return APP\.role==="employee" && \(canPerm\("admin"\) \|\| isTeamLeader\(\)\);/, "opening Users reads admin (or team leader)");
 must(/function staffPerms\(\)\{ return \{trade:true, appraise:true, website:true, center:true, admin:false, ca:true\}; \}/, "staffPerms is every section On except Users/admin");
 must(/function defaultPerms\(email\)\{\s*const e=shawnAlias\(email\);\s*if\(e==="shawn@myloan.ca"\) return allPermsOn\(\);\s*return staffPerms\(\);\s*\}/, "unspecified people use staffPerms");
-must(/#users \{\s*background:#F4F5F7;/, "Users page is Quiet Studio cool stone");
-must(/#users \{[\s\S]{0,180}--ink:#111318; --muted:#5C6370/, "Users tokens match Quiet Studio ink");
-must(/#users \.users-chip\.on \{ background:#3D5A4C;/, "Users filter chips are sage, not ink black");
-must(/#users \.users-kicker, #userSheet \.users-kicker, #userAddSheet \.users-kicker \{[\s\S]*?color:#3D5A4C/, "Users kicker matches Quiet Studio sage");
-must(/\.perm-tog\.on \{ background:#3D5A4C;/, "section toggles On are sage");
-must(/\.team-pick-btn\.on \{ background:#3D5A4C;/, "team picks On are sage");
-must(/\.role-tog button\.on \{ background:#3D5A4C;/, "role picks On are sage");
-must(/const hue="#3D5A4C";/, "person avatars are sage, not rainbow");
-must(/\.person-ava \{[\s\S]{0,220}background:#3D5A4C/, "avatar fallback paint is sage");
+must(/#users \{\s*background:#F7F8FA;/, "Users page is Snow Signal snow");
+must(/#users \{[\s\S]{0,180}--ink:#12141A; --muted:#5C6370/, "Users tokens match Snow Signal ink");
+must(/#users \.users-chip\.on\{background:var\(--qs-accent-soft\)/, "Users filter chips are wash, not ink black");
+must(/#users \.users-kicker,#userSheet \.users-kicker,#userAddSheet \.users-kicker\{color:var\(--qs-ink3\)/, "Users kicker is muted ink-3");
+must(/#users \.perm-tog\.on,\.perm-tog\.on\{background:var\(--qs-accent-soft\)/, "section toggles On are wash");
+must(/\.team-pick-btn\.on,\.role-tog button\.on\{background:var\(--qs-accent-soft\)/, "team/role picks On are wash");
+must(/const hue="#12141A";/, "person avatars are ink, not rainbow");
+must(/\.person-ava \{[\s\S]{0,220}background:#2F5B8A/, "avatar fallback first-block paint remapped off sage");
 mustNot(/#users \{ background:linear-gradient\(180deg,#FFF8E8/, "Users muddy cream gradient is gone");
 mustNot(/#users \{[\s\S]{0,80}background:#F5F3ED/, "Users Paper Desk cream is gone");
 mustNot(/#users \.users-kicker[\s\S]{0,80}color:#E08A00/, "Users orange kicker is gone");
 mustNot(/#users \.users-chip\.on \{ background:#111318;/, "Users selected chips are not ink black");
 mustNot(/#users \{[\s\S]{0,80}background:#F5F6F8/, "Users is not old Center-bright gray");
-must(/#center\.screen \{[\s\S]{0,220}background:#F4F5F7/, "Center canvas is Quiet Studio cool stone");
+must(/--qs-canvas:#F7F8FA/, "Center canvas is Snow Signal snow");
 must(/\.users-chip\.on \{ background:linear-gradient\(135deg,#7C5CFF,#00A4E2\); color:#fff; \}/, "Center team chips keep their existing selected paint");
 
 (function testPermKeysUsersIsAdmin() {

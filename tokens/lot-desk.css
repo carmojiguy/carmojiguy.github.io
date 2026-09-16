@@ -1,0 +1,429 @@
+/* Snow Signal · Lot Desk structure · CUTTING-EDGE · COLOUR LOCKED
+   Shawn pick 2026-09-15 ~10:18pm ET · "make it cutting edge" */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --ld-canvas: #F7F8FA;
+  --ld-canvas-deep: #EEF0F3;
+  --ld-surface: #FFFFFF;
+  --ld-surface-soft: #F9FAFB;
+  --ld-chrome: #EBEEF2;
+  --ld-border: #E2E6EC;
+  --ld-border-soft: #EBEEF2;
+  --ld-ink: #12141A;
+  --ld-ink-2: #5C6370;
+  --ld-ink-3: #8B929E;
+  --ld-accent: #2F5B8A;
+  --ld-accent-soft: #E8F0F7;
+  --ld-accent-fg: #FFFFFF;
+  --ld-olive: #2F5B8A; /* alias only — olive #4A5540 BANNED */
+  --ld-olive-soft: #E8F0F7;
+  --ld-success: #2F6B4F;
+  --ld-warn: #9A6B2F;
+  --ld-danger: #9B3D3D;
+  --ld-scrim: rgba(18, 20, 26, 0.50);
+  --ld-hero-fade: 0.50;
+  --ld-glass: rgba(255, 255, 255, 0.72);
+  --ld-glass-border: rgba(255, 255, 255, 0.55);
+  --ld-hairline: rgba(18, 20, 26, 0.08);
+  --ld-shadow: 0 1px 2px rgba(18, 20, 26, 0.04), 0 10px 28px rgba(18, 20, 26, 0.08);
+  --ld-shadow-soft: 0 1px 2px rgba(18, 20, 26, 0.03), 0 4px 12px rgba(18, 20, 26, 0.05);
+  --ld-r: 12px;
+  --ld-font: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif;
+}
+
+* { box-sizing: border-box; }
+html, body {
+  margin: 0;
+  font-family: var(--ld-font);
+  background: var(--ld-canvas);
+  color: var(--ld-ink);
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+}
+button, input, select, textarea { font: inherit; }
+button { cursor: pointer; }
+
+.ld-shell { min-height: 100vh; background: var(--ld-canvas); position: relative; }
+.ld-shell.m { max-width: 390px; margin: 0 auto; }
+.ld-shell.d { max-width: 1280px; margin: 0 auto; }
+
+.ld-k {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--ld-ink-3);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: 0 0 6px;
+}
+.ld-muted { color: var(--ld-ink-2); }
+.ld-faint { color: var(--ld-ink-3); font-size: 11px; letter-spacing: 0.02em; }
+
+/* Working cards — soft shadow only */
+.ld-card {
+  background: var(--ld-surface);
+  border: 1px solid var(--ld-border);
+  border-radius: var(--ld-r);
+  box-shadow: var(--ld-shadow-soft);
+  padding: 14px;
+}
+.ld-card-soft { background: var(--ld-surface-soft); }
+
+/* Floating frosted glass (login/home) */
+.ld-glass {
+  background: var(--ld-glass);
+  backdrop-filter: blur(22px) saturate(1.2);
+  -webkit-backdrop-filter: blur(22px) saturate(1.2);
+  border: 1px solid var(--ld-glass-border);
+  border-radius: var(--ld-r);
+  box-shadow: var(--ld-shadow);
+}
+
+/* Buttons — accent ONLY on .primary; secondary = ink outline */
+.ld-btn {
+  height: 46px;
+  border-radius: 11px;
+  border: 1px solid var(--ld-border);
+  background: rgba(255, 255, 255, 0.55);
+  color: var(--ld-ink);
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: -0.01em;
+  width: 100%;
+  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 16px;
+  transition: background 0.12s ease;
+}
+.ld-btn.primary {
+  background: var(--ld-accent);
+  color: var(--ld-accent-fg);
+  border-color: transparent;
+  box-shadow: 0 1px 2px rgba(47, 91, 138, 0.25);
+}
+.ld-btn.outline,
+.ld-btn.secondary {
+  background: transparent;
+  border-color: rgba(18, 20, 26, 0.22);
+  color: var(--ld-ink);
+}
+.ld-btn.wash {
+  background: var(--ld-accent-soft);
+  border-color: transparent;
+  color: var(--ld-accent);
+}
+.ld-btn.olive {
+  /* BANNED olive — map to outline */
+  background: transparent;
+  border-color: rgba(18, 20, 26, 0.22);
+  color: var(--ld-ink);
+}
+.ld-btn.ghost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--ld-ink-2);
+}
+.ld-btn.sm { height: 34px; font-size: 12px; width: auto; padding: 0 12px; border-radius: 9px; }
+
+.ld-input, textarea {
+  border: 1px solid var(--ld-border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: var(--ld-surface);
+  color: var(--ld-ink);
+  font-size: 13px;
+  width: 100%;
+}
+textarea { min-height: 64px; resize: vertical; line-height: 1.4; }
+.ld-input:focus, textarea:focus {
+  outline: none;
+  border-color: var(--ld-accent);
+  box-shadow: 0 0 0 3px var(--ld-accent-soft);
+}
+
+.ld-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 7px;
+  background: var(--ld-accent-soft);
+  color: var(--ld-accent);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.ld-chip.warn { background: #F3EFE6; color: var(--ld-warn); }
+
+/* Lane pills — chrome wash; active = accent ONLY */
+.ld-lanes { display: flex; gap: 6px; flex-wrap: wrap; }
+.ld-lane {
+  border: 1px solid var(--ld-border);
+  cursor: pointer;
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  padding: 7px 11px;
+  border-radius: 999px;
+  background: var(--ld-chrome);
+  color: var(--ld-ink-2);
+  white-space: nowrap;
+}
+.ld-lane .count {
+  font-variant-numeric: tabular-nums;
+  background: rgba(18, 20, 26, 0.07);
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+}
+.ld-lane.active {
+  background: var(--ld-accent);
+  color: #fff;
+  border-color: transparent;
+}
+.ld-lane.active .count {
+  background: rgba(255, 255, 255, 0.22);
+  color: #fff;
+}
+
+.ld-metric {
+  background: var(--ld-canvas);
+  border: 1px solid var(--ld-border);
+  border-radius: 10px;
+  padding: 10px;
+}
+.ld-metric .val {
+  font-size: 16px;
+  font-weight: 700;
+  margin-top: 2px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+.ld-money {
+  font-size: 26px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+}
+
+.ld-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.ld-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.ld-stack { display: flex; flex-direction: column; gap: 10px; }
+.ld-row { display: flex; gap: 8px; align-items: center; }
+.ld-divider { height: 1px; background: var(--ld-border); margin: 12px 0; }
+
+/* Faded car hero */
+.ld-hero-bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+.ld-hero-bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  opacity: var(--ld-hero-fade);
+}
+.ld-hero-bg .scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(18, 20, 26, 0.55) 0%,
+    rgba(18, 20, 26, 0.28) 42%,
+    rgba(18, 20, 26, 0.58) 100%
+  );
+}
+.ld-hero-bg .scrim-side {
+  background: linear-gradient(
+    90deg,
+    rgba(18, 20, 26, 0.62) 0%,
+    rgba(18, 20, 26, 0.28) 48%,
+    rgba(18, 20, 26, 0.48) 100%
+  );
+}
+
+.ld-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--ld-border);
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  gap: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+.ld-top h1 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.ld-round {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  border: 1px solid var(--ld-border);
+  background: var(--ld-surface);
+  color: var(--ld-ink-2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 13px;
+}
+.ld-pad { padding: 14px 14px 24px; }
+
+/* FIFO tiles */
+.ld-fifo-tile {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 9px;
+  border: 1px solid var(--ld-border);
+  border-radius: 10px;
+  background: var(--ld-surface);
+  box-shadow: var(--ld-shadow-soft);
+}
+.ld-fifo-tile img {
+  width: 64px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+.ld-fifo-tile b {
+  display: block;
+  font-size: 13px;
+  letter-spacing: -0.015em;
+  font-weight: 600;
+}
+.ld-fifo-tile .meta {
+  font-size: 12px;
+  color: var(--ld-ink-2);
+  font-variant-numeric: tabular-nums;
+}
+.ld-fifo-tile.active {
+  border-color: var(--ld-accent);
+  box-shadow: inset 0 0 0 1px var(--ld-accent), var(--ld-shadow-soft);
+  background: linear-gradient(0deg, var(--ld-accent-soft), var(--ld-surface));
+}
+
+.ld-thumb-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin-top: 6px;
+}
+.ld-thumb {
+  aspect-ratio: 1;
+  border-radius: 8px;
+  object-fit: cover;
+  width: 100%;
+  border: 1px solid var(--ld-border);
+}
+.ld-hero-photo {
+  width: 100%;
+  aspect-ratio: 16/10;
+  border-radius: 10px;
+  object-fit: cover;
+  display: block;
+  border: 1px solid var(--ld-border);
+}
+
+.ld-empty-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.ld-empty-slot {
+  aspect-ratio: 4/3;
+  border: 1px dashed var(--ld-border);
+  border-radius: 10px;
+  background: var(--ld-canvas-deep);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ld-ink-3);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Dock — frosted glass cards on photo; primary = accent only */
+.ld-dock { display: flex; flex-direction: column; gap: 8px; }
+.ld-dock-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  text-align: left;
+  height: auto;
+  padding: 13px 15px;
+  border-radius: 12px;
+  border: 1px solid var(--ld-glass-border);
+  background: var(--ld-glass);
+  backdrop-filter: blur(20px) saturate(1.15);
+  -webkit-backdrop-filter: blur(20px) saturate(1.15);
+  color: var(--ld-ink);
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: -0.015em;
+  box-shadow: var(--ld-shadow);
+  cursor: pointer;
+  font-family: inherit;
+}
+.ld-dock-btn span.sub {
+  font-size: 11px;
+  font-weight: 450;
+  color: var(--ld-ink-2);
+  letter-spacing: 0;
+}
+.ld-dock-btn.primary {
+  background: var(--ld-accent);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 2px 12px rgba(47, 91, 138, 0.35);
+}
+.ld-dock-btn.primary span.sub { color: rgba(255, 255, 255, 0.72); }
+.ld-dock-btn.olive {
+  /* BANNED — outline glass */
+  background: var(--ld-glass);
+  color: var(--ld-ink);
+  border-color: var(--ld-glass-border);
+}
+.ld-dock-btn.olive span.sub { color: var(--ld-ink-2); }
+
+.ld-mark {
+  font-size: 10px;
+  color: var(--ld-ink-3);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+/* On-photo glass stats */
+.ld-stat-glass {
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 10px;
+  backdrop-filter: blur(14px) saturate(1.1);
+  -webkit-backdrop-filter: blur(14px) saturate(1.1);
+  color: #fff;
+  padding: 10px 12px;
+}
