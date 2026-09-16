@@ -25,42 +25,42 @@ function sha(s) {
   return crypto.createHash("sha256").update(s).digest("hex");
 }
 
-must(/<!--[\s\S]*Shawn HOME dock: login cinematic overlay \+ 29-sold/, "stamp names the login-aligned home dock");
+must(/<!--[\s\S]*Shawn HOME dock: Quiet Studio cool stone #F4F5F7 \+ sage #3D5A4C/, "stamp names the Quiet Studio home dock");
+must(/<!--[\s\S]*Paper Desk abandoned/, "Paper Desk is abandoned in the stamp");
 must(/<!--[\s\S]*HOLD #33\/#46/, "HOLD #33/#46 stays");
-must(/<!--[\s\S]*Off Acre #73 photo lock remix/, "Acre desk photo lock is off-limits");
+must(/<!--[\s\S]*Off Acre #73 photo lock remix/, "Acre desk photo lock remix stays named");
 must(/<!--[\s\S]*Thank-you frozen/, "Thank-you stays frozen in the stamp");
 must(/<!--[\s\S]*pixel-faithful Acre GR Corolla desk/, "Acre pixel lock stamp stays");
 must(/id="buildStamp">build d31a</, "footer stamp stays d31a");
 
 must(/id="startDock"/, "staff start dock stays");
-must(/id="startBrand"/, "home brand chrome on the hero");
+must(/id="startBrand"/, "home brand chrome stays");
 must(/class="start-desk-head"/, "desktop desk head lives in the dock card");
 must(/id="startAppraise">Appraise vehicle</, "Appraise label stays");
 must(/id="startCenter"[\s\S]*Appraisal Center/, "Center pill stays");
 must(/id="startWebsite">Post vehicle to website</, "Website pill stays");
 must(/id="startTrade">Send trade-in link</, "trade-in pill stays");
 must(/id="startUsers">Users</, "Users pill stays");
+must(/function paintStartHello\(/, "home greeting paint stays chrome-only");
 
 mustNot(/#start:has\(#startDock:not\(\.hide\)\) \.start-bg/, "car photo is not cropped above a footer strip");
 mustNot(/border-top:1px solid rgba\(0,164,226/, "no cyan/blue dock strip");
 mustNot(/#07101c/, "no navy footer bar");
 mustNot(/linear-gradient\(180deg, rgba\(7,16,32,\.96\)/, "no dark blue dock wash");
+mustNot(/--home-cream:#F5F3ED/, "Paper Desk cream token is gone");
+mustNot(/--home-slate:#3E5C54/, "Paper Desk slate token is gone");
+mustNot(/--home-terra:#B45C3C/, "Paper Desk terracotta token is gone");
 
-must(/#start \.start-veil \{[\s\S]{0,120}rgba\(245,243,237/, "home fades the car with a cream/slate overlay");
-must(/#start\.start \{[\s\S]{0,180}--home-slate:#3E5C54/, "home slate green token");
-must(/#start\.start \{[\s\S]{0,220}--home-terra:#B45C3C/, "home terracotta token");
-must(/\.start-actions \.pill\.purple \{ background:#3E5C54/, "Appraise is slate green, not loud purple");
-must(/\.start-actions \.pill\.cyan \{ background:#B45C3C/, "Website is terracotta, not loud cyan");
+must(/#start\.start \{[\s\S]*?background:#F4F5F7/, "home canvas is Quiet Studio cool stone");
+must(/#start \.start-bg,\s*#start \.start-veil \{ display:none !important/, "staff Home hides the car-hero wallpaper");
+must(/\.start-actions \.pill\.purple \{ background:#3D5A4C/, "Appraise is sage, not loud purple");
+must(/#startAppraise \{ top:auto/, "mobile Appraise is in the action card, not over a car");
+must(/#startWebsite \{ bottom:auto/, "mobile Website is in the action card, not over a car");
+must(/z-index:24/, "dock still layers");
 
-must(/#startAppraise \{ top: calc\(env\(safe-area-inset-top, 0px\) \+ 1\.55in\)/, "mobile Appraise sits up through the car");
-must(/#startCenter \{[\s\S]{0,160}top:50%; transform:translate\(-50%, -50%\)/, "mobile Center sits mid-hero");
-must(/#startWebsite \{ bottom: calc\(env\(safe-area-inset-bottom, 0px\) \+ 1\.55in\)/, "mobile Website sits on the hero");
-must(/\.start-more \{[\s\S]{0,180}bottom: calc\(16px \+ env\(safe-area-inset-bottom/, "mobile Trade/Users sit on the hero");
-must(/z-index:24/, "dock still layers over the hero");
-
-must(/#start \.start-brand \{[\s\S]{0,220}left:8%/, "desktop brand sits like login-hero");
-must(/#start \.start-dock \{[\s\S]{0,280}right:7%/, "desktop dock floats like the login card");
-must(/#start \.start-dock \{[\s\S]{0,520}background:rgba\(255,255,255,\.94\)/, "desktop dock is a frosted login-style card");
+must(/#start \.start-brand \{[\s\S]{0,220}left:8%/, "desktop brand sits on the left");
+must(/#start \.start-dock \{[\s\S]{0,280}right:7%/, "desktop dock floats on the right");
+must(/#start \.start-dock \{[\s\S]{0,520}background:#FFFFFF/, "desktop dock is a white Quiet Studio card");
 
 must(/\.start-veil \{ position:absolute; inset:0; background:linear-gradient\(180deg,rgba\(8,6,16,\.40\)/, "login veil stays the original dark wash");
 must(/\.login-hero \.login-kicker \{ color:#7EE8F2/, "login kicker stays cyan");
@@ -77,7 +77,7 @@ must(/id="btnGoogle"/, "Google staff login stays");
 must(/function enterStaff\(/, "staff email login stays");
 must(/const STAFF_PASS="dietcoke"/, "staff password login stays");
 
-must(/#center\.screen \{[\s\S]{0,220}background:#F5F6F8/, "Acre desk page is untouched");
+must(/#center\.screen \{[\s\S]{0,220}background:#F4F5F7/, "Center canvas is Quiet Studio cool stone");
 must(/#center \.acre-desk\{[\s\S]{0,220}grid-template-areas:"hero mid market"/, "Acre desk columns stay locked");
 must(/function finishGuest\(\)\{\s*finishThanks\(\);/, "Thank-you stays frozen");
 
