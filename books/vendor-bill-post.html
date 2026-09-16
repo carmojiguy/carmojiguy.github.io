@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Post · Vendor bill OCR</title>
+  <style>
+    :root { font-family: ui-sans-serif, system-ui, sans-serif; }
+    body { margin: 0; background: #ececec; color: #111; }
+    .wrap { max-width: 780px; margin: 20px auto; padding: 0 16px; }
+    .card {
+      background: #fff; border-radius: 16px; padding: 18px 20px 20px;
+      box-shadow: 0 0 0 1px rgba(0,0,0,.06);
+    }
+    label { display: block; font-size: 13px; font-weight: 500; margin: 0 0 6px; }
+    input, select {
+      width: 100%; height: 42px; border: 0; border-radius: 12px;
+      background: #f4f4f5; padding: 0 12px; font-size: 14px; box-sizing: border-box;
+    }
+    .field { margin-bottom: 14px; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 8px; }
+    .chip { border: 0; border-radius: 999px; padding: 7px 12px; font-size: 12px; }
+    .chip.on { background: #111; color: #fff; }
+    .chip.off { background: #f3f4f6; color: #6b7280; }
+    .hint { font-size: 12px; color: #6b7280; margin: 0 0 14px; }
+    .ro { color: #9ca3af; }
+    .post {
+      border: 0; background: #111; color: #fff; border-radius: 999px;
+      height: 42px; padding: 0 18px; font-size: 14px; font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card" data-job="bill" data-ocr="books-s1-001">
+      <div class="field">
+        <label>Vendor</label>
+        <input value="AUTO PARTS SUPPLY CO." readonly />
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label>Invoice #</label>
+          <input value="BOOKS-S1-001" readonly />
+        </div>
+        <div class="field">
+          <label>Invoice date</label>
+          <input value="2026-09-06" readonly />
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label>Due</label>
+          <input class="ro" value="YYYY-MM-DD" readonly />
+        </div>
+        <div class="field">
+          <label>GL</label>
+          <input class="ro" value="1200" readonly />
+        </div>
+      </div>
+      <div class="chips" id="chips" aria-label="Destination"></div>
+      <p class="hint" id="hint"></p>
+      <div class="field" id="woBlock">
+        <label for="wo">Work order</label>
+        <select id="wo">
+          <option value="wo-1043">WO-1043 · Check engine on — P0171 system too lean bank 1</option>
+        </select>
+      </div>
+      <div class="grid3">
+        <div class="field">
+          <label>Net</label>
+          <input value="177.49" readonly />
+        </div>
+        <div class="field">
+          <label>HST</label>
+          <input value="23.07" readonly />
+        </div>
+        <div class="field">
+          <label>Total</label>
+          <input class="ro" value="200.56" readonly />
+        </div>
+      </div>
+      <button class="post" type="button">Post bill · $201 · Work Order</button>
+    </div>
+  </div>
+  <script>
+    var dests = [
+      { id: "wo", label: "Work Order", hint: "Dr 1200 · cost on the RO until invoiced" },
+      { id: "parts", label: "Parts shelf", hint: "Dr 1200 · sits until a RO uses it" },
+      { id: "stock", label: "A stock number", hint: "Recon on the VIN · Dr 1100" },
+      { id: "krown", label: "Krown supplies", hint: "Dr 5700" },
+      { id: "overhead", label: "Overhead", hint: "Rent, hydro, phones · Dr 5300" },
+    ];
+    var chips = document.getElementById("chips");
+    dests.forEach(function (d, i) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "chip " + (i === 0 ? "on" : "off");
+      b.setAttribute("data-dest", d.id);
+      b.textContent = d.label;
+      chips.appendChild(b);
+    });
+    document.getElementById("hint").textContent = dests[0].hint;
+  </script>
+</body>
+</html>
