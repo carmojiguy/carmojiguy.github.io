@@ -53,7 +53,7 @@ must(/placeholder="Ask Maya"/, "Ask Maya placeholder");
 must(/id="centerStageBtn">Complete</, "Complete");
 must(/class="dock acre-dock"/, "Maya + Complete share the dock");
 must(/#center \.acre-desk\{[\s\S]{0,220}grid-template-areas:"hero mid market"/, "desktop is hero | mid | market");
-must(/#center\.screen \{[\s\S]{0,220}background:#F4F5F7/, "Quiet Studio cool stone page");
+must(/--qs-canvas:#F7F8FA/, "Snow Signal snow page");
 mustNot(/#center\.screen \{[\s\S]{0,280}--purple:#1F6B6A/, "teal accent reverted");
 mustNot(/#center\.screen \{[\s\S]{0,220}background:#F3F1EA/, "stone page reverted");
 must(/function pullUsersRemote\(/, "users persist stays");

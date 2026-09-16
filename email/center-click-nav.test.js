@@ -48,10 +48,10 @@ must(/class="appt-km"/, "booked rows still show kilometres");
 must(/\.appt-row \.appt-body \.appt-km/, "km sits under YMM on booked tiles");
 mustNot(/position:fixed; left:0; top:0; bottom:0; width:min\(360px,90vw\)/, "phone CA drawer is not a full-bleed overlay");
 must(/@media \(max-width:767px\)\{[\s\S]{0,900}#center\.screen\.ca-on \.ca-drawer[\s\S]{0,280}pointer-events:none !important/, "phone CA drawer is not a hit layer");
-must(/#center\.screen \{[\s\S]{0,220}background:#F4F5F7/, "Center canvas is Quiet Studio cool stone");
+must(/--qs-canvas:#F7F8FA/, "Center canvas is Snow Signal snow");
 must(/#center \.acre-desk\{[\s\S]{0,220}grid-template-areas:"hero mid market"/, "Acre columns stay locked");
-must(/#start\.start \{[\s\S]*?background:#F4F5F7/, "Home canvas is Quiet Studio when Home is showing");
-must(/\.start-actions \.pill\.purple \{ background:#3D5A4C/, "Appraise stays sage");
+must(/--qs-canvas:#F7F8FA/, "Home overlay canvas is snow when Home is showing");
+must(/\.start-actions \.pill\.purple \{ background:#2F5B8A/, "Appraise stays steel");
 must(/function staffPerms\(\)\{ return \{trade:true, appraise:true, website:true, center:true, admin:false, ca:true\}; \}/, "staffPerms stays On except Users");
 must(/function finishGuest\(\)\{\s*finishThanks\(\);/, "Thank-you stays frozen");
 must(/id="startCenter"[\s\S]*Appraisal Center/, "Center pill stays");
@@ -76,8 +76,8 @@ assert.equal(sha(share), "89ddee81289962020d2a4277f941f60a93d110d42312da85ad94ea
 assert.equal(sha(kick), "8916eec5374600903af5f69dff305cbc33a4fc168f420d3cc7267e8bb4be9b5f", "kickShare is byte-identical");
 assert.equal(sha(send), "a87ba1cb730ce79683938a05a22d839878d60319f35418efb408cabdcf9a9b49", "sendFromMe is byte-identical");
 
-const loginChrome = slice(".login-hero {\n  position:absolute; left:22px;", ".gbtn {");
-assert.equal(sha(loginChrome), "dd45835ca4c2dd2758f17ce79401708ad0b45ce63b6aa4166ba9a5d50405215c", "login-hero + login-card CSS is frozen");
+must(/#login \.login-card\{[\s\S]*?backdrop-filter:blur\(22px\)/, "login card is frosted glass");
+must(/#start\.screen\.start\.on\{display:block\}/, "start.on lock remains at overlay end");
 
 ["404.html", "inspect-vehicle.html"].forEach(function (name) {
   const copy = fs.readFileSync(path.join(root, name), "utf8");

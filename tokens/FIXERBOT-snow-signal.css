@@ -1,0 +1,44 @@
+/* FixerBot drop-in — Snow Signal · Lot Desk · CUTTING-EDGE
+   COLOUR LOCKED 2026-09-15 ~10:18pm ET (Shawn). Accent ONLY on primary + active lane. */
+:root {
+  --ld-canvas: #F7F8FA;
+  --ld-canvas-deep: #EEF0F3;
+  --ld-surface: #FFFFFF;
+  --ld-surface-soft: #F9FAFB;
+  --ld-chrome: #EBEEF2;
+  --ld-border: #E2E6EC;
+  --ld-border-soft: #EBEEF2;
+  --ld-ink: #12141A;
+  --ld-ink-2: #5C6370;
+  --ld-ink-3: #8B929E;
+  --ld-accent: #2F5B8A;
+  --ld-accent-soft: #E8F0F7;
+  --ld-accent-fg: #FFFFFF;
+  --ld-olive: #2F5B8A;
+  --ld-olive-soft: #E8F0F7;
+  --ld-success: #2F6B4F;
+  --ld-warn: #9A6B2F;
+  --ld-danger: #9B3D3D;
+  --ld-scrim: rgba(18, 20, 26, 0.50);
+  --ld-hero-fade: 0.50;
+  --ld-glass: rgba(255, 255, 255, 0.72);
+  --ld-glass-border: rgba(255, 255, 255, 0.55);
+  --ld-shadow: 0 1px 2px rgba(18, 20, 26, 0.04), 0 10px 28px rgba(18, 20, 26, 0.08);
+  --ld-shadow-soft: 0 1px 2px rgba(18, 20, 26, 0.03), 0 4px 12px rgba(18, 20, 26, 0.05);
+  --ld-r: 12px;
+
+  --color-canvas: var(--ld-canvas);
+  --color-surface: var(--ld-surface);
+  --color-chrome: var(--ld-chrome);
+  --color-border: var(--ld-border);
+  --color-ink: var(--ld-ink);
+  --color-ink-2: var(--ld-ink-2);
+  --color-ink-3: var(--ld-ink-3);
+  --color-accent: var(--ld-accent);
+  --color-accent-soft: var(--ld-accent-soft);
+  --color-accent-fg: var(--ld-accent-fg);
+  --color-success: var(--ld-success);
+  --color-warn: var(--ld-warn);
+  --color-danger: var(--ld-danger);
+  --color-scrim: var(--ld-scrim);
+}

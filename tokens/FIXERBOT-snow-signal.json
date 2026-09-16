@@ -1,0 +1,50 @@
+{
+  "name": "Snow Signal",
+  "structure": "Lot Desk",
+  "status": "COLOUR LOCKED · CUTTING-EDGE · READY for FixerBot",
+  "picked": "2026-09-15 ~10:18pm ET (Shawn) · cutting-edge elevate",
+  "path": "/workspace/ui-reboot/lot-desk/",
+  "aliases": {
+    "--color-canvas": "--ld-canvas",
+    "--color-surface": "--ld-surface",
+    "--color-chrome": "--ld-chrome",
+    "--color-border": "--ld-border",
+    "--color-ink": "--ld-ink",
+    "--color-ink-2": "--ld-ink-2",
+    "--color-ink-3": "--ld-ink-3",
+    "--color-accent": "--ld-accent",
+    "--color-accent-soft": "--ld-accent-soft",
+    "--color-accent-fg": "--ld-accent-fg",
+    "--color-success": "--ld-success",
+    "--color-warn": "--ld-warn",
+    "--color-danger": "--ld-danger",
+    "--color-scrim": "--ld-scrim"
+  },
+  "palette": {
+    "canvas": "#F7F8FA",
+    "surface": "#FFFFFF",
+    "surface-soft": "#F9FAFB",
+    "canvas-deep": "#EEF0F3",
+    "chrome": "#EBEEF2",
+    "border": "#E2E6EC",
+    "border-soft": "#EBEEF2",
+    "ink": "#12141A",
+    "ink-2": "#5C6370",
+    "ink-3": "#8B929E",
+    "accent": "#2F5B8A",
+    "accent-soft": "#E8F0F7",
+    "accent-fg": "#FFFFFF",
+    "success": "#2F6B4F",
+    "warn": "#9A6B2F",
+    "danger": "#9B3D3D",
+    "scrim": "rgba(18,20,26,0.50)",
+    "hero-fade": 0.5
+  },
+  "rules": {
+    "accentOnly": "primary CTAs + active lane",
+    "secondary": "ink outline / wash / frosted glass",
+    "loginHome": "faded car + frosted glass panels",
+    "thankYou": "Send frozen"
+  },
+  "banned": ["#F3F1EC", "#3A4A52", "#4A5540", "#3D5A4C", "purple", "cyan", "muddy warm stone"]
+}

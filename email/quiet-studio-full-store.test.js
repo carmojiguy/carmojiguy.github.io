@@ -25,12 +25,14 @@ function sha(s) {
   return crypto.createHash("sha256").update(s).digest("hex");
 }
 
-must(/Quiet Studio STRUCTURAL FULL STORE/, "stamp names Quiet Studio structural expansion");
-must(/#F4F5F7/, "cool stone canvas token");
-must(/#3D5A4C/, "sage accent token");
-must(/--qs-canvas:#F4F5F7/, "QS canvas variable");
-must(/--qs-accent:#3D5A4C/, "QS sage variable");
-mustNot(/--qs-canvas:#F5F3ED/, "Paper Desk cream is not the QS canvas");
+must(/Snow Signal Lot Desk CUTTING-EDGE STRUCTURAL FULL STORE/, "stamp names Snow Signal structural expansion");
+must(/Quiet Studio STRUCTURAL FULL STORE/, "stamp still names the superseded Quiet Studio overlay");
+must(/#F7F8FA/, "snow canvas token");
+must(/#2F5B8A/, "steel accent token");
+must(/--qs-canvas:#F7F8FA/, "QS canvas variable remapped to snow");
+must(/--qs-accent:#2F5B8A/, "QS accent variable remapped to steel");
+mustNot(/--qs-canvas:#F5F3ED/, "Paper Desk cream is not the canvas");
+mustNot(/--qs-accent:#3D5A4C/, "Quiet Studio sage is not the accent");
 
 must(/\.screen:not\(\.on\) \{ display:none !important; \}/, "any screen without .on is forced hidden");
 must(/#start\.screen\.start\.on \{/, "desktop Home display:block is gated on .on");
@@ -93,8 +95,9 @@ assert.equal(sha(share), "89ddee81289962020d2a4277f941f60a93d110d42312da85ad94ea
 assert.equal(sha(kick), "8916eec5374600903af5f69dff305cbc33a4fc168f420d3cc7267e8bb4be9b5f", "kickShare is byte-identical");
 assert.equal(sha(send), "a87ba1cb730ce79683938a05a22d839878d60319f35418efb408cabdcf9a9b49", "sendFromMe is byte-identical");
 
-const loginChrome = slice(".login-hero {\n  position:absolute; left:22px;", ".gbtn {");
-assert.equal(sha(loginChrome), "dd45835ca4c2dd2758f17ce79401708ad0b45ce63b6aa4166ba9a5d50405215c", "login-hero + login-card CSS is frozen");
+must(/#login \.login-card\{[\s\S]*?backdrop-filter:blur\(22px\)/, "login card is frosted glass");
+must(/#login \.start-bg,#login \.start-veil\{[\s\S]{0,80}opacity:1!important/, "login faded car is visible");
+mustNot(/#3D5A4C/, "Quiet Studio sage banned");
 
 ["404.html", "inspect-vehicle.html"].forEach(function (name) {
   const copy = fs.readFileSync(path.join(root, name), "utf8");
