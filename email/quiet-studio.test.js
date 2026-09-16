@@ -74,6 +74,12 @@ assert.equal(sha(send), "a87ba1cb730ce79683938a05a22d839878d60319f35418efb408cab
 
 must(/#login \.login-card\{[\s\S]*?backdrop-filter:blur\(22px\)/, "login card is frosted glass");
 must(/#login \.start-bg img\{[\s\S]{0,80}opacity:\.50/, "login car is faded ~50%");
+must(/\.start-bg \{[^}]*background:#12141A; background-image:none/, "start-bg is solid ink, no CSS photo");
+mustNot(/\.start-bg \{[^}]*url\(/, "start-bg CSS cannot stack a second hero");
+must(/#login \.start-bg\{background:#12141A;background-image:none/, "login canvas has no CSS photo");
+must(/#start \.start-bg\{background:#12141A;background-image:none/, "staff Home canvas has no CSS photo");
+must(/id="loginBg"/, "login keeps a single img hero");
+must(/id="startBg"/, "staff Home keeps a single img hero");
 must(/#login #btnGoogle,#login \.gbtn\{[\s\S]{0,80}background:#2F5B8A/, "Google is steel primary");
 mustNot(/#3D5A4C/, "Quiet Studio sage is gone");
 mustNot(/One car at a time/, "no workbench essay");
