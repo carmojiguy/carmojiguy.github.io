@@ -1,0 +1,27 @@
+{
+  "lock": "Quiet Studio — cool stone + sage",
+  "id": "fixerbot-quiet-studio",
+  "status": "LOCKED 2026-09-15 — Shawn picked Quiet Studio. Paper Desk on hold.",
+  "doNot": [
+    "Merge live / GitHub Pages until Shawn confirms ship",
+    "Touch Thank-you share/send paths",
+    "Invent colors outside this sheet",
+    "Use purple, cyan, or rainbow status pills",
+    "Apply Paper Desk / cream-slate tokens"
+  ],
+  "cssVariables": {
+    "--canvas": "#F4F5F7",
+    "--surface": "#FFFFFF",
+    "--chrome": "#EBEDF0",
+    "--border": "#E2E5EA",
+    "--ink": "#111318",
+    "--accent": "#3D5A4C",
+    "--accent-soft": "#E8F0EB",
+    "--accent-fg": "#FFFFFF"
+  },
+  "supersedes": [
+    "tokens/FIXERBOT-paper-desk.json",
+    "tokens/recommended-cream-slate.json",
+    "tokens/concept-b-soft-paper.json"
+  ]
+}
