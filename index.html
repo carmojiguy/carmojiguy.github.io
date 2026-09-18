@@ -568,10 +568,10 @@ button.doc-sq, a.doc-sq { width:100%; appearance:none; -webkit-appearance:none; 
 .toast.on { display:block; }
 .hide { display:none !important; }
 .start { padding:0 !important; position:relative; overflow:hidden; background:#0b0b10; min-height:100dvh; }
-.start-bg { position:absolute; inset:0; background:#12141A url("https://carmojiguy.github.io/start-bgs/01.jpg?v=10") center 46%/cover no-repeat; overflow:hidden; }
-.start-bg img { width:100%; height:100%; object-fit:cover; object-position:center 46%; display:block; opacity:.50; }
+.start-bg { position:absolute; inset:0; background:#12141A; background-image:none; background-repeat:no-repeat; overflow:hidden; }
+.start-bg img { width:100%; height:100%; object-fit:cover; object-position:center 40%; display:block; opacity:.50; }
 .start-bg, .start-veil { pointer-events:none; }
-.start-veil { position:absolute; inset:0; background:linear-gradient(180deg,rgba(18,20,26,.55) 0%,rgba(18,20,26,.28) 42%,rgba(18,20,26,.58) 100%); }
+.start-veil { position:absolute; inset:0; background:linear-gradient(180deg,rgba(18,20,26,.55) 0%,rgba(18,20,26,.22) 38%,rgba(18,20,26,.82) 100%); }
 .start-actions, .guest-story, .login-card, .login-hero, .who, .start-x, .start-more, .start-dock { pointer-events:auto; }
 /* Snow Signal — staff Home dock. Cool snow #F7F8FA + steel #2F5B8A. Faded car + frosted glass. Quiet Studio sage abandoned. Paper Desk abandoned. */
 #start.start {
@@ -2140,9 +2140,10 @@ label.k,.qs-k{font-size:11px;font-weight:500;color:var(--qs-ink3);letter-spacing
   opacity:1!important;visibility:visible!important;display:block!important;
   pointer-events:none;position:absolute;inset:0;z-index:0;
 }
-#login .start-bg img{width:100%;height:100%;object-fit:cover;object-position:center;opacity:.50}
+#login .start-bg{background:#12141A;background-image:none;background-repeat:no-repeat}
+#login .start-bg img{width:100%;height:100%;object-fit:cover;object-position:center 40%;opacity:.50}
 #login .start-veil{
-  background:linear-gradient(90deg,rgba(18,20,26,.62) 0%,rgba(18,20,26,.28) 48%,rgba(18,20,26,.48) 100%);
+  background:linear-gradient(180deg,rgba(18,20,26,0) 0%,rgba(18,20,26,.18) 55%,rgba(18,20,26,.78) 100%),linear-gradient(90deg,rgba(18,20,26,.62) 0%,rgba(18,20,26,.28) 48%,rgba(18,20,26,.48) 100%);
 }
 #login .login-hero,#login .login-card{z-index:6}
 #login .login-hero{
@@ -2204,9 +2205,10 @@ html:has(#start.on),body:has(#start.on){background:#12141A!important}
   opacity:1!important;visibility:visible!important;display:block!important;
   pointer-events:none;position:absolute;inset:0;z-index:0;
 }
-#start .start-bg img{width:100%;height:100%;object-fit:cover;opacity:.50}
+#start .start-bg{background:#12141A;background-image:none;background-repeat:no-repeat}
+#start .start-bg img{width:100%;height:100%;object-fit:cover;object-position:center 40%;opacity:.50}
 #start .start-veil{
-  background:linear-gradient(90deg,rgba(18,20,26,.62) 0%,rgba(18,20,26,.28) 48%,rgba(18,20,26,.48) 100%);
+  background:linear-gradient(180deg,rgba(18,20,26,0) 0%,rgba(18,20,26,.18) 55%,rgba(18,20,26,.78) 100%),linear-gradient(90deg,rgba(18,20,26,.62) 0%,rgba(18,20,26,.28) 48%,rgba(18,20,26,.48) 100%);
 }
 #start .start-brand{
   color:#fff!important;pointer-events:none;z-index:6
