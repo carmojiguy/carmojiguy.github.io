@@ -62,7 +62,9 @@ must(/#start \.start-brand \{[\s\S]{0,220}left:8%/, "desktop brand sits on the l
 must(/#start \.start-dock \{[\s\S]{0,280}right:7%/, "desktop dock floats on the right");
 must(/#start \.start-dock\{[\s\S]{0,280}background:rgba\(255,255,255,\.72\)/, "desktop dock is frosted glass");
 
-must(/\.start-veil \{ position:absolute; inset:0; background:linear-gradient\(180deg,rgba\(18,20,26,\.55\)/, "login veil is the Snow Signal scrim");
+must(/\.start-veil \{ position:absolute; inset:0; background:linear-gradient\(180deg,rgba\(18,20,26,\.55\) 0%,rgba\(18,20,26,\.22\) 38%,rgba\(18,20,26,\.94\) 70%,rgba\(18,20,26,\.96\) 100%/, "login veil is the Snow Signal scrim, floor crushed dark");
+must(/#login \.start-veil\{[\s\S]{0,220}rgba\(18,20,26,\.94\) 70%/, "login override veil is near-opaque by 70%");
+must(/#start \.start-veil\{[\s\S]{0,220}rgba\(18,20,26,\.94\) 70%/, "staff Home override veil is near-opaque by 70%");
 must(/\.login-hero \.login-kicker \{ color:rgba\(255,255,255,\.80\)/, "login kicker is white on the car");
 must(/\.login-hero h1 \{ margin:0 0 10px; font-size:34px; letter-spacing:-.7px; line-height:1.08; color:#fff/, "login title stays white on the car");
 must(/#login \.login-card\{[\s\S]*?backdrop-filter:blur\(22px\)/, "login card is frosted glass");

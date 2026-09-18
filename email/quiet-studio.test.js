@@ -80,6 +80,14 @@ must(/#login \.start-bg\{background:#12141A;background-image:none/, "login canva
 must(/#start \.start-bg\{background:#12141A;background-image:none/, "staff Home canvas has no CSS photo");
 must(/id="loginBg"/, "login keeps a single img hero");
 must(/id="startBg"/, "staff Home keeps a single img hero");
+must(/\.start-bg img \{[^}]*object-position:center 32%/, "hero favors the upper car now that the floor is black");
+must(/#login \.start-bg img\{[^}]*object-position:center 32%/, "login img is framed on the upper car");
+must(/#start \.start-bg img\{[^}]*object-position:center 32%/, "staff Home img is framed on the upper car");
+must(/start-bgs\/01\.jpg\?v=12/, "login/start img cache-bust is v=12");
+must(/\.jpg\?v=12/, "JS start-bg paint cache-bust is v=12");
+mustNot(/start-bgs\/[^\s"']+\?v=10/, "old v=10 start-bg URLs are gone");
+must(/rgba\(18,20,26,\.94\) 70%/, "veil hits near-opaque dark by 70%");
+must(/rgba\(18,20,26,\.96\) 100%/, "veil stays dark through the floor");
 must(/#login #btnGoogle,#login \.gbtn\{[\s\S]{0,80}background:#2F5B8A/, "Google is steel primary");
 mustNot(/#3D5A4C/, "Quiet Studio sage is gone");
 mustNot(/One car at a time/, "no workbench essay");
