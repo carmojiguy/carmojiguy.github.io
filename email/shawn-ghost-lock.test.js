@@ -58,7 +58,7 @@ assert.equal(ghostFile("driver"), "ghosts/03-side.png");
 assert.equal(ghostFile("qrear"), "ghosts/05-rear-quarter.png");
 assert.equal(ghostFile("rear"), "ghosts/02-rear.png");
 assert.equal(ghostFile("front"), "ghosts/01-front.png");
-assert.equal(ghostFile("dash"), "ghosts/dash.png");
+assert.ok(!sandbox.GHOSTS.dash, "step 9 steering MISSING — dash ghost omitted");
 assert.equal(ghostFile("console"), "ghosts/console.png");
 assert.equal(ghostFile("tire"), "ghosts/tire.png");
 ["qfront", "driver", "qrear", "rear", "front"].forEach(function (k) {
