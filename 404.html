@@ -3164,7 +3164,7 @@ html:has(#start.on),body:has(#start.on){background:#12141A!important}
         <button class="wb-card walk" type="button" id="wbWalk">
           <i class="tag">Walk-around</i>
           <b>Photos in order</b>
-          <span>Photos only — the same Multimedia walk. ¾ front, front, driver, rear, passenger, then interior. No video on this control.</span>
+          <span>Photos only — the same Multimedia walk. ¾ front driver, driver side, ¾ rear driver, rear, passenger angles, front, then steering wheel, console, and tire. No video on this control.</span>
         </button>
         <button class="wb-card dmg" type="button" id="wbDmg">
           <i class="tag">Critical</i>
@@ -3249,7 +3249,7 @@ html:has(#start.on),body:has(#start.on){background:#12141A!important}
       <em>Stand here · about 6 feet off the front corner · tap to shoot</em>
     </button>
     <div class="block">Walk-around</div>
-    <p class="quote" id="walkOrderNote">Go around the vehicle in this order: ¾ front, front, driver side, rear, passenger side, then interior.</p>
+    <p class="quote" id="walkOrderNote">Go around the vehicle in this order: ¾ front driver, driver side, ¾ rear driver, rear, ¾ rear passenger, passenger side, ¾ front passenger, front, then steering wheel, console, and tire.</p>
     <div id="photoRows"></div>
     <div class="block">Damage</div>
     <p class="quote">Skip this if the vehicle is clean. If something is damaged, tell us here — rust, a dent, a scratch, a cracked light, a panel that doesn’t open.</p>
@@ -3666,36 +3666,35 @@ html:has(#start.on),body:has(#start.on){background:#12141A!important}
 <script>
 
 const GHOSTS = {
-  "qfront": "ghosts/qfront.png?v=5",
-  "front": "ghosts/front.png?v=5",
-  "driver": "ghosts/driver.png?v=5",
-  "dash": "ghosts/dash.png?v=5",
-  "console": "ghosts/console.png?v=5",
-  "qrear": "ghosts/qrear.png?v=5",
-  "rear": "ghosts/rear.png?v=5",
-  "tire": "ghosts/tire.png?v=5",
+  "qfront": "ghosts/04-front-quarter.png?v=8",
+  "front": "ghosts/01-front.png?v=8",
+  "driver": "ghosts/03-side.png?v=8",
+  // FLAG CoS: step 9 steering MISSING — no distinct Shawn dash asset. Do not reuse console.
+  "console": "ghosts/10-console.png?v=8",
+  "qrear": "ghosts/05-rear-quarter.png?v=8",
+  "rear": "ghosts/02-rear.png?v=8",
+  "tire": "ghosts/11-tire.png?v=8",
   "door": "ghosts/door.png?v=5",
-  "qrear_pass": "ghosts/qrear.png?v=6",
-  "pass": "ghosts/driver.png?v=6",
-  "qfront_pass": "ghosts/qfront.png?v=6"
+  "qrear_pass": "ghosts/05-qrear-passenger.png?v=8",
+  "pass": "ghosts/06-passenger-side.png?v=8",
+  "qfront_pass": "ghosts/07-qfront-passenger.png?v=8"
 };
 const ASSET_BASE="https://carmojiguy.github.io/";
 function assetUrl(p){ return (ASSET_BASE||"")+String(p||"").replace(/^\//,""); }
-Object.keys(GHOSTS).forEach(function(k){ GHOSTS[k]=assetUrl(GHOSTS[k]); });
+Object.keys(GHOSTS).forEach(function(k){ if(GHOSTS[k]) GHOSTS[k]=assetUrl(GHOSTS[k]); });
 
 const VIEWS = [
-  ["qfront", "3/4 Front", "qfront"],
-  ["front", "Front", "front"],
+  ["qfront", "3/4 Front driver", "qfront"],
   ["driver", "Driver side", "driver"],
   ["qrear_drv", "3/4 Rear driver", "qrear"],
   ["rear", "Rear", "rear"],
   ["qrear_pass", "3/4 Rear passenger", "qrear_pass"],
   ["pass", "Passenger side", "pass"],
   ["qfront_pass", "3/4 Front passenger", "qfront_pass"],
+  ["front", "Front", "front"],
   ["dash", "Dashboard", "dash"],
   ["console", "Console", "console"],
-  ["tire", "Tire", "tire"],
-  ["interior", "Driver interior", "door"]
+  ["tire", "Tire", "tire"]
 ];
 const PACKET_LAUNCH = [
   {id:"vauto", label:"V Auto", kind:"launch", brand:"vauto-sq", open:"vauto"},
@@ -3814,7 +3813,10 @@ function toast(msg){
 }
 function pic(key){ return (GHOSTS && GHOSTS[key]) || ""; }
 function ghostPic(key){ return (typeof GHOSTS==="object" && GHOSTS[key]) || pic(key); }
-function isPassGhost(key){ return key==="pass" || key==="qfront_pass" || key==="qrear"; }
+function isPassGhost(key){
+  // Shawn passenger overlays are dedicated files, already the correct side. Do not CSS-flip.
+  return false;
+}
 function unitLabel(){ return [APP.year, APP.make, APP.model].filter(Boolean).join(" ") || "Unit"; }
 function why(){
   if(APP.purpose==="website") return "Website";
@@ -10018,14 +10020,14 @@ function walkViewIndex(key){
   const exact=VIEWS.findIndex(function(v){ return v[0]===key || v[1].toLowerCase()===k; });
   if(exact>=0) return exact;
   const aliases={
-    "qfront":0,"3/4 front":0,"¾ front":0,"3/4 front (main image)":0,
-    "front":1,
-    "driver":2,"driver side":2,"side":2,
-    "qrear_drv":3,"qrear":3,"3/4 rear driver":3,"3/4 rear":3,"rear 3/4":3,
-    "rear":4,
-    "qrear_pass":5,"3/4 rear passenger":5,
-    "pass":6,"passenger":6,"passenger side":6,
-    "qfront_pass":7,"3/4 front passenger":7,
+    "qfront":0,"3/4 front":0,"¾ front":0,"3/4 front driver":0,"3/4 front (main image)":0,
+    "driver":1,"driver side":1,"side":1,
+    "qrear_drv":2,"qrear":2,"3/4 rear driver":2,"3/4 rear":2,"rear 3/4":2,
+    "rear":3,
+    "qrear_pass":4,"3/4 rear passenger":4,
+    "pass":5,"passenger":5,"passenger side":5,
+    "qfront_pass":6,"3/4 front passenger":6,
+    "front":7,
     "dash":8,"dashboard":8,"odometer":8,
     "console":9,"vin plate":9,"vin":9,
     "tire":10,"engine":10,
@@ -11849,7 +11851,10 @@ function fillDamageRows(){
     const head=document.createElement("button");
     head.type="button";
     head.className="dmg-head";
-    head.innerHTML='<div class="thumb"><img src="'+last+'" alt=""'+(shots.length || !isPassGhost(icon) ? "" : ' class="flip"')+'></div><div><b>'+label+'</b><span>'+sub+'</span></div>';
+    const thumb=last
+      ? '<img src="'+last+'" alt=""'+(shots.length || !isPassGhost(icon) ? "" : ' class="flip"')+'>'
+      : "";
+    head.innerHTML='<div class="thumb">'+thumb+'</div><div><b>'+label+'</b><span>'+sub+'</span></div>';
     head.onclick=function(){ openCamera("damage", id); };
     card.appendChild(head);
     if(shots.length){
@@ -11890,7 +11895,7 @@ function openCamera(mode, id){
       const n=dmgShots(id).length;
       if(n) label += " · "+n+" saved";
     }
-    if(mode!=="damage" && v[0]==="qfront") label = "1 · 3/4 Front (Main image)";
+    if(mode!=="damage" && v[0]==="qfront") label = "1 · 3/4 Front driver (Main image)";
     else if(mode!=="damage" && mode!=="close"){
       const step=VIEWS.findIndex(function(x){ return x[0]===id; });
       if(step>=0) label=(step+1)+" · "+v[1];
@@ -11905,10 +11910,16 @@ function openCamera(mode, id){
     g.classList.remove("tall");
     g.classList.remove("flip");
   } else {
-    g.classList.remove("off");
+    const src = ghostPic(icon);
     g.classList.toggle("tall", icon==="door");
-    g.classList.toggle("flip", isPassGhost(icon));
-    g.src = ghostPic(icon);
+    g.classList.toggle("flip", !!(src && isPassGhost(icon)));
+    if(!src){
+      g.src = "";
+      g.classList.add("off");
+    } else {
+      g.classList.remove("off");
+      g.src = src;
+    }
   }
   stopDamageMic();
   stopDamageAudio(true);
