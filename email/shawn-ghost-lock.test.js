@@ -59,22 +59,23 @@ assert.equal(ghostFile("qrear"), "ghosts/05-rear-quarter.png");
 assert.equal(ghostFile("rear"), "ghosts/02-rear.png");
 assert.equal(ghostFile("front"), "ghosts/01-front.png");
 assert.ok(!sandbox.GHOSTS.dash, "step 9 steering MISSING — dash ghost omitted");
-assert.equal(ghostFile("console"), "ghosts/console-shawn.png");
-assert.equal(ghostFile("tire"), "ghosts/tire-shawn.png");
-["qfront", "driver", "qrear", "rear", "front", "console", "tire"].forEach(function (k) {
-  assert.ok(/\?v=7\b/.test(sandbox.GHOSTS[k]), k + " cache-busted ?v=7");
+assert.equal(ghostFile("console"), "ghosts/10-console.png");
+assert.equal(ghostFile("tire"), "ghosts/11-tire.png");
+assert.equal(ghostFile("qrear_pass"), "ghosts/05-qrear-passenger.png");
+assert.equal(ghostFile("pass"), "ghosts/06-passenger-side.png");
+assert.equal(ghostFile("qfront_pass"), "ghosts/07-qfront-passenger.png");
+["qfront", "driver", "qrear", "rear", "front", "qrear_pass", "pass", "qfront_pass", "console", "tire"].forEach(function (k) {
+  assert.ok(/\?v=8\b/.test(sandbox.GHOSTS[k]), k + " cache-busted ?v=8");
 });
-assert.ok(!sandbox.GHOSTS.qrear_pass && !sandbox.GHOSTS.pass && !sandbox.GHOSTS.qfront_pass,
-  "passenger ghosts omitted — no driver-side reuse");
 
 ["01-front.png", "02-rear.png", "03-side.png", "04-front-quarter.png", "05-rear-quarter.png",
-  "console-shawn.png", "tire-shawn.png"].forEach(function (name) {
+  "05-qrear-passenger.png", "06-passenger-side.png", "07-qfront-passenger.png",
+  "10-console.png", "11-tire.png"].forEach(function (name) {
   assert.ok(fs.existsSync(path.join(root, "ghosts", name)), name + " in ghosts/");
 });
 
-assert.ok(/function isPassGhost\(key\)\{[\s\S]*return false;/.test(html), "no CSS-flip of driver assets");
+assert.ok(/function isPassGhost\(key\)\{[\s\S]*return false;/.test(html), "no CSS-flip of Shawn passenger assets");
 assert.ok(/if\(!src\)\{\s*g\.src = "";\s*g\.classList\.add\("off"\)/.test(html), "missing overlay uses ghost.off");
-assert.ok(!/qrear_pass": "ghosts\//.test(html) && !/"pass": "ghosts\/driver/.test(html),
-  "passenger keys are not wired to files");
+assert.ok(!/"pass": "ghosts\/driver/.test(html), "passenger side is not a flipped driver asset");
 assert.ok(/opacity:\.86/.test(html), "ghost opacity kept");
 assert.ok(/mix-blend-mode:normal/.test(html), "ghost mix-blend kept");

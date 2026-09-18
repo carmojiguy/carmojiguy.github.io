@@ -3666,17 +3666,18 @@ html:has(#start.on),body:has(#start.on){background:#12141A!important}
 <script>
 
 const GHOSTS = {
-  "qfront": "ghosts/04-front-quarter.png?v=7",
-  "front": "ghosts/01-front.png?v=7",
-  "driver": "ghosts/03-side.png?v=7",
+  "qfront": "ghosts/04-front-quarter.png?v=8",
+  "front": "ghosts/01-front.png?v=8",
+  "driver": "ghosts/03-side.png?v=8",
   // FLAG CoS: step 9 steering MISSING — no distinct Shawn dash asset. Do not reuse console.
-  "console": "ghosts/console-shawn.png?v=7",
-  "qrear": "ghosts/05-rear-quarter.png?v=7",
-  "rear": "ghosts/02-rear.png?v=7",
-  "tire": "ghosts/tire-shawn.png?v=7",
-  "door": "ghosts/door.png?v=5"
-  // BLOCKED CoS 2026-09-18: passenger overlays 5–7 missing. Do not point
-  // qrear_pass / pass / qfront_pass at driver-side assets or CSS-flip them.
+  "console": "ghosts/10-console.png?v=8",
+  "qrear": "ghosts/05-rear-quarter.png?v=8",
+  "rear": "ghosts/02-rear.png?v=8",
+  "tire": "ghosts/11-tire.png?v=8",
+  "door": "ghosts/door.png?v=5",
+  "qrear_pass": "ghosts/05-qrear-passenger.png?v=8",
+  "pass": "ghosts/06-passenger-side.png?v=8",
+  "qfront_pass": "ghosts/07-qfront-passenger.png?v=8"
 };
 const ASSET_BASE="https://carmojiguy.github.io/";
 function assetUrl(p){ return (ASSET_BASE||"")+String(p||"").replace(/^\//,""); }
@@ -3813,7 +3814,7 @@ function toast(msg){
 function pic(key){ return (GHOSTS && GHOSTS[key]) || ""; }
 function ghostPic(key){ return (typeof GHOSTS==="object" && GHOSTS[key]) || pic(key); }
 function isPassGhost(key){
-  // BLOCKED: passenger HUD overlays are missing. Never CSS-flip driver-side Shawn assets.
+  // Shawn passenger overlays are dedicated files, already the correct side. Do not CSS-flip.
   return false;
 }
 function unitLabel(){ return [APP.year, APP.make, APP.model].filter(Boolean).join(" ") || "Unit"; }
