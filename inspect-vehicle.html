@@ -13121,55 +13121,60 @@ async function openVautoOfferPdf(m, store){
 async function buildVautoOfferPdf(m){
   if(!window.jspdf) await loadScript("https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js");
   const {jsPDF}=window.jspdf;
-  const d=new jsPDF({unit:"pt", format:"letter", compress:true});
-  const W=612, H=792;
-  d.setFillColor(248,249,255); d.rect(0,0,W,H,"F");
-  d.setFillColor(124,92,255); d.rect(0,0,W,10,"F");
-  d.setFont("helvetica","bold"); d.setFontSize(11); d.setTextColor(26,97,162);
-  d.text("V AUTO PREDICTED OFFER", 36, 40);
-  d.setFontSize(22); d.setTextColor(17,14,26);
-  d.text(String(unitLabel()||"Vehicle"), 36, 68);
-  d.setFont("helvetica","normal"); d.setFontSize(12); d.setTextColor(107,98,120);
-  if(APP.vin) d.text("VIN  "+String(APP.vin).toUpperCase(), 36, 88);
-  d.setFont("helvetica","bold"); d.setFontSize(28); d.setTextColor(91,63,224);
-  d.text(moneyFmt(m.offer), 36, 130);
-  d.setFontSize(12); d.setTextColor(26,97,162);
-  d.text("95% of market minus $3,500 profit minus $1,200 recon", 36, 152);
-  const rows=[
-    ["Market", moneyFmt(m.market)],
-    ["95% of market", moneyFmt(m.pctOf||round50((m.market||0)*0.95))],
+  const d=new jsPDF({unit:"pt", format:"a4", compress:true});
+  const W=d.internal.pageSize.getWidth(), H=d.internal.pageSize.getHeight();
+  const L=36, R=W-36, INK=[17,17,17], MUTED=[107,114,128], GREEN=[27,107,58], BAR=[17,17,17], WHITE=[255,255,255], LINE=[229,231,235];
+  function money(n){ if(n==null||n==="")return"—"; var x=Number(n); if(!isFinite(x))return String(n); return"$"+Math.round(x).toLocaleString("en-CA"); }
+  d.setFillColor(WHITE[0],WHITE[1],WHITE[2]); d.rect(0,0,W,H,"F");
+  d.setFillColor(BAR[0],BAR[1],BAR[2]); d.rect(0,0,W,42,"F");
+  d.setTextColor(255,255,255); d.setFont("helvetica","bold"); d.setFontSize(11);
+  d.text("JARVIS · V AUTO OFFER", L, 27);
+  var y=72;
+  d.setTextColor(INK[0],INK[1],INK[2]); d.setFontSize(22);
+  d.text(String(unitLabel()||"Vehicle"), L, y); y+=18;
+  d.setFont("helvetica","normal"); d.setFontSize(10); d.setTextColor(MUTED[0],MUTED[1],MUTED[2]);
+  if(APP.vin){ d.text("VIN  "+String(APP.vin).toUpperCase(), L, y); y+=16; }
+  d.setFillColor(BAR[0],BAR[1],BAR[2]); d.rect(0,y,W,28,"F");
+  d.setTextColor(255,255,255); d.setFont("helvetica","bold"); d.setFontSize(10);
+  d.text("THE CALL — V Auto predicted buy", L, y+18); y+=44;
+  var rows=[
+    ["Predicted offer", money(m&&m.offer)],
+    ["Market", money(m&&m.market)],
+    ["95% of market", money(m&&(m.pctOf||(m.market!=null?Math.round(Number(m.market)*0.95):null)))],
     ["Profit", "$3,500"],
     ["Recon", "$1,200"],
-    ["Buy number", moneyFmt(m.offer)],
-    ["MMR", moneyFmt(m.mmr)],
-    ["CBB average before km", moneyFmt(m.average)],
-    ["CBB rough", moneyFmt(m.rough)],
-    ["CBB clean", moneyFmt(m.clean)],
-    ["CBB extra clean", moneyFmt(m.extraClean)],
-    ["Kilometre adjust", moneyFmt(m.kmAdjust)]
+    ["MMR", money(m&&m.mmr)],
+    ["CBB average before km", money(m&&m.average)],
+    ["CBB rough", money(m&&m.rough)],
+    ["CBB clean", money(m&&m.clean)],
+    ["CBB extra clean", money(m&&m.extraClean)],
+    ["Kilometre adjust", money(m&&m.kmAdjust)]
   ];
-  let y=180;
-  rows.forEach(function(r){
-    d.setFont("helvetica","bold"); d.setFontSize(10); d.setTextColor(107,98,120);
-    d.text(r[0].toUpperCase(), 36, y);
-    d.setFontSize(13); d.setTextColor(17,14,26);
-    d.text(r[1], 280, y);
-    y+=22;
-  });
-  y+=16;
-  d.setFont("helvetica","bold"); d.setFontSize(12); d.setTextColor(26,97,162);
-  d.text("COMPETITIVE SET", 36, y); y+=20;
-  (m.comps||[]).forEach(function(c){
-    d.setFont("helvetica","normal"); d.setFontSize(11); d.setTextColor(17,14,26);
-    d.text(c.who+"   "+moneyFmt(c.price)+"   "+kmFmt(c.km), 36, y);
+  rows.forEach(function(row){
+    d.setDrawColor(LINE[0],LINE[1],LINE[2]); d.setLineWidth(0.5); d.line(L,y+6,R,y+6);
+    d.setTextColor(INK[0],INK[1],INK[2]); d.setFont("helvetica","normal"); d.setFontSize(11); d.text(row[0], L, y);
+    d.setTextColor(GREEN[0],GREEN[1],GREEN[2]); d.setFont("helvetica","bold"); d.setFontSize(12); d.text(row[1], R, y, {align:"right"});
     y+=18;
   });
-  y+=16;
-  d.setFont("helvetica","italic"); d.setFontSize(10); d.setTextColor(107,98,120);
-  d.text("Built from the V Auto files. The raw video is never the deliverable.", 36, y);
+  y+=10;
+  d.setTextColor(INK[0],INK[1],INK[2]); d.setFont("helvetica","bold"); d.setFontSize(12); d.text("Competitive set", L, y);
+  y+=3; d.setDrawColor(GREEN[0],GREEN[1],GREEN[2]); d.setLineWidth(1.4); d.line(L,y,R,y); y+=14;
+  d.setFont("helvetica","normal"); d.setFontSize(10); d.setTextColor(INK[0],INK[1],INK[2]);
+  (m&&m.comps||[]).forEach(function(c){
+    d.text(String(c.who||"—")+"   "+money(c.price)+"   "+(typeof kmFmt==="function"?kmFmt(c.km):String(c.km||"")), L, y);
+    y+=14;
+  });
+  if(!(m&&m.comps&&m.comps.length)){ d.setTextColor(MUTED[0],MUTED[1],MUTED[2]); d.text("No competitive set lines on file.", L, y); y+=14; }
+  y+=12;
+  d.setFont("helvetica","italic"); d.setFontSize(9); d.setTextColor(MUTED[0],MUTED[1],MUTED[2]);
+  d.text("Built from the V Auto files. The raw video is never the deliverable.", L, y);
+  d.setDrawColor(LINE[0],LINE[1],LINE[2]); d.setLineWidth(0.5); d.line(L, H-40, R, H-40);
+  d.setFont("helvetica","normal"); d.setFontSize(8);
+  d.text("JARVIS · V AUTO OFFER · MyCar · Automated prediction — verify before purchase.", L, H-28);
   d.setProperties({title:(unitLabel()||"Vehicle")+" — V Auto offer", author:APP.userName||APP.userEmail||""});
   return d;
 }
+
 async function openScrollPdf(dataUrl, title){
   openViewer("packet", '<div class="pdf-fill" id="pdfFill"><p class="pdf-wait">Opening a full-screen, scrollable document…</p></div>', title);
   const host=$("pdfFill");
