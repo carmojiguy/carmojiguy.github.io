@@ -391,34 +391,314 @@ def damp_speculars(rgba, glass, paint):
     return rgba
 
 
+def drop_stray_vehicle(rgba):
+    """Keep the largest vehicle. On a dark car, drop a light cap above the roof.
+
+    The Camry cutout includes the grey car parked behind it. That cap is a
+    bright run sitting on the black roof. A light car has no such cap, so
+    this leaves its roof alone. Separate specks are dropped too.
+    """
+    alpha = rgba[:, :, 3]
+    rgb = rgba[:, :, :3].astype(np.float32)
+    lum = rgb.mean(axis=2)
+    h, w = alpha.shape
+    fg = (alpha > 40).astype(np.uint8)
+    n, lab, stats, _ = cv2.connectedComponentsWithStats(fg, 8)
+    if n > 2:
+        areas = stats[1:, cv2.CC_STAT_AREA]
+        keep = 1 + int(np.argmax(areas))
+        main = int(areas.max())
+        drop_cc = np.zeros((h, w), bool)
+        for i in range(1, n):
+            if i != keep and stats[i, cv2.CC_STAT_AREA] < main * 0.02:
+                drop_cc |= lab == i
+        if drop_cc.any():
+            rgba = rgba.copy()
+            rgba[drop_cc, 3] = 0
+            alpha = rgba[:, :, 3]
+    # Bright cap over a dark roof only. A white or grey roof is the car.
+    opaque = alpha > 140
+    box = bbox_of(opaque)
+    if box is None:
+        return rgba
+    y0b, y1b, x0b, x1b = box
+    span_y = max(1, y1b - y0b)
+    span_x = max(1, x1b - x0b)
+    door = np.zeros(opaque.shape, bool)
+    door[y0b + int(span_y * 0.40) : y0b + int(span_y * 0.62), x0b + int(span_x * 0.25) : x1b - int(span_x * 0.25)] = True
+    door &= opaque
+    if int(door.sum()) < 40:
+        return rgba
+    # The median is the sky shine. The dark percentile is the paint.
+    door_lum = float(np.percentile(lum[door], 20))
+    if door_lum > 48:
+        return rgba
+    cap = np.zeros((h, w), bool)
+    cols = 0
+    for x in range(w):
+        ys = np.where(alpha[:, x] > 40)[0]
+        if len(ys) < 12:
+            continue
+        y0 = int(ys[0])
+        ycut = None
+        for y in range(y0, min(h, y0 + 90)):
+            if lum[y, x] < 50 and alpha[y, x] > 40:
+                ycut = y
+                break
+        if ycut is None:
+            continue
+        span = ycut - y0
+        if span < 8 or span > 80:
+            continue
+        if float(lum[y0:ycut, x].mean()) < 100:
+            continue
+        below = lum[ycut : min(h, ycut + 22), x]
+        if below.size < 6 or float(below.mean()) > 75:
+            continue
+        cap[y0 : max(y0, ycut - 2), x] = True
+        cols += 1
+    if cols > 40 and cap.any():
+        rgba = rgba.copy()
+        rgba[cap, 3] = 0
+        print("  dropped light cap", int(cap.sum()), "px over", cols, "columns")
+    return rgba
+
+
+def smooth_silhouette(rgba):
+    """Round 1 px stair-steps on the outer contour and leave a 1 px soft edge.
+
+    Window holes stay. The edge colour is taken from the interior so the
+    wall does not pick up a dark fringe.
+    """
+    alpha = rgba[:, :, 3]
+    h, w = alpha.shape
+    solid = (alpha > 140).astype(np.uint8)
+    ff = (solid == 0).astype(np.uint8).copy()
+    flood_mask = np.zeros((h + 2, w + 2), np.uint8)
+    cv2.floodFill(ff, flood_mask, (0, 0), 2)
+    car = (ff != 2).astype(np.uint8)
+    if int(car.sum()) < 500:
+        return rgba
+    cnts, _ = cv2.findContours(car, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    if not cnts:
+        return rgba
+    cnt = max(cnts, key=cv2.contourArea)
+    pts = cnt[:, 0, :].astype(np.float32)
+    if len(pts) < 40:
+        return rgba
+    win = 9
+    pad = win // 2
+    kernel = np.ones(win, np.float32) / float(win)
+    xs = np.concatenate([pts[-pad:, 0], pts[:, 0], pts[:pad, 0]])
+    ys = np.concatenate([pts[-pad:, 1], pts[:, 1], pts[:pad, 1]])
+    sx = np.convolve(xs, kernel, mode="valid")
+    sy = np.convolve(ys, kernel, mode="valid")
+    smooth = np.stack([sx, sy], axis=1).astype(np.int32)
+    mask = np.zeros((h, w), np.uint8)
+    cv2.fillPoly(mask, [smooth], 255)
+    # Put enclosed gaps (a missed window is rare; the cutout glass is opaque) back
+    # only when they were open in the source and inside the new outline.
+    soft = cv2.GaussianBlur(mask, (0, 0), 0.75)
+    rgb = rgba[:, :, :3].copy()
+    new_edge = (soft > 15) & (alpha < 30)
+    if new_edge.any():
+        rgb = cv2.inpaint(rgb, new_edge.astype(np.uint8) * 255, 2, cv2.INPAINT_TELEA)
+    out = rgba.copy()
+    out[:, :, :3] = rgb
+    out[:, :, 3] = soft
+    return out
+
+
+def _biref_session():
+    global _BIREF
+    if _BIREF is not None:
+        return _BIREF
+    from rembg import new_session
+    _BIREF = new_session("birefnet-general-lite")
+    return _BIREF
+
+
+_BIREF = None
+
+
+def recut_biref(src_path, fallback):
+    """BiRefNet at a longer side of about 2000. Keep the old cut if it disagrees."""
+    if not src_path or not os.path.isfile(src_path):
+        return fallback
+    from rembg import remove
+    src = Image.open(src_path).convert("RGB")
+    scale = 2000.0 / float(max(src.size))
+    if scale < 1.0:
+        src_in = src.resize((int(src.width * scale), int(src.height * scale)), Image.Resampling.LANCZOS)
+    else:
+        src_in = src
+    cut = remove(src_in, session=_biref_session()).convert("RGBA")
+    new = np.asarray(cut)
+    old = fallback
+    def core(arr):
+        a = arr[:, :, 3] > 140
+        if int(a.sum()) < 800:
+            return None
+        pix = arr[:, :, :3][a].astype(np.float32)
+        return float(pix.mean()), int(a.sum())
+    cn, co = core(new), core(old)
+    if cn is None or co is None:
+        print("  biref empty, kept the old cut")
+        return old
+    if abs(cn[0] - co[0]) > 45:
+        print("  biref paint", round(cn[0], 1), "vs old", round(co[0], 1), "- kept the old cut")
+        return old
+    print("  biref recut", cut.size, "mean", round(cn[0], 1))
+    return new
+
+
+def relight_paint(rgba, glass, paint):
+    """Compress outdoor shading on the paint. Glass, lamps and tyres stay.
+
+    High-frequency detail (panel gaps, character lines) is kept. The broad
+    sky gradient is pulled toward an even, slightly top-lit body colour.
+    """
+    rgb = rgba[:, :, :3].astype(np.float32)
+    alpha = rgba[:, :, 3]
+    h, w = rgb.shape[:2]
+    protect = cv2.dilate(
+        glass.astype(np.uint8), cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
+    ) > 0
+    opaque = alpha > 150
+    r, g, b = rgb[:, :, 0], rgb[:, :, 1], rgb[:, :, 2]
+    lamp = opaque & (r > g + 28) & (r > b + 28) & (r > 60) & ~protect
+    box = bbox_of(opaque)
+    tyre = np.zeros(opaque.shape, bool)
+    if box is not None:
+        y0, y1, _, _ = box
+        span = max(1, y1 - y0)
+        yy = np.arange(h)[:, None]
+        tyre = (yy > y0 + 0.78 * span) & (rgb.mean(axis=2) < 48) & opaque
+    body = opaque & ~protect & ~lamp & ~tyre
+    if paint is not None and float(np.mean(paint)) > 150:
+        dist = np.linalg.norm(rgb - np.asarray(paint, np.float32).reshape(1, 1, 3), axis=2)
+        body = body & ((dist < 78) | (rgb.mean(axis=2) > float(np.mean(paint)) - 45))
+    if int(body.sum()) < 120:
+        return rgba
+    sigma = max(12.0, 0.045 * min(h, w))
+    low = cv2.GaussianBlur(rgb, (0, 0), sigma)
+    detail = rgb - low
+    pv = np.array([40, 40, 42] if paint is None else paint, np.float32)
+    lum = float(pv.mean())
+    if lum > 160:
+        top_c = np.minimum(pv * 1.02 + 3.0, 228)
+        bot_c = pv * 0.97
+        mix, detail_gain = 0.58, 0.90
+    elif lum > 95:
+        top_c = np.minimum(pv * 1.04 + 2.0, 200)
+        bot_c = pv * 0.93
+        mix, detail_gain = 0.68, 0.82
+    else:
+        top_c = np.clip(pv * 0.55 + 22.0, 18, 42)
+        bot_c = np.clip(pv * 0.45 + 10.0, 10, 28)
+        mix, detail_gain = 0.84, 0.62
+    if box is None:
+        t = np.linspace(0, 1, h).astype(np.float32)
+    else:
+        y0, y1, _, _ = box
+        t = np.clip((np.arange(h) - y0) / float(max(1, y1 - y0)), 0, 1).astype(np.float32)
+    target = top_c * (1.0 - t)[:, None, None] + bot_c * t[:, None, None]
+    out = low * (1.0 - mix) + target * mix + detail * detail_gain
+    rgb2 = rgb.copy()
+    rgb2[body] = np.clip(out[body], 0, 236)
+    rgba = rgba.copy()
+    rgba[:, :, :3] = rgb2.astype(np.uint8)
+    return rgba
+
+
+def clean_tail_lamps(rgba):
+    """Repaint tail lamps as clean red lenses. Outdoor reflections in the lens go."""
+    alpha = rgba[:, :, 3]
+    rgb = rgba[:, :, :3]
+    h, w = rgb.shape[:2]
+    if int((alpha > 80).sum()) < 500:
+        return rgba
+    plate = np.full((h, w, 3), 224, np.uint8)
+    a = (alpha.astype(np.float32) / 255.0)[:, :, None]
+    plate = (rgb.astype(np.float32) * a + plate.astype(np.float32) * (1.0 - a)).astype(np.uint8)
+    model = _parts_model()
+    res = model.predict(plate, conf=0.35, imgsz=768, verbose=False, retina_masks=True)[0]
+    if res.masks is None or res.boxes is None:
+        return rgba
+    lamp = np.zeros((h, w), np.uint8)
+    for i, cls in enumerate(res.boxes.cls.cpu().numpy().astype(int)):
+        name = str(model.names[int(cls)]).lower()
+        if "tail" not in name:
+            continue
+        lamp = np.maximum(lamp, _fill_poly(h, w, res.masks.xy[i]))
+    lamp = cv2.erode(lamp, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3)))
+    m = (lamp > 0) & (alpha > 80)
+    if int(m.sum()) < 40:
+        return rgba
+    work = rgb.astype(np.float32)
+    lum = work.mean(axis=2)
+    detail = (lum - cv2.GaussianBlur(lum, (0, 0), 5))[:, :, None]
+    ys, xs = np.where(m)
+    y0, y1 = int(ys.min()), int(ys.max())
+    t = np.clip((np.arange(h) - y0) / float(max(1, y1 - y0)), 0, 1).astype(np.float32)
+    hi = np.array([186, 22, 18], np.float32)
+    lo = np.array([118, 12, 12], np.float32)
+    col = hi * (1.0 - t)[:, None, None] + lo * t[:, None, None]
+    # One soft highlight inside the lens, not a picture of the lot.
+    mid = 0.35
+    streak = np.exp(-0.5 * ((t - mid) / 0.18) ** 2)
+    col = col + streak[:, None, None] * np.array([28, 6, 4], np.float32)
+    painted = col + detail * 0.28
+    out = rgba.copy()
+    out[:, :, :3][m] = np.clip(painted[m], 0, 230).astype(np.uint8)
+    print("  tail lamps", int(m.sum()))
+    return out
+
+
 def add_softbox(rgba, glass, paint):
-    """A broad, soft band on the upper paint. It does not touch the glass."""
+    """One long soft horizontal reflection along the shoulder. Paint only."""
     rgb = rgba[:, :, :3].astype(np.float32)
     body = body_paint(rgb, rgba[:, :, 3], glass, paint)
     box = bbox_of(body)
     if box is None:
         return rgba
+    h, w = rgb.shape[:2]
     y0, y1, x0, x1 = box
-    span = max(1, y1 - y0)
-    width = max(1, x1 - x0)
-    yy = np.arange(rgba.shape[0])[:, None]
-    xx = np.arange(rgba.shape[1])[None, :]
-    t = (yy - y0) / float(span)
-    u = (xx - x0) / float(width)
-    band = np.exp(-0.5 * ((t - 0.22) / 0.11) ** 2)
-    across = np.exp(-0.5 * ((u - 0.42) / 0.40) ** 2)
+    belt = np.full(w, -1.0)
+    if glass is not None and np.any(glass):
+        ys_idx, xs_idx = np.where(glass)
+        if len(xs_idx):
+            # Bottom of the glass in each column is the shoulder.
+            order = np.argsort(xs_idx)
+            xs_s = xs_idx[order]
+            ys_s = ys_idx[order]
+            # last y per x
+            # np.maximum.at
+            acc = np.full(w, -1, np.int32)
+            np.maximum.at(acc, xs_s, ys_s)
+            known = np.where(acc >= 0)[0]
+            if len(known) > 8:
+                belt = np.interp(np.arange(w), known, acc[known].astype(np.float32))
+                belt = np.convolve(belt, np.ones(41) / 41.0, mode="same")
+    if belt[0] < 0:
+        belt[:] = y0 + 0.36 * (y1 - y0)
+    yy = np.arange(h)[:, None].astype(np.float32)
+    dy = yy - (belt[None, :] + 7.0)
+    streak = np.exp(-0.5 * (dy / 8.0) ** 2)
+    u = (np.arange(w) - x0) / float(max(1, x1 - x0))
+    across = np.exp(-0.5 * ((u - 0.50) / 0.46) ** 2)
     paint_lum = 180.0 if paint is None else float(np.mean(paint))
-    gain = 8.0 if paint_lum > 140 else 18.0
-    add = (gain * band * across) * body
+    gain = 12.0 if paint_lum > 150 else 20.0
+    add = (gain * streak * across[None, :]) * body
     rgb = rgb + add[:, :, None]
     out = rgba.copy()
-    cap = 240 if paint_lum > 140 else 255
+    cap = 236 if paint_lum > 150 else 210
     out[:, :, :3] = np.clip(rgb, 0, cap).astype(np.uint8)
     return out
 
 
 def choke(rgba, px=1):
-    """Eat 1 px of silhouette and repaint that edge from the interior."""
+    """Eat 1 px of fringe. Leave a 1 px soft rim so the roof is not a staircase."""
     alpha = rgba[:, :, 3]
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
     eroded = alpha
@@ -429,22 +709,28 @@ def choke(rgba, px=1):
     if edge.any():
         painted = cv2.inpaint(out[:, :, :3], edge.astype(np.uint8) * 255, 2, cv2.INPAINT_TELEA)
         out[:, :, :3] = painted
-    # Hard matte. A partial-alpha rim is the halo.
-    out[:, :, 3] = np.where(eroded > 20, 255, 0).astype(np.uint8)
+    soft = cv2.GaussianBlur(eroded, (0, 0), 0.7)
+    soft[alpha < 8] = 0
+    soft[eroded > 220] = 255
+    out[:, :, 3] = soft
     return out
 
 
 def relight_cutout(rgba, wall_rgb):
     # The parts model reads the original photo. The tint keeps a little of that glass.
+    rgba = drop_stray_vehicle(rgba)
+    rgba = smooth_silhouette(rgba)
     original = rgba.copy()
     mask = glass_mask(rgba[:, :, :3], rgba[:, :, 3])
     graded = studio_grade(rgba, wall_rgb)
     paint = paint_color(graded[:, :, :3], graded[:, :, 3])
     graded = kill_outdoor_cast(graded, paint, mask)
     graded = blend_glass(graded, original, mask)
+    graded = relight_paint(graded, mask, paint)
     graded = damp_speculars(graded, mask, paint)
     graded = lift_white(graded, mask, paint)
     graded = add_softbox(graded, mask, paint)
+    graded = clean_tail_lamps(graded)
     graded = cap_white(graded)
     return graded, mask
 
@@ -688,8 +974,9 @@ def add_reflection(plate, layer, contacts, ellipse):
     return np.clip(out, 0, 255).astype(np.uint8)
 
 
-def composite_car(plate_rgb, ellipse, ground_y, cut_path, wall_rgb, debug_path=None):
-    car = np.asarray(Image.open(cut_path).convert("RGBA"))
+def composite_car(plate_rgb, ellipse, ground_y, cut_path, wall_rgb, debug_path=None, src_path=None):
+    fallback = np.asarray(Image.open(cut_path).convert("RGBA"))
+    car = recut_biref(src_path, fallback)
     car, mask = relight_cutout(car, wall_rgb)
     if debug_path:
         os.makedirs(os.path.dirname(debug_path), exist_ok=True)
@@ -743,15 +1030,16 @@ def main():
     oidn = find_oidn()
     print("oidn", oidn)
     jobs = [
-        ("rav4-front", "/tmp/gm-proof2/rav4-front-cut.png", "h070"),
-        ("rav4-side", "/tmp/gm-proof2/rav4-side-cut.png", "h140"),
-        ("rav4-rear", "/tmp/gm-proof2/rav4-rear-cut.png", "h070"),
-        ("accord-grey", "/tmp/gm-cars/accord-grey-cut.png", "h070"),
-        ("camry-black", "/tmp/gm-cars/camry-black-cut.png", "h070"),
+        ("rav4-front", "/tmp/gm-proof2/rav4-front-cut.png", "h070", "/workspace/photos/test-rav4/front.jpg"),
+        # The side cutout is the white Prime. The test-rav4 side photo is a different car.
+        ("rav4-side", "/tmp/gm-proof2/rav4-side-cut.png", "h140", None),
+        ("rav4-rear", "/tmp/gm-proof2/rav4-rear-cut.png", "h070", "/workspace/photos/test-rav4/rear.jpg"),
+        ("accord-grey", "/tmp/gm-cars/accord-grey-cut.png", "h070", "/tmp/gm-cars/accord-grey.jpg"),
+        ("camry-black", "/tmp/gm-cars/camry-black-cut.png", "h070", "/tmp/gm-cars/camry-black-2025.jpg"),
     ]
     prepared = {}
     results = []
-    for name, cut, key in jobs:
+    for name, cut, key, src_path in jobs:
         if not os.path.isfile(cut):
             print("missing cut", cut)
             continue
@@ -766,7 +1054,7 @@ def main():
         ground_y = min(ground_y, ellipse["cy"] + ellipse["ry"] - plate.shape[0] * 0.055)
         debug = os.path.join(out_dir, "debug", f"{name}-glass.jpg")
         merged, contacts, angle, glass_frac = composite_car(
-            plate, ellipse, ground_y, cut, wall, debug_path=debug
+            plate, ellipse, ground_y, cut, wall, debug_path=debug, src_path=src_path
         )
         merged = add_mark(merged)
         path = os.path.join(out_dir, f"{name}.jpg")
