@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# Superseded. The line drawings this file used to emit were rejected.
+# New guides are licensed photos run through tools/photo_ghosts.py.
+# Do not regenerate PNGs from this script.
 """Neon framing ghosts in the same glow as the original ghosts/*.png files.
 
 Original guides are luminous green line drawings: a bright core near

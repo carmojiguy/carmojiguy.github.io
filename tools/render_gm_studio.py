@@ -22,13 +22,13 @@ VARIANTS = {
         "cove": (232, 234, 237),
         "floor": (196, 198, 203),
         "floor_far": (226, 228, 232),
-        "disc": (186, 190, 196),
-        "disc_far": (150, 154, 160),
-        "disc_near": (214, 217, 222),
-        "groove": (158, 162, 168),
-        "groove_hi": (228, 230, 234),
-        "rim_hi": (242, 244, 247),
-        "rim_lo": (120, 124, 130),
+        # Satin dark-grey disc on the light floor. No machined rings.
+        "disc_far": (78, 82, 88),
+        "disc_near": (108, 112, 118),
+        "sheen": (132, 136, 142),
+        "rim_hi": (214, 218, 224),
+        "rim_lo": (36, 38, 42),
+        "spec": 0.55,
         "ink": (22, 24, 28, 255),
         "sub": (70, 74, 82, 255),
         "vignette": 0.22,
@@ -41,13 +41,13 @@ VARIANTS = {
         "cove": (246, 247, 248),
         "floor": (222, 223, 226),
         "floor_far": (240, 241, 243),
-        "disc": (214, 216, 220),
-        "disc_far": (188, 190, 194),
-        "disc_near": (236, 237, 240),
-        "groove": (186, 188, 192),
-        "groove_hi": (246, 247, 249),
+        # Polished light-grey disc. One soft edge highlight, no rings.
+        "disc_far": (168, 170, 174),
+        "disc_near": (206, 208, 212),
+        "sheen": (228, 230, 234),
         "rim_hi": (255, 255, 255),
-        "rim_lo": (160, 162, 166),
+        "rim_lo": (120, 122, 126),
+        "spec": 0.85,
         "ink": (28, 30, 34, 255),
         "sub": (90, 94, 100, 255),
         "vignette": 0.12,
@@ -60,18 +60,17 @@ VARIANTS = {
         "cove": (230, 222, 212),
         "floor": (196, 186, 174),
         "floor_far": (226, 218, 208),
-        "disc": (176, 166, 154),
-        "disc_far": (146, 136, 124),
-        "disc_near": (210, 202, 192),
-        "groove": (150, 140, 128),
-        "groove_hi": (224, 216, 206),
-        "rim_hi": (236, 230, 222),
-        "rim_lo": (110, 100, 90),
+        "disc_far": (72, 66, 60),
+        "disc_near": (104, 96, 88),
+        "sheen": (126, 116, 106),
+        "rim_hi": (214, 206, 196),
+        "rim_lo": (36, 32, 28),
+        "spec": 0.5,
         "ink": (36, 30, 26, 255),
         "sub": (92, 78, 68, 255),
         "vignette": 0.20,
         "lit": 0.0,
-        "accent": (224, 36, 60),
+        "accent": None,
     },
     "charcoal": {
         "wall": (28, 29, 32),
@@ -79,13 +78,12 @@ VARIANTS = {
         "cove": (38, 39, 43),
         "floor": (18, 19, 21),
         "floor_far": (34, 35, 38),
-        "disc": (118, 120, 126),
-        "disc_far": (72, 74, 78),
-        "disc_near": (168, 170, 176),
-        "groove": (86, 88, 94),
-        "groove_hi": (150, 152, 158),
-        "rim_hi": (210, 212, 218),
-        "rim_lo": (40, 42, 46),
+        "disc_far": (46, 48, 52),
+        "disc_near": (72, 74, 80),
+        "sheen": (96, 100, 108),
+        "rim_hi": (186, 192, 202),
+        "rim_lo": (16, 17, 19),
+        "spec": 0.7,
         "ink": (248, 248, 250, 255),
         "sub": (196, 198, 204, 255),
         "vignette": 0.55,
@@ -207,57 +205,49 @@ def render(name, spec, w, h):
     rgb = rgb * (1 - vig[..., None] * spec["vignette"])
 
     wide = w / h >= 1.5
-    cx = w * 0.5
-    cy = h * (0.80 if wide else 0.735)
-    rx = w * (0.36 if wide else 0.40)
-    ry = rx * (0.17 if wide else 0.215)
+    # Low dealer camera: a flat ellipse, not a CD seen from above.
+    cx = w * 0.50
+    cy = h * (0.80 if wide else 0.762)
+    rx = w * (0.42 if wide else 0.46)
+    ry = rx * (0.20 if wide else 0.24)
     dx = (xx - cx) / rx
     dy = (yy - cy) / ry
     d = np.sqrt(dx * dx + dy * dy)
+    ang = np.arctan2(dy, dx)
 
-    # Disc shadow on the floor, offset toward the camera (down).
-    sdx = (xx - cx) / (rx * 1.08)
-    sdy = (yy - (cy + ry * 0.55)) / (ry * 1.35)
+    # Soft floor shadow under the disc, offset toward the camera. Not a ring.
+    sdx = (xx - cx) / (rx * 1.04)
+    sdy = (yy - (cy + ry * 0.42)) / (ry * 1.55)
     sd = np.sqrt(sdx * sdx + sdy * sdy)
-    sh = np.clip(1.05 - sd, 0, 1) ** 1.8
+    sh = np.clip(1.02 - sd, 0, 1) ** 1.6
     if spec["lit"] < 0.5:
-        rgb = rgb * (1 - sh[..., None] * 0.22)
+        rgb = rgb * (1 - sh[..., None] * 0.16)
     else:
-        # Charcoal: the turntable is the light. A pool falls off into the room.
-        pool = np.exp(-(sd ** 2) / 1.15)
-        rgb = rgb + pool[..., None] * 28
+        pool = np.exp(-(sd ** 2) / 1.35)
+        rgb = rgb + pool[..., None] * 18
 
-    # Metal disc. Far side darker, near side catches the softbox.
+    # Satin face. Far side darker, near side takes the softbox. One broad
+    # gradient, no concentric grooves.
     disc_far = np.array(spec["disc_far"], np.float32)
     disc_near = np.array(spec["disc_near"], np.float32)
-    facing = np.clip((dy + 0.15) * 0.85 + 0.35, 0, 1)
+    sheen = np.array(spec["sheen"], np.float32)
+    facing = np.clip((dy + 0.35) * 0.55 + 0.25, 0, 1)
+    facing = facing * facing * (3 - 2 * facing)
     disc = mix(disc_far, disc_near, facing)
-    # Brushed radial tooth: very fine concentric grooves.
-    groove = np.array(spec["groove"], np.float32)
-    groove_hi = np.array(spec["groove_hi"], np.float32)
-    rings = 0.5 + 0.5 * np.sin(d * 92.0)
-    disc = mix(disc, groove, (rings > 0.72).astype(np.float32) * 0.28)
-    disc = mix(disc, groove_hi, (np.abs(rings - 0.5) < 0.04).astype(np.float32) * 0.22)
-    # A few wider machined rings so the disc reads at thumbnail size.
-    for rad, amp in ((0.22, 0.35), (0.45, 0.28), (0.68, 0.32), (0.86, 0.40)):
-        band = np.exp(-((d - rad) ** 2) / (2 * 0.004 ** 2))
-        disc = mix(disc, groove_hi, band * amp)
-    # Specular streak on the near metal, like a softbox in a brushed disc.
-    streak = np.exp(-((d - 0.62) ** 2) / 0.004) * np.clip(dy, 0, 1) ** 1.2
-    disc = np.clip(disc + streak[..., None] * (55 if spec["lit"] else 36), 0, 255)
-    # Bevelled rim: bright lip, dark outer edge.
-    lip = np.exp(-((d - 0.955) ** 2) / (2 * 0.008 ** 2))
-    edge = np.exp(-((d - 1.005) ** 2) / (2 * 0.010 ** 2))
-    disc = mix(disc, np.array(spec["rim_hi"], np.float32), lip * 0.85)
-    disc = mix(disc, np.array(spec["rim_lo"], np.float32), edge * 0.75)
-    if spec["accent"] is not None:
-        acc = np.array(spec["accent"], np.float32)
-        red = np.exp(-((d - 0.975) ** 2) / (2 * 0.0035 ** 2))
-        disc = mix(disc, acc, red * 0.95)
-    # Centre cap.
-    cap = np.clip((0.045 - d) / 0.012, 0, 1)
-    disc = mix(disc, np.array(spec["rim_hi"], np.float32), cap * 0.7)
-    disc_a = np.clip((1.012 - d) / 0.018, 0, 1)
+    # A wide, soft reflection of the overhead softbox. It fades before the rim.
+    bloom = np.exp(-((dx + 0.08) ** 2) / 0.55 - ((dy - 0.25) ** 2) / 0.35)
+    bloom = bloom * np.clip(1.15 - d, 0, 1)
+    disc = mix(disc, sheen, bloom * (0.22 + 0.18 * spec["spec"]))
+
+    # Thin bevel. The metal lip is quiet except for one soft specular on the
+    # near-left arc, where the softbox catches the edge.
+    lip = np.exp(-((d - 0.978) ** 2) / (2 * 0.0065 ** 2))
+    outer = np.exp(-((d - 1.006) ** 2) / (2 * 0.008 ** 2))
+    # Angle 2.15 rad is the near-left rim (camera left, toward the floor).
+    spec_arc = np.exp(-((ang - 2.15) ** 2) / (2 * 0.38 ** 2))
+    disc = mix(disc, np.array(spec["rim_lo"], np.float32), outer * 0.80)
+    disc = mix(disc, np.array(spec["rim_hi"], np.float32), lip * (0.18 + 0.72 * spec_arc * spec["spec"]))
+    disc_a = np.clip((1.008 - d) / 0.012, 0, 1)
     disc_a = disc_a * disc_a * (3 - 2 * disc_a)
     rgb = mix(rgb, disc, disc_a)
 

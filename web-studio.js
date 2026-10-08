@@ -40,7 +40,7 @@
   }
 
   function plate(id, name, file) {
-      var v = "20261008g";
+      var v = "20261008h";
     return {
       id: id,
       name: name,
@@ -504,11 +504,34 @@
 
   function plateGeom(w, h) {
     var wide = w / h >= 1.5;
-    var cx = w * 0.5;
-    var cy = h * (wide ? 0.80 : 0.735);
-    var rx = w * (wide ? 0.36 : 0.40);
-    var ry = rx * (wide ? 0.17 : 0.215);
-    return { cx: cx, cy: cy, rx: rx, ry: ry, ground: cy + ry * 0.02 };
+    var cx = w * 0.50;
+    var cy = h * (wide ? 0.80 : 0.762);
+    var rx = w * (wide ? 0.42 : 0.46);
+    var ry = rx * (wide ? 0.20 : 0.24);
+    // contactY is the lowest tire / valance, on the near half of the disc.
+    return { cx: cx, cy: cy, rx: rx, ry: ry, contactY: cy + ry * 0.34 };
+  }
+
+
+  function coolRim(car) {
+    var w = car.width, h = car.height;
+    var edge = makeCanvas(w, h);
+    var e = edge.getContext("2d");
+    e.filter = "blur(2.5px)";
+    e.drawImage(car, 0, 0);
+    e.filter = "none";
+    e.globalCompositeOperation = "destination-out";
+    e.drawImage(car, 2, 3, Math.max(1, w - 4), Math.max(1, h - 5));
+    e.globalCompositeOperation = "source-in";
+    e.fillStyle = "rgba(186,214,232,0.9)";
+    e.fillRect(0, 0, w, h);
+    var out = makeCanvas(w, h);
+    var o = out.getContext("2d");
+    o.drawImage(car, 0, 0);
+    o.globalCompositeOperation = "screen";
+    o.globalAlpha = 0.42;
+    o.drawImage(edge, 0, 0);
+    return out;
   }
 
   function isGhostSrc(src) {
@@ -659,50 +682,87 @@
   function compositeStudio(ctx, plateImg, car, viewId, w, h) {
     var geom = plateGeom(w, h);
     var profile = WS.carProfile(viewId) || "qfront";
-    var widthFrac = { qfront: 0.62, side: 0.74, front: 0.46, rear: 0.50 }[profile] || 0.62;
+    var widthFrac = { qfront: 0.56, side: 0.70, front: 0.46, rear: 0.50 }[profile] || 0.56;
     drawCover(ctx, plateImg, w, h);
-    var targetW = Math.round(w * widthFrac);
-    var scale = targetW / car.width;
-    var targetH = Math.max(1, Math.round(car.height * scale));
-    var logoBottom = Math.round(h * 0.175);
-    var maxH = Math.round(geom.ground - logoBottom);
-    if (targetH > maxH && maxH > 40) {
-      scale *= maxH / targetH;
-      targetW = Math.max(1, Math.round(car.width * scale));
-      targetH = Math.max(1, Math.round(car.height * scale));
-    }
-    var left = Math.round(geom.cx - targetW / 2);
-    var top = Math.round(geom.ground - targetH);
-    // Ambient occlusion follows the car, then a tighter shadow under the tires.
+    var seatY = car.height - 1, bodyCx = car.width / 2, contacts = [{ x: bodyCx, y: seatY }];
+    try {
+      var idata = car.getContext("2d").getImageData(0, 0, car.width, car.height).data;
+      var cw = car.width, ch = car.height, xi, yi, sum = 0, cnt = 0, env = new Float32Array(cw);
+      for (xi = 0; xi < cw; xi++) env[xi] = -1;
+      seatY = 0;
+      for (yi = 0; yi < ch; yi++) {
+        for (xi = 0; xi < cw; xi++) {
+          if (idata[(yi * cw + xi) * 4 + 3] > 80) {
+            env[xi] = yi; sum += xi; cnt++;
+            if (yi > seatY) seatY = yi;
+          }
+        }
+      }
+      var sm = new Float32Array(cw), rad = Math.max(8, Math.round(cw / 48)), j;
+      for (xi = 0; xi < cw; xi++) {
+        var s = 0, n = 0, a0 = Math.max(0, xi - rad), a1 = Math.min(cw - 1, xi + rad);
+        for (j = a0; j <= a1; j++) if (env[j] >= 0) { s += env[j]; n++; }
+        sm[xi] = n ? s / n : seatY;
+      }
+      var peaks = [], prad = Math.max(12, Math.round(cw / 22));
+      for (xi = prad; xi < cw - prad; xi++) {
+        var win = sm[xi];
+        for (j = xi - prad; j <= xi + prad; j++) if (sm[j] > win) win = sm[j];
+        if (sm[xi] < win - 1.5) continue;
+        if (!peaks.length || xi - peaks[peaks.length - 1].x > prad) peaks.push({ x: xi, y: sm[xi] });
+        else if (sm[xi] > peaks[peaks.length - 1].y) peaks[peaks.length - 1] = { x: xi, y: sm[xi] };
+      }
+      if (cnt) bodyCx = sum / cnt;
+      if (!seatY) seatY = ch - 1;
+      if (peaks.length) contacts = peaks;
+    } catch (eSeat) {}
+    var scale = Math.min((w * widthFrac) / car.width, (geom.rx * 1.20) / car.width);
+    var contactY = geom.contactY;
+    var roof = h * 0.175;
+    if (contactY - seatY * scale < roof) scale = Math.min(scale, (contactY - roof) / seatY);
+    var targetW = Math.max(2, Math.round(car.width * scale));
+    var targetH = Math.max(2, Math.round(car.height * scale));
+    var left = Math.round(geom.cx - bodyCx * scale);
+    var top = Math.round(contactY - seatY * scale);
+    var lit = coolRim(car);
     var shade = makeCanvas(w, h);
     var sctx = shade.getContext("2d");
     sctx.filter = "blur(18px)";
-    sctx.drawImage(car, left, top + Math.round(h * 0.006), targetW, targetH);
+    sctx.drawImage(lit, left, top + Math.round(h * 0.004), targetW, targetH);
     sctx.filter = "none";
     sctx.globalCompositeOperation = "source-in";
-    sctx.fillStyle = "rgba(8,10,14,0.42)";
+    sctx.fillStyle = "rgba(8,10,14,0.34)";
     sctx.fillRect(0, 0, w, h);
     ctx.drawImage(shade, 0, 0);
     var contact = makeCanvas(w, h);
     var cctx = contact.getContext("2d");
-    var bite = Math.max(8, Math.round(car.height * 0.18));
-    cctx.filter = "blur(7px)";
-    cctx.drawImage(car, 0, car.height - bite, car.width, bite, left, top + targetH - Math.round(targetH * 0.18), targetW, Math.round(targetH * 0.18));
-    cctx.filter = "none";
-    cctx.globalCompositeOperation = "source-in";
-    cctx.fillStyle = "rgba(8,10,14,0.72)";
-    cctx.fillRect(0, 0, w, h);
+    cctx.fillStyle = "rgba(0,0,0,0.9)";
+    for (var i = 0; i < contacts.length; i++) {
+      var px = left + contacts[i].x * scale;
+      var py = top + contacts[i].y * scale;
+      var rw = Math.max(10, targetW * 0.075);
+      var rh = Math.max(4, geom.ry * 0.11);
+      cctx.beginPath();
+      cctx.ellipse(px, py + 1, rw, rh, 0, 0, Math.PI * 2);
+      cctx.fill();
+    }
+    ctx.save();
+    ctx.filter = "blur(6px)";
+    ctx.globalAlpha = 0.72;
     ctx.drawImage(contact, 0, 0);
-    var keep = Math.max(8, Math.round(targetH * 0.22));
+    ctx.filter = "none";
+    ctx.globalAlpha = 1;
+    ctx.restore();
+    var keep = Math.max(8, Math.round(targetH * 0.12));
     var refl = makeCanvas(targetW, keep);
     var rctx = refl.getContext("2d");
     rctx.translate(0, keep);
     rctx.scale(1, -1);
-    rctx.drawImage(car, 0, car.height - Math.round(car.height * 0.22), car.width, Math.round(car.height * 0.22), 0, 0, targetW, keep);
+    rctx.drawImage(lit, 0, car.height - Math.round(car.height * 0.12), car.width, Math.round(car.height * 0.12), 0, 0, targetW, keep);
     var rid = rctx.getImageData(0, 0, targetW, keep);
     var rd = rid.data, yy, xx, o, fade;
     for (yy = 0; yy < keep; yy++) {
-      fade = 0.22 * (1 - yy / Math.max(1, keep - 1));
+      fade = 0.16 * (1 - yy / Math.max(1, keep - 1));
       for (xx = 0; xx < targetW; xx++) {
         o = (yy * targetW + xx) * 4;
         rd[o + 3] = Math.round(rd[o + 3] * fade);
@@ -711,13 +771,11 @@
     rctx.putImageData(rid, 0, 0);
     ctx.save();
     ctx.beginPath();
-    ctx.ellipse(geom.cx, geom.cy, geom.rx, geom.ry, 0, 0, Math.PI * 2);
+    ctx.ellipse(geom.cx, geom.cy, geom.rx * 0.96, geom.ry * 0.96, 0, 0, Math.PI * 2);
     ctx.clip();
-    ctx.drawImage(refl, left, Math.round(geom.ground) - 2);
+    ctx.drawImage(refl, left, Math.round(contactY) - 2);
     ctx.restore();
-    if (ctx.filter !== undefined) ctx.filter = "contrast(1.06) saturate(1.04) brightness(1.03)";
-    ctx.drawImage(car, left, top, targetW, targetH);
-    ctx.filter = "none";
+    ctx.drawImage(lit, left, top, targetW, targetH);
   }
 
   async function localItem(item, opts) {

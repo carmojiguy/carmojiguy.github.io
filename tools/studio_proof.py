@@ -6,7 +6,7 @@ same placement, glass, shadow and defringe rules with the in-browser model.
 """
 import os
 import numpy as np
-from PIL import Image, ImageFilter
+from PIL import Image, ImageDraw, ImageFilter
 from rembg import new_session, remove
 
 OUT = "/tmp/gm-proof2"
@@ -16,13 +16,17 @@ VARIANTS = ("silver", "white", "warm", "charcoal")
 
 
 def geom(w, h):
+    """Same low-camera disc as render_gm_studio.py.
+
+    ry/rx ~ 0.24 is a bumper-height camera: the face of the disc is visible,
+    and it is flatter than a turntable shot from above the roof.
+    """
     wide = w / h >= 1.5
-    cx = w * 0.5
-    cy = h * (0.80 if wide else 0.735)
-    rx = w * (0.36 if wide else 0.40)
-    ry = rx * (0.17 if wide else 0.215)
-    ground = cy + ry * 0.02
-    return cx, cy, rx, ry, ground
+    cx = w * 0.50
+    cy = h * (0.80 if wide else 0.762)
+    rx = w * (0.42 if wide else 0.46)
+    ry = rx * (0.20 if wide else 0.24)
+    return cx, cy, rx, ry
 
 
 def defringe(im, src):
@@ -161,65 +165,139 @@ def match_light(car, plate_rgb):
     return Image.fromarray(rgba.astype(np.uint8), "RGBA")
 
 
+def _blur1d(v, r):
+    k = np.ones(r * 2 + 1) / (r * 2 + 1)
+    return np.convolve(np.pad(v, r, mode="edge"), k, mode="valid")
+
+
+def lower_envelope(car):
+    a = np.array(car.split()[-1])
+    h, w = a.shape
+    lowest = np.full(w, -1.0)
+    for x in range(w):
+        ys = np.where(a[:, x] > 80)[0]
+        if len(ys):
+            lowest[x] = float(ys[-1])
+    idx = np.where(lowest >= 0)[0]
+    if len(idx) < 8:
+        return a, np.linspace(h - 1, h - 1, w)
+    full = np.interp(np.arange(w), idx, lowest[idx])
+    return a, _blur1d(full, max(8, w // 48))
+
+
+def tire_contacts(car):
+    """Prominent low points of the silhouette: the tires, not the wheel centres."""
+    a, sm = lower_envelope(car)
+    h, w = a.shape
+    rad = max(12, w // 22)
+    peaks = []
+    for i in range(rad, w - rad):
+        window = sm[i - rad:i + rad + 1]
+        if sm[i] < window.max() - 1.5:
+            continue
+        left = float(sm[max(0, i - w // 5):i].min()) if i > rad else float(sm[i])
+        right = float(sm[i + 1:min(w, i + w // 5)].min()) if i < w - rad else float(sm[i])
+        prom = float(sm[i]) - max(left, right)
+        if prom < 10:
+            continue
+        if peaks and i - peaks[-1][0] < rad:
+            if sm[i] > peaks[-1][1]:
+                peaks[-1] = [i, float(sm[i]), prom]
+            continue
+        peaks.append([i, float(sm[i]), prom])
+    # A centre peak lower than both tires is the front valance. Keep it for
+    # shadow, but the tires are the outer peaks.
+    if not peaks:
+        return [(w * 0.3, float(sm.max())), (w * 0.7, float(sm.max()))]
+    return [(float(x), float(y)) for x, y, _ in peaks]
+
+
+def cool_rim(car):
+    """Faint cool edge light so the cutout picks up the studio, not outdoor sun."""
+    rgba = np.array(car.convert("RGBA")).astype(np.float32)
+    a = rgba[:, :, 3] / 255.0
+    mask = Image.fromarray(np.clip(a * 255, 0, 255).astype(np.uint8))
+    dil = np.array(mask.filter(ImageFilter.GaussianBlur(radius=2.4))).astype(np.float32) / 255.0
+    ero = np.array(mask.filter(ImageFilter.MinFilter(5))).astype(np.float32) / 255.0
+    rim = np.clip(dil - ero, 0, 1)
+    # Stronger on the roof and the camera-left edge, where a softbox would catch.
+    h, w = a.shape
+    yy = np.linspace(1.0, 0.25, h, dtype=np.float32)[:, None]
+    xx = np.linspace(1.0, 0.35, w, dtype=np.float32)[None, :]
+    rim = rim * yy * xx
+    cool = np.array([186, 214, 232], np.float32)
+    rgb = rgba[:, :, :3]
+    rgba[:, :, :3] = np.clip(rgb * (1 - rim[..., None] * 0.35) + cool * (rim[..., None] * 0.55), 0, 255)
+    return Image.fromarray(rgba.astype(np.uint8), "RGBA")
+
+
 def composite(plate, car, profile):
     w, h = plate.size
-    cx, cy, rx, ry, ground = geom(w, h)
-    frac = {"qfront": 0.62, "side": 0.74, "front": 0.46, "rear": 0.50}.get(profile, 0.62)
-    # Work at plate resolution.
-    target_w = w * frac
-    scale = target_w / car.width
-    target_h = car.height * scale
-    # Roof must clear the wordmark. Wordmark occupies roughly the top 16%.
-    max_top = h * 0.175
-    max_h = ground - max_top
-    if target_h > max_h:
-        scale *= max_h / target_h
-        target_w = car.width * scale
-        target_h = car.height * scale
-    tw, th = int(round(target_w)), int(round(target_h))
-    car_r = car.resize((tw, th), Image.Resampling.LANCZOS)
-    left = int(round(cx - tw / 2))
-    top = int(round(ground - th))
+    cx, cy, rx, ry = geom(w, h)
+    contacts = tire_contacts(car)
+    alpha, env = lower_envelope(car)
+    opaque_x = np.where(alpha.max(axis=0) > 40)[0]
+    body_cx = float(opaque_x.mean()) if len(opaque_x) else car.width / 2
+    seat_y = float(env.max())
+    # Tires and the valance are within a short span on these low cameras.
+    # Seat the lowest rubber on the near half of the disc, and keep the car
+    # small enough that pad shows on every side.
+    frac = {"qfront": 0.56, "side": 0.70, "front": 0.46, "rear": 0.50}.get(profile, 0.56)
+    scale = min((w * frac) / car.width, (rx * 1.20) / max(car.width, 1))
+    contact_y = min(cy + ry * 0.34, cy + ry * 0.78)
+    roof_limit = h * 0.175
+    top = contact_y - seat_y * scale
+    if top < roof_limit:
+        scale = min(scale, (contact_y - roof_limit) / max(seat_y, 1))
+        top = contact_y - seat_y * scale
+    tw = max(2, int(round(car.width * scale)))
+    th = max(2, int(round(car.height * scale)))
+    car_r = cool_rim(car).resize((tw, th), Image.Resampling.LANCZOS)
+    left = int(round(cx - body_cx * scale))
+    top_i = int(round(top))
     canvas = plate.convert("RGBA")
-    # Contact shadow from the actual alpha, blurred, sitting under the tires.
-    sh = Image.new("RGBA", canvas.size, (0, 0, 0, 0))
+
+    # Per-tire contact shadows, plus a soft body shadow.
+    sh = Image.new("L", canvas.size, 0)
+    draw_src = sh.load()
+    for x, y in contacts:
+        px = int(round(left + x * scale))
+        py = int(round(top_i + y * scale))
+        rw = max(10, int(tw * 0.075))
+        rh = max(4, int(ry * 0.11))
+        blob = Image.new("L", canvas.size, 0)
+        bd = ImageDraw.Draw(blob)
+        bd.ellipse([px - rw, py - rh, px + rw, py + rh + 2], fill=255)
+        sh = Image.fromarray(np.maximum(np.array(sh), np.array(blob)))
+    contact_blur = sh.filter(ImageFilter.GaussianBlur(radius=max(5, int(h * 0.007))))
     alpha = car_r.split()[-1]
-    blob = Image.new("L", canvas.size, 0)
-    # Only the bottom 18% of the car casts the hard contact; the body casts AO.
-    contact = alpha.crop((0, int(th * 0.82), tw, th))
-    blob.paste(contact, (left, top + int(th * 0.82)))
-    body = alpha.point(lambda p: min(255, int(p * 0.55)))
-    body_layer = Image.new("L", canvas.size, 0)
-    body_layer.paste(body, (left, top + 6))
-    contact_blur = blob.filter(ImageFilter.GaussianBlur(radius=max(6, int(h * 0.008))))
-    ao_blur = body_layer.filter(ImageFilter.GaussianBlur(radius=max(18, int(h * 0.02))))
-    sh_px = np.array(sh)
-    c = np.array(contact_blur).astype(np.float32) / 255.0
-    ao = np.array(ao_blur).astype(np.float32) / 255.0
-    darkness = np.clip(c * 0.55 + ao * 0.28, 0, 0.72)
-    sh_px[:, :, 3] = (darkness * 255).astype(np.uint8)
-    sh = Image.fromarray(sh_px, "RGBA")
-    canvas = Image.alpha_composite(canvas, sh)
-    # Floor reflection: flip the lower fifth, fade, clip to the disc.
-    keep = max(8, int(th * 0.16))
-    refl = Image.new("RGBA", (tw, keep), (0, 0, 0, 0))
+    body = Image.new("L", canvas.size, 0)
+    body.paste(alpha.point(lambda p: min(255, int(p * 0.5))), (left, top_i + max(2, int(h * 0.004))))
+    ao = body.filter(ImageFilter.GaussianBlur(radius=max(16, int(h * 0.018))))
+    darkness = np.clip(
+        np.array(contact_blur).astype(np.float32) / 255.0 * 0.72
+        + np.array(ao).astype(np.float32) / 255.0 * 0.30,
+        0, 0.78,
+    )
+    shadow = Image.new("RGBA", canvas.size, (0, 0, 0, 0))
+    sp = np.array(shadow)
+    sp[:, :, 3] = (darkness * 255).astype(np.uint8)
+    canvas = Image.alpha_composite(canvas, Image.fromarray(sp, "RGBA"))
+
+    # Short reflection on the disc only, under the tires.
+    keep = max(8, int(th * 0.12))
     band = car_r.crop((0, th - keep, tw, th)).transpose(Image.Transpose.FLIP_TOP_BOTTOM)
-    refl.paste(band, (0, 0))
-    rp = np.array(refl).astype(np.float32)
-    fade = np.linspace(0.22, 0.0, keep, dtype=np.float32)[:, None]
-    rp[:, :, 3] *= fade
-    refl = Image.fromarray(np.clip(rp, 0, 255).astype(np.uint8), "RGBA")
-    # Clip reflection to the turntable ellipse.
-    clip = Image.new("L", canvas.size, 0)
-    yy, xx = np.mgrid[0:h, 0:w]
-    ell = ((xx - cx) / rx) ** 2 + ((yy - cy) / ry) ** 2 <= 1.0
-    clip.paste(Image.fromarray((ell.astype(np.uint8) * 255), "L"))
+    rp = np.array(band).astype(np.float32)
+    rp[:, :, 3] *= np.linspace(0.16, 0.0, keep, dtype=np.float32)[:, None]
     refl_full = Image.new("RGBA", canvas.size, (0, 0, 0, 0))
-    refl_full.paste(refl, (left, int(ground) - 1))
+    ground = int(round(contact_y))
+    refl_full.paste(Image.fromarray(np.clip(rp, 0, 255).astype(np.uint8), "RGBA"), (left, ground - 1))
+    yy, xx = np.mgrid[0:h, 0:w]
+    ell = (((xx - cx) / rx) ** 2 + ((yy - cy) / ry) ** 2) <= 0.96
     rpx = np.array(refl_full)
-    rpx[:, :, 3] = (rpx[:, :, 3].astype(np.float32) * (np.array(clip) / 255.0)).astype(np.uint8)
+    rpx[:, :, 3] = (rpx[:, :, 3].astype(np.float32) * ell).astype(np.uint8)
     canvas = Image.alpha_composite(canvas, Image.fromarray(rpx, "RGBA"))
-    canvas.paste(car_r, (left, top), car_r)
+    canvas.paste(car_r, (left, top_i), car_r)
     return canvas.convert("RGB")
 
 
