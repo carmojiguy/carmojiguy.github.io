@@ -42,13 +42,14 @@ SLOTS = {
     },
     "jamb": {"title": "File:Tire and Loading Information.jpg"},
     "gauges": {
-        "title": "File:Tesla Model S Instrument Cluster Speedometer.jpg",
+        "title": "File:Speedometer & Tachometer - 2013 Ford Focus ST (10062706656).jpg",
         "fill": True,
-        "note": "Modern cluster, face-on. The crop is the cluster.",
+        "note": "Two round dials, face-on. The hood around the cluster is not in this crop.",
     },
     "steering": {
         "title": "File:Steering Wheel Closeup - 2013 Volvo S60 T5 AWD (8388958639).jpg",
-        "note": "Full modern wheel, front-on.",
+        "ellipse": (0.50, 0.47, 0.46, 0.48),
+        "note": "Full modern wheel, front-on, including the rim, spokes and airbag.",
     },
     "screen": {
         "title": "File:360-degree surround-view parking camera display on an infotainment screen.jpg",
@@ -187,58 +188,68 @@ def sobel(lum):
 
 
 def hologram(im):
-    """Bright edge lines and a silhouette over a dark transparent body.
+    """A few long bright lines over a smooth dark green body.
 
-    Green ratios match the original ghosts (R = 0.264 G, B = 0.418 G).
-    Body green sits near the dark end of those files. Edge cores stay under
-    the blown-out cap so the opaque median is not a spike at 255.
+    Salt-and-pepper Sobel is gone. The photo is denoised, then hysteresis
+    Canny keeps only contours long enough to read at thumbnail size.
+    Green ratios match the originals: R = 0.264 G, B = 0.418 G.
     """
-    rgba = np.array(im.convert("RGBA")).astype(np.float32)
+    import cv2
+
+    rgba = np.array(im.convert("RGBA"))
     rgb = rgba[:, :, :3]
-    a = rgba[:, :, 3] / 255.0
-    lum = 0.2126 * rgb[:, :, 0] + 0.7152 * rgb[:, :, 1] + 0.0722 * rgb[:, :, 2]
-    soft = np.array(
-        Image.fromarray(np.clip(lum, 0, 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(2.2))
-    ).astype(np.float32)
-    detail = np.clip(lum + (lum - soft) * 1.7, 0, 255)
-    mag = sobel(detail)
-    mask = a > 0.22
+    alpha = rgba[:, :, 3]
+    h, w = alpha.shape
+    lum = cv2.cvtColor(rgb, cv2.COLOR_RGB2GRAY)
+    lum = cv2.bilateralFilter(lum, d=9, sigmaColor=50, sigmaSpace=7)
+    clahe = cv2.createCLAHE(clipLimit=2.2, tileGridSize=(8, 8))
+    eq = clahe.apply(lum)
+    mask = alpha > 40
     if int(mask.sum()) < 80:
-        mask = a > 0.05
-    if mask.any():
-        p_lo, p_hi = np.percentile(mag[mask], [68, 93])
-    else:
-        p_lo, p_hi = 20.0, 80.0
-    edge = np.clip((mag - p_lo) / max(8.0, p_hi - p_lo), 0, 1) * 1.15
-    edge = np.clip(edge, 0, 1) * (a > 0.12)
-    edge = np.array(
-        Image.fromarray(np.clip(edge * 255, 0, 255).astype(np.uint8)).filter(ImageFilter.MaxFilter(3))
-    ).astype(np.float32) / 255.0
-    solid = Image.fromarray(np.clip((a > 0.30) * 255, 0, 255).astype(np.uint8))
-    dil = np.array(solid.filter(ImageFilter.MaxFilter(7))).astype(np.float32) / 255.0
-    ero = np.array(solid.filter(ImageFilter.MinFilter(3))).astype(np.float32) / 255.0
-    sil = np.clip(dil - ero, 0, 1)
-    line = np.maximum(edge, sil * 0.95)
-    glow = np.array(
-        Image.fromarray(np.clip(line * 255, 0, 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(2.1))
-    ).astype(np.float32) / 255.0
-    if mask.any():
-        p5, p95 = np.percentile(detail[mask], [8, 92])
-    else:
-        p5, p95 = 20.0, 200.0
-    tone = np.clip((detail - p5) / max(12.0, p95 - p5), 0, 1)
-    body_g = 46 + tone * (92 - 46)
-    hot = np.clip(148 + line * 58, 0, 230)
-    weight = np.clip(line * 0.90 + glow * 0.22, 0, 1)
-    green = np.clip(body_g * (1 - weight) + hot * weight + glow * 12, 0, 236)
-    alpha = 0.32 * (0.40 + 0.60 * tone) * (a > 0.16) + glow * 0.38 + line * 0.72
-    alpha = np.clip(alpha, 0, 1)
-    alpha = np.where((a < 0.06) & (glow < 0.06), 0, alpha)
-    out = np.zeros_like(rgba)
+        mask = alpha > 12
+    min_len = 0.055 * min(h, w)
+    lo, hi = 60, 150
+    contours = []
+    for _ in range(4):
+        edges = cv2.Canny(eq, lo, hi)
+        edges[~mask] = 0
+        found, _ = cv2.findContours(edges, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
+        contours = [c for c in found if cv2.arcLength(c, False) >= min_len]
+        if len(contours) < 4:
+            lo = max(15, int(lo * 0.7))
+            hi = max(lo + 20, int(hi * 0.75))
+            min_len *= 0.8
+        elif len(contours) > 36:
+            lo = min(140, int(lo * 1.25))
+            hi = min(240, int(hi * 1.2))
+            min_len *= 1.15
+        else:
+            break
+    line = np.zeros((h, w), np.uint8)
+    for c in contours:
+        eps = max(1.2, 0.004 * cv2.arcLength(c, False))
+        simple = cv2.approxPolyDP(c, eps, False)
+        cv2.polylines(line, [simple], False, 255, 2, cv2.LINE_AA)
+    solid = np.where(mask, 255, 0).astype(np.uint8)
+    outer, _ = cv2.findContours(solid, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    sil = np.zeros((h, w), np.uint8)
+    cv2.drawContours(sil, outer, -1, 255, 2, cv2.LINE_AA)
+    hot = np.maximum(line, sil)
+    glow = cv2.GaussianBlur(hot, (0, 0), 1.6)
+    tone = cv2.GaussianBlur(lum, (0, 0), 6).astype(np.float32) / 255.0
+    body_g = 52 + tone * 36
+    green = body_g.copy()
+    hot_f = hot.astype(np.float32) / 255.0
+    glow_f = glow.astype(np.float32) / 255.0
+    green = np.clip(green * (1 - hot_f) + 215 * hot_f + glow_f * 18, 0, 230)
+    body_a = (0.26 + 0.08 * tone) * mask
+    alpha_out = np.clip(body_a + glow_f * 0.35 + hot_f * 0.85, 0, 1)
+    alpha_out = np.where(mask | (glow_f > 0.08), alpha_out, 0)
+    out = np.zeros((h, w, 4), np.float32)
     out[:, :, 0] = green * 0.264
     out[:, :, 1] = green
     out[:, :, 2] = green * 0.418
-    out[:, :, 3] = alpha * 255
+    out[:, :, 3] = alpha_out * 255
     return Image.fromarray(np.clip(out, 0, 255).astype(np.uint8), "RGBA")
 
 
@@ -388,9 +399,10 @@ def write_credits(rows):
         "control panel). The picture is never left as a feathered rectangle of",
         "a whole room.",
         "",
-        "The green is an x-ray of that cutout. Sobel edges plus a silhouette",
-        "stroke are the hot core, with a short glow. The body is a dark green",
-        "at low opacity (R = 0.264 G, B = 0.418 G, the original ghost colour).",
+        "The green is an x-ray of that cutout. Denoised hysteresis contours,",
+        "simplified so short speckle is dropped, plus a silhouette stroke.",
+        "The body is a smooth dark green at low opacity (R = 0.264 G,",
+        "B = 0.418 G, the original ghost colour).",
         "",
         "Regenerate with tools/photo_ghosts.py.",
         "",

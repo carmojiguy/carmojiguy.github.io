@@ -12,9 +12,10 @@ mask is used when the subject fills the frame (a cluster, a badge, a
 control panel). The picture is never left as a feathered rectangle of
 a whole room.
 
-The green is an x-ray of that cutout. Sobel edges plus a silhouette
-stroke are the hot core, with a short glow. The body is a dark green
-at low opacity (R = 0.264 G, B = 0.418 G, the original ghost colour).
+The green is an x-ray of that cutout. Denoised hysteresis contours,
+simplified so short speckle is dropped, plus a silhouette stroke.
+The body is a smooth dark green at low opacity (R = 0.264 G,
+B = 0.418 G, the original ghost colour).
 
 Regenerate with tools/photo_ghosts.py.
 
@@ -71,20 +72,20 @@ jamb.png
   cutout: birefnet
 
 gauges.png
-  File:Tesla Model S Instrument Cluster Speedometer.jpg
-  CC BY-SA 4.0
-  Uscgreel
-  https://commons.wikimedia.org/wiki/File:Tesla_Model_S_Instrument_Cluster_Speedometer.jpg
+  File:Speedometer & Tachometer - 2013 Ford Focus ST (10062706656).jpg
+  CC BY 2.0
+  Michael Sheehan
+  https://commons.wikimedia.org/wiki/File:Speedometer_%26_Tachometer_-_2013_Ford_Focus_ST_(10062706656).jpg
   cutout: birefnet
-  Modern cluster, face-on. The crop is the cluster.
+  Two round dials, face-on. The hood around the cluster is not in this crop.
 
 steering.png
   File:Steering Wheel Closeup - 2013 Volvo S60 T5 AWD (8388958639).jpg
   CC BY 2.0
   Michael Sheehan
   https://commons.wikimedia.org/wiki/File:Steering_Wheel_Closeup_-_2013_Volvo_S60_T5_AWD_(8388958639).jpg
-  cutout: birefnet
-  Full modern wheel, front-on.
+  cutout: ellipse
+  Full modern wheel, front-on, including the rim, spokes and airbag.
 
 screen.png
   File:360-degree surround-view parking camera display on an infotainment screen.jpg
