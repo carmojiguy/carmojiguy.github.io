@@ -1,0 +1,27 @@
+Test desk photos for the labeled TEST · 2021 Toyota RAV4 XLE file only.
+Freely licensed Wikimedia Commons images. Not shown in the app UI.
+
+front.jpg
+  2021 Toyota RAV4 XLE AWD, front right
+  https://commons.wikimedia.org/wiki/File:2021_Toyota_RAV4_XLE_AWD,_front_right,_05-24-2026.jpg
+  MercurySable99, CC BY-SA 4.0
+
+rear.jpg
+  2021 Toyota RAV4 XLE AWD, rear right
+  https://commons.wikimedia.org/wiki/File:2021_Toyota_RAV4_XLE_AWD,_rear_right,_05-24-2026.jpg
+  MercurySable99, CC BY-SA 4.0
+
+side.jpg
+  Side profile of the same XA50 body (2022 Toyota RAV4 Prime SE). A clean non-taxi side of a 2021 XLE was not available.
+  https://commons.wikimedia.org/wiki/File:2022_Toyota_RAV4_Prime_SE_in_Ice_Cap,_rear_left_side.jpg
+  Mr.choppers, CC BY-SA 3.0
+
+interior.jpg
+  2019 Toyota RAV4 XLE interior (same generation)
+  https://commons.wikimedia.org/wiki/File:Toyota_RAV4_4x2_XLE_2019_Interior.jpg
+  Captainmorlypogi1959, CC BY-SA 4.0
+
+dash.jpg
+  Toyota RAV4 Adventure cockpit (same generation)
+  https://commons.wikimedia.org/wiki/File:The_interior_of_Toyota_RAV4_Adventure_(6BA-MXAA54-ANXVB).jpg
+  Tokumeigakarinoaoshima, CC BY-SA 4.0

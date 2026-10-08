@@ -67,7 +67,7 @@ must(/--qs-canvas:#F7F8FA/, "home canvas is Snow Signal snow");
 must(/--qs-ink:#12141A/, "ink stays Snow Signal");
 must(/--qs-accent-soft:#E8F0F7/, "wash stays light");
 must(/--qs-accent-fg:#FFFFFF/, "accent buttons keep white text");
-must(/class="gm-logo" src="\/icons\/gm-logo\.png\?v=20261008b/, "approved G&M badge is in the header");
+must(/class="gm-logo" src="\/icons\/gm-logo\.png\?v=20261008c/, "approved G&M badge is in the header");
 must(/#storySheet\.story-solo/, "Appraise story sheet can cover the page");
 must(/function ensureTestDeskAppraisal\(/, "TEST RAV4 is added through the center store");
 must(/--qs-accent:#E0243C/, "accent is G&M red");

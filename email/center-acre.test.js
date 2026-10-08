@@ -27,11 +27,11 @@ must(/class="start-dock"/, "start dock wrapper present");
 mustNot(/#start:has\(#startDock:not\(\.hide\)\) \.start-bg/, "staff start photo is no longer cropped above a footer dock");
 must(/z-index:24/, "start dock still layers");
 must(/rel="apple-touch-icon"/, "apple-touch-icon linked");
-must(/gm-logo-square\.png\?v=20261008b/, "apple-touch-icon uses cache-busted G&M badge");
-must(/gm-logo-square\.png\?v=20261008b/, "192 icon uses cache-busted G&M badge");
+must(/gm-logo-square\.png\?v=20261008c/, "apple-touch-icon uses cache-busted G&M badge");
+must(/gm-logo-square\.png\?v=20261008c/, "192 icon uses cache-busted G&M badge");
 must(/rel="apple-touch-icon-precomposed"/, "iOS precomposed touch icon linked");
 must(/rel="manifest"/, "web app manifest linked");
-must(/manifest\.webmanifest\?v=20260913c/, "manifest is cache-busted");
+must(/manifest\.webmanifest\?v=20261008c/, "manifest is cache-busted");
 mustNot(/>Just Pictures</, "Just Pictures shortcut removed from Appraise home");
 must(/function isLocateSoon\(/, "Locate Coming soon stays after icon rebase");
 must(/Coming soon/, "Locate is marked Coming soon");
@@ -810,7 +810,7 @@ must(/id="webHistJump"/, "photos screen History jump");
 const manifest = JSON.parse(fs.readFileSync(path.join(root, "manifest.webmanifest"), "utf8"));
 assert.equal(manifest.name, "G&M Auto Sales", "manifest name is G&M Auto Sales");
 assert.ok(manifest.icons.some(function (i) { return i.purpose === "maskable" && i.sizes === "512x512"; }), "maskable 512 icon");
-assert.ok(manifest.icons.every(function (i) { return /gm-logo-square\.png/.test(i.src) && /v=20261008b/.test(i.src); }), "manifest icons are the approved G&M badge");
+assert.ok(manifest.icons.every(function (i) { return /gm-logo-square\.png/.test(i.src) && /v=20261008c/.test(i.src); }), "manifest icons are the approved G&M badge");
 [
   "favicon.ico",
   "apple-touch-icon.png",

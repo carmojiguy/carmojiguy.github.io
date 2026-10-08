@@ -11,16 +11,16 @@
 <meta name="application-name" content="G&amp;M Auto Sales" />
 <meta name="theme-color" content="#F7F8FA" />
 <title>G&amp;M Auto Sales</title>
-<link rel="manifest" href="/manifest.webmanifest?v=20260913c" />
-<link rel="icon" href="/favicon.ico?v=20260913c" sizes="any" />
-<link rel="icon" type="image/png" sizes="16x16" href="/icons/gm-logo-square.png?v=20261008b" />
-<link rel="icon" type="image/png" sizes="32x32" href="/icons/gm-logo-square.png?v=20261008b" />
-<link rel="icon" type="image/png" sizes="192x192" href="/icons/gm-logo-square.png?v=20261008b" />
-<link rel="apple-touch-icon" href="/icons/gm-logo-square.png?v=20261008b" />
-<link rel="apple-touch-icon" sizes="180x180" href="/icons/gm-logo-square.png?v=20261008b" />
-<link rel="apple-touch-icon-precomposed" href="/icons/gm-logo-square.png?v=20261008b" />
+<link rel="manifest" href="/manifest.webmanifest?v=20261008c" />
+<link rel="icon" href="/favicon.ico?v=20261008c" sizes="any" />
+<link rel="icon" type="image/png" sizes="16x16" href="/icons/gm-logo-square.png?v=20261008c" />
+<link rel="icon" type="image/png" sizes="32x32" href="/icons/gm-logo-square.png?v=20261008c" />
+<link rel="icon" type="image/png" sizes="192x192" href="/icons/gm-logo-square.png?v=20261008c" />
+<link rel="apple-touch-icon" href="/icons/gm-logo-square.png?v=20261008c" />
+<link rel="apple-touch-icon" sizes="180x180" href="/icons/gm-logo-square.png?v=20261008c" />
+<link rel="apple-touch-icon-precomposed" href="/icons/gm-logo-square.png?v=20261008c" />
 <meta name="msapplication-TileColor" content="#E0243C" />
-<meta name="msapplication-TileImage" content="/icons/gm-logo-square.png?v=20261008b" />
+<meta name="msapplication-TileImage" content="/icons/gm-logo-square.png?v=20261008c" />
 <link rel="preconnect" href="https://accounts.google.com" />
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -2606,8 +2606,16 @@ html:has(#start.on),body:has(#start.on){background:#12141A!important}
 #storySheet.story-solo.on{display:flex!important}
 #storySheet.story-solo .card{
   width:min(560px,100%);margin:0 auto;
-  min-height:calc(100dvh - 32px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  min-height:0;height:auto;
   background:#FFFFFF;box-shadow:none;border:1px solid #E2E6EC;border-radius:16px;
+  padding:20px 16px 16px;
+}
+#storySheet.story-solo{align-items:flex-start}
+#storySheet.story-solo .card h3{padding-right:52px;font-weight:600;letter-spacing:-.02em}
+#storySheet.story-solo .card .hint{font-size:14px;line-height:1.4;margin:8px 0 12px}
+#storySheet.story-solo .card .x{
+  width:40px;height:40px;top:14px;right:14px;border-radius:12px;
+  font-size:16px;box-shadow:none;border:1px solid #E2E6EC;color:#12141A;
 }
 #storySheet #useStory{background:#E0243C!important;color:#FFFFFF!important;border-color:transparent!important}
 
@@ -2624,34 +2632,30 @@ body:not(:has(#thanks.on)) .exit-chrome{
   gap:8px;
 }
 body:not(:has(#thanks.on)) .exit-chrome.on{display:flex!important}
-body:not(:has(#thanks.on)) .gm-logo{height:44px!important;width:auto!important;max-width:156px!important;border-radius:8px}
-body:not(:has(#thanks.on)) .exit-x{
-  width:40px!important;height:40px!important;min-width:40px!important;border-radius:12px!important;
-  font-size:18px!important;font-weight:600!important;box-shadow:none!important;
-  border:1px solid #E2E6EC!important;background:#FFFFFF!important;color:#12141A!important;
-}
+body:not(:has(#thanks.on)) .gm-logo{height:40px!important;width:auto!important;max-width:132px!important;border-radius:8px}
+body:not(:has(#thanks.on)) .exit-x{display:none!important}
 body:not(:has(#thanks.on)) .exit-back,
 body:not(:has(#thanks.on)) .exit-home{
-  min-height:40px;padding:0 12px;border-radius:12px;
-  font-size:14px!important;font-weight:600!important;color:#12141A!important;opacity:1!important;
+  display:inline-flex!important;align-items:center;justify-content:center;
+  flex:0 0 auto;min-height:44px;min-width:44px;margin:0;padding:0 12px;
+  border:1px solid #E2E6EC!important;border-radius:12px!important;
+  background:#FFFFFF!important;color:#12141A!important;opacity:1!important;
+  box-shadow:none!important;font-size:14px!important;font-weight:600!important;letter-spacing:0!important;
 }
-body:has(#start.on) .exit-x,
-body:has(#start.on) .exit-back,
-body:has(#start.on) .exit-home,
-body:has(#login.on) .exit-x,
-body:has(#login.on) .exit-back,
-body:has(#login.on) .exit-home,
-body:has(#center.on) .exit-x,
-body:has(#center.on) .exit-back,
-body:has(#center.on) .exit-home,
-body:has(#users.on) .exit-x,
-body:has(#users.on) .exit-back,
-body:has(#users.on) .exit-home{display:none!important}
+body:not(:has(#thanks.on)) .exit-back:hover,
+body:not(:has(#thanks.on)) .exit-home:hover{background:#F7F8FA!important;color:#12141A!important;opacity:1!important}
+@media (max-width:767px){
+  body:not(:has(#thanks.on)) .exit-chrome{gap:6px;padding:calc(8px + env(safe-area-inset-top)) 12px 8px!important}
+  body:not(:has(#thanks.on)) .gm-logo{height:34px!important;max-width:104px!important}
+  body:not(:has(#thanks.on)) .exit-back,
+  body:not(:has(#thanks.on)) .exit-home{padding:0 10px!important}
+  #whoChip{max-width:108px}
+}
 #whoChip{
   position:relative!important;top:auto!important;right:auto!important;left:auto!important;
   margin-left:auto;z-index:2;
   display:inline-flex;align-items:center;gap:8px;
-  height:40px;max-width:46vw;padding:4px 12px 4px 4px;
+  height:44px;max-width:46vw;padding:4px 12px 4px 4px;
   border:1px solid #E2E6EC;border-radius:999px;
   background:#F7F8FA!important;color:#12141A!important;
   box-shadow:none!important;font-family:Inter,ui-sans-serif,system-ui,sans-serif;
@@ -2806,13 +2810,57 @@ html:has(#login.on),body:has(#login.on),.phone:has(#login.on),#login.screen.on{
 #users > .nav h1{
   text-align:left!important;font-size:20px!important;font-weight:600!important;letter-spacing:-.02em!important;
 }
+
+/* Appraisal Center look only. Lanes, labels, and controls stay. */
+body.exit-on:has(#center.on) #center.screen{padding-top:calc(64px + env(safe-area-inset-top))!important}
+#center > .nav{
+  display:flex!important;align-items:center;gap:8px;
+  padding:8px 16px 0!important;background:transparent!important;border:0!important;
+}
+#center > .nav h1{
+  flex:1 1 auto;margin:0!important;text-align:left!important;
+  font-size:22px!important;font-weight:600!important;letter-spacing:-.02em!important;
+}
+#center > .nav #centerBack{margin-left:auto;order:2}
+#center .center-detail-bar{
+  gap:8px;padding:4px 0 8px;
+  background:transparent;
+}
+#center .center-detail-bar #centerDetailClose{order:2;margin-left:auto}
+#center .center-desk-lane{order:1;margin:0}
+#center .lane-dd-chip, #center .center-desk-lane .lane-dd-chip{
+  font-style:normal!important;text-transform:none!important;letter-spacing:0!important;
+  font-weight:600!important;font-size:13px!important;
+}
+#center #centerDetailTitle{
+  font-size:22px!important;font-weight:600!important;letter-spacing:-.02em!important;margin:8px 0 4px!important;
+}
+#center #centerDetailSub{font-size:14px!important;font-weight:400!important;color:#5C6370!important}
+#center #centerDetailBody.pad{padding-top:4px}
+@media (max-width:767px){
+  #center #centerLanes.center-rail{
+    flex-wrap:nowrap!important;overflow-x:auto;-webkit-overflow-scrolling:touch;
+    gap:6px!important;padding:4px 16px 8px!important;
+  }
+  #center #centerLanes .lane-pill{
+    flex:1 1 0!important;min-width:0!important;width:auto!important;
+    flex-direction:column!important;align-items:center!important;justify-content:center!important;
+    padding:6px 2px!important;min-height:44px!important;border-radius:12px!important;
+  }
+  #center #centerLanes .lane-pill b{
+    font-size:11px!important;font-weight:600!important;letter-spacing:0!important;white-space:nowrap;
+  }
+}
+@media (min-width:980px){
+  body:has(#center.on) #center > .nav{padding:12px 24px 0!important;max-width:none}
+}
 </style>
 </head>
 <body class="exit-on">
 <div class="phone">
 <div class="accent"></div>
 <div class="exit-chrome on" id="exitChrome">
-  <img class="gm-logo" src="/icons/gm-logo.png?v=20261008b" alt="G&amp;M Auto Sales &amp; Service" width="90" height="53">
+  <img class="gm-logo" src="/icons/gm-logo.png?v=20261008c" alt="G&amp;M Auto Sales &amp; Service" width="90" height="53">
   <button class="exit-x" type="button" id="exitClose" aria-label="Close">✕</button>
   <button class="exit-back" type="button" id="exitBack">Back</button>
   <button class="exit-home" type="button" id="exitHome">Home</button>
@@ -2842,7 +2890,7 @@ html:has(#login.on),body:has(#login.on),.phone:has(#login.on),#login.screen.on{
   </div>
   <div class="login-card">
     <div class="qs-login-mark">
-      <img class="gm-logo" src="/icons/gm-logo.png?v=20261008b" alt="G&amp;M Auto Sales &amp; Service" width="140" height="58">
+      <img class="gm-logo" src="/icons/gm-logo.png?v=20261008c" alt="G&amp;M Auto Sales &amp; Service" width="140" height="58">
       <div>
         <p class="login-kicker">G&amp;M Auto Sales</p>
         <b>Staff desk</b>
@@ -3709,7 +3757,7 @@ html:has(#login.on),body:has(#login.on),.phone:has(#login.on),#login.screen.on{
   <div class="card">
     <button class="x" type="button" data-close="storySheet">✕</button>
     <h3 id="storyTitle">What's the Story?</h3>
-    <p class="hint" id="storyHint">Walk the car and talk. Tap opens the mic — keep going, any length. Inside and outside condition, high-value options, selling features and hinderances. Allow the microphone — tap Speak if it doesn’t start.</p>
+    <p class="hint" id="storyHint">Say the year, make, model, trim, colour, km and condition, or read the VIN.</p>
     <textarea class="box" id="transcript" rows="8" placeholder="I'm looking at a 1986 Ford Bronco…"></textarea>
     <div class="pair">
       <button class="pill wash" type="button" id="micBtn">Speak</button>
@@ -8387,11 +8435,56 @@ function testRav4Thumb(){
   const svg='<svg xmlns="http://www.w3.org/2000/svg" width="640" height="400" viewBox="0 0 640 400"><rect width="640" height="400" fill="#1c1e24"/><text x="320" y="178" text-anchor="middle" fill="#E0243C" font-family="Arial,Helvetica,sans-serif" font-size="54" font-weight="700">TEST</text><text x="320" y="232" text-anchor="middle" fill="#FFFFFF" font-family="Arial,Helvetica,sans-serif" font-size="28">2021 Toyota RAV4 XLE</text></svg>';
   return "data:image/svg+xml,"+encodeURIComponent(svg);
 }
+function testRav4Photos(){
+  const q="?v=20261008c";
+  return [
+    {data:"/photos/test-rav4/front.jpg"+q, title:"Front", view:"qfront", kind:"walk", n:1},
+    {data:"/photos/test-rav4/side.jpg"+q, title:"Side", view:"side", kind:"walk", n:2},
+    {data:"/photos/test-rav4/rear.jpg"+q, title:"Rear", view:"rear", kind:"walk", n:3},
+    {data:"/photos/test-rav4/dash.jpg"+q, title:"Dash", view:"dash", kind:"walk", n:4},
+    {data:"/photos/test-rav4/interior.jpg"+q, title:"Interior", view:"interior", kind:"walk", n:5}
+  ];
+}
+function testRav4Placeholder(item){
+  if(!item) return true;
+  const blob=function(s){ return String(s||"").indexOf("data:image/svg")===0; };
+  const photos=Array.isArray(item.photos)?item.photos:[];
+  if(photos.length) return photos.every(function(p){ return !p || !p.data || blob(p.data); });
+  const thumb=String(item.thumb||"");
+  return !thumb || blob(thumb);
+}
+function applyTestRav4Photos(store, item){
+  const id="test-rav4-xle-desk";
+  const photos=testRav4Photos();
+  item.photos=photos;
+  item.thumb=photos[0].data;
+  item.photoCount=photos.length;
+  saveCenterStore(store);
+  try{ if(typeof persistCenterMedia==="function") persistCenterMedia(id, photos, item.docs||{}); }catch(e){}
+  if(APP.centerViewId===id && typeof paintCenterHero==="function") paintCenterHero(photos);
+}
 function ensureTestDeskAppraisal(){
   try{ if(localStorage.getItem("inspect.skipTestRav4")==="1") return; }catch(e){ return; }
   const id="test-rav4-xle-desk";
   const store=centerStore();
-  if(store.items.some(function(x){ return x && x.id===id; })) return;
+  const hit=store.items.filter(function(x){ return x && x.id===id; })[0];
+  if(hit){
+    if(!testRav4Placeholder(hit)) return;
+    const write=function(){ applyTestRav4Photos(store, hit); };
+    if(typeof idbGet==="function" && typeof centerMediaKey==="function"){
+      idbGet(centerMediaKey(id)).then(function(v){
+        const shots=(v && v.photos) || [];
+        const staff=shots.some(function(p){
+          const d=String(p && p.data || "");
+          if(!d || d.indexOf("data:image/svg")===0) return false;
+          if(d.indexOf("/photos/test-rav4/")===0) return false;
+          return true;
+        });
+        if(!staff) write();
+      }).catch(write);
+    } else write();
+    return;
+  }
   const now=Date.now()-3600000;
   store.items.unshift({
     id:id,
@@ -8415,8 +8508,9 @@ function ensureTestDeskAppraisal(){
     archived:false,
     story:"TEST appraisal. Not a real vehicle or customer. 2021 Toyota RAV4 XLE, about 62,000 km. Sample figures only.",
     notes:"TEST — not a real appraisal. Remove by setting localStorage inspect.skipTestRav4 to 1 and deleting id test-rav4-xle-desk.",
-    photoCount:1,
-    thumb:testRav4Thumb(),
+    photoCount:5,
+    thumb:"/photos/test-rav4/front.jpg?v=20261008c",
+    photos:testRav4Photos(),
     salesperson:"TEST",
     sentBy:"TEST",
     customer:{name:"TEST CUSTOMER", email:"", phone:""},
@@ -8429,6 +8523,7 @@ function ensureTestDeskAppraisal(){
     values:{min:"24500", target:"26200", max:"27800"}
   });
   saveCenterStore(store);
+  try{ if(typeof persistCenterMedia==="function") persistCenterMedia(id, testRav4Photos(), {}); }catch(e){}
 }
 function isTradeLinkItem(item){ return !!(item && (item.source==="trade-in" || item.linkSent)); }
 function isWebsiteItem(item){ return !!(item && item.source==="website"); }
@@ -13646,7 +13741,14 @@ function askMic(){
       navigator.mediaDevices.getUserMedia({audio:true, video:false}).then(function(s){
         if(APP.micStream){ try{ APP.micStream.getTracks().forEach(function(tr){ tr.stop(); }); }catch(e){} }
         APP.micStream=s;
-      }).catch(function(){ toast("Allow the microphone when asked."); });
+      }).catch(function(){
+        const sheet=$("storySheet");
+        const hint=$("storyHint");
+        if(!(sheet && sheet.classList.contains("on") && hint)) return;
+        const cur=String(hint.textContent||"");
+        if(/microphone/i.test(cur)) return;
+        hint.textContent=(cur?cur+" ":"")+"Allow the microphone, then tap Speak.";
+      });
     }
   }catch(e){}
 }
@@ -16485,7 +16587,7 @@ function openStoryMic(){
       ? "Talk through year, make, model, trim, and condition of the vehicle. Allow the microphone — tap Speak if it doesn’t start."
       : isConsumerAcquisition()
       ? "Walk the car and talk. Tap opens the mic — keep going, any length. Inside and outside condition, high-value options, selling features and hinderances."
-      : "Talk through year, make, model, trim, colour, kilometres, and condition in detail. If you have the ownership, photograph it. If not, read the 17-character VIN out loud. Allow the microphone — tap Speak if it doesn’t start.";
+      : "Say the year, make, model, trim, colour, km and condition, or read the VIN.";
   }
   $("storySheet").classList.add("on");
   startMic();

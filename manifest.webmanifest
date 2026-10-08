@@ -10,25 +10,25 @@
   "theme_color": "#F7F8FA",
   "icons": [
     {
-      "src": "/icons/gm-logo-square.png?v=20261008b",
+      "src": "/icons/gm-logo-square.png?v=20261008c",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/gm-logo-square.png?v=20261008b",
+      "src": "/icons/gm-logo-square.png?v=20261008c",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/gm-logo-square.png?v=20261008b",
+      "src": "/icons/gm-logo-square.png?v=20261008c",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "/icons/gm-logo-square.png?v=20261008b",
+      "src": "/icons/gm-logo-square.png?v=20261008c",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
