@@ -8,7 +8,7 @@ Order:
   - draw one constant-width turntable circle
   - rotate the cutout so the two tyre contacts are level
   - neutralise white balance to the studio wall and lift to high-key
-  - replace only real window glass with a dark studio gradient
+  - segment windows with a car-parts model and blend a smoky tint
   - lift light paint toward the wall and lay a soft softbox on the paint
   - on a dark car, damp outdoor speculars instead of guessing at the glass
   - choke the silhouette by 1 px and kill the fringe
@@ -199,217 +199,116 @@ def studio_grade(rgba, wall_rgb):
     return out
 
 
+def _parts_model():
+    """YOLO26 car-parts segmenter. Glass classes come from the model, not from brightness."""
+    global _PARTS
+    if _PARTS is not None:
+        return _PARTS
+    import urllib.request
+    dest = "/tmp/gm-models/parts_segmentation.pt"
+    os.makedirs("/tmp/gm-models", exist_ok=True)
+    if not os.path.isfile(dest) or os.path.getsize(dest) < 1_000_000:
+        url = "https://huggingface.co/mitbersh/car-parts-segmentation/resolve/main/parts_segmentation.pt"
+        print("  downloading car-parts weights")
+        urllib.request.urlretrieve(url, dest)
+    from ultralytics import YOLO
+    _PARTS = YOLO(dest)
+    return _PARTS
+
+
+_PARTS = None
+
+
+def _fill_poly(h, w, poly):
+    layer = np.zeros((h, w), np.uint8)
+    if poly is None or len(poly) < 3:
+        return layer
+    cv2.fillPoly(layer, [np.asarray(poly, np.int32)], 255)
+    return layer
+
+
 def glass_mask(rgb, alpha):
-    """Side windows, windshield and rear glass, following the window opening.
+    """Windshield, side windows, quarter windows and rear glass from a car-parts model.
 
-    A column counts only when a bright roof drops into a dark opening and
-    the body colour comes back at the beltline. The mask is thrown away when
-    the roof is dark, the area is outside 2–25% of the car, the roof or the
-    hood is inside it, or a long stretch of glass was missed. Original glass
-    is better than a fill that covers the roof.
+    The weights are mitbersh/car-parts-segmentation (YOLO26-s, 33 classes,
+    including windshield, front-window, back-window and back-windshield).
+    Roof, hood and mirror predictions from the same model are subtracted so
+    the glass cannot cover those parts. There is no brightness test.
     """
-    opaque = alpha > 140
-    h, w = alpha.shape
+    h, w = rgb.shape[:2]
     empty = np.zeros((h, w), bool)
-    box = bbox_of(opaque)
-    if box is None:
+    opaque = alpha > 80
+    if int(opaque.sum()) < 500:
         return empty
-    y0, y1, x0, x1 = box
-    span = max(1, y1 - y0)
-    lum = rgb.astype(np.float32).mean(axis=2)
-    smooth = cv2.GaussianBlur(lum, (1, 5), 0)
-    roof_rows = slice(y0, y0 + max(2, int(span * 0.08)))
-    roof_sel = opaque[roof_rows, x0 : x1 + 1]
-    roof_pix = lum[roof_rows, x0 : x1 + 1][roof_sel]
-    roof_med = float(np.median(roof_pix)) if roof_pix.size > 30 else 0.0
-    if roof_med < 158:
-        print("  window skip dark-roof", round(roof_med, 1))
+    # The segmenter expects a car on a background, not a transparent cutout.
+    plate = np.full((h, w, 3), 224, np.uint8)
+    a = (alpha.astype(np.float32) / 255.0)[:, :, None]
+    plate = (rgb.astype(np.float32) * a + plate.astype(np.float32) * (1.0 - a)).astype(np.uint8)
+    model = _parts_model()
+    res = model.predict(plate, conf=0.40, imgsz=768, verbose=False, retina_masks=True)[0]
+    if res.masks is None or res.boxes is None or len(res.boxes) == 0:
+        print("  window model found nothing")
         return empty
-
-    search_hi = y0 + int(span * 0.50)
-    roof_zone_hi = y0 + int(span * 0.20)
-    belt_y = np.full(w, -1, np.int32)
-    roof_y = np.full(w, -1, np.int32)
-    for x in range(x0, x1 + 1):
-        ys = np.where(opaque[y0:search_hi, x])[0] + y0
-        if ys.size < 16:
-            continue
-        seg = smooth[ys, x]
-        zone = ys <= roof_zone_hi
-        if int(zone.sum()) < 4:
-            continue
-        roof = float(np.percentile(seg[zone], 90))
-        if roof < 175:
-            continue
-        near = np.where(zone & (seg >= roof - 14))[0]
-        if near.size < 2:
-            continue
-        ri = int(near[-1])
-        trough = float(seg[ri])
-        ti = ri
-        end = None
-        for j in range(ri + 1, len(seg)):
-            if seg[j] < trough:
-                trough = float(seg[j])
-                ti = j
-            if j > ti + 3 and trough < roof - 42 and seg[j] > roof - 28:
-                ahead = seg[j : min(len(seg), j + 10)]
-                if ahead.size >= 6 and float(np.median(ahead)) > roof - 36:
-                    end = j
-                    break
-        if end is None:
-            continue
-        length = int(ys[end] - ys[ri])
-        if length < int(span * 0.06) or length > int(span * 0.36):
-            continue
-        belt_y[x] = int(ys[end])
-        roof_y[x] = int(ys[ri])
-
-    seeds = np.where(belt_y >= 0)[0]
-    if seeds.size < 12:
-        print("  window skip few-seeds", int(seeds.size))
-        return empty
-
-    belt_s = belt_y.astype(np.float32)
-    roof_s = roof_y.astype(np.float32)
-    for _ in range(8):
-        for x in range(x0 + 2, x1 - 1):
-            if belt_y[x] < 0:
-                continue
-            nb = belt_y[max(x0, x - 14) : min(x1, x + 15)]
-            nb = nb[nb >= 0]
-            if nb.size < 5:
-                continue
-            med = float(np.median(nb))
-            if belt_y[x] < med - span * 0.06:
-                belt_s[x] = med
-                rn = roof_y[max(x0, x - 14) : min(x1, x + 15)]
-                rn = rn[rn >= 0]
-                if rn.size:
-                    roof_s[x] = float(np.median(rn))
-
-    xs_known = np.where(belt_s > 0)[0]
-    belt_i = np.interp(np.arange(w), xs_known, belt_s[xs_known])
-    roof_line = np.interp(np.arange(w), xs_known, roof_s[xs_known])
-    raw = np.zeros((h, w), np.uint8)
-    seed_set = set(int(v) for v in xs_known.tolist())
-    for x in range(int(xs_known[0]), int(xs_known[-1]) + 1):
-        prev = xs_known[xs_known <= x]
-        nxt = xs_known[xs_known >= x]
-        if prev.size == 0 or nxt.size == 0:
-            continue
-        if int(nxt[0] - prev[-1]) > 80 and x not in seed_set:
-            continue
-        ry = int(round(roof_line[x])) + 2
-        by = int(round(belt_i[x])) - 2
-        if by - ry < int(span * 0.05):
-            continue
-        ry = max(ry, y0 + 2)
-        by = min(by, search_hi - 1)
-        op = opaque[ry:by, x]
-        if int(op.sum()) < 8:
-            continue
-        med = float(np.median(smooth[ry:by, x][op]))
-        below = opaque[by : min(h, by + 8), x]
-        if int(below.sum()) < 3:
-            continue
-        belt_lum = float(np.median(smooth[by : min(h, by + 8), x][below]))
-        if med > belt_lum - 22:
-            continue
-        if med > roof_med - 8:
-            continue
-        raw[ry:by, x][op] = 255
-
-    if raw.max() == 0:
-        print("  window skip empty")
-        return empty
-    closed = cv2.morphologyEx(raw, cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3)))
-    eroded = cv2.erode((opaque.astype(np.uint8) * 255), np.ones((3, 3), np.uint8), 1)
-    closed = cv2.bitwise_and(closed, eroded)
-    closed[y0 + int(span * 0.46) :, :] = 0
-    n, labels, stats, cents = cv2.connectedComponentsWithStats((closed > 0).astype(np.uint8), 8)
-    car = max(1, int(opaque.sum()))
-    mask = np.zeros((h, w), bool)
-    for i in range(1, n):
-        area = int(stats[i, cv2.CC_STAT_AREA])
-        top = int(stats[i, cv2.CC_STAT_TOP])
-        height = int(stats[i, cv2.CC_STAT_HEIGHT])
-        cy = float(cents[i][1])
-        if area < car * 0.004 or area > car * 0.20:
-            continue
-        if top <= y0 + 1:
-            continue
-        if height < span * 0.05 or height > span * 0.40:
-            continue
-        if cy > y0 + span * 0.42:
-            continue
-        comp = labels == i
-        if float(np.median(lum[comp])) > roof_med - 10:
-            continue
-        mask[comp] = True
+    glass = np.zeros((h, w), np.uint8)
+    block = np.zeros((h, w), np.uint8)
+    names = []
+    for i, cls in enumerate(res.boxes.cls.cpu().numpy().astype(int)):
+        name = str(model.names[int(cls)]).lower()
+        conf = float(res.boxes.conf[i])
+        layer = _fill_poly(h, w, res.masks.xy[i])
+        if any(k in name for k in ("window", "windshield", "glass")):
+            glass = np.maximum(glass, layer)
+            names.append(f"{name}:{conf:.2f}")
+        elif any(k in name for k in ("roof", "hood", "mirror", "fender")):
+            block = np.maximum(block, layer)
+    glass[block > 0] = 0
+    glass[alpha < 80] = 0
+    mask = glass > 0
+    car = max(1, int((alpha > 140).sum()))
     frac = float(mask.sum()) / car
-    if frac < 0.02 or frac > 0.25 or not mask.any():
-        print("  window skip confidence", round(frac, 4))
+    print("  window model", ", ".join(names), "frac", round(frac, 4))
+    if frac > 0.32:
+        print("  window model rejected, area", round(frac, 3))
         return empty
-    leak = int(mask[y0 : y0 + max(2, int(span * 0.045)), x0 : x1 + 1].sum())
-    if leak > mask.sum() * 0.02:
-        print("  window skip roof-leak", leak)
-        return empty
-    ys, xs = np.where(mask)
-    band0, band1 = int(ys.min()), int(ys.max())
-    dark_run = 0
-    worst = 0
-    for x in range(int(xs.min()), int(xs.max()) + 1):
-        if mask[:, x].any():
-            dark_run = 0
-            continue
-        op = opaque[band0:band1, x]
-        if int(op.sum()) < 8:
-            dark_run = 0
-            continue
-        med = float(np.median(smooth[band0:band1, x][op]))
-        if med < roof_med - 50:
-            dark_run += 1
-            worst = max(worst, dark_run)
-        else:
-            dark_run = 0
-    if worst > 130:
-        print("  window skip incomplete", worst)
-        return empty
-    print(
-        "  window ok",
-        "frac",
-        round(frac, 4),
-        "bbox",
-        (int(ys.min()), int(ys.max()), int(xs.min()), int(xs.max())),
-        "roof",
-        round(roof_med, 1),
-    )
     return mask
 
 
-def paint_glass(rgba, mask):
-    if not mask.any():
+def blend_glass(rgba, original, mask):
+    """Smoky studio tint. Keeps a little of the dark interior, kills sky and trees.
+
+    The mask edge is feathered by about 1–2 px. The fill is a vertical
+    gradient plus one soft streak, mixed with roughly 16% of the original
+    glass after its highlights have been crushed.
+    """
+    if mask is None or not np.any(mask):
         return rgba
     h, w = rgba.shape[:2]
+    soft = cv2.GaussianBlur(mask.astype(np.float32), (0, 0), 1.15)
+    soft = np.clip(soft, 0, 1)
     ys, xs = np.where(mask)
     y0, y1 = int(ys.min()), int(ys.max())
     x0, x1 = int(xs.min()), int(xs.max())
-    yy, xx = np.mgrid[0:h, 0:w]
-    t = (yy - y0) / max(1, y1 - y0)
+    yy = np.arange(h, dtype=np.float32)[:, None]
+    xx = np.arange(w, dtype=np.float32)[None, :]
+    t = np.clip((yy - y0) / max(1.0, float(y1 - y0)), 0, 1)
+    u = np.clip((xx - x0) / max(1.0, float(x1 - x0)), 0, 1)
     top = np.array([14, 18, 24], np.float32)
-    bot = np.array([36, 42, 50], np.float32)
-    col = top * (1.0 - t[:, :, None]) + bot * t[:, :, None]
-    cy = y0 + (y1 - y0) * 0.28
-    cx = (x0 + x1) * 0.5
-    sy = max(6.0, (y1 - y0) * 0.16)
-    sx = max(8.0, (x1 - x0) * 0.28)
-    blob = np.exp(-0.5 * (((yy - cy) / sy) ** 2 + ((xx - cx) / sx) ** 2))
-    col = col + blob[:, :, None] * np.array([48, 54, 62], np.float32)
-    out = rgba.copy()
-    out[:, :, :3][mask] = np.clip(col[mask], 0, 255).astype(np.uint8)
-    out[:, :, 3][mask] = np.maximum(rgba[:, :, 3][mask], 235)
-    return out
+    bot = np.array([34, 40, 48], np.float32)
+    tint = top * (1.0 - t[:, :, None]) + bot * t[:, :, None]
+    streak = np.exp(-0.5 * ((t - 0.30) / 0.14) ** 2) * np.exp(-0.5 * ((u - 0.48) / 0.42) ** 2)
+    tint = tint + streak[:, :, None] * np.array([42, 48, 56], np.float32)
+    orig = original[:, :, :3].astype(np.float32)
+    lum = orig.mean(axis=2, keepdims=True) / 255.0
+    crush = lum / (1.0 + 3.4 * np.maximum(lum - 0.22, 0))
+    detail = orig * (crush / np.maximum(lum, 1e-3))
+    mixed = tint * 0.84 + detail * 0.16
+    base = rgba[:, :, :3].astype(np.float32)
+    a = soft[:, :, None]
+    out = base * (1.0 - a) + mixed * a
+    rgba = rgba.copy()
+    rgba[:, :, :3] = np.clip(out, 0, 255).astype(np.uint8)
+    rgba[:, :, 3] = np.maximum(rgba[:, :, 3], np.clip(soft * 255.0, 0, 255).astype(np.uint8))
+    return rgba
 
 
 def kill_outdoor_cast(rgba, paint, glass):
@@ -536,13 +435,13 @@ def choke(rgba, px=1):
 
 
 def relight_cutout(rgba, wall_rgb):
-    # Window shape is measured on the original photo. The grade that follows
-    # changes brightness and would move the beltline.
+    # The parts model reads the original photo. The tint keeps a little of that glass.
+    original = rgba.copy()
     mask = glass_mask(rgba[:, :, :3], rgba[:, :, 3])
     graded = studio_grade(rgba, wall_rgb)
     paint = paint_color(graded[:, :, :3], graded[:, :, 3])
     graded = kill_outdoor_cast(graded, paint, mask)
-    graded = paint_glass(graded, mask)
+    graded = blend_glass(graded, original, mask)
     graded = damp_speculars(graded, mask, paint)
     graded = lift_white(graded, mask, paint)
     graded = add_softbox(graded, mask, paint)
