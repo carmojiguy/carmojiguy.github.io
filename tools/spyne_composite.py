@@ -6,12 +6,12 @@ Proof only. It does not touch the live app and it does not call a paid API.
 Order:
   - denoise the plate with standalone OIDN when the binary is present
   - draw one constant-width turntable circle
-  - rotate the cutout so the two tyre contacts are level
-  - neutralise white balance to the studio wall and lift to high-key
+  - keep only the subject car: BiRefNet intersected with its part masks
+  - smooth the lower silhouette and strip a bright edge fringe
+  - put the wheel-mask bottoms on the floor
+  - take low-frequency shading from a local IC-Light fbc pass
   - segment windows with a car-parts model and blend a smoky tint
-  - lift light paint toward the wall and lay a soft softbox on the paint
-  - on a dark car, damp outdoor speculars instead of guessing at the glass
-  - choke the silhouette by 1 px and kill the fringe
+  - choke the silhouette by 1 px
   - tight contact shadow per tyre, plus a wider body occlusion
   - a mirrored, faded reflection of the whole lower car, clipped to the disc
   - a small G&M wordmark
@@ -391,84 +391,113 @@ def damp_speculars(rgba, glass, paint):
     return rgba
 
 
-def drop_stray_vehicle(rgba):
-    """Keep the largest vehicle. On a dark car, drop a light cap above the roof.
+def _part_layers(rgb, alpha, conf):
+    """Part masks from the car-parts model. The cutout is composited on grey first."""
+    h, w = rgb.shape[:2]
+    if int((alpha > 40).sum()) < 500:
+        return []
+    plate = np.full((h, w, 3), 224, np.uint8)
+    a = (alpha.astype(np.float32) / 255.0)[:, :, None]
+    plate = (rgb.astype(np.float32) * a + plate.astype(np.float32) * (1.0 - a)).astype(np.uint8)
+    model = _parts_model()
+    res = model.predict(plate, conf=conf, imgsz=768, verbose=False, retina_masks=True)[0]
+    if res.masks is None or res.boxes is None or len(res.boxes) == 0:
+        return []
+    layers = []
+    for i, cls in enumerate(res.boxes.cls.cpu().numpy().astype(int)):
+        name = str(model.names[int(cls)]).lower()
+        poly = res.masks.xy[i]
+        layer = _fill_poly(h, w, poly)
+        x0, y0, x1, y1 = [float(v) for v in res.boxes.xyxy[i].cpu().numpy()]
+        layers.append((name, float(res.boxes.conf[i]), layer, y0, y1, x0, x1))
+    return layers
 
-    The Camry cutout includes the grey car parked behind it. That cap is a
-    bright run sitting on the black roof. A light car has no such cap, so
-    this leaves its roof alone. Separate specks are dropped too.
+
+def keep_subject(rgba):
+    """Keep the subject car. Intersect BiRefNet with that car's parts.
+
+    The subject is the part cluster of the car in frame. When a second roof
+    sits well above that cluster (the hatchback parked behind the Camry),
+    that roof is not part of the subject. Alpha outside the dilated subject
+    is cleared, including the other car's windows, spoiler and the white
+    stripe. A car with one roof is left intact apart from distant specks.
     """
     alpha = rgba[:, :, 3]
-    rgb = rgba[:, :, :3].astype(np.float32)
-    lum = rgb.mean(axis=2)
     h, w = alpha.shape
-    fg = (alpha > 40).astype(np.uint8)
-    n, lab, stats, _ = cv2.connectedComponentsWithStats(fg, 8)
+    layers = _part_layers(rgba[:, :, :3], alpha, conf=0.25)
+    if not layers:
+        print("  subject parts: none, matte unchanged")
+        return rgba
+    roofs = [item for item in layers if item[0] == "roof"]
+    foreign = np.zeros((h, w), np.uint8)
+    if len(roofs) >= 2:
+        lowest = max(item[3] for item in roofs)
+        gap = max(40.0, 0.04 * h)
+        for name, conf, layer, y0, y1, x0, x1 in roofs:
+            if lowest - y0 > gap:
+                foreign = np.maximum(foreign, layer)
+                print("  foreign roof", round(y0, 1), "below the subject roof", round(lowest, 1))
+    subject = np.zeros((h, w), np.uint8)
+    for name, conf, layer, y0, y1, x0, x1 in layers:
+        if foreign is not None and np.array_equal(layer, foreign):
+            continue
+        # A roof already copied into `foreign` still has its own layer object.
+        if len(roofs) >= 2 and name == "roof":
+            lowest = max(item[3] for item in roofs)
+            if lowest - y0 > max(40.0, 0.04 * h):
+                continue
+        subject = np.maximum(subject, layer)
+    if int(subject.sum()) < 500:
+        print("  subject parts empty, matte unchanged")
+        return rgba
+    n, lab, stats, _ = cv2.connectedComponentsWithStats((subject > 0).astype(np.uint8), 8)
     if n > 2:
         areas = stats[1:, cv2.CC_STAT_AREA]
         keep = 1 + int(np.argmax(areas))
-        main = int(areas.max())
-        drop_cc = np.zeros((h, w), bool)
-        for i in range(1, n):
-            if i != keep and stats[i, cv2.CC_STAT_AREA] < main * 0.02:
-                drop_cc |= lab == i
-        if drop_cc.any():
-            rgba = rgba.copy()
-            rgba[drop_cc, 3] = 0
-            alpha = rgba[:, :, 3]
-    # Bright cap over a dark roof only. A white or grey roof is the car.
-    opaque = alpha > 140
-    box = bbox_of(opaque)
-    if box is None:
-        return rgba
-    y0b, y1b, x0b, x1b = box
-    span_y = max(1, y1b - y0b)
-    span_x = max(1, x1b - x0b)
-    door = np.zeros(opaque.shape, bool)
-    door[y0b + int(span_y * 0.40) : y0b + int(span_y * 0.62), x0b + int(span_x * 0.25) : x1b - int(span_x * 0.25)] = True
-    door &= opaque
-    if int(door.sum()) < 40:
-        return rgba
-    # The median is the sky shine. The dark percentile is the paint.
-    door_lum = float(np.percentile(lum[door], 20))
-    if door_lum > 48:
-        return rgba
-    cap = np.zeros((h, w), bool)
-    cols = 0
-    for x in range(w):
-        ys = np.where(alpha[:, x] > 40)[0]
-        if len(ys) < 12:
-            continue
-        y0 = int(ys[0])
-        ycut = None
-        for y in range(y0, min(h, y0 + 90)):
-            if lum[y, x] < 50 and alpha[y, x] > 40:
-                ycut = y
-                break
-        if ycut is None:
-            continue
-        span = ycut - y0
-        if span < 8 or span > 80:
-            continue
-        if float(lum[y0:ycut, x].mean()) < 100:
-            continue
-        below = lum[ycut : min(h, ycut + 22), x]
-        if below.size < 6 or float(below.mean()) > 75:
-            continue
-        cap[y0 : max(y0, ycut - 2), x] = True
-        cols += 1
-    if cols > 40 and cap.any():
-        rgba = rgba.copy()
-        rgba[cap, 3] = 0
-        print("  dropped light cap", int(cap.sum()), "px over", cols, "columns")
-    return rgba
+        subject = np.where(lab == keep, subject, 0).astype(np.uint8)
+    rad = max(10, int(round(w * 0.014)))
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (rad * 2 + 1, rad * 2 + 1))
+    dil = cv2.dilate(subject, kernel)
+    if int(foreign.max()) > 0:
+        top = np.full(w, np.nan, np.float32)
+        cols = np.where(subject.max(axis=0) > 0)[0]
+        for x in cols:
+            ys = np.where(subject[:, x] > 0)[0]
+            if len(ys):
+                top[x] = float(ys[0])
+        known = np.where(~np.isnan(top))[0]
+        if len(known) > 8:
+            filled = np.interp(np.arange(w), known, top[known])
+            roof_line = np.convolve(filled, np.ones(41, np.float32) / 41.0, mode="same")
+            margin = max(6.0, 0.008 * h)
+            yy = np.arange(h, dtype=np.float32)[:, None]
+            dil[yy < (roof_line[None, :] - margin)] = 0
+    keep = dil > 0
+    removed = int(((alpha > 20) & ~keep).sum())
+    out = rgba.copy()
+    out[~keep, 3] = 0
+    out[out[:, :, 3] < 8, :3] = 0
+    print("  subject intersect removed", removed, "px, dilate", rad)
+    return out
+
+
+def _contour_average(pts, win):
+    pad = win // 2
+    kernel = np.ones(win, np.float32) / float(win)
+    xs = np.concatenate([pts[-pad:, 0], pts[:, 0], pts[:pad, 0]])
+    ys = np.concatenate([pts[-pad:, 1], pts[:, 1], pts[:pad, 1]])
+    sx = np.convolve(xs, kernel, mode="valid")
+    sy = np.convolve(ys, kernel, mode="valid")
+    return np.stack([sx, sy], axis=1)
 
 
 def smooth_silhouette(rgba):
-    """Round 1 px stair-steps on the outer contour and leave a 1 px soft edge.
+    """Round the outer contour. The lower body uses a wider average than the roof.
 
-    Window holes stay. The edge colour is taken from the interior so the
-    wall does not pick up a dark fringe.
+    The roof stays on the short window so the crown is not pulled flat. The
+    rocker, the lower doors and the rear corner use a 17-point average so
+    3–5 px stairs disappear. New edge pixels take the interior colour. They
+    are not inpainted, because the transparent pixels still hold the white lot.
     """
     alpha = rgba[:, :, 3]
     h, w = alpha.shape
@@ -484,28 +513,59 @@ def smooth_silhouette(rgba):
         return rgba
     cnt = max(cnts, key=cv2.contourArea)
     pts = cnt[:, 0, :].astype(np.float32)
-    if len(pts) < 40:
+    if len(pts) < 48:
         return rgba
-    win = 9
-    pad = win // 2
-    kernel = np.ones(win, np.float32) / float(win)
-    xs = np.concatenate([pts[-pad:, 0], pts[:, 0], pts[:pad, 0]])
-    ys = np.concatenate([pts[-pad:, 1], pts[:, 1], pts[:pad, 1]])
-    sx = np.convolve(xs, kernel, mode="valid")
-    sy = np.convolve(ys, kernel, mode="valid")
-    smooth = np.stack([sx, sy], axis=1).astype(np.int32)
+    high = _contour_average(pts, 9)
+    low = _contour_average(pts, 17)
+    box = bbox_of(car > 0)
+    y0, y1 = (0, h) if box is None else (box[0], box[1])
+    span = max(1.0, float(y1 - y0))
+    t = np.clip((pts[:, 1] - (y0 + 0.52 * span)) / (0.12 * span), 0.0, 1.0)
+    smooth = (high * (1.0 - t)[:, None] + low * t[:, None]).astype(np.int32)
     mask = np.zeros((h, w), np.uint8)
     cv2.fillPoly(mask, [smooth], 255)
-    # Put enclosed gaps (a missed window is rare; the cutout glass is opaque) back
-    # only when they were open in the source and inside the new outline.
-    soft = cv2.GaussianBlur(mask, (0, 0), 0.75)
-    rgb = rgba[:, :, :3].copy()
-    new_edge = (soft > 15) & (alpha < 30)
+    soft = cv2.GaussianBlur(mask, (0, 0), 0.8)
+    rgb = rgba[:, :, :3].astype(np.float32)
+    interior = cv2.erode((alpha > 160).astype(np.uint8), np.ones((3, 3), np.uint8), iterations=2)
+    weight = interior.astype(np.float32)
+    color = cv2.GaussianBlur(rgb * weight[:, :, None], (0, 0), 2.0)
+    den = cv2.GaussianBlur(weight, (0, 0), 2.0)
+    color = color / np.maximum(den[:, :, None], 1e-3)
+    new_edge = (soft > 20) & (alpha < 40)
+    rgb_out = rgb.copy()
     if new_edge.any():
-        rgb = cv2.inpaint(rgb, new_edge.astype(np.uint8) * 255, 2, cv2.INPAINT_TELEA)
+        rgb_out[new_edge] = color[new_edge]
     out = rgba.copy()
-    out[:, :, :3] = rgb
+    out[:, :, :3] = np.clip(rgb_out, 0, 255).astype(np.uint8)
     out[:, :, 3] = soft
+    out[soft < 8, :3] = 0
+    return out
+
+
+def defringe(rgba):
+    """Replace a bright halo on the outer 3 px with the colour just inside.
+
+    White paint is already close to its interior, so it is left alone. The
+    white speckles on the RAV4's black cladding are not.
+    """
+    alpha = rgba[:, :, 3]
+    rgb = rgba[:, :, :3].astype(np.float32)
+    interior = cv2.erode((alpha > 180).astype(np.uint8), np.ones((3, 3), np.uint8), iterations=2)
+    weight = interior.astype(np.float32)
+    num = cv2.GaussianBlur(rgb * weight[:, :, None], (0, 0), 2.2)
+    den = cv2.GaussianBlur(weight, (0, 0), 2.2)
+    color = num / np.maximum(den[:, :, None], 1e-3)
+    dist = cv2.distanceTransform((interior == 0).astype(np.uint8), cv2.DIST_L2, 3)
+    band = (alpha > 8) & (dist > 0) & (dist < 5.0)
+    lum_e = rgb.mean(axis=2)
+    lum_i = color.mean(axis=2)
+    hot = band & (lum_e > lum_i + 26.0) & (lum_e > 150.0)
+    out = rgba.copy()
+    if hot.any():
+        painted = rgb.copy()
+        painted[hot] = color[hot]
+        out[:, :, :3] = np.clip(painted, 0, 255).astype(np.uint8)
+    print("  defringe", int(hot.sum()))
     return out
 
 
@@ -716,12 +776,93 @@ def choke(rgba, px=1):
     return out
 
 
-def relight_cutout(rgba, wall_rgb):
-    # The parts model reads the original photo. The tint keeps a little of that glass.
-    rgba = drop_stray_vehicle(rgba)
+def _smooth_known(values, sigma):
+    known = np.where(values >= 0)[0]
+    if len(known) < 24:
+        return values.astype(np.float32)
+    filled = np.interp(np.arange(len(values)), known, values[known].astype(np.float32))
+    smoothed = cv2.GaussianBlur(filled.reshape(1, -1), (0, 0), sigma).ravel()
+    out = values.astype(np.float32)
+    out[known] = smoothed[known]
+    return out
+
+
+def smooth_profiles(rgba):
+    """Smooth the rocker and the rear corner in image space.
+
+    A short average along the contour follows each stair. The bottom, left
+    and right envelopes are smoothed in screen space, and only below the
+    belt line, so the roof crown stays where the matte put it.
+    """
+    alpha = rgba[:, :, 3]
+    h, w = alpha.shape
+    solid = alpha > 100
+    box = bbox_of(solid)
+    if box is None:
+        return rgba
+    y0, y1, x0, x1 = box
+    span = max(1.0, float(y1 - y0))
+    bot = np.full(w, -1, np.int32)
+    left = np.full(h, -1, np.int32)
+    right = np.full(h, -1, np.int32)
+    for x in range(w):
+        ys = np.where(solid[:, x])[0]
+        if len(ys):
+            bot[x] = int(ys[-1])
+    for y in range(h):
+        xs = np.where(solid[y])[0]
+        if len(xs):
+            left[y] = int(xs[0])
+            right[y] = int(xs[-1])
+    bot_s = _smooth_known(bot, 7.0)
+    left_s = _smooth_known(left, 5.5)
+    right_s = _smooth_known(right, 5.5)
+    out = rgba.copy()
+    belt = y0 + 0.56 * span
+    for x in range(w):
+        if bot[x] < 0 or bot[x] < belt:
+            continue
+        nb = int(np.clip(round(float(bot_s[x])), 0, h - 1))
+        ob = int(bot[x])
+        # Cut a stair that sticks out. Do not fill a bite: that is a wheel arch.
+        if 0 < ob - nb <= 8:
+            out[nb + 1 : ob + 1, x, 3] = 0
+            out[nb + 1 : ob + 1, x, :3] = 0
+    side_top = y0 + 0.48 * span
+    for y in range(int(side_top), h):
+        if left[y] >= 0:
+            nl = int(np.clip(round(float(left_s[y])), 0, w - 1))
+            ol = int(left[y])
+            if 0 < nl - ol <= 8:
+                out[y, ol:nl, 3] = 0
+                out[y, ol:nl, :3] = 0
+        if right[y] >= 0:
+            nr = int(np.clip(round(float(right_s[y])), 0, w - 1))
+            orr = int(right[y])
+            if 0 < orr - nr <= 8:
+                out[y, nr + 1 : orr + 1, 3] = 0
+                out[y, nr + 1 : orr + 1, :3] = 0
+    return out
+
+
+def prepare_matte(rgba):
+    """Subject-only matte, then a smooth lower edge and a bright-fringe cleanup."""
+    rgba = keep_subject(rgba)
     rgba = smooth_silhouette(rgba)
-    original = rgba.copy()
-    mask = glass_mask(rgba[:, :, :3], rgba[:, :, 3])
+    rgba = smooth_profiles(rgba)
+    rgba = defringe(rgba)
+    return rgba
+
+
+def relight_cutout(rgba, wall_rgb, original=None, mask=None):
+    """Procedural grade. Used only when IC-Light does not return a frame.
+
+    The window mask and the smoky blend are the run 15 formulas.
+    """
+    if original is None:
+        original = rgba.copy()
+    if mask is None:
+        mask = glass_mask(rgba[:, :, :3], rgba[:, :, 3])
     graded = studio_grade(rgba, wall_rgb)
     paint = paint_color(graded[:, :, :3], graded[:, :, 3])
     graded = kill_outdoor_cast(graded, paint, mask)
@@ -819,13 +960,65 @@ def tire_contacts(alpha):
     return [(int(left[0]), int(left[1])), (int(right[0]), int(right[1]))]
 
 
-def level_tires(rgba):
-    """Rotate so the two tyre contacts share a y. PIL's positive angle is the
-    direction that lifts a low right-hand tyre (measured, not assumed)."""
+def _rotate_pair(rgba, side, angle):
+    rgba = np.asarray(
+        Image.fromarray(rgba, "RGBA").rotate(
+            angle, resample=Image.Resampling.BICUBIC, expand=True, fillcolor=(0, 0, 0, 0)
+        )
+    )
+    if side is not None:
+        side = np.asarray(
+            Image.fromarray(side, "L").rotate(
+                angle, resample=Image.Resampling.BICUBIC, expand=True, fillcolor=0
+            )
+        )
+    return rgba, side
+
+
+def wheel_contacts(rgba):
+    """Bottoms of the outer two wheel masks. None when the model sees fewer than two."""
+    layers = _part_layers(rgba[:, :, :3], rgba[:, :, 3], conf=0.35)
+    wheels = []
+    alpha = rgba[:, :, 3]
+    for name, conf, layer, y0, y1, x0, x1 in layers:
+        if "wheel" not in name:
+            continue
+        m = (layer > 0) & (alpha > 40)
+        if int(m.sum()) < 80:
+            continue
+        ys, xs = np.where(m)
+        yb = int(ys.max())
+        low = ys >= yb - 4
+        xb = int(np.median(xs[low])) if low.any() else int(np.median(xs))
+        wheels.append((xb, yb, int(m.sum())))
+    if len(wheels) < 2:
+        return None
+    wheels.sort(key=lambda item: -item[2])
+    big = [item for item in wheels if item[2] > wheels[0][2] * 0.25]
+    if len(big) < 2:
+        return None
+    big.sort()
+    left, right = big[0], big[-1]
+    if abs(left[0] - right[0]) < rgba.shape[1] * 0.18:
+        return None
+    return [(int(left[0]), int(left[1])), (int(right[0]), int(right[1]))]
+
+
+def contacts_of(rgba):
+    found = wheel_contacts(rgba)
+    if found is not None:
+        return found, "wheel"
+    return tire_contacts(rgba[:, :, 3]), "silhouette"
+
+
+def level_tires(rgba, side=None):
+    """Rotate so the two tyre contacts share a y. Wheel-mask bottoms win."""
     total = 0.0
     prev = 1e9
+    source = "silhouette"
     for _ in range(3):
-        (x0, y0), (x1, y1) = tire_contacts(rgba[:, :, 3])
+        contacts, source = contacts_of(rgba)
+        (x0, y0), (x1, y1) = contacts
         dx = float(x1 - x0)
         if abs(dx) < 8:
             break
@@ -833,13 +1026,10 @@ def level_tires(rgba):
         if abs(ang) < 0.2 or abs(ang) > abs(prev) + 0.15:
             break
         prev = ang
-        rgba = np.asarray(
-            Image.fromarray(rgba, "RGBA").rotate(
-                ang, resample=Image.Resampling.BICUBIC, expand=True, fillcolor=(0, 0, 0, 0)
-            )
-        )
+        rgba, side = _rotate_pair(rgba, side, ang)
         total += ang
-    return rgba, total
+    contacts, source = contacts_of(rgba)
+    return rgba, total, contacts, source, side
 
 
 def clip_hanging_shadow(rgba, contacts):
@@ -867,29 +1057,48 @@ def clip_hanging_shadow(rgba, contacts):
     return out
 
 
-def place(plate, car, ground_y, width_frac=0.88):
-    """Scale the car and put both tyre bottoms on ground_y."""
+def _paste(canvas, image, left, top):
+    h, w = canvas.shape[:2]
+    ih, iw = image.shape[:2]
+    src_x0 = max(0, -left)
+    src_y0 = max(0, -top)
+    dst_x0 = max(0, left)
+    dst_y0 = max(0, top)
+    src_x1 = min(iw, w - left)
+    src_y1 = min(ih, h - top)
+    if src_x1 > src_x0 and src_y1 > src_y0:
+        canvas[dst_y0 : dst_y0 + (src_y1 - src_y0), dst_x0 : dst_x0 + (src_x1 - src_x0)] = image[
+            src_y0:src_y1, src_x0:src_x1
+        ]
+    return canvas
+
+
+def place(plate, car, ground_y, width_frac=0.88, extra=None):
+    """Scale the car and put both tyre bottoms on ground_y.
+
+    `extra` is an optional mask (glass) that follows the same trim, rotate and scale.
+    """
     h, w = plate.shape[:2]
     rgba = car
     alpha = rgba[:, :, 3]
     ys, xs = np.where(alpha > 20)
+    if len(ys) < 10:
+        empty = np.zeros((h, w, 4), np.uint8)
+        mask = np.zeros((h, w), bool)
+        return empty, [(0, h // 2), (w - 1, h // 2)], 0.0, "none", mask
     y0, y1 = int(ys.min()), int(ys.max())
     x0, x1 = int(xs.min()), int(xs.max())
     rgba = rgba[y0 : y1 + 1, x0 : x1 + 1]
-    rgba, angle = level_tires(rgba)
-    contacts = tire_contacts(rgba[:, :, 3])
+    side = None
+    if extra is not None:
+        side = (extra[y0 : y1 + 1, x0 : x1 + 1].astype(np.uint8) * 255)
+    rgba, angle, contacts, source, side = level_tires(rgba, side)
     rgba = clip_hanging_shadow(rgba, contacts)
-    contacts = tire_contacts(rgba[:, :, 3])
+    contacts, source = contacts_of(rgba)
     ch, cw = rgba.shape[:2]
     scale = (w * width_frac) / float(cw)
     roof_limit = h * 0.15
     tire_y = float(np.mean([c[1] for c in contacts]))
-    roof_at = ground_y - (tire_y - 0) * scale
-    # roof is y=0 in the trimmed image only if the trim included it.
-    # The top of the trimmed image is the roof.
-    roof_px = 0.0
-    # contacts are in trimmed coords; roof is 0 after the bbox trim above,
-    # then level_tires may have added padding. Use the min opaque y.
     opaque_y = np.where(rgba[:, :, 3] > 20)[0]
     roof_px = float(opaque_y.min()) if len(opaque_y) else 0.0
     roof_at = ground_y - (tire_y - roof_px) * scale
@@ -902,18 +1111,14 @@ def place(plate, car, ground_y, width_frac=0.88):
     left = int(round(w * 0.5 - nw * 0.5))
     top = int(round(ground_y - tire_y))
     layer = np.zeros((h, w, 4), np.uint8)
-    src_x0 = max(0, -left)
-    src_y0 = max(0, -top)
-    dst_x0 = max(0, left)
-    dst_y0 = max(0, top)
-    src_x1 = min(nw, w - left)
-    src_y1 = min(nh, h - top)
-    if src_x1 > src_x0 and src_y1 > src_y0:
-        layer[dst_y0 : dst_y0 + (src_y1 - src_y0), dst_x0 : dst_x0 + (src_x1 - src_x0)] = resized[
-            src_y0:src_y1, src_x0:src_x1
-        ]
+    layer = _paste(layer, resized, left, top)
+    mask = np.zeros((h, w), np.uint8)
+    if side is not None:
+        side_r = np.asarray(Image.fromarray(side, "L").resize((nw, nh), Image.Resampling.BILINEAR))
+        mask = _paste(mask, side_r, left, top)
     placed = [(c[0] + left, c[1] + top) for c in contacts_s]
-    return layer, placed, angle
+    print("  contacts", source, [(round(c[0], 1), round(c[1], 1)) for c in placed])
+    return layer, placed, angle, source, mask > 40
 
 
 def paint_shadows(plate, contacts, ellipse):
@@ -974,18 +1179,125 @@ def add_reflection(plate, layer, contacts, ellipse):
     return np.clip(out, 0, 255).astype(np.uint8)
 
 
-def composite_car(plate_rgb, ellipse, ground_y, cut_path, wall_rgb, debug_path=None, src_path=None):
+def apply_low_freq(orig_rgb, alpha, ic_rgb):
+    """Move only the broad lighting of the IC-Light result onto the original pixels.
+
+    Badges, grille, wheels, text and the plate stay in the original detail.
+    The ratio is clamped so a dark tyre cannot blow out.
+    """
+    h, w = orig_rgb.shape[:2]
+    ic = np.asarray(Image.fromarray(ic_rgb, "RGB").resize((w, h), Image.Resampling.LANCZOS)).astype(np.float32)
+    orig = orig_rgb.astype(np.float32)
+    sigma = max(22.0, 0.04 * min(h, w))
+    weight = (alpha.astype(np.float32) / 255.0)[:, :, None]
+
+    def low(rgb):
+        num = cv2.GaussianBlur(rgb * weight, (0, 0), sigma)
+        den = cv2.GaussianBlur(np.squeeze(weight, axis=2), (0, 0), sigma)[:, :, None]
+        return num / np.maximum(den, 1e-3)
+
+    ratio = low(ic) / np.maximum(low(orig), 6.0)
+    ratio = np.clip(ratio, 0.42, 1.85)
+    out = orig * ratio
+    deep = orig.mean(axis=2) < 32.0
+    out[deep] = orig[deep] * 0.8 + out[deep] * 0.2
+    return np.clip(out, 0, 255).astype(np.uint8)
+
+
+def _on_grey(layer):
+    rgb = layer[:, :, :3].astype(np.float32)
+    a = (layer[:, :, 3].astype(np.float32) / 255.0)[:, :, None]
+    return (rgb * a + 127.0 * (1.0 - a)).astype(np.uint8)
+
+
+def release_models():
+    global _PARTS, _BIREF
+    _PARTS = None
+    _BIREF = None
+    import gc
+    gc.collect()
+
+
+def run_iclight_batch(jobs):
+    """One CPU process for every car, so the unet is loaded once."""
+    if not jobs:
+        return {}
+    work = "/tmp/gm-r17/ic"
+    os.makedirs(work, exist_ok=True)
+    spec = []
+    found = {}
+    for job in jobs:
+        d = os.path.join(work, job["name"])
+        os.makedirs(d, exist_ok=True)
+        fg = os.path.join(d, "fg.png")
+        bg = os.path.join(d, "bg.png")
+        out = os.path.join(d, "out.png")
+        # Reuse a finished CPU render. The matte pass is cheap next to 20 steps.
+        if os.path.isfile(out) and os.path.getsize(out) > 10_000 and os.environ.get("GM_IC_RERUN", "") != "1":
+            found[job["name"]] = np.asarray(Image.open(out).convert("RGB"))
+            print("  reuse", out, found[job["name"]].shape)
+            continue
+        Image.fromarray(job["fg"], "RGB").save(fg)
+        Image.fromarray(job["bg"], "RGB").save(bg)
+        spec.append({"name": job["name"], "fg": fg, "bg": bg, "out": out, "seed": job.get("seed", 12345)})
+    if not spec:
+        return found
+    manifest = os.path.join(work, "jobs.json")
+    json.dump(spec, open(manifest, "w"))
+    cmd = [
+        sys.executable,
+        os.path.join(ROOT, "tools", "iclight_fbc.py"),
+        "--jobs",
+        manifest,
+        "--steps",
+        os.environ.get("GM_IC_STEPS", "20"),
+        "--long-side",
+        os.environ.get("GM_IC_LONG", "768"),
+    ]
+    print("ic-light batch", len(spec), "steps", cmd[-3], "long", cmd[-1], flush=True)
+    log_path = os.path.join(work, "iclight.log")
+    with open(log_path, "w") as log:
+        proc = subprocess.run(cmd, stdout=log, stderr=subprocess.STDOUT, timeout=7200)
+    text = open(log_path).read()
+    print(text[-4000:])
+    if proc.returncode != 0:
+        print("ic-light batch failed", proc.returncode)
+        return found
+    for item in spec:
+        if os.path.isfile(item["out"]):
+            found[item["name"]] = np.asarray(Image.open(item["out"]).convert("RGB"))
+    return found
+
+
+def finish_with_iclight(layer, placed_original, mask, ic_rgb):
+    """Low-frequency IC-Light shading, then the run 15/16 glass on top."""
+    out = layer.copy()
+    out[:, :, :3] = apply_low_freq(placed_original[:, :, :3], placed_original[:, :, 3], ic_rgb)
+    out = blend_glass(out, placed_original, mask)
+    out = clean_tail_lamps(out)
+    out = cap_white(out)
+    return out
+
+
+def composite_car(plate_rgb, ellipse, ground_y, cut_path, wall_rgb, debug_path=None, src_path=None, ic_rgb=None):
     fallback = np.asarray(Image.open(cut_path).convert("RGBA"))
-    car = recut_biref(src_path, fallback)
-    car, mask = relight_cutout(car, wall_rgb)
+    car = prepare_matte(recut_biref(src_path, fallback))
+    original = car.copy()
+    mask = glass_mask(car[:, :, :3], car[:, :, 3])
     if debug_path:
         os.makedirs(os.path.dirname(debug_path), exist_ok=True)
         vis = car[:, :, :3].copy()
         vis[mask] = (0, 180, 255)
         Image.fromarray(vis, "RGB").save(debug_path, quality=85)
-    layer, contacts, angle = place(plate_rgb, car, ground_y)
+    layer, contacts, angle, source, mask_l = place(plate_rgb, original, ground_y, extra=mask)
+    placed_original = layer.copy()
+    if ic_rgb is not None:
+        print("  ic-light low-frequency transfer")
+        layer = finish_with_iclight(layer, placed_original, mask_l, ic_rgb)
+    else:
+        graded, _mask = relight_cutout(car, wall_rgb, original=original, mask=mask)
+        layer, contacts, angle, source, mask_l = place(plate_rgb, graded, ground_y, extra=mask)
     # Choke after the rotate and the resize, so the matte has no black fringe.
-    # Lanczos ringing on that resize pushes white paint past the cap.
     layer = choke(layer, px=1)
     layer = cap_white(layer)
     out = paint_shadows(plate_rgb, contacts, ellipse)
@@ -993,7 +1305,7 @@ def composite_car(plate_rgb, ellipse, ground_y, cut_path, wall_rgb, debug_path=N
     base = Image.fromarray(out, "RGB").convert("RGBA")
     over = Image.fromarray(layer, "RGBA")
     merged = np.asarray(Image.alpha_composite(base, over).convert("RGB"))
-    return merged, contacts, angle, float(mask.mean())
+    return merged, contacts, angle, float(mask.mean()), placed_original, mask_l
 
 
 def add_mark(rgb):
@@ -1031,14 +1343,18 @@ def main():
     print("oidn", oidn)
     jobs = [
         ("rav4-front", "/tmp/gm-proof2/rav4-front-cut.png", "h070", "/workspace/photos/test-rav4/front.jpg"),
+        ("camry-black", "/tmp/gm-cars/camry-black-cut.png", "h070", "/tmp/gm-cars/camry-black-2025.jpg"),
         # The side cutout is the white Prime. The test-rav4 side photo is a different car.
         ("rav4-side", "/tmp/gm-proof2/rav4-side-cut.png", "h140", None),
         ("rav4-rear", "/tmp/gm-proof2/rav4-rear-cut.png", "h070", "/workspace/photos/test-rav4/rear.jpg"),
         ("accord-grey", "/tmp/gm-cars/accord-grey-cut.png", "h070", "/tmp/gm-cars/accord-grey.jpg"),
-        ("camry-black", "/tmp/gm-cars/camry-black-cut.png", "h070", "/tmp/gm-cars/camry-black-2025.jpg"),
     ]
+    only = os.environ.get("GM_JOBS", "").strip()
+    if only:
+        want = {part.strip() for part in only.split(",") if part.strip()}
+        jobs = [job for job in jobs if job[0] in want]
     prepared = {}
-    results = []
+    staged = []
     for name, cut, key, src_path in jobs:
         if not os.path.isfile(cut):
             print("missing cut", cut)
@@ -1052,16 +1368,69 @@ def main():
         ellipse = info["ellipse"]
         ground_y = ellipse["cy"] + ellipse["ry"] * 0.42
         ground_y = min(ground_y, ellipse["cy"] + ellipse["ry"] - plate.shape[0] * 0.055)
+        print("stage", name, flush=True)
+        fallback = np.asarray(Image.open(cut).convert("RGBA"))
+        car = prepare_matte(recut_biref(src_path, fallback))
+        original = car.copy()
+        mask = glass_mask(car[:, :, :3], car[:, :, 3])
         debug = os.path.join(out_dir, "debug", f"{name}-glass.jpg")
-        merged, contacts, angle, glass_frac = composite_car(
-            plate, ellipse, ground_y, cut, wall, debug_path=debug, src_path=src_path
+        os.makedirs(os.path.dirname(debug), exist_ok=True)
+        vis = car[:, :, :3].copy()
+        vis[mask] = (0, 180, 255)
+        Image.fromarray(vis, "RGB").save(debug, quality=85)
+        layer, contacts, angle, source, mask_l = place(plate, original, ground_y, extra=mask)
+        staged.append(
+            {
+                "name": name,
+                "plate": plate,
+                "wall": wall,
+                "ellipse": ellipse,
+                "ground_y": ground_y,
+                "car": car,
+                "original": original,
+                "mask": mask,
+                "layer": layer,
+                "contacts": contacts,
+                "angle": angle,
+                "source": source,
+                "mask_l": mask_l,
+            }
+        )
+    release_models()
+    ic_map = {}
+    if os.environ.get("GM_ICLIGHT", "1") != "0":
+        try:
+            ic_map = run_iclight_batch(
+                [{"name": item["name"], "fg": _on_grey(item["layer"]), "bg": item["plate"], "seed": 12345} for item in staged]
+            )
+        except Exception as exc:
+            print("ic-light batch exception", type(exc).__name__, exc)
+            ic_map = {}
+    results = []
+    for item in staged:
+        name = item["name"]
+        ic = ic_map.get(name)
+        if ic is not None:
+            print("finish", name, "ic-light", flush=True)
+            layer = finish_with_iclight(item["layer"], item["layer"], item["mask_l"], ic)
+            contacts, angle = item["contacts"], item["angle"]
+        else:
+            print("finish", name, "procedural fallback", flush=True)
+            graded, _mask = relight_cutout(item["car"], item["wall"], original=item["original"], mask=item["mask"])
+            layer, contacts, angle, _source, _mask_l = place(
+                item["plate"], graded, item["ground_y"], extra=item["mask"]
+            )
+        layer = choke(layer, px=1)
+        layer = cap_white(layer)
+        out = paint_shadows(item["plate"], contacts, item["ellipse"])
+        out = add_reflection(out, layer, contacts, item["ellipse"])
+        merged = np.asarray(
+            Image.alpha_composite(Image.fromarray(out, "RGB").convert("RGBA"), Image.fromarray(layer, "RGBA")).convert("RGB")
         )
         merged = add_mark(merged)
         path = os.path.join(out_dir, f"{name}.jpg")
         Image.fromarray(merged, "RGB").save(path, "JPEG", quality=92, subsampling=1)
         h, w = merged.shape[:2]
-        ys, xs = np.where(np.asarray(Image.open(cut).convert("RGBA"))[:, :, 3] > 20)
-        # width from the placed alpha: recompute from how much of the row is car-coloured
         print(
             "wrote",
             path,
@@ -1073,9 +1442,11 @@ def main():
             "rot",
             round(angle, 2),
             "glass",
-            round(glass_frac, 4),
+            round(float(item["mask"].mean()), 4),
+            "ic",
+            ic is not None,
             "wall",
-            [round(float(c), 1) for c in wall],
+            [round(float(c), 1) for c in item["wall"]],
         )
         results.append(path)
     return results
