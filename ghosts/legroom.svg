@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" fill="none">
+  <defs>
+    <filter id="glow" x="-25%" y="-25%" width="150%" height="150%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="1.7" result="b"/>
+      <feMerge>
+        <feMergeNode in="b"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <g stroke="#47FF6B" fill="none" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)">
+    <path d="M 60 70 H 340 L 390 160 V 470 H 60 Z" stroke-width="6.5" opacity="0.96"/>
+    <path d="M 100 120 H 300 L 330 180 V 250 H 110 Z" stroke-width="4.5" opacity="0.75"/>
+    <path d="M 150 250 V 200" stroke-width="3" opacity="0.5"/>
+    <path d="M 430 300 H 740 V 450 H 400 L 430 300 Z" stroke-width="6" opacity="0.96"/>
+    <path d="M 470 330 H 700 V 410 H 450 Z" stroke-width="4" opacity="0.6"/>
+    <path d="M 400 450 H 760" stroke-width="5" opacity="0.96"/>
+    <path d="M 80 470 H 760" stroke-width="5.5" opacity="0.96"/>
+    <path d="M 200 470 V 500" stroke-width="4" opacity="0.5"/>
+    <path d="M 560 450 V 490" stroke-width="4" opacity="0.5"/>
+    <path d="M 360 200 C 420 240 430 320 400 380" stroke-width="4" opacity="0.65"/>
+  </g>
+</svg>

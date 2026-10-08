@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 440" fill="none">
+  <defs>
+    <filter id="glow" x="-25%" y="-25%" width="150%" height="150%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="1.7" result="b"/>
+      <feMerge>
+        <feMergeNode in="b"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <g stroke="#47FF6B" fill="none" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)">
+    <path d="M 70 80 H 730 C 760 80 772 100 772 128 V 330 C 772 368 748 386 710 386 H 90 C 52 386 34 364 34 326 V 122 C 34 96 50 80 70 80 Z" stroke-width="6" opacity="0.96"/>
+    <circle cx="230" cy="220" r="110" stroke-width="6" opacity="0.96"/>
+    <circle cx="570" cy="220" r="110" stroke-width="6" opacity="0.96"/>
+    <line x1="299.49850888669266" y1="255.41125897968465" x2="317.31863937046006" y2="264.4910689744756" stroke-width="3" opacity="0.75"/>
+    <line x1="267.8151503792143" y1="288.22033715687286" x2="277.51134278414105" y2="305.7127312996608" stroke-width="3" opacity="0.75"/>
+    <line x1="223.2018520656827" y1="297.70318645115617" x2="221.4587372107295" y2="317.62708041299106" stroke-width="3" opacity="0.75"/>
+    <line x1="180.9130094981127" y1="280.6173849936437" x2="168.32660167711595" y2="296.16030422278317" stroke-width="3" opacity="0.75"/>
+    <line x1="155.40822903488322" y1="242.80499296837348" x2="136.28213391562252" y2="248.65242706282822" stroke-width="3" opacity="0.75"/>
+    <line x1="155.40822903488322" y1="197.19500703162652" x2="136.28213391562252" y2="191.3475729371718" stroke-width="3" opacity="0.75"/>
+    <line x1="180.91300949811264" y1="159.3826150063563" x2="168.3266016771159" y2="143.8396957772169" stroke-width="3" opacity="0.75"/>
+    <line x1="223.20185206568266" y1="142.29681354884383" x2="221.45873721072948" y2="122.37291958700894" stroke-width="3" opacity="0.75"/>
+    <line x1="267.81515037921423" y1="151.7796628431271" x2="277.511342784141" y2="134.28726870033918" stroke-width="3" opacity="0.75"/>
+    <line x1="639.4985088866927" y1="255.41125897968465" x2="657.31863937046" y2="264.4910689744756" stroke-width="3" opacity="0.75"/>
+    <line x1="607.8151503792143" y1="288.22033715687286" x2="617.511342784141" y2="305.7127312996608" stroke-width="3" opacity="0.75"/>
+    <line x1="563.2018520656827" y1="297.70318645115617" x2="561.4587372107295" y2="317.62708041299106" stroke-width="3" opacity="0.75"/>
+    <line x1="520.9130094981127" y1="280.6173849936437" x2="508.32660167711595" y2="296.16030422278317" stroke-width="3" opacity="0.75"/>
+    <line x1="495.4082290348832" y1="242.80499296837348" x2="476.2821339156225" y2="248.65242706282822" stroke-width="3" opacity="0.75"/>
+    <line x1="495.4082290348832" y1="197.19500703162652" x2="476.2821339156225" y2="191.3475729371718" stroke-width="3" opacity="0.75"/>
+    <line x1="520.9130094981126" y1="159.3826150063563" x2="508.3266016771159" y2="143.8396957772169" stroke-width="3" opacity="0.75"/>
+    <line x1="563.2018520656826" y1="142.29681354884383" x2="561.4587372107295" y2="122.37291958700894" stroke-width="3" opacity="0.75"/>
+    <line x1="607.8151503792143" y1="151.7796628431271" x2="617.511342784141" y2="134.28726870033918" stroke-width="3" opacity="0.75"/>
+    <path d="M 230 220 L 292 156" stroke-width="5" opacity="0.96"/>
+    <path d="M 570 220 L 500 168" stroke-width="5" opacity="0.96"/>
+    <circle cx="230" cy="220" r="10" stroke-width="4" opacity="0.96"/>
+    <circle cx="570" cy="220" r="10" stroke-width="4" opacity="0.96"/>
+    <rect x="330" y="186" width="140" height="70" rx="8" stroke-width="4.5" opacity="0.96"/>
+    <line x1="348" y1="210" x2="452" y2="210" stroke-width="3" opacity="0.65"/>
+    <line x1="348" y1="230" x2="420" y2="230" stroke-width="3" opacity="0.55"/>
+    <path d="M 150 300 Q 190 330 230 308" stroke-width="3.2" opacity="0.65"/>
+    <path d="M 490 308 Q 530 330 570 300" stroke-width="3.2" opacity="0.65"/>
+    <circle cx="120" cy="130" r="7" stroke-width="3" opacity="0.6"/>
+    <circle cx="150" cy="118" r="7" stroke-width="3" opacity="0.6"/>
+    <circle cx="650" cy="118" r="7" stroke-width="3" opacity="0.6"/>
+    <circle cx="680" cy="130" r="7" stroke-width="3" opacity="0.6"/>
+  </g>
+</svg>

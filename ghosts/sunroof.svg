@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" fill="none">
+  <defs>
+    <filter id="glow" x="-25%" y="-25%" width="150%" height="150%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="1.7" result="b"/>
+      <feMerge>
+        <feMergeNode in="b"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <g stroke="#47FF6B" fill="none" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)">
+    <rect x="36" y="36" width="728" height="448" rx="20" stroke-width="6" opacity="0.96"/>
+    <rect x="120" y="90" width="560" height="340" rx="12" stroke-width="6.5" opacity="0.96"/>
+    <rect x="140" y="250" width="520" height="160" rx="8" stroke-width="5" opacity="0.96"/>
+    <line x1="160" y1="300" x2="640" y2="300" stroke-width="3" opacity="0.5"/>
+    <line x1="160" y1="340" x2="640" y2="340" stroke-width="3" opacity="0.45"/>
+    <path d="M 140 118 H 640" stroke-width="5" opacity="0.96"/>
+    <line x1="150" y1="90" x2="150" y2="410" stroke-width="3.5" opacity="0.55"/>
+    <line x1="650" y1="90" x2="650" y2="410" stroke-width="3.5" opacity="0.55"/>
+    <circle cx="400" cy="200" r="16" stroke-width="3.5" opacity="0.6"/>
+    <path d="M 300 430 H 500" stroke-width="4" opacity="0.55"/>
+    <circle cx="360" cy="430" r="6" stroke-width="3" opacity="0.6"/>
+    <circle cx="440" cy="430" r="6" stroke-width="3" opacity="0.6"/>
+  </g>
+</svg>

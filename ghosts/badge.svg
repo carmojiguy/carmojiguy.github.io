@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 440" fill="none">
+  <defs>
+    <filter id="glow" x="-25%" y="-25%" width="150%" height="150%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="1.7" result="b"/>
+      <feMerge>
+        <feMergeNode in="b"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <g stroke="#47FF6B" fill="none" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)">
+    <path d="M 70 90 H 730 C 760 90 770 110 770 140 V 340 C 770 370 750 384 720 384 H 80 C 50 384 36 366 36 336 V 130 C 36 104 50 90 70 90 Z" stroke-width="6" opacity="0.96"/>
+    <line x1="50" y1="168" x2="750" y2="168" stroke-width="4" opacity="0.55"/>
+    <circle cx="250" cy="262" r="62" stroke-width="6" opacity="0.96"/>
+    <path d="M 250 214 L 286 262 L 250 310 L 214 262 Z" stroke-width="4.5" opacity="0.96"/>
+    <circle cx="250" cy="262" r="10" stroke-width="3.5" opacity="0.8"/>
+    <rect x="360" y="228" width="300" height="64" rx="10" stroke-width="5.5" opacity="0.96"/>
+    <line x1="388" y1="260" x2="430" y2="260" stroke-width="4" opacity="0.7"/>
+    <line x1="448" y1="260" x2="500" y2="260" stroke-width="4" opacity="0.7"/>
+    <line x1="518" y1="260" x2="548" y2="260" stroke-width="4" opacity="0.7"/>
+    <line x1="566" y1="260" x2="630" y2="260" stroke-width="4" opacity="0.7"/>
+    <path d="M 120 330 H 680" stroke-width="3" opacity="0.45"/>
+  </g>
+</svg>

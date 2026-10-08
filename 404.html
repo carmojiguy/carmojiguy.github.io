@@ -4023,7 +4023,32 @@ const GHOSTS = {
   "door": "ghosts/door.png?v=5",
   "qrear_pass": "ghosts/qrear.png?v=6",
   "pass": "ghosts/driver.png?v=6",
-  "qfront_pass": "ghosts/qfront.png?v=6"
+  "qfront_pass": "ghosts/qfront.png?v=6",
+  "roof": "ghosts/roof.svg?v=20261008e",
+  "headlight": "ghosts/headlight.svg?v=20261008e",
+  "wheel": "ghosts/wheel.svg?v=20261008e",
+  "taillight": "ghosts/taillight.svg?v=20261008e",
+  "badge": "ghosts/badge.svg?v=20261008e",
+  "engine": "ghosts/engine.svg?v=20261008e",
+  "jamb": "ghosts/jamb.svg?v=20261008e",
+  "gauges": "ghosts/gauges.svg?v=20261008e",
+  "steering": "ghosts/steering.svg?v=20261008e",
+  "screen": "ghosts/screen.svg?v=20261008e",
+  "backup": "ghosts/backup.svg?v=20261008e",
+  "climate": "ghosts/climate.svg?v=20261008e",
+  "sunroof": "ghosts/sunroof.svg?v=20261008e",
+  "headliner": "ghosts/headliner.svg?v=20261008e",
+  "rearseat": "ghosts/rearseat.svg?v=20261008e",
+  "legroom": "ghosts/legroom.svg?v=20261008e",
+  "passeat": "ghosts/passeat.svg?v=20261008e",
+  "cargo": "ghosts/cargo.svg?v=20261008e",
+  "folded": "ghosts/folded.svg?v=20261008e",
+  "keys": "ghosts/keys.svg?v=20261008e",
+  "bedside": "ghosts/bedside.svg?v=20261008e",
+  "bedtail": "ghosts/bedtail.svg?v=20261008e",
+  "bedhitch": "ghosts/bedhitch.svg?v=20261008e",
+  "sliding": "ghosts/sliding.svg?v=20261008e",
+  "thirdrow": "ghosts/thirdrow.svg?v=20261008e"
 };
 const ASSET_BASE="https://carmojiguy.github.io/";
 function assetUrl(p){ return (ASSET_BASE||"")+String(p||"").replace(/^\//,""); }
@@ -4045,37 +4070,37 @@ const VIEWS = [
 ];
 const WEB_SHOTS = [
   {id:"qfront", pub:1, ghost:"qfront", section:"ext", main:1, label:"Front three-quarter, driver side"},
-  {id:"roof", pub:9, ghost:"qfront", section:"ext", label:"Front three-quarter from above"},
-  {id:"headlight", pub:13, ghost:"front", section:"ext", label:"Headlight, lights on"},
-  {id:"wheel", pub:11, ghost:"tire", section:"ext", label:"Front driver-side wheel and rim"},
+  {id:"roof", pub:9, ghost:"roof", section:"ext", label:"Front three-quarter from above"},
+  {id:"headlight", pub:13, ghost:"headlight", section:"ext", label:"Headlight, lights on"},
+  {id:"wheel", pub:11, ghost:"wheel", section:"ext", label:"Front driver-side wheel and rim"},
   {id:"tire", pub:12, ghost:"tire", section:"ext", label:"Tire tread, close-up"},
   {id:"driver", pub:2, ghost:"driver", section:"ext", label:"Driver side, straight on"},
   {id:"qrear_drv", pub:3, ghost:"qrear", section:"ext", label:"Rear three-quarter, driver side"},
-  {id:"taillight", pub:14, ghost:"rear", section:"ext", label:"Taillight, lights on"},
+  {id:"taillight", pub:14, ghost:"taillight", section:"ext", label:"Taillight, lights on"},
   {id:"rear", pub:4, ghost:"rear", section:"ext", label:"Rear, straight on"},
-  {id:"badge", pub:10, ghost:"rear", section:"ext", label:"Rear badge and trim name, close-up"},
+  {id:"badge", pub:10, ghost:"badge", section:"ext", label:"Rear badge and trim name, close-up"},
   {id:"qrear_pass", pub:5, ghost:"qrear_pass", section:"ext", label:"Rear three-quarter, passenger side"},
   {id:"pass", pub:6, ghost:"pass", section:"ext", label:"Passenger side, straight on"},
   {id:"qfront_pass", pub:7, ghost:"qfront_pass", section:"ext", label:"Front three-quarter, passenger side"},
   {id:"front", pub:8, ghost:"front", section:"ext", label:"Front, straight on"},
-  {id:"engine", pub:30, ghost:"front", section:"ext", label:"Engine bay, hood open"},
-  {id:"jamb", pub:31, ghost:"door", section:"int", label:"Door-jamb sticker showing the VIN and tire info"},
+  {id:"engine", pub:30, ghost:"engine", section:"ext", label:"Engine bay, hood open"},
+  {id:"jamb", pub:31, ghost:"jamb", section:"int", label:"Door-jamb sticker showing the VIN and tire info"},
   {id:"interior", pub:15, ghost:"door", section:"int", label:"Driver door open, showing the seat, door panel and sill"},
-  {id:"gauges", pub:17, ghost:"dash", section:"int", label:"Gauge cluster, engine on, showing the mileage"},
-  {id:"steering", pub:18, ghost:"dash", section:"int", label:"Steering wheel and controls"},
-  {id:"screen", pub:19, ghost:"dash", section:"int", label:"Infotainment screen, on"},
-  {id:"backup", pub:20, ghost:"dash", section:"int", label:"Backup camera view on screen"},
+  {id:"gauges", pub:17, ghost:"gauges", section:"int", label:"Gauge cluster, engine on, showing the mileage"},
+  {id:"steering", pub:18, ghost:"steering", section:"int", label:"Steering wheel and controls"},
+  {id:"screen", pub:19, ghost:"screen", section:"int", label:"Infotainment screen, on"},
+  {id:"backup", pub:20, ghost:"backup", section:"int", label:"Backup camera view on screen"},
   {id:"console", pub:21, ghost:"console", section:"int", label:"Centre console and shifter"},
-  {id:"climate", pub:22, ghost:"console", section:"int", label:"Climate controls and heated seat buttons"},
-  {id:"sunroof", pub:23, ghost:"door", section:"int", label:"Sunroof from inside, opened", truck:"Bed from the side"},
-  {id:"headliner", pub:25, ghost:"door", section:"int", label:"Headliner and overhead console"},
-  {id:"rearseat", pub:26, ghost:"door", section:"int", label:"Rear seats, from the rear door", van:"Sliding door open"},
-  {id:"legroom", pub:27, ghost:"door", section:"int", label:"Rear legroom, from behind the front seat", van:"Third row"},
+  {id:"climate", pub:22, ghost:"climate", section:"int", label:"Climate controls and heated seat buttons"},
+  {id:"sunroof", pub:23, ghost:"sunroof", ghostTruck:"bedside", section:"int", label:"Sunroof from inside, opened", truck:"Bed from the side"},
+  {id:"headliner", pub:25, ghost:"headliner", section:"int", label:"Headliner and overhead console"},
+  {id:"rearseat", pub:26, ghost:"rearseat", ghostVan:"sliding", section:"int", label:"Rear seats, from the rear door", van:"Sliding door open"},
+  {id:"legroom", pub:27, ghost:"legroom", ghostVan:"thirdrow", section:"int", label:"Rear legroom, from behind the front seat", van:"Third row"},
   {id:"dash", pub:16, ghost:"dash", section:"int", label:"Full dashboard, taken from the back seat"},
-  {id:"passeat", pub:24, ghost:"pass", section:"int", label:"Front passenger seat, from the passenger door"},
-  {id:"cargo", pub:28, ghost:"rear", section:"int", label:"Trunk or cargo area, open", truck:"Bed and tailgate"},
-  {id:"folded", pub:29, ghost:"rear", section:"int", label:"Cargo area with the seats folded", truck:"Bed liner and hitch"},
-  {id:"keys", pub:32, ghost:"console", section:"int", label:"All keys and fobs, plus the manuals and service records"}
+  {id:"passeat", pub:24, ghost:"passeat", section:"int", label:"Front passenger seat, from the passenger door"},
+  {id:"cargo", pub:28, ghost:"cargo", ghostTruck:"bedtail", section:"int", label:"Trunk or cargo area, open", truck:"Bed and tailgate"},
+  {id:"folded", pub:29, ghost:"folded", ghostTruck:"bedhitch", section:"int", label:"Cargo area with the seats folded", truck:"Bed liner and hitch"},
+  {id:"keys", pub:32, ghost:"keys", section:"int", label:"All keys and fobs, plus the manuals and service records"}
 ];
 const PACKET_LAUNCH = [
   {id:"vauto", label:"V Auto", kind:"launch", brand:"vauto-sq", open:"vauto"},
@@ -4239,16 +4264,26 @@ function websiteCaptureIds(){ return WEB_SHOTS.map(function(s){ return s.id; });
 function websitePublishIds(){
   return WEB_SHOTS.slice().sort(function(a,b){ return a.pub-b.pub; }).map(function(s){ return s.id; });
 }
-function websiteGhost(id){
+function websiteGhostKey(id){
   const s=websiteShotById(id);
-  return s ? ghostPic(s.ghost) : "";
+  if(!s) return "";
+  const kind=websiteBodyKind();
+  if(kind==="truck" && s.ghostTruck) return s.ghostTruck;
+  if(kind==="van" && s.ghostVan) return s.ghostVan;
+  return s.ghost || "";
 }
+function websiteGhost(id){
+  const key=websiteGhostKey(id);
+  return key ? ghostPic(key) : "";
+}
+function isTallGhost(key){ return key==="door" || key==="jamb" || key==="passeat"; }
 window.websiteBodyKind=websiteBodyKind;
 window.websiteShotLabel=websiteShotLabel;
 window.websiteShotSection=websiteShotSection;
 window.websiteCaptureIds=websiteCaptureIds;
 window.websitePublishIds=websitePublishIds;
 window.websiteGhost=websiteGhost;
+window.websiteGhostKey=websiteGhostKey;
 function useWebShots(){ return isWeb() && APP.photoSet==="web32"; }
 function leadSourceOf(item){
   if(item) return String(item.leadSource||"").trim();
@@ -12548,7 +12583,8 @@ function fillWebsiteRows(host){
     }
     const taken=!!APP.photos[s.id];
     const label=(i+1)+" · "+websiteShotLabel(s.id);
-    const row=rowEl(label, taken ? APP.photos[s.id] : ghostPic(s.ghost), taken, function(){ openCamera("photos", s.id); }, taken?"Replace photo":"Add photo", !taken && isPassGhost(s.ghost));
+    const gkey=websiteGhostKey(s.id);
+    const row=rowEl(label, taken ? APP.photos[s.id] : ghostPic(gkey), taken, function(){ openCamera("photos", s.id); }, taken?"Replace photo":"Add photo", !taken && isPassGhost(gkey));
     if(s.main){
       row.classList.add("main");
       const b=row.querySelector("b");
@@ -12628,11 +12664,11 @@ function openCamera(mode, id){
     const step=WEB_SHOTS.findIndex(function(x){ return x.id===id; });
     label=(step+1)+" · "+(s?websiteShotLabel(s.id):id);
     if(s && s.main) label += " (Main image)";
-    icon=s?s.ghost:"qfront";
+    icon=s?websiteGhostKey(s.id):"qfront";
     $("camLabel").textContent = label;
     const g=$("ghost");
     g.classList.remove("off");
-    g.classList.toggle("tall", icon==="door");
+    g.classList.toggle("tall", isTallGhost(icon));
     g.classList.toggle("flip", isPassGhost(icon));
     g.src=ghostPic(icon);
     stopDamageMic();
