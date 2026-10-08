@@ -2613,6 +2613,8 @@ html:has(#start.on),body:has(#start.on){background:#12141A!important}
 #storySheet.story-solo{align-items:flex-start}
 #storySheet.story-solo .card h3{padding-right:52px;font-weight:600;letter-spacing:-.02em}
 #storySheet.story-solo .card .hint{font-size:14px;line-height:1.4;margin:8px 0 12px}
+#storySheet .story-mic-note{margin:-4px 0 12px;font-size:13px;font-weight:500;line-height:1.35;color:#8B929E}
+#storySheet .story-mic-note[hidden]{display:none!important}
 #storySheet.story-solo .card .x{
   width:40px;height:40px;top:14px;right:14px;border-radius:12px;
   font-size:16px;box-shadow:none;border:1px solid #E2E6EC;color:#12141A;
@@ -3757,7 +3759,8 @@ body.exit-on:has(#center.on) #center.screen{padding-top:calc(64px + env(safe-are
   <div class="card">
     <button class="x" type="button" data-close="storySheet">✕</button>
     <h3 id="storyTitle">What's the Story?</h3>
-    <p class="hint" id="storyHint">Say the year, make, model, trim, colour, km and condition, or read the VIN.</p>
+    <p class="hint" id="storyHint">Describe the car out loud: year, make, model, trim, km and condition. Read the VIN if you have it. We'll fill in the appraisal for you.</p>
+    <p class="story-mic-note" id="storyMicNote" hidden>Allow the microphone, then tap Speak.</p>
     <textarea class="box" id="transcript" rows="8" placeholder="I'm looking at a 1986 Ford Bronco…"></textarea>
     <div class="pair">
       <button class="pill wash" type="button" id="micBtn">Speak</button>
@@ -13743,11 +13746,8 @@ function askMic(){
         APP.micStream=s;
       }).catch(function(){
         const sheet=$("storySheet");
-        const hint=$("storyHint");
-        if(!(sheet && sheet.classList.contains("on") && hint)) return;
-        const cur=String(hint.textContent||"");
-        if(/microphone/i.test(cur)) return;
-        hint.textContent=(cur?cur+" ":"")+"Allow the microphone, then tap Speak.";
+        const note=$("storyMicNote");
+        if(sheet && sheet.classList.contains("on") && note) note.hidden=false;
       });
     }
   }catch(e){}
@@ -16582,12 +16582,13 @@ function openStoryMic(){
   if($("storySheet")) $("storySheet").classList.toggle("story-solo", solo);
   if($("storyTitle")) $("storyTitle").textContent="What's the Story?";
   const hint=$("storyHint") || document.querySelector("#storySheet .hint");
+  if($("storyMicNote")) $("storyMicNote").hidden=true;
   if(hint){
     hint.textContent = isWeb()
-      ? "Talk through year, make, model, trim, and condition of the vehicle. Allow the microphone — tap Speak if it doesn’t start."
+      ? "Talk through year, make, model, trim, and condition of the vehicle. We'll fill in the appraisal for you."
       : isConsumerAcquisition()
       ? "Walk the car and talk. Tap opens the mic — keep going, any length. Inside and outside condition, high-value options, selling features and hinderances."
-      : "Say the year, make, model, trim, colour, km and condition, or read the VIN.";
+      : "Describe the car out loud: year, make, model, trim, km and condition. Read the VIN if you have it. We'll fill in the appraisal for you.";
   }
   $("storySheet").classList.add("on");
   startMic();
