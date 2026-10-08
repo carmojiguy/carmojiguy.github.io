@@ -277,9 +277,9 @@ def render(name, spec, w, h):
 
 
 def main():
-    raise SystemExit(
-        "These plates are photographs. Regenerate them with tools/studio_photo.py."
-    )
+    for name, spec in VARIANTS.items():
+        render(name, spec, 3200, 2400)
+        render(name, spec, 3200, 1800)
 
 
 if __name__ == "__main__":

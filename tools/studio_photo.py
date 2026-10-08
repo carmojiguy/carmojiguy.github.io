@@ -342,6 +342,11 @@ def composite(plate, car, profile, gloss):
 
 
 def main():
+    raise SystemExit(
+        "Retired. The cyclorama grades and the photo-studio plate (curtain, blue pillow) "
+        "are not used. Render with tools/blender_spyne_plate.py and composite with "
+        "tools/spyne_composite.py. Do not write over backgrounds/gm-studio."
+    )
     print("load panos", flush=True)
     cyc = np.array(Image.open(CYC))
     room = np.array(Image.open(PS))
