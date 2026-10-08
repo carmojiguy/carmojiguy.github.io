@@ -40,7 +40,7 @@
   }
 
   function plate(id, name, file) {
-    var v = "20261008d";
+      var v = "20261008g";
     return {
       id: id,
       name: name,
@@ -505,10 +505,10 @@
   function plateGeom(w, h) {
     var wide = w / h >= 1.5;
     var cx = w * 0.5;
-    var cy = h * (wide ? 0.80 : 0.74);
-    var rx = w * (wide ? 0.36 : 0.38);
-    var ry = rx * (wide ? 0.17 : 0.22);
-    return { cx: cx, cy: cy, rx: rx, ry: ry, ground: cy + ry * 0.08 };
+    var cy = h * (wide ? 0.80 : 0.735);
+    var rx = w * (wide ? 0.36 : 0.40);
+    var ry = rx * (wide ? 0.17 : 0.215);
+    return { cx: cx, cy: cy, rx: rx, ry: ry, ground: cy + ry * 0.02 };
   }
 
   function isGhostSrc(src) {
@@ -527,6 +527,40 @@
       root._gmCutoutFailed = true;
       return null;
     }
+  }
+
+  function cornerColor(img) {
+    try {
+      var c = makeCanvas(8, 8);
+      var ctx = c.getContext("2d");
+      ctx.drawImage(img, 0, 0, 8, 8);
+      var d = ctx.getImageData(0, 0, 8, 8).data;
+      var r = 0, g = 0, b = 0, n = d.length / 4;
+      for (var i = 0; i < d.length; i += 4) { r += d[i]; g += d[i + 1]; b += d[i + 2]; }
+      return [r / n, g / n, b / n];
+    } catch (e) { return [180, 190, 200]; }
+  }
+
+  function defringeCanvas(canvas, bg) {
+    var ctx = canvas.getContext("2d");
+    var w = canvas.width, h = canvas.height;
+    var img = ctx.getImageData(0, 0, w, h);
+    var d = img.data;
+    var br = bg[0], bgg = bg[1], bb = bg[2];
+    var i, a, aa, fr, fg, fb;
+    for (i = 0; i < d.length; i += 4) {
+      a = d[i + 3] / 255;
+      if (a <= 0.04 || a >= 0.92) continue;
+      aa = a < 0.08 ? 0.08 : a;
+      fr = (d[i] - br * (1 - a)) / aa;
+      fg = (d[i + 1] - bgg * (1 - a)) / aa;
+      fb = (d[i + 2] - bb * (1 - a)) / aa;
+      d[i] = fr < 0 ? 0 : fr > 255 ? 255 : fr;
+      d[i + 1] = fg < 0 ? 0 : fg > 255 ? 255 : fg;
+      d[i + 2] = fb < 0 ? 0 : fb > 255 ? 255 : fb;
+    }
+    ctx.putImageData(img, 0, 0);
+    return canvas;
   }
 
   function glassPass(canvas) {
@@ -558,13 +592,19 @@
     for (y = 0; y < h; y++) for (x = 0; x < w; x++) if (fg[y * w + x]) { ys.push(y); xs.push(x); }
     if (!ys.length) return canvas;
     var y0 = Math.min.apply(null, ys), y1 = Math.max.apply(null, ys);
-    var band = y0 + (y1 - y0) * 0.62;
+    var x0 = Math.min.apply(null, xs), x1 = Math.max.apply(null, xs);
+    var band = y0 + (y1 - y0) * 0.60;
     for (y = y0; y < band; y++) {
-      for (x = 0; x < w; x++) {
+      for (x = x0; x <= x1; x++) {
         p = y * w + x;
-        if (fg[p] || outside[p]) continue;
         var o = p * 4;
-        d[o] = 28; d[o + 1] = 32; d[o + 2] = 36; d[o + 3] = 118;
+        var hole = !fg[p] && !outside[p];
+        var rr = d[o], gg = d[o + 1], bb = d[o + 2];
+        var blue = bb - Math.max(rr, gg);
+        var green = gg - Math.max(rr, bb);
+        var sky = fg[p] && (blue > 18 || green > 22);
+        if (!hole && !sky) continue;
+        d[o] = 18; d[o + 1] = 22; d[o + 2] = 26; d[o + 3] = 110;
       }
     }
     ctx.putImageData(img, 0, 0);
@@ -598,16 +638,18 @@
     if (!removeBackground) return null;
     try {
       var blob = await fetch(img.src).then(function (r) { return r.blob(); });
-      var png = await removeBackground(blob, {
-        model: "medium",
-        output: { format: "image/png", quality: 0.9 }
-      });
+      var png;
+      try {
+        png = await removeBackground(blob, { model: "large", output: { format: "image/png", quality: 0.95 } });
+      } catch (e1) {
+        png = await removeBackground(blob, { model: "medium", output: { format: "image/png", quality: 0.9 } });
+      }
       var url = URL.createObjectURL(png);
       var cut = await loadImage(url);
       var c = makeCanvas(cut.naturalWidth || cut.width, cut.naturalHeight || cut.height);
       c.getContext("2d").drawImage(cut, 0, 0);
       URL.revokeObjectURL(url);
-      return trimCanvas(glassPass(c));
+      return trimCanvas(glassPass(defringeCanvas(c, cornerColor(img))));
     } catch (e) {
       root._gmCutoutFailed = true;
       return null;
@@ -617,12 +659,12 @@
   function compositeStudio(ctx, plateImg, car, viewId, w, h) {
     var geom = plateGeom(w, h);
     var profile = WS.carProfile(viewId) || "qfront";
-    var widthFrac = { qfront: 0.60, side: 0.78, front: 0.48, rear: 0.50 }[profile] || 0.60;
+    var widthFrac = { qfront: 0.62, side: 0.74, front: 0.46, rear: 0.50 }[profile] || 0.62;
     drawCover(ctx, plateImg, w, h);
     var targetW = Math.round(w * widthFrac);
     var scale = targetW / car.width;
     var targetH = Math.max(1, Math.round(car.height * scale));
-    var logoBottom = Math.round(h * 0.045 + w * 0.20 + h * 0.02);
+    var logoBottom = Math.round(h * 0.175);
     var maxH = Math.round(geom.ground - logoBottom);
     if (targetH > maxH && maxH > 40) {
       scale *= maxH / targetH;
@@ -631,13 +673,26 @@
     }
     var left = Math.round(geom.cx - targetW / 2);
     var top = Math.round(geom.ground - targetH);
-    ctx.save();
-    ctx.filter = "blur(16px)";
-    ctx.fillStyle = "rgba(18,20,26,0.38)";
-    ctx.beginPath();
-    ctx.ellipse(geom.cx, geom.ground, targetW * 0.36, Math.max(8, h * 0.016), 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
+    // Ambient occlusion follows the car, then a tighter shadow under the tires.
+    var shade = makeCanvas(w, h);
+    var sctx = shade.getContext("2d");
+    sctx.filter = "blur(18px)";
+    sctx.drawImage(car, left, top + Math.round(h * 0.006), targetW, targetH);
+    sctx.filter = "none";
+    sctx.globalCompositeOperation = "source-in";
+    sctx.fillStyle = "rgba(8,10,14,0.42)";
+    sctx.fillRect(0, 0, w, h);
+    ctx.drawImage(shade, 0, 0);
+    var contact = makeCanvas(w, h);
+    var cctx = contact.getContext("2d");
+    var bite = Math.max(8, Math.round(car.height * 0.18));
+    cctx.filter = "blur(7px)";
+    cctx.drawImage(car, 0, car.height - bite, car.width, bite, left, top + targetH - Math.round(targetH * 0.18), targetW, Math.round(targetH * 0.18));
+    cctx.filter = "none";
+    cctx.globalCompositeOperation = "source-in";
+    cctx.fillStyle = "rgba(8,10,14,0.72)";
+    cctx.fillRect(0, 0, w, h);
+    ctx.drawImage(contact, 0, 0);
     var keep = Math.max(8, Math.round(targetH * 0.22));
     var refl = makeCanvas(targetW, keep);
     var rctx = refl.getContext("2d");
@@ -647,7 +702,7 @@
     var rid = rctx.getImageData(0, 0, targetW, keep);
     var rd = rid.data, yy, xx, o, fade;
     for (yy = 0; yy < keep; yy++) {
-      fade = 0.34 * (1 - yy / Math.max(1, keep - 1));
+      fade = 0.22 * (1 - yy / Math.max(1, keep - 1));
       for (xx = 0; xx < targetW; xx++) {
         o = (yy * targetW + xx) * 4;
         rd[o + 3] = Math.round(rd[o + 3] * fade);

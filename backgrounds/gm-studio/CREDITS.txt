@@ -4,9 +4,11 @@ G&M studio backdrops
 These plates are rendered for G&M Auto Sales & Service. They are not stock
 photos and they replace the old generated gradient plates.
 
-Each file is a photographic-style seamless light studio: softbox vignette,
-circular turntable with concentric rings, and the approved G&M badge
-(icons/gm-logo-square.png) centered on the wall.
+Each file is a seamless studio cove: softboxes, a vignette, and a metal
+turntable with machined rings, a near-side highlight and a rim. The wall
+sign is the G&M wordmark itself (heavy grotesque, red #E0243C ampersand
+and bar, tracked "AUTO SALES & SERVICE"). There is no black badge box.
+Dark letters on the light studios, white letters on charcoal.
 
 Variants (4:3 is 3200×2400, 16:9 is 3200×1800):
 
@@ -15,10 +17,13 @@ Variants (4:3 is 3200×2400, 16:9 is 3200×1800):
 - warm-4x3.jpg / warm-16x9.jpg — warm grey, thin G&M red turntable edge
 - charcoal-4x3.jpg / charcoal-16x9.jpg — dark charcoal studio, lit turntable
 
-Regenerate with tools/render_gm_studio.py (Pillow + NumPy). The badge artwork
-is the approved square logo already in this repo.
+Regenerate with tools/render_gm_studio.py (Pillow + NumPy). The wordmark is
+set in Liberation Sans Bold, the Arial-metric face available here, stacked
+to a heavy weight. Proof composites are tools/studio_proof.py using
+BiRefNet-general-lite, with edge defringe, tinted glass, a contact shadow
+and a floor reflection.
 
-Cars are cut out with BiRefNet-general-lite for the proof contact sheet, and
-in the app with @imgly/background-removal (ISNet, medium) running in the
-browser. If that model fails to load, the original photo is kept and no plate
-is pasted behind it. Backgrounds are applied to full exterior views only.
+In the app, @imgly/background-removal ISNet large runs in the browser and
+falls back to the medium model. If that fails to load, the original photo
+is kept and no plate is pasted behind it. Backgrounds stay on full exterior
+views only.
