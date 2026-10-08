@@ -41,10 +41,10 @@ mustNot(/#start\.screen\.start \{\s*display:block/, "never display:block Home wi
 must(/--qs-canvas:#F7F8FA/, "Home/overlay snow canvas");
 must(/#center\.screen \{[\s\S]{0,220}background:#F7F8FA/, "Center canvas");
 must(/#users \{\s*background:#F7F8FA;/, "Users canvas");
-must(/\.start-actions \.pill\.purple \{ background:#C8081B/, "Appraise is G&M red");
-must(/#center #centerDock\.acre-dock #centerStageBtn \{[\s\S]*?background:#C8081B/, "Complete is G&M red");
+must(/\.start-actions \.pill\.purple \{ background:#E0243C/, "Appraise is G&M red");
+must(/#center #centerDock\.acre-dock #centerStageBtn \{[\s\S]*?background:#E0243C/, "Complete is G&M red");
 must(/#centerLanes \.lane-pill\.on,/, "active lane rule");
-must(/background:#C8081B!important;color:#fff!important/, "active lane is G&M red fill");
+must(/background:#E0243C!important;color:#fff!important/, "active lane is G&M red fill");
 must(/#start \.start-bg,#start \.start-veil\{[\s\S]{0,80}opacity:1!important/, "staff Home shows faded car");
 
 mustNot(/--home-cream:#F5F3ED/, "no Paper Desk cream");
@@ -88,7 +88,7 @@ must(/\.jpg\?v=12/, "JS start-bg paint cache-bust is v=12");
 mustNot(/start-bgs\/[^\s"']+\?v=10/, "old v=10 start-bg URLs are gone");
 must(/rgba\(18,20,26,\.94\) 70%/, "veil hits near-opaque dark by 70%");
 must(/rgba\(18,20,26,\.96\) 100%/, "veil stays dark through the floor");
-must(/#login #btnGoogle,#login \.gbtn\{[\s\S]{0,80}background:#C8081B/, "Google is G&M red primary");
+must(/#login #btnGoogle,#login \.gbtn\{[\s\S]{0,80}background:#E0243C/, "Google is G&M red primary");
 mustNot(/#3D5A4C/, "Quiet Studio sage is gone");
 mustNot(/One car at a time/, "no workbench essay");
 mustNot(/This desk is the workbench/, "no workbench essay copy");

@@ -51,7 +51,7 @@ must(/@media \(max-width:767px\)\{[\s\S]{0,900}#center\.screen\.ca-on \.ca-drawe
 must(/--qs-canvas:#F7F8FA/, "Center canvas is Snow Signal snow");
 must(/#center \.acre-desk\{[\s\S]{0,220}grid-template-areas:"hero mid market"/, "Acre columns stay locked");
 must(/--qs-canvas:#F7F8FA/, "Home overlay canvas is snow when Home is showing");
-must(/\.start-actions \.pill\.purple \{ background:#C8081B/, "Appraise stays G&M red");
+must(/\.start-actions \.pill\.purple \{ background:#E0243C/, "Appraise stays G&M red");
 must(/function staffPerms\(\)\{ return \{trade:true, appraise:true, website:true, center:true, admin:false, ca:true\}; \}/, "staffPerms stays On except Users");
 must(/function finishGuest\(\)\{\s*finishThanks\(\);/, "Thank-you stays frozen");
 must(/id="startCenter"[\s\S]*Appraisal Center/, "Center pill stays");
