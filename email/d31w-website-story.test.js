@@ -73,7 +73,9 @@ must(/id="webStudio"/, "relaunch studio screen stays");
 must(/id="wsPost">Post to website</, "studio still posts");
 
 const startAppraise = html.slice(html.indexOf("$(\"startAppraise\").onclick"), html.indexOf("if($(\"startCenter\")"));
-assert.ok(startAppraise.indexOf("openDealType()") >= 0, "CA / Appraise start is untouched");
+assert.ok(/HOLD_LOCATE_AND_CA \? "Trade-in"/.test(startAppraise), "Appraise vehicle starts as Trade-in");
+assert.ok(/if\(!HOLD_LOCATE_AND_CA\) openDealType\(\)/.test(startAppraise), "type picker stays behind the hold flag");
+assert.ok(!/show\("home"\);\s*openDealType\(\)/.test(startAppraise), "Appraise vehicle does not open the type sheet while the hold is on");
 assert.ok(startAppraise.indexOf("startWebsitePost") < 0, "website helper is not wired into Appraise");
 must(/id="startCenter"[\s\S]*Appraisal Center/, "Appraisal Center start pill stays");
 must(/function runAppraisalTeam\(|id="centerRunTeam"|Run Appraisal Team/, "Run Appraisal Team stays");

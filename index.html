@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- center-v3 + desk-home 2026-09-14 build d31a: pixel-faithful Acre GR Corolla desk (white hero|mid|market, not stone/teal); CA workbench redo — drop the verbal-only tag forever; What's the Story walks the car and talks; Walk-around photos only; keep Critical damage; salesperson CA has no packet-send card; Tracker mobile cards + current month; Canada Drives appointments: month list from Airtable Appointment Booked + GTA/Ottawa Tracker, Google Docs open (no preventDefault overlay), Acre-bright desk; website-post story-first year/make/model/trim/condition, no team select, original start not webdesk, pictures still relaunch/post; Acre GR Corolla desk lock — FIFO oldest home, left-rail Incoming/On-site/Needs docs/History pills, no hist KPI strip, Ask Maya, appraisal range/competing/ask; users GET/POST kind:users persist; GET kind=users&at= after save; 911 Acre team reads finalRationale.markdown + panel Rybot/Webot/Drebot/TBot + team.shabot note, hides boxes with no numbers; mailer keeps rich team/rationale on Center refresh; Trade-in start drops stray top History (rail History stays); 911 Incoming FINAL min+target+max clears Running and lands Appraisal Team numbers (Blazer s1af19al / F-150 sir78n6); Run Appraisal Team tap always fires (rerun + Unlocked History); kind:team wake; Incoming FINAL settles Running; schema 1.0 team + panel boxes; market pills append multiple files into shots[]; compact V Auto / Carfax / OpenLane / eBlock chips; same sendId/id Incoming POST; panel runs progress → existing FINAL; no invented solds; real Carfax http url opens the uploaded file; sample recreate only when no docs.carfax.url; Carfax square + huge card add/upload kind:file carfax; staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; Incoming keeps http docs.url; Incoming appends shots[]; status dropdown every lane; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples; hides generated From V Auto lane; users settings durable Vercel Blob center-users-v1.json; empty remote users never wipe local people; merge permissions by email; restore Josh Lefave josh.lefave@gmautosales.ca + Steve Summerall steve.summerall@gmautosales.ca; Users UI Snow Signal cool snow + steel chrome; staff defaultPerms all sections On except admin/Users; Shawn HOME dock: Snow Signal Lot Desk cutting-edge canvas #F7F8FA + steel #2F5B8A, faded car + frosted glass; Quiet Studio sage abandoned; Paper Desk abandoned; login glass restyle; HOLD #33/#46; Off Acre #73 photo lock remix; 911 Center click/nav: #start hides when not .on so startDock cannot cover Center; #88 CA drawer hide wins over ca-on display:flex, pointer-events none when hidden/collapsed, desktop-only collapsed by default; Snow Signal Lot Desk CUTTING-EDGE STRUCTURAL FULL STORE canvas #F7F8FA + steel #2F5B8A; supersedes Quiet Studio STRUCTURAL FULL STORE; Thank-you chrome only (sharePacket/kickShare/sendFromMe frozen); #start.screen.start.on intact -->
+<!-- center-v3 + desk-home 2026-09-14 build d31a: pixel-faithful Acre GR Corolla desk (white hero|mid|market, not stone/teal); CA workbench redo — drop the verbal-only tag forever; What's the Story walks the car and talks; Walk-around photos only; keep Critical damage; salesperson CA has no packet-send card; Tracker mobile cards + current month; Canada Drives appointments: month list from Airtable Appointment Booked + GTA/Ottawa Tracker, Google Docs open (no preventDefault overlay), Acre-bright desk; website-post story-first year/make/model/trim/condition, no team select, original start not webdesk, pictures still relaunch/post; Acre GR Corolla desk lock — FIFO oldest home, left-rail Incoming/On-site/Needs docs/History pills, no hist KPI strip, Ask Maya, appraisal range/competing/ask; users GET/POST kind:users persist; GET kind=users&at= after save; 911 Acre team reads finalRationale.markdown + panel Rybot/Webot/Drebot/TBot + team.shabot note, hides boxes with no numbers; mailer keeps rich team/rationale on Center refresh; Trade-in start drops stray top History (rail History stays); 911 Incoming FINAL min+target+max clears Running and lands Appraisal Team numbers (Blazer s1af19al / F-150 sir78n6); Run Appraisal Team tap always fires (rerun + Unlocked History); kind:team wake; Incoming FINAL settles Running; schema 1.0 team + panel boxes; market pills append multiple files into shots[]; compact V Auto / Carfax / OpenLane / eBlock chips; same sendId/id Incoming POST; panel runs progress → existing FINAL; no invented solds; real Carfax http url opens the uploaded file; sample recreate only when no docs.carfax.url; Carfax square + huge card add/upload kind:file carfax; staff Unlock on locked cards; spoken story sticks LE / XLE / Limited trim; V Auto / OpenLane / eBlock pills open a doc sheet; Incoming keeps http docs.url; Incoming appends shots[]; status dropdown every lane; quieter Back/Home; Refresh gone; Thank-you frozen; sales PDF packet stays; zero Center samples; hides generated From V Auto lane; users settings durable Vercel Blob center-users-v1.json; empty remote users never wipe local people; merge permissions by email; restore Josh Lefave josh.lefave@gmautosales.ca + Steve Summerall steve.summerall@gmautosales.ca; Users UI Snow Signal cool snow + steel chrome; staff defaultPerms all sections On except admin/Users; Shawn HOME dock: Snow Signal Lot Desk cutting-edge canvas #F7F8FA + steel #2F5B8A, faded car + frosted glass; Quiet Studio sage abandoned; Paper Desk abandoned; login glass restyle; HOLD #33/#46; Off Acre #73 photo lock remix; 911 Center click/nav: #start hides when not .on so startDock cannot cover Center; #88 CA drawer hide wins over ca-on display:flex, pointer-events none when hidden/collapsed, desktop-only collapsed by default; Snow Signal Lot Desk CUTTING-EDGE STRUCTURAL FULL STORE canvas #F7F8FA + steel #2F5B8A; supersedes Quiet Studio STRUCTURAL FULL STORE; Thank-you chrome only (sharePacket/kickShare/sendFromMe frozen); #start.screen.start.on intact; HOLD_LOCATE_AND_CA greys Locate and Consumer Acquisition for every user and Appraise vehicle starts as Trade-in -->
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
@@ -339,7 +339,7 @@ textarea.note { min-height:160px; max-height:none; resize:vertical; overflow:aut
 .mail.on .mark { background:var(--purple); border-color:var(--purple); }
 .mail b { display:block; font-size:15px; }
 .mail span { color:var(--muted); font-size:13px; }
-.mail.soon, .mail:disabled { opacity:.42; filter:grayscale(.28); cursor:not-allowed; pointer-events:none; }
+.mail.soon, .mail:disabled, .held-off, .held-off:disabled { opacity:.42; filter:grayscale(.28); cursor:not-allowed; pointer-events:none; }
 .mail.soon span { font-weight:800; color:#8A3B12; }
 
 .badge { display:inline-block; background:var(--lavender); color:var(--purple-deep); border-radius:999px; padding:5px 12px; font-size:12px; font-weight:800; letter-spacing:.04em; text-transform:uppercase; margin:0 0 10px; }
@@ -3865,8 +3865,52 @@ function nagCdAppAfterSend(){
   if(cdAppNumber()) return;
   toast("Add the Canada Drives application number when you can.");
 }
+/* One switch. true: Locate and Consumer Acquisition stay visible, greyed out, and closed for every user, and Appraise vehicle starts as Trade-in. false: restore the type picker, Locate coming-soon, and Consumer Acquisition. */
+const HOLD_LOCATE_AND_CA = true;
+function isHeldDealType(name){
+  if(!HOLD_LOCATE_AND_CA) return false;
+  const n=String(name||"").trim();
+  return n==="Locate" || n==="Consumer Acquisition" || n==="Canada Drives";
+}
 function isLocateSoon(name){
+  if(HOLD_LOCATE_AND_CA) return isHeldDealType(name);
   return String(name||"").trim()==="Locate";
+}
+function clearHeldDealSession(){
+  if(!HOLD_LOCATE_AND_CA || !isHeldDealType(APP.dealType)) return;
+  APP.dealType="";
+  APP.leadSource="";
+  APP.apptId="";
+  APP.apptSeller="";
+  APP.lockedFromAirtable=false;
+  APP.newApplication=false;
+  APP.newAppOpen=false;
+  APP.caPane="none";
+  APP.caDrawerCollapsed=true;
+}
+function stripHeldDealUrl(){
+  if(!HOLD_LOCATE_AND_CA) return;
+  try{
+    const u=new URL(location.href);
+    let changed=false;
+    if(/workbench|locate|consumer|canada/i.test(u.hash||"")){ u.hash=""; changed=true; }
+    ["deal","dealtype","type","lane","screen","lead","leadsource"].forEach(function(k){
+      const v=String(u.searchParams.get(k)||"");
+      if(/locate|consumer|canada|^ca$|workbench/i.test(v)){ u.searchParams.delete(k); changed=true; }
+    });
+    if(changed) history.replaceState(null, "", u.pathname+u.search+u.hash);
+  }catch(e){}
+}
+function paintHeldLanes(){
+  if(!HOLD_LOCATE_AND_CA) return;
+  ["caDrawerToggle","acqDrawerToggle","apptNewApp","newAppCta"].forEach(function(id){
+    const el=$(id);
+    if(!el) return;
+    el.classList.add("held-off");
+    el.disabled=true;
+    el.setAttribute("aria-disabled","true");
+    el.tabIndex=-1;
+  });
 }
 function needsAppraiseType(job, staff){
   var isStaff=staff===undefined?(APP.role!=="guest"):!!staff;
@@ -3875,6 +3919,7 @@ function needsAppraiseType(job, staff){
   if(!p || p.purpose==="website") return false;
   var t=String(p.dealType||"").trim();
   if(t==="Locate") return true;
+  if(typeof HOLD_LOCATE_AND_CA!=="undefined" && HOLD_LOCATE_AND_CA && (t==="Consumer Acquisition" || t==="Canada Drives")) return true;
   return !t;
 }
 function needsLeadSource(job, staff){
@@ -3920,6 +3965,7 @@ function needsNewApplication(job, staff){
   return true;
 }
 function newAppDeskRedirect(id, job, staff){
+  if(typeof HOLD_LOCATE_AND_CA!=="undefined" && HOLD_LOCATE_AND_CA) return "";
   if(!needsNewApplication(job, staff)) return "";
   id=String(id||"");
   if(id==="home") return "";
@@ -4028,8 +4074,8 @@ function paintDealType(){
   if(host){
     host.innerHTML="";
     DEAL_TYPES.forEach(function(name){
-      if(name==="Consumer Acquisition" && APP.role==="employee" && !canPerm("ca")) return;
       const soon=isLocateSoon(name);
+      if(!soon && name==="Consumer Acquisition" && APP.role==="employee" && !canPerm("ca")) return;
       const b=document.createElement("button");
       b.type="button";
       b.className="mail"+(t===name && !soon?" on":"")+(soon?" soon":"");
@@ -4039,7 +4085,9 @@ function paintDealType(){
         ? '<div class="mark"></div><div><b>'+name+'</b><span>Coming soon</span></div>'
         : '<div class="mark">'+(t===name?"✓":"")+'</div><div><b>'+name+'</b></div>';
       if(soon){
-        b.onclick=function(e){ if(e) e.preventDefault(); };
+        b.tabIndex=-1;
+        b.onclick=function(e){ if(e){ e.preventDefault(); e.stopPropagation(); } };
+        b.onkeydown=function(e){ if(e){ e.preventDefault(); e.stopPropagation(); } };
         host.appendChild(b);
         return;
       }
@@ -4061,24 +4109,34 @@ function paintDealType(){
   if(leads){
     leads.innerHTML="";
     LEAD_SOURCES.forEach(function(s){
+      const heldLead=!!HOLD_LOCATE_AND_CA;
       const b=document.createElement("button");
       b.type="button";
-      b.className="mail"+(src===s.id?" on":"");
-      b.innerHTML='<div class="mark">'+(src===s.id?"✓":"")+'</div><div><b>'+s.id+'</b></div>';
-      b.onclick=function(){
-        APP.dealType="Consumer Acquisition";
-        APP.leadSource=s.id;
-        APP.apptItems=[];
-        APP.apptId="";
-        APP.apptSeller="";
-        APP.newApplication=false;
-        APP.newAppOpen=false;
-        paintDealType();
-        openCaSource();
-      };
+      b.className="mail"+(src===s.id && !heldLead?" on":"")+(heldLead?" soon":"");
+      b.disabled=heldLead;
+      b.setAttribute("aria-disabled", heldLead?"true":"false");
+      b.innerHTML='<div class="mark">'+(src===s.id && !heldLead?"✓":"")+'</div><div><b>'+s.id+'</b>'+(heldLead?'<span>Coming soon</span>':'')+'</div>';
+      if(heldLead){
+        b.tabIndex=-1;
+        b.onclick=function(e){ if(e){ e.preventDefault(); e.stopPropagation(); } };
+        b.onkeydown=function(e){ if(e){ e.preventDefault(); e.stopPropagation(); } };
+      } else {
+        b.onclick=function(){
+          APP.dealType="Consumer Acquisition";
+          APP.leadSource=s.id;
+          APP.apptItems=[];
+          APP.apptId="";
+          APP.apptSeller="";
+          APP.newApplication=false;
+          APP.newAppOpen=false;
+          paintDealType();
+          openCaSource();
+        };
+      }
       leads.appendChild(b);
     });
   }
+  paintHeldLanes();
   paintAppraiseGate();
   paintAppointments();
   paintDeskTeam();
@@ -4409,6 +4467,7 @@ function usesCaAppointments(item){
   return String((p && p.leadSource)||"").trim()==="Canada Drives";
 }
 function openCaSource(){
+  if(HOLD_LOCATE_AND_CA) return;
   if(usesCaAppointments()) openAppointments();
   else openNewApplicationDesk();
 }
@@ -4499,6 +4558,11 @@ function fillNewAppForm(){
 function paintNewApplication(){
   const wrap=$("newAppWrap");
   if(!wrap) return;
+  if(HOLD_LOCATE_AND_CA){
+    wrap.classList.add("hide");
+    if($("newAppForm")) $("newAppForm").classList.add("hide");
+    return;
+  }
   const on=isConsumerAcquisition() && APP.role!=="guest" && !isWeb() && !!APP.leadSource;
   const cd=usesCaAppointments();
   const show=on && (!cd || APP.newAppOpen);
@@ -4514,6 +4578,7 @@ function paintNewApplication(){
   if(show) fillNewAppForm();
 }
 function openNewApplicationDesk(){
+  if(HOLD_LOCATE_AND_CA) return;
   if(APP.role==="employee" && !canPerm("ca")){
     toast("You don’t have Consumer Acquisition. Only Shawn can turn that on.");
     return;
@@ -4534,6 +4599,7 @@ function openNewApplicationDesk(){
   if($("na-first")) $("na-first").focus();
 }
 function startNewApplication(){
+  if(HOLD_LOCATE_AND_CA) return;
   const q=String(($("apptSearch") && $("apptSearch").value) || APP.apptSearch || "").trim();
   if(q) APP.cdApp=q;
   APP.newApplication=false;
@@ -4546,6 +4612,7 @@ function startNewApplication(){
 }
 function completeNewApplication(e){
   if(e){ e.preventDefault(); e.stopPropagation(); }
+  if(HOLD_LOCATE_AND_CA) return;
   if(APP.role==="employee" && !canPerm("ca")){
     toast("You don’t have Consumer Acquisition. Only Shawn can turn that on.");
     return;
@@ -4659,6 +4726,7 @@ function paintAppointments(){
   });
 }
 function caDrawerWanted(){
+  if(HOLD_LOCATE_AND_CA) return false;
   return APP.role!=="guest" && !isWeb() && isConsumerAcquisition() && usesCaAppointments() && !APP.newAppOpen;
 }
 function leftRailWanted(){
@@ -4707,6 +4775,7 @@ function syncCaDrawer(){
   if(acq && typeof paintAcqBoard==="function") paintAcqBoard();
 }
 function toggleCaDrawer(){
+  if(HOLD_LOCATE_AND_CA) return;
   APP.caPane=caPane()==="cd"?"none":"cd";
   APP.caDrawerCollapsed=APP.caPane!=="cd";
   if(APP.caPane==="cd"){
@@ -4717,6 +4786,7 @@ function toggleCaDrawer(){
   syncCaDrawer();
 }
 function toggleAcqDrawer(){
+  if(HOLD_LOCATE_AND_CA) return;
   APP.caPane=caPane()==="acq"?"none":"acq";
   APP.caDrawerCollapsed=true;
   if(APP.caPane==="acq") queueLoadAcqBoard();
@@ -4787,6 +4857,7 @@ function paintAcqBoard(){
   });
 }
 function openAcqCard(id){
+  if(HOLD_LOCATE_AND_CA) return;
   const row=(APP.acqItems||[]).filter(function(r){ return r.id===id; })[0];
   if(!row) return;
   if(row.appNo) APP.cdApp=row.appNo;
@@ -4837,6 +4908,7 @@ function findCenterForAppt(a){
   return hit||null;
 }
 function openAppointments(){
+  if(HOLD_LOCATE_AND_CA) return;
   if(!usesCaAppointments()){ openNewApplicationDesk(); return; }
   APP.newAppOpen=false;
   APP.caDrawerCollapsed=false;
@@ -4867,6 +4939,7 @@ function openAppointments(){
   syncCaDrawer();
 }
 function applyAppointment(row){
+  if(HOLD_LOCATE_AND_CA) return;
   const a=normalizeAppt(row);
   if(!a) return;
   APP.dealType="Consumer Acquisition";
@@ -5060,6 +5133,7 @@ function syncCenterDesk(){
 }
 function show(id){
   if(id==="centerDetail") id="center";
+  if(HOLD_LOCATE_AND_CA && id==="workbench"){ clearHeldDealSession(); id="home"; }
   if(newAppDeskRedirect(id)){
     toast("Start a New application first — customer, vehicle, then continue into Appraise.");
     openNewApplicationDesk();
@@ -5071,7 +5145,9 @@ function show(id){
         ? "Pick the appraisal type first — Trade-in, Locate, or Consumer Acquisition."
         : "Pick the lead source first — Canada Drives, My Loan, My Auto, or Carla.");
       id="home";
-      openDealType();
+      if(!HOLD_LOCATE_AND_CA) openDealType();
+    } else if(HOLD_LOCATE_AND_CA){
+      id="home";
     } else {
       toast("Pick the booked appointment first.");
       id="workbench";
@@ -5192,6 +5268,7 @@ function pageHome(){
   }
 }
 function pageBack(){
+  if(HOLD_LOCATE_AND_CA && APP.screen==="workbench"){ show("home"); return; }
   if(dismissOpenLayer()){ syncExitChrome(); return; }
   const id=APP.screen||"";
   if(id==="camera"){ show("photos"); return; }
@@ -9341,9 +9418,11 @@ function upsertCenterFromApp(extra){
   item.km=APP.km||item.km||"";
   item.stock=APP.stock||item.stock||"";
   item.ymmt=centerYmmt(APP);
-  item.purpose=APP.purpose||item.purpose||"";
-    item.dealType=APP.dealType||item.dealType||"";
-    item.leadSource=APP.leadSource||item.leadSource||"";
+    item.purpose=APP.purpose||item.purpose||"";
+    if(!(HOLD_LOCATE_AND_CA && isHeldDealType(item.dealType))){
+      item.dealType=APP.dealType||item.dealType||"";
+      item.leadSource=APP.leadSource||item.leadSource||"";
+    }
     item.cdApp=APP.cdApp||item.cdApp||"";
     item.deskTeam=APP.deskTeam||item.deskTeam||"";
     item.apptId=APP.apptId||item.apptId||"";
@@ -11169,6 +11248,8 @@ function applySnapshot(snap){
   ["purpose","year","make","model","trim","color","km","vin","stock","heard","notes","webcopy","photos","damage","closeups","damageCap","closeupCap","closeupAudio","dealType","leadSource","cdApp","apptId","apptSeller","lockedFromAirtable","newApplication","newAppOpen","deskTeam","centerId","role","userName","userEmail","inviteFirst","inviteLast","inviteName","inviteEmail","invitePhone","inviteUnit","inviteStock","requestedBy","requestedByName","docs"].forEach(function(k){
     if(a[k]!==undefined) APP[k]=a[k];
   });
+  if(HOLD_LOCATE_AND_CA && isHeldDealType(APP.dealType)) clearHeldDealSession();
+  if(HOLD_LOCATE_AND_CA && snap && snap.screen==="workbench") snap.screen="home";
   if(a.emails) saveRecipients(a.emails);
   if(Array.isArray(a.clips)){
     APP.clips=a.clips.map(function(c){
@@ -15769,7 +15850,7 @@ if($("exitHome")) $("exitHome").onclick = function(e){ if(e){ e.preventDefault()
 $("startAppraise").onclick = function(){
   if(!requirePerm("appraise")) return;
   setPurpose("appraise");
-  APP.dealType="";
+  APP.dealType=HOLD_LOCATE_AND_CA ? "Trade-in" : "";
   APP.leadSource="";
   APP.cdApp="";
   APP.apptId="";
@@ -15790,7 +15871,8 @@ $("startAppraise").onclick = function(){
   paintDealType();
   paintDeskTeam();
   show("home");
-  openDealType();
+  if($("typeSheet") && HOLD_LOCATE_AND_CA) $("typeSheet").classList.remove("on");
+  if(!HOLD_LOCATE_AND_CA) openDealType();
 };
 if($("startCenter")) $("startCenter").onclick = openCenter;
 bindCenterMaya();
@@ -16023,7 +16105,7 @@ if($("typeSave")) $("typeSave").onclick = function(){
   if(needsLeadSource()){ toast("Pick the lead source first — Canada Drives, My Loan, My Auto, or Carla."); return; }
   if($("typeSheet")) $("typeSheet").classList.remove("on");
   paintDealType();
-  if(isConsumerAcquisition()) openCaSource();
+  if(isConsumerAcquisition() && !HOLD_LOCATE_AND_CA) openCaSource();
 };
 function onCdInput(el){
   if(!el) return;
@@ -16031,7 +16113,7 @@ function onCdInput(el){
     APP.cdApp=el.value.trim();
     APP.apptSearch=APP.cdApp;
     paintDealType();
-    if(usesCaAppointments()) openAppointments();
+    if(usesCaAppointments() && !HOLD_LOCATE_AND_CA) openAppointments();
   });
 }
 onCdInput($("cd-app"));
@@ -16268,6 +16350,11 @@ if($("viewerX")) $("viewerX").onclick = closeViewer;
 if($("viewerCapMore")) $("viewerCapMore").onclick = toggleViewerCap;
 if($("viewerPlay")) $("viewerPlay").onclick = playViewerVoice;
 document.addEventListener("keydown", function(e){
+  if((e.key==="Enter" || e.key===" ") && e.target && e.target.closest && e.target.closest(".mail.soon, .mail:disabled, .held-off")){
+    e.preventDefault();
+    e.stopPropagation();
+    return;
+  }
   if(e.key!=="Escape") return;
   if(wantsAppBack()) pageBack();
 });
@@ -16364,6 +16451,13 @@ async function resumePendingSend(){
   setTimeout(function(){ sharePacket(); }, 400);
   return true;
 }
+stripHeldDealUrl();
+window.addEventListener("hashchange", function(){
+  stripHeldDealUrl();
+  clearHeldDealSession();
+  if(APP.screen==="workbench") show("home");
+});
+paintHeldLanes();
 if(/[?&]auth=fail(?:&|$)/.test(location.search||"")) loginFail("Sign-in was cancelled. Tap Continue with Google to try again.");
 try{
   const r=sessionStorage.getItem("inspect.grefr");

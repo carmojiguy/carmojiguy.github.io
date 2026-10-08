@@ -58,9 +58,11 @@ assert.ok(/classList\.add\("hide"\)/.test(paint), "home History is always hidden
 assert.ok(!/\["homeHistBtn","homeHistJump","photosHistBtn"\]/.test(paint), "staff paint no longer unhides Trade-in start History");
 
 must(/"Trade-in","Locate","Consumer Acquisition"/, "Trade-in remains an appraisal type");
+must(/const HOLD_LOCATE_AND_CA = true/, "Locate and Consumer Acquisition stay held");
 must(/\$\("startAppraise"\)\.onclick = function\(\)\{/, "Appraise vehicle start stays");
-must(/show\("home"\)/, "Appraise still opens home + type sheet");
-must(/openDealType\(\)/, "type sheet still opens");
+must(/show\("home"\)/, "Appraise still opens the Trade-in desk");
+must(/if\(!HOLD_LOCATE_AND_CA\) openDealType\(\)/, "type sheet opens only when the hold is off");
+must(/function openDealType\(/, "type sheet code stays so the hold can be lifted");
 
 must(/function finishGuest\(\)\{\s*finishThanks\(\);/, "Thank-you stays frozen");
 mustNot(/openlane:\s*\[\{ask|sold:/, "do not invent OpenLane solds");
