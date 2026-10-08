@@ -40,7 +40,7 @@
   }
 
   function plate(id, name, file) {
-      var v = "20261008h";
+      var v = "20261008i";
     return {
       id: id,
       name: name,
@@ -682,7 +682,7 @@
   function compositeStudio(ctx, plateImg, car, viewId, w, h) {
     var geom = plateGeom(w, h);
     var profile = WS.carProfile(viewId) || "qfront";
-    var widthFrac = { qfront: 0.56, side: 0.70, front: 0.46, rear: 0.50 }[profile] || 0.56;
+    var widthFrac = { qfront: 0.70, side: 0.72, front: 0.70, rear: 0.70 }[profile] || 0.70;
     drawCover(ctx, plateImg, w, h);
     var seatY = car.height - 1, bodyCx = car.width / 2, contacts = [{ x: bodyCx, y: seatY }];
     try {
@@ -716,7 +716,7 @@
       if (!seatY) seatY = ch - 1;
       if (peaks.length) contacts = peaks;
     } catch (eSeat) {}
-    var scale = Math.min((w * widthFrac) / car.width, (geom.rx * 1.20) / car.width);
+    var scale = Math.min((w * widthFrac) / car.width, (geom.rx * 1.72) / car.width);
     var contactY = geom.contactY;
     var roof = h * 0.175;
     if (contactY - seatY * scale < roof) scale = Math.min(scale, (contactY - roof) / seatY);
@@ -753,16 +753,16 @@
     ctx.filter = "none";
     ctx.globalAlpha = 1;
     ctx.restore();
-    var keep = Math.max(8, Math.round(targetH * 0.12));
+    var keep = Math.max(8, Math.round(targetH * 0.20));
     var refl = makeCanvas(targetW, keep);
     var rctx = refl.getContext("2d");
     rctx.translate(0, keep);
     rctx.scale(1, -1);
-    rctx.drawImage(lit, 0, car.height - Math.round(car.height * 0.12), car.width, Math.round(car.height * 0.12), 0, 0, targetW, keep);
+    rctx.drawImage(lit, 0, car.height - Math.round(car.height * 0.20), car.width, Math.round(car.height * 0.20), 0, 0, targetW, keep);
     var rid = rctx.getImageData(0, 0, targetW, keep);
     var rd = rid.data, yy, xx, o, fade;
     for (yy = 0; yy < keep; yy++) {
-      fade = 0.16 * (1 - yy / Math.max(1, keep - 1));
+      fade = 0.34 * (1 - yy / Math.max(1, keep - 1));
       for (xx = 0; xx < targetW; xx++) {
         o = (yy * targetW + xx) * 4;
         rd[o + 3] = Math.round(rd[o + 3] * fade);

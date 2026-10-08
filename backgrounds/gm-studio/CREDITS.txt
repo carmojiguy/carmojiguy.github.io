@@ -5,10 +5,11 @@ These plates are rendered for G&M Auto Sales & Service. They are not stock
 photos and they replace the old generated gradient plates.
 
 Each file is a seamless studio cove: softboxes, a vignette, and a plain
-turntable. The disc is a flat satin surface (dark grey on the light-grey,
-warm, and charcoal studios; polished light grey on the white studio). It has
-a thin bevelled metal edge with one soft specular highlight on the near-left
-arc, and a gentle floor gradient. There are no concentric rings.
+turntable. The disc is a satin surface with a smooth radial falloff (lighter
+toward the middle, darker at the rim) and one soft overhead bloom. Dark grey
+on the light-grey, warm, and charcoal studios; polished light grey on the
+white studio. It has a thin bevelled metal edge with one soft specular
+highlight on the near-left arc. There are no concentric rings.
 
 The wall sign is the G&M wordmark itself (heavy grotesque, red #E0243C
 ampersand and bar, tracked "AUTO SALES & SERVICE"). There is no black badge
@@ -29,9 +30,10 @@ Regenerate with tools/render_gm_studio.py (Pillow + NumPy). The wordmark is
 set in Liberation Sans Bold, the Arial-metric face available here, stacked
 to a heavy weight. Proof composites are tools/studio_proof.py using
 BiRefNet-general-lite, with edge defringe, tinted glass, per-tire contact
-shadows, a soft body shadow, a faint cool rim light, and a short floor
-reflection. The lowest tire rubber is seated on the near half of the disc
-and the car is centred on it.
+shadows, a soft body shadow, a faint cool rim light, and a soft floor
+reflection on the disc. The lowest tire rubber is seated on the near half
+of the disc, the car is centred, and it is scaled to about 70% of the
+frame width.
 
 In the app, @imgly/background-removal ISNet large runs in the browser and
 falls back to the medium model. If that fails to load, the original photo

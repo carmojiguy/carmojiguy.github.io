@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Photo ghosts for the website slots that do not already have one.
 
-Each new guide starts from a CC0 / CC-BY / CC-BY-SA / public-domain photo,
-is cut out with BiRefNet, then coloured with the same green the original
-ghosts use: shaded fill, a hot silhouette, and a short alpha fringe.
+Each new guide starts from a CC0 / CC-BY / CC-BY-SA / public-domain photo.
+The subject is masked (BiRefNet, or a crop / polygon when the cutout cannot
+separate it). The green is an x-ray: bright edge lines and a silhouette
+stroke over a dark, mostly transparent body, in the original ghosts' green.
 The 12 original PNGs are never written.
 """
 import json
@@ -13,63 +14,103 @@ import urllib.parse
 import urllib.request
 
 import numpy as np
-from PIL import Image, ImageFilter
+from PIL import Image, ImageDraw, ImageFilter
 from rembg import new_session, remove
 
 OUT = "/workspace/ghosts"
 UA = "GMstudioGhosts/1.0 (dealer photo guides; contact shawn@myloan.ca)"
-LOCAL = "/workspace/photos/test-rav4"
-
-# Remote files are fetched from Wikimedia Commons. Local files are already
-# in the repo with credits in photos/test-rav4/CREDITS.txt.
 # crop is (left, top, right, bottom) as fractions of the source.
+# ellipse is (cx, cy, rx, ry) in the same fractions, applied after the crop.
+# fill means the crop itself is the subject when BiRefNet cannot separate it.
 SLOTS = {
-    "roof": {"title": "File:EG2Tv-001 head car roof.jpg"},
+    "roof": {
+        "title": "File:Mercedes-Benz G63 AMG V8 BITURBO SUV (50703492437).jpg",
+        "note": "Modern SUV, high front three-quarter.",
+    },
     "headlight": {"title": "File:2018 Dodge Grand Caravan SE in silver - detail of light - front left.jpg"},
     "wheel": {"title": "File:20-inch wheel of Nissan FAIRLADY Z (Z34) Version ST, 2022.jpg"},
     "taillight": {"title": "File:2018 Dodge Grand Caravan SE in silver - detail of light - rear right.jpg"},
-    "badge": {"title": "File:Emblem of Toyota 2000GT.JPG",
-              "note": "Close-up of a Toyota emblem. It is the classic 2000GT badge, not a modern trunk badge."},
-    "engine": {"title": "File:Engine bay of Toyota All New Land Cruiser FJ during GIIAS 2026 in Bandung 20260911 183023.jpg"},
-    "jamb": {"title": "File:Tire and Loading Information.jpg"},
-    "gauges": {"local": f"{LOCAL}/dash.jpg", "crop": (0.04, 0.04, 0.62, 0.50),
-               "note": "Instrument cluster cropped from the licensed RAV4 Adventure cockpit."},
-    "steering": {"title": "File:Audi Q5 steering wheel closeup.jpg"},
-    "screen": {"title": "File:360-degree surround-view parking camera display on an infotainment screen.jpg"},
-    "backup": {"title": "File:2017 Honda Ridgeline Multi-View Rear Camera Display.jpg"},
-    "climate": {"local": f"{LOCAL}/dash.jpg", "crop": (0.28, 0.50, 0.74, 0.70),
-                "note": "Climate-control row under the screen, cropped from the RAV4 cockpit."},
-    "sunroof": {"title": "File:Genesis G90 RS4 SDS Galaxy Black Modern Gray Two-tone News Paper Crown (36).jpg",
-                "force": "feather",
-                "note": "Full interior frame kept so the glass roof is not cut away."},
-    "headliner": {"title": "File:2010 Honda Odyssey EX-L Minivan Interior.jpg", "crop": (0.0, 0.0, 1.0, 0.46),
-                  "force": "feather",
-                  "note": "Ceiling band of the Odyssey cabin, kept as a feathered frame."},
-    "rearseat": {"title": "File:Car rear seats.jpg"},
-    "legroom": {"title": "File:Honda Odyssey Rear Seats.jpg"},
-    "passeat": {"title": "File:2021 Chrysler Pacifica interior.jpg"},
-    "cargo": {"title": "File:2021 Toyota GR Yaris 1.6 GXPA16R trunk (20211117).jpg"},
-    "folded": {"title": "File:1988 Toyota Tarago (YR21R) DX van 5 (rear cabin with folded seats).jpg"},
-    "keys": {"title": "File:Car Keys.jpg"},
-    "bedside": {"title": "File:2021 Ford F-150 Double Cab.jpg"},
-    "bedtail": {"title": "File:Lincoln Blackwood bed open.jpg"},
-    "bedhitch": {"title": "File:Spray-on bedliner.jpg"},
-    "sliding": {"title": "File:Honda Stepwgn (Portchester, Hampshire -England).jpg"},
-    "thirdrow": {"title": "File:Honda Mobilio i-VTEC 2014 Third Row Seat.jpg"},
-}
-
-LOCAL_CREDIT = {
-    f"{LOCAL}/rear.jpg": {
-        "title": "File:2021 Toyota RAV4 XLE AWD, rear right, 05-24-2026.jpg",
-        "lic": "CC BY-SA 4.0",
-        "artist": "MercurySable99",
-        "page": "https://commons.wikimedia.org/wiki/File:2021_Toyota_RAV4_XLE_AWD,_rear_right,_05-24-2026.jpg",
+    "badge": {
+        "title": "File:2021 Volkswagen Golf hatchback in Pure White, rear three-quarter view showing tailgate and VW badge.jpg",
+        "crop": (0.40, 0.30, 0.62, 0.55),
+        "fill": True,
+        "note": "Tailgate roundel and GOLF script, cropped off the car.",
     },
-    f"{LOCAL}/dash.jpg": {
-        "title": "File:The interior of Toyota RAV4 Adventure (6BA-MXAA54-ANXVB).jpg",
-        "lic": "CC BY-SA 4.0",
-        "artist": "Tokumeigakarinoaoshima",
-        "page": "https://commons.wikimedia.org/wiki/File:The_interior_of_Toyota_RAV4_Adventure_(6BA-MXAA54-ANXVB).jpg",
+    "engine": {
+        "title": "File:2026 Chevrolet Sonic engine bay.jpg",
+        "note": "Front-on bay. Hoses and show lighting are in the source.",
+    },
+    "jamb": {"title": "File:Tire and Loading Information.jpg"},
+    "gauges": {
+        "title": "File:Tesla Model S Instrument Cluster Speedometer.jpg",
+        "fill": True,
+        "note": "Modern cluster, face-on. The crop is the cluster.",
+    },
+    "steering": {
+        "title": "File:Steering Wheel Closeup - 2013 Volvo S60 T5 AWD (8388958639).jpg",
+        "note": "Full modern wheel, front-on.",
+    },
+    "screen": {
+        "title": "File:360-degree surround-view parking camera display on an infotainment screen.jpg",
+        "fill": True,
+        "note": "The photograph is the screen. BiRefNet kept only a sliver, so the frame is the display.",
+    },
+    "backup": {"title": "File:2017 Honda Ridgeline Multi-View Rear Camera Display.jpg"},
+    "climate": {
+        "title": "File:2006 Honda Ridgeline RTS-head unit and climate control interface.jpg",
+        "crop": (0.08, 0.76, 0.92, 0.96),
+        "fill": True,
+        "note": "Centre HVAC controls, face-on, cropped off the radio. The stack is a 2006 Ridgeline, not a current touchscreen.",
+    },
+    "sunroof": {
+        "title": "File:Nissan-Presage axis-u30 1998-sunroof open.jpg",
+        "crop": (0.02, 0.00, 0.98, 0.55),
+        "note": "Open sunroof seen from inside the cabin. It is a 1998 Presage, and the camera is aimed up and back rather than straight up at a modern roof.",
+    },
+    "headliner": {
+        "title": "File:Dome light Citroen C3.jpg",
+        "note": "Looking up at the dome light and headliner.",
+    },
+    "rearseat": {
+        "title": "File:Car rear seats.jpg",
+        "fill": True,
+        "note": "The photograph is the rear bench. BiRefNet kept a fragment, so the crop is the seats.",
+    },
+    "legroom": {
+        "title": "File:Honda Odyssey Rear Seats.jpg",
+        "crop": (0.02, 0.18, 0.98, 0.98),
+        "fill": True,
+        "note": "Rear seat and leg space. Cropped in so the window is not the subject.",
+    },
+    "passeat": {
+        "title": 'File:Toyota ROOMY X"S" passenger seat lift-up seat vehicle B-type (DBA-M900A-VTPBAM) left.jpg',
+        "note": "Front passenger seat seen through the open door.",
+    },
+    "cargo": {"title": "File:2021 Toyota GR Yaris 1.6 GXPA16R trunk (20211117).jpg"},
+    "folded": {
+        "title": "File:Rear Seats Folded - 2015 GMC Yukon Denali (14304123949).jpg",
+        "note": "Modern SUV cargo area, rear seats folded, from the open hatch.",
+    },
+    "keys": {
+        "title": "File:SUBARU FORESTER (SK) KEY FOB FRONT.jpg",
+        "note": "Modern smart key fob. No tag.",
+    },
+    "bedside": {
+        "title": "File:Ford F-150 Canteen, left side.png",
+        "note": "True side profile. The bed is a canteen body, not an open pickup box.",
+    },
+    "bedtail": {"title": "File:Lincoln Blackwood bed open.jpg"},
+    "bedhitch": {
+        "title": "File:Spray-on bedliner.jpg",
+        "note": "Bed floor and liner. No hitch is in the frame.",
+    },
+    "sliding": {
+        "title": "File:Honda Stepwgn (Portchester, Hampshire -England).jpg",
+        "note": "The sliding door is shut.",
+    },
+    "thirdrow": {
+        "title": "File:Honda Mobilio i-VTEC 2014 Third Row Seat.jpg",
+        "note": "Third-row bench. The camera is behind the second row, not standing in the side door.",
     },
 }
 
@@ -82,8 +123,8 @@ def strip_html(value):
 def commons_meta(titles):
     found = {}
     batch = list(titles)
-    for i in range(0, len(batch), 12):
-        chunk = batch[i:i + 12]
+    for i in range(0, len(batch), 8):
+        chunk = batch[i:i + 8]
         params = urllib.parse.urlencode({
             "action": "query", "format": "json",
             "titles": "|".join(chunk),
@@ -94,7 +135,7 @@ def commons_meta(titles):
             "https://commons.wikimedia.org/w/api.php?" + params,
             headers={"User-Agent": UA},
         )
-        with urllib.request.urlopen(req, timeout=60) as resp:
+        with urllib.request.urlopen(req, timeout=90) as resp:
             data = json.loads(resp.read().decode())
         for page in (data.get("query") or {}).get("pages", {}).values():
             title = page.get("title")
@@ -114,7 +155,7 @@ def commons_meta(titles):
 
 def fetch(url, dest):
     req = urllib.request.Request(url, headers={"User-Agent": UA})
-    with urllib.request.urlopen(req, timeout=90) as resp:
+    with urllib.request.urlopen(req, timeout=120) as resp:
         data = resp.read()
     open(dest, "wb").write(data)
 
@@ -136,41 +177,74 @@ def crop_frac(im, box):
     return im.crop((int(w * l), int(h * t), int(w * r), int(h * b)))
 
 
-def green_glow(im):
-    """Match the original ghosts: core ~#43FE6A ratios, shaded fill, hot edge."""
+def sobel(lum):
+    base = Image.fromarray(np.clip(lum, 0, 255).astype(np.uint8))
+    kx = ImageFilter.Kernel((3, 3), [-1, 0, 1, -2, 0, 2, -1, 0, 1], scale=1, offset=128)
+    ky = ImageFilter.Kernel((3, 3), [-1, -2, -1, 0, 0, 0, 1, 2, 1], scale=1, offset=128)
+    gx = np.array(base.filter(kx)).astype(np.float32) - 128
+    gy = np.array(base.filter(ky)).astype(np.float32) - 128
+    return np.sqrt(gx * gx + gy * gy)
+
+
+def hologram(im):
+    """Bright edge lines and a silhouette over a dark transparent body.
+
+    Green ratios match the original ghosts (R = 0.264 G, B = 0.418 G).
+    Body green sits near the dark end of those files. Edge cores stay under
+    the blown-out cap so the opaque median is not a spike at 255.
+    """
     rgba = np.array(im.convert("RGBA")).astype(np.float32)
     rgb = rgba[:, :, :3]
     a = rgba[:, :, 3] / 255.0
     lum = 0.2126 * rgb[:, :, 0] + 0.7152 * rgb[:, :, 1] + 0.0722 * rgb[:, :, 2]
-    soft = np.array(Image.fromarray(np.clip(lum, 0, 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(2.2))).astype(np.float32)
-    lum2 = np.clip(lum + (lum - soft) * 1.25, 0, 255)
-    solid = a > 0.45
-    if solid.sum() > 80:
-        p5, p95 = np.percentile(lum2[solid], [8, 92])
+    soft = np.array(
+        Image.fromarray(np.clip(lum, 0, 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(2.2))
+    ).astype(np.float32)
+    detail = np.clip(lum + (lum - soft) * 1.7, 0, 255)
+    mag = sobel(detail)
+    mask = a > 0.22
+    if int(mask.sum()) < 80:
+        mask = a > 0.05
+    if mask.any():
+        p_lo, p_hi = np.percentile(mag[mask], [68, 93])
     else:
-        p5, p95 = 30.0, 210.0
-    t = np.clip((lum2 - p5) / max(12.0, p95 - p5), 0, 1) ** 0.9
-    # Opaque originals sit around G 118 / 170 / 230. Keep the midtones there.
-    g = 114 + t * 120
-    mask = Image.fromarray(np.clip(a * 255, 0, 255).astype(np.uint8))
-    eroded = np.array(mask.filter(ImageFilter.MinFilter(3))).astype(np.float32) / 255.0
-    rim = np.clip(a - eroded, 0, 1)
-    g = np.clip(g + rim * 55, 0, 255)
-    glow_r = max(1.8, min(im.size) * 0.007)
-    glow = np.array(mask.filter(ImageFilter.GaussianBlur(radius=glow_r))).astype(np.float32) / 255.0
-    alpha = np.where(a > 0.6, np.maximum(a, 0.98), np.clip(glow * 0.9, 0, 0.8))
-    g = np.where(a < 0.6, np.maximum(g, 150), g)
+        p_lo, p_hi = 20.0, 80.0
+    edge = np.clip((mag - p_lo) / max(8.0, p_hi - p_lo), 0, 1) * 1.15
+    edge = np.clip(edge, 0, 1) * (a > 0.12)
+    edge = np.array(
+        Image.fromarray(np.clip(edge * 255, 0, 255).astype(np.uint8)).filter(ImageFilter.MaxFilter(3))
+    ).astype(np.float32) / 255.0
+    solid = Image.fromarray(np.clip((a > 0.30) * 255, 0, 255).astype(np.uint8))
+    dil = np.array(solid.filter(ImageFilter.MaxFilter(7))).astype(np.float32) / 255.0
+    ero = np.array(solid.filter(ImageFilter.MinFilter(3))).astype(np.float32) / 255.0
+    sil = np.clip(dil - ero, 0, 1)
+    line = np.maximum(edge, sil * 0.95)
+    glow = np.array(
+        Image.fromarray(np.clip(line * 255, 0, 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(2.1))
+    ).astype(np.float32) / 255.0
+    if mask.any():
+        p5, p95 = np.percentile(detail[mask], [8, 92])
+    else:
+        p5, p95 = 20.0, 200.0
+    tone = np.clip((detail - p5) / max(12.0, p95 - p5), 0, 1)
+    body_g = 46 + tone * (92 - 46)
+    hot = np.clip(148 + line * 58, 0, 230)
+    weight = np.clip(line * 0.90 + glow * 0.22, 0, 1)
+    green = np.clip(body_g * (1 - weight) + hot * weight + glow * 12, 0, 236)
+    alpha = 0.32 * (0.40 + 0.60 * tone) * (a > 0.16) + glow * 0.38 + line * 0.72
+    alpha = np.clip(alpha, 0, 1)
+    alpha = np.where((a < 0.06) & (glow < 0.06), 0, alpha)
     out = np.zeros_like(rgba)
-    out[:, :, 0] = g * 0.264
-    out[:, :, 1] = g
-    out[:, :, 2] = g * 0.418
-    out[:, :, 3] = np.where(alpha * 255 < 8, 0, alpha * 255)
+    out[:, :, 0] = green * 0.264
+    out[:, :, 1] = green
+    out[:, :, 2] = green * 0.418
+    out[:, :, 3] = alpha * 255
     return Image.fromarray(np.clip(out, 0, 255).astype(np.uint8), "RGBA")
 
 
 def trim(im, pad=8):
-    a = np.array(im.split()[-1])
-    ys, xs = np.where(a > 10)
+    alpha = np.array(im.split()[-1])
+    ys, xs = np.where(alpha > 10)
     if len(xs) == 0:
         return im
     x0, x1 = max(0, int(xs.min()) - pad), min(im.width, int(xs.max()) + pad)
@@ -178,30 +252,68 @@ def trim(im, pad=8):
     return im.crop((x0, y0, x1 + 1, y1 + 1))
 
 
-def cutout(im, session, force=None):
+def ellipse_mask(size, ell):
+    cx, cy, rx, ry = ell
+    w, h = size
+    mask = Image.new("L", size, 0)
+    ImageDraw.Draw(mask).ellipse(
+        [(cx - rx) * w, (cy - ry) * h, (cx + rx) * w, (cy + ry) * h],
+        fill=255,
+    )
+    return mask.filter(ImageFilter.GaussianBlur(1.6))
+
+
+def polygon_mask(size, points):
+    w, h = size
+    mask = Image.new("L", size, 0)
+    ImageDraw.Draw(mask).polygon([(x * w, y * h) for x, y in points], fill=255)
+    return mask.filter(ImageFilter.GaussianBlur(1.2))
+
+
+def with_alpha(rgb, mask):
+    out = rgb.convert("RGBA")
+    out.putalpha(mask)
+    return out
+
+
+def subject_crop_mask(size):
+    """The crop is the object. Feather only a few pixels so the edge can glow."""
+    h, w = size[1], size[0]
+    yy, xx = np.mgrid[0:h, 0:w]
+    edge = np.minimum(np.minimum(xx, w - 1 - xx), np.minimum(yy, h - 1 - yy))
+    feather = np.clip(edge / 8.0, 0, 1)
+    return Image.fromarray(np.clip(feather * 255, 0, 255).astype(np.uint8))
+
+
+def cutout(im, session, spec):
     src = limit_long(im.convert("RGB"), 1280)
-    if force == "feather":
-        yy, xx = np.mgrid[0:src.height, 0:src.width]
-        edge = np.minimum(np.minimum(xx, src.width - 1 - xx), np.minimum(yy, src.height - 1 - yy))
-        feather = np.clip(edge / 18.0, 0, 1)
-        out = src.convert("RGBA")
-        out.putalpha(Image.fromarray(np.clip(feather * 255, 0, 255).astype(np.uint8)))
-        return out, "feather"
+    if spec.get("poly"):
+        return with_alpha(src, polygon_mask(src.size, spec["poly"])), "polygon"
+    if spec.get("ellipse"):
+        return with_alpha(src, ellipse_mask(src.size, spec["ellipse"])), "ellipse"
     cut = remove(src, session=session).convert("RGBA")
-    a = np.array(cut.split()[-1])
-    frac = float((a > 20).mean())
-    # A full-bleed interior has no outdoor background. Keep it, with a soft edge.
-    if frac < 0.08 or frac > 0.93:
-        soft = Image.new("L", src.size, 0)
-        # Feather the border so the ghost does not end in a hard rectangle.
-        yy, xx = np.mgrid[0:src.height, 0:src.width]
-        edge = np.minimum(np.minimum(xx, src.width - 1 - xx), np.minimum(yy, src.height - 1 - yy))
-        feather = np.clip(edge / 18.0, 0, 1)
-        alpha = Image.fromarray(np.clip(feather * 255, 0, 255).astype(np.uint8))
-        out = src.convert("RGBA")
-        out.putalpha(alpha)
-        return out, "feather"
-    return cut, "birefnet"
+    alpha = np.array(cut.split()[-1])
+    frac = float((alpha > 20).mean())
+    if 0.05 <= frac <= 0.93:
+        return cut, "birefnet"
+    if spec.get("fill"):
+        return with_alpha(src, subject_crop_mask(src.size)), "crop"
+    # A failed cut stays a failed cut. Do not paint a rectangle over a room.
+    return cut, "birefnet-thin"
+
+
+def covers_frame(im):
+    alpha = np.array(im.split()[-1])
+    ys, xs = np.where(alpha > 30)
+    if len(xs) == 0:
+        return True
+    pad = 0.03
+    return (
+        xs.min() < im.width * pad
+        and xs.max() > im.width * (1 - pad)
+        and ys.min() < im.height * pad
+        and ys.max() > im.height * (1 - pad)
+    )
 
 
 def main():
@@ -215,26 +327,28 @@ def main():
     for key, spec in SLOTS.items():
         if only and key not in only:
             continue
-        if "local" in spec:
-            im = Image.open(spec["local"])
-            info = dict(LOCAL_CREDIT[spec["local"]])
-        else:
-            info = meta.get(spec["title"])
-            if not info or not info.get("url"):
-                raise SystemExit("missing " + spec["title"])
-            dest = "/tmp/ghost-src/" + key + ".jpg"
-            if not os.path.exists(dest) or os.path.getsize(dest) < 1000:
-                print("download", key, flush=True)
-                fetch(info["url"], dest)
-            im = Image.open(dest)
-        im = crop_frac(im, spec.get("crop"))
+        info = meta.get(spec["title"])
+        if not info or not info.get("url"):
+            raise SystemExit("missing " + spec["title"])
+        lic = info["lic"].upper()
+        if "NC" in lic or "ND" in lic:
+            raise SystemExit("license " + key + " " + info["lic"])
+        dest = "/tmp/ghost-src/" + key + ".img"
+        stamp = dest + ".title"
+        if (not os.path.exists(dest) or os.path.getsize(dest) < 1000
+                or not os.path.exists(stamp) or open(stamp).read() != spec["title"]):
+            print("download", key, flush=True)
+            fetch(info["url"], dest)
+            open(stamp, "w").write(spec["title"])
+        im = crop_frac(Image.open(dest), spec.get("crop"))
         print("cut", key, im.size, flush=True)
-        cut, how = cutout(im, session, spec.get("force"))
-        ghost = trim(green_glow(cut))
+        cut, how = cutout(im, session, spec)
+        ghost = trim(hologram(cut))
         ghost = limit_long(ghost, 900)
         path = os.path.join(OUT, key + ".png")
         ghost.save(path, "PNG", optimize=True)
-        print(" ", key, ghost.size, how, os.path.getsize(path), flush=True)
+        boxed = covers_frame(ghost)
+        print(" ", key, ghost.size, how, "FRAME" if boxed else "masked", os.path.getsize(path), flush=True)
         credits.append({
             "file": key + ".png",
             "title": info["title"],
@@ -247,7 +361,10 @@ def main():
     blob = "/tmp/ghost-src/credits.json"
     prev = {}
     if os.path.exists(blob):
-        prev = {row["file"]: row for row in json.load(open(blob))}
+        try:
+            prev = {row["file"]: row for row in json.load(open(blob))}
+        except Exception:
+            prev = {}
     for row in credits:
         prev[row["file"]] = row
     ordered = [prev[key + ".png"] for key in SLOTS if key + ".png" in prev]
@@ -265,12 +382,15 @@ def write_credits(rows):
         "qrear, rear, tire, door, and the passenger flips of qfront, driver and",
         "qrear) are untouched.",
         "",
-        "Each new file is a licensed photograph. The background was removed with",
-        "BiRefNet-general-lite when the subject could be separated from the",
-        "scene. A full-bleed interior that had no outdoor background kept a",
-        "feathered edge instead of an empty cut. The green is the same treatment",
-        "as the originals: luminance mapped into their green (R = 0.264 G,",
-        "B = 0.418 G), shaded fill, a brighter silhouette, and a short glow.",
+        "Each new file is a licensed photograph, masked to the subject. BiRefNet",
+        "general-lite removes the background when it can. A crop or a drawn",
+        "mask is used when the subject fills the frame (a cluster, a badge, a",
+        "control panel). The picture is never left as a feathered rectangle of",
+        "a whole room.",
+        "",
+        "The green is an x-ray of that cutout. Sobel edges plus a silhouette",
+        "stroke are the hot core, with a short glow. The body is a dark green",
+        "at low opacity (R = 0.264 G, B = 0.418 G, the original ghost colour).",
         "",
         "Regenerate with tools/photo_ghosts.py.",
         "",

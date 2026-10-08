@@ -6,32 +6,25 @@ one. The original twelve PNGs (qfront, front, driver, dash, console,
 qrear, rear, tire, door, and the passenger flips of qfront, driver and
 qrear) are untouched.
 
-Each new file is a licensed photograph. The background was removed with
-BiRefNet-general-lite when the subject could be separated from the
-scene. A full-bleed interior that had no outdoor background kept a
-feathered edge instead of an empty cut. The green is the same treatment
-as the originals: luminance mapped into their green (R = 0.264 G,
-B = 0.418 G), shaded fill, a brighter silhouette, and a short glow.
+Each new file is a licensed photograph, masked to the subject. BiRefNet
+general-lite removes the background when it can. A crop or a drawn
+mask is used when the subject fills the frame (a cluster, a badge, a
+control panel). The picture is never left as a feathered rectangle of
+a whole room.
+
+The green is an x-ray of that cutout. Sobel edges plus a silhouette
+stroke are the hot core, with a short glow. The body is a dark green
+at low opacity (R = 0.264 G, B = 0.418 G, the original ghost colour).
 
 Regenerate with tools/photo_ghosts.py.
 
-What still does not match a modern dealer photo of that exact slot:
-
-- badge.png is the classic Toyota 2000GT emblem, not a modern trunk badge.
-- keys.png is two key fobs. Service records are not in the frame.
-- bedhitch.png is a spray-in bed liner in a truck bed. The hitch is not in the photo.
-- sliding.png is a Honda Stepwgn with the sliding door shut. It frames the door, not an open aperture.
-- folded.png is a 1988 Toyota Tarago with the seats down, not a current SUV.
-- bedside.png is a three-quarter view of a 2021 F-150. The bed is visible; it is not a pure side elevation.
-- sunroof.png is a wide cabin view that includes the glass roof, not a tight shot aimed only at the glass.
-- screen.png, rearseat.png, legroom.png, sunroof.png and headliner.png keep a feathered full frame because those photos had no outdoor background for BiRefNet to remove.
-
 roof.png
-  File:EG2Tv-001 head car roof.jpg
-  CC0
-  Self-photographed
-  https://commons.wikimedia.org/wiki/File:EG2Tv-001_head_car_roof.jpg
+  File:Mercedes-Benz G63 AMG V8 BITURBO SUV (50703492437).jpg
+  CC BY 2.0
+  silver-novice ~ ne res adversae impediant from Birkenhead, ENGLAND
+  https://commons.wikimedia.org/wiki/File:Mercedes-Benz_G63_AMG_V8_BITURBO_SUV_(50703492437).jpg
   cutout: birefnet
+  Modern SUV, high front three-quarter.
 
 headlight.png
   File:2018 Dodge Grand Caravan SE in silver - detail of light - front left.jpg
@@ -55,19 +48,20 @@ taillight.png
   cutout: birefnet
 
 badge.png
-  File:Emblem of Toyota 2000GT.JPG
+  File:2021 Volkswagen Golf hatchback in Pure White, rear three-quarter view showing tailgate and VW badge.jpg
   CC0
-  Tokumeigakarinoaoshima
-  https://commons.wikimedia.org/wiki/File:Emblem_of_Toyota_2000GT.JPG
+  OathOn
+  https://commons.wikimedia.org/wiki/File:2021_Volkswagen_Golf_hatchback_in_Pure_White,_rear_three-quarter_view_showing_tailgate_and_VW_badge.jpg
   cutout: birefnet
-  Close-up of a Toyota emblem. It is the classic 2000GT badge, not a modern trunk badge.
+  Tailgate roundel and GOLF script, cropped off the car.
 
 engine.png
-  File:Engine bay of Toyota All New Land Cruiser FJ during GIIAS 2026 in Bandung 20260911 183023.jpg
+  File:2026 Chevrolet Sonic engine bay.jpg
   CC BY 4.0
-  M Raisfath
-  https://commons.wikimedia.org/wiki/File:Engine_bay_of_Toyota_All_New_Land_Cruiser_FJ_during_GIIAS_2026_in_Bandung_20260911_183023.jpg
+  Autosdeprimera
+  https://commons.wikimedia.org/wiki/File:2026_Chevrolet_Sonic_engine_bay.jpg
   cutout: birefnet
+  Front-on bay. Hoses and show lighting are in the source.
 
 jamb.png
   File:Tire and Loading Information.jpg
@@ -77,26 +71,28 @@ jamb.png
   cutout: birefnet
 
 gauges.png
-  File:The interior of Toyota RAV4 Adventure (6BA-MXAA54-ANXVB).jpg
+  File:Tesla Model S Instrument Cluster Speedometer.jpg
   CC BY-SA 4.0
-  Tokumeigakarinoaoshima
-  https://commons.wikimedia.org/wiki/File:The_interior_of_Toyota_RAV4_Adventure_(6BA-MXAA54-ANXVB).jpg
+  Uscgreel
+  https://commons.wikimedia.org/wiki/File:Tesla_Model_S_Instrument_Cluster_Speedometer.jpg
   cutout: birefnet
-  Instrument cluster cropped from the licensed RAV4 Adventure cockpit.
+  Modern cluster, face-on. The crop is the cluster.
 
 steering.png
-  File:Audi Q5 steering wheel closeup.jpg
+  File:Steering Wheel Closeup - 2013 Volvo S60 T5 AWD (8388958639).jpg
   CC BY 2.0
-  Shixart1985
-  https://commons.wikimedia.org/wiki/File:Audi_Q5_steering_wheel_closeup.jpg
+  Michael Sheehan
+  https://commons.wikimedia.org/wiki/File:Steering_Wheel_Closeup_-_2013_Volvo_S60_T5_AWD_(8388958639).jpg
   cutout: birefnet
+  Full modern wheel, front-on.
 
 screen.png
   File:360-degree surround-view parking camera display on an infotainment screen.jpg
   CC BY 4.0
   Tessa Bury
   https://commons.wikimedia.org/wiki/File:360-degree_surround-view_parking_camera_display_on_an_infotainment_screen.jpg
-  cutout: feather
+  cutout: crop
+  The photograph is the screen. BiRefNet kept only a sliver, so the frame is the display.
 
 backup.png
   File:2017 Honda Ridgeline Multi-View Rear Camera Display.jpg
@@ -106,49 +102,52 @@ backup.png
   cutout: birefnet
 
 climate.png
-  File:The interior of Toyota RAV4 Adventure (6BA-MXAA54-ANXVB).jpg
+  File:2006 Honda Ridgeline RTS-head unit and climate control interface.jpg
   CC BY-SA 4.0
-  Tokumeigakarinoaoshima
-  https://commons.wikimedia.org/wiki/File:The_interior_of_Toyota_RAV4_Adventure_(6BA-MXAA54-ANXVB).jpg
+  Michael Carmack
+  https://commons.wikimedia.org/wiki/File:2006_Honda_Ridgeline_RTS-head_unit_and_climate_control_interface.jpg
   cutout: birefnet
-  Climate-control row under the screen, cropped from the RAV4 cockpit.
+  Centre HVAC controls, face-on, cropped off the radio. The stack is a 2006 Ridgeline, not a current touchscreen.
 
 sunroof.png
-  File:Genesis G90 RS4 SDS Galaxy Black Modern Gray Two-tone News Paper Crown (36).jpg
-  CC BY-SA 4.0
-  Damian B Oh
-  https://commons.wikimedia.org/wiki/File:Genesis_G90_RS4_SDS_Galaxy_Black_Modern_Gray_Two-tone_News_Paper_Crown_(36).jpg
-  cutout: feather
-  Full interior frame kept so the glass roof is not cut away.
+  File:Nissan-Presage axis-u30 1998-sunroof open.jpg
+  CC BY-SA 3.0
+  TaitaFkm
+  https://commons.wikimedia.org/wiki/File:Nissan-Presage_axis-u30_1998-sunroof_open.jpg
+  cutout: birefnet
+  Open sunroof seen from inside the cabin. It is a 1998 Presage, and the camera is aimed up and back rather than straight up at a modern roof.
 
 headliner.png
-  File:2010 Honda Odyssey EX-L Minivan Interior.jpg
-  CC BY 2.0
-  Chris F
-  https://commons.wikimedia.org/wiki/File:2010_Honda_Odyssey_EX-L_Minivan_Interior.jpg
-  cutout: feather
-  Ceiling band of the Odyssey cabin, kept as a feathered frame.
+  File:Dome light Citroen C3.jpg
+  CC BY-SA 3.0
+  Lionel Allorge
+  https://commons.wikimedia.org/wiki/File:Dome_light_Citroen_C3.jpg
+  cutout: birefnet
+  Looking up at the dome light and headliner.
 
 rearseat.png
   File:Car rear seats.jpg
   CC BY-SA 4.0
   Gmail56789
   https://commons.wikimedia.org/wiki/File:Car_rear_seats.jpg
-  cutout: feather
+  cutout: crop
+  The photograph is the rear bench. BiRefNet kept a fragment, so the crop is the seats.
 
 legroom.png
   File:Honda Odyssey Rear Seats.jpg
   CC BY-SA 2.0
   Scott
   https://commons.wikimedia.org/wiki/File:Honda_Odyssey_Rear_Seats.jpg
-  cutout: feather
+  cutout: birefnet
+  Rear seat and leg space. Cropped in so the window is not the subject.
 
 passeat.png
-  File:2021 Chrysler Pacifica interior.jpg
+  File:Toyota ROOMY X"S" passenger seat lift-up seat vehicle B-type (DBA-M900A-VTPBAM) left.jpg
   CC BY-SA 4.0
-  deathpallie325
-  https://commons.wikimedia.org/wiki/File:2021_Chrysler_Pacifica_interior.jpg
+  Tokumeigakarinoaoshima
+  https://commons.wikimedia.org/wiki/File:Toyota_ROOMY_X%22S%22_passenger_seat_lift-up_seat_vehicle_B-type_(DBA-M900A-VTPBAM)_left.jpg
   cutout: birefnet
+  Front passenger seat seen through the open door.
 
 cargo.png
   File:2021 Toyota GR Yaris 1.6 GXPA16R trunk (20211117).jpg
@@ -158,25 +157,28 @@ cargo.png
   cutout: birefnet
 
 folded.png
-  File:1988 Toyota Tarago (YR21R) DX van 5 (rear cabin with folded seats).jpg
-  CC BY-SA 4.0
-  TT-567x
-  https://commons.wikimedia.org/wiki/File:1988_Toyota_Tarago_(YR21R)_DX_van_5_(rear_cabin_with_folded_seats).jpg
+  File:Rear Seats Folded - 2015 GMC Yukon Denali (14304123949).jpg
+  CC BY 2.0
+  Michael Sheehan
+  https://commons.wikimedia.org/wiki/File:Rear_Seats_Folded_-_2015_GMC_Yukon_Denali_(14304123949).jpg
   cutout: birefnet
+  Modern SUV cargo area, rear seats folded, from the open hatch.
 
 keys.png
-  File:Car Keys.jpg
-  CC BY-SA 3.0
-  Mpelletier1
-  https://commons.wikimedia.org/wiki/File:Car_Keys.jpg
+  File:SUBARU FORESTER (SK) KEY FOB FRONT.jpg
+  CC BY-SA 4.0
+  Dinkun Chen
+  https://commons.wikimedia.org/wiki/File:SUBARU_FORESTER_(SK)_KEY_FOB_FRONT.jpg
   cutout: birefnet
+  Modern smart key fob. No tag.
 
 bedside.png
-  File:2021 Ford F-150 Double Cab.jpg
+  File:Ford F-150 Canteen, left side.png
   Public domain
   Bull-Doser
-  https://commons.wikimedia.org/wiki/File:2021_Ford_F-150_Double_Cab.jpg
+  https://commons.wikimedia.org/wiki/File:Ford_F-150_Canteen,_left_side.png
   cutout: birefnet
+  True side profile. The bed is a canteen body, not an open pickup box.
 
 bedtail.png
   File:Lincoln Blackwood bed open.jpg
@@ -191,6 +193,7 @@ bedhitch.png
   simonov
   https://commons.wikimedia.org/wiki/File:Spray-on_bedliner.jpg
   cutout: birefnet
+  Bed floor and liner. No hitch is in the frame.
 
 sliding.png
   File:Honda Stepwgn (Portchester, Hampshire -England).jpg
@@ -198,6 +201,7 @@ sliding.png
   Mic from Reading - Berkshire (UK), United Kingdom
   https://commons.wikimedia.org/wiki/File:Honda_Stepwgn_(Portchester,_Hampshire_-England).jpg
   cutout: birefnet
+  The sliding door is shut.
 
 thirdrow.png
   File:Honda Mobilio i-VTEC 2014 Third Row Seat.jpg
@@ -205,3 +209,4 @@ thirdrow.png
   Dr. Chinchu C.
   https://commons.wikimedia.org/wiki/File:Honda_Mobilio_i-VTEC_2014_Third_Row_Seat.jpg
   cutout: birefnet
+  Third-row bench. The camera is behind the second row, not standing in the side door.

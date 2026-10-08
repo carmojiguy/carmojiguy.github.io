@@ -226,18 +226,21 @@ def render(name, spec, w, h):
         pool = np.exp(-(sd ** 2) / 1.35)
         rgb = rgb + pool[..., None] * 18
 
-    # Satin face. Far side darker, near side takes the softbox. One broad
-    # gradient, no concentric grooves.
+    # Satin face. A smooth radial falloff (bright center, darker rim) plus a
+    # gentle near-side lift. One gradient, no concentric grooves.
     disc_far = np.array(spec["disc_far"], np.float32)
     disc_near = np.array(spec["disc_near"], np.float32)
     sheen = np.array(spec["sheen"], np.float32)
-    facing = np.clip((dy + 0.35) * 0.55 + 0.25, 0, 1)
+    radial = np.clip(d, 0, 1)
+    radial = radial * radial * (3 - 2 * radial)
+    disc = mix(disc_near, disc_far, radial)
+    facing = np.clip((dy + 0.20) * 0.55, 0, 1)
     facing = facing * facing * (3 - 2 * facing)
-    disc = mix(disc_far, disc_near, facing)
+    disc = mix(disc, sheen, facing * 0.22 * (1 - radial * 0.45))
     # A wide, soft reflection of the overhead softbox. It fades before the rim.
-    bloom = np.exp(-((dx + 0.08) ** 2) / 0.55 - ((dy - 0.25) ** 2) / 0.35)
-    bloom = bloom * np.clip(1.15 - d, 0, 1)
-    disc = mix(disc, sheen, bloom * (0.22 + 0.18 * spec["spec"]))
+    bloom = np.exp(-((dx + 0.06) ** 2) / 0.72 - ((dy - 0.16) ** 2) / 0.40)
+    bloom = bloom * np.clip(1.08 - d * 0.85, 0, 1)
+    disc = mix(disc, sheen, bloom * (0.14 + 0.10 * spec["spec"]))
 
     # Thin bevel. The metal lip is quiet except for one soft specular on the
     # near-left arc, where the softbox catches the edge.

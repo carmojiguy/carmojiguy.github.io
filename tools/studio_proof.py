@@ -242,8 +242,9 @@ def composite(plate, car, profile):
     # Tires and the valance are within a short span on these low cameras.
     # Seat the lowest rubber on the near half of the disc, and keep the car
     # small enough that pad shows on every side.
-    frac = {"qfront": 0.56, "side": 0.70, "front": 0.46, "rear": 0.50}.get(profile, 0.56)
-    scale = min((w * frac) / car.width, (rx * 1.20) / max(car.width, 1))
+    # About 70% of the frame width, so the disc reads as a pad under the car.
+    frac = {"qfront": 0.70, "side": 0.72, "front": 0.70, "rear": 0.70}.get(profile, 0.70)
+    scale = min((w * frac) / car.width, (rx * 1.72) / max(car.width, 1))
     contact_y = min(cy + ry * 0.34, cy + ry * 0.78)
     roof_limit = h * 0.175
     top = contact_y - seat_y * scale
@@ -284,11 +285,12 @@ def composite(plate, car, profile):
     sp[:, :, 3] = (darkness * 255).astype(np.uint8)
     canvas = Image.alpha_composite(canvas, Image.fromarray(sp, "RGBA"))
 
-    # Short reflection on the disc only, under the tires.
-    keep = max(8, int(th * 0.12))
+    # Soft floor reflection on the disc, under the body. Fades before the rim.
+    keep = max(8, int(th * 0.20))
     band = car_r.crop((0, th - keep, tw, th)).transpose(Image.Transpose.FLIP_TOP_BOTTOM)
+    band = band.filter(ImageFilter.GaussianBlur(radius=1.4))
     rp = np.array(band).astype(np.float32)
-    rp[:, :, 3] *= np.linspace(0.16, 0.0, keep, dtype=np.float32)[:, None]
+    rp[:, :, 3] *= np.linspace(0.34, 0.0, keep, dtype=np.float32)[:, None]
     refl_full = Image.new("RGBA", canvas.size, (0, 0, 0, 0))
     ground = int(round(contact_y))
     refl_full.paste(Image.fromarray(np.clip(rp, 0, 255).astype(np.uint8), "RGBA"), (left, ground - 1))
