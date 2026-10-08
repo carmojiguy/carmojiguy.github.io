@@ -1,40 +1,52 @@
-# Free in-house studio (Spyne-style), run 17
+# Free in-house studio (Spyne-style), run 18
 
 This is a proof. It is not wired into the phone app. Nothing here calls a paid API. Do not merge it.
 
-The window mask and the smoky blend are the run 15 versions, unchanged. `mitbersh/car-parts-segmentation` still supplies the glass. The fill is still the feathered gradient mixed with 16% of the crushed original glass.
+The window mask and the smoky blend are the run 15 versions, unchanged. The Camry subject matte, the IC-Light low-frequency transfer, the contact shadows and the glass blend are the run 17 versions. `mitbersh/car-parts-segmentation` still supplies the glass.
+
+## What was wrong in the run 17 side frame
+
+The RAV4 side was missing the entire rear wheel. The floor showed through the rear arch. The run 17 note said the tyres met the disc. That was false. The parts model finds two wheels on the side cutout. The rear wheel (`left_back-wheel`, about 44,000 px) does not touch the body-part masks, so the largest-component filter in `keep_subject` deleted it before the lower-envelope smooth ever ran. About 67,000 px left with it.
 
 ## What changed
 
-The Camry matte was still the two cars. The bright-cap drop from run 16 only removed a light strip, and the dark hatchback stayed. The parts model finds two roofs on that cutout. The upper roof (top at y≈87 on the 2000×1070 recut) is not the Camry. The subject is the other parts, including the lower roof. BiRefNet alpha outside that dilated subject is cleared, and anything above the subject roof line goes with it. On the finished 2000×1334 frame the roof starts at y=378. Rows y=250, y=320 and y=360 through the roof span are the wall, 231, 232, 234. There is no second roofline and no white stripe up there.
+Wheel masks are part of the subject. After `keep_subject`, `smooth_silhouette`, `smooth_profiles` and `defringe`, the original wheel pixels are copied back. `clip_hanging_shadow` and `choke` take the same mask and put those pixels back if a cleanup touched them.
 
-The Camry was floating because the silhouette contact was not the rubber. Both tyre bottoms now come from the wheel masks and sit on the same ground line as the RAV4 (y≈1000, 0.9 px apart). The contact shadow is the same function the RAV4 uses.
+On a black car (door-panel median under 70; the Camry is about 55, the white RAV4s are about 232, the Accord is about 121) the hood and the front fender are replaced with the door colour plus one soft streak. A bright neutral patch on the upper body, including the strip above the C-pillar, is painted the same dark colour. Red and yellow lamps stay, because that pass skips pixels whose channels differ by more than 70. The glass blend formula is unchanged. The bottom half of the windshield is then a flat dark glass.
 
-The RAV4 front edge was a white fringe on the black cladding. Inpaint was sampling the white lot that BiRefNet leaves under a clear alpha. That inpaint is gone. A bright pixel in the outer 5 px is replaced with the interior colour when it is much lighter than that interior. The lower envelope is also smoothed in screen space, without filling the wheel arches. On the finished frame the rocker boundary pixel is black, about 11, 11, 11, and the light pixels below it are the floor.
+A frame is written as `{name}.jpg` only after the gate below passes. A failure is written as `{name}-FAIL.jpg` and the table says FAIL.
 
-Paint shading is a local IC-Light pass, not another grade. `lllyasviel/ic-light` `iclight_sd15_fbc` is added to `stablediffusionapi/realistic-vision-v51` and run on CPU at 768×512, 20 steps, about 92 seconds and 5 GB each. The foreground is the cutout on mid-grey. The background is the rendered cove plate. Only the low-frequency ratio (a wide blur, clamped between 0.42 and 1.85) is multiplied onto the full-resolution cutout. Badges, grille, wheels, text and the plate stay. The glass blend is applied after that. If that pass is missing, the run 16 grade is the fallback. All five frames used the IC-Light pass.
+## The gate
 
-## What the render log printed
+Run before a frame is a final. Source wheels are the parts model on the subject cutout (the BiRefNet recut of the source photo; the side cutout has no separate photo), transformed by the same rotate and scale as the car. Wheels smaller than 40% of the largest wheel are dropped on both sides, which removes the bumper-corner false wheel on the RAV4 rear and a contact-shadow detection. Reflections that miss the car alpha are dropped.
 
-Plates are 2000×1334. Wall sample is 230, 232, 234. Every frame took the IC-Light transfer.
+| Check | Rule |
+| --- | --- |
+| Wheels | Same count, and every source wheel matches a final wheel at IoU > 0.6 |
+| Area | Final alpha (alpha > 128) within ±3% of the subject mask after scaling |
+| Holes | Fill-holes changes under 0.2% of the subject, ignoring the open gap between the tyres |
+| Roof | Pixels above the subject roofline, under the wordmark, that are not the wall: 40 or fewer |
 
-| Frame | Rotation | Tyre dy | Glass fraction | Contacts |
-| --- | --- | --- | --- | --- |
-| RAV4 front | +4.1° | 0 px | 0.076 | wheel masks |
-| Camry black | +6.9° | 0.9 px | 0.073 | wheel masks |
-| RAV4 side | +2.6° | 0 px | 0.105 | silhouette (one wheel pair was not returned) |
-| RAV4 rear | −0.8° | 0 px | 0.075 | wheel masks |
-| Accord grey | −11.5° | 0.9 px | 0.079 | wheel masks |
+## QA table
 
-## What I see
+Plates are 2000×1334. Wall sample is 230, 232, 234. Every frame took the IC-Light transfer. All five passed. The table is `qa-table.txt` next to the frames.
 
-I opened each full frame, the sheet next to the Trailblazer crop from `uploads/myloan-reference.png`, the pixels above the Camry roof, and 100% crops of the RAV4 rocker, the rear corner, the paint and the glass.
+| Car | Wheels | Count | Min IoU | Area | Error | Holes | Roof | Result |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| RAV4 front | PASS | 2/2 | 0.973 | PASS | 0.004 | PASS | PASS | PASS |
+| Camry | PASS | 2/2 | 0.957 | PASS | 0.005 | PASS | PASS | PASS |
+| RAV4 side | PASS | 2/2 | 0.891 | PASS | 0.007 | PASS | PASS | PASS |
+| RAV4 rear | PASS | 2/2 | 0.950 | PASS | 0.003 | PASS | PASS | PASS |
+| Accord | PASS | 2/2 | 0.976 | PASS | 0.005 | PASS | PASS | PASS |
 
-- **Camry.** The hatchback, its windows, the spoiler and the white stripe are not in the frame. Above the roof is the wall. The tyres meet the disc and a contact shadow sits under them. The glass is the smoky tint. The paint is darker and more even than the outdoor shot, and the badge and the plate are still the original. It would not pass next to the Trailblazer. The light is a transferred shading field, the floor reflection is only the mirrored lower body, and the roof still carries a broad highlight from the source photo.
-- **RAV4 front.** The windows are separate smoked openings with the pillar left white. The rocker and the rear corner read as black cladding against the floor, without the white speckled fringe from run 16. Dirt on the cladding is still there, which is the original detail. It would not pass next to the Trailblazer. The body is lit more like the cove than the grade was, and it is still a cutout: the edge is a mask, and the reflection is not a full car in that floor.
-- **RAV4 side.** This is the white Prime, not the grey car in the test-rav4 side file. The glass is tinted. The tail lamp is a red lens on the rear quarter, and the quarter panel around it stays white. The tyres meet the disc on this plate. It would not pass.
-- **RAV4 rear.** The tail lamps are red lenses. The rear glass is tinted. The roof is white. It would not pass. The lamp fill is flatter than a lamp shot in the cove.
-- **Accord.** The roof edge is a smooth line on the wall. The glass is tinted. The grey paint took the same low-frequency transfer. It would not pass.
+## What the pixels show
+
+- **RAV4 side.** Both wheels are on the finished frame. The rear wheel box is (1018, 618)–(1326, 904), 68,843 px, median luminance 43, bottom at y=903. The front wheel is 35,551 px, bottom at y=906. Both sit on the h140 ground line (y≈904). The arch above the tyre is open, which is the floor behind the wheel. Min IoU against the source wheel is 0.891.
+- **Camry hood.** On the run 17 frame the hood median was 186 and the high-frequency detail was 16.6. On this frame the hood median is 89 and the detail is 8.4. A sample on the hood is about (90, 87, 94) to (96, 93, 100): dark paint with one soft lift. The door median is 55, so the white cars and the Accord are left alone.
+- **Camry rear roof.** The bright grey patch beside the tail lamp, which read about (230, 220, 225), is now (56, 50, 52). The lamp pixel beside it is (189, 22, 16). Rows y=250, y=320 and y=360 through the roof span are the wall, (231, 232, 234).
+- **The other three.** Wheel IoU is 0.95 or higher, area error is under 1%, and the roof check is 0. The RAV4 front rocker sample near the cladding is about (136, 137, 141) against the floor.
+
+None of the five would pass next to the Trailblazer crop. The light is a transferred shading field, the floor reflection is the mirrored lower body, and the wordmark is Liberation Sans standing in for Arial.
 
 ## What is deliberately untouched
 

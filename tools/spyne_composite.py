@@ -429,6 +429,10 @@ def keep_subject(rgba):
         print("  subject parts: none, matte unchanged")
         return rgba
     roofs = [item for item in layers if item[0] == "roof"]
+    wheels = np.zeros((h, w), np.uint8)
+    for name, conf, layer, y0, y1, x0, x1 in layers:
+        if "wheel" in name:
+            wheels = np.maximum(wheels, layer)
     foreign = np.zeros((h, w), np.uint8)
     if len(roofs) >= 2:
         lowest = max(item[3] for item in roofs)
@@ -454,7 +458,17 @@ def keep_subject(rgba):
     if n > 2:
         areas = stats[1:, cv2.CC_STAT_AREA]
         keep = 1 + int(np.argmax(areas))
-        subject = np.where(lab == keep, subject, 0).astype(np.uint8)
+        # A wheel that does not touch the body mask is its own component.
+        # Dropping it punches a hole through the arch. Wheels always stay.
+        kept = lab == keep
+        for i in range(1, n):
+            if i == keep:
+                continue
+            comp = lab == i
+            if wheels is not None and np.any(comp & (wheels > 0)):
+                kept |= comp
+        subject = np.where(kept, subject, 0).astype(np.uint8)
+    subject = np.maximum(subject, wheels)
     rad = max(10, int(round(w * 0.014)))
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (rad * 2 + 1, rad * 2 + 1))
     dil = cv2.dilate(subject, kernel)
@@ -757,8 +771,11 @@ def add_softbox(rgba, glass, paint):
     return out
 
 
-def choke(rgba, px=1):
-    """Eat 1 px of fringe. Leave a 1 px soft rim so the roof is not a staircase."""
+def choke(rgba, px=1, protect=None):
+    """Eat 1 px of fringe. Leave a 1 px soft rim so the roof is not a staircase.
+
+    Wheel pixels are copied back afterwards. The choke cannot open a wheel.
+    """
     alpha = rgba[:, :, 3]
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
     eroded = alpha
@@ -766,12 +783,18 @@ def choke(rgba, px=1):
         eroded = cv2.erode(eroded, kernel, iterations=1)
     out = rgba.copy()
     edge = (eroded > 20) & (cv2.erode((eroded > 20).astype(np.uint8), kernel, iterations=1) == 0)
+    if protect is not None:
+        edge = edge & ~protect
     if edge.any():
         painted = cv2.inpaint(out[:, :, :3], edge.astype(np.uint8) * 255, 2, cv2.INPAINT_TELEA)
         out[:, :, :3] = painted
     soft = cv2.GaussianBlur(eroded, (0, 0), 0.7)
     soft[alpha < 8] = 0
     soft[eroded > 220] = 255
+    if protect is not None:
+        keep = protect & (alpha > 40)
+        soft[keep] = alpha[keep]
+        out[keep, :3] = rgba[keep, :3]
     out[:, :, 3] = soft
     return out
 
@@ -845,13 +868,50 @@ def smooth_profiles(rgba):
     return out
 
 
+def wheel_labels(rgba, conf=0.25):
+    """Instance ids for every wheel the parts model sees. 0 is background."""
+    h, w = rgba.shape[:2]
+    labels = np.zeros((h, w), np.uint8)
+    layers = _part_layers(rgba[:, :, :3], rgba[:, :, 3], conf=conf)
+    n = 0
+    for name, conf_i, layer, y0, y1, x0, x1 in layers:
+        if "wheel" not in name:
+            continue
+        if int((layer > 0).sum()) < 80:
+            continue
+        n += 1
+        labels[layer > 0] = n
+    return labels, n
+
+
+def restore_wheels(rgba, original, labels):
+    """Put the original wheel pixels back. Cleanup is not allowed to eat them."""
+    if labels is None or not np.any(labels):
+        return rgba
+    guard = cv2.dilate((labels > 0).astype(np.uint8), np.ones((3, 3), np.uint8), iterations=1) > 0
+    guard &= original[:, :, 3] > 40
+    out = rgba.copy()
+    out[guard] = original[guard]
+    return out
+
+
 def prepare_matte(rgba):
-    """Subject-only matte, then a smooth lower edge and a bright-fringe cleanup."""
+    """Subject-only matte, then a smooth lower edge and a bright-fringe cleanup.
+
+    Wheel pixels are copied back from the cutout after every cleanup step.
+    """
+    labels, n_wheels = wheel_labels(rgba)
+    original = rgba.copy()
     rgba = keep_subject(rgba)
+    rgba = restore_wheels(rgba, original, labels)
     rgba = smooth_silhouette(rgba)
+    rgba = restore_wheels(rgba, original, labels)
     rgba = smooth_profiles(rgba)
+    rgba = restore_wheels(rgba, original, labels)
     rgba = defringe(rgba)
-    return rgba
+    rgba = restore_wheels(rgba, original, labels)
+    print("  wheels protected", n_wheels)
+    return rgba, labels
 
 
 def relight_cutout(rgba, wall_rgb, original=None, mask=None):
@@ -960,7 +1020,7 @@ def tire_contacts(alpha):
     return [(int(left[0]), int(left[1])), (int(right[0]), int(right[1]))]
 
 
-def _rotate_pair(rgba, side, angle):
+def _rotate_pair(rgba, side, angle, labels=None):
     rgba = np.asarray(
         Image.fromarray(rgba, "RGBA").rotate(
             angle, resample=Image.Resampling.BICUBIC, expand=True, fillcolor=(0, 0, 0, 0)
@@ -972,7 +1032,13 @@ def _rotate_pair(rgba, side, angle):
                 angle, resample=Image.Resampling.BICUBIC, expand=True, fillcolor=0
             )
         )
-    return rgba, side
+    if labels is not None:
+        labels = np.asarray(
+            Image.fromarray(labels, "L").rotate(
+                angle, resample=Image.Resampling.NEAREST, expand=True, fillcolor=0
+            )
+        )
+    return rgba, side, labels
 
 
 def wheel_contacts(rgba):
@@ -1011,7 +1077,7 @@ def contacts_of(rgba):
     return tire_contacts(rgba[:, :, 3]), "silhouette"
 
 
-def level_tires(rgba, side=None):
+def level_tires(rgba, side=None, labels=None):
     """Rotate so the two tyre contacts share a y. Wheel-mask bottoms win."""
     total = 0.0
     prev = 1e9
@@ -1026,13 +1092,13 @@ def level_tires(rgba, side=None):
         if abs(ang) < 0.2 or abs(ang) > abs(prev) + 0.15:
             break
         prev = ang
-        rgba, side = _rotate_pair(rgba, side, ang)
+        rgba, side, labels = _rotate_pair(rgba, side, ang, labels)
         total += ang
     contacts, source = contacts_of(rgba)
-    return rgba, total, contacts, source, side
+    return rgba, total, contacts, source, side, labels
 
 
-def clip_hanging_shadow(rgba, contacts):
+def clip_hanging_shadow(rgba, contacts, protect=None):
     alpha = rgba[:, :, 3]
     h, w = alpha.shape
     (x0, y0), (x1, y1) = contacts
@@ -1054,6 +1120,9 @@ def clip_hanging_shadow(rgba, contacts):
             yy += 1
         if yy + 1 < h:
             out[yy + 1 :, x, 3] = 0
+    if protect is not None:
+        keep = protect & (rgba[:, :, 3] > 40)
+        out[keep] = rgba[keep]
     return out
 
 
@@ -1073,29 +1142,35 @@ def _paste(canvas, image, left, top):
     return canvas
 
 
-def place(plate, car, ground_y, width_frac=0.88, extra=None):
+def place(plate, car, ground_y, width_frac=0.88, extra=None, labels=None):
     """Scale the car and put both tyre bottoms on ground_y.
 
-    `extra` is an optional mask (glass) that follows the same trim, rotate and scale.
+    `extra` is an optional mask (glass). `labels` are wheel instance ids.
+    Both follow the same trim, rotate and scale. Labels use nearest sampling.
     """
     h, w = plate.shape[:2]
     rgba = car
     alpha = rgba[:, :, 3]
+    empty_labels = np.zeros((h, w), np.uint8)
     ys, xs = np.where(alpha > 20)
     if len(ys) < 10:
         empty = np.zeros((h, w, 4), np.uint8)
         mask = np.zeros((h, w), bool)
-        return empty, [(0, h // 2), (w - 1, h // 2)], 0.0, "none", mask
+        return empty, [(0, h // 2), (w - 1, h // 2)], 0.0, "none", mask, empty_labels, 1.0, 0
     y0, y1 = int(ys.min()), int(ys.max())
     x0, x1 = int(xs.min()), int(xs.max())
     rgba = rgba[y0 : y1 + 1, x0 : x1 + 1]
     side = None
     if extra is not None:
         side = (extra[y0 : y1 + 1, x0 : x1 + 1].astype(np.uint8) * 255)
-    rgba, angle, contacts, source, side = level_tires(rgba, side)
-    rgba = clip_hanging_shadow(rgba, contacts)
+    lab = None
+    if labels is not None:
+        lab = labels[y0 : y1 + 1, x0 : x1 + 1].astype(np.uint8)
+    rgba, angle, contacts, source, side, lab = level_tires(rgba, side, lab)
+    rgba = clip_hanging_shadow(rgba, contacts, protect=(lab > 0) if lab is not None else None)
     contacts, source = contacts_of(rgba)
     ch, cw = rgba.shape[:2]
+    pre_area = int((rgba[:, :, 3] > 128).sum())
     scale = (w * width_frac) / float(cw)
     roof_limit = h * 0.15
     tire_y = float(np.mean([c[1] for c in contacts]))
@@ -1116,9 +1191,13 @@ def place(plate, car, ground_y, width_frac=0.88, extra=None):
     if side is not None:
         side_r = np.asarray(Image.fromarray(side, "L").resize((nw, nh), Image.Resampling.BILINEAR))
         mask = _paste(mask, side_r, left, top)
+    placed_labels = np.zeros((h, w), np.uint8)
+    if lab is not None:
+        lab_r = np.asarray(Image.fromarray(lab, "L").resize((nw, nh), Image.Resampling.NEAREST))
+        placed_labels = _paste(placed_labels, lab_r, left, top)
     placed = [(c[0] + left, c[1] + top) for c in contacts_s]
-    print("  contacts", source, [(round(c[0], 1), round(c[1], 1)) for c in placed])
-    return layer, placed, angle, source, mask > 40
+    print("  contacts", source, [(round(c[0], 1), round(c[1], 1)) for c in placed], "scale", round(scale, 3))
+    return layer, placed, angle, source, mask > 40, placed_labels, float(scale), pre_area
 
 
 def paint_shadows(plate, contacts, ellipse):
@@ -1281,7 +1360,7 @@ def finish_with_iclight(layer, placed_original, mask, ic_rgb):
 
 def composite_car(plate_rgb, ellipse, ground_y, cut_path, wall_rgb, debug_path=None, src_path=None, ic_rgb=None):
     fallback = np.asarray(Image.open(cut_path).convert("RGBA"))
-    car = prepare_matte(recut_biref(src_path, fallback))
+    car, _wheel_ids = prepare_matte(recut_biref(src_path, fallback))
     original = car.copy()
     mask = glass_mask(car[:, :, :3], car[:, :, 3])
     if debug_path:
@@ -1289,14 +1368,17 @@ def composite_car(plate_rgb, ellipse, ground_y, cut_path, wall_rgb, debug_path=N
         vis = car[:, :, :3].copy()
         vis[mask] = (0, 180, 255)
         Image.fromarray(vis, "RGB").save(debug_path, quality=85)
-    layer, contacts, angle, source, mask_l = place(plate_rgb, original, ground_y, extra=mask)
+    layer, contacts, angle, source, mask_l, _labels, _scale, _area = place(plate_rgb, original, ground_y, extra=mask)
     placed_original = layer.copy()
     if ic_rgb is not None:
         print("  ic-light low-frequency transfer")
         layer = finish_with_iclight(layer, placed_original, mask_l, ic_rgb)
+        layer = calm_dark_paint(layer)
     else:
         graded, _mask = relight_cutout(car, wall_rgb, original=original, mask=mask)
-        layer, contacts, angle, source, mask_l = place(plate_rgb, graded, ground_y, extra=mask)
+        layer, contacts, angle, source, mask_l, _labels, _scale, _area = place(
+            plate_rgb, graded, ground_y, extra=mask
+        )
     # Choke after the rotate and the resize, so the matte has no black fringe.
     layer = choke(layer, px=1)
     layer = cap_white(layer)
@@ -1332,6 +1414,333 @@ def prepare_plate(meta_plate, oidn):
     rgb = stroke_circle(rgb, meta_plate["ellipse"], width)
     wall = rgb[: int(h * 0.12), int(w * 0.2) : int(w * 0.8)].mean(axis=(0, 1))
     return rgb, wall
+
+
+def _predict_parts(rgb, conf):
+    h, w = rgb.shape[:2]
+    model = _parts_model()
+    res = model.predict(np.ascontiguousarray(rgb), conf=conf, imgsz=768, verbose=False, retina_masks=True)[0]
+    found = []
+    if res.masks is None or res.boxes is None:
+        return found
+    for i, cls in enumerate(res.boxes.cls.cpu().numpy().astype(int)):
+        name = str(model.names[int(cls)]).lower()
+        layer = _fill_poly(h, w, res.masks.xy[i])
+        x0, y0, x1, y1 = [float(v) for v in res.boxes.xyxy[i].cpu().numpy()]
+        found.append((name, float(res.boxes.conf[i]), layer, y0, y1, x0, x1))
+    return found
+
+
+def calm_dark_paint(rgba):
+    """On a black car, replace branch texture on the hood, the roof and the glass base.
+
+    Door-panel median decides. A white or grey car is left alone. The hood
+    becomes the door colour plus one soft streak, not a blur of the branches
+    (those branches are bright, so blurring them stays bright). One compact
+    emblem at the front of the hood can stay. The blend formula is unchanged.
+    """
+    alpha = rgba[:, :, 3]
+    rgb = rgba[:, :, :3].astype(np.float32)
+    if int((alpha > 160).sum()) < 500:
+        return rgba
+    layers = _part_layers(rgba[:, :, :3], alpha, conf=0.30)
+    doors = np.zeros(alpha.shape, np.uint8)
+    hood = np.zeros(alpha.shape, np.uint8)
+    roof = np.zeros(alpha.shape, np.uint8)
+    wind = np.zeros(alpha.shape, np.uint8)
+    glass = np.zeros(alpha.shape, np.uint8)
+    fender = np.zeros(alpha.shape, np.uint8)
+    wheels = np.zeros(alpha.shape, np.uint8)
+    lights = np.zeros(alpha.shape, np.uint8)
+    for name, conf, layer, y0b, y1b, x0b, x1b in layers:
+        if "door" in name:
+            doors = np.maximum(doors, layer)
+        elif name == "hood":
+            hood = np.maximum(hood, layer)
+        elif name == "roof":
+            roof = np.maximum(roof, layer)
+        elif "window" in name or "windshield" in name or "glass" in name:
+            glass = np.maximum(glass, layer)
+            if name == "windshield":
+                wind = np.maximum(wind, layer)
+        elif "fender" in name or "quarter" in name:
+            fender = np.maximum(fender, layer)
+        elif "wheel" in name:
+            wheels = np.maximum(wheels, layer)
+        elif "light" in name or "grille" in name:
+            lights = np.maximum(lights, layer)
+    dm = (doors > 0) & (alpha > 80)
+    if int(dm.sum()) < 400:
+        print("  dark paint skipped, no doors")
+        return rgba
+    door_med = float(np.median(rgb[dm].mean(axis=1)))
+    if door_med > 70.0:
+        print("  dark paint skipped, door median", round(door_med, 1))
+        return rgba
+    dark = dm & (rgb.mean(axis=2) <= door_med + 8.0)
+    if int(dark.sum()) < 200:
+        dark = dm
+    base = np.median(rgb[dark], axis=0).astype(np.float32)
+    print("  dark paint base", [round(float(c), 1) for c in base], "door med", round(door_med, 1))
+    h, w = alpha.shape
+    out = rgb.copy()
+    wheel_guard = cv2.dilate(wheels, np.ones((5, 5), np.uint8), iterations=1) > 0
+    paint = ((hood > 0) | (fender > 0)) & (alpha > 80) & ~wheel_guard
+    if paint.any():
+        ys, xs = np.where(paint)
+        hy0, hy1 = int(ys.min()), int(ys.max())
+        hx0, hx1 = int(xs.min()), int(xs.max())
+        t = np.clip((np.arange(h) - hy0) / max(1.0, float(hy1 - hy0)), 0, 1).astype(np.float32)
+        u = np.clip((np.arange(w) - hx0) / max(1.0, float(hx1 - hx0)), 0, 1).astype(np.float32)
+        streak = np.exp(-0.5 * ((t - 0.22) / 0.14) ** 2)[:, None] * np.exp(-0.5 * ((u - 0.50) / 0.40) ** 2)[None, :]
+        soft = base[None, None, :] + (1.0 - t)[:, None, None] * np.array([6.0, 6.0, 8.0])
+        soft = soft + streak[:, :, None] * np.array([48.0, 50.0, 56.0])
+        soft = np.clip(soft, 0, 120)
+        weight = cv2.GaussianBlur(paint.astype(np.float32), (0, 0), 2.2)
+        out = out * (1.0 - weight[:, :, None]) + soft * weight[:, :, None]
+        lum = rgb.mean(axis=2)
+        hm = (hood > 0) & (alpha > 80)
+        emblem = (hm & (lum > max(140.0, door_med + 80.0))).astype(np.uint8)
+        emblem = cv2.morphologyEx(emblem, cv2.MORPH_OPEN, np.ones((3, 3), np.uint8))
+        n, lab, stats, cents = cv2.connectedComponentsWithStats(emblem, 8)
+        hys, hxs = np.where(hm)
+        if len(hys):
+            eh0, eh1 = int(hys.min()), int(hys.max())
+            ex0, ex1 = int(hxs.min()), int(hxs.max())
+        else:
+            eh0, eh1, ex0, ex1 = hy0, hy1, hx0, hx1
+        target = np.array([0.5 * (ex0 + ex1), eh1 - 0.15 * max(1, eh1 - eh0)], np.float32)
+        reach = 0.42 * max(ex1 - ex0, eh1 - eh0)
+        best_i, best_d = -1, 1e9
+        for i in range(1, n):
+            area = int(stats[i, cv2.CC_STAT_AREA])
+            bw = int(stats[i, cv2.CC_STAT_WIDTH])
+            bh = int(stats[i, cv2.CC_STAT_HEIGHT])
+            if area < 40 or area > 2200:
+                continue
+            if max(bw, bh) > 3.2 * max(1, min(bw, bh)):
+                continue
+            dist = float(np.hypot(cents[i][0] - target[0], cents[i][1] - target[1]))
+            if dist < best_d:
+                best_d, best_i = dist, i
+        kept = 0
+        if best_i > 0 and best_d < reach:
+            keep = lab == best_i
+            out[keep] = rgb[keep]
+            kept = int(keep.sum())
+        print("  hood smoothed", int(paint.sum()), "emblem", kept)
+    # The metal above the glass, including a roof the parts model split into
+    # a bright blob and left the rest unclaimed.
+    roof_col = np.clip(base + np.array([10.0, 10.0, 12.0], np.float32), 0, 96)
+    crown = np.zeros(alpha.shape, np.uint8)
+    opaque = alpha > 80
+    glass_b = glass > 0
+    ys_car = np.where(opaque.any(axis=1))[0]
+    car_top, car_bot = 0, h - 1
+    if len(ys_car):
+        car_top = int(ys_car[0])
+        car_bot = int(ys_car[-1])
+        limit = car_top + int(0.22 * max(1, car_bot - car_top))
+        for x in range(w):
+            col = np.where(opaque[:, x])[0]
+            if len(col) == 0:
+                continue
+            y_top = int(col[0])
+            glass_ys = np.where(glass_b[:, x] & (np.arange(h) > y_top))[0]
+            y_stop = int(glass_ys[0]) - 2 if len(glass_ys) else limit
+            y_stop = min(y_stop, limit)
+            if y_stop > y_top:
+                crown[y_top:y_stop, x] = 1
+    # Roof-class pixels stay in even where a glass mask overlaps them. A bright
+    # cap above the belt is the stripy blob; dark window pixels are below 115.
+    lum_now = rgb.mean(axis=2)
+    span_c = max(1, car_bot - car_top)
+    rows = np.arange(h)[:, None]
+    # The strip above the C-pillar sits lower than the roof class and stays
+    # bright. Anything that bright on the upper body, other than lamps and
+    # glass, is the outdoor reflection.
+    chroma = rgb.max(axis=2) - rgb.min(axis=2)
+    bright_cap = (
+        opaque
+        & (rows < car_top + 0.62 * span_c)
+        & (lum_now > 145.0)
+        & (chroma < 70.0)
+        & (hood == 0)
+        & (glass == 0)
+        & (lights == 0)
+        & ~wheel_guard
+    )
+    crown = ((crown > 0) & (glass == 0)) | (((roof > 0) | bright_cap) & opaque)
+    crown &= alpha > 80
+    if crown.any():
+        weight = cv2.GaussianBlur(crown.astype(np.float32), (0, 0), 3.5)
+        weight[alpha < 80] = 0
+        out = out * (1.0 - weight[:, :, None]) + roof_col[None, None, :] * weight[:, :, None]
+        print("  roof cleared", int(crown.sum()))
+    if np.any(wind):
+        ys, xs = np.where((wind > 0) & (alpha > 40))
+        if len(ys) > 30:
+            wy0, wy1 = int(ys.min()), int(ys.max())
+            span = max(1, wy1 - wy0)
+            rows = np.arange(h)[:, None]
+            base_line = wy0 + 0.48 * span
+            base_m = (wind > 0) & (rows > base_line) & (alpha > 40)
+            t = np.clip((np.arange(h) - base_line) / max(8.0, wy1 - base_line), 0, 1).astype(np.float32)
+            col = np.zeros_like(rgb)
+            col[:] = np.array([22.0, 26.0, 34.0], np.float32)
+            col += t[:, None, None] * np.array([14.0, 16.0, 18.0], np.float32)
+            out[base_m] = np.clip(col, 0, 70)[base_m]
+            print("  windshield base cleared", int(base_m.sum()))
+    result = rgba.copy()
+    result[:, :, :3] = np.clip(out, 0, 255).astype(np.uint8)
+    return result
+
+
+def _iou(a, b):
+    inter = np.logical_and(a, b).sum()
+    union = np.logical_or(a, b).sum()
+    return float(inter) / float(max(1, union))
+
+
+def _hole_fraction(alpha, contacts):
+    solid = alpha > 40
+    h, w = solid.shape
+    bg = (~solid).astype(np.uint8)
+    ff = bg.copy()
+    flood = np.zeros((h + 2, w + 2), np.uint8)
+    cv2.floodFill(ff, flood, (0, 0), 2)
+    holes = ff == 1
+    if contacts is not None and len(contacts) >= 2:
+        x0 = min(contacts[0][0], contacts[1][0])
+        x1 = max(contacts[0][0], contacts[1][0])
+        y_c = min(contacts[0][1], contacts[1][1])
+        span = max(1.0, float(x1 - x0))
+        yy, xx = np.mgrid[0:h, 0:w]
+        under = (xx > x0 + 0.15 * span) & (xx < x1 - 0.15 * span) & (yy > y_c - int(0.22 * h)) & (yy < y_c + 8)
+        holes = holes & ~under
+    return float(holes.sum()) / float(max(1, int(solid.sum())))
+
+
+def _roof_stray(rgb, alpha, wall):
+    """Pixels above the car, under the wordmark, that are not the wall.
+
+    The roofline is the top of the subject alpha. Columns that only graze a
+    bumper are not the roof, and the turntable beside them is not a second car.
+    """
+    solid = alpha > 40
+    if not solid.any():
+        return 10**9
+    h, w = alpha.shape
+    # The roofline is the top of the car. Columns that only graze a bumper
+    # are not the roof, and the turntable beside them is not a second car.
+    tops = np.full(w, -1, np.int32)
+    for x in range(w):
+        ys = np.where(solid[:, x])[0]
+        if len(ys):
+            tops[x] = int(ys[0])
+    reached = tops >= 0
+    if int(reached.sum()) < 4:
+        return 10**9
+    roof_y = float(np.percentile(tops[reached], 12))
+    cols = np.where(reached & (tops <= roof_y + 28))[0]
+    if len(cols) < 4:
+        return 10**9
+    wall = np.asarray(wall, np.float32)
+    bad_y0, bad_y1, bad_x0, bad_x1 = h, 0, w, 0
+    bad = 0
+    for x in cols:
+        y_roof = int(tops[x])
+        y1 = y_roof - 8
+        if y1 <= 175:
+            continue
+        col = rgb[175:y1, x].astype(np.float32)
+        if col.size == 0:
+            continue
+        dev = np.abs(col - wall).sum(axis=1)
+        hit = np.where(dev > 36)[0]
+        if len(hit) == 0:
+            continue
+        bad += int(len(hit))
+        y_a, y_b = 175 + int(hit[0]), 175 + int(hit[-1])
+        bad_y0, bad_y1 = min(bad_y0, y_a), max(bad_y1, y_b)
+        bad_x0, bad_x1 = min(bad_x0, x), max(bad_x1, x)
+    if bad > 40:
+        sample = rgb[bad_y0, bad_x0].astype(int).tolist()
+        print("  roof stray", bad, "box", bad_x0, bad_y0, bad_x1, bad_y1, "sample", sample)
+    return bad
+
+
+def qa_frame(rgb, alpha, src_labels, pre_area, scale, wall, contacts):
+    """Gates that have to pass before a frame is a final."""
+    layers = _predict_parts(rgb, 0.25)
+    final = []
+    car = alpha > 40
+    for name, conf, layer, y0, y1, x0, x1 in layers:
+        if "wheel" not in name:
+            continue
+        m = layer > 0
+        if int(m.sum()) < 200:
+            continue
+        if int((m & car).sum()) < 0.35 * max(1, int(m.sum())):
+            continue
+        final.append(m)
+    # A bumper-corner false wheel, or the contact shadow, is much smaller
+    # than either real tyre. Drop those on both sides so the count is the
+    # real wheels. The same cut is applied to the source labels.
+    def _significant(masks):
+        if not masks:
+            return []
+        biggest = max(int(m.sum()) for m in masks)
+        return [m for m in masks if int(m.sum()) >= 0.40 * biggest]
+
+    final = _significant(final)
+    src_ids = []
+    src_masks = []
+    if src_labels is not None and int(src_labels.max()) > 0:
+        for i in range(1, int(src_labels.max()) + 1):
+            m = src_labels == i
+            if int(m.sum()) > 80:
+                src_ids.append(i)
+                src_masks.append(m)
+    keep_src = _significant(src_masks)
+    src_ids = [sid for sid, m in zip(src_ids, src_masks) if any(m is k for k in keep_src)]
+    ious = []
+    used = set()
+    for sid in src_ids:
+        sm = src_labels == sid
+        best, best_j = 0.0, -1
+        for j, fm in enumerate(final):
+            if j in used:
+                continue
+            val = _iou(sm, fm)
+            if val > best:
+                best, best_j = val, j
+        if best_j >= 0:
+            used.add(best_j)
+        ious.append(best)
+    wheels_ok = len(src_ids) > 0 and len(src_ids) == len(final) and len(ious) == len(src_ids) and min(ious) > 0.6
+    final_area = int((alpha > 128).sum())
+    expected = float(pre_area) * float(scale) * float(scale)
+    area_err = abs(final_area - expected) / max(1.0, expected)
+    area_ok = area_err <= 0.03
+    hole_frac = _hole_fraction(alpha, contacts)
+    holes_ok = hole_frac < 0.002
+    roof_bad = _roof_stray(rgb, alpha, wall)
+    roof_ok = roof_bad <= 40
+    passed = bool(wheels_ok and area_ok and holes_ok and roof_ok)
+    return {
+        "pass": passed,
+        "wheels": "PASS" if wheels_ok else "FAIL",
+        "n_src": len(src_ids),
+        "n_final": len(final),
+        "min_iou": min(ious) if ious else 0.0,
+        "area": "PASS" if area_ok else "FAIL",
+        "area_err": area_err,
+        "holes": "PASS" if holes_ok else "FAIL",
+        "hole_frac": hole_frac,
+        "roof": "PASS" if roof_ok else "FAIL",
+        "roof_bad": roof_bad,
+    }
 
 
 def main():
@@ -1370,7 +1779,7 @@ def main():
         ground_y = min(ground_y, ellipse["cy"] + ellipse["ry"] - plate.shape[0] * 0.055)
         print("stage", name, flush=True)
         fallback = np.asarray(Image.open(cut).convert("RGBA"))
-        car = prepare_matte(recut_biref(src_path, fallback))
+        car, wheel_ids = prepare_matte(recut_biref(src_path, fallback))
         original = car.copy()
         mask = glass_mask(car[:, :, :3], car[:, :, 3])
         debug = os.path.join(out_dir, "debug", f"{name}-glass.jpg")
@@ -1378,7 +1787,9 @@ def main():
         vis = car[:, :, :3].copy()
         vis[mask] = (0, 180, 255)
         Image.fromarray(vis, "RGB").save(debug, quality=85)
-        layer, contacts, angle, source, mask_l = place(plate, original, ground_y, extra=mask)
+        layer, contacts, angle, source, mask_l, placed_labels, scale, pre_area = place(
+            plate, original, ground_y, extra=mask, labels=wheel_ids
+        )
         staged.append(
             {
                 "name": name,
@@ -1394,6 +1805,10 @@ def main():
                 "angle": angle,
                 "source": source,
                 "mask_l": mask_l,
+                "labels": placed_labels,
+                "scale": scale,
+                "pre_area": pre_area,
+                "wheel_ids": wheel_ids,
             }
         )
     release_models()
@@ -1410,6 +1825,9 @@ def main():
     for item in staged:
         name = item["name"]
         ic = ic_map.get(name)
+        labels = item["labels"]
+        scale = item["scale"]
+        pre_area = item["pre_area"]
         if ic is not None:
             print("finish", name, "ic-light", flush=True)
             layer = finish_with_iclight(item["layer"], item["layer"], item["mask_l"], ic)
@@ -1417,23 +1835,30 @@ def main():
         else:
             print("finish", name, "procedural fallback", flush=True)
             graded, _mask = relight_cutout(item["car"], item["wall"], original=item["original"], mask=item["mask"])
-            layer, contacts, angle, _source, _mask_l = place(
-                item["plate"], graded, item["ground_y"], extra=item["mask"]
+            layer, contacts, angle, _source, _mask_l, labels, scale, pre_area = place(
+                item["plate"], graded, item["ground_y"], extra=item["mask"], labels=item["wheel_ids"]
             )
-        layer = choke(layer, px=1)
+        layer = calm_dark_paint(layer)
+        layer = choke(layer, px=1, protect=(labels > 0) if labels is not None else None)
         layer = cap_white(layer)
         out = paint_shadows(item["plate"], contacts, item["ellipse"])
         out = add_reflection(out, layer, contacts, item["ellipse"])
         merged = np.asarray(
             Image.alpha_composite(Image.fromarray(out, "RGB").convert("RGBA"), Image.fromarray(layer, "RGBA")).convert("RGB")
         )
+        qa = qa_frame(merged, layer[:, :, 3], labels, pre_area, scale, item["wall"], contacts)
         merged = add_mark(merged)
-        path = os.path.join(out_dir, f"{name}.jpg")
+        tag = "PASS" if qa["pass"] else "FAIL"
+        path = os.path.join(out_dir, f"{name}.jpg" if qa["pass"] else f"{name}-FAIL.jpg")
+        other = os.path.join(out_dir, f"{name}-FAIL.jpg" if qa["pass"] else f"{name}.jpg")
+        if os.path.isfile(other):
+            os.remove(other)
         Image.fromarray(merged, "RGB").save(path, "JPEG", quality=92, subsampling=1)
         h, w = merged.shape[:2]
         print(
             "wrote",
             path,
+            tag,
             merged.shape,
             "tires",
             [(round(c[0] / w, 3), round(c[1] / h, 3)) for c in contacts],
@@ -1448,8 +1873,28 @@ def main():
             "wall",
             [round(float(c), 1) for c in item["wall"]],
         )
-        results.append(path)
+        qa["name"] = name
+        qa["path"] = path
+        results.append(qa)
+    _write_qa(out_dir, results)
     return results
+
+
+def _write_qa(out_dir, rows):
+    """PASS/FAIL per car. A failed frame is not described as a final."""
+    header = f"{'car':<14} {'wheels':<6} {'n':<7} {'minIoU':>7} {'area':<6} {'err':>7} {'holes':<6} {'frac':>8} {'roof':<6} {'bad':>6} {'RESULT'}"
+    lines = [header, "-" * len(header)]
+    for qa in rows:
+        n = f"{qa['n_src']}/{qa['n_final']}"
+        lines.append(
+            f"{qa['name']:<14} {qa['wheels']:<6} {n:<7} {qa['min_iou']:7.3f} {qa['area']:<6} {qa['area_err']:7.3f} "
+            f"{qa['holes']:<6} {qa['hole_frac']:8.4f} {qa['roof']:<6} {qa['roof_bad']:6} {('PASS' if qa['pass'] else 'FAIL')}"
+        )
+    text = "\n".join(lines) + "\n"
+    path = os.path.join(out_dir, "qa-table.txt")
+    with open(path, "w") as handle:
+        handle.write(text)
+    print("\nQA\n" + text + "wrote " + path, flush=True)
 
 
 if __name__ == "__main__":
