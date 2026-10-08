@@ -28,9 +28,10 @@ function sha(s) {
 must(/Snow Signal Lot Desk CUTTING-EDGE STRUCTURAL FULL STORE/, "stamp names Snow Signal structural expansion");
 must(/Quiet Studio STRUCTURAL FULL STORE/, "stamp still names the superseded Quiet Studio overlay");
 must(/#F7F8FA/, "snow canvas token");
-must(/#2F5B8A/, "steel accent token");
+must(/#C8081B/, "G&M red accent token");
+must(/#thanks #thanksSendReceipt\{background:#2F5B8A!important/, "frozen thank-you send stays steel");
 must(/--qs-canvas:#F7F8FA/, "QS canvas variable remapped to snow");
-must(/--qs-accent:#2F5B8A/, "QS accent variable remapped to steel");
+must(/--qs-accent:#C8081B/, "QS accent variable is G&M red");
 mustNot(/--qs-canvas:#F5F3ED/, "Paper Desk cream is not the canvas");
 mustNot(/--qs-accent:#3D5A4C/, "Quiet Studio sage is not the accent");
 

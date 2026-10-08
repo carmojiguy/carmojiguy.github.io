@@ -41,7 +41,7 @@ must(/#users \.users-kicker,#userSheet \.users-kicker,#userAddSheet \.users-kick
 must(/#users \.perm-tog\.on,\.perm-tog\.on\{background:var\(--qs-accent-soft\)/, "section toggles On are wash");
 must(/\.team-pick-btn\.on,\.role-tog button\.on\{background:var\(--qs-accent-soft\)/, "team/role picks On are wash");
 must(/const hue="#12141A";/, "person avatars are ink, not rainbow");
-must(/\.person-ava \{[\s\S]{0,220}background:#2F5B8A/, "avatar fallback first-block paint remapped off sage");
+must(/\.person-ava \{[\s\S]{0,220}background:#C8081B/, "avatar fallback first-block paint remapped off sage");
 mustNot(/#users \{ background:linear-gradient\(180deg,#FFF8E8/, "Users muddy cream gradient is gone");
 mustNot(/#users \{[\s\S]{0,80}background:#F5F3ED/, "Users Paper Desk cream is gone");
 mustNot(/#users \.users-kicker[\s\S]{0,80}color:#E08A00/, "Users orange kicker is gone");

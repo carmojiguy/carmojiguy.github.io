@@ -64,8 +64,13 @@ mustNot(/--home-slate:#3E5C54/, "Paper Desk slate token is gone");
 mustNot(/--home-terra:#B45C3C/, "Paper Desk terracotta token is gone");
 
 must(/--qs-canvas:#F7F8FA/, "home canvas is Snow Signal snow");
+must(/--qs-ink:#12141A/, "ink stays Snow Signal");
+must(/--qs-accent-soft:#E8F0F7/, "wash stays light");
+must(/--qs-accent-fg:#FFFFFF/, "accent buttons keep white text");
+must(/class="gm-logo" src="\/icons\/gm-logo\.png/, "G&M wordmark is in the header");
+must(/--qs-accent:#C8081B/, "accent is G&M red");
 must(/#start \.start-bg,#start \.start-veil\{[\s\S]{0,80}opacity:1!important/, "staff Home shows the faded car-hero");
-must(/\.start-actions \.pill\.purple \{ background:#2F5B8A/, "Appraise is steel, not loud purple");
+must(/\.start-actions \.pill\.purple \{ background:#C8081B/, "Appraise is G&M red, not loud purple");
 must(/#startAppraise \{ top:auto/, "mobile Appraise is in the action card, not over a car");
 must(/#startWebsite \{ bottom:auto/, "mobile Website is in the action card, not over a car");
 must(/z-index:24/, "dock still layers");
@@ -85,7 +90,7 @@ must(/class="pill cyan" type="button" id="btnGuest"/, "guest CTA keeps its click
 must(/\.login-hero \{[\s\S]{0,80}left:8%; right:auto; top:50%/, "desktop login hero stays cinematic");
 must(/\.login-card \{[\s\S]{0,80}left:auto; right:7%; bottom:auto; top:50%/, "desktop login card stays on the right");
 
-must(/#login #btnGoogle,#login \.gbtn\{[\s\S]{0,120}background:#2F5B8A/, "Google is steel primary");
+must(/#login #btnGoogle,#login \.gbtn\{[\s\S]{0,120}background:#C8081B/, "Google is G&M red primary");
 must(/id="btnGoogle"/, "Google staff login stays");
 must(/function enterStaff\(/, "staff email login stays");
 must(/const STAFF_PASS="dietcoke"/, "staff password login stays");
