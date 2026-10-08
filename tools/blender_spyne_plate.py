@@ -273,10 +273,12 @@ def main():
     scene = bpy.context.scene
     scene.render.engine = "CYCLES"
     scene.cycles.device = "CPU"
-    # This Blender build has no OpenImageDenoise. Samples stay modest;
-    # the composite blurs the floor a hair if the plate is still grainy.
-    scene.cycles.samples = 24 if PREVIEW else 48
+    # Ubuntu's Blender 4.0.2 is built without OpenImageDenoise. 160 samples
+    # (adaptive sampling off) plus a standalone OIDN pass in spyne_composite
+    # is what flattens the floor. Do not turn use_denoising on here.
+    scene.cycles.samples = 16 if PREVIEW else 160
     scene.cycles.use_denoising = False
+    scene.cycles.use_adaptive_sampling = False
     scene.view_settings.view_transform = "Standard"
     scene.view_settings.look = "None"
     scene.view_settings.exposure = 0.0
@@ -286,9 +288,6 @@ def main():
     scene.render.resolution_percentage = 100
     scene.render.image_settings.file_format = "PNG"
     scene.render.film_transparent = False
-    scene.cycles.use_adaptive_sampling = True
-    if not PREVIEW:
-        scene.cycles.adaptive_threshold = 0.02
 
     build_cyclorama()
     build_turntable()

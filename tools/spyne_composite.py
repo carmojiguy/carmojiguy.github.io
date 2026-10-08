@@ -1,23 +1,26 @@
 #!/usr/bin/env python3
 """Composite a BiRefNet cutout onto a Cycles turntable plate.
 
-This is the free, off-phone half of the studio pipeline. It does not touch
-the live app. Plates come from tools/blender_spyne_plate.py.
+Proof only. It does not touch the live app and it does not call a paid API.
 
-What it does, in order:
-  - smooth the plate (this Blender build cannot denoise)
-  - draw one constant-width turntable circle (a physical tube cannot stay
-    thin at both the near and far edge)
-  - seat the tyres on the projected ground line
-  - cut off mask that hangs well below the tyres (lot shadow)
-  - contact shadow and a short ambient occlusion at each tyre
-  - a flipped, squashed, Fresnel-faded reflection clipped to the disc
-  - dark neutral glass only inside real window holes
+Order:
+  - denoise the plate with standalone OIDN when the binary is present
+  - draw one constant-width turntable circle
+  - rotate the cutout so the two tyre contacts are level
+  - neutralise white balance to the studio wall and lift to high-key
+  - replace window glass (holes and opaque outdoor glass) with a dark
+    studio gradient and a softbox highlight
+  - lay a broad softbox band on the upper body and the hood
+  - choke the silhouette by 1 px and kill the fringe
+  - tight contact shadow per tyre, plus a wider body occlusion
+  - a mirrored, faded reflection of the whole lower car, clipped to the disc
   - a small G&M wordmark
 """
 import importlib.util
 import json
 import os
+import shutil
+import subprocess
 import sys
 
 import cv2
@@ -25,6 +28,11 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+OIDN_CANDIDATES = [
+    os.environ.get("OIDN_BIN", ""),
+    "/tmp/oidn/oidn-2.3.3.x86_64.linux/bin/oidnDenoise",
+    "oidnDenoise",
+]
 
 
 def load_wordmark():
@@ -38,9 +46,62 @@ def load_wordmark():
 wordmark = load_wordmark()
 
 
-def smooth_plate(rgb):
-    """Kill Cycles fireflies without smearing the cove."""
-    return cv2.bilateralFilter(rgb, d=7, sigmaColor=18, sigmaSpace=7)
+def find_oidn():
+    for cand in OIDN_CANDIDATES:
+        if not cand:
+            continue
+        if os.path.isfile(cand) and os.access(cand, os.X_OK):
+            return cand
+        found = shutil.which(cand)
+        if found:
+            return found
+    return None
+
+
+def write_pfm(path, rgb):
+    img = rgb.astype(np.float32)
+    if img.max() > 1.5:
+        img = img / 255.0
+    h, w = img.shape[:2]
+    with open(path, "wb") as f:
+        f.write(b"PF\n")
+        f.write(f"{w} {h}\n".encode())
+        f.write(b"-1.0\n")
+        f.write(np.ascontiguousarray(np.flipud(img), dtype="<f4").tobytes())
+
+
+def read_pfm(path):
+    with open(path, "rb") as f:
+        magic = f.readline().decode().strip()
+        if magic != "PF":
+            raise ValueError("expected PF, got " + magic)
+        wh = f.readline().decode().split()
+        w, h = int(wh[0]), int(wh[1])
+        scale = float(f.readline().decode().strip())
+        endian = "<f4" if scale < 0 else ">f4"
+        data = np.frombuffer(f.read(), dtype=endian).copy()
+    img = data.reshape((h, w, 3))
+    return np.flipud(img)
+
+
+def oidn_rgb(rgb, oidn):
+    """LDR sRGB denoise. Returns uint8 RGB."""
+    src = "/tmp/gm-oidn-in.pfm"
+    dst = "/tmp/gm-oidn-out.pfm"
+    write_pfm(src, rgb)
+    cmd = [oidn, "--ldr", src, "--srgb", "-q", "high", "-o", dst]
+    subprocess.check_call(cmd, stdout=subprocess.DEVNULL)
+    out = read_pfm(dst)
+    return np.clip(out * 255.0, 0, 255).astype(np.uint8)
+
+
+def smooth_plate(rgb, oidn):
+    if oidn:
+        try:
+            return oidn_rgb(rgb, oidn)
+        except Exception as exc:
+            print("oidn failed", exc)
+    return cv2.bilateralFilter(rgb, d=7, sigmaColor=12, sigmaSpace=7)
 
 
 def stroke_circle(rgb, ellipse, width):
@@ -59,7 +120,6 @@ def ellipse_mask(h, w, ellipse, grow=1.0):
 
 
 def exterior_mask(alpha):
-    """True outside the car. Window holes stay False."""
     holes = (alpha < 12).astype(np.uint8)
     flood = holes.copy()
     ff = np.zeros((holes.shape[0] + 2, holes.shape[1] + 2), np.uint8)
@@ -67,61 +127,222 @@ def exterior_mask(alpha):
     return flood == 2
 
 
-def fill_glass(rgba):
-    """Dark neutral studio glass, only where the cutout actually has a hole."""
+def bbox_of(mask):
+    ys, xs = np.where(mask)
+    if len(ys) == 0:
+        return None
+    return int(ys.min()), int(ys.max()), int(xs.min()), int(xs.max())
+
+
+def paint_color(rgb, alpha):
+    """Median door colour. Skips the cabin, the tyres, and saturated lamps."""
+    opaque = alpha > 180
+    box = bbox_of(opaque)
+    if box is None:
+        return None
+    y0, y1, x0, x1 = box
+    span_y = max(1, y1 - y0)
+    span_x = max(1, x1 - x0)
+    band = np.zeros(opaque.shape, bool)
+    band[y0 + int(span_y * 0.50) : y0 + int(span_y * 0.78), x0 + int(span_x * 0.12) : x1 - int(span_x * 0.12)] = True
+    m = opaque & band
+    if m.sum() < 40:
+        m = opaque
+    pix = rgb[m].astype(np.float32)
+    lum = pix.mean(1)
+    chroma = pix.max(1) - pix.min(1)
+    keep = (lum >= np.percentile(lum, 30)) & (chroma <= np.percentile(chroma, 75) + 6)
+    if keep.sum() < 30:
+        keep = np.ones(len(pix), bool)
+    return np.median(pix[keep], axis=0)
+
+
+def studio_grade(rgba, wall_rgb):
+    """Match highlight chromaticity to the wall, then lift and compress."""
     rgb = rgba[:, :, :3].astype(np.float32)
     alpha = rgba[:, :, 3]
-    outside = exterior_mask(alpha)
-    # Enclosed holes, plus the soft partial alpha BiRefNet leaves on glass.
-    # Glass is the upper cabin only. Low holes are grilles and wheel gaps.
-    body = np.where(alpha > 80)
-    if len(body[0]) == 0:
+    m = alpha > 180
+    if m.sum() < 50:
         return rgba
-    y_top, y_bot = int(body[0].min()), int(body[0].max())
-    cabin = np.zeros(alpha.shape, dtype=bool)
-    cabin[: y_top + int((y_bot - y_top) * 0.52), :] = True
-    hole = (alpha < 80) & ~outside & cabin
-    soft = (alpha >= 80) & (alpha < 160) & ~outside & cabin
-    if not hole.any() and not soft.any():
+    pix = rgb[m]
+    lum = pix.mean(1)
+    chroma = pix.max(1) - pix.min(1)
+    hi = (lum >= np.percentile(lum, 72)) & (chroma < 36)
+    if hi.sum() < 25:
+        hi = lum >= np.percentile(lum, 82)
+    illum = np.maximum(np.median(pix[hi], axis=0), 1.0)
+    wall = np.asarray(wall_rgb, np.float32)
+    target = wall / max(1.0, float(wall.mean())) * float(illum.mean())
+    gain = np.clip(target / illum, 0.72, 1.40)
+    rgb = rgb * gain
+    y = np.clip(rgb / 255.0, 0, 1.6)
+    shadow = np.clip(1.0 - y * 1.7, 0, 1)
+    y = y + shadow * 0.065
+    over = np.maximum(y - 0.78, 0)
+    y = y / (1.0 + 0.35 * over)
+    y = np.power(np.clip(y, 0, 1), 0.92)
+    # Light paint still reads darker than the high-key wall. Lift it,
+    # with a shoulder so the brightest panels do not clip to a flat white.
+    p90 = float(np.percentile(y[m], 90))
+    if p90 > 0.60:
+        gain = float(np.clip(0.90 / p90, 1.0, 1.20))
+        y = np.clip(y * gain, 0, 1)
+        shoulder = np.maximum(y - 0.90, 0)
+        y = y - shoulder * 0.40
+    out = rgba.copy()
+    out[:, :, :3] = np.clip(y * 255.0, 0, 255).astype(np.uint8)
+    return out
+
+
+def glass_mask(rgb, alpha):
+    """Cabin glass, including opaque glass that still shows trees or sky."""
+    opaque = alpha > 140
+    box = bbox_of(opaque)
+    if box is None:
+        return np.zeros(alpha.shape, bool), None
+    y0, y1, x0, x1 = box
+    span_y = max(1, y1 - y0)
+    span_x = max(1, x1 - x0)
+    paint = paint_color(rgb, alpha)
+    if paint is None:
+        return np.zeros(alpha.shape, bool), None
+    cabin = np.zeros(alpha.shape, bool)
+    # Stop above the hood. A deeper cabin paints sky reflections on the bonnet as glass.
+    cabin[y0 : y0 + int(span_y * 0.47), x0 + int(span_x * 0.03) : x1 - int(span_x * 0.03)] = True
+    pix = rgb.astype(np.float32)
+    lum = pix.mean(axis=2)
+    dist = np.linalg.norm(pix - paint, axis=2)
+    lum_dist = np.abs(lum - float(paint.mean()))
+    cool = ((pix[:, :, 1] + pix[:, :, 2]) * 0.5 - pix[:, :, 0]) > 4.0
+    brighter = lum > float(paint.mean()) + 26.0
+    darker = lum + 28.0 < float(paint.mean())
+    outside = exterior_mask(alpha)
+    holes = (alpha < 80) & ~outside & cabin
+    not_paint = opaque & cabin & ((dist > 22.0) | (lum_dist > 34.0)) & (cool | brighter | darker)
+    candidate = holes | not_paint
+    n, labels, stats, cents = cv2.connectedComponentsWithStats(candidate.astype(np.uint8), 8)
+    car_area = max(1, int(opaque.sum()))
+    mask = np.zeros(alpha.shape, bool)
+    for i in range(1, n):
+        area = int(stats[i, cv2.CC_STAT_AREA])
+        cy = float(cents[i][1])
+        if area < car_area * 0.008:
+            continue
+        if cy > y0 + span_y * 0.45:
+            continue
+        mask[labels == i] = True
+    if mask.any():
+        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
+        closed = cv2.morphologyEx(mask.astype(np.uint8) * 255, cv2.MORPH_CLOSE, kernel)
+        closed = cv2.dilate(closed, np.ones((3, 3), np.uint8), iterations=1)
+        mask = (closed > 0) & (alpha > 0) & ~outside
+        # The grille and the bumper are dark and neutral. They are not glass.
+        yy = np.arange(alpha.shape[0])[:, None]
+        lower = yy > (y0 + span_y * 0.48)
+        dark_neutral = (lum < 48.0) & (dist < 16.0)
+        mask &= ~(lower & dark_neutral)
+    return mask, paint
+
+
+def paint_glass(rgba, mask):
+    if not mask.any():
         return rgba
     h, w = rgba.shape[:2]
-    yy = np.linspace(0, 1, h, dtype=np.float32)[:, None, None]
-    # Spyne keeps the glass dark and neutral, a little lighter toward the beltline.
-    top = np.array([28, 32, 38], np.float32)
-    bot = np.array([58, 62, 68], np.float32)
-    grad = np.broadcast_to(top * (1 - yy) + bot * yy, (h, w, 3))
+    ys, xs = np.where(mask)
+    y0, y1 = int(ys.min()), int(ys.max())
+    x0, x1 = int(xs.min()), int(xs.max())
+    yy, xx = np.mgrid[0:h, 0:w]
+    t = (yy - y0) / max(1, y1 - y0)
+    top = np.array([14, 18, 24], np.float32)
+    bot = np.array([36, 42, 50], np.float32)
+    col = top * (1.0 - t[:, :, None]) + bot * t[:, :, None]
+    cy = y0 + (y1 - y0) * 0.28
+    cx = (x0 + x1) * 0.5
+    sy = max(6.0, (y1 - y0) * 0.16)
+    sx = max(8.0, (x1 - x0) * 0.28)
+    blob = np.exp(-0.5 * (((yy - cy) / sy) ** 2 + ((xx - cx) / sx) ** 2))
+    col = col + blob[:, :, None] * np.array([48, 54, 62], np.float32)
     out = rgba.copy()
-    if hole.any():
-        out[:, :, :3][hole] = grad[hole]
-        out[:, :, 3][hole] = 230
-    if soft.any():
-        a = (alpha[soft].astype(np.float32) / 255.0)[:, None]
-        mixed = rgb[soft] * a + grad[soft] * (1 - a)
-        out[:, :, :3][soft] = np.clip(mixed, 0, 255)
-        out[:, :, 3][soft] = np.maximum(alpha[soft], 200)
+    out[:, :, :3][mask] = np.clip(col[mask], 0, 255).astype(np.uint8)
+    out[:, :, 3][mask] = np.maximum(rgba[:, :, 3][mask], 235)
     return out
 
 
-def defringe(rgba):
-    """Pull the dark lot-edge colour off the silhouette."""
-    rgb = rgba[:, :, :3].copy()
-    alpha = rgba[:, :, 3]
-    edge = (alpha > 20) & (alpha < 250)
-    if not edge.any():
+def kill_outdoor_cast(rgba, paint, glass):
+    """Pull green/blue outdoor reflections on the paint back to the body colour."""
+    if paint is None:
         return rgba
-    # Interior colour, blurred, replaces the fringe.
-    interior = (alpha > 220).astype(np.uint8) * 255
-    color = cv2.inpaint(rgb, (edge.astype(np.uint8) * 255), 3, cv2.INPAINT_TELEA)
+    rgb = rgba[:, :, :3].astype(np.float32)
+    alpha = rgba[:, :, 3]
+    lum = rgb.mean(axis=2, keepdims=True)
+    ratio = paint / max(1.0, float(paint.mean()))
+    neutral = lum * ratio
+    chroma = rgb - lum
+    paint_c = paint - float(paint.mean())
+    dist = np.linalg.norm(chroma - paint_c, axis=2)
+    cool = ((rgb[:, :, 1] + rgb[:, :, 2]) * 0.5 - rgb[:, :, 0]) > 6.0
+    w = np.clip((dist - 8.0) / 16.0, 0, 1)
+    body = (alpha > 150) & ~glass & cool
+    w = w * body
+    mixed = rgb * (1.0 - w[:, :, None]) + neutral * w[:, :, None]
     out = rgba.copy()
-    out[:, :, :3][edge] = color[edge]
-    # Shave one pixel of half-alpha so a grey halo does not survive.
-    kernel = np.ones((3, 3), np.uint8)
-    shaved = cv2.erode(alpha, kernel, iterations=1)
-    out[:, :, 3] = np.where(alpha < 250, np.minimum(alpha, shaved), alpha)
+    out[:, :, :3] = np.clip(mixed, 0, 255).astype(np.uint8)
     return out
 
 
-def bottom_profile(alpha, thresh=150):
+def add_softbox(rgba, glass, paint):
+    rgb = rgba[:, :, :3].astype(np.float32)
+    alpha = rgba[:, :, 3]
+    body = (alpha > 150) & ~glass
+    box = bbox_of(body)
+    if box is None:
+        return rgba
+    y0, y1, x0, x1 = box
+    span = max(1, y1 - y0)
+    yy = np.arange(rgba.shape[0])[:, None]
+    t = (yy - y0) / float(span)
+    shoulder = np.exp(-0.5 * ((t - 0.20) / 0.075) ** 2)
+    hood = np.exp(-0.5 * ((t - 0.40) / 0.11) ** 2)
+    paint_lum = 160.0 if paint is None else float(np.mean(paint))
+    # White paint needs a few levels to read; dark paint needs more.
+    gain = 16.0 + (1.0 - paint_lum / 255.0) * 28.0
+    add = gain * (0.70 * shoulder + 0.45 * hood)
+    add = add * body
+    rgb = rgb + add[:, :, None]
+    out = rgba.copy()
+    out[:, :, :3] = np.clip(rgb, 0, 255).astype(np.uint8)
+    return out
+
+
+def choke(rgba, px=1):
+    """Eat 1 px of silhouette and repaint that edge from the interior."""
+    alpha = rgba[:, :, 3]
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
+    eroded = alpha
+    for _ in range(max(1, px)):
+        eroded = cv2.erode(eroded, kernel, iterations=1)
+    out = rgba.copy()
+    edge = (eroded > 20) & (cv2.erode((eroded > 20).astype(np.uint8), kernel, iterations=1) == 0)
+    if edge.any():
+        painted = cv2.inpaint(out[:, :, :3], edge.astype(np.uint8) * 255, 2, cv2.INPAINT_TELEA)
+        out[:, :, :3] = painted
+    # Hard matte. A partial-alpha rim is the halo.
+    out[:, :, 3] = np.where(eroded > 20, 255, 0).astype(np.uint8)
+    return out
+
+
+def relight_cutout(rgba, wall_rgb):
+    graded = studio_grade(rgba, wall_rgb)
+    rgb = graded[:, :, :3]
+    alpha = graded[:, :, 3]
+    mask, paint = glass_mask(rgb, alpha)
+    graded = kill_outdoor_cast(graded, paint, mask)
+    graded = paint_glass(graded, mask)
+    graded = add_softbox(graded, mask, paint)
+    return graded, mask
+
+
+def bottom_profile(alpha, thresh=128):
     h, w = alpha.shape
     bottom = np.full(w, -1, np.int32)
     cols = np.where(alpha.max(axis=0) > thresh)[0]
@@ -132,34 +353,87 @@ def bottom_profile(alpha, thresh=150):
     return bottom
 
 
-def tire_contacts(alpha):
-    """Left and right tyre bottoms. The centre bumper is allowed to hang lower."""
-    bottom = bottom_profile(alpha)
+def _valley_peaks(bottom, min_dist, prom=10):
+    """Local low points of the silhouette (high y), with a real dip on both sides."""
+    w = len(bottom)
     xs = np.where(bottom >= 0)[0]
-    if len(xs) < 20:
+    if len(xs) < 10:
+        return []
+    filled = np.interp(np.arange(w), xs, bottom[xs].astype(np.float32))
+    smooth = np.convolve(filled, np.ones(9) / 9.0, mode="same")
+    found = []
+    for i in range(14, w - 14):
+        if not (smooth[i] >= smooth[i - 1] and smooth[i] >= smooth[i + 1]):
+            continue
+        left = smooth[max(0, i - 110) : i]
+        right = smooth[i + 1 : i + 111]
+        if len(left) < 5 or len(right) < 5:
+            continue
+        prominence = min(float(smooth[i] - left.min()), float(smooth[i] - right.min()))
+        if prominence < prom:
+            continue
+        y = int(bottom[i]) if bottom[i] >= 0 else int(smooth[i])
+        found.append([i, y, prominence])
+    found.sort(key=lambda item: -item[2])
+    kept = []
+    for peak in found:
+        if all(abs(peak[0] - other[0]) >= min_dist for other in kept):
+            kept.append(peak)
+    kept.sort()
+    return kept
+
+
+def tire_contacts(alpha):
+    """Left and right tyre bottoms.
+
+    Valleys closer than a quarter of the car are the same wheel or a bumper
+    lip. Keep the lower of those, then use the outer pair.
+    """
+    bottom = bottom_profile(alpha, thresh=80)
+    w = len(bottom)
+    peaks = _valley_peaks(bottom, max(24, int(w * 0.18)), prom=10)
+    if len(peaks) < 2:
+        xs = np.where(bottom >= 0)[0]
+        if len(xs) < 8:
+            return [(0, alpha.shape[0] // 2), (w - 1, alpha.shape[0] // 2)]
         return [(int(xs[0]), int(bottom[xs[0]])), (int(xs[-1]), int(bottom[xs[-1]]))]
-    x0, x1 = int(xs[0]), int(xs[-1])
-    span = max(1, x1 - x0)
+    merged = []
+    for peak in peaks:
+        if merged and abs(peak[0] - merged[-1][0]) < w * 0.24:
+            if peak[1] > merged[-1][1]:
+                merged[-1] = peak
+        else:
+            merged.append(peak)
+    if len(merged) < 2:
+        merged = peaks
+    left, right = merged[0], merged[-1]
+    return [(int(left[0]), int(left[1])), (int(right[0]), int(right[1]))]
 
-    def lowest_in(a, b):
-        lo, hi = x0 + int(span * a), x0 + int(span * b)
-        seg = np.arange(lo, hi)
-        seg = seg[(seg >= 0) & (seg < len(bottom)) & (bottom[seg] >= 0)]
-        if len(seg) == 0:
-            return None
-        i = seg[np.argmax(bottom[seg])]
-        return int(i), int(bottom[i])
 
-    left = lowest_in(0.10, 0.32)
-    right = lowest_in(0.68, 0.90)
-    if left is None or right is None:
-        left = (int(xs[len(xs) // 5]), int(bottom[xs[len(xs) // 5]]))
-        right = (int(xs[4 * len(xs) // 5]), int(bottom[xs[4 * len(xs) // 5]]))
-    return [left, right]
+def level_tires(rgba):
+    """Rotate so the two tyre contacts share a y. PIL's positive angle is the
+    direction that lifts a low right-hand tyre (measured, not assumed)."""
+    total = 0.0
+    prev = 1e9
+    for _ in range(3):
+        (x0, y0), (x1, y1) = tire_contacts(rgba[:, :, 3])
+        dx = float(x1 - x0)
+        if abs(dx) < 8:
+            break
+        ang = float(np.degrees(np.arctan2(y1 - y0, dx)))
+        if abs(ang) < 0.2 or abs(ang) > abs(prev) + 0.15:
+            break
+        prev = ang
+        rgba = np.asarray(
+            Image.fromarray(rgba, "RGBA").rotate(
+                ang, resample=Image.Resampling.BICUBIC, expand=True, fillcolor=(0, 0, 0, 0)
+            )
+        )
+        total += ang
+    return rgba, total
 
 
 def clip_hanging_shadow(rgba, contacts):
-    """Drop lot shadow that is not connected to the body. Keep the bumper."""
     alpha = rgba[:, :, 3]
     h, w = alpha.shape
     (x0, y0), (x1, y1) = contacts
@@ -168,14 +442,11 @@ def clip_hanging_shadow(rgba, contacts):
     t = (np.arange(w) - x0) / float(x1 - x0)
     line = y0 + t * (y1 - y0)
     out = rgba.copy()
-    span = abs(x1 - x0)
     for x in range(w):
         y_line = int(line[x])
         if y_line < 1 or y_line >= h - 2:
             continue
         col = alpha[:, x]
-        # Follow the opaque run down from the tyre line. A gap ends the body.
-        # Do not saw the bumper off on a straight line.
         if col[min(h - 1, y_line)] < 40:
             out[y_line + 1 :, x, 3] = 0
             continue
@@ -188,38 +459,40 @@ def clip_hanging_shadow(rgba, contacts):
 
 
 def place(plate, car, ground_y, width_frac=0.88):
-    """Scale the car and put the tyre bottoms on ground_y."""
+    """Scale the car and put both tyre bottoms on ground_y."""
     h, w = plate.shape[:2]
     rgba = car
-    # Trim to the alpha bbox so the scale is the car, not the canvas.
     alpha = rgba[:, :, 3]
     ys, xs = np.where(alpha > 20)
     y0, y1 = int(ys.min()), int(ys.max())
     x0, x1 = int(xs.min()), int(xs.max())
     rgba = rgba[y0 : y1 + 1, x0 : x1 + 1]
+    rgba, angle = level_tires(rgba)
     contacts = tire_contacts(rgba[:, :, 3])
     rgba = clip_hanging_shadow(rgba, contacts)
     contacts = tire_contacts(rgba[:, :, 3])
     ch, cw = rgba.shape[:2]
     scale = (w * width_frac) / float(cw)
-    # Keep the roof under the wordmark. Use the same tyre the placement uses.
     roof_limit = h * 0.15
-    tire_y = max(c[1] for c in contacts)
-    # If this scale would shove the roof into the logo, shrink.
-    roof_at = ground_y - tire_y * scale
-    if roof_at < roof_limit and tire_y > 0:
+    tire_y = float(np.mean([c[1] for c in contacts]))
+    roof_at = ground_y - (tire_y - 0) * scale
+    # roof is y=0 in the trimmed image only if the trim included it.
+    # The top of the trimmed image is the roof.
+    roof_px = 0.0
+    # contacts are in trimmed coords; roof is 0 after the bbox trim above,
+    # then level_tires may have added padding. Use the min opaque y.
+    opaque_y = np.where(rgba[:, :, 3] > 20)[0]
+    roof_px = float(opaque_y.min()) if len(opaque_y) else 0.0
+    roof_at = ground_y - (tire_y - roof_px) * scale
+    if roof_at < roof_limit and tire_y > roof_px:
         scale *= (ground_y - roof_limit) / max(1.0, ground_y - roof_at)
     nw, nh = max(1, int(cw * scale)), max(1, int(ch * scale))
-    resized = np.asarray(
-        Image.fromarray(rgba, "RGBA").resize((nw, nh), Image.Resampling.LANCZOS)
-    )
+    resized = np.asarray(Image.fromarray(rgba, "RGBA").resize((nw, nh), Image.Resampling.LANCZOS))
     contacts_s = [(c[0] * scale, c[1] * scale) for c in contacts]
-    # The lower tyre touches the floor. Averaging left one tyre in the air.
-    tire_y = max(c[1] for c in contacts_s)
+    tire_y = float(np.mean([c[1] for c in contacts_s]))
     left = int(round(w * 0.5 - nw * 0.5))
     top = int(round(ground_y - tire_y))
     layer = np.zeros((h, w, 4), np.uint8)
-    # Clip to the frame.
     src_x0 = max(0, -left)
     src_y0 = max(0, -top)
     dst_x0 = max(0, left)
@@ -230,8 +503,8 @@ def place(plate, car, ground_y, width_frac=0.88):
         layer[dst_y0 : dst_y0 + (src_y1 - src_y0), dst_x0 : dst_x0 + (src_x1 - src_x0)] = resized[
             src_y0:src_y1, src_x0:src_x1
         ]
-    placed_contacts = [(c[0] + left, c[1] + top) for c in contacts_s]
-    return layer, placed_contacts
+    placed = [(c[0] + left, c[1] + top) for c in contacts_s]
+    return layer, placed, angle
 
 
 def paint_shadows(plate, contacts, ellipse):
@@ -239,95 +512,76 @@ def paint_shadows(plate, contacts, ellipse):
     shade = np.zeros((h, w), np.float32)
     yy, xx = np.mgrid[0:h, 0:w]
     for x, y in contacts:
-        # Contact shadow: tight under the tyre, plus a wider soft AO.
-        dx = (xx - x) / (w * 0.055)
-        dy = (yy - y) / (h * 0.018)
-        shade += 0.72 * np.exp(-(dx ** 2 + dy ** 2))
-        dx2 = (xx - x) / (w * 0.11)
-        dy2 = (yy - (y + h * 0.01)) / (h * 0.03)
-        shade += 0.22 * np.exp(-(dx2 ** 2 + dy2 ** 2))
-    if len(contacts) == 2:
+        # Tight, dark contact just in front of the tread.
+        dx = (xx - x) / (w * 0.022)
+        dy = (yy - (y + h * 0.004)) / (h * 0.007)
+        shade = np.maximum(shade, 0.92 * np.exp(-(dx ** 2 + dy ** 2)))
+    if len(contacts) >= 2:
         x0, y0 = contacts[0]
         x1, y1 = contacts[1]
-        cx, cy = 0.5 * (x0 + x1), 0.5 * (y0 + y1)
-        dx = (xx - cx) / max(40.0, abs(x1 - x0) * 0.55)
-        dy = (yy - cy) / (h * 0.028)
-        shade += 0.18 * np.exp(-(dx ** 2 + dy ** 2))
-    shade = np.clip(shade, 0, 0.72)
-    inside = ellipse_mask(h, w, ellipse, grow=1.02)
-    shade *= inside
+        cx = 0.5 * (x0 + x1)
+        cy = 0.5 * (y0 + y1) + h * 0.004
+        half = max(40.0, abs(x1 - x0) * 0.62)
+        dx = (xx - cx) / half
+        dy = (yy - cy) / (h * 0.055)
+        shade = np.maximum(shade, 0.42 * np.exp(-(dx ** 2 * 0.85 + dy ** 2)))
+    shade = np.clip(shade, 0, 0.90)
+    shade *= ellipse_mask(h, w, ellipse, grow=1.02)
     out = plate.astype(np.float32)
-    out *= (1.0 - shade[:, :, None])
+    out *= 1.0 - shade[:, :, None]
     return np.clip(out, 0, 255).astype(np.uint8)
 
 
 def add_reflection(plate, layer, contacts, ellipse):
-    """Flip the lower body, squash it onto the floor, fade it out."""
+    """Mirror the whole lower car. No vertical squash. Fade it off the disc."""
     h, w = plate.shape[:2]
-    alpha = layer[:, :, 3].astype(np.float32) / 255.0
-    if alpha.max() < 0.05:
+    alpha = layer[:, :, 3]
+    ys = np.where(alpha > 40)[0]
+    if len(ys) < 30:
         return plate
-    contact_y = int(round(0.5 * (contacts[0][1] + contacts[1][1])))
-    contact_y = int(np.clip(contact_y, 1, h - 2))
-    # Only the lower body reflects. A full-car flip is the misaligned look.
-    body = layer[:contact_y]
-    if body.shape[0] < 8:
+    top = int(ys.min())
+    contact_y = int(round(float(np.mean([c[1] for c in contacts]))))
+    contact_y = int(np.clip(contact_y, top + 8, h - 2))
+    y_cut = top + int((contact_y - top) * 0.38)
+    band = layer[y_cut:contact_y]
+    if band.shape[0] < 8:
         return plate
-    band_h = max(8, int(body.shape[0] * 0.42))
-    band = body[-band_h:]
     flipped = np.flipud(band)
-    # Squash. Anchored at the contact line so the reflection starts at the tyre.
-    squash = 0.38
-    nh = max(4, int(flipped.shape[0] * squash))
-    small = np.asarray(Image.fromarray(flipped, "RGBA").resize((w, nh), Image.Resampling.LANCZOS))
+    nh = flipped.shape[0]
     refl = np.zeros_like(layer)
     y1 = min(h, contact_y + nh)
-    refl[contact_y:y1] = small[: y1 - contact_y]
-    # Fresnel: stronger just under the car (grazing), gone toward the camera.
+    refl[contact_y:y1] = flipped[: y1 - contact_y]
     yy = np.arange(h, dtype=np.float32)
-    dist = np.clip((yy - contact_y) / max(8.0, nh * 0.95), 0, 1)
-    fresnel = (1.0 - dist) ** 1.35
-    fresnel[:contact_y] = 0
-    inside = ellipse_mask(h, w, ellipse, grow=0.98)
-    strength = 0.42 * fresnel[:, None] * inside
-    # Blur the reflection so it reads as a satin floor, not a mirror.
-    blurred = np.asarray(Image.fromarray(refl, "RGBA").filter(ImageFilter.GaussianBlur(radius=1.6)))
+    dist = np.clip((yy - contact_y) / max(8.0, float(y1 - contact_y)), 0, 1)
+    fade = (1.0 - dist) ** 1.05
+    fade[:contact_y] = 0
+    inside = ellipse_mask(h, w, ellipse, grow=0.985).astype(np.float32)
+    strength = 0.55 * fade[:, None] * inside
+    blurred = np.asarray(Image.fromarray(refl, "RGBA").filter(ImageFilter.GaussianBlur(radius=2.6)))
     src = blurred[:, :, :3].astype(np.float32)
     sa = (blurred[:, :, 3].astype(np.float32) / 255.0) * strength
     out = plate.astype(np.float32)
-    out[:] = out * (1 - sa[:, :, None]) + src * sa[:, :, None]
+    out = out * (1.0 - sa[:, :, None]) + src * sa[:, :, None]
     return np.clip(out, 0, 255).astype(np.uint8)
 
 
-def match_colour(layer, wall_rgb):
-    rgb = layer[:, :, :3].astype(np.float32)
-    alpha = layer[:, :, 3]
-    m = alpha > 200
-    if m.sum() < 50:
-        return layer
-    paint = np.percentile(rgb[m], 90, axis=0)
-    wall = np.array(wall_rgb, np.float32)
-    # Pull the paint hue a quarter of the way toward the wall. Keep the level.
-    target_hue = paint * 0.72 + wall * (paint.mean() / max(1.0, wall.mean())) * 0.28
-    gain = np.clip(target_hue / np.maximum(paint, 1.0), 0.92, 1.10)
-    out = layer.copy()
-    out[:, :, :3] = np.clip(rgb * gain, 0, 255).astype(np.uint8)
-    return out
-
-
-def composite_car(plate_rgb, ellipse, ground_y, cut_path, wall_rgb):
+def composite_car(plate_rgb, ellipse, ground_y, cut_path, wall_rgb, debug_path=None):
     car = np.asarray(Image.open(cut_path).convert("RGBA"))
-    car = fill_glass(car)
-    car = defringe(car)
-    car = match_colour(car, wall_rgb)
-    layer, contacts = place(plate_rgb, car, ground_y)
+    car, mask = relight_cutout(car, wall_rgb)
+    if debug_path:
+        os.makedirs(os.path.dirname(debug_path), exist_ok=True)
+        vis = car[:, :, :3].copy()
+        vis[mask] = (0, 180, 255)
+        Image.fromarray(vis, "RGB").save(debug_path, quality=85)
+    layer, contacts, angle = place(plate_rgb, car, ground_y)
+    # Choke after the rotate and the resize, so the matte has no black fringe.
+    layer = choke(layer, px=1)
     out = paint_shadows(plate_rgb, contacts, ellipse)
     out = add_reflection(out, layer, contacts, ellipse)
-    # Car over the reflection and the shadow, so the tyre covers its own contact.
     base = Image.fromarray(out, "RGB").convert("RGBA")
     over = Image.fromarray(layer, "RGBA")
     merged = np.asarray(Image.alpha_composite(base, over).convert("RGB"))
-    return merged, contacts
+    return merged, contacts, angle, float(mask.mean())
 
 
 def add_mark(rgb):
@@ -342,59 +596,74 @@ def add_mark(rgb):
     return np.asarray(im.convert("RGB"))
 
 
-def prepare_plate(meta_plate):
+def prepare_plate(meta_plate, oidn):
     rgb = np.asarray(Image.open(meta_plate["file"]).convert("RGB"))
-    rgb = smooth_plate(rgb)
-    h = rgb.shape[0]
-    # The rendered disc and the cove landed on almost the same grey.
-    # Darken the disc a little so the oval reads, then stroke one circle.
+    rgb = smooth_plate(rgb, oidn)
     h, w = rgb.shape[:2]
     inside = ellipse_mask(h, w, meta_plate["ellipse"], grow=0.985)
     rgb = rgb.astype(np.float32)
-    rgb[inside] *= 0.90
+    rgb[inside] *= 0.96
     rgb = np.clip(rgb, 0, 255).astype(np.uint8)
     width = max(4, int(round(h * 0.006)))
     rgb = stroke_circle(rgb, meta_plate["ellipse"], width)
-    wall = rgb[: int(h * 0.12), int(rgb.shape[1] * 0.2) : int(rgb.shape[1] * 0.8)].mean(axis=(0, 1))
+    wall = rgb[: int(h * 0.12), int(w * 0.2) : int(w * 0.8)].mean(axis=(0, 1))
     return rgb, wall
 
 
 def main():
-    plate_dir = sys.argv[1] if len(sys.argv) > 1 else "/tmp/gm-spyne"
-    out_dir = sys.argv[2] if len(sys.argv) > 2 else "/tmp/gm-spyne/out"
+    plate_dir = sys.argv[1] if len(sys.argv) > 1 else "/tmp/gm-spyne13"
+    out_dir = sys.argv[2] if len(sys.argv) > 2 else "/tmp/gm-spyne13/out"
     os.makedirs(out_dir, exist_ok=True)
     meta = json.load(open(os.path.join(plate_dir, "plates.json")))
-    # Front and rear sit on the low camera. The side uses the higher one,
-    # where the ellipse is flatter, closer to a walking side shot.
+    oidn = find_oidn()
+    print("oidn", oidn)
     jobs = [
         ("rav4-front", "/tmp/gm-proof2/rav4-front-cut.png", "h070"),
         ("rav4-side", "/tmp/gm-proof2/rav4-side-cut.png", "h140"),
         ("rav4-rear", "/tmp/gm-proof2/rav4-rear-cut.png", "h070"),
-        ("camry-front", "/tmp/gm-proof2/camry-front-cut.png", "h100"),
+        ("accord-grey", "/tmp/gm-cars/accord-grey-cut.png", "h070"),
+        ("camry-black", "/tmp/gm-cars/camry-black-cut.png", "h070"),
     ]
     prepared = {}
-    for name, _cut, key in jobs:
-        if key not in prepared:
-            if key not in meta["plates"]:
-                key = next(iter(meta["plates"]))
-            prepared[key] = prepare_plate(meta["plates"][key])
     results = []
     for name, cut, key in jobs:
+        if not os.path.isfile(cut):
+            print("missing cut", cut)
+            continue
         if key not in meta["plates"]:
             key = next(iter(meta["plates"]))
+        if key not in prepared:
+            prepared[key] = prepare_plate(meta["plates"][key], oidn)
         plate, wall = prepared[key]
         info = meta["plates"][key]
         ellipse = info["ellipse"]
-        # Low in the disc, so the car can be large and the near arc stays visible.
-        ground_y = ellipse["cy"] + ellipse["ry"] * 0.45
+        ground_y = ellipse["cy"] + ellipse["ry"] * 0.42
         ground_y = min(ground_y, ellipse["cy"] + ellipse["ry"] - plate.shape[0] * 0.055)
-        merged, contacts = composite_car(plate, info["ellipse"], ground_y, cut, wall)
+        debug = os.path.join(out_dir, "debug", f"{name}-glass.jpg")
+        merged, contacts, angle, glass_frac = composite_car(
+            plate, ellipse, ground_y, cut, wall, debug_path=debug
+        )
         merged = add_mark(merged)
         path = os.path.join(out_dir, f"{name}.jpg")
         Image.fromarray(merged, "RGB").save(path, "JPEG", quality=92, subsampling=1)
         h, w = merged.shape[:2]
-        alpha_contacts = contacts
-        print("wrote", path, merged.shape, "tires", [(round(c[0] / w, 3), round(c[1] / h, 3)) for c in alpha_contacts])
+        ys, xs = np.where(np.asarray(Image.open(cut).convert("RGBA"))[:, :, 3] > 20)
+        # width from the placed alpha: recompute from how much of the row is car-coloured
+        print(
+            "wrote",
+            path,
+            merged.shape,
+            "tires",
+            [(round(c[0] / w, 3), round(c[1] / h, 3)) for c in contacts],
+            "dYpx",
+            round(contacts[0][1] - contacts[1][1], 2),
+            "rot",
+            round(angle, 2),
+            "glass",
+            round(glass_frac, 4),
+            "wall",
+            [round(float(c), 1) for c in wall],
+        )
         results.append(path)
     return results
 
