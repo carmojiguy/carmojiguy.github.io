@@ -1,13 +1,13 @@
 {
-  "name": "Appraisal Center",
-  "short_name": "Appraise",
-  "description": "GNM trade-in — Appraisal Center. Premium walk-around appraisals for My Loan.",
+  "name": "G&M Auto Sales",
+  "short_name": "G&M",
+  "description": "G&M Auto Sales staff desk. Appraise a vehicle and run the lot.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",
-  "background_color": "#003F7A",
-  "theme_color": "#00A4E2",
+  "background_color": "#F7F8FA",
+  "theme_color": "#F7F8FA",
   "icons": [
     {
       "src": "/icons/gm-logo-square.png?v=20261008b",

@@ -35,8 +35,8 @@ must(/manifest\.webmanifest\?v=20260913c/, "manifest is cache-busted");
 mustNot(/>Just Pictures</, "Just Pictures shortcut removed from Appraise home");
 must(/function isLocateSoon\(/, "Locate Coming soon stays after icon rebase");
 must(/Coming soon/, "Locate is marked Coming soon");
-must(/apple-mobile-web-app-title" content="Appraisal Center"/, "iOS home-screen name");
-must(/<title>Appraisal Center<\/title>/, "document title");
+must(/apple-mobile-web-app-title" content="G&amp;M Auto Sales"/, "iOS home-screen name is G&M");
+must(/<title>G&amp;M Auto Sales<\/title>/, "document title is G&M Auto Sales");
 must(/id="centerInboxBtn"/, "Incoming pop-out button id stays inbox");
 must(/<b>Incoming<\/b>/, "Incoming pop-out button label");
 must(/id="centerTitleNav">Incoming/, "Incoming sheet title");
@@ -808,7 +808,7 @@ must(/id="webHistJump"/, "photos screen History jump");
 });
 
 const manifest = JSON.parse(fs.readFileSync(path.join(root, "manifest.webmanifest"), "utf8"));
-assert.equal(manifest.name, "Appraisal Center", "manifest name");
+assert.equal(manifest.name, "G&M Auto Sales", "manifest name is G&M Auto Sales");
 assert.ok(manifest.icons.some(function (i) { return i.purpose === "maskable" && i.sizes === "512x512"; }), "maskable 512 icon");
 assert.ok(manifest.icons.every(function (i) { return /gm-logo-square\.png/.test(i.src) && /v=20261008b/.test(i.src); }), "manifest icons are the approved G&M badge");
 [

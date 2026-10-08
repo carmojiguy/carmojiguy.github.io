@@ -7,10 +7,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<meta name="apple-mobile-web-app-title" content="Appraisal Center" />
-<meta name="application-name" content="Appraisal Center" />
-<meta name="theme-color" content="#E0243C" />
-<title>Appraisal Center</title>
+<meta name="apple-mobile-web-app-title" content="G&amp;M Auto Sales" />
+<meta name="application-name" content="G&amp;M Auto Sales" />
+<meta name="theme-color" content="#F7F8FA" />
+<title>G&amp;M Auto Sales</title>
 <link rel="manifest" href="/manifest.webmanifest?v=20260913c" />
 <link rel="icon" href="/favicon.ico?v=20260913c" sizes="any" />
 <link rel="icon" type="image/png" sizes="16x16" href="/icons/gm-logo-square.png?v=20261008b" />
@@ -2610,6 +2610,202 @@ html:has(#start.on),body:has(#start.on){background:#12141A!important}
   background:#FFFFFF;box-shadow:none;border:1px solid #E2E6EC;border-radius:16px;
 }
 #storySheet #useStory{background:#E0243C!important;color:#FFFFFF!important;border-color:transparent!important}
+
+/* G&M staff shell. Light canvas, one top bar, no car hero on Home or login. */
+body:not(:has(#thanks.on)) .phone > .accent{display:none!important}
+body:not(:has(#thanks.on)) .exit-chrome{
+  display:none;
+  background:#FFFFFF!important;
+  border-bottom:1px solid #E2E6EC;
+  box-shadow:none!important;
+  min-height:64px;
+  padding:calc(8px + env(safe-area-inset-top)) 16px 8px!important;
+  align-items:center;
+  gap:8px;
+}
+body:not(:has(#thanks.on)) .exit-chrome.on{display:flex!important}
+body:not(:has(#thanks.on)) .gm-logo{height:44px!important;width:auto!important;max-width:156px!important;border-radius:8px}
+body:not(:has(#thanks.on)) .exit-x{
+  width:40px!important;height:40px!important;min-width:40px!important;border-radius:12px!important;
+  font-size:18px!important;font-weight:600!important;box-shadow:none!important;
+  border:1px solid #E2E6EC!important;background:#FFFFFF!important;color:#12141A!important;
+}
+body:not(:has(#thanks.on)) .exit-back,
+body:not(:has(#thanks.on)) .exit-home{
+  min-height:40px;padding:0 12px;border-radius:12px;
+  font-size:14px!important;font-weight:600!important;color:#12141A!important;opacity:1!important;
+}
+body:has(#start.on) .exit-x,
+body:has(#start.on) .exit-back,
+body:has(#start.on) .exit-home,
+body:has(#login.on) .exit-x,
+body:has(#login.on) .exit-back,
+body:has(#login.on) .exit-home,
+body:has(#center.on) .exit-x,
+body:has(#center.on) .exit-back,
+body:has(#center.on) .exit-home,
+body:has(#users.on) .exit-x,
+body:has(#users.on) .exit-back,
+body:has(#users.on) .exit-home{display:none!important}
+#whoChip{
+  position:relative!important;top:auto!important;right:auto!important;left:auto!important;
+  margin-left:auto;z-index:2;
+  display:inline-flex;align-items:center;gap:8px;
+  height:40px;max-width:46vw;padding:4px 12px 4px 4px;
+  border:1px solid #E2E6EC;border-radius:999px;
+  background:#F7F8FA!important;color:#12141A!important;
+  box-shadow:none!important;font-family:Inter,ui-sans-serif,system-ui,sans-serif;
+  font-size:14px;font-weight:600;letter-spacing:0;cursor:pointer;
+}
+#whoChip::before{
+  content:attr(data-initial);
+  width:32px;height:32px;border-radius:50%;
+  display:grid;place-items:center;flex:0 0 32px;
+  background:#111214;color:#FFFFFF;font-size:13px;font-weight:700;
+}
+body:has(#login.on) #whoChip,body:has(#thanks.on) #whoChip{display:none!important}
+.gm-menu{
+  position:fixed;top:calc(68px + env(safe-area-inset-top));right:16px;z-index:240;
+  min-width:200px;padding:8px;background:#FFFFFF;
+  border:1px solid #E2E6EC;border-radius:12px;
+  box-shadow:0 8px 24px rgba(18,20,26,.08);
+}
+.gm-menu[hidden]{display:none!important}
+.gm-menu-name{margin:0;padding:8px 12px 4px;font-size:13px;font-weight:600;color:#5C6370}
+.gm-menu button{
+  width:100%;min-height:48px;border:0;border-radius:8px;background:transparent;
+  text-align:left;padding:0 12px;font:inherit;font-weight:600;color:#12141A;cursor:pointer;
+}
+.gm-menu button:hover{background:#F7F8FA}
+
+html:has(#start.on),body:has(#start.on),.phone:has(#start.on),
+#start.start,#start.screen.start.on{
+  background:#F7F8FA!important;color:#12141A!important;
+}
+#start .start-bg,#start .start-veil{display:none!important}
+#start .start-kicker,#start .start-foot,#start .start-desk-head{display:none!important}
+#start.screen.start{height:auto!important;min-height:100dvh!important;overflow:auto!important}
+#start .start-brand{
+  position:relative!important;left:auto!important;right:auto!important;top:auto!important;
+  transform:none!important;width:min(760px,calc(100% - 32px))!important;max-width:760px!important;
+  margin:0 auto!important;padding:calc(88px + env(safe-area-inset-top)) 0 0!important;
+  color:#12141A!important;pointer-events:none;z-index:1;
+}
+#start .start-brand h1,#start #startHello{
+  margin:0!important;color:#12141A!important;text-shadow:none!important;
+  font-family:Inter,ui-sans-serif,system-ui,sans-serif;
+  font-size:32px!important;font-weight:600!important;letter-spacing:-.03em!important;line-height:1.15!important;
+}
+#start .start-stats{display:block!important;margin:24px 0 0!important;pointer-events:none}
+#start .start-stat.sold{display:none!important}
+#start #startStatOnsiteBtn{
+  display:grid!important;grid-template-columns:auto 1fr auto;align-items:center;gap:16px;
+  width:100%;min-height:80px;padding:16px 20px!important;margin:0;
+  background:#FFFFFF!important;color:#12141A!important;
+  border:1px solid #E2E6EC!important;border-radius:16px!important;
+  box-shadow:0 1px 2px rgba(18,20,26,.04)!important;
+  backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+  pointer-events:auto;text-align:left;cursor:pointer;
+}
+#start #startStatOnsiteBtn .n{
+  font-size:36px!important;font-weight:600!important;letter-spacing:-.04em!important;color:#12141A!important;line-height:1;
+}
+#start #startStatOnsiteBtn .l{
+  font-size:15px!important;font-weight:600!important;letter-spacing:0!important;text-transform:none!important;
+  color:#5C6370!important;opacity:1!important;margin:0!important;
+}
+#start #startStatOnsiteBtn::after{
+  content:"";width:8px;height:8px;border-right:2px solid #8B929E;border-top:2px solid #8B929E;
+  transform:rotate(45deg);justify-self:end;
+}
+#start .start-dock:not(.hide){
+  position:relative!important;inset:auto!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;
+  transform:none!important;width:min(760px,calc(100% - 32px))!important;max-width:760px!important;
+  margin:24px auto calc(32px + env(safe-area-inset-bottom))!important;padding:0!important;
+  display:flex!important;flex-direction:column!important;gap:8px!important;
+  background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;
+  backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+}
+#start .start-dock.hide{display:none!important}
+#start .start-actions:not(.hide),#start .start-more:not(.hide){
+  position:static!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;
+  transform:none!important;width:100%!important;margin:0!important;padding:0!important;
+  display:flex!important;flex-direction:column!important;gap:8px!important;
+  background:transparent!important;border:0!important;box-shadow:none!important;
+}
+#start .start-actions.hide,#start .start-more.hide{display:none!important}
+#start .start-actions .pill,#start .start-more .pill,#start #startCenter{
+  position:relative!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;
+  transform:none!important;width:100%!important;min-height:72px!important;margin:0!important;
+  padding:14px 16px 14px 68px!important;border-radius:16px!important;
+  display:flex!important;flex-direction:column!important;align-items:flex-start!important;justify-content:center!important;gap:2px!important;
+  background:#FFFFFF!important;color:#12141A!important;border:1px solid #E2E6EC!important;
+  box-shadow:0 1px 2px rgba(18,20,26,.04)!important;
+  backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+  font-family:Inter,ui-sans-serif,system-ui,sans-serif;font-size:16px!important;font-weight:600!important;
+  text-align:left;
+}
+#start .start-actions .pill .start-sub,#start .start-more .pill .start-sub{
+  font-size:13px!important;font-weight:400!important;color:#5C6370!important;opacity:1!important;letter-spacing:0!important;
+}
+#start .start-actions .pill.purple{
+  background:#E0243C!important;color:#FFFFFF!important;border-color:transparent!important;
+  box-shadow:0 1px 2px rgba(224,36,60,.25)!important;
+}
+#start .start-actions .pill.purple .start-sub{color:rgba(255,255,255,.86)!important}
+#start .gm-ico{
+  position:absolute;left:20px;top:50%;transform:translateY(-50%);
+  width:24px;height:24px;pointer-events:none;
+}
+#start .guest-story:not(.hide){
+  position:relative!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;
+  width:min(440px,calc(100% - 32px));margin:24px auto calc(24px + env(safe-area-inset-bottom));
+  background:#FFFFFF!important;color:#12141A!important;border:1px solid #E2E6EC;border-radius:16px;
+  box-shadow:0 1px 2px rgba(18,20,26,.04)!important;backdrop-filter:none!important;
+}
+@media (min-width:980px){
+  #start .start-brand h1,#start #startHello{font-size:40px!important}
+  #start .start-dock:not(.hide){display:grid!important;grid-template-columns:1fr 1fr;gap:8px!important}
+  #start .start-actions:not(.hide),#start .start-more:not(.hide){display:contents!important}
+  #start #startAppraise{grid-column:1 / -1}
+}
+
+html:has(#login.on),body:has(#login.on),.phone:has(#login.on),#login.screen.on{
+  background:#F7F8FA!important;overflow:auto!important;
+}
+#login .start-bg,#login .start-veil,#login .login-hero{display:none!important}
+#login .login-card{
+  position:relative!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;
+  transform:none!important;width:min(420px,calc(100% - 32px))!important;max-width:420px!important;
+  margin:calc(96px + env(safe-area-inset-top)) auto 32px!important;
+  padding:32px 24px 24px!important;
+  background:#FFFFFF!important;border:1px solid #E2E6EC!important;border-radius:16px!important;
+  box-shadow:0 1px 2px rgba(18,20,26,.04),0 8px 24px rgba(18,20,26,.06)!important;
+  backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+  color:#12141A!important;
+}
+#login .qs-login-mark{align-items:center;gap:12px;margin-bottom:16px}
+#login .qs-login-mark .gm-logo{height:40px!important;max-width:140px!important}
+#login .login-kicker{color:#8B929E!important;letter-spacing:.08em}
+#login .qs-login-mark b{color:#12141A;font-size:16px;font-weight:600}
+#login .qs-sign-in{color:#12141A;font-size:28px;font-weight:600;letter-spacing:-.03em;margin:8px 0 16px}
+#login #btnGoogle,#login .gbtn{border-radius:12px!important;min-height:48px!important}
+
+#center > .nav{
+  background:transparent!important;border-bottom:0!important;
+  padding:8px 16px 0!important;min-height:48px;align-items:center;
+}
+#center > .nav h1{
+  text-align:left!important;font-family:Inter,ui-sans-serif,system-ui,sans-serif;
+  font-size:20px!important;font-weight:600!important;letter-spacing:-.02em!important;color:#12141A!important;
+}
+#center .center-close-x{
+  width:40px!important;height:40px!important;min-width:40px!important;border-radius:12px!important;
+  font-size:16px!important;box-shadow:none!important;
+}
+#users > .nav h1{
+  text-align:left!important;font-size:20px!important;font-weight:600!important;letter-spacing:-.02em!important;
+}
 </style>
 </head>
 <body class="exit-on">
@@ -2620,6 +2816,11 @@ html:has(#start.on),body:has(#start.on){background:#12141A!important}
   <button class="exit-x" type="button" id="exitClose" aria-label="Close">✕</button>
   <button class="exit-back" type="button" id="exitBack">Back</button>
   <button class="exit-home" type="button" id="exitHome">Home</button>
+  <button class="who" type="button" id="whoChip" data-initial="G">Guest</button>
+  <div class="gm-menu" id="gmMenu" hidden>
+    <p class="gm-menu-name" id="gmMenuName">Signed in</p>
+    <button type="button" id="gmSignOut">Sign out</button>
+  </div>
 </div>
 <div class="resume-layer" id="resumeLayer" role="dialog" aria-modal="true" aria-labelledby="resumeTitle">
   <div class="resume-card" id="resumeCard">
@@ -2635,16 +2836,16 @@ html:has(#start.on),body:has(#start.on){background:#12141A!important}
   <div class="start-bg"><img id="loginBg" src="https://carmojiguy.github.io/start-bgs/01.jpg?v=12" alt=""></div>
   <div class="start-veil"></div>
   <div class="login-hero">
-    <p class="login-kicker">GNM STAFF</p>
-    <h1>Lot Desk</h1>
-    <p class="lead">Appraisal ops with cars on the floor — sign in to the FIFO desk.</p>
+    <p class="login-kicker">G&amp;M Auto Sales</p>
+    <h1>Staff desk</h1>
+    <p class="lead">Sign in to appraise a vehicle or open the desk.</p>
   </div>
   <div class="login-card">
     <div class="qs-login-mark">
-      <span class="qs-avatar" aria-hidden="true">G</span>
+      <img class="gm-logo" src="/icons/gm-logo.png?v=20261008b" alt="G&amp;M Auto Sales &amp; Service" width="140" height="58">
       <div>
-        <p class="login-kicker">GNM staff</p>
-        <b>Lot Desk</b>
+        <p class="login-kicker">G&amp;M Auto Sales</p>
+        <b>Staff desk</b>
       </div>
     </div>
     <p class="qs-sign-in">Sign in</p>
@@ -2668,7 +2869,6 @@ html:has(#start.on),body:has(#start.on){background:#12141A!important}
   <div class="start-bg"><img id="startBg" src="https://carmojiguy.github.io/start-bgs/01.jpg?v=12" alt=""></div>
   <div class="start-veil"></div>
   <div class="start-brand" id="startBrand">
-    <p class="start-kicker">GNM STAFF · LOT DESK</p>
     <h1 id="startHello">Good evening</h1>
     <div class="start-stats" id="startStats">
       <button class="start-stat" type="button" id="startStatOnsiteBtn"><div class="n" id="startStatOnsite">0</div><div class="l">Appraisal requested</div></button>
@@ -2676,23 +2876,22 @@ html:has(#start.on),body:has(#start.on){background:#12141A!important}
     </div>
   </div>
   <button class="round start-x" type="button" id="startX">✕</button>
-  <button class="who" type="button" id="whoChip">Guest</button>
   <div class="start-dock" id="startDock">
     <div class="start-desk-head">
       <p class="start-kicker">Actions</p>
       <h2>What do you want to do?</h2>
     </div>
     <div class="start-actions" id="startActions">
-      <button class="pill purple" type="button" id="startAppraise">Appraise vehicle<span class="start-sub">Start a new appraisal on the lot</span></button>
-      <button class="pill" type="button" id="startCenter" aria-disabled="false">Appraisal Center<span class="start-sub">FIFO desk — oldest ready first</span></button>
-      <button class="pill cyan" type="button" id="startWebsite">Post vehicle to website<span class="start-sub">Publish photos &amp; pricing</span></button>
+      <button class="pill purple" type="button" id="startAppraise">Appraise vehicle<svg class="gm-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 13l2-5a2 2 0 0 1 2-1h10a2 2 0 0 1 2 1l2 5"/><path d="M5 17h14v1a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1z"/><path d="M7 13h10"/><circle cx="7.5" cy="16.5" r="1" fill="currentColor" stroke="none"/><circle cx="16.5" cy="16.5" r="1" fill="currentColor" stroke="none"/></svg><span class="start-sub">Start a new appraisal on the lot</span></button>
+      <button class="pill" type="button" id="startCenter" aria-disabled="false">Appraisal Center<svg class="gm-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg><span class="start-sub">FIFO desk — oldest ready first</span></button>
+      <button class="pill cyan" type="button" id="startWebsite">Post vehicle to website<svg class="gm-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c2.5 2.8 3.8 5.8 3.8 9s-1.3 6.2-3.8 9c-2.5-2.8-3.8-5.8-3.8-9S9.5 5.8 12 3z"/></svg><span class="start-sub">Publish photos &amp; pricing</span></button>
     </div>
     <div class="start-more" id="startMore">
-      <button class="pill" type="button" id="startTrade">Send trade-in link<span class="start-sub">Customer self-serve estimate</span></button>
-      <button class="pill" type="button" id="startUsers">Users<span class="start-sub">Staff access &amp; roles</span></button>
+      <button class="pill" type="button" id="startTrade">Send trade-in link<svg class="gm-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.5.5l2-2a5 5 0 0 0-7-7l-1.2 1.2"/><path d="M14 11a5 5 0 0 0-7.5-.5l-2 2a5 5 0 0 0 7 7l1.2-1.2"/></svg><span class="start-sub">Customer self-serve estimate</span></button>
+      <button class="pill" type="button" id="startUsers">Users<svg class="gm-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="3"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a3 3 0 0 1 0 5.75"/></svg><span class="start-sub">Staff access &amp; roles</span></button>
     </div>
   </div>
-  <p class="start-foot">Snow Signal · Lot Desk</p>
+  <p class="start-foot"></p>
   <div class="guest-story hide" id="guestStory">
     <p class="login-kicker" id="guestKicker">Your trade-in</p>
     <h1 id="guestHello">Start with your story</h1>
@@ -6350,7 +6549,13 @@ function paintStartHello(){
 function applyRole(){
   const guest=APP.role==="guest";
   const who=$("whoChip");
-  if(who) who.textContent = guest ? (APP.inviteName || APP.userName || "Guest") : (APP.userName || APP.userEmail || "Employee");
+  if(who){
+    const name=guest ? (APP.inviteName || APP.userName || "Guest") : (APP.userName || APP.userEmail || "Employee");
+    const first=String(name).trim().split(/\s+/)[0] || name;
+    who.textContent=first;
+    who.setAttribute("data-initial", (String(first).trim().charAt(0) || "G").toUpperCase());
+    if($("gmMenuName")) $("gmMenuName").textContent=name;
+  }
   if(typeof paintQuietStudioHello==="function") paintQuietStudioHello();
   if(typeof paintStartHello==="function") paintStartHello();
   if($("startActions")) $("startActions").classList.toggle("hide", guest);
@@ -16522,7 +16727,16 @@ if($("btnGuest")) $("btnGuest").onclick = function(){
   enterSession("guest", {name: APP.inviteName || customerFirst() || "Guest"});
 };
 if($("startX")) $("startX").onclick = function(){ if(APP.role!=="guest") logOut(); };
-if($("whoChip")) $("whoChip").onclick = function(){ if(APP.role!=="guest") logOut(); };
+if($("whoChip")) $("whoChip").onclick = function(e){
+  if(e) e.stopPropagation();
+  if(APP.role==="guest") return;
+  const menu=$("gmMenu");
+  if(!menu){ logOut(); return; }
+  menu.hidden=!menu.hidden;
+};
+if($("gmMenu")) $("gmMenu").onclick = function(e){ if(e) e.stopPropagation(); };
+if($("gmSignOut")) $("gmSignOut").onclick = function(){ if($("gmMenu")) $("gmMenu").hidden=true; logOut(); };
+document.addEventListener("click", function(){ if($("gmMenu")) $("gmMenu").hidden=true; });
 async function resumePendingSend(){
   let pending=false;
   try{ pending=sessionStorage.getItem("inspect.pendingSend")==="1" || /[?&]resume=send/.test(location.search||""); }catch(e){}
