@@ -3759,7 +3759,7 @@ body.exit-on:has(#center.on) #center.screen{padding-top:calc(64px + env(safe-are
   <div class="card">
     <button class="x" type="button" data-close="storySheet">✕</button>
     <h3 id="storyTitle">What's the Story?</h3>
-    <p class="hint" id="storyHint">Describe the car out loud: year, make, model, trim, km and condition. Read the VIN if you have it. We'll fill in the appraisal for you.</p>
+    <p class="hint" id="storyHint">Walk around the car and talk. Year, make, model, km, condition. Say the VIN and we'll do the rest.</p>
     <p class="story-mic-note" id="storyMicNote" hidden>Allow the microphone, then tap Speak.</p>
     <textarea class="box" id="transcript" rows="8" placeholder="I'm looking at a 1986 Ford Bronco…"></textarea>
     <div class="pair">
@@ -16588,7 +16588,7 @@ function openStoryMic(){
       ? "Talk through year, make, model, trim, and condition of the vehicle. We'll fill in the appraisal for you."
       : isConsumerAcquisition()
       ? "Walk the car and talk. Tap opens the mic — keep going, any length. Inside and outside condition, high-value options, selling features and hinderances."
-      : "Describe the car out loud: year, make, model, trim, km and condition. Read the VIN if you have it. We'll fill in the appraisal for you.";
+      : "Walk around the car and talk. Year, make, model, km, condition. Say the VIN and we'll do the rest.";
   }
   $("storySheet").classList.add("on");
   startMic();
