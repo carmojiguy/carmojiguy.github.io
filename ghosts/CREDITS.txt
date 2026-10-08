@@ -1,0 +1,213 @@
+New photo ghosts
+================
+
+These are the guides added for website slots that did not already have
+one. The original twelve PNGs (qfront, front, driver, dash, console,
+qrear, rear, tire, door, and the passenger flips of qfront, driver and
+qrear) are untouched.
+
+Each new file is a licensed photograph, masked to the subject. BiRefNet
+general-lite removes the background when it can. A crop or a drawn
+mask is used when the subject fills the frame (a cluster, a badge, a
+control panel). The picture is never left as a feathered rectangle of
+a whole room.
+
+The green is an x-ray of that cutout. Denoised hysteresis contours,
+simplified so short speckle is dropped, plus a silhouette stroke.
+The body is a smooth dark green at low opacity (R = 0.264 G,
+B = 0.418 G, the original ghost colour).
+
+Regenerate with tools/photo_ghosts.py.
+
+roof.png
+  File:Mercedes-Benz G63 AMG V8 BITURBO SUV (50703492437).jpg
+  CC BY 2.0
+  silver-novice ~ ne res adversae impediant from Birkenhead, ENGLAND
+  https://commons.wikimedia.org/wiki/File:Mercedes-Benz_G63_AMG_V8_BITURBO_SUV_(50703492437).jpg
+  cutout: birefnet
+  Modern SUV, high front three-quarter.
+
+headlight.png
+  File:2018 Dodge Grand Caravan SE in silver - detail of light - front left.jpg
+  CC BY-SA 4.0
+  CZmarlin — Christopher Ziemnowicz would appreciate a photo credit if this image is used anywhere other than Wikipedia. Please leave a note at Wikipedia here . Thank you!
+  https://commons.wikimedia.org/wiki/File:2018_Dodge_Grand_Caravan_SE_in_silver_-_detail_of_light_-_front_left.jpg
+  cutout: birefnet
+
+wheel.png
+  File:20-inch wheel of Nissan FAIRLADY Z (Z34) Version ST, 2022.jpg
+  CC BY-SA 4.0
+  Kazyakuruma
+  https://commons.wikimedia.org/wiki/File:20-inch_wheel_of_Nissan_FAIRLADY_Z_(Z34)_Version_ST,_2022.jpg
+  cutout: birefnet
+
+taillight.png
+  File:2018 Dodge Grand Caravan SE in silver - detail of light - rear right.jpg
+  CC BY-SA 4.0
+  CZmarlin — Christopher Ziemnowicz would appreciate a photo credit if this image is used anywhere other than Wikipedia. Please leave a note at Wikipedia here . Thank you!
+  https://commons.wikimedia.org/wiki/File:2018_Dodge_Grand_Caravan_SE_in_silver_-_detail_of_light_-_rear_right.jpg
+  cutout: birefnet
+
+badge.png
+  File:2021 Volkswagen Golf hatchback in Pure White, rear three-quarter view showing tailgate and VW badge.jpg
+  CC0
+  OathOn
+  https://commons.wikimedia.org/wiki/File:2021_Volkswagen_Golf_hatchback_in_Pure_White,_rear_three-quarter_view_showing_tailgate_and_VW_badge.jpg
+  cutout: birefnet
+  Tailgate roundel and GOLF script, cropped off the car.
+
+engine.png
+  File:2026 Chevrolet Sonic engine bay.jpg
+  CC BY 4.0
+  Autosdeprimera
+  https://commons.wikimedia.org/wiki/File:2026_Chevrolet_Sonic_engine_bay.jpg
+  cutout: birefnet
+  Front-on bay. Hoses and show lighting are in the source.
+
+jamb.png
+  File:Tire and Loading Information.jpg
+  CC BY-SA 4.0
+  SCBY
+  https://commons.wikimedia.org/wiki/File:Tire_and_Loading_Information.jpg
+  cutout: birefnet
+
+gauges.png
+  File:Speedometer & Tachometer - 2013 Ford Focus ST (10062706656).jpg
+  CC BY 2.0
+  Michael Sheehan
+  https://commons.wikimedia.org/wiki/File:Speedometer_%26_Tachometer_-_2013_Ford_Focus_ST_(10062706656).jpg
+  cutout: birefnet
+  Two round dials, face-on. The hood around the cluster is not in this crop.
+
+steering.png
+  File:Steering Wheel Closeup - 2013 Volvo S60 T5 AWD (8388958639).jpg
+  CC BY 2.0
+  Michael Sheehan
+  https://commons.wikimedia.org/wiki/File:Steering_Wheel_Closeup_-_2013_Volvo_S60_T5_AWD_(8388958639).jpg
+  cutout: ellipse
+  Full modern wheel, front-on, including the rim, spokes and airbag.
+
+screen.png
+  File:360-degree surround-view parking camera display on an infotainment screen.jpg
+  CC BY 4.0
+  Tessa Bury
+  https://commons.wikimedia.org/wiki/File:360-degree_surround-view_parking_camera_display_on_an_infotainment_screen.jpg
+  cutout: crop
+  The photograph is the screen. BiRefNet kept only a sliver, so the frame is the display.
+
+backup.png
+  File:2017 Honda Ridgeline Multi-View Rear Camera Display.jpg
+  CC BY-SA 4.0
+  Roger Maxwell
+  https://commons.wikimedia.org/wiki/File:2017_Honda_Ridgeline_Multi-View_Rear_Camera_Display.jpg
+  cutout: birefnet
+
+climate.png
+  File:2006 Honda Ridgeline RTS-head unit and climate control interface.jpg
+  CC BY-SA 4.0
+  Michael Carmack
+  https://commons.wikimedia.org/wiki/File:2006_Honda_Ridgeline_RTS-head_unit_and_climate_control_interface.jpg
+  cutout: birefnet
+  Centre HVAC controls, face-on, cropped off the radio. The stack is a 2006 Ridgeline, not a current touchscreen.
+
+sunroof.png
+  File:Nissan-Presage axis-u30 1998-sunroof open.jpg
+  CC BY-SA 3.0
+  TaitaFkm
+  https://commons.wikimedia.org/wiki/File:Nissan-Presage_axis-u30_1998-sunroof_open.jpg
+  cutout: birefnet
+  Open sunroof seen from inside the cabin. It is a 1998 Presage, and the camera is aimed up and back rather than straight up at a modern roof.
+
+headliner.png
+  File:Dome light Citroen C3.jpg
+  CC BY-SA 3.0
+  Lionel Allorge
+  https://commons.wikimedia.org/wiki/File:Dome_light_Citroen_C3.jpg
+  cutout: birefnet
+  Looking up at the dome light and headliner.
+
+rearseat.png
+  File:Car rear seats.jpg
+  CC BY-SA 4.0
+  Gmail56789
+  https://commons.wikimedia.org/wiki/File:Car_rear_seats.jpg
+  cutout: crop
+  The photograph is the rear bench. BiRefNet kept a fragment, so the crop is the seats.
+
+legroom.png
+  File:Honda Odyssey Rear Seats.jpg
+  CC BY-SA 2.0
+  Scott
+  https://commons.wikimedia.org/wiki/File:Honda_Odyssey_Rear_Seats.jpg
+  cutout: birefnet
+  Rear seat and leg space. Cropped in so the window is not the subject.
+
+passeat.png
+  File:Toyota ROOMY X"S" passenger seat lift-up seat vehicle B-type (DBA-M900A-VTPBAM) left.jpg
+  CC BY-SA 4.0
+  Tokumeigakarinoaoshima
+  https://commons.wikimedia.org/wiki/File:Toyota_ROOMY_X%22S%22_passenger_seat_lift-up_seat_vehicle_B-type_(DBA-M900A-VTPBAM)_left.jpg
+  cutout: birefnet
+  Front passenger seat seen through the open door.
+
+cargo.png
+  File:2021 Toyota GR Yaris 1.6 GXPA16R trunk (20211117).jpg
+  CC BY-SA 4.0
+  オーバードライブ83
+  https://commons.wikimedia.org/wiki/File:2021_Toyota_GR_Yaris_1.6_GXPA16R_trunk_(20211117).jpg
+  cutout: birefnet
+
+folded.png
+  File:Rear Seats Folded - 2015 GMC Yukon Denali (14304123949).jpg
+  CC BY 2.0
+  Michael Sheehan
+  https://commons.wikimedia.org/wiki/File:Rear_Seats_Folded_-_2015_GMC_Yukon_Denali_(14304123949).jpg
+  cutout: birefnet
+  Modern SUV cargo area, rear seats folded, from the open hatch.
+
+keys.png
+  File:SUBARU FORESTER (SK) KEY FOB FRONT.jpg
+  CC BY-SA 4.0
+  Dinkun Chen
+  https://commons.wikimedia.org/wiki/File:SUBARU_FORESTER_(SK)_KEY_FOB_FRONT.jpg
+  cutout: birefnet
+  Modern smart key fob. No tag.
+
+bedside.png
+  File:Ford F-150 Canteen, left side.png
+  Public domain
+  Bull-Doser
+  https://commons.wikimedia.org/wiki/File:Ford_F-150_Canteen,_left_side.png
+  cutout: birefnet
+  True side profile. The bed is a canteen body, not an open pickup box.
+
+bedtail.png
+  File:Lincoln Blackwood bed open.jpg
+  CC BY 2.0
+  Greg Gjerdingen from Willmar, USA
+  https://commons.wikimedia.org/wiki/File:Lincoln_Blackwood_bed_open.jpg
+  cutout: birefnet
+
+bedhitch.png
+  File:Spray-on bedliner.jpg
+  CC BY-SA 2.0
+  simonov
+  https://commons.wikimedia.org/wiki/File:Spray-on_bedliner.jpg
+  cutout: birefnet
+  Bed floor and liner. No hitch is in the frame.
+
+sliding.png
+  File:Honda Stepwgn (Portchester, Hampshire -England).jpg
+  CC BY 2.0
+  Mic from Reading - Berkshire (UK), United Kingdom
+  https://commons.wikimedia.org/wiki/File:Honda_Stepwgn_(Portchester,_Hampshire_-England).jpg
+  cutout: birefnet
+  The sliding door is shut.
+
+thirdrow.png
+  File:Honda Mobilio i-VTEC 2014 Third Row Seat.jpg
+  CC BY-SA 4.0
+  Dr. Chinchu C.
+  https://commons.wikimedia.org/wiki/File:Honda_Mobilio_i-VTEC_2014_Third_Row_Seat.jpg
+  cutout: birefnet
+  Third-row bench. The camera is behind the second row, not standing in the side door.
