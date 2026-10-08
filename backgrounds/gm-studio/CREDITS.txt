@@ -1,41 +1,34 @@
 G&M studio backdrops
 =====================
 
-These plates are rendered for G&M Auto Sales & Service. They are not stock
-photos and they replace the old generated gradient plates.
+These plates are photographs, not drawn gradients.
 
-Each file is a seamless studio cove: softboxes, a vignette, and a plain
-turntable. The disc is a satin surface with a smooth radial falloff (lighter
-toward the middle, darker at the rim) and one soft overhead bloom. Dark grey
-on the light-grey, warm, and charcoal studios; polished light grey on the
-white studio. It has a thin bevelled metal edge with one soft specular
-highlight on the near-left arc. There are no concentric rings.
+Direction A (white, silver, warm) is the empty cyclorama
+"Cyclorama hard light" by Sergej Majboroda, via Poly Haven, CC0.
+https://commons.wikimedia.org/wiki/File:Cyclorama_hard_light_-_Panorama_(Sergej_Majboroda_via_Poly_Haven).jpg
+The panorama is projected to a low, close camera. The wall is lifted to a
+clean light grey and the floor is held a little darker, with a faint
+full-width seam so the floor reads as a large turntable. The shading is
+the photograph's own.
 
-The wall sign is the G&M wordmark itself (heavy grotesque, red #E0243C
-ampersand and bar, tracked "AUTO SALES & SERVICE"). There is no black badge
-box. Dark letters on the light studios, white letters on charcoal.
+Direction B (charcoal) is "Photo studio 01" by Sergej Majboroda, via Poly
+Haven, CC0.
+https://commons.wikimedia.org/wiki/File:Photo_studio_01_–_Panorama_(Sergej_Majboroda_via_Poly_Haven).jpg
+The lights and the room are left in the frame. The floor is darkened so it
+reads as a polished surface under those lights.
 
-The ellipse is built for a low dealer camera (about bumper height): flatter
-than a turntable photographed from above the roof. A much higher camera
-would need a rounder disc than these plates provide.
+The wall sign is the G&M wordmark (Liberation Sans Bold, the Arial-metric
+face on this machine, red #E0243C ampersand and bar). On the white cove it
+is small and centred at the top. On the photo studio it sits on the back
+wall with a soft shadow.
 
-Variants (4:3 is 3200×2400, 16:9 is 3200×1800):
+Regenerate with tools/studio_photo.py. The proof composites seat the test
+RAV4 and Camry at about 88% of the frame width, transfer the room's colour
+onto the car, reflect a blurred piece of the plate in the glass, and lay a
+fading floor reflection plus a contact shadow.
 
-- silver-4x3.jpg / silver-16x9.jpg — light grey wall, dark satin turntable
-- white-4x3.jpg / white-16x9.jpg — bright white studio, polished light-grey disc
-- warm-4x3.jpg / warm-16x9.jpg — warm grey wall, dark satin turntable
-- charcoal-4x3.jpg / charcoal-16x9.jpg — dark charcoal studio, satin turntable
-
-Regenerate with tools/render_gm_studio.py (Pillow + NumPy). The wordmark is
-set in Liberation Sans Bold, the Arial-metric face available here, stacked
-to a heavy weight. Proof composites are tools/studio_proof.py using
-BiRefNet-general-lite, with edge defringe, tinted glass, per-tire contact
-shadows, a soft body shadow, a faint cool rim light, and a soft floor
-reflection on the disc. The lowest tire rubber is seated on the near half
-of the disc, the car is centred, and it is scaled to about 70% of the
-frame width.
-
-In the app, @imgly/background-removal ISNet large runs in the browser and
-falls back to the medium model. If that fails to load, the original photo
-is kept and no plate is pasted behind it. Backgrounds stay on full exterior
-views only.
+This machine has no GPU, so IC-Light and other diffusion relight models
+were not run. The browser cannot run them either. web-studio.js places the
+cutout on these plates at the same scale, with a simpler reflection. A
+closer match needs a serverless harmonizer (IC-Light or a harmonization
+net) that returns the relit car before the page draws it.

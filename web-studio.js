@@ -40,7 +40,7 @@
   }
 
   function plate(id, name, file) {
-      var v = "20261008i";
+      var v = "20261008j";
     return {
       id: id,
       name: name,
@@ -504,12 +504,11 @@
 
   function plateGeom(w, h) {
     var wide = w / h >= 1.5;
+    // The floor is the photographed cove, nearly edge to edge. contactY is
+    // where the tires sit, low in the frame, under a small wall sign.
     var cx = w * 0.50;
-    var cy = h * (wide ? 0.80 : 0.762);
-    var rx = w * (wide ? 0.42 : 0.46);
-    var ry = rx * (wide ? 0.20 : 0.24);
-    // contactY is the lowest tire / valance, on the near half of the disc.
-    return { cx: cx, cy: cy, rx: rx, ry: ry, contactY: cy + ry * 0.34 };
+    var contactY = h * (wide ? 0.84 : 0.80);
+    return { cx: cx, cy: contactY, rx: w * 0.50, ry: h * 0.22, contactY: contactY };
   }
 
 
@@ -682,7 +681,7 @@
   function compositeStudio(ctx, plateImg, car, viewId, w, h) {
     var geom = plateGeom(w, h);
     var profile = WS.carProfile(viewId) || "qfront";
-    var widthFrac = { qfront: 0.70, side: 0.72, front: 0.70, rear: 0.70 }[profile] || 0.70;
+    var widthFrac = { qfront: 0.88, side: 0.90, front: 0.86, rear: 0.86 }[profile] || 0.88;
     drawCover(ctx, plateImg, w, h);
     var seatY = car.height - 1, bodyCx = car.width / 2, contacts = [{ x: bodyCx, y: seatY }];
     try {
@@ -716,9 +715,9 @@
       if (!seatY) seatY = ch - 1;
       if (peaks.length) contacts = peaks;
     } catch (eSeat) {}
-    var scale = Math.min((w * widthFrac) / car.width, (geom.rx * 1.72) / car.width);
+    var scale = (w * widthFrac) / car.width;
     var contactY = geom.contactY;
-    var roof = h * 0.175;
+    var roof = h * 0.10;
     if (contactY - seatY * scale < roof) scale = Math.min(scale, (contactY - roof) / seatY);
     var targetW = Math.max(2, Math.round(car.width * scale));
     var targetH = Math.max(2, Math.round(car.height * scale));
@@ -771,7 +770,7 @@
     rctx.putImageData(rid, 0, 0);
     ctx.save();
     ctx.beginPath();
-    ctx.ellipse(geom.cx, geom.cy, geom.rx * 0.96, geom.ry * 0.96, 0, 0, Math.PI * 2);
+    ctx.rect(0, Math.round(contactY) - 6, w, h);
     ctx.clip();
     ctx.drawImage(refl, left, Math.round(contactY) - 2);
     ctx.restore();
