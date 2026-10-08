@@ -62,6 +62,7 @@ must(/const HOLD_LOCATE_AND_CA = true/, "Locate and Consumer Acquisition stay he
 must(/\$\("startAppraise"\)\.onclick = function\(\)\{/, "Appraise vehicle start stays");
 must(/show\("home"\)/, "Appraise still opens the Trade-in desk");
 must(/if\(!HOLD_LOCATE_AND_CA\) openDealType\(\)/, "type sheet opens only when the hold is off");
+must(/if\(HOLD_LOCATE_AND_CA\) openStoryMic\(\)/, "Appraise opens What's the Story while the hold is on");
 must(/function openDealType\(/, "type sheet code stays so the hold can be lifted");
 
 must(/function finishGuest\(\)\{\s*finishThanks\(\);/, "Thank-you stays frozen");

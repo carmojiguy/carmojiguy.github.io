@@ -264,6 +264,8 @@ must(/p\.purpose==="website"\) return false/, "website photos stay off the Appra
 must(/const HOLD_LOCATE_AND_CA = true/, "Locate and Consumer Acquisition are held behind one flag");
 must(/APP\.dealType=HOLD_LOCATE_AND_CA \? "Trade-in" : ""/, "Appraise vehicle starts as Trade-in while the hold is on");
 must(/if\(!HOLD_LOCATE_AND_CA\) openDealType\(\)/, "type picker is skipped while the hold is on");
+must(/if\(HOLD_LOCATE_AND_CA\) openStoryMic\(\)/, "Appraise opens What's the Story while the hold is on");
+must(/function hideAppraisePickers\(\)/, "team and type rows hide behind the same hold");
 must(/HOLD_LOCATE_AND_CA && id==="workbench"\)\{ clearHeldDealSession\(\); id="home"; \}/, "workbench deep link cannot open while held");
 must(/function clearHeldDealSession\(/, "saved Locate and Consumer Acquisition sessions are cleared");
 must(/function stripHeldDealUrl\(/, "hash and query deep links into held lanes are stripped");

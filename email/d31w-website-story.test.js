@@ -50,9 +50,11 @@ assert.ok(/show\("home"\)[\s\S]*openStoryMic\(\)/.test(startPost), "home then st
 must(/\$\("startWebsite"\)\.onclick = function\(\)\{ startWebsitePost\(\); \}/, "Post vehicle to website uses original start");
 mustNot(/\$\("startWebsite"\)\.onclick = function\(\)\{ openWebdesk\(\); \}/, "start Website no longer lands on the photo desk");
 
-must(/if\(\$\("teamWrap"\)\) \$\("teamWrap"\)\.classList\.toggle\("hide", web\)/, "applyMode hides team wrap on website");
-must(/if\(\$\("teamWrap"\)\) \$\("teamWrap"\)\.classList\.toggle\("hide", guest \|\| isWeb\(\)\)/, "applyRole hides team wrap on website");
-must(/if\(\$\("typeWrap"\)\) \$\("typeWrap"\)\.classList\.toggle\("hide", web\)/, "website still skips appraisal type");
+must(/function hideAppraisePickers\(\)/, "Appraise picker skip stays behind one helper");
+must(/if\(\$\("teamWrap"\)\) \$\("teamWrap"\)\.classList\.toggle\("hide", web \|\| hideAppraisePickers\(\)\)/, "applyMode hides team wrap on website and on straight-to-story Appraise");
+must(/if\(\$\("teamWrap"\)\) \$\("teamWrap"\)\.classList\.toggle\("hide", guest \|\| isWeb\(\) \|\| hideAppraisePickers\(\)\)/, "applyRole hides team wrap on website and on straight-to-story Appraise");
+must(/if\(\$\("typeWrap"\)\) \$\("typeWrap"\)\.classList\.toggle\("hide", web \|\| hideAppraisePickers\(\)\)/, "website and straight-to-story Appraise skip the type row");
+must(/id="appraiseStartKicker"/, "Start appraisal kicker stays addressable");
 
 const storyMicStart = html.indexOf("function openStoryMic(");
 const storyMicEnd = html.indexOf("if($(\"startStory\")", storyMicStart);
@@ -76,6 +78,8 @@ const startAppraise = html.slice(html.indexOf("$(\"startAppraise\").onclick"), h
 assert.ok(/HOLD_LOCATE_AND_CA \? "Trade-in"/.test(startAppraise), "Appraise vehicle starts as Trade-in");
 assert.ok(/if\(!HOLD_LOCATE_AND_CA\) openDealType\(\)/.test(startAppraise), "type picker stays behind the hold flag");
 assert.ok(!/show\("home"\);\s*openDealType\(\)/.test(startAppraise), "Appraise vehicle does not open the type sheet while the hold is on");
+assert.ok(/if\(HOLD_LOCATE_AND_CA\) openStoryMic\(\)/.test(startAppraise), "Appraise opens the What's the Story mic while the hold is on");
+assert.ok(startAppraise.indexOf("openDeskTeam") < 0, "Appraise does not open the team picker");
 assert.ok(startAppraise.indexOf("startWebsitePost") < 0, "website helper is not wired into Appraise");
 must(/id="startCenter"[\s\S]*Appraisal Center/, "Appraisal Center start pill stays");
 must(/function runAppraisalTeam\(|id="centerRunTeam"|Run Appraisal Team/, "Run Appraisal Team stays");
