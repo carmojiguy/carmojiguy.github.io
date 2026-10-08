@@ -39,126 +39,31 @@
       encodeURIComponent(name) + "?width=1400";
   }
 
-  function plate(id, name, sky, ground, accent, motif) {
-    return { id: id, name: name, sky: sky, ground: ground, accent: accent, motif: motif };
+  function plate(id, name, file) {
+    var v = "20261008d";
+    return {
+      id: id,
+      name: name,
+      src: "backgrounds/gm-studio/" + file + "-4x3.jpg?v=" + v,
+      wide: "backgrounds/gm-studio/" + file + "-16x9.jpg?v=" + v
+    };
   }
 
   WS.CATALOG = {
-    dealership: [
-      plate("dlr-01", "Bright retail lot", ["#9AD8FF", "#E8F6FF"], ["#C5CCD3", "#8E959C"], "#FFE14A", "lot"),
-      plate("dlr-02", "Glass showroom day", ["#D7F1FF", "#FFFFFF"], ["#E8EEF3", "#B7C3CF"], "#7C5CFF", "glass"),
-      plate("dlr-03", "Night LED showroom", ["#0B1430", "#1B2A6B"], ["#111827", "#0B1220"], "#19C6FF", "night"),
-      plate("dlr-04", "White cyclorama", ["#F7FBFF", "#FFFFFF"], ["#EEF2F6", "#D9E1E8"], "#B8C4CE", "cove"),
-      plate("dlr-05", "Black gloss floor", ["#1A1C22", "#2C3140"], ["#0A0B0E", "#1A1C22"], "#E8C36A", "gloss"),
-      plate("dlr-06", "Concrete studio", ["#D5D8DD", "#F2F3F5"], ["#A8ADB5", "#7E848C"], "#C4A35A", "concrete"),
-      plate("dlr-07", "Sunset lot", ["#FFB070", "#FFE2B8"], ["#6B5344", "#3E322C"], "#FF7A3D", "lot"),
-      plate("dlr-08", "Covered atrium", ["#C8E8D8", "#F3FFF8"], ["#D7E4DC", "#9BB0A6"], "#3EE0B8", "glass"),
-      plate("dlr-09", "Rooftop terrace", ["#87C6F5", "#EAF6FF"], ["#B7C0C8", "#8A929A"], "#FFE14A", "lot"),
-      plate("dlr-10", "Indoor LED wall", ["#121826", "#243056"], ["#0E1320", "#1A2236"], "#7C5CFF", "night"),
-      plate("dlr-11", "Mirror-floor studio", ["#E8F0FF", "#FFFFFF"], ["#CBD6E4", "#9AABC0"], "#19C6FF", "gloss"),
-      plate("dlr-12", "Champagne lounge", ["#F6E7C8", "#FFF8EC"], ["#D9C4A0", "#B79A70"], "#C4A35A", "lounge"),
-      plate("dlr-13", "Rain-wet asphalt", ["#6B7C8C", "#A9B8C6"], ["#2A3138", "#12161A"], "#19C6FF", "wet"),
-      plate("dlr-14", "Morning lot haze", ["#CDE8FF", "#FFF7E8"], ["#D5D9DE", "#AAB1B8"], "#FFE14A", "lot"),
-      plate("dlr-15", "Penthouse garage", ["#1C2230", "#3A4458"], ["#11151C", "#222833"], "#E8C36A", "garage"),
-      plate("dlr-16", "Dealership canopy", ["#B9D8F2", "#F2F9FF"], ["#C8CED4", "#8E959C"], "#00A4E2", "canopy"),
-      plate("dlr-17", "White marble hall", ["#F4F1EC", "#FFFFFF"], ["#E4DDD2", "#C8BBA8"], "#C4A35A", "marble"),
-      plate("dlr-18", "Graphite tunnel", ["#2A2E36", "#4A5160"], ["#14171C", "#262A32"], "#19C6FF", "tunnel"),
-      plate("dlr-19", "Daylight box", ["#EAF4FF", "#FFFFFF"], ["#DCE6F0", "#B7C4D2"], "#7C5CFF", "cove"),
-      plate("dlr-20", "Soft gray cove", ["#E6E9EE", "#F7F8FA"], ["#C9CED6", "#9AA3AE"], "#8B93A0", "cove"),
-      plate("dlr-21", "Neon mezzanine", ["#1A1030", "#3A1A58"], ["#120C20", "#241830"], "#FF4D9A", "night"),
-      plate("dlr-22", "Service drive clean", ["#D8E8F4", "#F6FBFF"], ["#C5CCD3", "#8E959C"], "#00A4E2", "lot"),
-      plate("dlr-23", "Flagship glass cube", ["#BFE4FF", "#FFFFFF"], ["#D5DEE6", "#A7B4C0"], "#19C6FF", "glass"),
-      plate("dlr-24", "Twilight lot", ["#3A4A78", "#F0B48A"], ["#2A3038", "#12161A"], "#FF8A4A", "lot"),
-      plate("dlr-25", "Polar white sweep", ["#F8FCFF", "#FFFFFF"], ["#E8EEF4", "#C9D3DE"], "#B8C4CE", "cove"),
-      plate("dlr-26", "Carbon showroom", ["#1C1E22", "#32363E"], ["#0E1014", "#1C1E22"], "#E8C36A", "gloss"),
-      plate("dlr-27", "Gold hour lot", ["#FFC878", "#FFEFD2"], ["#8A6A40", "#4A3A24"], "#FFB020", "lot"),
-      plate("dlr-28", "Sky-bridge garage", ["#8EC8F0", "#EAF6FF"], ["#C5CCD3", "#8E959C"], "#19C6FF", "garage"),
-      plate("dlr-29", "Boutique salon", ["#F3E8FF", "#FFF9FF"], ["#E4D6F2", "#C2B0D8"], "#7C5CFF", "lounge"),
-      plate("dlr-30", "Infinity white", ["#FFFFFF", "#F2F7FB"], ["#E6EEF4", "#C9D5E0"], "#19C6FF", "cove")
-    ],
-    landscape: [
-      plate("lnd-01", "Mountain road", ["#7EB6E8", "#E8F4FF"], ["#6B7A6A", "#3E4A3C"], "#C4D4B0", "mountain"),
-      plate("lnd-02", "Lakeside dawn", ["#FFB8A0", "#87C8E8"], ["#2A6A88", "#134058"], "#FFE14A", "lake"),
-      plate("lnd-03", "Autumn forest", ["#F0C070", "#F8E8C8"], ["#8A4020", "#4A2410"], "#E07030", "forest"),
-      plate("lnd-04", "Desert mesa", ["#F0C878", "#FFE8B8"], ["#C48A48", "#8A5A28"], "#E8A040", "desert"),
-      plate("lnd-05", "Coastal highway", ["#6EC8F0", "#E0F4FF"], ["#2A7A9A", "#124858"], "#FFE14A", "coast"),
-      plate("lnd-06", "Snow peaks", ["#C8DCEC", "#FFFFFF"], ["#E8F0F6", "#B8C8D4"], "#B8D4E8", "snow"),
-      plate("lnd-07", "Vineyard rows", ["#B8D878", "#F4F8E0"], ["#6A8A38", "#3A5018"], "#C4A35A", "vineyard"),
-      plate("lnd-08", "Prairie gold", ["#F0D878", "#FFF4C8"], ["#C8A048", "#8A7028"], "#E8C36A", "prairie"),
-      plate("lnd-09", "Alpine pass", ["#8AB8E0", "#E8F4FF"], ["#6A7A70", "#3A4440"], "#C8D8E8", "mountain"),
-      plate("lnd-10", "Pacific overlook", ["#4AA0D0", "#C8E8F8"], ["#1A4A68", "#0A2838"], "#19C6FF", "coast"),
-      plate("lnd-11", "Canyon rim", ["#E8A060", "#F8D8A8"], ["#8A4030", "#4A2018"], "#D07040", "canyon"),
-      plate("lnd-12", "Foggy pines", ["#A8B8B0", "#D8E4DC"], ["#3A4A40", "#1A2420"], "#8AA898", "forest"),
-      plate("lnd-13", "Cherry blossom park", ["#F8C8D8", "#FFF0F4"], ["#88B070", "#4A6840"], "#F090B0", "park"),
-      plate("lnd-14", "Scottish glen", ["#88B8A0", "#D8F0E0"], ["#4A6848", "#243828"], "#C4A35A", "glen"),
-      plate("lnd-15", "Icelandic moss", ["#88C8B0", "#D0F0E8"], ["#3A5A48", "#1C3028"], "#6EC8A8", "moss"),
-      plate("lnd-16", "Tropical palm drive", ["#40C8E0", "#E8FFF4"], ["#2A8A60", "#145038"], "#FFE14A", "palm"),
-      plate("lnd-17", "Wheat field", ["#F0D060", "#FFF4C0"], ["#C8A030", "#8A7018"], "#E8C040", "prairie"),
-      plate("lnd-18", "Red rock valley", ["#E87848", "#F8C8A0"], ["#8A3020", "#4A1810"], "#E06030", "canyon"),
-      plate("lnd-19", "Nordic fjord", ["#6AA0C8", "#D0E8F4"], ["#2A4A58", "#142830"], "#B8D4E8", "fjord"),
-      plate("lnd-20", "Olive grove", ["#C8D070", "#F4F0D0"], ["#6A6830", "#3A3818"], "#C4A35A", "grove"),
-      plate("lnd-21", "Lavender field", ["#C8B0E8", "#F4ECFF"], ["#6A58A0", "#3A3060"], "#A080D8", "field"),
-      plate("lnd-22", "Great Lakes shore", ["#70B8E0", "#E0F4FF"], ["#2A6080", "#143848"], "#19C6FF", "coast"),
-      plate("lnd-23", "Rocky ridge", ["#A0B0C0", "#E0E8F0"], ["#5A6068", "#2A3038"], "#8A929A", "mountain"),
-      plate("lnd-24", "Maple ridge", ["#E07038", "#F8D0A0"], ["#6A3820", "#3A1C10"], "#E07030", "forest"),
-      plate("lnd-25", "Dune road", ["#F0D090", "#FFF4D8"], ["#D0B068", "#8A7040"], "#E8C36A", "desert"),
-      plate("lnd-26", "Glacier lake", ["#70C8E0", "#E8F8FF"], ["#2A6880", "#143848"], "#B8E8F4", "lake"),
-      plate("lnd-27", "Hill country", ["#A8D080", "#F0F8D8"], ["#688048", "#384828"], "#C4D4A0", "glen"),
-      plate("lnd-28", "Rainforest edge", ["#40A070", "#C8E8C0"], ["#1A4830", "#0C2418"], "#3EE0B8", "forest"),
-      plate("lnd-29", "High desert", ["#E8C878", "#FFF0C8"], ["#A07840", "#604828"], "#E8A040", "desert"),
-      plate("lnd-30", "River valley", ["#88C8A8", "#E0F4EC"], ["#3A6858", "#1C3830"], "#6EC8A8", "lake")
-    ],
-    landmark: [
-      plate("lmk-01", "Eiffel Tower", ["#7EB4E0", "#F0E8D8"], ["#8A8A90", "#4A4A50"], "#C4A35A", "tower"),
-      plate("lmk-02", "Colosseum", ["#F0C890", "#FFF0D8"], ["#A08060", "#604830"], "#C4A35A", "colosseum"),
-      plate("lmk-03", "Times Square", ["#1A1430", "#3A2060"], ["#121018", "#241830"], "#FF4D6A", "square"),
-      plate("lmk-04", "Golden Gate", ["#70B8E0", "#E0F0FF"], ["#2A6A88", "#143848"], "#E07030", "bridge"),
-      plate("lmk-05", "CN Tower", ["#6AA8D8", "#E8F4FF"], ["#4A5560", "#2A3038"], "#E23B3B", "cntower"),
-      plate("lmk-06", "Big Ben", ["#88B0D0", "#E8F0F8"], ["#6A7068", "#3A4038"], "#C4A35A", "clock"),
-      plate("lmk-07", "Santorini", ["#6EC8F0", "#E8F8FF"], ["#F0F4F8", "#D0D8E0"], "#19C6FF", "island"),
-      plate("lmk-08", "Dubai skyline", ["#1A2848", "#E8A060"], ["#141820", "#2A3038"], "#E8C36A", "skyline"),
-      plate("lmk-09", "Sydney Opera", ["#70C0E8", "#E8F8FF"], ["#2A7A98", "#145068"], "#F4F0E8", "opera"),
-      plate("lmk-10", "Statue of Liberty", ["#6AB0D8", "#E0F0FF"], ["#2A5A78", "#143848"], "#3EE0B8", "statue"),
-      plate("lmk-11", "Tokyo Tower", ["#4A60A0", "#F0B080"], ["#2A3038", "#141820"], "#E23B3B", "tower"),
-      plate("lmk-12", "Space Needle", ["#78B8E0", "#E8F4FF"], ["#4A5560", "#2A3038"], "#19C6FF", "needle"),
-      plate("lmk-13", "Sagrada Família", ["#E8C8A0", "#FFF4E8"], ["#A08060", "#604830"], "#C4A35A", "sagrada"),
-      plate("lmk-14", "Christ the Redeemer", ["#70C0E0", "#E8F8FF"], ["#3A8A58", "#1C5030"], "#FFFFFF", "redeemer"),
-      plate("lmk-15", "Burj Khalifa", ["#1A2840", "#C89050"], ["#121820", "#2A3038"], "#E8C36A", "skyline"),
-      plate("lmk-16", "London Eye", ["#88B8D8", "#E8F4FF"], ["#4A6070", "#283038"], "#E23B3B", "wheel"),
-      plate("lmk-17", "Château Frontenac", ["#88B0C8", "#F0E8D8"], ["#6A7068", "#3A4038"], "#C4A35A", "castle"),
-      plate("lmk-18", "Parliament Hill", ["#70A8D0", "#E8F4FF"], ["#4A6848", "#283828"], "#E23B3B", "parliament"),
-      plate("lmk-19", "Marina Bay", ["#1A3060", "#F0A050"], ["#121820", "#2A3038"], "#19C6FF", "skyline"),
-      plate("lmk-20", "Brooklyn Bridge", ["#78B0D8", "#E8F0F8"], ["#3A4A58", "#1C2830"], "#C4A35A", "bridge"),
-      plate("lmk-21", "Hollywood Hills", ["#F0B070", "#FFE8C0"], ["#6A5840", "#3A3020"], "#FFE14A", "hills"),
-      plate("lmk-22", "Table Mountain", ["#70B8E0", "#E8F4FF"], ["#8A7A60", "#4A4030"], "#C4D4B0", "table"),
-      plate("lmk-23", "Matterhorn", ["#88C0E0", "#F0F8FF"], ["#C8D4DC", "#8A9AA8"], "#FFFFFF", "mountain"),
-      plate("lmk-24", "Acropolis", ["#E8C890", "#FFF4DC"], ["#B09060", "#6A5030"], "#C4A35A", "temple"),
-      plate("lmk-25", "Trevi Fountain", ["#A0C8E0", "#F0F6FA"], ["#8A9098", "#4A5058"], "#C4D4E0", "fountain"),
-      plate("lmk-26", "Tower Bridge", ["#78B0D0", "#E8F4FF"], ["#3A4A58", "#1C2830"], "#E23B3B", "bridge"),
-      plate("lmk-27", "Empire State", ["#6A88B8", "#D8E8F8"], ["#2A3038", "#141820"], "#E8C36A", "skyline"),
-      plate("lmk-28", "Notre-Dame", ["#88B0C8", "#E8F0F4"], ["#6A7068", "#3A4038"], "#C4A35A", "cathedral"),
-      plate("lmk-29", "Alhambra", ["#E8C070", "#FFF0C8"], ["#A07040", "#604028"], "#C4A35A", "palace"),
-      plate("lmk-30", "Piazza San Marco", ["#70B8E0", "#E8F6FF"], ["#C8C0B0", "#8A8478"], "#C4A35A", "piazza")
-    ],
     studio: [
-      plate("stu-01", "Soft white cove", ["#F7FBFF", "#FFFFFF"], ["#EEF2F6", "#D9E1E8"], "#B8C4CE", "cove"),
-      plate("stu-02", "Warm gray studio", ["#EEEAE4", "#F8F5F0"], ["#D4CDC4", "#B0A89C"], "#C4A35A", "cove"),
-      plate("stu-03", "Daylight sweep", ["#E8F4FF", "#FFFFFF"], ["#DCE6F0", "#B7C4D2"], "#19C6FF", "cove"),
-      plate("stu-04", "Champagne linen", ["#F6E7C8", "#FFF8EC"], ["#E4D4B4", "#C8B48C"], "#C4A35A", "lounge")
+      plate("gm-silver", "Light grey studio", "silver"),
+      plate("gm-white", "Bright white studio", "white"),
+      plate("gm-warm", "Warm grey studio", "warm"),
+      plate("gm-charcoal", "Charcoal studio", "charcoal")
     ]
   };
 
   WS.SERIES = [
-    { id: "dealership", label: "Dealership" },
-    { id: "landscape", label: "Landscape" },
-    { id: "landmark", label: "Landmark" }
+    { id: "studio", label: "Studio" }
   ];
 
   function allPlates() {
-    return WS.CATALOG.dealership
-      .concat(WS.CATALOG.landscape)
-      .concat(WS.CATALOG.landmark)
-      .concat(WS.CATALOG.studio);
+    return WS.CATALOG.studio.slice();
   }
   WS.allPlates = allPlates;
 
@@ -168,8 +73,32 @@
     return null;
   };
 
+  WS.INTERIOR = {
+    dash: 1, console: 1, interior: 1,
+    jamb: 1, gauges: 1, steering: 1, screen: 1, backup: 1,
+    climate: 1, sunroof: 1, headliner: 1, rearseat: 1, legroom: 1,
+    passeat: 1, cargo: 1, folded: 1, keys: 1
+  };
+
   WS.isInterior = function (viewId) {
+    if (!viewId) return false;
+    var kind = typeof root.websiteBodyKind === "function" ? root.websiteBodyKind() : "";
+    if (kind === "truck" && (viewId === "sunroof" || viewId === "cargo" || viewId === "folded")) return false;
+    if (kind === "van" && viewId === "rearseat") return false;
     return !!WS.INTERIOR[viewId];
+  };
+
+  WS.carProfile = function (viewId) {
+    var map = {
+      qfront: "qfront", qfront_pass: "qfront", qrear_drv: "qfront", qrear_pass: "qfront", roof: "qfront",
+      driver: "side", pass: "side",
+      front: "front", rear: "rear"
+    };
+    var kind = typeof root.websiteBodyKind === "function" ? root.websiteBodyKind() : "";
+    if (kind === "truck" && viewId === "sunroof") return "side";
+    if (kind === "truck" && (viewId === "cargo" || viewId === "folded")) return "rear";
+    if (kind === "van" && viewId === "rearseat") return "side";
+    return map[viewId] || "";
   };
 
   function svgEsc(s) {
@@ -178,149 +107,25 @@
     });
   }
 
-  function motifPaths(p) {
-    var a = p.accent;
-    switch (p.motif) {
-      case "glass":
-        return '<rect x="80" y="70" width="640" height="210" fill="rgba(255,255,255,.35)" stroke="' + a + '" stroke-width="6"/>' +
-          '<path d="M80 140h640M240 70v210M560 70v210" stroke="rgba(255,255,255,.5)" stroke-width="3"/>';
-      case "night":
-        return '<rect x="120" y="90" width="80" height="180" fill="' + a + '" opacity=".35"/>' +
-          '<rect x="360" y="60" width="80" height="210" fill="' + a + '" opacity=".55"/>' +
-          '<rect x="600" y="100" width="80" height="170" fill="' + a + '" opacity=".4"/>';
-      case "cove":
-        return '<ellipse cx="400" cy="420" rx="420" ry="90" fill="rgba(255,255,255,.45)"/>';
-      case "gloss":
-        return '<rect x="0" y="300" width="800" height="150" fill="url(#gnd)" opacity=".95"/>' +
-          '<ellipse cx="400" cy="360" rx="260" ry="18" fill="rgba(255,255,255,.18)"/>';
-      case "mountain":
-        return '<path d="M40 320 L180 140 L300 280 L420 90 L560 250 L700 120 L800 320 Z" fill="' + a + '" opacity=".55"/>';
-      case "lake":
-        return '<ellipse cx="400" cy="300" rx="300" ry="50" fill="' + a + '" opacity=".35"/>';
-      case "forest":
-        return '<path d="M120 320 L180 160 L240 320Z M300 320 L380 120 L460 320Z M540 320 L620 150 L700 320Z" fill="' + a + '" opacity=".55"/>';
-      case "desert":
-        return '<path d="M0 300 Q200 220 400 300 T800 280 V450 H0Z" fill="' + a + '" opacity=".45"/>';
-      case "coast":
-        return '<path d="M0 280 Q160 240 320 290 T800 260 V450 H0Z" fill="' + a + '" opacity=".4"/>';
-      case "snow":
-        return '<path d="M80 320 L220 80 L360 320Z M360 320 L500 60 L640 320Z" fill="#fff" opacity=".7"/>';
-      case "tower":
-        return '<path d="M400 70 L430 300 H370 Z" fill="' + a + '"/><rect x="392" y="300" width="16" height="40" fill="' + a + '"/>';
-      case "colosseum":
-        return '<ellipse cx="400" cy="250" rx="180" ry="90" fill="none" stroke="' + a + '" stroke-width="18"/>' +
-          '<ellipse cx="400" cy="250" rx="120" ry="58" fill="none" stroke="' + a + '" stroke-width="10"/>';
-      case "square":
-        return '<rect x="80" y="80" width="90" height="200" fill="' + a + '" opacity=".7"/>' +
-          '<rect x="360" y="50" width="80" height="230" fill="#FFE14A" opacity=".8"/>' +
-          '<rect x="620" y="90" width="90" height="190" fill="#19C6FF" opacity=".7"/>';
-      case "bridge":
-        return '<path d="M40 260 Q400 80 760 260" fill="none" stroke="' + a + '" stroke-width="14"/>' +
-          '<path d="M40 260 H760" stroke="' + a + '" stroke-width="8"/>';
-      case "cntower":
-        return '<rect x="394" y="60" width="12" height="250" fill="' + a + '"/><circle cx="400" cy="160" r="28" fill="' + a + '"/>';
-      case "clock":
-        return '<rect x="370" y="80" width="60" height="220" fill="' + a + '"/><circle cx="400" cy="130" r="28" fill="#fff"/>';
-      case "island":
-        return '<rect x="120" y="200" width="70" height="90" fill="#fff"/><rect x="210" y="180" width="70" height="110" fill="#fff"/>' +
-          '<rect x="500" y="190" width="80" height="100" fill="#fff"/><ellipse cx="400" cy="310" rx="280" ry="24" fill="' + a + '" opacity=".35"/>';
-      case "skyline":
-        return '<rect x="80" y="140" width="50" height="180" fill="' + a + '"/><rect x="160" y="90" width="40" height="230" fill="' + a + '"/>' +
-          '<rect x="230" y="160" width="70" height="160" fill="' + a + '"/><rect x="520" y="70" width="36" height="250" fill="' + a + '"/>' +
-          '<rect x="580" y="120" width="80" height="200" fill="' + a + '"/>';
-      case "opera":
-        return '<path d="M180 300 Q400 80 620 300" fill="#fff" opacity=".85"/>';
-      case "statue":
-        return '<rect x="392" y="200" width="16" height="110" fill="' + a + '"/><circle cx="400" cy="170" r="22" fill="' + a + '"/>';
-      case "needle":
-        return '<path d="M400 50 L420 300 H380 Z" fill="' + a + '"/><ellipse cx="400" cy="180" rx="36" ry="10" fill="#fff"/>';
-      case "sagrada":
-        return '<path d="M280 300 L320 80 L360 300Z M400 300 L440 50 L480 300Z M520 300 L560 100 L600 300Z" fill="' + a + '"/>';
-      case "redeemer":
-        return '<path d="M250 170 H550 M400 80 V300" stroke="#fff" stroke-width="16" stroke-linecap="round"/>';
-      case "wheel":
-        return '<circle cx="400" cy="200" r="90" fill="none" stroke="' + a + '" stroke-width="10"/>' +
-          '<circle cx="400" cy="200" r="8" fill="' + a + '"/>';
-      case "castle":
-        return '<path d="M220 300 V140 H280 V180 H360 V100 H440 V180 H520 V140 H580 V300Z" fill="' + a + '"/>';
-      case "parliament":
-        return '<rect x="200" y="180" width="400" height="120" fill="' + a + '"/><path d="M400 70 L460 180 H340 Z" fill="' + a + '"/>';
-      case "hills":
-        return '<path d="M0 280 Q200 180 400 260 T800 200 V450 H0Z" fill="' + a + '" opacity=".45"/>';
-      case "table":
-        return '<path d="M80 240 H720 L640 320 H160 Z" fill="' + a + '" opacity=".55"/>';
-      case "temple":
-        return '<rect x="220" y="200" width="360" height="100" fill="' + a + '"/><path d="M200 200 L400 90 L600 200Z" fill="' + a + '"/>';
-      case "fountain":
-        return '<ellipse cx="400" cy="280" rx="160" ry="30" fill="' + a + '" opacity=".4"/><rect x="388" y="160" width="24" height="120" fill="' + a + '"/>';
-      case "cathedral":
-        return '<path d="M260 300 V160 L400 70 L540 160 V300Z" fill="' + a + '"/>';
-      case "palace":
-        return '<rect x="180" y="170" width="440" height="140" fill="' + a + '"/><rect x="240" y="130" width="80" height="40" fill="' + a + '"/>' +
-          '<rect x="480" y="130" width="80" height="40" fill="' + a + '"/>';
-      case "piazza":
-        return '<rect x="140" y="160" width="120" height="150" fill="' + a + '" opacity=".5"/>' +
-          '<rect x="540" y="140" width="140" height="170" fill="' + a + '" opacity=".6"/>';
-      case "canopy":
-        return '<path d="M60 160 H740 L700 220 H100 Z" fill="' + a + '" opacity=".45"/>';
-      case "garage":
-        return '<rect x="80" y="100" width="640" height="200" fill="rgba(255,255,255,.08)" stroke="' + a + '" stroke-width="4"/>';
-      case "lounge":
-        return '<rect x="100" y="200" width="600" height="16" fill="' + a + '" opacity=".35"/>';
-      case "marble":
-        return '<path d="M0 200 Q200 160 400 200 T800 180" fill="none" stroke="#fff" stroke-width="8" opacity=".5"/>';
-      case "tunnel":
-        return '<path d="M80 320 Q400 40 720 320" fill="none" stroke="' + a + '" stroke-width="20"/>';
-      case "wet":
-        return '<path d="M0 300 Q200 280 400 310 T800 290 V450 H0Z" fill="' + a + '" opacity=".25"/>';
-      case "vineyard":
-      case "grove":
-      case "field":
-        return '<path d="M60 260 L120 320 M180 240 L240 320 M300 250 L360 320 M420 230 L480 320 M540 250 L600 320 M660 240 L720 320" stroke="' + a + '" stroke-width="10"/>';
-      case "palm":
-        return '<path d="M200 320 V180 M200 180 Q140 140 120 180 M200 180 Q260 130 280 180" stroke="' + a + '" stroke-width="10" fill="none"/>' +
-          '<path d="M600 320 V170 M600 170 Q540 120 520 170 M600 170 Q660 110 690 170" stroke="' + a + '" stroke-width="10" fill="none"/>';
-      case "canyon":
-        return '<path d="M0 200 L180 320 L360 180 L540 330 L800 160 V450 H0Z" fill="' + a + '" opacity=".4"/>';
-      case "fjord":
-        return '<path d="M0 180 L200 320 L400 160 L600 330 L800 190 V450 H0Z" fill="' + a + '" opacity=".35"/>';
-      case "glen":
-      case "moss":
-      case "prairie":
-      case "park":
-        return '<path d="M0 260 Q200 200 400 260 T800 240 V450 H0Z" fill="' + a + '" opacity=".4"/>';
-      default:
-        return '<rect x="60" y="220" width="680" height="10" fill="' + a + '" opacity=".25"/>';
-    }
-  }
-
   WS.plateSvg = function (p) {
     if (!p) return "";
     return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="800" height="450">' +
-      '<defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">' +
-      '<stop offset="0" stop-color="' + p.sky[0] + '"/><stop offset="1" stop-color="' + p.sky[1] + '"/></linearGradient>' +
-      '<linearGradient id="gnd" x1="0" y1="0" x2="0" y2="1">' +
-      '<stop offset="0" stop-color="' + p.ground[0] + '"/><stop offset="1" stop-color="' + p.ground[1] + '"/></linearGradient></defs>' +
-      '<rect width="800" height="450" fill="url(#sky)"/>' +
-      '<rect y="300" width="800" height="150" fill="url(#gnd)"/>' +
-      motifPaths(p) +
-      '<rect x="24" y="388" width="752" height="42" rx="12" fill="rgba(10,16,28,.42)"/>' +
-      '<text x="40" y="416" fill="#fff" font-family="Manrope,system-ui,sans-serif" font-size="20" font-weight="800">' +
-      svgEsc(p.name) + '</text></svg>';
+      '<rect width="800" height="450" fill="#E6E8EC"/>' +
+      '<text x="40" y="416" fill="#12141A" font-family="Inter,system-ui,sans-serif" font-size="20" font-weight="700">' +
+      svgEsc(p.name) + "</text></svg>";
   };
 
   WS.plateDataUri = function (p) {
+    if (p && p.src) return p.src;
     return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(WS.plateSvg(p));
   };
 
   WS.shouldApplyBackground = function (viewId, plateId, keepBackground) {
     if (keepBackground) return false;
     if (!plateId) return false;
-    var plate = WS.plateById(plateId);
-    if (!plate) return false;
-    if (WS.isInterior(viewId)) {
-      return plate.id.indexOf("stu-") === 0 || plate.id === "dlr-04" || plate.id === "dlr-20" || plate.id === "dlr-25";
-    }
+    if (!WS.plateById(plateId)) return false;
+    if (WS.isInterior(viewId)) return false;
+    if (!WS.carProfile(viewId)) return false;
     return true;
   };
 
@@ -486,10 +291,11 @@
   function emptyStudio() {
     return {
       tab: "studio",
+      flow: "photos",
       retouchOn: true,
       keepBackground: true,
-      series: "dealership",
-      backgroundId: "",
+      series: "studio",
+      backgroundId: "gm-silver",
       blurPlate: false,
       originals: {},
       enhanced: {},
@@ -696,42 +502,198 @@
     } catch (e) {}
   }
 
+  function plateGeom(w, h) {
+    var wide = w / h >= 1.5;
+    var cx = w * 0.5;
+    var cy = h * (wide ? 0.80 : 0.74);
+    var rx = w * (wide ? 0.36 : 0.38);
+    var ry = rx * (wide ? 0.17 : 0.22);
+    return { cx: cx, cy: cy, rx: rx, ry: ry, ground: cy + ry * 0.08 };
+  }
+
+  function isGhostSrc(src) {
+    var s = String(src || "");
+    return !s || s.indexOf("ghosts/") >= 0;
+  }
+
+  async function loadCutoutModel() {
+    if (root._gmRemoveBg) return root._gmRemoveBg;
+    if (root._gmCutoutFailed) return null;
+    try {
+      var mod = await import("https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.6.0/dist/index.mjs");
+      root._gmRemoveBg = mod.removeBackground;
+      return root._gmRemoveBg;
+    } catch (e) {
+      root._gmCutoutFailed = true;
+      return null;
+    }
+  }
+
+  function glassPass(canvas) {
+    var ctx = canvas.getContext("2d");
+    var w = canvas.width, h = canvas.height;
+    var img = ctx.getImageData(0, 0, w, h);
+    var d = img.data;
+    var fg = new Uint8Array(w * h);
+    var i, x, y, p;
+    for (i = 0; i < w * h; i++) fg[i] = d[i * 4 + 3] > 24 ? 1 : 0;
+    var outside = new Uint8Array(w * h);
+    var stack = [];
+    function push(px, py) {
+      if (px < 0 || py < 0 || px >= w || py >= h) return;
+      var q = py * w + px;
+      if (outside[q] || fg[q]) return;
+      outside[q] = 1;
+      stack.push(q);
+    }
+    for (x = 0; x < w; x++) { push(x, 0); push(x, h - 1); }
+    for (y = 0; y < h; y++) { push(0, y); push(w - 1, y); }
+    while (stack.length) {
+      p = stack.pop();
+      y = Math.floor(p / w);
+      x = p - y * w;
+      push(x + 1, y); push(x - 1, y); push(x, y + 1); push(x, y - 1);
+    }
+    var ys = [], xs = [];
+    for (y = 0; y < h; y++) for (x = 0; x < w; x++) if (fg[y * w + x]) { ys.push(y); xs.push(x); }
+    if (!ys.length) return canvas;
+    var y0 = Math.min.apply(null, ys), y1 = Math.max.apply(null, ys);
+    var band = y0 + (y1 - y0) * 0.62;
+    for (y = y0; y < band; y++) {
+      for (x = 0; x < w; x++) {
+        p = y * w + x;
+        if (fg[p] || outside[p]) continue;
+        var o = p * 4;
+        d[o] = 28; d[o + 1] = 32; d[o + 2] = 36; d[o + 3] = 118;
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+    return canvas;
+  }
+
+  function trimCanvas(src) {
+    var ctx = src.getContext("2d");
+    var w = src.width, h = src.height;
+    var d = ctx.getImageData(0, 0, w, h).data;
+    var minX = w, minY = h, maxX = 0, maxY = 0, y, x, a;
+    for (y = 0; y < h; y++) {
+      for (x = 0; x < w; x++) {
+        a = d[(y * w + x) * 4 + 3];
+        if (a > 16) {
+          if (x < minX) minX = x;
+          if (y < minY) minY = y;
+          if (x > maxX) maxX = x;
+          if (y > maxY) maxY = y;
+        }
+      }
+    }
+    if (maxX <= minX || maxY <= minY) return src;
+    var c = makeCanvas(maxX - minX + 1, maxY - minY + 1);
+    c.getContext("2d").drawImage(src, minX, minY, c.width, c.height, 0, 0, c.width, c.height);
+    return c;
+  }
+
+  async function cutoutCar(img) {
+    var removeBackground = await loadCutoutModel();
+    if (!removeBackground) return null;
+    try {
+      var blob = await fetch(img.src).then(function (r) { return r.blob(); });
+      var png = await removeBackground(blob, {
+        model: "medium",
+        output: { format: "image/png", quality: 0.9 }
+      });
+      var url = URL.createObjectURL(png);
+      var cut = await loadImage(url);
+      var c = makeCanvas(cut.naturalWidth || cut.width, cut.naturalHeight || cut.height);
+      c.getContext("2d").drawImage(cut, 0, 0);
+      URL.revokeObjectURL(url);
+      return trimCanvas(glassPass(c));
+    } catch (e) {
+      root._gmCutoutFailed = true;
+      return null;
+    }
+  }
+
+  function compositeStudio(ctx, plateImg, car, viewId, w, h) {
+    var geom = plateGeom(w, h);
+    var profile = WS.carProfile(viewId) || "qfront";
+    var widthFrac = { qfront: 0.60, side: 0.78, front: 0.48, rear: 0.50 }[profile] || 0.60;
+    drawCover(ctx, plateImg, w, h);
+    var targetW = Math.round(w * widthFrac);
+    var scale = targetW / car.width;
+    var targetH = Math.max(1, Math.round(car.height * scale));
+    var logoBottom = Math.round(h * 0.045 + w * 0.20 + h * 0.02);
+    var maxH = Math.round(geom.ground - logoBottom);
+    if (targetH > maxH && maxH > 40) {
+      scale *= maxH / targetH;
+      targetW = Math.max(1, Math.round(car.width * scale));
+      targetH = Math.max(1, Math.round(car.height * scale));
+    }
+    var left = Math.round(geom.cx - targetW / 2);
+    var top = Math.round(geom.ground - targetH);
+    ctx.save();
+    ctx.filter = "blur(16px)";
+    ctx.fillStyle = "rgba(18,20,26,0.38)";
+    ctx.beginPath();
+    ctx.ellipse(geom.cx, geom.ground, targetW * 0.36, Math.max(8, h * 0.016), 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+    var keep = Math.max(8, Math.round(targetH * 0.22));
+    var refl = makeCanvas(targetW, keep);
+    var rctx = refl.getContext("2d");
+    rctx.translate(0, keep);
+    rctx.scale(1, -1);
+    rctx.drawImage(car, 0, car.height - Math.round(car.height * 0.22), car.width, Math.round(car.height * 0.22), 0, 0, targetW, keep);
+    var rid = rctx.getImageData(0, 0, targetW, keep);
+    var rd = rid.data, yy, xx, o, fade;
+    for (yy = 0; yy < keep; yy++) {
+      fade = 0.34 * (1 - yy / Math.max(1, keep - 1));
+      for (xx = 0; xx < targetW; xx++) {
+        o = (yy * targetW + xx) * 4;
+        rd[o + 3] = Math.round(rd[o + 3] * fade);
+      }
+    }
+    rctx.putImageData(rid, 0, 0);
+    ctx.save();
+    ctx.beginPath();
+    ctx.ellipse(geom.cx, geom.cy, geom.rx, geom.ry, 0, 0, Math.PI * 2);
+    ctx.clip();
+    ctx.drawImage(refl, left, Math.round(geom.ground) - 2);
+    ctx.restore();
+    if (ctx.filter !== undefined) ctx.filter = "contrast(1.06) saturate(1.04) brightness(1.03)";
+    ctx.drawImage(car, left, top, targetW, targetH);
+    ctx.filter = "none";
+  }
+
   async function localItem(item, opts) {
     opts = opts || {};
-    var w = 1600, h = 900;
+    var viewId = item.view || item.id;
+    var w = 1600, h = 1200;
     var c = makeCanvas(w, h);
     var ctx = c.getContext("2d");
     var img;
     try { img = await loadImage(item.data); }
     catch (e) { return { id: item.id, data: item.data, engine: "local", skipped: true }; }
-    var applyBg = WS.shouldApplyBackground(item.view || item.id, opts.backgroundId, opts.keepBackground);
+    var applyBg = WS.shouldApplyBackground(viewId, opts.backgroundId, opts.keepBackground);
     if (applyBg) {
       var plate = WS.plateById(opts.backgroundId);
-      if (plate) {
-        try {
-          var bg = await loadImage(WS.plateDataUri(plate));
-          drawCover(ctx, bg, w, h);
-        } catch (e2) {
-          ctx.fillStyle = "#e8f4ff";
-          ctx.fillRect(0, 0, w, h);
-        }
-      }
-      if (opts.retouchOn !== false && ctx.filter !== undefined) {
-        ctx.filter = "contrast(1.14) saturate(1.08) brightness(1.06)";
-      }
-      drawContainLower(ctx, img, w, h, WS.isInterior(item.view || item.id) ? 0.92 : 0.86);
-      ctx.filter = "none";
-    } else {
-      if (opts.retouchOn !== false && ctx.filter !== undefined) {
-        ctx.filter = "contrast(1.14) saturate(1.08) brightness(1.06)";
-      } else {
+      var bg = null;
+      try { if (plate) bg = await loadImage(WS.plateDataUri(plate)); } catch (e2) { bg = null; }
+      var car = await cutoutCar(img);
+      if (!bg || !car) {
+        if (opts.retouchOn !== false && ctx.filter !== undefined) ctx.filter = "contrast(1.08) saturate(1.04) brightness(1.03)";
+        drawCover(ctx, img, w, h);
         ctx.filter = "none";
+        return { id: item.id, data: c.toDataURL("image/jpeg", 0.9), engine: "local-fallback", cutout: false };
       }
-      drawCover(ctx, img, w, h);
-      ctx.filter = "none";
+      compositeStudio(ctx, bg, car, viewId, w, h);
+      if (opts.blurPlate) blurPlateRegion(ctx, w, h);
+      return { id: item.id, data: c.toDataURL("image/jpeg", 0.9), engine: "local", cutout: true };
     }
-    if (opts.blurPlate && !WS.isInterior(item.view || item.id)) blurPlateRegion(ctx, w, h);
-    return { id: item.id, data: c.toDataURL("image/jpeg", 0.86), engine: "local" };
+    if (opts.retouchOn !== false && ctx.filter !== undefined) ctx.filter = "contrast(1.08) saturate(1.04) brightness(1.03)";
+    drawCover(ctx, img, w, h);
+    ctx.filter = "none";
+    return { id: item.id, data: c.toDataURL("image/jpeg", 0.9), engine: "local" };
   }
 
   async function tryRemote(payload) {
@@ -792,10 +754,24 @@
   }
 
   function views() {
+    var APP = root.APP || {};
+    if (APP.photoSet === "web32" && typeof root.websiteCaptureIds === "function") {
+      var ids = root.websiteCaptureIds();
+      if (ids && ids.length) return ids;
+    }
     return WS.VIEW_ORDER.slice();
   }
 
   function viewLabel(id) {
+    var useWeb = (root.APP || {}).photoSet === "web32";
+    if (useWeb && typeof root.websiteShotLabel === "function") {
+      var web = root.websiteShotLabel(id);
+      if (web) {
+        var ids = typeof root.websiteCaptureIds === "function" ? root.websiteCaptureIds() : [];
+        var at = ids.indexOf(id);
+        return (at >= 0 ? (at + 1) + " · " : "") + web;
+      }
+    }
     var list = root.VIEWS || [];
     for (var i = 0; i < list.length; i++) if (list[i][0] === id) return (i + 1) + " · " + list[i][1];
     var idx = WS.VIEW_ORDER.indexOf(id);
@@ -804,6 +780,10 @@
   }
 
   function picFor(id) {
+    if ((root.APP || {}).photoSet === "web32" && typeof root.websiteGhost === "function") {
+      var g = root.websiteGhost(id);
+      if (g) return g;
+    }
     var list = root.VIEWS || [];
     for (var i = 0; i < list.length; i++) {
       if (list[i][0] === id && typeof root.pic === "function") return root.pic(list[i][2]);
@@ -858,17 +838,13 @@
     var st = studioState();
     var host = $("wsSteps");
     if (!host) return;
-    var hasBg = !st.keepBackground && st.backgroundId;
-    var approved = Object.keys(st.approved || {}).filter(function (k) { return st.approved[k]; }).length;
-    var total = Object.keys(st.originals || {}).length || 12;
-    var items = [
-      { id: "retouch", label: "Retouch", on: st.retouchOn },
-      { id: "bg", label: "Background", on: hasBg },
-      { id: "ok", label: "Approve", on: approved > 0 },
-      { id: "post", label: "Post", on: approved >= total && total > 0 }
-    ];
-    host.innerHTML = items.map(function (it) {
-      return '<li class="' + (it.on ? "on" : "") + '">' + it.label + "</li>";
+    var order = ["photos", "retouch", "background", "review", "post"];
+    var labels = { photos: "Photos", retouch: "Retouch", background: "Background", review: "Review", post: "Post" };
+    var cur = order.indexOf(st.flow || "photos");
+    if (cur < 0) cur = 0;
+    host.innerHTML = order.map(function (id, i) {
+      var cls = i === cur ? "on" : (i < cur ? "done" : "");
+      return '<li class="' + cls + '" data-ws-flow="' + id + '">' + labels[id] + "</li>";
     }).join("");
   }
 
@@ -885,7 +861,7 @@
     var st = studioState();
     var host = $("wsPlateGrid");
     if (!host) return;
-    var list = (WS.CATALOG[st.series] || []).slice();
+    var list = (WS.CATALOG.studio || []).slice();
     host.innerHTML = list.map(function (p) {
       return '<button type="button" class="ws-plate' + (st.backgroundId === p.id ? " on" : "") + '" data-ws-plate="' + p.id + '">' +
         '<img alt="" src="' + WS.plateDataUri(p) + '"><span>' + p.name + "</span></button>";
@@ -902,24 +878,46 @@
       host.innerHTML = '<p class="quote">No walk-around slots.</p>';
       return;
     }
-    host.innerHTML = ids.map(function (id) {
-      var before = st.originals[id] || "";
-      var after = st.enhanced[id] || before;
-      var ok = !!st.approved[id];
-      var interior = WS.isInterior(id);
-      return '<article class="ws-shot' + (ok ? " ok" : "") + '" data-ws-shot="' + id + '">' +
-        '<header><b>' + viewLabel(id) + "</b>" +
-        (interior ? '<em>Interior · retouch clean, studio only</em>' : "<em>Exterior</em>") +
-        (ok ? '<span class="ws-ok">Approved</span>' : "") + "</header>" +
-        '<div class="ws-ba">' +
-        '<figure><img src="' + before + '" alt="Before"><figcaption>Before</figcaption></figure>' +
-        '<figure><img src="' + after + '" alt="After"><figcaption>After</figcaption></figure>' +
-        "</div>" +
-        '<div class="ws-shot-actions">' +
-        '<button type="button" class="pill wash" data-ws-do="one" data-id="' + id + '">Enhance this</button>' +
-        '<button type="button" class="pill cyan" data-ws-do="approve" data-id="' + id + '">' + (ok ? "Approved" : "Approve") + "</button>" +
-        "</div></article>";
-    }).join("");
+    var flow = st.flow || "photos";
+    var web = (root.APP || {}).photoSet === "web32";
+    host.classList.toggle("ws-grid", flow !== "review");
+    if (flow === "review") {
+      var real = ids.filter(function (id) { return st.originals[id] && !isGhostSrc(st.originals[id]); });
+      if (!real.length) {
+        host.innerHTML = '<p class="quote">Add photos, then retouch and choose a background.</p>';
+        return;
+      }
+      host.innerHTML = real.map(function (id) {
+        var before = st.originals[id] || "";
+        var after = st.enhanced[id] || before;
+        var ok = !!st.approved[id];
+        return '<article class="ws-shot' + (ok ? " ok" : "") + '" data-ws-shot="' + id + '">' +
+          "<header><b>" + viewLabel(id) + "</b>" +
+          (ok ? '<span class="ws-ok">Approved</span>' : "") + "</header>" +
+          '<div class="ws-ba">' +
+          '<figure><img src="' + before + '" alt="Before"><figcaption>Before</figcaption></figure>' +
+          '<figure><img src="' + after + '" alt="After"><figcaption>After</figcaption></figure>' +
+          "</div>" +
+          '<button type="button" class="ws-text" data-ws-do="approve" data-id="' + id + '">' + (ok ? "Approved" : "Approve") + "</button>" +
+          "</article>";
+      }).join("");
+      return;
+    }
+    var html = "";
+    var last = "";
+    ids.forEach(function (id) {
+      if (web && typeof root.websiteShotSection === "function") {
+        var sec = root.websiteShotSection(id);
+        if (sec && sec !== last) {
+          last = sec;
+          html += '<div class="web-shot-head">' + sec + "</div>";
+        }
+      }
+      var src = flow === "photos" ? (st.originals[id] || "") : (st.enhanced[id] || st.originals[id] || "");
+      html += '<button type="button" class="ws-cell' + (isGhostSrc(src) ? "" : " shot") + '" data-ws-do="shot" data-id="' + id + '">' +
+        '<img alt="" src="' + src + '"><b>' + viewLabel(id) + "</b></button>";
+    });
+    host.innerHTML = html;
   }
 
   function formatWhen(ts) {
@@ -974,6 +972,32 @@
     if ($("wsHistoryPane")) $("wsHistoryPane").classList.toggle("hide", st.tab !== "history");
   }
 
+  function hasRealPhoto(st) {
+    return Object.keys(st.originals || {}).some(function (k) { return !isGhostSrc(st.originals[k]); });
+  }
+
+  function paintPrimary() {
+    var b = $("wsPrimary");
+    var st = studioState();
+    var studio = $("webStudio");
+    if (studio) {
+      ["photos", "retouch", "background", "review", "post"].forEach(function (f) {
+        studio.classList.toggle("flow-" + f, (st.flow || "photos") === f && st.tab !== "history");
+      });
+    }
+    if (!b) return;
+    if (st.tab === "history") { b.textContent = "Back to studio"; return; }
+    if ((st.flow || "photos") === "photos" && !hasRealPhoto(st)) { b.textContent = "Add photos"; return; }
+    var labels = {
+      photos: "Continue",
+      retouch: "Apply retouch",
+      background: "Apply background",
+      review: "Approve all",
+      post: st.fromHistory ? "Resend to website" : "Post to website"
+    };
+    b.textContent = labels[st.flow] || "Continue";
+  }
+
   WS.paint = function () {
     if (!$("webStudio")) return;
     collectOriginals();
@@ -984,6 +1008,7 @@
     paintSeries();
     paintPlates();
     paintPhotos();
+    paintPrimary();
     paintHistory();
     var lock = $("wsLock");
     if (lock) lock.textContent = WS.DAMAGE_COPY;
@@ -1074,14 +1099,14 @@
     if (st.busy) return;
     collectOriginals();
     var want = (ids && ids.length) ? ids : views();
-    if (st.keepBackground === false && !st.backgroundId) {
-      if (typeof root.toast === "function") root.toast("Pick a background plate or keep the real one.");
-    }
+    if (st.keepBackground === false && !st.backgroundId) st.backgroundId = "gm-silver";
     st.busy = true;
-    if (typeof root.toast === "function") root.toast("Retouching — dirt goes, damage stays.");
+    if (typeof root.toast === "function") {
+      root.toast(st.keepBackground ? "Retouching — dirt goes, damage stays." : "Placing the car on the studio floor…");
+    }
     var items = want.map(function (id) {
       return { id: id, view: id, kind: "walk", data: st.originals[id] };
-    }).filter(function (it) { return it.data; });
+    }).filter(function (it) { return it.data && !isGhostSrc(it.data); });
     try {
       var res = await WS.processPhotos({
         mode: st.keepBackground ? "retouch" : "both",
@@ -1098,7 +1123,10 @@
           st.approved[p.id] = false;
         }
       });
-      if (typeof root.toast === "function") root.toast(st.engine === "remote" ? "Enhanced." : "Local enhance ready — approve the afters.");
+      var missed = (res.photos || []).some(function (p) { return p && p.cutout === false; });
+      if (typeof root.toast === "function") {
+        root.toast(missed ? "Cutout didn’t load — those photos stayed as shot." : (st.engine === "remote" ? "Enhanced." : "Ready to review."));
+      }
     } catch (e) {
       if (typeof root.toast === "function") root.toast("Couldn’t enhance — try again.");
     }
@@ -1121,13 +1149,13 @@
     var st = studioState();
     views().forEach(function (id) {
       var src = st.enhanced[id] || st.originals[id];
-      if (src) APP.photos[id] = src;
+      if (src && !isGhostSrc(src)) APP.photos[id] = src;
     });
   }
 
   function goPost() {
     var st = studioState();
-    var pending = views().filter(function (id) { return !st.approved[id]; });
+    var pending = views().filter(function (id) { return !isGhostSrc(st.originals[id]) && !st.approved[id]; });
     if (pending.length) {
       if (typeof root.toast === "function") root.toast("Approve each photo first — then post.");
       return;
@@ -1147,7 +1175,7 @@
     if (typeof root.show === "function") root.show("webStudio");
     WS.paint();
     var st = APP.webStudio;
-    if (st.tab === "studio" && st.retouchOn && !Object.keys(st.enhanced).length) {
+    if (st.tab === "studio" && st.retouchOn && !st.demo && !Object.keys(st.enhanced).length && (st.flow === "retouch" || st.flow === "background")) {
       runEnhance();
     }
   };
@@ -1210,6 +1238,7 @@
       var id = b.getAttribute("data-id");
       var act = b.getAttribute("data-ws-do");
       if (act === "one") runEnhance([id]);
+      if (act === "shot" && typeof root.openCamera === "function") root.openCamera("photos", id);
       if (act === "approve") {
         var st = studioState();
         if (!st.enhanced[id]) st.enhanced[id] = st.originals[id];
@@ -1241,6 +1270,41 @@
     };
     if ($("wsApproveAll")) $("wsApproveAll").onclick = approveAll;
     if ($("wsPost")) $("wsPost").onclick = goPost;
+    if ($("wsSteps")) $("wsSteps").addEventListener("click", function (e) {
+      var b = e.target && e.target.closest && e.target.closest("[data-ws-flow]");
+      if (!b) return;
+      studioState().flow = b.getAttribute("data-ws-flow");
+      studioState().tab = "studio";
+      WS.paint();
+    });
+    if ($("wsPrimary")) $("wsPrimary").onclick = function () {
+      var st = studioState();
+      if (st.tab === "history") { st.tab = "studio"; st.flow = "photos"; WS.paint(); return; }
+      var flow = st.flow || "photos";
+      if (flow === "photos") {
+        if (!hasRealPhoto(st)) { if (typeof root.show === "function") root.show("photos"); return; }
+        st.flow = "retouch";
+        WS.paint();
+        return;
+      }
+      if (flow === "retouch") {
+        st.keepBackground = true;
+        st.retouchOn = true;
+        runEnhance().then(function () { studioState().flow = "background"; WS.paint(); });
+        return;
+      }
+      if (flow === "background") {
+        st.keepBackground = false;
+        if (!st.backgroundId) st.backgroundId = "gm-silver";
+        runEnhance(views().filter(function (id) { return !!WS.carProfile(id); })).then(function () {
+          studioState().flow = "review";
+          WS.paint();
+        });
+        return;
+      }
+      if (flow === "review") { st.flow = "post"; approveAll(); return; }
+      if (flow === "post") goPost();
+    };
     if ($("webHistJump")) $("webHistJump").onclick = function () { WS.open("history"); };
   };
 

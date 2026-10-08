@@ -25,25 +25,38 @@ must(/function paintWebsitePhotosChrome\(/, "website chrome helper");
 must(/id="photosTitle"/, "photos title swaps for website");
 must(/id="wsPlateGrid"/, "background plate grid");
 
-assert.equal(WS.CATALOG.dealership.length, 30, "30 dealership plates");
-assert.equal(WS.CATALOG.landscape.length, 30, "30 landscape plates");
-assert.equal(WS.CATALOG.landmark.length, 30, "30 landmark plates");
-assert.ok(WS.CATALOG.studio.length >= 3, "soft studio plates for interiors");
+assert.equal(WS.CATALOG.studio.length, 4, "four G&M studio plates");
+assert.ok(!WS.CATALOG.dealership && !WS.CATALOG.landscape && !WS.CATALOG.landmark, "fake plate series are gone");
 const ids = {};
 WS.allPlates().forEach(function (p) {
-  assert.ok(p.id && p.name, "plate has id and name");
+  assert.ok(p.id && p.name && p.src, "plate has id, name, and photo");
   assert.ok(!ids[p.id], "unique plate id " + p.id);
   ids[p.id] = 1;
   assert.ok(WS.plateSvg(p).indexOf(p.name) >= 0, "plate svg labeled " + p.name);
+  const file = path.join(root, p.src.split("?")[0]);
+  const buf = fs.readFileSync(file);
+  assert.ok(buf.length > 100000, p.id + " is a real image");
+  let w = 0, h = 0;
+  for (let i = 0; i < buf.length - 8; i++) {
+    if (buf[i] === 0xff && (buf[i + 1] === 0xc0 || buf[i + 1] === 0xc2)) {
+      h = buf.readUInt16BE(i + 5);
+      w = buf.readUInt16BE(i + 7);
+      break;
+    }
+  }
+  assert.ok(w >= 2400 && h >= 1350, p.id + " is at least 2400px wide (" + w + "x" + h + ")");
 });
+assert.ok(fs.existsSync(path.join(root, "backgrounds/gm-studio/CREDITS.txt")), "studio attribution is recorded");
 assert.ok(WS.DAMAGE_STAYS_PROMPT.indexOf("NEVER heal") >= 0 || WS.DAMAGE_STAYS_PROMPT.indexOf("Do not inpaint") >= 0, "prompt forbids healing damage");
 assert.equal(WS.VIEW_ORDER.length, 12, "walk order has 12 slots");
 assert.equal(WS.VIEW_LABELS.qfront, "3/4 Front");
 assert.equal(WS.isInterior("dash"), true);
 assert.equal(WS.isInterior("qfront"), false);
-assert.equal(WS.shouldApplyBackground("interior", "lmk-01", false), false, "landmarks stay off interiors");
-assert.equal(WS.shouldApplyBackground("qfront", "lmk-01", false), true);
-assert.equal(WS.shouldApplyBackground("qfront", "dlr-01", true), false, "keep real background");
+assert.equal(WS.shouldApplyBackground("interior", "gm-silver", false), false, "studio stays off interiors");
+assert.equal(WS.shouldApplyBackground("dash", "gm-white", false), false, "dashboard stays off the turntable");
+assert.equal(WS.shouldApplyBackground("qfront", "gm-silver", false), true);
+assert.equal(WS.shouldApplyBackground("tire", "gm-silver", false), false, "close-ups are not pasted onto the turntable");
+assert.equal(WS.shouldApplyBackground("qfront", "gm-silver", true), false, "keep real background");
 
 assert.ok(WS.SAMPLES.length >= 5, "at least 5 website samples");
 WS.SAMPLES.forEach(function (s) {

@@ -1,0 +1,24 @@
+G&M studio backdrops
+=====================
+
+These plates are rendered for G&M Auto Sales & Service. They are not stock
+photos and they replace the old generated gradient plates.
+
+Each file is a photographic-style seamless light studio: softbox vignette,
+circular turntable with concentric rings, and the approved G&M badge
+(icons/gm-logo-square.png) centered on the wall.
+
+Variants (4:3 is 3200×2400, 16:9 is 3200×1800):
+
+- silver-4x3.jpg / silver-16x9.jpg — light grey wall, silver turntable
+- white-4x3.jpg / white-16x9.jpg — bright white studio
+- warm-4x3.jpg / warm-16x9.jpg — warm grey, thin G&M red turntable edge
+- charcoal-4x3.jpg / charcoal-16x9.jpg — dark charcoal studio, lit turntable
+
+Regenerate with tools/render_gm_studio.py (Pillow + NumPy). The badge artwork
+is the approved square logo already in this repo.
+
+Cars are cut out with BiRefNet-general-lite for the proof contact sheet, and
+in the app with @imgly/background-removal (ISNet, medium) running in the
+browser. If that model fails to load, the original photo is kept and no plate
+is pasted behind it. Backgrounds are applied to full exterior views only.

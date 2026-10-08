@@ -2558,6 +2558,53 @@ html:has(#start.on),body:has(#start.on){background:#12141A!important}
   #verify .pad{max-width:960px}
 }
 #photos .dock .pill,#submit .pill.purple{background:var(--qs-accent)!important;color:#fff!important;border-radius:12px}
+#photos.web-shots{background:#F7F8FA}
+#photos.web-shots #webPhotoIntro{display:block}
+#photos.web-shots #walkBlock,#photos.web-shots #walkOrderNote,#photos.web-shots #btnStart,#photos.web-shots #damageBlock{display:none!important}
+#photos.web-shots #webExtraBlock{display:block}
+.web-photo-tip{margin:0 0 12px;padding:12px 14px;background:#FFFFFF;border:1px solid #E2E6EC;border-radius:12px;color:#12141A;font-size:15px;font-weight:600;line-height:1.35}
+.web-photo-rules{margin:0 0 12px;background:#FFFFFF;border:1px solid #E2E6EC;border-radius:12px;padding:0 14px}
+.web-photo-rules summary{min-height:44px;display:flex;align-items:center;cursor:pointer;font-size:15px;font-weight:600;color:#12141A}
+.web-photo-rules ul{margin:0 0 12px;padding:0 0 0 18px}
+.web-photo-rules li{margin:0 0 8px;color:#5C6370;font-size:13px;line-height:1.4}
+.web-photo-drop{margin:0 0 16px;min-height:72px;display:grid;place-items:center;text-align:center;padding:14px;border:1px dashed #C5CCD6;border-radius:12px;background:#FFFFFF;color:#5C6370;font-size:14px;font-weight:600;cursor:pointer}
+.web-photo-drop.on{border-color:#E0243C;color:#12141A;background:#FFF5F6}
+.web-shot-head{grid-column:1 / -1;margin:8px 0 0;font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#8B929E}
+#photos.web-shots #photoRows .row{align-items:stretch;justify-content:flex-start;text-align:left;aspect-ratio:auto;min-height:0;padding:8px}
+#photos.web-shots #photoRows .row b{font-size:12px;font-weight:600;line-height:1.25;color:#12141A}
+#photos.web-shots #photoRows .row.main{box-shadow:inset 0 0 0 1px #E0243C}
+#photos.web-shots #photoRows .row .main-tag{display:inline-block;margin-top:4px;padding:2px 6px;border-radius:999px;background:#E0243C;color:#FFFFFF;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.web-extra-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}
+.web-extra-grid .row{margin:0}
+.web-add-more{width:100%;min-height:48px;margin:8px 0 16px;border:1px dashed #C5CCD6;border-radius:12px;background:#FFFFFF;color:#12141A;font:inherit;font-size:15px;font-weight:600;cursor:pointer}
+@media (min-width:768px){
+  .web-extra-grid{grid-template-columns:1fr 1fr 1fr}
+}
+#photos.web-shots #docsBlock{display:none}
+#webStudio{background:#F7F8FA!important}
+#webStudio > .nav,#webStudio .ws-hero,#webStudio .ws-tabs,#webStudio .ws-card,#webStudio #wsBgAll,#webStudio #wsRetouchAll{display:none!important}
+#webStudio .pad{padding-bottom:148px}
+#webStudio .ws-steps{display:flex;gap:0;margin:0 0 12px;padding:4px;list-style:none;background:#FFFFFF;border:1px solid #E2E6EC;border-radius:12px;overflow:auto}
+#webStudio .ws-steps li{flex:1;min-width:0;margin:0;padding:8px 2px;border-radius:8px;background:transparent;color:#8B929E;font-size:11px;font-weight:600;text-align:center;letter-spacing:0}
+#webStudio .ws-steps li.done{color:#12141A}
+#webStudio .ws-steps li.on{background:#F7F8FA;color:#12141A;box-shadow:inset 0 -2px 0 #E0243C}
+#webStudio #wsPlateGrid{display:none;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 12px}
+#webStudio.flow-background #wsPlateGrid{display:grid}
+#webStudio .ws-plate{border:1px solid #E2E6EC;border-radius:12px;background:#FFFFFF;padding:6px;text-align:left;color:#12141A}
+#webStudio .ws-plate.on{border-color:#E0243C;box-shadow:inset 0 0 0 1px #E0243C}
+#webStudio .ws-plate img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:8px;display:block}
+#webStudio .ws-plate span{display:block;margin-top:6px;font-size:12px;font-weight:600}
+#wsPhotoList.ws-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#wsPhotoList .ws-cell{display:flex;flex-direction:column;gap:6px;margin:0;padding:8px;border:1px solid #E2E6EC;border-radius:12px;background:#FFFFFF;text-align:left;color:#12141A;font:inherit;cursor:pointer}
+#wsPhotoList .ws-cell img{width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:8px;background:#F7F8FA}
+#wsPhotoList .ws-cell b{font-size:12px;font-weight:600;line-height:1.25}
+#wsPhotoList .web-shot-head{grid-column:1 / -1}
+#webStudio .ws-shot{background:#FFFFFF;border:1px solid #E2E6EC;border-radius:12px;padding:12px;margin:0 0 8px}
+#webStudio .ws-text{border:0;background:transparent;color:#5C6370;font:inherit;font-size:14px;font-weight:600;min-height:44px;cursor:pointer}
+#webStudio .ws-dock{display:flex;flex-direction:column;gap:4px;background:#FFFFFF;border-top:1px solid #E2E6EC}
+#webStudio .ws-quiet{display:flex;justify-content:center;gap:8px}
+#webStudio #wsSaveHist,#webStudio #wsHistLink{border:0;background:transparent;color:#5C6370;font:inherit;font-size:14px;font-weight:600;min-height:44px;padding:8px 12px;cursor:pointer}
+#webStudio #wsPrimary{width:100%;min-height:48px;border:0;border-radius:12px;background:#E0243C;color:#FFFFFF;font:inherit;font-size:16px;font-weight:600;cursor:pointer}
 
 /* CA workbench */
 #workbench,html:has(#workbench.on),body:has(#workbench.on),.phone:has(#workbench.on){background:var(--qs-canvas)!important}
@@ -2935,6 +2982,7 @@ body.exit-on:has(#center.on) #center.screen{padding-top:calc(64px + env(safe-are
       <button class="pill purple" type="button" id="startAppraise">Appraise vehicle<svg class="gm-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 13l2-5a2 2 0 0 1 2-1h10a2 2 0 0 1 2 1l2 5"/><path d="M5 17h14v1a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1z"/><path d="M7 13h10"/><circle cx="7.5" cy="16.5" r="1" fill="currentColor" stroke="none"/><circle cx="16.5" cy="16.5" r="1" fill="currentColor" stroke="none"/></svg><span class="start-sub">Start a new appraisal on the lot</span></button>
       <button class="pill" type="button" id="startCenter" aria-disabled="false">Appraisal Center<svg class="gm-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg><span class="start-sub">FIFO desk — oldest ready first</span></button>
       <button class="pill cyan" type="button" id="startWebsite">Post vehicle to website<svg class="gm-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c2.5 2.8 3.8 5.8 3.8 9s-1.3 6.2-3.8 9c-2.5-2.8-3.8-5.8-3.8-9S9.5 5.8 12 3z"/></svg><span class="start-sub">Publish photos &amp; pricing</span></button>
+      <button class="pill" type="button" id="startRetouch">Photo retouch<svg class="gm-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l4.5-1.2L19 8.3a2 2 0 0 0 0-2.8l-.5-.5a2 2 0 0 0-2.8 0L5.2 15.5 4 20z"/><path d="M14 6l4 4"/><path d="M15 4l1-1"/><path d="M19 8l1-1"/></svg><span class="start-sub">Studio cleanup for website photos</span></button>
     </div>
     <div class="start-more" id="startMore">
       <button class="pill" type="button" id="startTrade">Send trade-in link<svg class="gm-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.5.5l2-2a5 5 0 0 0-7-7l-1.2 1.2"/><path d="M14 11a5 5 0 0 0-7.5-.5l-2 2a5 5 0 0 0 7 7l1.2-1.2"/></svg><span class="start-sub">Customer self-serve estimate</span></button>
@@ -3519,9 +3567,31 @@ body.exit-on:has(#center.on) #center.screen{padding-top:calc(64px + env(safe-are
       <img src="pose-qfront.jpg?v=17" alt="Stand about six feet off the front corner, phone out, for the 3/4 front photo">
       <em>Stand here · about 6 feet off the front corner · tap to shoot</em>
     </button>
-    <div class="block">Walk-around</div>
+    <div class="block" id="walkBlock">Walk-around</div>
     <p class="quote" id="walkOrderNote">Go around the vehicle in this order: ¾ front, front, driver side, rear, passenger side, then interior.</p>
+    <div id="webPhotoIntro" class="hide">
+      <p class="web-photo-tip" id="webPhotoTip">Start the car and turn the lights on first.</p>
+      <details class="web-photo-rules" id="webPhotoRules">
+        <summary>Photo rules</summary>
+        <ul>
+          <li>Use the same location and background for every vehicle.</li>
+          <li>Take exterior photos at headlight height, except number 9.</li>
+          <li>Remove the plates, clutter and personal items, and make sure no people show in the reflections.</li>
+          <li>Turn on the interior lights and don’t use the flash.</li>
+          <li>Add close-ups of any damage after photo 32.</li>
+          <li>Trucks: swap photo 23 for the bed from the side.</li>
+          <li>Vans: swap photos 26 and 27 for the sliding door open and the third row.</li>
+        </ul>
+      </details>
+      <div class="web-photo-drop" id="webPhotoDrop" tabindex="0">Drop photos here. They fill the slots in shoot order.</div>
+      <input id="webBulkFiles" class="hide" type="file" accept="image/*" multiple />
+    </div>
     <div id="photoRows"></div>
+    <div id="webExtraBlock" class="hide">
+      <div class="web-extra-grid" id="webExtraRows"></div>
+      <button class="web-add-more" type="button" id="webAddMore">+ Add more photos</button>
+    </div>
+    <div id="damageBlock">
     <div class="block">Damage</div>
     <p class="quote">Skip this if the vehicle is clean. If something is damaged, tell us here — rust, a dent, a scratch, a cracked light, a panel that doesn’t open.</p>
     <div class="how">
@@ -3532,6 +3602,7 @@ body.exit-on:has(#center.on) #center.screen{padding-top:calc(64px + env(safe-are
       </ol>
     </div>
     <div id="damageRows"></div>
+    </div>
     <div id="docsBlock">
       <div class="block">Appraisal documents</div>
       <p class="quote">Tap a square. Screenshots, a PDF, or one screen recording of you scrolling the report — that last one saves a pile of screenshots.</p>
@@ -3607,7 +3678,6 @@ body.exit-on:has(#center.on) #center.screen{padding-top:calc(64px + env(safe-are
               <label><input id="wsApplyBg" type="radio" name="wsBg" /> Apply selected plate</label>
             </div>
             <div class="ws-chips" id="wsSeries"></div>
-            <div class="ws-plates" id="wsPlateGrid"></div>
             <button class="pill" type="button" id="wsBgAll" style="margin-top:10px">Apply background to all exteriors</button>
             <label class="ws-switch" style="margin-top:12px">
               <div>
@@ -3619,7 +3689,7 @@ body.exit-on:has(#center.on) #center.screen{padding-top:calc(64px + env(safe-are
           </div>
         </div>
         <div>
-          <div class="block">Before / after · approve each</div>
+          <div class="ws-plates" id="wsPlateGrid"></div>
           <div id="wsPhotoList"></div>
         </div>
       </div>
@@ -3630,9 +3700,13 @@ body.exit-on:has(#center.on) #center.screen{padding-top:calc(64px + env(safe-are
     </div>
   </div>
   <div class="dock ws-dock">
-    <button class="pill wash" type="button" id="wsSaveHist">Save to History</button>
-    <button class="pill cyan" type="button" id="wsApproveAll">Approve all</button>
-    <button class="pill purple" type="button" id="wsPost">Post to website</button>
+    <div class="ws-quiet">
+      <button type="button" id="wsSaveHist">Save to History</button>
+      <button type="button" id="wsHistLink" data-ws-tab="history">History</button>
+    </div>
+    <button class="pill" type="button" id="wsPrimary">Continue</button>
+    <button class="hide" type="button" id="wsApproveAll">Approve all</button>
+    <button class="hide" type="button" id="wsPost">Post to website</button>
   </div>
 </section>
 
@@ -3934,7 +4008,7 @@ body.exit-on:has(#center.on) #center.screen{padding-top:calc(64px + env(safe-are
 <div class="toast" id="toast"></div>
 <button class="hide" type="button" id="doneX"></button>
 </div>
-<script src="web-studio.js?v=4"></script>
+<script src="web-studio.js?v=5"></script>
 <script>
 
 const GHOSTS = {
@@ -3968,6 +4042,40 @@ const VIEWS = [
   ["console", "Console", "console"],
   ["tire", "Tire", "tire"],
   ["interior", "Driver interior", "door"]
+];
+const WEB_SHOTS = [
+  {id:"qfront", pub:1, ghost:"qfront", section:"ext", main:1, label:"Front three-quarter, driver side"},
+  {id:"roof", pub:9, ghost:"qfront", section:"ext", label:"Front three-quarter from above"},
+  {id:"headlight", pub:13, ghost:"front", section:"ext", label:"Headlight, lights on"},
+  {id:"wheel", pub:11, ghost:"tire", section:"ext", label:"Front driver-side wheel and rim"},
+  {id:"tire", pub:12, ghost:"tire", section:"ext", label:"Tire tread, close-up"},
+  {id:"driver", pub:2, ghost:"driver", section:"ext", label:"Driver side, straight on"},
+  {id:"qrear_drv", pub:3, ghost:"qrear", section:"ext", label:"Rear three-quarter, driver side"},
+  {id:"taillight", pub:14, ghost:"rear", section:"ext", label:"Taillight, lights on"},
+  {id:"rear", pub:4, ghost:"rear", section:"ext", label:"Rear, straight on"},
+  {id:"badge", pub:10, ghost:"rear", section:"ext", label:"Rear badge and trim name, close-up"},
+  {id:"qrear_pass", pub:5, ghost:"qrear_pass", section:"ext", label:"Rear three-quarter, passenger side"},
+  {id:"pass", pub:6, ghost:"pass", section:"ext", label:"Passenger side, straight on"},
+  {id:"qfront_pass", pub:7, ghost:"qfront_pass", section:"ext", label:"Front three-quarter, passenger side"},
+  {id:"front", pub:8, ghost:"front", section:"ext", label:"Front, straight on"},
+  {id:"engine", pub:30, ghost:"front", section:"ext", label:"Engine bay, hood open"},
+  {id:"jamb", pub:31, ghost:"door", section:"int", label:"Door-jamb sticker showing the VIN and tire info"},
+  {id:"interior", pub:15, ghost:"door", section:"int", label:"Driver door open, showing the seat, door panel and sill"},
+  {id:"gauges", pub:17, ghost:"dash", section:"int", label:"Gauge cluster, engine on, showing the mileage"},
+  {id:"steering", pub:18, ghost:"dash", section:"int", label:"Steering wheel and controls"},
+  {id:"screen", pub:19, ghost:"dash", section:"int", label:"Infotainment screen, on"},
+  {id:"backup", pub:20, ghost:"dash", section:"int", label:"Backup camera view on screen"},
+  {id:"console", pub:21, ghost:"console", section:"int", label:"Centre console and shifter"},
+  {id:"climate", pub:22, ghost:"console", section:"int", label:"Climate controls and heated seat buttons"},
+  {id:"sunroof", pub:23, ghost:"door", section:"int", label:"Sunroof from inside, opened", truck:"Bed from the side"},
+  {id:"headliner", pub:25, ghost:"door", section:"int", label:"Headliner and overhead console"},
+  {id:"rearseat", pub:26, ghost:"door", section:"int", label:"Rear seats, from the rear door", van:"Sliding door open"},
+  {id:"legroom", pub:27, ghost:"door", section:"int", label:"Rear legroom, from behind the front seat", van:"Third row"},
+  {id:"dash", pub:16, ghost:"dash", section:"int", label:"Full dashboard, taken from the back seat"},
+  {id:"passeat", pub:24, ghost:"pass", section:"int", label:"Front passenger seat, from the passenger door"},
+  {id:"cargo", pub:28, ghost:"rear", section:"int", label:"Trunk or cargo area, open", truck:"Bed and tailgate"},
+  {id:"folded", pub:29, ghost:"rear", section:"int", label:"Cargo area with the seats folded", truck:"Bed liner and hitch"},
+  {id:"keys", pub:32, ghost:"console", section:"int", label:"All keys and fobs, plus the manuals and service records"}
 ];
 const PACKET_LAUNCH = [
   {id:"vauto", label:"V Auto", kind:"launch", brand:"vauto-sq", open:"vauto"},
@@ -4098,6 +4206,50 @@ function why(){
   return APP.dealType || "Appraisal";
 }
 function isWeb(){ return APP.purpose==="website"; }
+function websiteBodyKind(){
+  const model=String(APP.model||"").toLowerCase();
+  const trim=String(APP.trim||"").toLowerCase();
+  const body=String(APP.bodyClass||"").toLowerCase();
+  const blob=model+" "+trim+" "+body;
+  if (/pickup|truck/.test(body)) return "truck";
+  if (/van|minivan/.test(body)) return "van";
+  if (/\b(f-150|f-250|f-350|f150|silverado|sierra|tacoma|tundra|ranger|colorado|canyon|ridgeline|frontier|gladiator|maverick)\b/.test(blob)) return "truck";
+  if (/\bram\b/.test(model) && /\b(1500|2500|3500)\b/.test(blob)) return "truck";
+  if (/\b(odyssey|sienna|transit|sprinter|caravan|pacifica|sedona|carnival)\b/.test(blob)) return "van";
+  return "";
+}
+function websiteShotById(id){
+  for (let i=0;i<WEB_SHOTS.length;i++) if (WEB_SHOTS[i].id===id) return WEB_SHOTS[i];
+  return null;
+}
+function websiteShotLabel(id){
+  const s=websiteShotById(id);
+  if (!s) return "";
+  const kind=websiteBodyKind();
+  if (kind==="truck" && s.truck) return s.truck;
+  if (kind==="van" && s.van) return s.van;
+  return s.label;
+}
+function websiteShotSection(id){
+  const s=websiteShotById(id);
+  if (!s) return "";
+  return s.section==="ext" ? "Exterior (one walk-around)" : "Interior";
+}
+function websiteCaptureIds(){ return WEB_SHOTS.map(function(s){ return s.id; }); }
+function websitePublishIds(){
+  return WEB_SHOTS.slice().sort(function(a,b){ return a.pub-b.pub; }).map(function(s){ return s.id; });
+}
+function websiteGhost(id){
+  const s=websiteShotById(id);
+  return s ? ghostPic(s.ghost) : "";
+}
+window.websiteBodyKind=websiteBodyKind;
+window.websiteShotLabel=websiteShotLabel;
+window.websiteShotSection=websiteShotSection;
+window.websiteCaptureIds=websiteCaptureIds;
+window.websitePublishIds=websitePublishIds;
+window.websiteGhost=websiteGhost;
+function useWebShots(){ return isWeb() && APP.photoSet==="web32"; }
 function leadSourceOf(item){
   if(item) return String(item.leadSource||"").trim();
   return String(APP.leadSource||"").trim();
@@ -5320,6 +5472,7 @@ function paintWebsitePhotosChrome(){
   if($("photosTitle")) $("photosTitle").textContent = web ? "Website photos" : "Multimedia";
   if($("webHistJump")) $("webHistJump").classList.toggle("hide", !web || guest);
   if($("btnSend") && !guest) $("btnSend").textContent = web ? "Retouch & post" : "Send";
+  if($("photos")) $("photos").classList.toggle("web-shots", useWebShots());
 }
 function applyMode(){
   const web=isWeb();
@@ -5937,6 +6090,7 @@ function paintDockPerms(){
   lockDockBtn("startTrade", APP.role==="employee", "trade");
   lockDockBtn("startAppraise", canPerm("appraise"), "appraise");
   lockDockBtn("startWebsite", APP.role==="employee", "website");
+  lockDockBtn("startRetouch", APP.role==="employee", "website");
   lockDockBtn("startCenter", canPerm("center"), "center");
   lockDockBtn("startUsers", canOpenUsers(), "admin");
 }
@@ -7629,6 +7783,7 @@ function collectDraft(){
       purpose:APP.purpose, year:APP.year, make:APP.make, model:APP.model, trim:APP.trim,
       color:APP.color, km:APP.km, vin:APP.vin, stock:APP.stock, heard:APP.heard, notes:APP.notes,
       webcopy:APP.webcopy, photos:APP.photos, damage:APP.damage, closeups:APP.closeups,
+      photoSet:APP.photoSet||"", webExtras:APP.webExtras||[], bodyClass:APP.bodyClass||"",
       damageCap:APP.damageCap, closeupCap:APP.closeupCap, closeupAudio:APP.closeupAudio, dealType:APP.dealType, leadSource:APP.leadSource, cdApp:APP.cdApp, apptId:APP.apptId, apptSeller:APP.apptSeller, lockedFromAirtable:APP.lockedFromAirtable, newApplication:!!APP.newApplication, newAppOpen:!!APP.newAppOpen, deskTeam:APP.deskTeam,
       emails:(typeof loadRecipients==="function"?loadRecipients():APP.emails),
       role:APP.role, userName:APP.userName, userEmail:APP.userEmail,
@@ -7794,6 +7949,7 @@ function wipeJob(goStart){
   APP.year=APP.make=APP.model=APP.trim=APP.color=APP.km=APP.vin=APP.stock=APP.heard=APP.notes=APP.webcopy="";
   APP.dealType=""; APP.leadSource=""; APP.cdApp=""; APP.apptId=""; APP.apptSeller=""; APP.lockedFromAirtable=false; APP.newApplication=false; APP.newAppOpen=false; APP.apptSearch=""; APP.centerId=""; APP.sendId=""; APP._sending=false; APP.deskTeam="";
   APP.photos={}; APP.damage={}; APP.closeups=[]; APP.docs={}; APP.damageCap={}; APP.closeupCap=[]; APP.closeupAudio=[];
+  APP.photoSet=""; APP.webExtras=[]; APP.bodyClass="";
   APP.clips=[]; APP.recOn=false; APP.recorder=null; APP.recChunks=[]; APP.zoom=1;
   APP._damageMailClip=null; APP._damageMailKey=""; APP._damageMuxInflight=null;
   APP._thanksHeroSrc=""; APP._thanksPop=""; APP._thanksKind="";
@@ -8920,9 +9076,16 @@ function openWebdesk(){
 function startWebsitePost(){
   if(!requirePerm("website")) return;
   setPurpose("website");
+  APP.photoSet="web32";
   paintAppraiseGate();
   show("home");
   openStoryMic();
+}
+function openPhotoRetouch(){
+  if(!requirePerm("website")) return;
+  setPurpose("website");
+  APP.photoSet="web32";
+  if(window.WebStudio) WebStudio.open("studio");
 }
 function tradeInviteUrl(item){
   if(item && item.inviteUrl) return item.inviteUrl;
@@ -11628,7 +11791,7 @@ function clearSnapshot(){
 function applySnapshot(snap){
   if(!snap || !snap.app) return;
   const a=snap.app;
-  ["purpose","year","make","model","trim","color","km","vin","stock","heard","notes","webcopy","photos","damage","closeups","damageCap","closeupCap","closeupAudio","dealType","leadSource","cdApp","apptId","apptSeller","lockedFromAirtable","newApplication","newAppOpen","deskTeam","centerId","role","userName","userEmail","inviteFirst","inviteLast","inviteName","inviteEmail","invitePhone","inviteUnit","inviteStock","requestedBy","requestedByName","docs"].forEach(function(k){
+  ["purpose","year","make","model","trim","color","km","vin","stock","heard","notes","webcopy","photos","damage","closeups","damageCap","closeupCap","closeupAudio","dealType","leadSource","cdApp","apptId","apptSeller","lockedFromAirtable","newApplication","newAppOpen","deskTeam","centerId","role","userName","userEmail","inviteFirst","inviteLast","inviteName","inviteEmail","invitePhone","inviteUnit","inviteStock","requestedBy","requestedByName","docs","photoSet","webExtras","bodyClass"].forEach(function(k){
     if(a[k]!==undefined) APP[k]=a[k];
   });
   if(HOLD_LOCATE_AND_CA && isHeldDealType(APP.dealType)) clearHeldDealSession();
@@ -12291,11 +12454,124 @@ function paintLists(){
 
 function fillRows(host, bucket){
   host.innerHTML = "";
+  if(useWebShots()){
+    fillWebsiteRows(host);
+    fillWebsiteExtras();
+    return;
+  }
   const store = APP.photos;
   VIEWS.forEach(function(v, i){
     const id=v[0], label=(i+1)+" · "+v[1], icon=v[2];
     const taken=!!store[id];
     host.appendChild(rowEl(label, taken ? store[id] : pic(icon), taken, function(){ openCamera("photos", id); }, taken?"Replace photo":"Add photo", !taken && isPassGhost(icon)));
+  });
+}
+function takeWebsiteFiles(fileList, asExtra){
+  const files=Array.prototype.slice.call(fileList||[]).filter(function(f){ return f && /^image\//.test(f.type||""); });
+  files.sort(function(a,b){ return a.name.localeCompare(b.name, undefined, {numeric:true, sensitivity:"base"}); });
+  if(!files.length) return;
+  let pending=files.length;
+  files.forEach(function(file){
+    const reader=new FileReader();
+    reader.onload=function(){
+      const data=String(reader.result||"");
+      if(asExtra){
+        APP.webExtras=APP.webExtras||[];
+        APP.webExtras.push(data);
+      } else {
+        const num=file.name.match(/(?:^|[^\d])(\d{1,2})(?:[^\d]|$)/);
+        let slot=-1;
+        if(num){
+          const n=Number(num[1]);
+          if(n>=1 && n<=WEB_SHOTS.length && !APP.photos[WEB_SHOTS[n-1].id]) slot=n-1;
+        }
+        if(slot<0){
+          for(let i=0;i<WEB_SHOTS.length;i++) if(!APP.photos[WEB_SHOTS[i].id]){ slot=i; break; }
+        }
+        if(slot>=0) APP.photos[WEB_SHOTS[slot].id]=data;
+        else {
+          APP.webExtras=APP.webExtras||[];
+          APP.webExtras.push(data);
+        }
+      }
+      pending--;
+      if(!pending){ scheduleDraftSave(); paintLists(); toast("Photos placed in shoot order."); }
+    };
+    reader.readAsDataURL(file);
+  });
+}
+function bindWebsitePhotoDrop(){
+  const zone=$("webPhotoDrop");
+  const input=$("webBulkFiles");
+  if(!zone || zone._bound) return;
+  zone._bound=true;
+  zone.addEventListener("click", function(){ if(input) input.click(); });
+  zone.addEventListener("dragover", function(e){ e.preventDefault(); zone.classList.add("on"); });
+  zone.addEventListener("dragleave", function(){ zone.classList.remove("on"); });
+  zone.addEventListener("drop", function(e){
+    e.preventDefault();
+    zone.classList.remove("on");
+    takeWebsiteFiles(e.dataTransfer && e.dataTransfer.files, false);
+  });
+  if(input) input.addEventListener("change", function(){
+    takeWebsiteFiles(input.files, !!APP._extraPick);
+    APP._extraPick=false;
+    input.value="";
+  });
+  const screen=$("photos");
+  if(screen){
+    screen.addEventListener("dragover", function(e){
+      if(!useWebShots()) return;
+      e.preventDefault();
+    });
+    screen.addEventListener("drop", function(e){
+      if(!useWebShots()) return;
+      e.preventDefault();
+      takeWebsiteFiles(e.dataTransfer && e.dataTransfer.files, false);
+    });
+  }
+  if($("webAddMore")) $("webAddMore").onclick=function(){
+    APP._extraPick=true;
+    if(input) input.click();
+  };
+}
+function fillWebsiteRows(host){
+  let last="";
+  WEB_SHOTS.forEach(function(s, i){
+    const sec=websiteShotSection(s.id);
+    if(sec!==last){
+      last=sec;
+      const head=document.createElement("div");
+      head.className="web-shot-head";
+      head.textContent=sec;
+      host.appendChild(head);
+    }
+    const taken=!!APP.photos[s.id];
+    const label=(i+1)+" · "+websiteShotLabel(s.id);
+    const row=rowEl(label, taken ? APP.photos[s.id] : ghostPic(s.ghost), taken, function(){ openCamera("photos", s.id); }, taken?"Replace photo":"Add photo", !taken && isPassGhost(s.ghost));
+    if(s.main){
+      row.classList.add("main");
+      const b=row.querySelector("b");
+      if(b) b.insertAdjacentHTML("afterend", '<span class="main-tag">Main</span>');
+    }
+    host.appendChild(row);
+  });
+}
+function fillWebsiteExtras(){
+  const host=$("webExtraRows");
+  if(!host) return;
+  host.innerHTML="";
+  const extras=APP.webExtras||[];
+  extras.forEach(function(src, i){
+    host.appendChild(rowEl("Extra "+(i+1), src, true, function(){ openShotViewer({data:src}, "Extra photo"); }, "Extra", false));
+  });
+  Object.keys(APP.damage||{}).forEach(function(id){
+    dmgShots(id).forEach(function(s, j){
+      host.appendChild(rowEl("Close-up", s.data, true, function(){ openShotViewer(s, "Close-up"); }, "After photo 32", false));
+    });
+  });
+  (APP.closeups||[]).forEach(function(src, i){
+    host.appendChild(rowEl("Close-up "+(i+1), src, true, function(){ openShotViewer({data:src}, "Close-up"); }, "After photo 32", false));
   });
 }
 function fillDamageRows(){
@@ -12347,6 +12623,32 @@ function openCamera(mode, id){
   APP.mode = mode;
   APP.viewId = id;
   let label="Damage close-up", icon="qfront";
+  if(mode==="photos" && useWebShots()){
+    const s=websiteShotById(id);
+    const step=WEB_SHOTS.findIndex(function(x){ return x.id===id; });
+    label=(step+1)+" · "+(s?websiteShotLabel(s.id):id);
+    if(s && s.main) label += " (Main image)";
+    icon=s?s.ghost:"qfront";
+    $("camLabel").textContent = label;
+    const g=$("ghost");
+    g.classList.remove("off");
+    g.classList.toggle("tall", icon==="door");
+    g.classList.toggle("flip", isPassGhost(icon));
+    g.src=ghostPic(icon);
+    stopDamageMic();
+    stopDamageAudio(true);
+    APP.dmgArmed=false;
+    APP.dmgCaption="";
+    APP.dmgFinal="";
+    const ban=$("dmgBanner");
+    if(ban){ ban.textContent=""; ban.classList.remove("on"); }
+    const nxt=WEB_SHOTS[step+1];
+    if($("camHint")) $("camHint").textContent = nxt
+      ? "Walk-around "+(step+1)+" of "+WEB_SHOTS.length+" — next is "+websiteShotLabel(nxt.id)+"."
+      : "Last shot. Then you’re done.";
+    show("camera");
+    return;
+  }
   if(mode!=="close"){
     const v = VIEWS.find(function(x){ return x[0]===id; }) || VIEWS[0];
     label = (mode==="damage" ? "Damage — " : "") + v[1];
@@ -12396,6 +12698,11 @@ function openCamera(mode, id){
 }
 
 function nextEmpty(afterId){
+  if(APP.mode==="photos" && useWebShots()){
+    const i=WEB_SHOTS.findIndex(function(s){ return s.id===afterId; });
+    for(let n=i+1; n<WEB_SHOTS.length; n++) if(!APP.photos[WEB_SHOTS[n].id]) return WEB_SHOTS[n].id;
+    return null;
+  }
   const store = APP.mode==="damage" ? APP.damage : APP.photos;
   const i = VIEWS.findIndex(function(v){ return v[0]===afterId; });
   for(let n=i+1; n<VIEWS.length; n++) if(!store[VIEWS[n][0]]) return VIEWS[n][0];
@@ -13323,6 +13630,7 @@ async function acceptVin(vin){
     if(look.row.Make) APP.make=look.row.Make;
     if(look.row.Model) APP.model=look.row.Model;
     if(look.row.Trim && look.row.Trim!=="Not Applicable") APP.trim=look.row.Trim;
+    if(look.row.BodyClass) APP.bodyClass=String(look.row.BodyClass);
   }
   fillUnit();
   const chip=$("vinChip");
@@ -15326,7 +15634,17 @@ function blobFrom(data){
 
 function capturedFiles(){
   const out=[];
-  VIEWS.forEach(function(v,i){
+  if(typeof useWebShots==="function" && useWebShots()){
+    WEB_SHOTS.slice().sort(function(a,b){ return a.pub-b.pub; }).forEach(function(s){
+      if(!APP.photos[s.id]) return;
+      const n=String(s.pub).padStart(2,"0");
+      out.push({name:n+"-"+s.id+".jpg", data:APP.photos[s.id], title:websiteShotLabel(s.id), kind:"walk", n:s.pub, view:s.id, cap:""});
+    });
+    (APP.webExtras||[]).forEach(function(src,i){
+      out.push({name:"extra-"+String(i+1).padStart(2,"0")+".jpg", data:src, title:"Extra "+(i+1), kind:"extra", n:32+i+1, view:"extra", cap:""});
+    });
+  }
+  if(!(typeof useWebShots==="function" && useWebShots())) VIEWS.forEach(function(v,i){
     const n=String(i+1).padStart(2,"0");
     if(APP.photos[v[0]]) out.push({name:n+"-"+v[0]+".jpg", data:APP.photos[v[0]], title:v[1], kind:"walk", n:i+1, view:v[0], cap:""});
   });
@@ -16602,6 +16920,8 @@ if($("guestType")) $("guestType").onclick = function(){
   openVerify();
 };
 $("startWebsite").onclick = function(){ startWebsitePost(); };
+if($("startRetouch")) $("startRetouch").onclick = function(){ openPhotoRetouch(); };
+bindWebsitePhotoDrop();
 if($("startTrade")) $("startTrade").onclick = function(){ if(!requirePerm("trade")) return; openInvite(); };
 function openUsers(){ if(!canOpenUsers()){ toast(isTeamLeader()?permDeny("admin"):"Ask Shawn or a team leader to open Users."); return; } try{ Promise.resolve(pullUsersRemote()).then(function(){ ensureRoster(true); paintUsers(); }); }catch(e){} paintUsers(); show("users"); }
 if($("startUsers")) $("startUsers").onclick = openUsers;
