@@ -1,41 +1,28 @@
-# Free in-house studio (Spyne-style), run 13
+# Free in-house studio (Spyne-style), run 14
 
 This is a proof. It is not wired into the phone app. Nothing here calls a paid API. Do not merge it.
 
-The bar is the owner's MyLoan screenshot: a white Trailblazer on a seamless light-grey cove, a large pale glossy turntable with one thin circle, dark neutral glass, a soft reflection under the car, and a floor with no grain. Run 12 was the same RAV4 front with trees in the glass, a grainy floor, a squashed reflection, and a side shot whose tyres were not level.
+Run 13 is rejected. On all five frames the glass fill painted a black region over the roof, the pillars, the upper doors and the hood. The RAV4 rear and side were about half black. The Accord and the Camry were covered. The run 13 note said the glass was fine because it sampled that painted region (a dark band, low high-frequency energy) and treated it as a window. That measurement was the blob.
 
-## What changed in this run
+## What run 14 keeps from run 13
 
-`tools/blender_spyne_plate.py` renders the empty set at 160 samples with adaptive sampling off. Ubuntu's Blender 4.0.2 has no OpenImageDenoise, so `tools/spyne_composite.py` denoises the plate with Intel's standalone OIDN 2.3.3 (`--ldr --srgb -q high`) and then draws the circle.
+`tools/blender_spyne_plate.py` still renders the empty set at 160 samples. Ubuntu's Blender 4.0.2 has no OpenImageDenoise, so `tools/spyne_composite.py` denoises the plate with Intel's standalone OIDN 2.3.3 (`--ldr --srgb -q high`) and then draws the circle. The plates were not re-rendered.
 
-On the cutout, in order:
+Also unchanged: the tyre rotation (positive PIL angle lifts a low right-hand tyre), the tight contact shadow, the unflipped mirror of the lower car clipped to the disc, the 1 px choke, the wall white-balance, and the small wordmark. The wordmark is Liberation Sans Bold, not licensed Arial.
 
-1. Rotate so the two tyre valleys share a y. The previous rotation used the wrong sign, so each pass made the tilt worse. A positive PIL angle is the direction that lifts a low right-hand tyre. Valleys closer than a quarter of the car are treated as one wheel.
-2. Match the highlight colour to the wall, lift shadows, and push light paint toward the wall with a shoulder so the panels do not clip flat.
-3. Replace cabin glass. The mask is every large region in the upper 47% of the body whose colour is not the door paint, including opaque glass that still holds trees or sky. It is filled with a dark blue-grey gradient and a soft softbox streak. The hood is left as paint so a sky reflection on the bonnet does not become a black window.
-4. Pull green and blue casts on the paint back toward the door colour, then add a broad softbox band on the shoulder and the hood.
-5. Choke the silhouette by 1 px and repaint that edge from the interior, so the matte is hard and has no halo.
-6. A tight dark contact under each tyre, plus a wider soft occlusion under the body.
-7. A vertical mirror of the lower car, not squashed, faded, blurred, and clipped to the disc.
+## What changed
 
-The Camry with the hood stickers is gone. The two extra cars are a 2023 Accord EX in Meteoroid Grey and a 2025 Camry Hybrid in Midnight Black, both CC BY-SA 4.0 dealer-lot fronts. The white RAV4 front and rear are the 2021 XLE (CC BY-SA 4.0). The side is the 2022 RAV4 Prime (CC BY-SA 3.0), a different car.
+The glass mask is no longer "anything in the upper half that is not the door colour." A column is a window only when a bright roof drops into a dark opening and the body colour comes back at the beltline. The mask has to stay under about 25% of the car, it cannot touch the top of the roof, and a long run of missed dark glass throws the whole mask away. The Accord failed that last test (a 196-column hole). The Camry roof median is 138, which is not a bright roof, so its mask is empty. Original glass is left in both cases.
+
+On a light car the door paint is lifted so the bright panels sit near 228–232, then a soft band is added on the paint only. Neutral pixels past 236 are pulled back to 232 after the resize, because Lanczos ringing was clipping the white. On the black Camry, small outdoor speculars are replaced with a blurred copy of the panel. The broad sky reflection on that roof is low frequency, so it stays.
 
 ## IC-Light
 
-Both free Spaces answered. Neither result is in the final frames.
+Tried in run 13. Not used in these frames. `lllyasviel/IC-Light` returned a dark 1152×640 foreground-only result. `GreenGoat/IClight-demo` returned about 768×448 and invented its own grey background. The CPU grade is what the five frames use.
 
-- `lllyasviel/IC-Light` was RUNNING on ZeroGPU. `gradio_client` cannot load it because `/info` returns 500. The Gradio 4 queue accepted a job and finished in about 8 seconds. That Space is foreground-conditioned only: there is no background-image input. The output was 1152×640 and went dark, not high-key.
-- `GreenGoat/IClight-demo` was RUNNING and is background-conditioned. The first call and a second call at 1024 both returned. The Space delivered about 768×448 even when asked for 1024. One frame was a real relight (it matched neither the cutout nor the plate), but the background it invented was a mid grey, not our plate, and the car was far below 2000 px. Upscaling that into the frame would soften the panels, and the diffusion can rewrite the car.
+## What I actually see
 
-Every other IC-Light duplicate checked this run was `RUNTIME_ERROR` or `PAUSED`, including `lllyasviel/iclight-v2-vary`. The CPU grade above is what the five frames use.
-
-## What the frames measure
-
-Plates are 2000×1334. Wall sample on the finished front is 231, 232, 234.
-
-Floor grain is the high-frequency part, not the shading gradient. On the raw 160-sample plate that was about 2.5 levels. After OIDN it is about 0.12 on the plate and 0.19 on the composited floor away from the car. A 36×36 patch that was std 3.4 is std about 0.5 after the denoise. The floor reads smooth.
-
-Tyre contact, left minus right, after placement:
+Plates are 2000×1334. The wall on the finished front is 231, 232, 234. A flat patch of floor away from the car is a smooth light grey (one 24×24 patch measured standard deviation 0). Tyre dy is left contact minus right contact, after placement.
 
 | Frame | Rotation | Tyre dy |
 | --- | --- | --- |
@@ -45,22 +32,18 @@ Tyre contact, left minus right, after placement:
 | Accord grey | −11.7° | 2.1 px |
 | Camry black | +6.9° | 1.1 px |
 
-The windshield band on the RAV4 front is 96% darker than the pillars. Those pixels are 49, 57, 68 with high-frequency energy of 0.6, which is a smooth gradient, not leaves. The Accord, Camry, side, and rear windows land in the same dark blue-grey with a standard deviation of 6 to 11. Run 12 still had the trees, because that glass was opaque and the old fill only painted holes.
+I opened each finished frame, plus 100% crops of the glass and the tyre contact.
 
-White-paint midtones on the RAV4 front sit near 180, and the bright panels near 215, against a wall at 231. The lift moved them up from the run 12 exposure. The shape of the outdoor highlights is still the lot photo.
+- **RAV4 front.** The windshield is a dark blue-grey gradient with one soft light band. A center sample through it reads about 41–63, and the roof pixel just above that sample is 230. The hood under it is white, with the bright-panel 90th percentile near 229 and the frame maximum 250 (one pixel). The roof, pillars, mirrors and hood are not black. The side window beside the windshield still shows trees and sky. Those columns do not have a clean roof over the opening, and the dark pixels are mixed with the mirror, so the mask left them. Tyres sit on the disc with a dark contact and a short reflection of the wheel. The floor is smooth. It still reads as a graded photograph in a rendered room.
+- **RAV4 side.** Both door windows are the same dark gradient. The roof and the doors stay white. Both tyres share a y. The reflection under the rocker is the wheel and the lower door, faded, on the disc. This source is the 2022 RAV4 Prime, not the car in the front and rear frames.
+- **RAV4 rear.** The rear windshield is a dark gradient. The roof above it and the tailgate below it are white. The small quarter window behind the rear door still shows trees. Tail lamps stay. Tyres are within 2 px.
+- **Accord grey.** No glass was painted. The windshield still shows green trees and blue sky, and the wipers are still there. The roof and the hood are grey. They are not covered by a black fill. Tyres are level. The hood still has the outdoor highlight.
+- **Camry black.** No glass was painted. The windshield shows sky, clouds and the wiper. The body is black. The hard speckles are softer than the lot photo; the wide sky shine on the roof and hood is still there. Nothing black was painted over the roof, because the roof was already the dark thing the old mask was confusing with glass.
 
-The mirror is a real flip of the lower body, anchored at the tyres. The disc in front of the tyres is only about 150 px tall on the low camera, so what you see is the wheels and the rocker. The doors would land past the circle. It is not the squashed smear from run 12, and it is also not a tall Spyne mirror.
+## Against the MyLoan frame
 
-## Verdict, per frame
-
-None of the five holds up next to the MyLoan screenshot yet. The specific run 12 failures that were called out are largely closed. The remaining gap is the same on every frame: the car is still a graded photograph sitting in a rendered room.
-
-- **RAV4 front.** Glass is clean, tyres are level, the floor is smooth, and there is a contact shadow plus a short reflection of the wheel. It still looks like a cutout because the panel highlights and the shut lines are the outdoor photo, the white is a little duller than the wall, and the window is a painted gradient rather than glass in a real softbox room.
-- **RAV4 side.** The 9° rotation puts both tyres on the same line. Glass is clean. Same paint and reflection limits. This is also a different, 2022 Prime, not the white car in the front and rear.
-- **RAV4 rear.** Same as the front. Tyres within 2 px. Glass is a flat gradient. The tail lamps stay, because the outdoor-cast removal only pulls green and blue.
-- **Accord grey.** Windows are a smooth dark gradient now. The 12° rotation is what it took to level the two contacts in that photo, and the car sits flat afterwards. The hood still carries the lot highlight. It does not yet look photographed in this room.
-- **Camry black.** Windows are smooth and dark. The black paint keeps the outdoor speculars, so the car still reads as pasted onto the cove. A high-key room does not turn a black car white, and this pass does not invent new studio highlights on the panels.
+The reference is the white Trailblazer on myloan.ca: every window is dark with a soft highlight, the paint looks lit by the cove, and the car is large on a pale disc. Run 14 gets the windshield, the side-view windows, and the rear glass into that dark-gradient state, and the white panels up near the wall. It does not get the front side window, the rear quarter window, or either of the other two cars' glass. The panel highlights are still the shape of the outdoor photo.
 
 ## What is deliberately untouched
 
-The live app still uses the ring-free satin discs and `web-studio.js`. Browser cutout is still `@imgly/background-removal@1.6.0`. Ghost guides were not edited in this run. The wordmark is Liberation Sans Bold, not licensed Arial.
+The live app still uses the ring-free satin discs and `web-studio.js`. Browser cutout is still `@imgly/background-removal@1.6.0`. Ghost guides were not edited. Do not merge.
